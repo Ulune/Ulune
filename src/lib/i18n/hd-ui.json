@@ -1,0 +1,96 @@
+{
+  "id": "hd.ui",
+  "kind": "chrome",
+  "readingEmpty": {
+    "en": "Tap a channel, a gate, or a center.",
+    "fr": "Touchez un canal, une porte ou un centre."
+  },
+  "noNatal": {
+    "en": "Cast a birth chart first.",
+    "fr": "Calculez d’abord un thème natal."
+  },
+  "caption": {
+    "en": "{profile} · {definition}",
+    "fr": "{profile} · {definition}"
+  },
+  "emptyChannels": {
+    "en": "No defined channels.",
+    "fr": "Aucun canal défini."
+  },
+  "table": {
+    "columns": {
+      "en": ["Channel", "Gates", "Centers"],
+      "fr": ["Canal", "Portes", "Centres"]
+    }
+  },
+  "views": {
+    "personality": { "en": "Personality", "fr": "Personnalité" },
+    "design": { "en": "Design", "fr": "Design" },
+    "both": { "en": "Both", "fr": "Les deux" }
+  },
+  "type": {
+    "Manifestor": { "en": "Manifestor", "fr": "Manifesteur" },
+    "Generator": { "en": "Generator", "fr": "Générateur" },
+    "Manifesting Generator": { "en": "Manifesting Generator", "fr": "Générateur manifesteur" },
+    "Projector": { "en": "Projector", "fr": "Projecteur" },
+    "Reflector": { "en": "Reflector", "fr": "Réflecteur" }
+  },
+  "strategy": {
+    "Inform before acting": { "en": "Inform before acting", "fr": "Informer avant d’agir" },
+    "Wait to respond": { "en": "Wait to respond", "fr": "Attendre pour répondre" },
+    "Wait for the invitation": { "en": "Wait for the invitation", "fr": "Attendre l’invitation" },
+    "Wait a lunar cycle": { "en": "Wait a lunar cycle", "fr": "Attendre un cycle lunaire" }
+  },
+  "authority": {
+    "Emotional": { "en": "Emotional", "fr": "Émotionnelle" },
+    "Sacral": { "en": "Sacral", "fr": "Sacrale" },
+    "Splenic": { "en": "Splenic", "fr": "Splénique" },
+    "Ego": { "en": "Ego", "fr": "Ego" },
+    "Self-Projected": { "en": "Self-Projected", "fr": "Auto-projetée" },
+    "Mental": { "en": "Mental", "fr": "Mentale" },
+    "Lunar": { "en": "Lunar", "fr": "Lunaire" }
+  },
+  "definition": {
+    "None": { "en": "None", "fr": "Aucune" },
+    "Single": { "en": "Single", "fr": "Simple" },
+    "Split": { "en": "Split", "fr": "Double" },
+    "Triple split": { "en": "Triple split", "fr": "Triple" },
+    "Quadruple split": { "en": "Quadruple split", "fr": "Quadruple" }
+  },
+  "center": {
+    "head": { "en": "Head", "fr": "Tête" },
+    "ajna": { "en": "Ajna", "fr": "Ajna" },
+    "throat": { "en": "Throat", "fr": "Gorge" },
+    "g": { "en": "G", "fr": "G" },
+    "heart": { "en": "Heart", "fr": "Cœur" },
+    "sacral": { "en": "Sacral", "fr": "Sacral" },
+    "solarPlexus": { "en": "Solar Plexus", "fr": "Plexus solaire" },
+    "spleen": { "en": "Spleen", "fr": "Rate" },
+    "root": { "en": "Root", "fr": "Racine" }
+  },
+  "kind": {
+    "channel": { "en": "Channel", "fr": "Canal" },
+    "gate": { "en": "Gate {n}", "fr": "Porte {n}" },
+    "center": { "en": "{name}", "fr": "{name}" }
+  },
+  "copy": {
+    "channelCenters": {
+      "en": "{a} · {b}",
+      "fr": "{a} · {b}"
+    },
+    "gateBodies": {
+      "en": "{layer} {body}, line {line}.",
+      "fr": "{layer} {body}, ligne {line}."
+    },
+    "centerDefined": {
+      "en": "Defined — at least one channel lands here.",
+      "fr": "Défini — au moins un canal aboutit ici."
+    },
+    "centerOpen": {
+      "en": "Open — no defined channel lands here.",
+      "fr": "Ouvert — aucun canal défini n’aboutit ici."
+    },
+    "personality": { "en": "Personality", "fr": "Personnalité" },
+    "design": { "en": "Design", "fr": "Design" }
+  }
+}

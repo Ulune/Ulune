@@ -1,0 +1,63 @@
+{
+  "name": "ulune",
+  "version": "1.0.0",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "overrides": {
+    "nf3": "0.3.17"
+  },
+  "scripts": {
+    "dev": "vite dev --host 127.0.0.1 --port 8097",
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test scripts/old-name.test.mjs && node --experimental-strip-types --import ./scripts/register-ts.mjs --test scripts/click-notes.test.mjs scripts/i18n-catalog.test.mjs scripts/natal-golden.test.mjs scripts/swiss-reference.test.mjs scripts/civil-time.test.mjs scripts/precision.test.mjs scripts/transits-golden.test.mjs scripts/sky-window.test.mjs scripts/timing-golden.test.mjs scripts/synastry-golden.test.mjs scripts/composite-golden.test.mjs scripts/progressions-golden.test.mjs scripts/numerology-golden.test.mjs scripts/humandesign-golden.test.mjs scripts/fan-angles.test.mjs scripts/geocode.test.mjs scripts/glyphs.test.mjs scripts/look-type.test.mjs scripts/look-resolver.test.mjs scripts/lazy-retry.test.mjs scripts/parse-birth.test.mjs scripts/library-persist.test.mjs scripts/chart-store.test.mjs scripts/depth-math.test.mjs scripts/wheel-rank.test.mjs scripts/relief-geom.test.mjs scripts/gl-math.test.mjs scripts/gl-meshes.test.mjs scripts/wheel-style.test.mjs scripts/wheel-layout.test.mjs scripts/boot-scripts.test.mjs scripts/space-vault.test.mjs scripts/server-input.test.mjs && node scripts/e2e/cast.mjs && node scripts/e2e/modes.mjs && node scripts/e2e/shell.mjs && node scripts/e2e/look.mjs && node scripts/e2e/tables.mjs && node scripts/e2e/w0.mjs && node scripts/e2e/reading.mjs && node scripts/e2e/birth.mjs && node scripts/e2e/a11y.mjs && node scripts/e2e/export.mjs && node scripts/e2e/surfaces.mjs && node scripts/e2e/depth.mjs && node scripts/e2e/first-view.mjs && node scripts/e2e/offline.mjs && node scripts/e2e/fonts.mjs && node scripts/e2e/privacy.mjs && node scripts/e2e/space.mjs && node scripts/e2e/legal.mjs",
+    "lint": "eslint .",
+    "budgets": "node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/perf/budgets.mjs",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@noble/hashes": "^2.3.0",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@tailwindcss/vite": "^4.3.0",
+    "@tanstack/react-router": "^1.170.0",
+    "@tanstack/react-start": "^1.168.0",
+    "@tanstack/router-plugin": "^1.168.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.0.0",
+    "date-fns-tz": "^3.2.0",
+    "geo-tz": "^8.1.9",
+    "lucide-react": "^0.510.0",
+    "react": "^19.2.0",
+    "react-day-picker": "^9.14.0",
+    "react-dom": "^19.2.0",
+    "sweph-wasm": "^2.6.9",
+    "tailwindcss": "^4.3.0",
+    "tz-lookup": "^6.1.25",
+    "zod": "^4.4.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@types/node": "^22.16.5",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "eslint": "^9.20.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.6",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^15.15.0",
+    "lightningcss": "^1.28.0",
+    "nitro": "3.0.260610-beta",
+    "playwright": "^1.62.0",
+    "prettier": "^3.4.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.56.1",
+    "vite": "^8.2.0"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "transits.hello",
+  "kind": "band",
+  "title": "Hello-now",
+  "line": {
+    "en": "{aspect} {body}, getting closer.",
+    "fr": "{aspect} {body} de votre thème, en approche."
+  },
+  "empty": {
+    "en": "No major aspect getting closer at this moment.",
+    "fr": "Aucun aspect majeur en approche à ce moment."
+  }
+}

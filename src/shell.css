@@ -1,0 +1,2642 @@
+/*
+ * Ulune 4.7 shell — frame, navigation, panel, motion.
+ * Two layouts: compact (< 1024px) and wide (≥ 1024px). Chrome sizes are px so
+ * Look's text scale never reflows it. Chart art and reading copy live in
+ * styles.css and are not styled here.
+ */
+
+/* ------------------------------------------------------------------ base */
+
+/* A theme switch is one soft cross-fade of the whole page (theme.tsx, a view
+   transition run by the compositor). Nothing under it animates meanwhile. */
+html.theme-switching,
+html.theme-switching * {
+  transition: none !important;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 360ms;
+  animation-timing-function: var(--ease-inout);
+}
+
+:where(.ob-app, .ob-page, .ob-pop, .ob-panel) :focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+@keyframes ob-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes ob-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+.ob-swap {
+  animation: ob-fade var(--dur-swap) var(--ease-out) both;
+}
+
+/* -------------------------------------------------------------- app grid */
+
+.ob-app {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: var(--ob-top-h) minmax(0, 1fr) calc(var(--ob-group-h) + var(--ob-safe-b));
+  grid-template-areas:
+    "tl tr"
+    "body body"
+    "nav nav";
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.ob-top {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: var(--ob-top-h);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+.ob-top-l {
+  grid-area: tl;
+  gap: 8px;
+  padding: 0 4px 0 8px;
+}
+.ob-top-r {
+  grid-area: tr;
+  gap: 4px;
+  padding: 0 8px 0 4px;
+  justify-content: flex-end;
+}
+.ob-body-slot {
+  grid-area: body;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ob-brand {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  flex: 0 0 auto;
+  font-family: "Fraunces", "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--color-fg);
+}
+.ob-brand-mark {
+  width: 12px;
+  height: 12px;
+  color: var(--color-fg);
+}
+
+/* ------------------------------------------------------------- controls */
+
+.ob-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+.ob-icon-btn:hover:not(:disabled) {
+  background: var(--color-bg-subtle);
+}
+.ob-icon-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+.ob-icon-btn:disabled {
+  opacity: 0.4;
+}
+.ob-icon-btn--quiet {
+  color: var(--color-fg-muted);
+}
+.ob-icon-btn--quiet:hover:not(:disabled) {
+  color: var(--color-fg);
+}
+.ob-icon-btn--danger:hover:not(:disabled) {
+  color: var(--color-danger);
+}
+.ob-avatar-btn {
+  border-radius: 999px;
+}
+.ob-avatar-btn[data-pending] {
+  opacity: 0.5;
+}
+.ob-avatar-img,
+.ob-avatar-letter {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  object-fit: cover;
+}
+.ob-avatar-letter {
+  display: grid;
+  place-items: center;
+  background: var(--color-bg-subtle);
+  font-size: 13px;
+  font-weight: 600;
+}
+.ob-ai-btn {
+  gap: 6px;
+}
+.ob-ai-label {
+  display: none;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ob-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    opacity var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+.ob-btn:active {
+  transform: scale(0.97);
+}
+.ob-btn--primary {
+  background: var(--color-fg);
+  color: var(--color-bg);
+}
+.ob-btn--primary:hover {
+  opacity: 0.88;
+}
+.ob-btn--ghost {
+  background: transparent;
+  color: var(--color-fg);
+}
+.ob-btn--ghost:hover {
+  background: var(--color-bg-subtle);
+}
+.ob-btn--danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+/* Segmented control: sunken track, inverted sliding pill. */
+.ulune-seg {
+  --ulune-seg-i: 0;
+  --ulune-seg-n: 2;
+  flex: 0 0 auto;
+  min-width: 0;
+  height: 44px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+.ulune-seg-pill {
+  position: absolute;
+  z-index: 0;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / var(--ulune-seg-n));
+  border-radius: 7px;
+  background: var(--color-fg);
+  transform: translateX(calc(var(--ulune-seg-i) * 100%));
+  transition: transform var(--dur-move) var(--ease-out);
+  pointer-events: none;
+}
+.ulune-seg-btn {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-fg-muted);
+  transition: color var(--dur-hover) var(--ease-out);
+}
+.ulune-seg-btn:hover:not(.is-on) {
+  color: var(--color-fg);
+}
+.ulune-seg-btn.is-on {
+  color: var(--color-bg);
+}
+
+/* ---------------------------------------------------------- chart chip */
+
+.ob-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  transition: background-color var(--dur-hover) var(--ease-out);
+}
+.ob-chip:hover,
+.ob-chip[aria-expanded="true"] {
+  background: var(--color-bg-subtle);
+}
+.ob-chip-mark {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+}
+.ob-chip-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 500;
+}
+.ob-chip-caret {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  color: var(--color-fg-muted);
+  transition: transform var(--dur-move) var(--ease-out);
+}
+.ob-chip[aria-expanded="true"] .ob-chip-caret {
+  transform: rotate(180deg);
+}
+
+/* -------------------------------------------------------------- popovers */
+
+.ob-pop {
+  padding: 6px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--ob-shadow);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  transform-origin: top center;
+  animation: ob-pop-in var(--dur-in) var(--ease-out) both;
+}
+
+.ob-menu-who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px 10px;
+}
+.ob-menu-who-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ob-menu-who-sub {
+  font-size: 12px;
+  color: var(--color-fg-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ob-menu-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 -6px 6px;
+  padding: 6px;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+.ob-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  font-size: 14px;
+  text-align: left;
+  transition: background-color var(--dur-hover) var(--ease-out);
+}
+.ob-menu-item:hover {
+  background: var(--color-bg-subtle);
+}
+.ob-menu-item svg {
+  color: var(--color-fg-muted);
+}
+/* A menu item with a second line under its label. */
+.ob-menu-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+}
+.ob-menu-item-sub {
+  font-size: 12px;
+  color: var(--color-fg-subtle);
+}
+.ob-menu-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 0 0 10px;
+}
+.ob-menu-label {
+  font-size: 13px;
+  color: var(--color-fg-muted);
+}
+.ob-menu-row .ulune-seg {
+  width: 168px;
+}
+
+.ob-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: min(50dvh, 320px);
+  overflow-y: auto;
+}
+.ob-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+.ob-picker-name {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg-muted);
+  font-size: 14px;
+  text-align: left;
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out);
+}
+.ob-picker-name:hover {
+  color: var(--color-fg);
+  background: var(--color-bg-subtle);
+}
+.ob-picker-name.is-on {
+  color: var(--color-fg);
+  font-weight: 500;
+  background: var(--color-bg-subtle);
+}
+.ob-picker-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  animation: ob-fade var(--dur-swap) var(--ease-out) both;
+}
+.ob-picker-confirm-q {
+  font-size: 13px;
+}
+.ob-picker-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.ob-picker-new {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 0 10px;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  background: transparent;
+  color: var(--color-fg-muted);
+  font-size: 14px;
+  transition: color var(--dur-hover) var(--ease-out);
+}
+.ob-picker-list:empty + .ob-picker-new,
+.ob-picker-new:first-child {
+  margin-top: 0;
+  border-top: 0;
+}
+.ob-picker-new:hover,
+.ob-picker-new.is-on {
+  color: var(--color-fg);
+}
+
+/* ----------------------------------------------------------- group bar */
+
+.ob-groups {
+  grid-area: nav;
+  min-width: 0;
+  padding-bottom: var(--ob-safe-b);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+.ob-groups-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  height: var(--ob-group-h);
+}
+.ob-groups-ind {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 25%;
+  transform: translateX(calc(var(--ob-i, 0) * 100%));
+  transition: transform var(--dur-move) var(--ease-out);
+  pointer-events: none;
+}
+.ob-groups-ind::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 52px;
+  height: 26px;
+  margin-left: -26px;
+  border-radius: 999px;
+  background: var(--color-fg);
+}
+.ob-group {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  min-width: 0;
+  height: 100%;
+  padding: 10px 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-fg-muted);
+  transition: color var(--dur-hover) var(--ease-out);
+}
+.ob-group-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  transition: color var(--dur-hover) var(--ease-out);
+}
+.ob-group-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+}
+.ob-group:hover {
+  color: var(--color-fg);
+}
+.ob-group.is-on {
+  color: var(--color-fg);
+}
+.ob-group.is-on .ob-group-icon {
+  color: var(--color-bg);
+}
+.ob-group:active .ob-group-icon {
+  transform: scale(0.94);
+}
+
+/* ------------------------------------------------------------- body/stage */
+
+.ob-body {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ob-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ob-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: 8px var(--stage-pad) 0;
+}
+.ob-strip:empty {
+  display: none;
+}
+.ob-strip-extra {
+  display: flex;
+  flex: 1 1 18rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.ob-submodes {
+  --ob-n: 2;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(var(--ob-n), minmax(0, 1fr));
+  flex: 1 1 100%;
+  min-width: 0;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+.ob-submodes-ind {
+  position: absolute;
+  z-index: 0;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / var(--ob-n));
+  border-radius: 7px;
+  background: var(--color-bg-elevated);
+  box-shadow:
+    0 0 0 1px var(--color-border-strong),
+    0 1px 2px rgb(0 0 0 / 0.12);
+  transform: translateX(calc(var(--ob-i, 0) * 100%));
+  transition: transform var(--dur-move) var(--ease-out);
+  pointer-events: none;
+}
+.ob-submode {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 44px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: var(--color-fg-muted);
+  font-size: 13px;
+  font-weight: 500;
+  transition: color var(--dur-hover) var(--ease-out);
+}
+.ob-submode:hover,
+.ob-submode.is-on {
+  color: var(--color-fg);
+}
+.ob-submode-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ob-figure {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.ob-stage--table .ob-figure,
+.ob-stage--form .ob-figure {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.ob-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: 4px var(--stage-pad) 8px;
+}
+.ob-foot-cap {
+  flex: 1 1 100%;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+  color: var(--color-fg-muted);
+}
+.ob-foot-cap:empty {
+  display: none;
+}
+.ob-foot-ctrls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: 1 1 100%;
+  min-width: 0;
+}
+.ob-zoom-slot {
+  display: flex;
+  flex: 0 0 auto;
+}
+.ob-zoom-slot:empty {
+  display: none;
+}
+
+/* The aspect count strip under the wheel (aspect-strip.tsx): one chip per
+   aspect kind the chart draws, in its family's colour and line style. */
+.ob-aspect-slot {
+  display: flex;
+  justify-content: center;
+  flex: 1 1 100%;
+  order: -1;
+  min-width: 0;
+}
+.ob-aspect-slot:empty {
+  display: none;
+}
+.ob-aspect-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2px 4px;
+  min-width: 0;
+}
+/* Beside the wheel: a column in the free margin, like a map's legend. */
+.ulune-wheel-legend[data-place="side"] {
+  position: absolute;
+  z-index: 3;
+  transform: translateY(-100%);
+}
+.ulune-wheel-legend[data-place="side"] .ob-aspect-strip {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+}
+.ulune-wheel-legend[data-place="side"] .ob-aspect-chip {
+  justify-content: flex-start;
+}
+.ulune-wheel-legend[data-place="side"] .ob-aspect-scope {
+  align-self: flex-start;
+  margin-bottom: 4px;
+}
+.ulune-wheel-legend[data-place="foot"] .ob-aspect-chip,
+.ulune-wheel-legend[data-place="below"] .ob-aspect-chip {
+  height: 28px;
+  gap: 4px;
+  padding: 0 7px 0 5px;
+}
+.ulune-wheel-legend[data-place="foot"] .ob-aspect-scope {
+  height: 28px;
+}
+.ulune-wheel-legend[data-place="below"] {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+.ob-aspect-scope {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+}
+.ob-aspect-scope-num {
+  font: 600 12px/1 var(--font-mono);
+}
+.ob-aspect-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 9px 0 7px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font: 500 12px/1 var(--font-mono);
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    opacity var(--dur-hover) var(--ease-out);
+}
+.ob-aspect-chip:hover {
+  background: var(--color-bg-subtle);
+}
+.ob-aspect-chip:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 1px;
+}
+.ob-aspect-chip-n {
+  min-width: 1ch;
+  color: var(--color-fg);
+  font-variant-numeric: tabular-nums;
+}
+.ob-aspect-chip[data-on="0"] {
+  opacity: 0.45;
+}
+.ob-aspect-chip[data-on="0"] .ob-aspect-chip-n {
+  text-decoration: line-through;
+}
+.ob-aspect-chip[data-zero="1"] {
+  opacity: 0.35;
+}
+.ob-aspect-swatch {
+  flex: none;
+  overflow: visible;
+}
+/* The density switch closes the strip: quieter than the chips it sets. */
+.ob-aspect-density {
+  margin-inline-start: 2px;
+  padding: 0 8px;
+  color: var(--color-fg-muted);
+}
+.ob-aspect-density:hover {
+  color: var(--color-fg);
+}
+
+/* Zoom bar: one sunken group, 44px targets. */
+.ulune-wheel-zoom-bar {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+.ulune-wheel-zoom > .ulune-wheel-zoom-bar {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 4;
+}
+.ulune-wheel-zoom-btn,
+.ulune-wheel-zoom-fit {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  min-width: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+.ulune-wheel-zoom-fit {
+  padding: 0 12px;
+}
+.ulune-wheel-zoom-btn:hover:not(:disabled),
+.ulune-wheel-zoom-fit:hover {
+  background: color-mix(in oklab, var(--color-fg) 8%, transparent);
+}
+.ulune-wheel-zoom-btn:active:not(:disabled),
+.ulune-wheel-zoom-fit:active {
+  transform: scale(0.94);
+}
+.ulune-wheel-zoom-btn:disabled {
+  color: var(--color-fg-subtle);
+  opacity: 0.5;
+}
+.ulune-wheel-depth-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.ulune-wheel-depth-btn[aria-pressed="true"] {
+  background: var(--color-fg);
+  color: var(--color-bg);
+}
+.ulune-wheel-depth-btn[aria-pressed="true"]:hover {
+  background: color-mix(in oklab, var(--color-fg) 88%, transparent);
+}
+/* Phones pinch to zoom: − and + give their room to the 3D switch, so the
+   footer row fits a 390px screen without pushing Share off the edge. */
+@media (max-width: 560px) and (pointer: coarse) {
+  .ulune-wheel-zoom-bar [data-testid="wheel-zoom-out"],
+  .ulune-wheel-zoom-bar [data-testid="wheel-zoom-in"] {
+    display: none;
+  }
+}
+
+/* Wheel frame: the port fills the figure; WheelZoom fits the square to it. */
+.ulune-wheel-zoom {
+  --wheel-fit-inset: 16px;
+}
+.ulune-wheel-port {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+.ulune-wheel-port .ulune-wheel-zoom,
+.ulune-wheel-port .ulune-wheel-zoom-port {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+.ulune-biwheel .ulune-wheel-port {
+  flex: 1 1 auto;
+}
+.ulune-table-view {
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+/* Mode controls living in the strip. */
+.ob-strip .ulune-transit-clock-bar,
+.ob-strip .ulune-progressions-clock-bar,
+.ob-strip .ulune-synastry-pair-bar,
+.ob-strip .ulune-composite-pair-bar,
+.ob-strip .ulune-hd-control {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+.ulune-aspect-layer .ulune-seg {
+  min-width: 0;
+  pointer-events: auto;
+}
+.ulune-aspect-layer .ulune-seg button {
+  padding-inline: var(--space-2);
+  white-space: nowrap;
+}
+.ulune-timing-scope .ulune-seg,
+.ulune-hd-control .ulune-seg {
+  height: 44px;
+  width: 100%;
+}
+.ulune-login-email {
+  animation: ob-fade var(--dur-swap) var(--ease-out) both;
+}
+
+/* Empty state and the birth form on the stage. */
+.ob-empty {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px 16px;
+  text-align: center;
+}
+.ob-empty-title {
+  max-width: 28rem;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1.15;
+  color: var(--color-fg);
+}
+.ob-empty-body {
+  max-width: 32rem;
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-fg-muted);
+}
+
+.ulune-dock-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.ob-birth {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px var(--stage-pad) 24px;
+}
+.ob-birth-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ob-birth-title,
+.ob-birth-hint {
+  margin: 0;
+}
+.ob-birth--stage {
+  flex: 0 0 auto;
+  overflow: visible;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+.ob-birth--stage .ob-birth-title {
+  font-size: 26px;
+}
+
+/* ---------------------------------------------------------------- panel */
+
+.ob-panel {
+  /* The side panel sits a step lighter than the stage at night (as the two
+     panes of Claude's app); what it paints "in the page colour" follows. */
+  --color-bg: var(--color-bg-panel);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-bg);
+  font-family: var(--font-ui);
+}
+.ob-panel-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  min-width: 0;
+  container-type: inline-size;
+  container-name: obhead;
+}
+.ob-panel-tabs {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 2px;
+  min-width: 0;
+}
+.ob-panel-tab {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg-muted);
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out);
+}
+.ob-panel-tab:hover {
+  color: var(--color-fg);
+}
+.ob-panel-tab.is-on {
+  color: var(--color-fg);
+  background: var(--color-bg-subtle);
+}
+.ob-panel-tab-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+.ob-panel-tab-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+}
+@container obhead (min-width: 460px) {
+  .ob-panel-tab {
+    flex-direction: row;
+    gap: 6px;
+  }
+  .ob-panel-tab-label {
+    font-size: 13px;
+  }
+}
+.ob-panel-actions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.ob-panel-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  container-type: inline-size;
+  container-name: dock;
+}
+.ob-panel-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+@container dock (max-width: 36rem) {
+  .ulune-birth-when {
+    grid-column: 1 / -1;
+  }
+}
+.ob-sheet-grip {
+  display: none;
+}
+.ob-collapse-icon {
+  transition: transform var(--dur-move) var(--ease-out);
+}
+
+/* ------------------------------------------------------ compact (<1024) */
+
+@media (max-width: 1023.98px) {
+  .ob-only-wide {
+    display: none !important;
+  }
+
+  /* Panel on: the stage sits above the sheet; it never paints under it. */
+  /* Opening: the stage shrinks at once. Closing: it grows only once the sheet
+     has slid away, so nothing is ever painted under the sheet. */
+  .ob-body[data-panel="on"] .ob-stage {
+    position: absolute;
+    inset: 0 0 var(--ob-peek-h) 0;
+    transition: bottom 0s linear var(--dur-sheet);
+  }
+  .ob-body[data-panel="on"]:has(.ob-panel:not([data-detent="peek"])) .ob-stage {
+    bottom: 50%;
+    transition: none;
+  }
+  .ob-body[data-panel="on"]:has(.ob-panel[data-dragging]) .ob-stage,
+  .ob-body[data-panel="on"]:has(.ob-panel:not([data-ready])) .ob-stage {
+    transition: none;
+  }
+  .ob-body[data-panel="on"]:has(.ob-panel:not([data-detent="peek"])) .ob-foot-cap {
+    display: none;
+  }
+
+  .ob-panel {
+    --ob-vis: var(--ob-peek-h);
+    position: absolute;
+    z-index: 20;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    border-top: 1px solid var(--color-border-strong);
+    border-radius: 14px 14px 0 0;
+    background: var(--color-bg-elevated);
+    box-shadow: var(--ob-shadow);
+    transform: translateY(calc(100% - var(--ob-vis)));
+    will-change: transform;
+  }
+  .ob-panel[data-ready] {
+    transition:
+      transform var(--dur-sheet) var(--ease-out),
+      border-radius var(--dur-sheet) var(--ease-out);
+  }
+  .ob-panel[data-detent="half"] {
+    --ob-vis: 50%;
+  }
+  .ob-panel[data-detent="full"] {
+    --ob-vis: 100%;
+    border-radius: 0;
+  }
+  .ob-panel[data-dragging] {
+    --ob-vis: var(--ob-sheet-drag);
+    transition: none !important;
+  }
+  .ob-panel-head {
+    height: var(--ob-peek-h);
+    padding: 4px 4px 0 8px;
+    touch-action: none;
+    border-bottom: 1px solid transparent;
+  }
+  .ob-panel:not([data-detent="peek"]) .ob-panel-head {
+    border-bottom-color: var(--color-border);
+  }
+  .ob-sheet-grip {
+    display: block;
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    margin-left: -18px;
+    border-radius: 999px;
+    background: var(--color-border-strong);
+    pointer-events: none;
+  }
+  .ob-panel-tabs {
+    padding-top: 4px;
+  }
+  .ob-panel-tab {
+    height: 44px;
+  }
+  .ob-panel[data-detent="peek"] .ob-panel-body {
+    visibility: hidden;
+  }
+}
+
+/* ------------------------------------------------------------ wide (≥1024) */
+
+@media (min-width: 1024px) {
+  .ob-only-compact {
+    display: none !important;
+  }
+
+  .ob-app {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-rows: var(--ob-top-h) minmax(0, 1fr);
+    grid-template-areas:
+      "tl nav tr"
+      "body body body";
+  }
+  .ob-top-l {
+    gap: 12px;
+    padding: 0 8px 0 20px;
+  }
+  .ob-top-r {
+    padding: 0 12px 0 8px;
+  }
+  .ob-brand {
+    display: inline-flex;
+  }
+  .ob-chip {
+    max-width: 280px;
+  }
+  .ob-chip-mark {
+    display: none;
+  }
+  .ob-ai-btn {
+    width: auto;
+    padding: 0 12px;
+  }
+  .ob-ai-label {
+    display: inline;
+  }
+
+  .ob-groups {
+    display: flex;
+    align-items: center;
+    height: var(--ob-top-h);
+    padding: 0;
+    border-top: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .ob-groups-track {
+    grid-template-columns: repeat(4, 112px);
+    height: 44px;
+  }
+  .ob-groups-ind::before {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border-radius: var(--radius-md);
+  }
+  .ob-group {
+    flex-direction: row;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 12px;
+    border-radius: var(--radius-md);
+  }
+  .ob-group-icon {
+    width: 16px;
+    height: 16px;
+  }
+  .ob-group-label {
+    font-size: 14px;
+  }
+  .ob-group.is-on,
+  .ob-group.is-on .ob-group-icon {
+    color: var(--color-bg);
+  }
+
+  .ob-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .ob-strip {
+    padding-top: 12px;
+  }
+  .ob-submodes {
+    flex: 0 1 26rem;
+  }
+  .ob-foot {
+    flex-wrap: nowrap;
+    padding-bottom: 12px;
+  }
+  .ob-foot-cap {
+    flex: 1 1 auto;
+    text-align: left;
+  }
+  .ob-foot-ctrls {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+  }
+  /* A strip in the footer (no room beside the wheel) takes a row of its own. */
+  .ob-foot:has(> .ob-aspect-slot:not(:empty)) {
+    flex-wrap: wrap;
+  }
+
+  .ob-panel {
+    width: var(--ob-panel-w);
+    border-left: 1px solid var(--color-border);
+  }
+  .ob-panel[data-width="wide"] {
+    width: min(50vw, 720px);
+  }
+  .ob-panel-head {
+    height: 56px;
+    padding: 6px 6px 6px 8px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .ob-panel[data-dock-open="false"] {
+    width: var(--ob-panel-rail);
+  }
+  .ob-panel[data-dock-open="false"] .ob-panel-head {
+    flex-direction: column;
+    align-items: stretch;
+    height: auto;
+    padding: 4px;
+    border-bottom: 0;
+  }
+  .ob-panel[data-dock-open="false"] .ob-panel-tabs {
+    flex-direction: column;
+    order: 2;
+  }
+  .ob-panel[data-dock-open="false"] .ob-panel-tab {
+    flex: 0 0 44px;
+  }
+  .ob-panel[data-dock-open="false"] .ob-panel-tab.is-on {
+    background: transparent;
+  }
+  .ob-panel[data-dock-open="false"] .ob-panel-tab-label,
+  .ob-panel[data-dock-open="false"] [data-testid="panel-width"],
+  .ob-panel[data-dock-open="false"] .ob-panel-body {
+    display: none;
+  }
+  .ob-panel[data-dock-open="false"] .ob-panel-actions {
+    order: 1;
+    flex-direction: column;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .ob-panel[data-dock-open="false"] .ob-collapse-icon {
+    transform: rotate(180deg);
+  }
+}
+
+/* ------------------------------------------------------ pages (login etc) */
+
+.ob-page {
+  min-height: 100dvh;
+  background: var(--color-bg);
+  font-family: var(--font-ui);
+}
+.ob-pagebar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  height: var(--ob-top-h);
+  padding: 0 8px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  font-family: var(--font-ui);
+}
+.ob-back {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  color: var(--color-fg-muted);
+  font-size: 14px;
+  font-weight: 500;
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out);
+}
+.ob-back:hover {
+  color: var(--color-fg);
+  background: var(--color-bg-subtle);
+}
+.ob-brand--page {
+  display: inline-flex;
+  justify-self: center;
+}
+.ob-pagebar-r {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+}
+
+.ulune-login {
+  display: grid;
+  gap: 32px;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 32px 16px 48px;
+}
+.ulune-login-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.ulune-login-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ulune-login-read-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.ulune-login-read,
+.ulune-login-read-foot {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  color: var(--color-fg-muted);
+}
+.ulune-auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+.ulune-auth-btn:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+}
+.ulune-auth-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.ulune-auth-btn:disabled {
+  opacity: 0.6;
+}
+
+.ulune-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+.ob-settings-card {
+  padding: 20px;
+}
+.ob-settings-h {
+  margin: 0 0 8px;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.ob-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+}
+.ob-settings-row .ulune-seg {
+  width: 180px;
+}
+.ulune-connected-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  font-size: 14px;
+}
+
+@media (min-width: 1024px) {
+  .ulune-login {
+    grid-template-columns: 440px minmax(0, 1fr);
+    align-items: start;
+    gap: 64px;
+    max-width: 1040px;
+    padding: 64px 32px;
+  }
+  .ulune-login-read-col {
+    padding-top: 8px;
+  }
+  .ulune-login-read {
+    font-size: var(--text-lg);
+  }
+}
+
+/* ------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .ob-body .ob-stage {
+    transition: none !important;
+  }
+  html.theme-ready,
+  .ob-panel,
+  .ulune-seg-pill,
+  .ob-groups-ind,
+  .ob-submodes-ind,
+  .ob-chip-caret,
+  .ob-collapse-icon {
+    transition: none !important;
+  }
+  .ob-swap,
+  .ob-pop,
+  .ob-picker-confirm,
+  .ulune-login-email {
+    animation: none !important;
+  }
+  .ob-icon-btn:active,
+  .ob-btn:active,
+  .ulune-auth-btn:active,
+  .ulune-wheel-zoom-btn:active,
+  .ulune-wheel-zoom-fit:active,
+  .ob-group:active .ob-group-icon {
+    transform: none !important;
+  }
+}
+
+/* The sheet translates below the body; the body clips it so it never covers the group bar. */
+.ob-body-slot {
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .ob-ai-btn {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Content inside the frame keeps the content face and Look's text scale. */
+.ob-figure,
+.ob-panel-body,
+.ulune-login-read-col {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.5;
+}
+
+/* Sub-tabs inside panels and tables: one quiet row, ink underline on. */
+.ulune-wrap-tabs,
+.ulune-table-groups,
+[data-testid="num-pages"] {
+  border-bottom: 1px solid var(--color-border);
+}
+.ulune-wrap-tabs > [role="tab"],
+.ulune-table-groups > [role="tab"],
+[role="tablist"] > [role="tab"][data-testid^="num-page-"],
+[role="tablist"] > [role="tab"][data-testid^="table-section-"],
+[role="tablist"] > [role="tab"][data-testid^="bodies-page-"],
+[role="tablist"] > [role="tab"][data-testid^="look-page-"] {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-fg-muted);
+  transition:
+    color var(--dur-hover) var(--ease-out),
+    box-shadow var(--dur-move) var(--ease-out);
+}
+[role="tab"]:hover {
+  color: var(--color-fg);
+}
+[role="tab"].ob-subtab-on {
+  color: var(--color-fg);
+  box-shadow: inset 0 -2px 0 var(--color-fg);
+}
+
+/* Look → palette presets. */
+.ob-palettes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.ob-palette {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+  min-height: 64px;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out);
+}
+button.ob-palette:hover {
+  background: var(--color-bg-subtle);
+}
+.ob-palette.is-on {
+  border-color: var(--color-fg);
+}
+.ob-palette--custom {
+  color: var(--color-fg-muted);
+  border-style: dashed;
+}
+.ob-palette-dots {
+  display: flex;
+  gap: 3px;
+}
+.ob-palette-dots > span {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+}
+
+/* ---------------------------------------------------------------- toasts */
+.ob-toasts {
+  position: fixed;
+  z-index: 80;
+  left: 50%;
+  bottom: calc(var(--ob-group-h, 64px) + var(--ob-safe-b, 0px) + 16px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.ob-toast {
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--color-fg);
+  color: var(--color-bg);
+  font: 500 13px/1.3 var(--font-ui);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.18);
+  animation: ob-pop-in var(--dur-swap) var(--ease-out) both;
+}
+.ob-toast[data-tone="error"] {
+  background: var(--color-danger);
+  color: #fff;
+}
+@media (min-width: 1024px) {
+  .ob-toasts {
+    bottom: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ob-toast {
+    animation: none;
+  }
+}
+
+/* Export menu: a plain list of actions in a popover. */
+.ob-menu {
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-bg-elevated);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+}
+.ob-menu .ob-menu-item:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.ob-export-btn {
+  background: var(--color-bg-subtle);
+}
+
+/* Library: meta line, search and sort. */
+.ob-picker-name {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  padding-block: 4px;
+}
+.ob-picker-name > .truncate {
+  max-width: 100%;
+}
+.ob-picker-meta {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 11.5px;
+  color: var(--color-fg-subtle);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+.ob-picker-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.ob-picker-search,
+.ob-picker-sort {
+  min-width: 0;
+  height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: 400 14px/1 var(--font-ui);
+}
+.ob-picker-none {
+  padding: 10px;
+  color: var(--color-fg-muted);
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------- command palette */
+.ob-palette-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: max(10vh, 56px) 16px 16px;
+  background: rgb(0 0 0 / 0.36);
+  animation: ob-fade var(--dur-swap) var(--ease-out) both;
+}
+.ob-palette {
+  display: flex;
+  flex-direction: column;
+  width: min(560px, 100%);
+  max-height: min(70dvh, 560px);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-bg-elevated);
+  box-shadow: 0 24px 64px rgb(0 0 0 / 0.32);
+  animation: ob-pop-in var(--dur-swap) var(--ease-out) both;
+}
+.ob-palette-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-fg-muted);
+}
+.ob-palette-input input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 52px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-fg);
+  font: 400 16px/1 var(--font-ui);
+}
+.ob-palette-list {
+  margin: 0;
+  padding: 6px;
+  overflow: auto;
+  list-style: none;
+}
+.ob-palette-sec {
+  margin: 8px 10px 4px;
+  font: 600 10.5px/1 var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.ob-palette-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: var(--radius-md);
+  color: var(--color-fg);
+  font: 400 14px/1.2 var(--font-ui);
+  cursor: pointer;
+}
+.ob-palette-item[aria-selected="true"] {
+  background: var(--color-bg-subtle);
+}
+.ob-palette-label {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ob-palette-hint {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-fg-subtle);
+  font-size: 12.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ob-palette-none {
+  padding: 16px 10px;
+  color: var(--color-fg-muted);
+}
+.ob-kbd {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 2px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  color: var(--color-fg-muted);
+  font: 500 11px/1.2 var(--font-mono, ui-monospace, monospace);
+}
+@media (max-width: 1023.98px) {
+  .ob-palette-btn {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ob-palette-scrim,
+  .ob-palette {
+    animation: none;
+  }
+}
+.ob-data-body {
+  margin: 8px 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-fg-muted);
+}
+.ob-data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.ob-data-actions .ob-btn {
+  gap: 8px;
+}
+.ob-data-confirm {
+  margin: 4px 0 12px;
+  padding: 12px 14px 4px;
+  border: 1px solid color-mix(in oklab, var(--color-danger) 45%, transparent);
+  border-radius: var(--radius-md);
+}
+.ob-data-confirm .ob-data-body {
+  margin-top: 0;
+  color: var(--color-fg);
+}
+/* The privacy notice (routes/privacy.tsx). */
+.ob-notice {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-fg-muted);
+}
+.ob-notice-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--color-fg);
+}
+.ob-notice-date {
+  margin: 4px 0 16px;
+  font-size: 13px;
+  color: var(--color-fg-subtle);
+}
+.ob-notice-block {
+  margin-top: 18px;
+}
+.ob-notice-block p {
+  margin: 0;
+  text-wrap: pretty;
+}
+.ob-notice-block ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding-left: 1.1em;
+  list-style: disc;
+}
+.ob-notice-block li {
+  text-wrap: pretty;
+}
+.ob-notice-link {
+  color: var(--color-fg);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+.ob-notice-link:hover {
+  text-decoration-color: currentColor;
+}
+/* The links between the legal pages (components/legal-page.tsx). */
+.ob-legal-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  font-size: 14px;
+}
+.ob-settings-card > .ob-legal-nav {
+  margin-top: 4px;
+  padding-top: 0;
+  border-top: 0;
+}
+.ob-legal-nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  color: var(--color-fg-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+.ob-legal-nav-link:hover {
+  color: var(--color-fg);
+}
+.ob-legal-nav-link[aria-current="page"] {
+  color: var(--color-fg);
+  text-decoration: none;
+}
+
+/* Your data: what is kept where, and what leaves. */
+.ob-data-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 14px;
+}
+.ob-data-row {
+  display: grid;
+  grid-template-columns: minmax(0, 10.5rem) minmax(0, 1fr);
+  gap: 4px 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--color-border);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ob-data-row dt {
+  color: var(--color-fg);
+  font-weight: 500;
+}
+.ob-data-row dd {
+  margin: 0;
+  color: var(--color-fg-muted);
+  text-wrap: pretty;
+}
+@media (max-width: 560px) {
+  .ob-data-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The aspect grid beside a wide stage's wheel (wheel-zoom.tsx places it). */
+.ulune-wheel-aside {
+  position: absolute;
+  z-index: 3;
+  transform: translate(-100%, -100%);
+}
+.ob-wgrid {
+  /* Cells as big as the margin allows (13–21 px). */
+  --cell: clamp(13px, calc((var(--aside-room, 240px) - 12px) / var(--n, 12)), 21px);
+  display: grid;
+  gap: 1px;
+  font: 500 9px/1 var(--font-mono);
+  user-select: none;
+}
+.ob-wgrid-cell svg {
+  width: calc(var(--cell) * 0.68);
+  height: calc(var(--cell) * 0.68);
+}
+.ob-wgrid-cell {
+  display: grid;
+  place-items: center;
+  width: var(--cell);
+  height: var(--cell);
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: color-mix(in oklab, var(--color-fg) 5%, transparent);
+  transition:
+    opacity var(--chart-quick) var(--chart-ease),
+    background-color var(--dur-hover) var(--ease-out);
+}
+.ob-wgrid-cell[data-empty] {
+  background: transparent;
+}
+button.ob-wgrid-cell:hover,
+.ob-wgrid-cell[data-lit="1"],
+.ob-wgrid:not([data-focus]) .ob-wgrid-cell[data-hover-lit] {
+  background: color-mix(in oklab, currentColor 18%, transparent);
+}
+.ob-wgrid[data-focus] .ob-wgrid-cell:not([data-lit="1"]):not([data-empty]),
+.ob-wgrid[data-hover-focus]:not([data-focus]) .ob-wgrid-cell:not([data-hover-lit]):not([data-empty]) {
+  opacity: 0.3;
+}
+.ob-wgrid-diag {
+  position: relative;
+  color: var(--color-fg-muted);
+  background: transparent;
+}
+.ob-wgrid-diag[data-lit="1"],
+.ob-wgrid:not([data-focus]) .ob-wgrid-diag[data-hover-lit] {
+  color: var(--color-fg);
+}
+.ob-wgrid-count {
+  position: absolute;
+  right: -3px;
+  bottom: -2px;
+  font-size: 7px;
+  color: var(--color-fg-subtle);
+}
+
+/* First-run hint on the wheel (wheel-hint.tsx). */
+.ulune-wheel-hint {
+  position: absolute;
+  z-index: 4;
+  top: 8px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(92%, 460px);
+  padding: 7px 8px 7px 14px;
+  border-radius: 999px;
+  background: var(--color-bg-elevated);
+  box-shadow: var(--ob-shadow, 0 4px 16px rgb(0 0 0 / 0.18));
+  color: var(--color-fg-muted);
+  font-size: 12px;
+  line-height: 1.35;
+  transform: translateX(-50%);
+  animation: ulune-fade-plain 420ms var(--ease-out) both;
+  /* Never in the way: the chart under it still takes the pointer. */
+  pointer-events: none;
+}
+.ulune-wheel-hint-close {
+  pointer-events: auto;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-fg-subtle);
+}
+.ulune-wheel-hint-close:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+}
+.ulune-wheel-hint-close:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 1px;
+}
+
+/* The Ulune tooltip (wheel-tip.ts): what an aspect line says when the
+   pointer rests on it, by the pointer, on whichever side has room. Only its
+   opacity and position change: nothing under it is restyled. */
+.ulune-wheel-tip {
+  --tip-dx: 14px;
+  --tip-dy: 18px;
+  position: fixed;
+  z-index: 70;
+  top: 0;
+  left: 0;
+  max-width: min(360px, calc(100vw - 24px));
+  padding: 5px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg-elevated);
+  box-shadow: var(--ob-shadow, 0 4px 16px rgb(0 0 0 / 0.18));
+  color: var(--color-fg);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(calc(var(--tip-x, 0px) + var(--tip-dx)), calc(var(--tip-y, 0px) + var(--tip-dy)));
+  transition: opacity 120ms var(--ease-out);
+}
+.ulune-wheel-tip[data-side="left"] {
+  --tip-dx: calc(-100% - 12px);
+}
+.ulune-wheel-tip[data-v="up"] {
+  --tip-dy: calc(-100% - 12px);
+}
+.ulune-wheel-tip[data-show] {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ulune-wheel-tip {
+    transition: none;
+  }
+}
+
+/* The question about keeping Ulune on this device (offline-offer.tsx): a
+   quiet card where the wheel's first-run hint stood, never over the dock. */
+.ob-offline-offer {
+  position: absolute;
+  z-index: 6;
+  top: 8px;
+  left: 50%;
+  display: grid;
+  gap: 6px;
+  width: min(92%, 440px);
+  padding: 14px 16px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg, 14px);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--ob-shadow, 0 4px 16px rgb(0 0 0 / 0.18));
+  color: var(--color-fg);
+  transform: translateX(-50%);
+  animation: ob-offer-in var(--dur-move) var(--ease-out) both;
+}
+@keyframes ob-offer-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px);
+  }
+}
+.ob-offline-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.ob-offline-body {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.ob-offline-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ob-offline-offer {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------ loading */
+
+/* A part of the studio that is still downloading (a mode, a table, a
+   reading): soft lines that breathe; when it failed, one line and a retry. */
+.ob-loading {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 16px 0;
+}
+.ob-loading > span {
+  display: block;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--color-bg-subtle);
+  animation: ob-loading-breathe 1.6s var(--ease-inout) infinite;
+}
+.ob-loading > span:nth-child(3n + 2) {
+  width: 84%;
+}
+.ob-loading > span:nth-child(3n) {
+  width: 62%;
+}
+@keyframes ob-loading-breathe {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ob-loading > span {
+    animation: none;
+  }
+}
+.ob-loading-failed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--color-fg-muted);
+}
+.ob-loading-failed p {
+  margin: 0;
+}
+
+/* A returning reader (charts kept on this device, src/lib/boot.ts): the
+   server's empty "New chart" form, and a mode's empty state, stay hidden
+   while the studio starts and brings back their chart (a private space that
+   stays unlocked opens a moment after the app); the flag is lifted as soon
+   as it has. */
+html[data-returning] .ob-stage--form > .ob-figure,
+html[data-returning] .ob-body-slot .ob-empty {
+  visibility: hidden;
+}
+
+/* The first view (src/lib/first-view.ts): the returning reader's zodiac and
+   houses, drawn from this device where their wheel will be, until the real
+   wheel takes over. It inherits what the stage figure gives the wheel. */
+ulune-first-view {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+  contain: layout paint;
+  /* Its own layer, like the wheel's zoom box, so both draw the same pixels. */
+  will-change: transform;
+  backface-visibility: hidden;
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.5;
+}
+ulune-first-view > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+}
+ulune-first-view[data-leaving] {
+  opacity: 0;
+  transition: opacity 240ms var(--ease-out);
+}
+/* While it stands in, and through the real wheel's entrance, the frame is
+   already there: the figure, the wheel and its zodiac, decans, houses and
+   angles skip their entrance (their animations start finished), so only the
+   planets and lines fly in. A chart or mode switch plays the whole entrance. */
+html[data-first-view] .ob-stage > .ob-swap,
+html[data-first-view] .ulune-wheel,
+html[data-first-view]
+  .ulune-wheel
+  :is(
+    [data-kind="sign-band"],
+    [data-decans],
+    [data-house] > line,
+    [data-kind="house-num"],
+    [data-kind="angle"],
+    [data-kind="outer-ring"]
+  ) {
+  animation-delay: -60s;
+}
+/* The degree dots and aspect marks faded in with the whole wheel before:
+   here they come with their planets and lines. */
+html[data-first-view] .ulune-wheel[data-entering] > [data-kind="degree-dots"] {
+  animation: ulune-fade-plain 520ms var(--chart-ease) 300ms backwards;
+}
+html[data-first-view] .ulune-wheel[data-entering] > [data-kind="aspect-marks"] {
+  animation: ulune-fade-plain 560ms var(--chart-ease) 820ms backwards;
+}
+
+/* ------------------------------------------------------- private space */
+/* The top bar's "Sign in" / "Unlock" / "Private" (components/space). */
+.ob-space-btn {
+  width: auto;
+  min-width: 44px;
+  padding: 0 12px;
+  gap: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ob-space-btn[data-space="checking"] {
+  visibility: hidden;
+}
+/* A backup is due (lib/space/runtime.ts): one small dot by the lock, nothing more. */
+.ob-space-btn {
+  position: relative;
+}
+.ob-space-btn[data-due]::after {
+  content: "";
+  position: absolute;
+  top: 9px;
+  left: calc(50% + 3px);
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-halo);
+  box-shadow: 0 0 0 2px var(--color-bg);
+}
+@media (min-width: 1024px) {
+  .ob-space-btn[data-due]::after {
+    left: 20px;
+  }
+}
+.ob-space-label {
+  display: none;
+  font-size: 13px;
+  font-weight: 500;
+}
+@media (min-width: 1024px) {
+  .ob-space-label {
+    display: inline;
+  }
+}
+.ob-menu-group--last {
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+
+/* The sheet: signing in, the recovery code, unlocking. */
+.ob-space-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: max(10vh, 56px) 16px 16px;
+  overflow-y: auto;
+  background: rgb(0 0 0 / 0.36);
+  animation: ob-fade var(--dur-swap) var(--ease-out) both;
+}
+.ob-space {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(440px, 100%);
+  padding: 18px 20px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-bg-elevated);
+  box-shadow: 0 24px 64px rgb(0 0 0 / 0.32);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  animation: ob-pop-in var(--dur-swap) var(--ease-out) both;
+}
+.ob-space-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin: -6px -8px -4px 0;
+}
+.ob-space-mark {
+  flex: 0 0 auto;
+  color: var(--color-fg-muted);
+}
+.ob-space-title {
+  flex: 1 1 auto;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+.ob-space-p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-fg-muted);
+  text-wrap: pretty;
+}
+.ob-space-note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-fg-subtle);
+}
+.ob-space-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ob-space-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ob-space-field > label {
+  font-size: 13px;
+  color: var(--color-fg-muted);
+}
+.ob-space-pass {
+  position: relative;
+  display: flex;
+}
+.ob-space-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: 400 16px/1 var(--font-ui);
+}
+.ob-space-pass .ob-space-input {
+  padding-right: 48px;
+}
+.ob-space-input:focus-visible {
+  outline: none;
+  border-color: transparent;
+  box-shadow: 0 0 0 2px var(--color-ring);
+}
+.ob-space-input--code {
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ob-space-eye {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.ob-space-err {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-danger);
+}
+.ob-space-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ob-space-actions .ob-btn {
+  width: 100%;
+}
+.ob-space .ob-btn:disabled {
+  opacity: 0.4;
+}
+.ob-space-link {
+  min-height: 44px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg-muted);
+  font: 400 14px/1.2 var(--font-ui);
+  transition: color var(--dur-hover) var(--ease-out);
+}
+.ob-space-link:hover {
+  color: var(--color-fg);
+}
+.ob-space-link--small {
+  font-size: 13px;
+  color: var(--color-fg-subtle);
+}
+.ob-space-code {
+  margin: 0;
+  padding: 14px 10px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  text-align: center;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.ob-space-check {
+  padding-top: 0;
+}
+.ob-space-busy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+.ob-space-spin {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-border-strong);
+  border-top-color: var(--color-fg);
+  border-radius: 999px;
+  animation: ob-space-spin 0.8s linear infinite;
+}
+@keyframes ob-space-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ob-space,
+  .ob-space-scrim {
+    animation: none;
+  }
+  .ob-space-spin {
+    animation-duration: 2.4s;
+  }
+}
+
+/* Under the chart while nothing is kept: one quiet line offering to keep it. */
+.ob-keep {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-fg-subtle);
+}
+.ob-keep-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-fg-muted);
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+.ob-keep-link:hover {
+  color: var(--color-fg);
+}
+
+/* Under the birth form: what is kept, and what a cast sends. */
+.ob-cast-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-fg-subtle);
+  text-wrap: pretty;
+}
+/* Between a passkey and the passphrase: "or". */
+.ob-space-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -2px 0;
+  font-size: 12px;
+  color: var(--color-fg-subtle);
+}
+.ob-space-or::before,
+.ob-space-or::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--color-border);
+}
+/* A second choice in the sheet: outlined, under the first. */
+.ob-space .ob-btn--ghost {
+  box-shadow: inset 0 0 0 1px var(--color-border);
+}
+
+/* Settings: what opens the space. */
+.ob-space-ways {
+  margin-top: 16px;
+}
+.ob-space-ways-h {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.ob-space-way-list {
+  display: flex;
+  flex-direction: column;
+  margin: 4px 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.ob-space-way {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 14px;
+}
+.ob-space-way:last-child {
+  border-bottom: 0;
+}
+.ob-space-way-name {
+  min-width: 0;
+  color: var(--color-fg);
+}
+.ob-space-way-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--color-fg-subtle);
+}
+.ob-space-way-acts {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.ob-space-way-acts .ob-btn {
+  padding: 0 12px;
+}
+.ob-space-locks {
+  display: flex;
+  flex-direction: column;
+  margin: 12px 0 4px;
+  padding: 0;
+  border: 0;
+}
+.ob-space-locks legend {
+  margin-bottom: 2px;
+  padding: 0;
+}

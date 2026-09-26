@@ -1,0 +1,17 @@
+node_modules/
+.tools/
+.data/
+.vercel/
+.tanstack/
+screenshots/
+screenshots/e2e/
+*.log
+.env
+.env.*
+.DS_Store
+
+# Performance harness output (scripts/perf)
+scripts/perf/.out/
+
+# Self-test reports (scripts/qa-selftest)
+.qa-selftest/

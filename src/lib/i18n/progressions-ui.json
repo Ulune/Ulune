@@ -1,0 +1,40 @@
+{
+  "id": "progressions.ui",
+  "kind": "chrome",
+  "method": {
+    "en": "Secondary · day for a year",
+    "fr": "Secondaire · un jour pour une année"
+  },
+  "clock": {
+    "today": { "en": "Today", "fr": "Aujourd’hui" },
+    "date": { "en": "Progressed to", "fr": "Progressé au" }
+  },
+  "readingEmpty": {
+    "en": "Tap a body or an aspect in the wheel.",
+    "fr": "Touchez un astre ou un aspect dans la roue."
+  },
+  "noNatal": {
+    "en": "Cast a birth chart first.",
+    "fr": "Calculez d’abord un thème natal."
+  },
+  "table": {
+    "title": {
+      "en": "Progressed to your chart",
+      "fr": "Progressions sur votre thème"
+    },
+    "hint": {
+      "en": "Major aspects (conjunction, sextile, square, trine, opposition) from your progressed chart to your birth chart, with the orb, whether each one is applying (getting closer) or separating, and the date it becomes exact.",
+      "fr": "Aspects majeurs (conjonction, sextile, carré, trigone, opposition) de votre thème progressé vers votre thème natal, avec l’orbe, le sens (applicatif : il se rapproche ; séparatif : il s’éloigne) et la date où il devient exact."
+    },
+    "columns": {
+      "en": ["Progressed", "Aspect", "Natal", "A", "S", "Exact"],
+      "fr": ["Progressé", "Aspect", "Natal", "A", "S", "Exact"]
+    },
+    "applying": { "en": "Applying", "fr": "Applicatif" },
+    "separating": { "en": "Separating", "fr": "Séparatif" },
+    "empty": {
+      "en": "No major aspect between your progressed and birth charts.",
+      "fr": "Aucun aspect majeur entre votre thème progressé et votre thème natal."
+    }
+  }
+}

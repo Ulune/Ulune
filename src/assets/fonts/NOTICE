@@ -1,0 +1,8 @@
+Noto Sans Symbols and Noto Sans Symbols 2
+Copyright 2022 The Noto Project Authors
+https://github.com/notofonts/symbols
+Licensed under the SIL Open Font License, Version 1.1.
+See OFL.txt in this directory.
+
+Subsetted for Ulune chart marks (planets, signs, nodes, asteroids, aspects).
+Rebuild with scripts/subset-noto-symbols.sh.

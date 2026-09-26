@@ -1,0 +1,3092 @@
+@import "tailwindcss";
+
+@property --color-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #111111;
+}
+/* How much of a chart colour a glyph keeps, the rest going to black (its
+   hue and saturation kept): deeper on cream so pale hues read
+   (wheel-style.ts `ink`). */
+@property --ink-keep {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 100%;
+}
+/* The same for an aspect line: barely deeper on cream, so a line keeps its
+   element's colour (wheel-style.ts `lineInk`). */
+@property --line-keep {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 100%;
+}
+@property --color-bg-panel {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #151515;
+}
+@property --color-bg-elevated {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #171716;
+}
+@property --color-bg-subtle {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #20201f;
+}
+@property --color-fg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f0efec;
+}
+@property --color-fg-muted {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #b8b6b0;
+}
+@property --color-fg-subtle {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #898781;
+}
+@property --color-accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #f0efec;
+}
+@property --color-accent-fg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #111111;
+}
+@property --color-halo {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #c6a15a;
+}
+@property --color-danger {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e5484d;
+}
+@property --el-fire {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #d73240;
+}
+@property --el-earth {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #0e9a3f;
+}
+@property --el-air {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #edb91e;
+}
+@property --el-water {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #0079d0;
+}
+@property --aspect-conj {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #dcbc33;
+}
+@property --aspect-hard {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e6424c;
+}
+@property --aspect-soft {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #0593e6;
+}
+@property --aspect-minor {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #33a550;
+}
+@property --aspect-outer-conj {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #dfa700;
+}
+@property --aspect-outer-hard {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e662a8;
+}
+@property --aspect-outer-soft {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #9d69d2;
+}
+@property --aspect-outer-minor {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #00a091;
+}
+@property --ulune-dial {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
+/*
+ * Ulune 4.7 shell language — "the chart is the only color".
+ * Chrome is ink and paper. At night: the near-blacks of Claude's own app —
+ * the stage #111111, the side panel a step lighter (#151515), cards #171716,
+ * raised and sunk controls #20201f, warm off-white text. By day: warm cream
+ * paper and milky cards, never a bare white. Selection is an inverted pill,
+ * focus is an ink ring. Chart-owned tokens (--el-*, --aspect-*,
+ * --wheel-sign-ink, --color-halo) are frozen for this pass.
+ */
+@theme {
+  --color-bg: #111111;
+  --color-bg-panel: #151515;
+  --color-bg-elevated: #171716;
+  --color-bg-subtle: #20201f;
+  --color-fg: #f0efec;
+  --color-fg-muted: #b8b6b0;
+  --color-fg-subtle: #898781;
+  --color-border: color-mix(in oklab, var(--color-fg) 10%, transparent);
+  --color-border-strong: color-mix(in oklab, var(--color-fg) 18%, transparent);
+  --color-accent: var(--color-fg);
+  --color-accent-fg: var(--color-bg);
+  --color-halo: #c6a15a;
+  --color-ring: color-mix(in oklab, var(--color-fg) 60%, transparent);
+  --color-danger: #e5484d;
+
+  /* Element / aspect hues — chart-exclusive (frozen). */
+  --el-fire: oklch(0.58 0.20 22);
+  --el-earth: oklch(0.60 0.17 148);
+  --el-air: oklch(0.81 0.16 87);
+  --el-water: oklch(0.56 0.17 245);
+  --aspect-conj: oklch(0.80 0.15 95);
+  --aspect-hard: oklch(0.62 0.20 22);
+  --aspect-soft: oklch(0.64 0.16 245);
+  --aspect-minor: oklch(0.64 0.16 148);
+  --aspect-outer-conj: oklch(0.76 0.16 85);
+  --aspect-outer-hard: oklch(0.68 0.18 350);
+  --aspect-outer-soft: oklch(0.62 0.16 305);
+  --aspect-outer-minor: oklch(0.62 0.14 185);
+  --wheel-sign-ink: #1c1914;
+
+  /* Type roles. Look → Type rewrites display + sans on <html> (content only).
+     Chrome uses --font-ui, which Look never touches. */
+  --font-display: "Fraunces", "Times New Roman", serif;
+  --font-sans: "Familjen Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-ui: "Familjen Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-glyphs: "Familjen Grotesk", "Noto Sans Symbols", "Noto Sans Symbols 2", "Segoe UI", system-ui, sans-serif;
+
+  /* Radius: 6 inner / 10 control / 14 surface / pill. Legacy names alias in. */
+  --radius-xs: 6px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-chip: 6px;
+  --radius-lg: 14px;
+  --radius-xl: 14px;
+  --radius-2xl: 14px;
+  --radius: 10px;
+
+  /* Content type scale (rem, follows Look text-scale). Chrome uses px. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.5rem;
+}
+
+html.light {
+  color-scheme: light;
+  /* Warm cream paper, milky cards: never a bare #fff. */
+  --color-bg: oklch(0.965 0.014 80);
+  --color-bg-panel: oklch(0.965 0.014 80);
+  --color-bg-elevated: oklch(0.982 0.0095 80);
+  --color-bg-subtle: oklch(0.937 0.017 80);
+  --color-fg: oklch(0.215 0.012 70);
+  --color-fg-muted: oklch(0.445 0.015 70);
+  --color-fg-subtle: oklch(0.585 0.015 72);
+  --color-border: color-mix(in oklab, var(--color-fg) 10%, transparent);
+  --color-border-strong: color-mix(in oklab, var(--color-fg) 20%, transparent);
+  --color-accent: var(--color-fg);
+  --color-accent-fg: var(--color-bg);
+  --color-halo: #a56b32;
+  --color-ring: color-mix(in oklab, var(--color-fg) 55%, transparent);
+  --color-danger: #ce2c31;
+  --wheel-sign-ink: #fbf7f0;
+  /* Day jewels (frozen). */
+  --el-fire: oklch(0.70 0.21 22);
+  --el-earth: oklch(0.68 0.18 148);
+  --el-air: oklch(0.83 0.18 87);
+  --el-water: oklch(0.68 0.18 245);
+  --aspect-conj: oklch(0.78 0.16 95);
+  --aspect-hard: oklch(0.70 0.21 22);
+  --aspect-soft: oklch(0.70 0.17 245);
+  --aspect-minor: oklch(0.70 0.17 148);
+  --aspect-outer-conj: oklch(0.76 0.16 85);
+  --aspect-outer-hard: oklch(0.72 0.18 350);
+  --aspect-outer-soft: oklch(0.68 0.16 305);
+  --aspect-outer-minor: oklch(0.68 0.14 185);
+}
+
+:root {
+  /* 4px grid. Legacy --space-* keep their names for content CSS. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --leading-phi: 1.55;
+  --leading-phi-snug: 1.25;
+  --tracking-kicker: 0.08em;
+  --tracking-display: -0.02em;
+
+  /* Motion: fast in, faster out. Nothing over 220ms. */
+  --dur-press: 90ms;
+  --dur-hover: 120ms;
+  --dur-out: 100ms;
+  --dur-in: 140ms;
+  --dur-swap: 150ms;
+  --dur-move: 180ms;
+  --dur-sheet: 200ms;
+  --dur-theme: 200ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* Chart motion (cinematic pass, the motion plan): starts at
+     once, settles slowly. UI chrome keeps the quick tokens above. */
+  --chart-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --chart-ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --chart-in: 760ms;
+  --chart-move: 480ms;
+  --chart-quick: 180ms;
+  --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+  /* Legacy aliases (content CSS still reads these). */
+  --motion-press: var(--dur-press);
+  --motion-ui: var(--dur-swap);
+  --motion-enter: var(--dur-in);
+  --motion-theme: var(--dur-theme);
+  --motion-micro: var(--dur-press);
+  --motion-quick: var(--dur-hover);
+  --motion-fast: var(--dur-swap);
+  --motion-medium: var(--dur-move);
+  --motion-slow: var(--dur-sheet);
+
+  --wheel-stroke: 1;
+  --control-h: 44px;
+  --control-h-sm: 32px;
+  --header-control-h: 44px;
+  --stage-pad: 12px;
+
+  /* Shell metrics (px so Look text-scale never reflows chrome). */
+  --ob-top-h: 56px;
+  --ob-group-h: 56px;
+  --ob-peek-h: 52px;
+  --ob-strip-h: 52px;
+  --ob-foot-h: 52px;
+  --ob-panel-w: 380px;
+  --ob-panel-rail: 52px;
+  --ob-safe-b: env(safe-area-inset-bottom, 0px);
+  --ob-shadow: none;
+}
+html.light {
+  --ob-shadow: 0 8px 24px rgb(0 0 0 / 0.12), 0 1px 2px rgb(0 0 0 / 0.06);
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --stage-pad: 16px;
+  }
+}
+
+body {
+  line-height: var(--leading-phi);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-display);
+  line-height: 1;
+}
+
+/* Coherence: shared chip / control radius (6px) + micro type */
+.ulune-chip-radius {
+  border-radius: var(--radius-chip);
+}
+.ulune-micro {
+  font-family: var(--font-mono);
+  font-size: 0.625rem; /* 10px — tabular meta only */
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.ulune-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.ulune-kicker {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+/* Shared card surface: hairline only. No glow. */
+.ulune-panel {
+  position: relative;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  box-shadow: none;
+}
+
+/* Theme cross-fade: only the core surface/ink vars interpolate — chart hues
+   snap with the theme, which reads as one clean shift and costs far less. */
+
+.ulune-orb-scale {
+  --ulune-orb-thumb: 18px;
+}
+.ulune-orb-marks {
+  position: relative;
+  height: 1rem;
+  margin-inline: calc(var(--ulune-orb-thumb) / 2);
+}
+.ulune-orb-mark {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.ulune-orb-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2.75rem;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.ulune-orb-slider:focus-visible {
+  outline: none;
+}
+.ulune-orb-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px var(--color-ring);
+}
+.ulune-orb-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-fg) 16%, transparent);
+}
+.ulune-orb-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  border-radius: 999px;
+  background: var(--color-fg);
+  border: 2px solid var(--color-bg-elevated);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-fg) 20%, transparent);
+}
+.ulune-orb-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-fg) 16%, transparent);
+}
+.ulune-orb-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--color-fg);
+  border: 2px solid var(--color-bg-elevated);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-fg) 20%, transparent);
+}
+@container (max-width: 480px) {
+  .ulune-time-tick[data-major="0"] {
+    display: none;
+  }
+}
+
+html.theme-ready body {
+  transition: none;
+}
+
+/* ─── Fonts ────────────────────────────────────────────────────────────────
+   Every font ships with the app (src/assets/fonts, hashed and cached for
+   good): no request goes to a third party, so no visitor's address does
+   either. The weight ranges are the ones the app asked Google Fonts for, so
+   text draws exactly as before (a weight outside a range takes its edge). The default pairing (Familjen Grotesk, Fraunces, IBM Plex Mono)
+   loads as it is used; the Look's other pairings only once chosen. Latin
+   covers English and French; latin-ext loads only for names that need it.
+   Licences: src/assets/fonts/*-OFL.txt. */
+@font-face {
+  font-family: "Familjen Grotesk";
+  src: url("./assets/fonts/FamiljenGrotesk-latin-wght.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Familjen Grotesk";
+  src: url("./assets/fonts/FamiljenGrotesk-latin-ext-wght.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("./assets/fonts/Fraunces-latin-opsz.woff2") format("woff2");
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("./assets/fonts/Fraunces-latin-ext-opsz.woff2") format("woff2");
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("./assets/fonts/IBMPlexMono-latin-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("./assets/fonts/IBMPlexMono-latin-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("./assets/fonts/IBMPlexMono-latin-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* The Look's "editorial" and "clean" pairings. */
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("./assets/fonts/SourceSerif4-latin-opsz.woff2") format("woff2");
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("./assets/fonts/SourceSans3-latin-wght.woff2") format("woff2");
+  font-weight: 300 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("./assets/fonts/IBMPlexSans-latin-300.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("./assets/fonts/IBMPlexSans-latin-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("./assets/fonts/IBMPlexSans-latin-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("./assets/fonts/IBMPlexSans-latin-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Serif";
+  src: url("./assets/fonts/IBMPlexSerif-latin-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Serif";
+  src: url("./assets/fonts/IBMPlexSerif-latin-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Serif";
+  src: url("./assets/fonts/IBMPlexSerif-latin-400-italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Chart marks. The glyph fonts map letters to symbols ("Q" is a planet in
+   Astronomicon), so they block rather than show a letter while loading. */
+@font-face {
+  font-family: "Noto Sans Symbols";
+  src: url("./assets/fonts/NotoSansSymbols-astro.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+  unicode-range: U+260A-260D, U+263D-2653, U+26B3-26BB;
+}
+@font-face {
+  font-family: "Noto Sans Symbols 2";
+  src: url("./assets/fonts/NotoSansSymbols2-astro.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+  unicode-range: U+25A1, U+25B3, U+2609, U+2610, U+2B20, U+2BF0, U+2BF2;
+}
+@font-face {
+  font-family: "Astronomicon";
+  src: url("./assets/fonts/Astronomicon.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "StarFont Sans";
+  src: url("./assets/fonts/StarFontSans.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "StarFont Serif";
+  src: url("./assets/fonts/StarFontSerif.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+/* Specified so body `--font-sans` cannot blank a mark. Look first in
+   `--font-glyphs`; Glyph still paints SVG when measurement says missing. */
+.ulune-glyph,
+.ulune-glyph .ulune-glyph-mark {
+  font-family: var(--font-glyphs);
+  font-style: normal;
+  font-weight: 400;
+  font-variant-emoji: text;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* House 1–12 are digits, never Astronomicon/StarFont letter-maps
+   (StarFont paints ASC on "1", DSC on "2", …). */
+.ulune-house-num,
+.ulune-glyph.ulune-house-num,
+.ulune-house-num-mark,
+.ulune-glyph .ulune-house-num-mark {
+  font-family: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font-style: normal;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: dark;
+  }
+
+  html,
+  body {
+    min-height: 100dvh;
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+
+  #app {
+    min-height: 0;
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.5;
+    background-color: var(--color-bg);
+    background-image: none;
+  }
+
+  html.light body {
+    background-image: none;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font-family: inherit;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  input[type="date"],
+  input[type="time"] {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 2.75rem;
+    padding-top: 0;
+    padding-bottom: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    line-height: 2.75rem;
+    color-scheme: inherit;
+  }
+
+  input[type="date"]::-webkit-date-and-time-value,
+  input[type="time"]::-webkit-date-and-time-value {
+    text-align: left;
+    margin: 0;
+    padding: 0;
+    min-height: 2.75rem;
+    height: 2.75rem;
+    line-height: 2.75rem;
+  }
+
+  input[type="date"]::-webkit-datetime-edit,
+  input[type="time"]::-webkit-datetime-edit {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    height: 2.75rem;
+    line-height: 2.75rem;
+    min-width: 0;
+  }
+
+  input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+  input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    height: 2.75rem;
+  }
+
+  input[type="date"]::-webkit-datetime-edit-text,
+  input[type="time"]::-webkit-datetime-edit-text,
+  input[type="date"]::-webkit-datetime-edit-month-field,
+  input[type="date"]::-webkit-datetime-edit-day-field,
+  input[type="date"]::-webkit-datetime-edit-year-field,
+  input[type="time"]::-webkit-datetime-edit-hour-field,
+  input[type="time"]::-webkit-datetime-edit-minute-field,
+  input[type="time"]::-webkit-datetime-edit-ampm-field {
+    padding: 0;
+    line-height: 2.75rem;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    width: 1rem;
+    height: 1rem;
+    margin-left: auto;
+    opacity: 0.55;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-fg) 24%, transparent);
+    color: var(--color-fg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  
+
+  
+
+}
+
+/* Chrome enter: opacity only — no layout or travel. */
+@keyframes ulune-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ulune-fade-up {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* A fresh wheel settles into place; its parts arrive in order (below). */
+@keyframes ulune-chart-in {
+  from {
+    opacity: 0;
+    transform: scale(0.965);
+  }
+}
+@keyframes ulune-bloom {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+@keyframes ulune-fade-plain {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes ulune-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* A line drawing itself along its length (lines carry pathLength="1"). */
+@keyframes ulune-draw {
+  from {
+    stroke-dasharray: 0 1;
+  }
+  to {
+    stroke-dasharray: 1 0;
+  }
+}
+.ulune-wheel {
+  transform-origin: center;
+  animation: ulune-chart-in var(--chart-in) var(--chart-ease) both;
+}
+
+/* Crisp reference marks. Wheel geometry is one 762-unit viewBox scaled to
+   whatever the port gives us (~0.9× on desktop, ~0.46× on a phone), so a
+   width written in user units halves on mobile and lands between pixel rows
+   as grey haze. Non-scaling strokes make every width in chart-wheel.tsx a
+   device pixel: the same ink at 700px and at 350px. Glyphs are nested SVGs
+   whose strokes are part of the letterform and must keep scaling. */
+.ulune-wheel path,
+.ulune-wheel line,
+.ulune-wheel polyline,
+.ulune-wheel polygon,
+.ulune-wheel circle,
+.ulune-wheel ellipse,
+.ulune-wheel rect {
+  vector-effect: non-scaling-stroke;
+}
+.ulune-wheel .ulune-glyph path,
+.ulune-wheel .ulune-glyph line,
+.ulune-wheel .ulune-glyph polyline,
+.ulune-wheel .ulune-glyph polygon,
+.ulune-wheel .ulune-glyph circle,
+.ulune-wheel .ulune-glyph ellipse,
+.ulune-wheel .ulune-glyph rect {
+  vector-effect: none;
+}
+
+/* On a phone-sized wheel the 1° ticks are ~2px apart, so a crisp 1px stroke
+   would fill the band. Keep the 5° and 10° bands, drop the degrees. (Named by
+   a class: when the band is set on a fresh wheel, only these two paths are
+   restyled, not every node with a data-kind.) */
+.ulune-wheel-zoom-port[data-wheel-fit="sm"] .ulune-wheel .ulune-tick-fine {
+  display: none;
+}
+
+/* Unknown birth time: the angles are a noon placeholder (`meta.timeUnknown`),
+   drawn as ghosts in chart-wheel.tsx. Hover may lift them enough to read, but
+   never to the weight of a known placement. */
+.ulune-wheel [data-kind="angle"][data-uncertain="1"][data-in-focus="1"] text,
+.ulune-wheel [data-kind="angle"][data-uncertain="1"][data-in-focus="1"] circle {
+  opacity: 0.72;
+}
+.ulune-wheel path,
+.ulune-wheel line,
+.ulune-wheel polyline,
+.ulune-wheel circle,
+.ulune-wheel ellipse,
+.ulune-wheel rect {
+  vector-effect: non-scaling-stroke;
+}
+
+.ulune-wheel-stage {
+  position: relative;
+  width: 100%;
+  overflow: clip;
+}
+
+.ulune-wheel-stage::before {
+  content: none;
+}
+
+/* The focus is painted in JS; it fades in quickly on hover (the response
+   starts at once) and slower on a pin or unpin ([data-focus-fade]). */
+.ulune-wheel [data-dimmable],
+.ulune-wheel [data-kind="decan-glyph"],
+.ulune-wheel [data-kind="sign-band"] > [data-kind="sign-color"],
+.ulune-wheel [data-kind="sign-band"] > [data-kind="sign-glyph"],
+.ulune-wheel .ulune-wheel-halo {
+  transition: opacity var(--chart-quick) var(--chart-ease);
+}
+/* Opacity only: an animated stroke width re-lays out the SVG on every frame
+   (and the lit line's copy above it already carries the change). */
+.ulune-wheel [data-aspect-line],
+.ulune-wheel [data-aspect-tip] {
+  transition: opacity var(--chart-quick) var(--chart-ease);
+}
+.ulune-wheel [data-kind="house"] {
+  transition: fill var(--chart-quick) var(--chart-ease);
+}
+.ulune-wheel .ulune-glyph-scale {
+  transition: transform 260ms var(--chart-ease);
+}
+.ulune-wheel[data-focus-fade] [data-dimmable],
+.ulune-wheel[data-focus-fade] [data-kind="decan-glyph"],
+.ulune-wheel[data-focus-fade] [data-kind="sign-band"] > [data-kind="sign-color"],
+.ulune-wheel[data-focus-fade] [data-kind="sign-band"] > [data-kind="sign-glyph"],
+.ulune-wheel[data-focus-fade] .ulune-wheel-halo,
+.ulune-wheel[data-focus-fade] [data-aspect-line],
+.ulune-wheel[data-focus-fade] [data-aspect-tip],
+.ulune-wheel[data-focus-fade] [data-kind="house"] {
+  transition-duration: 460ms;
+}
+.ulune-wheel [data-kind="planet"] {
+  opacity: var(--wheel-base-o, 1);
+}
+/* Composited focus fades (wheel-fade.ts): the live wheel snaps to each focus
+   and a copy of what it showed fades out over it, so none of the per-node
+   fades above run (a glyph growing into focus, or a mark popping in, is part
+   of that cross-fade too). */
+.ulune-wheel[data-fades="layer"]
+  :is(
+    [data-dimmable],
+    [data-kind="decan-glyph"],
+    [data-kind="sign-band"] > *,
+    .ulune-wheel-halo,
+    [data-aspect-line],
+    [data-aspect-tip],
+    [data-kind="house"],
+    [data-kind="house-num"],
+    [data-kind="cusp"],
+    [data-kind="cusp-deg"],
+    .ulune-aspect-dir,
+    .ulune-aspect-case,
+    .ulune-aspect-top,
+    [data-kind="lead"] > line,
+    .ulune-aspect-mark,
+    .ulune-aspect-mark-pop,
+    .ulune-glyph-scale
+  ) {
+  transition: none;
+}
+/* The copy: exactly over the live wheel, on the page's own background (so
+   fading it out is an exact cross-fade), still and out of the way. */
+.ulune-wheel.ulune-wheel-ghost {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  will-change: opacity;
+  /* Never under the pointer: a cursor of its own keeps the stage's cursor
+     changes from restyling all of its nodes. */
+  cursor: default;
+}
+.ulune-wheel.ulune-wheel-ghost,
+.ulune-wheel.ulune-wheel-ghost * {
+  transition: none !important;
+  animation: none !important;
+}
+.ulune-wheel-ghost > [data-backdrop] {
+  fill: var(--color-bg);
+}
+
+/* Something arriving on the wheel (mixer, filters, layers): a body pops in,
+   an aspect fades in as one piece (its line, tapered ends, chevron and
+   casing: one animation, g[data-arrive]) and a solid line in it draws itself
+   along its length, the rest fade in. Existing nodes keep their DOM
+   identity, so this only plays on new ones; fill-mode is backwards so the
+   focus paint owns opacity afterwards. */
+.ulune-wheel [data-kind="planet"],
+.ulune-wheel [data-kind="transit"] {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ulune-pop-in 560ms var(--chart-ease) backwards;
+}
+.ulune-wheel [data-kind="angle"],
+.ulune-wheel g[data-aspect][data-arrive],
+.ulune-wheel [data-kind="star"],
+.ulune-wheel [data-kind="mp"] {
+  animation: ulune-fade-plain 440ms var(--chart-ease) backwards;
+}
+.ulune-wheel [data-kind="aspect"][data-draw] {
+  animation: ulune-draw 600ms var(--chart-ease-io) backwards;
+}
+/* A fresh wheel ([data-entering], set for its first two seconds) assembles
+   itself: the zodiac blooms out segment by segment from the Ascendant, the
+   decans and cusps follow, the planets pop in a wave round the zodiac, the
+   aspects draw themselves after they land (tightest orb first), the outer
+   ring and its bodies come last. --enter is each piece's place in the order. */
+.ulune-wheel[data-entering] [data-kind="sign-band"] {
+  transform-box: view-box;
+  transform-origin: 360px 360px;
+  animation: ulune-bloom 640ms var(--chart-ease) calc(60ms + var(--enter, 0) * 32ms) backwards;
+}
+.ulune-wheel[data-entering] [data-decans] {
+  animation: ulune-fade-plain 520ms var(--chart-ease) calc(180ms + var(--enter, 0) * 32ms) backwards;
+}
+.ulune-wheel[data-entering] [data-house] > line {
+  animation: ulune-fade-plain 560ms var(--chart-ease) calc(240ms + var(--enter, 0) * 36ms) backwards;
+}
+.ulune-wheel[data-entering] [data-kind="house-num"] {
+  animation: ulune-fade-plain 480ms var(--chart-ease) calc(420ms + var(--enter, 0) * 30ms) backwards;
+}
+.ulune-wheel[data-entering] [data-kind="angle"] {
+  animation-delay: calc(220ms + var(--enter, 0) * 70ms);
+}
+.ulune-wheel[data-entering] [data-kind="lead"] {
+  animation: ulune-fade-plain 520ms var(--chart-ease) calc(300ms + var(--enter, 0) * 520ms) backwards;
+}
+.ulune-wheel[data-entering] [data-kind="planet"] {
+  animation-delay: calc(300ms + var(--enter, 0) * 520ms);
+}
+.ulune-wheel[data-entering] g[data-aspect][data-arrive],
+.ulune-wheel[data-entering] [data-kind="aspect"][data-draw] {
+  animation-delay: calc(820ms + var(--enter, 0) * 34ms);
+}
+.ulune-wheel[data-entering] [data-kind="outer-ring"] {
+  transform-box: view-box;
+  transform-origin: 360px 360px;
+  animation: ulune-bloom 700ms var(--chart-ease) 520ms backwards;
+}
+.ulune-wheel[data-entering] [data-kind="transit"] {
+  animation-delay: calc(760ms + var(--enter, 0) * 420ms);
+}
+.ulune-wheel[data-entering] [data-kind="star"],
+.ulune-wheel[data-entering] [data-kind="mp"] {
+  animation-delay: 1000ms;
+}
+/* An aspect already on the wheel (data-seen, chart-wheel.tsx) never plays its
+   arrival again: when the list reorders around it (a time step), React moves
+   its node, and a moved node would start its animations over. */
+.ulune-wheel g[data-aspect][data-seen],
+.ulune-wheel g[data-seen] > [data-kind="aspect"][data-draw] {
+  animation: none;
+}
+/* In a time jump the cross aspects wait for the bodies to arrive and fade in
+   with them (chart-wheel.tsx, data-gliding): a line appearing with the jump
+   takes that fade, its own arrival starts finished. (A delay, not "none":
+   lifted at the glide's end, "none" would start it over.) */
+.ulune-wheel[data-gliding] g[data-aspect][data-arrive],
+.ulune-wheel[data-gliding] [data-kind="aspect"][data-draw] {
+  animation-delay: -10s;
+}
+
+/* Aspect type marks sit on the chord. Hidden until that line is in
+   focus (hover or pin). Opacity is painted in JS (same as aspect lines)
+   so Safari cannot stick them at 0. Transition matches a body arriving.
+   Do not CSS-transform this <g> — it overrides the SVG translate. */
+.ulune-wheel .ulune-aspect-mark {
+  pointer-events: none;
+  transition: opacity var(--motion-ui) var(--ease-out);
+}
+.ulune-wheel .ulune-aspect-mark-pop {
+  transform-origin: 0 0;
+  transform: scale(0.96);
+  transition: transform var(--motion-ui) var(--ease-out);
+}
+.ulune-wheel .ulune-aspect-mark[data-on="1"] .ulune-aspect-mark-pop {
+  transform: scale(1);
+}
+.ulune-wheel[data-focus-kind="natal"] [data-dimmable]:not([data-in-focus="1"]) {
+  opacity: 0.3;
+}
+.ulune-wheel[data-focus-kind="natal"] .ulune-dim-lead:not([data-in-focus="1"]) {
+  opacity: 0.25;
+}
+.ulune-wheel[data-focus-kind="natal"] .ulune-dim-reception:not([data-in-focus="1"]) {
+  opacity: 0.15;
+}
+.ulune-wheel[data-focus-kind="transit"] .ulune-dim-transit[data-dimmable]:not([data-in-focus="1"]),
+.ulune-wheel[data-focus-kind="transit"] .ulune-dim-tlead[data-dimmable]:not([data-in-focus="1"]),
+.ulune-wheel[data-focus-kind="transit"] .ulune-dim-tpin[data-dimmable]:not([data-in-focus="1"]) {
+  opacity: 0.35;
+}
+/* The zodiac is the chart's frame: a focus elsewhere steps its colours and
+   glyphs back, it never fades away. Its dark glyph panels stay as they are —
+   faded, they turned lighter than the sign in focus, which then looked like
+   a hole in the ring. */
+.ulune-wheel[data-focus-kind="natal"] .ulune-dim-band:not([data-in-focus="1"]),
+.ulune-wheel[data-focus-kind="transit"] .ulune-dim-band:not([data-in-focus="1"]) {
+  opacity: 1;
+}
+.ulune-wheel[data-focus-kind="natal"] .ulune-dim-band:not([data-in-focus="1"]) > .ulune-dim-sign-color,
+.ulune-wheel[data-focus-kind="transit"] .ulune-dim-band:not([data-in-focus="1"]) > .ulune-dim-sign-color {
+  opacity: 0.38;
+}
+.ulune-wheel[data-focus-kind="natal"] .ulune-dim-band:not([data-in-focus="1"]) > .ulune-dim-sign-glyph,
+.ulune-wheel[data-focus-kind="transit"] .ulune-dim-band:not([data-in-focus="1"]) > .ulune-dim-sign-glyph {
+  opacity: 0.34;
+}
+/* The houses are the chart's scaffolding: a focus steps back the ones it
+   does not stand in (wheel-focus.ts) — their numbers, cusps and cusp
+   degrees — so its own lines and bodies read first. */
+.ulune-wheel [data-kind="house-num"],
+.ulune-wheel [data-kind="cusp"],
+.ulune-wheel [data-kind="cusp-deg"] {
+  transition: opacity var(--chart-quick) var(--chart-ease);
+}
+.ulune-wheel[data-focus-fade] [data-kind="house-num"],
+.ulune-wheel[data-focus-fade] [data-kind="cusp"],
+.ulune-wheel[data-focus-fade] [data-kind="cusp-deg"] {
+  transition-duration: 460ms;
+}
+.ulune-wheel[data-focus-kind="natal"] .ulune-dim-house-num[data-in-focus="0"],
+.ulune-wheel[data-focus-kind="transit"] .ulune-dim-house-num[data-in-focus="0"] {
+  opacity: 0.3;
+}
+.ulune-wheel[data-focus-kind="natal"] .ulune-dim-house-num[data-uncertain="1"][data-in-focus="0"],
+.ulune-wheel[data-focus-kind="transit"] .ulune-dim-house-num[data-uncertain="1"][data-in-focus="0"] {
+  opacity: 0.18;
+}
+.ulune-wheel[data-focus-kind="natal"] .ulune-dim-cusp[data-in-focus="0"],
+.ulune-wheel[data-focus-kind="transit"] .ulune-dim-cusp[data-in-focus="0"] {
+  opacity: 0.26;
+}
+.ulune-wheel[data-focus-kind="natal"] .ulune-dim-cusp[data-cusp-kind="angular"][data-in-focus="0"],
+.ulune-wheel[data-focus-kind="transit"] .ulune-dim-cusp[data-cusp-kind="angular"][data-in-focus="0"] {
+  opacity: 0.42;
+}
+.ulune-wheel[data-focus-kind="natal"] .ulune-dim-cusp-deg[data-in-focus="0"],
+.ulune-wheel[data-focus-kind="transit"] .ulune-dim-cusp-deg[data-in-focus="0"] {
+  opacity: 0.3;
+}
+/* The house in focus itself is washed a little lighter. */
+.ulune-wheel [data-kind="house"][data-exact="1"] {
+  fill: color-mix(in oklab, var(--color-fg) 8%, transparent);
+}
+.ulune-wheel [data-kind="house-num"][data-exact="1"] circle {
+  stroke: var(--color-halo);
+}
+.ulune-wheel [data-kind="angle"][data-exact="1"] circle {
+  r: 4.5;
+}
+.ulune-wheel [data-kind="house-num"][data-exact="1"] .ulune-glyph {
+  color: var(--color-fg);
+}
+.ulune-wheel [data-kind="decan-glyph"] {
+  opacity: 0.62;
+}
+.ulune-wheel [data-kind="decan-glyph"][data-in-focus="1"] {
+  opacity: 1;
+}
+.ulune-wheel[data-focus-kind="natal"] .ulune-dim-decan-glyph:not([data-in-focus="1"]) {
+  opacity: 0.4;
+}
+.ulune-wheel [data-kind="lead"] polyline,
+.ulune-wheel [data-kind="lead"] line,
+.ulune-wheel [data-kind="tpin"] polyline {
+  opacity: 0.45;
+}
+.ulune-wheel [data-kind="lead"][data-in-focus="1"] polyline,
+.ulune-wheel [data-kind="lead"][data-in-focus="1"] line,
+.ulune-wheel [data-kind="tpin"][data-in-focus="1"] polyline {
+  stroke-width: 1.4;
+  opacity: 0.9;
+}
+/* A fanned glyph is the one case where the leader carries meaning — it is all
+   that ties the glyph to its true degree — so it stays readable unfocused. */
+.ulune-wheel [data-kind="lead"][data-fanned="1"] polyline {
+  opacity: 0.62;
+}
+.ulune-wheel [data-kind="tlead"] polyline {
+  opacity: 0.45;
+}
+.ulune-wheel [data-kind="tlead"][data-in-focus="1"] polyline {
+  stroke-width: 1.5;
+  opacity: 0.9;
+}
+.ulune-wheel [data-kind="angle"][data-uncertain="1"],
+.ulune-wheel [data-kind="house-num"][data-uncertain="1"] {
+  opacity: 0.38;
+}
+.ulune-wheel [data-kind="mp"][data-exact="1"] line {
+  stroke: var(--color-halo);
+  stroke-width: 1.8;
+}
+.ulune-wheel [data-kind="star"][data-exact="1"] line {
+  stroke: var(--color-halo);
+  stroke-width: 1.6;
+}
+.ulune-wheel [data-kind="star"] {
+  color: var(--color-fg);
+}
+.ulune-wheel [data-kind="star"][data-exact="1"] {
+  color: var(--color-halo);
+}
+.ulune-wheel .ulune-glyph-scale {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+/* Only what you point at grows (everything it involves growing too made the
+   glyphs pulse as the pointer moved across the chart). */
+.ulune-wheel [data-exact="1"] .ulune-glyph-scale {
+  transform: scale(1.12);
+}
+.ulune-wheel .ulune-wheel-halo {
+  opacity: 0;
+}
+.ulune-wheel [data-exact="1"] > .ulune-wheel-halo {
+  opacity: 0.65;
+}
+
+/* ─── Chart visibility (see the chart visibility plan) ────────
+   Inks: a chart colour drawn as a glyph keeps all of itself on the dark
+   theme, 76% on cream (the rest toward black, in oklch: the same hue, as
+   saturated), so pale hues (air, the conjunction gold) keep their contrast
+   without turning muddy. Aspect lines keep 88%: on cream they are the
+   element colours of the ring, a shade deeper. Structural lines take a
+   touch more ink on cream for the same contrast. */
+:root {
+  --ink-keep: 100%;
+  --line-keep: 100%;
+  --wheel-sign-line: color-mix(in oklab, var(--color-fg) 36%, transparent);
+  --wheel-aspect-ring: color-mix(in oklab, var(--color-fg) 18%, transparent);
+}
+html.light {
+  --ink-keep: 76%;
+  --line-keep: 88%;
+  --wheel-sign-line: color-mix(in oklab, var(--color-fg) 44%, transparent);
+  --wheel-aspect-ring: color-mix(in oklab, var(--color-fg) 24%, transparent);
+}
+/* Out of focus on cream: step back less (a pale line at 30% vanishes); an
+   aspect line keeps its colour, fainter (wheel-style.ts OPACITY). */
+html.light .ulune-wheel[data-focus-kind="natal"] [data-dimmable]:not([data-in-focus="1"]) {
+  opacity: 0.4;
+}
+html.light .ulune-wheel[data-focus-kind="transit"] .ulune-dim-transit[data-dimmable]:not([data-in-focus="1"]),
+html.light .ulune-wheel[data-focus-kind="transit"] .ulune-dim-tlead[data-dimmable]:not([data-in-focus="1"]),
+html.light .ulune-wheel[data-focus-kind="transit"] .ulune-dim-tpin[data-dimmable]:not([data-in-focus="1"]) {
+  opacity: 0.45;
+}
+html.light .ulune-wheel[data-focus-kind="natal"] .ulune-dim-band:not([data-in-focus="1"]) > .ulune-dim-sign-color,
+html.light .ulune-wheel[data-focus-kind="transit"] .ulune-dim-band:not([data-in-focus="1"]) > .ulune-dim-sign-color {
+  opacity: 0.48;
+}
+html.light .ulune-wheel[data-focus-kind="natal"] .ulune-dim-band:not([data-in-focus="1"]) > .ulune-dim-sign-glyph,
+html.light .ulune-wheel[data-focus-kind="transit"] .ulune-dim-band:not([data-in-focus="1"]) > .ulune-dim-sign-glyph {
+  opacity: 0.42;
+}
+html.light .ulune-wheel[data-focus-kind="natal"] .ulune-dim-house-num[data-in-focus="0"],
+html.light .ulune-wheel[data-focus-kind="transit"] .ulune-dim-house-num[data-in-focus="0"],
+html.light .ulune-wheel[data-focus-kind="natal"] .ulune-dim-cusp-deg[data-in-focus="0"],
+html.light .ulune-wheel[data-focus-kind="transit"] .ulune-dim-cusp-deg[data-in-focus="0"] {
+  opacity: 0.4;
+}
+html.light .ulune-wheel[data-focus-kind="natal"] .ulune-dim-cusp[data-in-focus="0"],
+html.light .ulune-wheel[data-focus-kind="transit"] .ulune-dim-cusp[data-in-focus="0"] {
+  opacity: 0.34;
+}
+html.light .ulune-wheel[data-focus-kind="natal"] .ulune-dim-cusp[data-cusp-kind="angular"][data-in-focus="0"],
+html.light .ulune-wheel[data-focus-kind="transit"] .ulune-dim-cusp[data-cusp-kind="angular"][data-in-focus="0"] {
+  opacity: 0.5;
+}
+html.light .ulune-wheel [data-kind="decan-glyph"] {
+  opacity: 0.75;
+}
+/* Applying / separating chevrons follow their line's focus. At rest a shade
+   over their line, per theme (chart-wheel.tsx gives both: a theme switch
+   re-renders nothing). */
+.ulune-wheel .ulune-aspect-dir {
+  opacity: var(--dir-o, 1);
+  transition: opacity var(--chart-quick) var(--chart-ease);
+}
+html.light .ulune-wheel .ulune-aspect-dir {
+  opacity: var(--dir-ol, var(--dir-o, 1));
+}
+/* The detected configurations' faint fills, per theme; stronger when some
+   are picked out (data-strong). */
+.ulune-wheel [data-cfg-type] {
+  fill-opacity: 0.05;
+}
+html.light .ulune-wheel [data-cfg-type] {
+  fill-opacity: 0.06;
+}
+.ulune-wheel [data-kind="cfg-fills"] > [data-cfg-type][data-strong] {
+  fill-opacity: 0.12;
+}
+.ulune-wheel:not([data-focus-kind=""]) g[data-aspect][data-in-focus="0"] > .ulune-aspect-dir {
+  opacity: 0.12;
+}
+.ulune-wheel [data-kind="angle"][data-uncertain="1"][data-in-focus="1"] polygon {
+  opacity: 0.72;
+}
+/* Casing parts crossing majors. It follows its line: out of another focus
+   it goes (else it would cut the lit lines under it). */
+.ulune-wheel .ulune-aspect-case {
+  transition: opacity var(--chart-quick) var(--chart-ease);
+}
+.ulune-wheel:not([data-focus-kind=""]) g[data-aspect][data-in-focus="0"] > .ulune-aspect-case {
+  opacity: 0;
+}
+.ulune-wheel[data-focus-fade] .ulune-aspect-case {
+  transition-duration: 460ms;
+}
+/* The lit lines' copies above every line fade with the focus, over the
+   lines they copy. */
+.ulune-wheel .ulune-aspect-top {
+  transition: opacity var(--chart-quick) var(--chart-ease);
+}
+.ulune-wheel[data-focus-fade] .ulune-aspect-top {
+  transition-duration: 460ms;
+}
+/* A glyph shown at rest on its line is a little smaller than a lit one. */
+.ulune-wheel .ulune-aspect-mark[data-on="rest"] .ulune-aspect-mark-pop {
+  transform: scale(0.78);
+}
+/* One leader per planet reads: the one to its degree on the ring. The one in
+   to the aspect circle whispers until the planet is in focus. */
+.ulune-wheel [data-kind="lead"] > line {
+  transition: opacity var(--chart-quick) var(--chart-ease);
+}
+.ulune-wheel [data-kind="lead"]:not([data-in-focus="1"]) > line {
+  opacity: 0.15;
+}
+/* Cusp degrees: small, quiet, on desktop-sized wheels only (chart-wheel.tsx). */
+.ulune-wheel [data-kind="cusp-deg"] {
+  fill: var(--color-fg-muted);
+  opacity: 0.85;
+}
+.ulune-wheel [data-kind="angle-deg"] {
+  fill: var(--color-fg-muted);
+}
+
+/* Desktop header is one 56px row. Phone stacks tools so the chart name
+   keeps the rest of the first row. Look text-scale must not reflow it. */
+
+@container dock (max-width: 36rem) {
+  .ulune-birth-when {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 430px) {
+  /* Chart on phone: tabs only until a tab is opened, so HD/wheel stay in frame. */
+  
+  
+}
+@media (max-width: 1199px) {
+  /* Page is the scroller: dock panels grow, no nested clip. */
+  
+  
+  .ulune-table-wrap {
+    max-height: none;
+  }
+}
+
+.ulune-natal,
+.ulune-transits,
+.ulune-timing,
+.ulune-synastry,
+.ulune-composite,
+.ulune-progressions,
+.ulune-numerology,
+.ulune-humandesign {
+  --natal-gap: var(--space-3);
+  --natal-sky-pad: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--natal-gap);
+  min-width: 0;
+}
+
+@media (max-width: 430px) {
+  .ulune-natal,
+  .ulune-transits,
+  .ulune-timing,
+  .ulune-synastry,
+  .ulune-composite,
+  .ulune-progressions,
+  .ulune-numerology,
+  .ulune-humandesign {
+    --natal-sky-pad: var(--space-2);
+    --natal-gap: var(--space-2);
+  }
+}
+
+.ulune-sky {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: var(--natal-sky-pad);
+  min-width: 0;
+}
+
+.ulune-sky-wheel {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.ulune-sky-wheel .ulune-wheel-stage {
+  width: 100%;
+  height: 100%;
+}
+
+.ulune-wheel-zoom {
+  --wheel-fit-inset: 28px;
+  --wheel-zoom-gap: 8px;
+  --wheel-zoom-hit: 44px;
+  --wheel-zoom-inset: 12px;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ulune-wheel-zoom-port {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior: auto;
+  cursor: grab;
+}
+.ulune-wheel-zoom-port:not([data-zoom="1.00"]) {
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+
+/* The closed hand while pressing, where a drag moves the wheel (zoomed in).
+   At the fit there is nothing to drag; and every node of the wheel inherits
+   the cursor, so switching it on each press restyled the whole wheel (and its
+   fade copy) under a click on a planet. */
+.ulune-wheel-zoom-port:not([data-zoom="1.00"]):active {
+  cursor: grabbing;
+}
+
+/* Until the fit measures the stage (wheel-zoom.tsx sets the exact size on
+   this element itself: a value set on the port would be inherited by every
+   node of the wheel, and restyle them all). */
+.ulune-wheel-zoom-inner {
+  width: calc(100% - 28px);
+  height: calc(100% - 28px);
+  flex: none;
+  transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.ulune-wheel-zoom-inner .ulune-wheel {
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+}
+
+.ulune-sky-wheel:has(.ulune-wheel-zoom) .ulune-wheel-zoom,
+.ulune-sky-wheel:has(.ulune-wheel-zoom) .ulune-wheel-zoom-port {
+  width: 100%;
+  max-width: 100%;
+}
+
+.ulune-sky-read {
+  width: 100%;
+  min-width: 0;
+}
+
+.ulune-sky-read-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.ulune-sky-read-ai {
+  margin-left: auto;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-fg-muted);
+}
+
+.ulune-sky-read-ai:hover,
+.ulune-sky-read-ai:focus-visible {
+  color: var(--color-fg);
+}
+
+.ulune-sky-read-ai-icon,
+.ulune-sky-read-ai svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ulune-sky-read-empty {
+  margin: 0;
+  margin-top: var(--space-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--color-fg-muted);
+}
+
+.ulune-sky-read-body {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.ulune-hello {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-width: 0;
+  overflow: visible;
+}
+
+.ulune-hello-cell + .ulune-hello-cell {
+  border-top: 1px solid var(--color-border);
+}
+
+.ulune-hello-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.25rem;
+  min-height: 44px;
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  overflow: visible;
+  text-align: left;
+  font-family: var(--font-sans);
+}
+
+.ulune-hello-head {
+  flex-wrap: wrap;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  min-width: 0;
+  width: 100%;
+}
+
+.ulune-hello-glyph {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  align-self: center;
+}
+
+.ulune-hello-label {
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  color: var(--color-fg-subtle);
+}
+
+.ulune-hello-title {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  line-height: 1.15;
+  color: var(--color-fg);
+}
+
+.ulune-hello-copy {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  overflow-wrap: break-word;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-fg-muted);
+}
+
+[data-testid="transits-hello"] .ulune-hello-title,
+[data-testid="timing-hello"] .ulune-hello-title,
+[data-testid="synastry-hello"] .ulune-hello-title,
+[data-testid="composite-hello"] .ulune-hello-title,
+[data-testid="progressions-hello"] .ulune-hello-title,
+[data-testid="numerology-hello"] .ulune-hello-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+}
+
+@media (min-width: 768px) {
+  .ulune-hello-copy {
+    font-size: var(--text-base);
+  }
+}
+
+/* Hello cells stay one column: three sentences, not three cards. */
+
+@media (min-width: 1200px) {
+  .ulune-hello-title {
+    font-size: 1.75rem;
+  }
+  .ulune-hello-copy {
+    font-size: var(--text-base);
+  }
+}
+
+@media (min-width: 1024px) {
+  .ulune-sky {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .ulune-sky-wheel {
+    flex: 0 1 56%;
+    width: 56%;
+    min-width: 520px;
+    max-width: 56%;
+  }
+
+  /* Filled-diameter zoom is natal-only. Other skies are content-sized
+     grids (align-items: start); aspect-ratio: auto + min(width,height)
+     in WheelZoom collapses the port to 0. */
+  .ulune-natal .ulune-sky-wheel:has(.ulune-wheel-zoom) {
+    display: flex;
+    flex-direction: column;
+    height: calc(
+      100dvh - var(--ulune-header-h, 6.75rem) - var(--ulune-nav-h, 4.125rem) - 2 *
+        var(--natal-sky-pad, 1.5rem)
+    );
+    max-height: calc(
+      100dvh - var(--ulune-header-h, 6.75rem) - var(--ulune-nav-h, 4.125rem) - 2 *
+        var(--natal-sky-pad, 1.5rem)
+    );
+  }
+
+  .ulune-natal .ulune-sky-wheel:has(.ulune-wheel-zoom) .ulune-wheel-zoom {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .ulune-natal .ulune-sky-wheel:has(.ulune-wheel-zoom) .ulune-wheel-zoom-port {
+    flex: 1 1 auto;
+    aspect-ratio: auto;
+    min-height: 0;
+    height: auto;
+  }
+
+  .ulune-sky-wheel .ulune-wheel-stage {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+  }
+
+  .ulune-sky-read {
+    flex: 1 1 44%;
+    width: 44%;
+    position: sticky;
+    top: var(--ulune-header-h, 6.75rem);
+    max-height: calc(100dvh - var(--ulune-header-h, 6.75rem) - 1rem);
+    overflow-y: auto;
+  }
+}
+
+.ulune-biwheel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  align-items: center;
+}
+
+.ulune-biwheel-banner {
+  position: relative;
+  top: auto;
+  left: auto;
+  z-index: 2;
+  width: 100%;
+  max-width: 28rem;
+  margin-inline: auto;
+  margin-bottom: var(--space-2);
+  transform: none;
+  text-align: center;
+  pointer-events: auto;
+}
+.ulune-biwheel-footer {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 36rem;
+  margin-inline: auto;
+  margin-top: var(--space-2);
+  padding-inline: var(--stage-pad);
+  padding-bottom: var(--space-2);
+  pointer-events: auto;
+}
+@media (min-width: 1200px) {
+  .ulune-biwheel-footer {
+    width: min(100% - 2rem, 36rem);
+    max-width: none;
+    padding-inline: 0;
+  }
+}
+.ulune-aspect-layer {
+  position: relative;
+  top: auto;
+  left: auto;
+  z-index: 2;
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: var(--space-2);
+  display: flex;
+  justify-content: center;
+  transform: none;
+  pointer-events: auto;
+}
+
+@media (max-width: 1023.98px) {
+  .ulune-transits-sky,
+  .ulune-progressions-sky {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ulune-transits-rail,
+  .ulune-progressions-rail {
+    display: contents;
+  }
+
+  .ulune-transits-sky .ulune-transit-clock,
+  .ulune-progressions-sky .ulune-progressions-clock {
+    order: 1;
+    position: sticky;
+    top: calc(var(--ulune-header-h, 6.75rem) + var(--ulune-nav-h, 4.125rem));
+    z-index: 21;
+    margin-inline: calc(-1 * var(--natal-sky-pad));
+    padding-inline: var(--natal-sky-pad);
+    background: var(--color-bg-elevated);
+    padding-top: 0.15rem;
+    padding-bottom: 0.35rem;
+  }
+
+  .ulune-transits-sky .ulune-transit-scrub,
+  .ulune-progressions-sky .ulune-progressions-scrub {
+    order: 2;
+  }
+
+  .ulune-transits-sky .ulune-sky-wheel,
+  .ulune-progressions-sky .ulune-sky-wheel {
+    order: 3;
+  }
+
+  .ulune-transits-sky .ulune-sky-read,
+  .ulune-progressions-sky .ulune-sky-read {
+    order: 4;
+  }
+
+}
+
+@media (min-width: 1024px) {
+  .ulune-transits-sky.ulune-sky,
+  .ulune-progressions-sky.ulune-sky {
+    display: grid;
+    grid-template-columns: minmax(520px, 56%) minmax(0, 44%);
+    align-items: start;
+    align-content: start;
+  }
+
+  .ulune-transits-sky .ulune-sky-wheel,
+  .ulune-progressions-sky .ulune-sky-wheel {
+    grid-column: 1;
+    grid-row: 1;
+    flex: none;
+    width: auto;
+    min-width: 520px;
+    max-width: none;
+  }
+
+  .ulune-transits-rail,
+  .ulune-progressions-rail {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+    position: sticky;
+    top: var(--ulune-header-h, 6.75rem);
+    max-height: calc(100dvh - var(--ulune-header-h, 6.75rem) - 1rem);
+    overflow-y: auto;
+  }
+
+  .ulune-transits-rail .ulune-sky-read,
+  .ulune-progressions-rail .ulune-sky-read {
+    order: 1;
+    flex: none;
+    width: auto;
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .ulune-transits-rail .ulune-transit-clock,
+  .ulune-progressions-rail .ulune-progressions-clock {
+    order: 2;
+    position: static;
+  }
+
+  .ulune-transits-rail .ulune-transit-scrub,
+  .ulune-progressions-rail .ulune-progressions-scrub {
+    order: 3;
+  }
+}
+
+.ulune-chart-stage {
+  --reading-rail-side: 24rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  min-width: 0;
+}
+
+.ulune-wheel-col {
+  width: 100%;
+  min-width: 0;
+}
+
+.ulune-reading-rail {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .ulune-chart-stage[data-reading="side"] {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: var(--space-4);
+  }
+
+  .ulune-chart-stage[data-reading="side"] .ulune-wheel-col {
+    width: min(100%, 89dvh, calc(100% - var(--reading-rail-side) - var(--space-4)));
+    flex: 0 1 auto;
+  }
+
+  .ulune-chart-stage[data-reading="side"] .ulune-reading-rail {
+    width: var(--reading-rail-side);
+    max-width: var(--reading-rail-side);
+    flex-shrink: 0;
+    position: sticky;
+    top: var(--space-7);
+    max-height: calc(100dvh - var(--space-7) - var(--space-3));
+    overflow-y: auto;
+  }
+}
+
+/* Click reading: large wrapping title so planet / aspect names stay readable. */
+[data-fold="click"] .ulune-fold-head,
+[data-fold="click"] .ulune-fold-hit {
+  align-items: flex-start;
+}
+
+[data-fold="click"] .ulune-fold-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-top: var(--space-1);
+}
+
+[data-fold="click"] .ulune-fold-title {
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
+  font-size: var(--text-2xl);
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+[data-fold="click"] .ulune-fold-subtitle {
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
+  font-size: var(--text-sm);
+  line-height: var(--leading-phi-snug);
+}
+
+@media (min-width: 768px) {
+  [data-fold="click"] .ulune-fold-title {
+    font-size: var(--text-3xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .ulune-chart-stage[data-reading="side"] [data-fold="click"] .ulune-fold-title {
+    font-size: var(--text-2xl);
+  }
+}
+
+.ulune-fade,
+.ulune-fade-in {
+  animation: ulune-fade-in var(--motion-ui) var(--ease-out) both;
+}
+
+.ulune-live-dot {
+  background: var(--color-halo);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--color-halo) 60%, transparent);
+  animation: ulune-live 1.618s ease-in-out infinite;
+}
+
+@keyframes ulune-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ulune-live-dot {
+    animation: none;
+  }
+}
+
+.ulune-read {
+  animation: ulune-fade-in var(--motion-ui) var(--ease-out) both;
+}
+
+.ulune-compose-bar {
+  background: var(--color-accent);
+  animation: none;
+}
+
+@keyframes ulune-compose-sheen {
+  from { background-position: 100% 0; }
+  to { background-position: -120% 0; }
+}
+
+.ulune-wrap-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  border-bottom: 1px solid var(--color-border);
+}
+.ulune-wrap-tabs > button {
+  flex: 0 1 auto;
+}
+
+.ulune-table-wrap {
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  min-width: 0;
+  max-height: min(70dvh, 40rem);
+  padding-bottom: 0.25rem;
+  scroll-padding-inline: 1rem;
+}
+
+[data-testid="table-houses"] .ulune-house-id-n {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg);
+  line-height: 1;
+}
+
+[data-testid="numerology-hello"] .ulune-hello-head,
+[data-testid="hd-hello"] .ulune-hello-head {
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+[data-testid="hd-hello"] .ulune-hello-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.hd-fill-personality {
+  fill: var(--hd-personality);
+}
+.hd-fill-design {
+  fill: var(--hd-design);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ulune-compose-bar {
+    animation: none;
+  }
+
+  .ulune-fade,
+.ulune-fade-in,
+.ulune-read,
+.ulune-wheel {
+    animation: none;
+  }
+}
+
+/* Login is Form — not Sky. One column of 44px buttons; desktop may split 56/44. */
+
+/* MOBILE_PAIR_SELECT_44 */
+@media (max-width: 767px) {
+  /* Trace leftover: synastry-person-a was 43×44 */
+  [data-testid="synastry-person-a"],
+  [data-testid="synastry-person-b"],
+  [data-testid="composite-person-a"],
+  [data-testid="composite-person-b"] {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 44px;
+    min-height: 44px;
+    height: 44px;
+    max-height: none;
+    box-sizing: border-box;
+    margin: 0;
+    border-width: 1px;
+  }
+  /* Empty synastry/composite + birth form: birth dock first, readable empty */
+  
+  
+  
+}
+
+/* MOBILE_SOLO_NAV */
+
+/* MOBILE_PAIR_BIRTH_ONLY — Form: no empty chrome beside birth form */
+
+/* MOBILE_PAIR_NO_CLIP — beat sticky max-height:44 from the tablet rule */
+@media (max-width: 767px) {
+  [data-testid="synastry-person-a"] {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    max-height: none !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* MOBILE_PAIR_BIRTH_HIDE_CTA */
+
+/* DESKTOP_DOCK_NO_FIGHT_PAIR — resize/collapse only on normal shell row */
+
+/* Table beside dock: stage scrolls the data table */
+
+
+/* Inner wheel nodes are programmatic focus targets only; the wheel shows the ring. */
+.ulune-wheel :focus,
+.ulune-wheel :focus-visible {
+  outline: none;
+}
+
+/* ---------------------------------------------------------- Reading card
+ * Mark + title + facts that locate the element, then meaning → lead →
+ * chart sections → connected rows → About. Chrome is px; copy is rem so
+ * Look's text scale reaches it. */
+.ob-rc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.ob-rc-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  min-height: 44px;
+  margin: -8px 0 -6px -8px;
+  padding: 0 10px 0 8px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg-muted);
+  font: 500 13px/1.2 var(--font-ui);
+  cursor: pointer;
+}
+.ob-rc-back:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+}
+.ob-rc-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.ob-rc-mark {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: color-mix(in oklch, currentColor 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklch, currentColor 38%, transparent);
+}
+.ob-rc-mark-text {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.ob-rc-heading {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-top: 2px;
+}
+.ob-rc-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-fg);
+  text-wrap: balance;
+}
+.ob-rc-kicker {
+  margin: 3px 0 0;
+  font: 400 12px/1.35 var(--font-ui);
+  color: var(--color-fg-subtle);
+  font-variant-numeric: tabular-nums;
+}
+.ob-rc-depth {
+  flex: 0 0 auto;
+  display: inline-grid;
+  grid-auto-flow: column;
+  padding: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+.ob-rc-depth button {
+  min-width: 56px;
+  height: 44px;
+  padding: 0 12px;
+  border: 3px solid transparent;
+  border-radius: var(--radius-md);
+  background-clip: padding-box;
+  background: transparent;
+  color: var(--color-fg-muted);
+  font: 500 12px/1 var(--font-ui);
+  cursor: pointer;
+  transition: color var(--dur-hover) var(--ease-out), background var(--dur-hover) var(--ease-out);
+}
+.ob-rc-depth button.is-on {
+  background: var(--color-bg-elevated);
+  color: var(--color-fg);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+}
+.ob-rc-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ob-rc-fact {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 44px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  text-align: left;
+}
+.ob-rc-fact.is-link {
+  cursor: pointer;
+  transition: border-color var(--dur-hover) var(--ease-out), background var(--dur-hover) var(--ease-out);
+}
+.ob-rc-fact.is-link:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-bg-subtle);
+}
+.ob-rc-fact-k {
+  font: 500 10px/1.2 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.ob-rc-fact-v {
+  font: 500 13px/1.3 var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+.ob-rc-note {
+  margin: 0;
+  padding: 2px 0 2px 14px;
+  border-left: 2px solid var(--rc-tint, var(--color-accent));
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  color: var(--color-fg);
+  max-width: 64ch;
+}
+.ob-rc-lead,
+.ob-rc-p {
+  margin: 0;
+  max-width: 68ch;
+  font-size: 1rem;
+  line-height: var(--leading-phi, 1.6);
+  color: var(--color-fg);
+}
+.ob-rc-p {
+  color: var(--color-fg-muted);
+}
+.ob-rc-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+}
+.ob-rc-h {
+  margin: 0;
+  font: 600 11px/1.2 var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.ob-rc-ai {
+  border-top: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+.ob-rc-more {
+  align-self: flex-start;
+  min-height: 44px;
+  margin: -6px 0 -10px -10px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  font: 500 13px/1 var(--font-ui);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--color-border-strong);
+  cursor: pointer;
+}
+.ob-rc-more:hover {
+  background: var(--color-bg-subtle);
+}
+.ob-rc-rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0 -10px;
+  padding: 0;
+  list-style: none;
+}
+.ob-rc-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  text-align: left;
+  cursor: pointer;
+}
+.ob-rc-row:hover:not(:disabled) {
+  background: var(--color-bg-subtle);
+}
+.ob-rc-row:disabled {
+  cursor: default;
+}
+.ob-rc-row-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  min-width: 0;
+}
+.ob-rc-row-label {
+  font: 500 14px/1.3 var(--font-ui);
+}
+.ob-rc-row-detail {
+  font: 400 12px/1.3 var(--font-ui);
+  color: var(--color-fg-subtle);
+  font-variant-numeric: tabular-nums;
+}
+.ob-rc-row-text {
+  grid-column: 1;
+  grid-row: 2;
+  margin-top: 4px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-fg-muted);
+}
+.ob-rc-row-go {
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--color-fg-subtle);
+}
+.ob-rc-row:disabled .ob-rc-row-go {
+  display: none;
+}
+.ob-rc-about {
+  padding-top: 4px;
+  border-top: 1px solid var(--color-border);
+}
+.ob-rc-about > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font: 500 13px/1.2 var(--font-ui);
+  color: var(--color-fg-muted);
+  cursor: pointer;
+  list-style: none;
+}
+.ob-rc-about > summary::-webkit-details-marker {
+  display: none;
+}
+.ob-rc-about > summary::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin: 0 10px 0 2px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--dur-hover) var(--ease-out);
+}
+.ob-rc-about[open] > summary::before {
+  transform: rotate(45deg);
+}
+.ob-rc-about > .ob-rc-p {
+  margin-bottom: 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ob-rc-depth button,
+  .ob-rc-about > summary::before {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------- At a glance */
+.ob-glance {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.ob-glance-h {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-fg);
+}
+.ob-glance-three {
+  display: flex;
+  flex-direction: column;
+  margin: 0 -10px;
+}
+.ob-glance-cell {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  text-align: left;
+  cursor: pointer;
+}
+.ob-glance-cell:hover,
+.ob-glance-cell.is-on {
+  background: var(--color-bg-subtle);
+}
+.ob-glance-glyph {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: color-mix(in oklch, currentColor 12%, transparent);
+}
+.ob-glance-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.ob-glance-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+}
+.ob-glance .ob-glance-title {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+.ob-glance-place {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  font: 500 13px/1.3 var(--font-ui);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg);
+}
+.ob-glance-sign {
+  align-self: center;
+  color: var(--color-fg-muted);
+}
+.ob-glance-house {
+  color: var(--color-fg-subtle);
+  font-weight: 400;
+}
+.ob-glance-copy {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-fg-muted);
+}
+.ob-glance-balance {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px 24px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+.ob-bal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.ob-bal-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ob-bal-row {
+  display: grid;
+  grid-template-columns: 6.5em minmax(0, 1fr) 1.5em;
+  align-items: center;
+  gap: 10px;
+  font: 400 13px/1.2 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ob-bal-label::first-letter {
+  text-transform: uppercase;
+}
+.ob-bal-label {
+  display: block;
+}
+.ob-bal-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-bg-subtle);
+  overflow: hidden;
+}
+.ob-bal-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+.ob-bal-n {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg);
+}
+.ob-glance-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0 -10px;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--color-border);
+  list-style: none;
+}
+.ob-glance-hl {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+.ob-glance-hl-k {
+  font: 500 10px/1.2 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.ob-glance-hint {
+  margin: 0;
+  font: 400 12px/1.4 var(--font-ui);
+  color: var(--color-fg-subtle);
+}
+.ob-rc-ask {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
+.ob-rc-ask-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  min-height: 44px;
+  margin-left: -10px;
+  padding: 0 12px 0 10px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  font: 500 13px/1.2 var(--font-ui);
+  cursor: pointer;
+}
+.ob-rc-ask-btn:hover,
+.ob-rc-ask-btn[aria-expanded="true"] {
+  background: var(--color-bg-subtle);
+}
+.ob-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.ob-progress-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font: 400 13px/1.4 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ob-progress-time {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg-subtle);
+}
+.ob-progress-track {
+  position: relative;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-bg-subtle);
+}
+.ob-progress-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 32%;
+  border-radius: inherit;
+  background: var(--color-fg-muted);
+  animation: ob-indeterminate 1.4s var(--ease-inout) infinite;
+}
+@keyframes ob-indeterminate {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(320%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ob-progress-bar {
+    animation: none;
+    width: 100%;
+    opacity: 0.35;
+  }
+}
+.ob-portrait {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ob-pick-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: calc(100% + 16px);
+  min-height: 44px;
+  margin: 0 -8px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+}
+.ob-pick-row:hover {
+  background: var(--color-bg-subtle);
+}
+.ob-balance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px 32px;
+}
+.ob-agrid-wrap {
+  overflow: auto;
+  max-width: 100%;
+}
+.ob-agrid {
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+.ob-agrid td,
+.ob-agrid th {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  text-align: center;
+  vertical-align: middle;
+}
+.ob-agrid .ob-agrid-diag {
+  border-color: transparent;
+  color: var(--color-fg-muted);
+  font-weight: 400;
+}
+.ob-agrid td button {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 30px;
+  border: 0;
+  background: transparent;
+  color: var(--color-fg);
+  cursor: pointer;
+}
+.ob-agrid td[data-level="minor"] button {
+  color: var(--color-fg-subtle);
+}
+.ob-agrid td button:hover,
+.ob-agrid td[data-on="1"] button {
+  background: var(--color-bg-subtle);
+}
+@media (pointer: coarse) {
+  .ob-agrid td,
+  .ob-agrid th {
+    width: 26px;
+    height: 26px;
+  }
+  .ob-agrid td button {
+    min-height: 26px;
+  }
+}
+
+/* Phones: rows become two-line items; nothing scrolls sideways. */
+@media (max-width: 639.98px) {
+  .ulune-table-wrap {
+    overflow: visible;
+    max-height: none;
+  }
+}
+.ob-seg3 {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+.ob-seg3 button {
+  min-width: 56px;
+  height: 44px;
+  padding: 0 12px;
+  border: 3px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  background-clip: padding-box;
+  color: var(--color-fg-muted);
+  font: 500 12px/1 var(--font-ui);
+  cursor: pointer;
+}
+.ob-seg3 button.is-on {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-fg);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+}
+
+/* ------------------------------------------------------------ Birth form */
+.ob-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 0 4px;
+  font: 400 14px/1.4 var(--font-ui);
+  color: var(--color-fg);
+  cursor: pointer;
+}
+.ob-check input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  accent-color: var(--color-fg);
+}
+.ob-check-hint {
+  color: var(--color-fg-muted);
+}
+.ob-birth-options {
+  border-top: 1px solid var(--color-border);
+}
+.ob-birth-options > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font: 500 13px/1.2 var(--font-ui);
+  color: var(--color-fg-muted);
+  cursor: pointer;
+  list-style: none;
+}
+.ob-birth-options > summary::-webkit-details-marker {
+  display: none;
+}
+.ob-birth-options > summary::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin: 0 4px 0 2px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--dur-hover) var(--ease-out);
+}
+.ob-birth-options[open] > summary::before {
+  transform: rotate(45deg);
+}
+.ob-birth-options-val {
+  margin-left: auto;
+  color: var(--color-fg-subtle);
+  font-weight: 400;
+}
+.ob-birth-options[open] {
+  padding-bottom: 8px;
+}
+/* A birth-time reading that needs the reader's eye (skipped or repeated hour, approximate zone). */
+.ob-tz-note {
+  padding-left: 8px;
+  border-left: 2px solid var(--color-halo);
+  color: var(--color-fg);
+  line-height: 1.45;
+}
+.ob-sample-link {
+  align-self: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--color-fg-muted);
+  font: 500 13px/1 var(--font-ui);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--color-border-strong);
+  cursor: pointer;
+}
+.ob-sample-link:hover {
+  color: var(--color-fg);
+}
+
+/* Motion (content): card swap 120ms with a 4px rise; disclosures 150ms. */
+@keyframes ob-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.ob-rc.ulune-read,
+.ob-glance {
+  animation: ob-rise 120ms var(--ease-out) both;
+}
+.ob-rc-about[open] > :not(summary),
+.ob-birth-options[open] > :not(summary),
+details.ob-rc-about[open] > p {
+  animation: ulune-fade-in 150ms var(--ease-out) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ob-rc.ulune-read,
+  .ob-glance,
+  .ob-rc-about[open] > :not(summary),
+  .ob-birth-options[open] > :not(summary) {
+    animation: none;
+  }
+}
+
+/* ─── Depth: the scene around a figure ────────────────────────────────────
+   See the 3D charts plan. A flat chart stays plain 2D and still:
+   what is in focus is copied onto planes above it (exactly where it was
+   drawn), casts a soft shadow and pops a little. Only the 3D view turns on a
+   perspective camera ([data-depth-camera]). */
+:root {
+  --depth-shadow-color: oklch(0.03 0.003 70);
+  --depth-shadow-strength: 0.55;
+}
+html.light {
+  --depth-shadow-color: oklch(0.3 0.02 70);
+  --depth-shadow-strength: 0.3;
+}
+/* The 3D view's solids (wheel-view3d.ts): how dark a side turned from the
+   light gets (floor, span of the light), the ring's inner wall, the chart's
+   edge, decan and stem mixes, contact-shadow strength. On cream everything
+   stays pale, as the flat light wheel is: walls never below 80% of their
+   colour, a cream edge, warm soft shadows. */
+:root {
+  --gl-shade-wall: 0.5 0.56;
+  --gl-shade-tube: 0.46 0.62;
+  --gl-neutral: color-mix(in oklab, var(--color-fg) 24%, var(--color-bg-elevated));
+  --gl-edge: color-mix(in oklab, var(--color-fg) 14%, var(--color-bg));
+  --gl-decan-keep: 70%;
+  --gl-stem-keep: 60%;
+  --gl-stem-base: var(--color-fg-muted);
+  --gl-shadow-k: 1;
+  --gl-fin-keep: 0.45;
+}
+html.light {
+  --gl-shade-wall: 0.8 0.2;
+  --gl-shade-tube: 0.76 0.24;
+  --gl-neutral: color-mix(in oklab, var(--color-fg) 9%, var(--color-bg-elevated));
+  --gl-edge: var(--color-bg-subtle);
+  --gl-decan-keep: 30%;
+  --gl-stem-keep: 45%;
+  --gl-stem-base: var(--color-fg-subtle);
+  --gl-shadow-k: 0.6;
+  --gl-fin-keep: 0.28;
+}
+.ulune-depth {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.ulune-depth-stack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50% 0;
+}
+.ulune-depth[data-depth-camera] > .ulune-depth-stack {
+  transform-style: preserve-3d;
+}
+.ulune-depth-stack > svg[data-depth-base] {
+  display: block;
+}
+.ulune-depth-plane {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  animation: none;
+  transform-origin: 50% 50% 0;
+}
+.ulune-depth-plane * {
+  animation: none !important;
+}
+/* Opacity, not visibility: a lifted piece keeps keyboard focus and the pointer. */
+[data-depth-hidden="1"] {
+  opacity: 0 !important;
+}
+
+/* ─── Depth: the 2D relief ───────────────────────────────────────────────
+   A lifted focus stands out as low solid pieces (relief.ts): soft shadows on
+   what they stand on, sides coming out from under the tops toward the viewer
+   (each facet shaded by where it faces, never near black), and the tops
+   themselves — copies exactly in place, glyphs a little bigger. Only
+   transforms and opacity animate, so the compositor runs the rise. */
+:root {
+  /* Sides are the material's own colour taken part of the way toward this
+     shade: a black side would read as a hole. */
+  --relief-shade: oklch(0.2 0.006 75);
+  --relief-bg-wall: color-mix(in oklab, var(--color-fg) 38%, var(--color-bg-elevated));
+  --relief-glass: color-mix(in oklab, var(--color-fg) 34%, var(--color-bg-elevated));
+  --relief-glass-top: color-mix(in oklab, var(--color-bg-elevated) 74%, transparent);
+}
+html.light {
+  --relief-shade: oklch(0.42 0.02 75);
+  --relief-bg-wall: color-mix(in oklab, var(--color-fg) 9%, var(--color-bg-elevated));
+  --relief-glass: color-mix(in oklab, var(--color-fg) 15%, var(--color-bg-elevated));
+  --relief-glass-top: color-mix(in oklab, var(--color-bg-elevated) 80%, transparent);
+}
+/* A cell that pops out gets a solid edge under it (a few hard 1px layers,
+   darker as they go down) and a soft shadow: extruded, not moved. */
+:root {
+  --extrude-1: color-mix(in oklab, var(--color-fg) 26%, var(--color-bg-elevated));
+  --extrude-2: color-mix(in oklab, var(--color-fg) 18%, var(--color-bg-elevated));
+  --extrude-3: color-mix(in oklab, var(--color-fg) 11%, var(--color-bg));
+  --extrude: 0 1px 0 var(--extrude-1), 0 2px 0 var(--extrude-2), 0 3px 0 var(--extrude-3), 0 4px 0 var(--extrude-3);
+  --extrude-soft: 0 12px 20px -10px color-mix(in oklab, var(--depth-shadow-color) 92%, transparent);
+}
+html.light {
+  --extrude-1: color-mix(in oklab, var(--color-fg) 20%, var(--color-bg-elevated));
+  --extrude-2: color-mix(in oklab, var(--color-fg) 28%, var(--color-bg-elevated));
+  --extrude-3: color-mix(in oklab, var(--color-fg) 36%, var(--color-bg-elevated));
+}
+.ulune-relief {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  transform-origin: 0 0;
+}
+.ulune-relief-group {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.ulune-relief-group > * {
+  position: absolute;
+  display: block;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  pointer-events: none;
+  /* Moved by the relief's own animations only (no stray transitions, even
+     the reduced-motion ones). */
+  transition: none;
+}
+.ulune-relief-sides,
+.ulune-relief-shade,
+.ulune-relief-top {
+  overflow: visible;
+}
+/* All the shadows of a group in one blurred layer. The blur is always
+   composited (will-change): Safari 27 draws a painted blur with its buffer's
+   edge rows uninitialised, which showed as flashing magenta lines along the
+   top and right of every shadow layer. */
+.ulune-relief-shade {
+  filter: blur(var(--relief-blur, 2px));
+  will-change: filter;
+}
+.ulune-relief-shade > g {
+  fill: var(--depth-shadow-color);
+  stroke: var(--depth-shadow-color);
+  stroke-width: 0;
+  opacity: var(--depth-shadow-strength);
+}
+.ulune-relief-shade > g[data-tier="1"] {
+  opacity: calc(var(--depth-shadow-strength) * 0.8);
+}
+.ulune-relief-shade > g[data-tier="2"] {
+  opacity: calc(var(--depth-shadow-strength) * 0.55);
+}
+.ulune-relief-shade [data-line] {
+  fill: none;
+  stroke-linecap: round;
+}
+.ulune-wheel.ulune-relief-top,
+.ulune-hd-svg.ulune-relief-top {
+  animation: none;
+  width: auto;
+  height: auto;
+}
+.ulune-relief-top * {
+  animation: none !important;
+}
+/* Glyphs on a raised top grow a little around their centre, and pop as they
+   rise (after the piece's own delay). */
+.ulune-wheel.ulune-relief-top[data-tier] .ulune-glyph-scale,
+.ulune-wheel.ulune-relief-top[data-tier] .ulune-relief-glyph,
+.ulune-wheel.ulune-relief-top[data-tier] .ulune-house-num-mark,
+.ulune-wheel.ulune-relief-top[data-tier] .ulune-aspect-mark-pop {
+  transform: scale(var(--glyph-s, 1));
+  transition: transform 260ms var(--ease-out);
+}
+.ulune-wheel.ulune-relief-top[data-tier] .ulune-relief-glyph,
+.ulune-wheel.ulune-relief-top[data-tier] .ulune-aspect-mark-pop {
+  transform-origin: 0 0;
+}
+/* A house number sits at the origin of its own group (chart-wheel.tsx):
+   grown around that point, never around its fill-box — WebKit ignores
+   transform-box on text and sent the numbers flying across the chart. */
+.ulune-wheel.ulune-relief-top[data-tier] .ulune-house-num-mark {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+.ulune-wheel.ulune-relief-top[data-pop] .ulune-glyph-scale,
+.ulune-wheel.ulune-relief-top[data-pop] .ulune-relief-glyph,
+.ulune-wheel.ulune-relief-top[data-pop] .ulune-house-num-mark,
+.ulune-hd-svg.ulune-relief-top[data-kind="gate"][data-pop] > .ulune-hd-gate {
+  animation: ulune-relief-pop var(--relief-dur, 440ms) var(--ease-out) var(--relief-delay, 0ms) both !important;
+}
+@keyframes ulune-relief-pop {
+  from {
+    transform: scale(calc(var(--glyph-s, 1) * 0.9));
+  }
+  55% {
+    transform: scale(calc(var(--glyph-s, 1) * 1.06));
+  }
+  to {
+    transform: scale(var(--glyph-s, 1));
+  }
+}
+/* The focus shows its halo ring on its top. */
+.ulune-wheel.ulune-relief-top[data-tier="0"] .ulune-wheel-halo {
+  opacity: 0.65;
+}
+/* The solid face under a see-through top (its colour comes with the piece). */
+.ulune-relief-base {
+  stroke: none;
+}
+/* A raised house is frosted glass: the planets under it show through. */
+.ulune-relief-top[data-kind="house"] .ulune-relief-base {
+  opacity: 0.55;
+}
+.ulune-wheel.ulune-relief-top[data-kind="house"] path[data-kind="house"] {
+  fill: var(--relief-glass-top);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ulune-wheel.ulune-relief-top[data-tier] .ulune-glyph-scale,
+  .ulune-wheel.ulune-relief-top[data-tier] .ulune-relief-glyph,
+  .ulune-wheel.ulune-relief-top[data-tier] .ulune-house-num-mark {
+    transition: none;
+  }
+}
+/* A figure without its own focus paint (the bodygraph) dims under a lift, so
+   what rose stands out. */
+.ulune-depth[data-lifting] > .ulune-depth-stack > svg[data-depth-base] {
+  opacity: 0.42;
+}
+
+/* ─── Depth: the 3D view ───────────────────────────────────────────────
+   The chart as one solid, drawn with WebGL on a canvas over the scene
+   (wheel-view3d.ts). The live chart stays in place, flat and unpainted: its
+   backdrop still takes the pointer everywhere on the stage. */
+svg[data-depth-base][data-view3d="gl"] {
+  opacity: 0 !important;
+}
+svg[data-depth-base][data-view3d="gl"] > :not([data-backdrop]) {
+  visibility: hidden;
+}
+.ulune-depth > .ulune-depth-gl {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+.ulune-depth[data-depth-view="3d"] {
+  cursor: grab;
+  touch-action: none;
+}
+.ulune-depth[data-depth-view="3d"].is-orbiting {
+  cursor: grabbing;
+}
+
+/* ─── Depth: companions answer the chart ─────────────────────────────────
+   A Hello cell lights up and casts a soft shadow when you point at it, or
+   when the pointer is on the matching element in the chart. It does not move:
+   a cell that slid away from the pointer would flicker at its edge. */
+.ulune-hello-cell {
+  position: relative;
+  transition:
+    box-shadow 220ms var(--ease-out),
+    background-color 160ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  button.ulune-hello-cell:hover,
+  .ulune-hello-cell[data-previewed="1"] {
+    z-index: 1;
+    background: color-mix(in oklab, var(--color-bg-subtle) 70%, var(--color-bg));
+    box-shadow: var(--extrude), var(--extrude-soft);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ulune-hello-cell {
+    transition: background-color 120ms linear;
+  }
+}
+

@@ -1,0 +1,51 @@
+{
+  "id": "timing.ui",
+  "kind": "chrome",
+  "scope": {
+    "day": { "en": "Day", "fr": "Jour" },
+    "month": { "en": "Month", "fr": "Mois" },
+    "year": { "en": "Year", "fr": "An" }
+  },
+  "readingEmpty": {
+    "en": "Tap a date, a body, or an aspect.",
+    "fr": "Touchez une date, un astre ou un aspect."
+  },
+  "noNatal": {
+    "en": "Cast a birth chart first.",
+    "fr": "Calculez d’abord un thème natal."
+  },
+  "casting": {
+    "en": "Finding exact aspects…",
+    "fr": "Recherche des aspects exacts…"
+  },
+  "table": {
+    "title": {
+      "en": "Exact aspects",
+      "fr": "Aspects exacts"
+    },
+    "hint": {
+      "en": "The moments when a moving planet makes an exact major aspect (conjunction, sextile, square, trine, opposition) to your birth chart. Times are in the time zone of your birth place.",
+      "fr": "Les moments où une planète en mouvement forme un aspect majeur exact (conjonction, sextile, carré, trigone, opposition) avec votre thème natal. Les heures suivent le fuseau horaire de votre lieu de naissance."
+    },
+    "columns": {
+      "en": ["When", "Transit", "Aspect", "Natal", "A", "S"],
+      "fr": ["Quand", "Transit", "Aspect", "Natal", "A", "S"]
+    },
+    "applying": { "en": "Applying", "fr": "Applicatif" },
+    "separating": { "en": "Separating", "fr": "Séparatif" },
+    "empty": {
+      "day": {
+        "en": "Nothing exact today.",
+        "fr": "Rien d’exact aujourd’hui."
+      },
+      "month": {
+        "en": "No exact major aspect this month.",
+        "fr": "Aucun aspect majeur exact ce mois-ci."
+      },
+      "year": {
+        "en": "No exact major aspect this year.",
+        "fr": "Aucun aspect majeur exact cette année."
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "hd.hello",
+  "kind": "band",
+  "title": "Hello",
+  "cells": [
+    {
+      "id": "type",
+      "label": "Type",
+      "labelFr": "Type",
+      "en": "Your energy type: how you are built to use energy and meet other people.",
+      "fr": "Votre type énergétique : comment vous êtes fait pour utiliser votre énergie et aller vers les autres."
+    },
+    {
+      "id": "strategy",
+      "label": "Strategy",
+      "labelFr": "Stratégie",
+      "en": "The way of engaging with opportunities that works best for your type.",
+      "fr": "La façon d’aborder les occasions qui convient le mieux à votre type."
+    },
+    {
+      "id": "authority",
+      "label": "Authority",
+      "labelFr": "Autorité",
+      "en": "The inner signal Human Design says you can trust when deciding.",
+      "fr": "Le signal intérieur auquel, selon le Human Design, vous pouvez vous fier pour décider."
+    }
+  ]
+}

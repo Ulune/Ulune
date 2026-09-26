@@ -1,0 +1,214 @@
+/* Numerology: these styles load with the code that uses them, not with the
+   first page (performance plan 1.9). Moved as they were from styles.css. */
+/* The numerology ring: digits come in round the ring, the core last. */
+.ulune-num-digit {
+  animation: ulune-fade-plain 520ms var(--chart-ease) calc(120ms + var(--enter, 0) * 60ms) backwards;
+}
+.ulune-num-core {
+  animation: ulune-fade-plain 620ms var(--chart-ease) 700ms backwards;
+}
+.ulune-num-tile {
+  animation: ulune-fade-plain 520ms var(--chart-ease) 820ms backwards;
+}
+.ulune-num-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+.ulune-num-ring {
+  position: relative;
+  width: 100%;
+  max-width: min(100%, calc(100dvh - 22rem), 30rem);
+  aspect-ratio: 1;
+  color: var(--color-fg);
+}
+.ulune-num-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.ulune-num-digit {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-fg-muted);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+}
+.ulune-num-digit.is-life {
+  border-color: var(--color-fg);
+  color: var(--color-fg);
+}
+.ulune-num-digit.is-active {
+  color: var(--color-fg);
+  border-color: var(--color-border-strong);
+  background: var(--color-bg-subtle);
+}
+.ulune-num-core {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 7.5rem;
+  height: 7.5rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-display);
+  font-size: 4.25rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  line-height: 1;
+  transform: translate(-50%, -50%);
+}
+.ulune-num-core.is-active {
+  border-color: var(--color-fg);
+  background: var(--color-bg-subtle);
+}
+/* Core numbers under the ring: one tile each, opening its own reading. */
+.ulune-num-tiles {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  width: min(100%, 30rem);
+  margin-top: var(--space-4);
+  padding-inline: var(--stage-pad);
+}
+.ulune-num-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 64px;
+  padding: 8px 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    border-color var(--dur-hover) var(--ease-out);
+}
+.ulune-num-tile:hover:not(:disabled) {
+  background: var(--color-bg-subtle);
+}
+.ulune-num-tile.is-on {
+  border-color: var(--color-fg);
+  background: var(--color-bg-subtle);
+}
+.ulune-num-tile:disabled {
+  opacity: 0.45;
+}
+.ulune-num-tile-n {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.ulune-num-tile-k {
+  max-width: 100%;
+  overflow: hidden;
+  text-align: center;
+  line-height: 1.15;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow-wrap: anywhere;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--color-fg-muted);
+}
+.ulune-num-system {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: none;
+  color: var(--color-fg-subtle);
+}
+/* ─── Depth: the numerology ring ─────────────────────────────────────────
+   A digit you point at (or whose core tile you point at below) pops a little
+   in place, with a soft shadow; nothing leans or moves under the pointer. */
+.ulune-num-digit,
+.ulune-num-core {
+  --s: 1;
+  transform: translate(-50%, -50%) scale(var(--s));
+  transition:
+    transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 220ms var(--ease-out),
+    background-color 160ms var(--ease-out),
+    border-color 160ms var(--ease-out),
+    color 160ms var(--ease-out);
+}
+.ulune-num-core {
+  box-shadow: 0 12px 28px -20px color-mix(in oklab, var(--depth-shadow-color) 85%, transparent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ulune-num-digit:hover {
+      --s: 1.1;
+    }
+  .ulune-num-core:hover {
+      --s: 1.03;
+    }
+}
+.ulune-num-digit[data-hot="1"] {
+  --s: 1.1;
+  color: var(--color-fg);
+  border-color: var(--color-border-strong);
+}
+.ulune-num-digit.is-active {
+  --s: 1.14;
+}
+.ulune-num-core.is-active {
+  --s: 1.04;
+  box-shadow: var(--extrude), var(--extrude-soft);
+}
+.ulune-num-digit:is(:hover, .is-active, [data-hot="1"]) {
+  background: var(--color-bg-elevated);
+  box-shadow: var(--extrude), var(--extrude-soft);
+}
+.ulune-num-stage[data-depth="off"] .ulune-num-digit,
+.ulune-num-stage[data-depth="off"] .ulune-num-core {
+  --s: 1 !important;
+}
+.ulune-num-tile {
+  transition:
+    box-shadow 220ms var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out),
+    border-color var(--dur-hover) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ulune-num-tile:hover:not(:disabled) {
+      box-shadow: var(--extrude), var(--extrude-soft);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ulune-num-digit,
+    .ulune-num-core {
+      transition:
+        background-color 120ms linear,
+        border-color 120ms linear,
+        color 120ms linear;
+    }
+}

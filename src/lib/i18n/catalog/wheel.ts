@@ -1,0 +1,33 @@
+/** wheel: [English, French]. */
+export const wheel = {
+  wheelAria: ["Chart wheel", "Roue du thème"],
+  zoomFit: ["Fit", "Ajuster"],
+  zoomIn: ["Zoom in", "Agrandir"],
+  zoomOut: ["Zoom out", "Réduire"],
+  depthView3d: ["3D view", "Vue 3D"],
+  depthView3dHint: [
+    "Tip the chart into perspective. Drag to turn it, double-click to reset.",
+    "Incliner le thème en perspective. Glissez pour le faire tourner, double-cliquez pour le remettre.",
+  ],
+  aspectStripAria: ["Aspects on the chart", "Aspects du thème"],
+  aspectStripOf: ["Aspects of {name}", "Aspects de {name}"],
+  aspectStripHide: ["{name}: {n} — click to hide", "{name} : {n} — cliquer pour masquer"],
+  aspectStripShow: ["{name}: {n} hidden — click to show", "{name} : {n} masqués — cliquer pour afficher"],
+  aspectStripHouse: ["House {n}", "Maison {n}"],
+  interceptedSign: ["{sign} is intercepted: wholly inside this house", "{sign} est intercepté : tout entier dans cette maison"],
+  cameraAngle: ["View: {angle}. Click for {next}.", "Vue : {angle}. Cliquer pour {next}."],
+  cameraTop: ["from above", "de dessus"],
+  cameraTilt: ["tilted", "inclinée"],
+  cameraLow: ["low", "rasante"],
+  densityLabel: ["Aspects shown: {level}. Click for {next}.", "Aspects affichés : {level}. Cliquer pour {next}."],
+  densitySimple: ["simple (the four major aspects, tight orbs)", "simple (les quatre aspects majeurs, orbes serrés)"],
+  densityStandard: ["standard (the five major aspects)", "standard (les cinq aspects majeurs)"],
+  densityDetailed: ["detailed (every aspect)", "détaillé (tous les aspects)"],
+  densityCustom: ["set by hand", "réglés à la main"],
+  wheelHintPoint: [
+    "Point at a planet to see its aspects, click to pin it. The strip counts the aspects of each kind.",
+    "Pointez une planète pour voir ses aspects, cliquez pour la fixer. La barre compte les aspects de chaque sorte.",
+  ],
+  wheelHintTap: ["Tap a planet to see its aspects; tap again to let go.", "Touchez une planète pour voir ses aspects ; touchez encore pour la relâcher."],
+  wheelHintClose: ["Close the hint", "Fermer l’astuce"],
+} as const satisfies Record<string, readonly [string, string]>;

@@ -1,0 +1,46 @@
+{
+  "id": "composite.ui",
+  "kind": "chrome",
+  "method": {
+    "en": "Midpoint composite",
+    "fr": "Composite milieu"
+  },
+  "addSecond": {
+    "en": "Add a second person.",
+    "fr": "Ajouter une deuxième personne."
+  },
+  "readingEmpty": {
+    "en": "Tap a body or an aspect in the wheel.",
+    "fr": "Touchez un astre ou un aspect dans la roue."
+  },
+  "noNatal": {
+    "en": "Cast a birth chart first.",
+    "fr": "Calculez d’abord un thème natal."
+  },
+  "mixedHouses": {
+    "en": "These two charts use different house systems ({a} and {b}). The composite ring follows {a}.",
+    "fr": "Ces deux thèmes n’utilisent pas le même système de maisons ({a} et {b}). L’anneau composite suit {a}."
+  },
+  "pair": {
+    "a": { "en": "A", "fr": "A" },
+    "b": { "en": "B", "fr": "B" }
+  },
+  "table": {
+    "title": {
+      "en": "Major aspects",
+      "fr": "Aspects majeurs"
+    },
+    "hint": {
+      "en": "Major aspects (conjunction, sextile, square, trine, opposition) inside the composite: the chart built from the midpoints between the two birth charts.",
+      "fr": "Aspects majeurs (conjonction, sextile, carré, trigone, opposition) dans le composite : le thème construit à partir des mi-points entre les deux thèmes natals."
+    },
+    "columns": {
+      "en": ["Body", "Aspect", "Body", "Orb"],
+      "fr": ["Astre", "Aspect", "Astre", "Orbe"]
+    },
+    "empty": {
+      "en": "No major aspect in this composite.",
+      "fr": "Aucun aspect majeur dans ce composite."
+    }
+  }
+}

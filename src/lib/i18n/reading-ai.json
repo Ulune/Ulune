@@ -1,0 +1,8 @@
+{
+  "id": "reading.ai",
+  "kind": "chrome",
+  "label": {
+    "en": "Your AI",
+    "fr": "Votre IA"
+  }
+}

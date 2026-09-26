@@ -1,0 +1,41 @@
+/*
+ * The calendar of the date fields (react-day-picker), loaded with the
+ * calendar itself (birth-calendar.tsx) the first time one opens: its base
+ * styles, then Ulune's colours over them.
+ */
+@import "react-day-picker/style.css";
+
+.ulune-day-picker.rdp-root {
+  --rdp-accent-color: var(--color-fg);
+  --rdp-accent-background-color: var(--color-bg-subtle);
+  --rdp-today-color: var(--color-halo);
+  --rdp-day-height: 2.75rem;
+  --rdp-day-width: 2.75rem;
+  --rdp-day_button-height: 2.5rem;
+  --rdp-day_button-width: 2.5rem;
+  --rdp-day_button-border-radius: var(--radius-md);
+  --rdp-nav_button-height: 2.75rem;
+  --rdp-nav_button-width: 2.75rem;
+  color: var(--color-fg);
+  min-width: 18rem;
+}
+.ulune-day-picker .rdp-weekday {
+  font-size: var(--text-xs);
+}
+
+.ulune-day-picker .rdp-dropdown_root {
+  color: var(--color-fg);
+}
+.ulune-day-picker .rdp-chevron {
+  fill: var(--color-fg-muted);
+}
+
+.ulune-day-picker .rdp-selected .rdp-day_button {
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  border-color: transparent;
+}
+
+.ulune-day-picker .rdp-today:not(.rdp-selected) .rdp-day_button {
+  color: var(--color-halo);
+}

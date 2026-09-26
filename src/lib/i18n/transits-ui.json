@@ -1,0 +1,29 @@
+{
+  "id": "transits.ui",
+  "kind": "chrome",
+  "clock": {
+    "now": { "en": "Now", "fr": "Maintenant" },
+    "date": { "en": "Date", "fr": "Date" },
+    "time": { "en": "Time", "fr": "Heure" }
+  },
+  "readingEmpty": {
+    "en": "Tap a transit, a natal body, or an aspect in the wheel.",
+    "fr": "Touchez un transit, un astre natal ou un aspect dans la roue."
+  },
+  "noNatal": {
+    "en": "Cast a birth chart first.",
+    "fr": "Calculez d’abord un thème natal."
+  },
+  "table": {
+    "columns": {
+      "en": ["Transit", "Aspect", "Natal", "A", "S", "Exact"],
+      "fr": ["Transit", "Aspect", "Natal", "A", "S", "Exact"]
+    },
+    "applying": { "en": "Applying", "fr": "Applicatif" },
+    "separating": { "en": "Separating", "fr": "Séparatif" },
+    "empty": {
+      "en": "No moving planet makes a major aspect to your chart at this moment.",
+      "fr": "Aucune planète en mouvement ne forme d’aspect majeur avec votre thème à ce moment."
+    }
+  }
+}

@@ -1,0 +1,26 @@
+import { useChartView } from "@/lib/chart/use-chart-view";
+import { useStudioStore } from "@/studio/store";
+
+export function useWheelView() {
+  const view = useChartView();
+  const chart = useStudioStore((s) => s.chart);
+  const selectedId = useStudioStore((s) => s.selectedId);
+  const pick = useStudioStore((s) => s.pick);
+  const casting = useStudioStore((s) => s.casting);
+  const composing = useStudioStore((s) => s.composing);
+  return {
+    chart,
+    selectedId,
+    pick,
+    casting,
+    composing,
+    visible: view.visible,
+    aspectFilter: view.aspectFilter,
+    overlays: view.overlays,
+    starVisible: view.starVisible,
+    midpointVisible: view.midpointVisible,
+    readingDepth: view.readingDepth,
+    aspectLayer: view.aspectLayer,
+    setAspectLayer: view.setAspectLayer,
+  };
+}

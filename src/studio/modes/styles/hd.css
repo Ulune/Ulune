@@ -1,0 +1,330 @@
+/* Human Design (the bodygraph): these styles load with the code that uses them, not with the
+   first page (performance plan 1.9). Moved as they were from styles.css. */
+/* The bodygraph assembles the same way: centres settle in from the top
+   down, channels draw themselves, gates pop in a wave (--enter = height). */
+.ulune-hd-svg {
+  animation: ulune-chart-in var(--chart-in) var(--chart-ease) both;
+}
+.ulune-hd-svg[data-entering] .ulune-hd-center {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ulune-bloom 620ms var(--chart-ease) calc(60ms + var(--enter, 0) * 520ms) backwards;
+}
+.ulune-hd-svg[data-entering] .ulune-hd-channel [data-draw] {
+  animation: ulune-draw 640ms var(--chart-ease-io) calc(360ms + var(--enter, 0) * 520ms) backwards;
+}
+.ulune-hd-svg[data-entering] .ulune-hd-channel .is-both-dash {
+  animation: ulune-fade-plain 520ms var(--chart-ease) calc(560ms + var(--enter, 0) * 520ms) backwards;
+}
+.ulune-hd-svg[data-entering] .ulune-hd-gate {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ulune-pop-in 520ms var(--chart-ease) calc(520ms + var(--enter, 0) * 560ms) backwards;
+}
+.ulune-hd-mast {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  width: min(100%, 40rem);
+  margin: 0 auto var(--space-3);
+  padding-inline: var(--stage-pad);
+}
+.ulune-hd-mast p {
+  margin: 0;
+}
+.ulune-hd-mast-k {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.ulune-hd-mast-v {
+  margin-top: 0.2rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.15;
+  color: var(--color-fg);
+}
+@media (max-width: 640px) {
+  .ulune-hd-mast {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+}
+.ulune-hd-sky,
+.ulune-hd-svg {
+  --hd-personality: var(--color-fg);
+  --hd-design: oklch(0.62 0.19 26);
+  --hd-open: transparent;
+  --hd-center-fill: color-mix(in oklab, var(--color-fg) 14%, transparent);
+}
+.ulune-hd-control {
+  min-width: 0;
+  width: 100%;
+  height: 44px;
+  max-height: 44px;
+}
+.ulune-hd-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+@media (max-width: 1023.98px) {
+  .ulune-hd-stage {
+      margin-inline: calc(-0.35 * var(--natal-sky-pad));
+    }
+}
+html.light .ulune-hd-svg {
+  --hd-design: oklch(0.54 0.19 26);
+}
+.ulune-hd-svg {
+  width: auto;
+  max-width: min(100%, 36rem);
+  max-height: 100%;
+  height: auto;
+  overflow: visible;
+  color: var(--color-fg);
+}
+/* Bodygraph: personality in ink, design in one warm red, hatched when both. */
+.ulune-hd-channel {
+  cursor: pointer;
+}
+.ulune-hd-channel line {
+  stroke-linecap: round;
+}
+.ulune-hd-channel line.hd-hit {
+  stroke: transparent;
+  stroke-width: 16;
+}
+.ulune-hd-channel line.is-off {
+  stroke: color-mix(in oklab, var(--color-fg) 16%, transparent);
+  stroke-width: 1;
+}
+.ulune-hd-channel line.is-personality {
+  stroke: var(--hd-personality);
+  stroke-width: 4;
+}
+.ulune-hd-channel line.is-design {
+  stroke: var(--hd-design);
+  stroke-width: 4;
+}
+.ulune-hd-channel line.is-both-dash {
+  stroke: var(--hd-design);
+  stroke-width: 4;
+  stroke-dasharray: 3 3;
+  stroke-linecap: butt;
+}
+.ulune-hd-channel.is-selected line:not(.hd-hit):not(.is-off) {
+  stroke-width: 6;
+}
+.ulune-hd-center {
+  fill: transparent;
+  stroke: color-mix(in oklab, var(--color-fg) 30%, transparent);
+  stroke-width: 1;
+  cursor: pointer;
+  outline: none;
+  /* Switching the layer view (personality / design / both) cross-fades. */
+  transition:
+    fill 420ms var(--chart-ease),
+    stroke 420ms var(--chart-ease),
+    stroke-width 260ms var(--chart-ease);
+}
+.ulune-hd-channel line,
+.ulune-hd-gate .hd-gate-disc,
+.ulune-hd-gate .hd-gate-dot,
+.ulune-hd-gate text {
+  transition:
+    fill 420ms var(--chart-ease),
+    stroke 420ms var(--chart-ease),
+    stroke-width 260ms var(--chart-ease),
+    opacity 420ms var(--chart-ease);
+}
+.ulune-hd-center[data-defined] {
+  fill: var(--hd-center-fill);
+  stroke: var(--color-fg);
+}
+.ulune-hd-center.is-selected,
+.ulune-hd-center:focus-visible {
+  stroke: var(--color-fg);
+  stroke-width: 2.25;
+}
+.ulune-hd-gate {
+  cursor: pointer;
+  outline: none;
+}
+.ulune-hd-gate .hd-gate-hit {
+  fill: transparent;
+  stroke: none;
+}
+.ulune-hd-gate .hd-gate-dot {
+  fill: var(--color-border-strong);
+}
+.ulune-hd-gate .hd-gate-disc {
+  fill: var(--color-bg);
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+  opacity: 0;
+}
+.ulune-hd-gate text {
+  font-family: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  fill: var(--color-fg);
+  pointer-events: none;
+  opacity: 0;
+}
+/* Inactive gates: a dot until hovered or focused. */
+.ulune-hd-gate:hover .hd-gate-disc,
+.ulune-hd-gate:focus-visible .hd-gate-disc,
+.ulune-hd-gate:hover text,
+.ulune-hd-gate:focus-visible text,
+.ulune-hd-gate:not([data-tone="off"]) .hd-gate-disc,
+.ulune-hd-gate:not([data-tone="off"]) text {
+  opacity: 1;
+}
+.ulune-hd-gate:not([data-tone="off"]) .hd-gate-dot {
+  opacity: 0;
+}
+.ulune-hd-gate[data-tone="personality"] .hd-gate-disc {
+  fill: var(--hd-personality);
+  stroke: var(--hd-personality);
+}
+.ulune-hd-gate[data-tone="design"] .hd-gate-disc {
+  fill: var(--hd-design);
+  stroke: var(--hd-design);
+}
+.ulune-hd-gate[data-tone="both"] .hd-gate-disc {
+  fill: url(#hd-stripe);
+  stroke: var(--hd-personality);
+}
+.ulune-hd-gate:not([data-tone="off"]) text {
+  fill: var(--color-bg);
+}
+.ulune-hd-gate.is-selected .hd-gate-disc,
+.ulune-hd-gate:focus-visible .hd-gate-disc {
+  stroke: var(--color-fg);
+  stroke-width: 2.25;
+  paint-order: stroke;
+}
+.ulune-hd-gate.is-selected .hd-gate-disc {
+  opacity: 1;
+}
+.ulune-hd-caption {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  color: var(--color-fg-subtle);
+}
+@media (max-width: 1023.98px) {
+  .ulune-hd-sky.ulune-sky {
+      display: flex;
+      flex-direction: column;
+    }
+  .ulune-hd-sky .ulune-hd-control {
+      order: 1;
+      position: sticky;
+      top: calc(var(--ulune-header-h, 6.75rem) + var(--ulune-nav-h, 4.125rem));
+      z-index: 21;
+      margin-inline: calc(-1 * var(--natal-sky-pad));
+      padding-inline: var(--natal-sky-pad);
+      background: var(--color-bg-elevated);
+      box-sizing: border-box;
+      height: 44px;
+      max-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+  .ulune-hd-sky .ulune-sky-wheel {
+      order: 2;
+    }
+  .ulune-hd-sky .ulune-sky-read {
+      order: 3;
+    }
+}
+@media (min-width: 1024px) {
+  .ulune-hd-sky.ulune-sky {
+      display: grid;
+      grid-template-columns: minmax(520px, 56%) minmax(0, 44%);
+      align-items: start;
+      align-content: start;
+    }
+  .ulune-hd-sky .ulune-hd-control {
+      grid-column: 1;
+      grid-row: 1;
+    }
+  .ulune-hd-sky .ulune-sky-wheel {
+      grid-column: 1;
+      grid-row: 2;
+      flex: none;
+      width: auto;
+      min-width: 520px;
+      max-width: none;
+    }
+  .ulune-hd-sky .ulune-sky-read {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      flex: none;
+      width: auto;
+      position: sticky;
+      top: var(--ulune-header-h, 6.75rem);
+      max-height: calc(100dvh - var(--ulune-header-h, 6.75rem) - 1rem);
+      overflow-y: auto;
+    }
+}
+.ulune-hd-depth > .ulune-depth-stack > svg[data-depth-base] {
+  transition: opacity 280ms var(--chart-ease);
+}
+/* Bodygraph in its depth scene: the scene takes the figure's old box
+   (as tall as the stage, as wide as the bodygraph's proportions allow). */
+.ulune-depth.ulune-hd-depth {
+  flex: 0 0 auto;
+  height: 100%;
+  max-height: 100%;
+  width: auto;
+  aspect-ratio: 360 / 580;
+  max-width: min(100%, 36rem);
+}
+.ulune-hd-depth > .ulune-depth-stack > svg[data-depth-base] {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+}
+/* Bodygraph pieces standing out: a lifted gate always shows its disc and
+   number, the focus gate grows a little, a lifted channel thickens. A lifted
+   centre is a solid tile (opaque, so its own shadow never shows through it)
+   carrying its gates. */
+.ulune-hd-svg.ulune-relief-top .ulune-hd-gate .hd-gate-disc,
+.ulune-hd-svg.ulune-relief-top .ulune-hd-gate text {
+  opacity: 1;
+}
+.ulune-hd-svg.ulune-relief-top .ulune-hd-gate .hd-gate-dot {
+  opacity: 0;
+}
+.ulune-hd-svg.ulune-relief-top[data-kind="gate"] > .ulune-hd-gate {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(var(--glyph-s, 1));
+}
+.ulune-hd-svg.ulune-relief-top[data-kind="center"] .ulune-hd-center {
+  fill: var(--color-bg);
+  stroke-width: 2;
+  stroke: var(--color-fg);
+}
+.ulune-hd-svg.ulune-relief-top[data-kind="center"] .ulune-hd-center[data-defined] {
+  fill: color-mix(in oklab, var(--color-fg) 14%, var(--color-bg));
+}
+.ulune-hd-svg.ulune-relief-top[data-kind="channel"] .ulune-hd-channel line:not(.hd-hit):not(.is-off) {
+  stroke-width: 5.5;
+}
+.ulune-hd-svg.ulune-relief-top[data-kind="channel"] .ulune-hd-channel line.is-off {
+  stroke: color-mix(in oklab, var(--color-fg) 45%, transparent);
+  stroke-width: 2;
+}

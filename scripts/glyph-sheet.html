@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Glyph sheet</title>
+    <style>
+      html, body { margin: 0; background: #0a0b0e; color: #e8e2d6; font-family: Outfit, sans-serif; }
+      .wrap { padding: 24px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 16px; }
+      .cell { border: 1px solid #2a2b32; border-radius: 12px; padding: 12px; text-align: center; background: #121318; }
+      .cell b { display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9c9589; margin-top: 8px; font-weight: 500; }
+      svg { color: #e8e2d6; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="sheet"></div>
+    <script type="module">
+      const S = 'fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"';
+      const planets = {
+        sun: `<circle cx="12" cy="12" r="6.1" ${S} /><circle cx="12" cy="12" r="1.5" fill="currentColor" />`,
+        moon: `<path fill="currentColor" d="M14.9 4.7A7.5 7.5 0 1 0 14.9 19.3 5.45 5.45 0 1 1 14.9 4.7Z"/>`,
+        mercury: `<path d="M7.35 9.35a4.65 4.65 0 0 1 9.3 0" ${S} /><circle cx="12" cy="13.15" r="3.45" ${S} /><path d="M12 16.6v4.7M9.2 19.15h5.6" ${S} />`,
+        venus: `<circle cx="12" cy="8.45" r="4.4" ${S} /><path d="M12 12.85v7M8.5 16.55h7" ${S} />`,
+        mars: `<circle cx="10.05" cy="14.05" r="4.5" ${S} /><path d="M13.35 10.7 19.55 4.5M19.55 4.5h-5.5M19.55 4.5v5.5" ${S} />`,
+        jupiter: `<path d="M6.8 8.05h10.1" ${S} /><path d="M15.05 5.1v10.85c0 3.35-2.15 5.2-5.95 5.2" ${S} /><path d="M6.1 13.85h11.6" ${S} />`,
+        saturn: `<path d="M9.2 4.4v12c0 2.4 1.55 4.05 3.8 4.05" ${S} /><path d="M9.2 4.4c5.15 0 7.95 2.35 7.95 7.05" ${S} /><path d="M5.3 14.85h13.6" ${S} />`,
+        uranus: `<path d="M6.2 5v10.2M17.8 5v10.2M6.2 10.1h11.6" ${S} /><circle cx="12" cy="10.1" r="2.15" ${S} /><path d="M12 12.25v6.9" ${S} />`,
+        neptune: `<path d="M12 4.35v15.3M7.6 19.65h8.8" ${S} /><path d="M5.8 11.4 12 4.35 18.2 11.4" ${S} />`,
+        pluto: `<path d="M8.3 5v14.7" ${S} /><path d="M8.3 5h4.2a4 4 0 1 1 0 8H8.3" ${S} /><path d="M8.3 19.7h7.3" ${S} />`,
+        chiron: `<circle cx="12" cy="7.05" r="3.15" ${S} /><path d="M12 10.2v9.5M12 14.2 17.7 19.95" ${S} />`,
+        northnode: `<path d="M5.15 6.9a6.85 6.85 0 0 1 13.7 0" ${S} /><circle cx="5.15" cy="6.9" r="1.6" fill="currentColor" /><circle cx="18.85" cy="6.9" r="1.6" fill="currentColor" />`,
+        southnode: `<path d="M5.15 17.1a6.85 6.85 0 0 0 13.7 0" ${S} /><circle cx="5.15" cy="17.1" r="1.6" fill="currentColor" /><circle cx="18.85" cy="17.1" r="1.6" fill="currentColor" />`,
+        lilith: `<path fill="currentColor" d="M15.35 4.55a5.6 5.6 0 1 0 0 9.85 4.25 4.25 0 0 1 0-9.85Z"/><path d="M12 14.7v5.6M9.2 17.7h5.6" ${S} />`,
+      };
+      const signs = {
+        aries: `<path d="M4.7 19.2C4.7 10.4 7.6 4.2 12 4.2c1.85 0 1.7 6.1 0 10.3M19.3 19.2C19.3 10.4 16.4 4.2 12 4.2c-1.85 0-1.7 6.1 0 10.3" ${S} />`,
+        taurus: `<circle cx="12" cy="14.7" r="5.05" ${S} /><path d="M5.2 5.25C7.7 9.15 9.7 10.55 12 10.55s4.3-1.4 6.8-5.3" ${S} />`,
+        gemini: `<path d="M8.05 5.1v13.8M15.95 5.1v13.8M5.3 5.1h13.4M5.3 18.9h13.4" ${S} />`,
+        cancer: `<circle cx="7.9" cy="8.7" r="3.25" ${S} /><path d="M11.15 8.7c4.05 0 6.85-1.7 8.15-4.15" ${S} /><circle cx="16.1" cy="15.3" r="3.25" ${S} /><path d="M12.85 15.3c-4.05 0-6.85 1.7-8.15 4.15" ${S} />`,
+        leo: `<path d="M6.55 17.55c0-5.7 2.35-9.55 5.9-9.55 2.65 0 3.65 2.05 3.65 4.05 0 4.35-5.2 4.55-5.2 8.05 0 1.65 1.4 2.4 3 2.05M5.85 8.35C7.7 5.4 10.45 4 13.5 4" ${S} />`,
+        virgo: `<path d="M5.15 4.6v13.2M9.85 4.6v13.2M14.55 4.6v9.2c0 3.4 2.5 5.8 5.55 5.8M14.55 14.2c2.15 3.9 4.8 4.95 7.1 3.45" ${S} />`,
+        libra: `<path d="M4.35 18.45h15.3" ${S} /><path d="M4.35 14.35h3.9" ${S} /><path d="M15.75 14.35h3.9" ${S} /><path d="M8.25 14.35a3.75 3.75 0 1 1 7.5 0" ${S} />`,
+        scorpio: `<path d="M4.7 4.6v13.2M9.4 4.6v13.2M14.1 4.6v9.4c0 2.9 1.95 5.05 4.8 5.05M16.7 16.2 19.35 20.1 22.1 16.35" ${S} />`,
+        sagittarius: `<path d="M7.05 17.1 18.95 5.2M12.15 5.2h6.8v6.8M6.2 10.5l6.15 6.15" ${S} />`,
+        capricorn: `<path d="M5.05 5.4v9.85c0 2.75 1.9 4.5 4.15 4.5 2.9 0 3.55-3.5 5.4-8.3 1.6 6.35 3.75 9.3 6.95 8.25" ${S} />`,
+        aquarius: `<path d="M4.15 9.85 7 7.55 9.8 10.35 12.55 7.55 15.35 10.35 18.1 7.55 20.7 9.55M4.15 16.5 7 14.2 9.8 17 12.55 14.2 15.35 17 18.1 14.2 20.7 16.2" ${S} />`,
+        pisces: `<path d="M6.05 4.55c3.55 3.4 3.55 11.5 0 14.9M17.95 4.55c-3.55 3.4-3.55 11.5 0 14.9M5.35 12h13.3" ${S} />`,
+      };
+      const sheet = document.getElementById("sheet");
+      for (const [name, inner] of [...Object.entries(planets), ...Object.entries(signs)]) {
+        const el = document.createElement("div");
+        el.className = "cell";
+        el.innerHTML = `<svg viewBox="0 0 24 24" width="72" height="72" overflow="visible">${inner}</svg><b>${name}</b>`;
+        sheet.appendChild(el);
+      }
+    </script>
+  </body>
+</html>

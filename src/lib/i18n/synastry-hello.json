@@ -1,0 +1,28 @@
+{
+  "id": "synastry.hello",
+  "kind": "band",
+  "title": "Hello-meeting",
+  "line": {
+    "en": "{aspect} · {orb}.",
+    "fr": "{aspect} · {orb}."
+  },
+  "empty": {
+    "sun": {
+      "en": "No major aspect between the two Suns.",
+      "fr": "Aucun aspect majeur entre les deux Soleils."
+    },
+    "moon": {
+      "en": "No major aspect between the two Moons.",
+      "fr": "Aucun aspect majeur entre les deux Lunes."
+    },
+    "ascendant": {
+      "en": "No major aspect between the two Ascendants.",
+      "fr": "Aucun aspect majeur entre les deux Ascendants."
+    }
+  },
+  "cells": [
+    { "id": "sun", "label": "Sun", "labelFr": "Soleil" },
+    { "id": "moon", "label": "Moon", "labelFr": "Lune" },
+    { "id": "ascendant", "label": "Ascendant", "labelFr": "Ascendant" }
+  ]
+}
