@@ -35,7 +35,7 @@ const GEO_DATA = "timezones.geojson.geo.dat";
 
 /**
  * Where geo-tz's boundary polygons are: next to a deployed server function
- * (scripts/copy-pglite-assets.mjs copies them to ./geo-tz), or the package.
+ * (scripts/copy-server-assets.mjs copies them to ./geo-tz), or the package.
  */
 function geoTzDataDir(): string | undefined {
   return [join(process.cwd(), "geo-tz"), join(process.cwd(), "node_modules/geo-tz/data")].find((dir) =>
