@@ -6,6 +6,7 @@ import type {
 } from "./types";
 import { forgetFirstView, keepFirstViewFor } from "@/lib/first-view";
 import { fullChart, slimChart, type StoredChart } from "./chart-store";
+import { formatEuropeanDate } from "./parse-birth";
 import {
   LEGACY_ACCOUNT_PREFIX,
   LEGACY_ACTIVE,
@@ -152,9 +153,10 @@ export function chartDisplayName(input: BirthInput, untitled = "Untitled"): stri
   const named = input.name.trim();
   if (named) return named;
   const place = input.placeLabel.split(",")[0]?.trim();
-  if (place && input.date) return `${place} · ${input.date}`;
+  // The date as the form writes it (15/06/1990), not as it is stored.
+  if (place && input.date) return `${place} · ${formatEuropeanDate(input.date)}`;
   if (place) return place;
-  if (input.date) return input.date;
+  if (input.date) return formatEuropeanDate(input.date);
   return untitled;
 }
 

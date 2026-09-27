@@ -16,17 +16,23 @@ export function TimingHello({
   tz,
   selectedId,
   onSelect,
+  earlier = false,
 }: {
   hits: Array<TimingHit | null>;
   scope: TimingScope;
   tz: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** The period had exact aspects before now: "Nothing more exact today." */
+  earlier?: boolean;
 }) {
   const { locale } = useI18n();
   const chartHover = useChartHoverId();
   const look = useLookShape();
-  const cells: Array<TimingHit | null> = [hits[0] ?? null, hits[1] ?? null, hits[2] ?? null];
+  // The next exact aspects, up to three; with none left, one line says so
+  // (three cells each saying "Nothing exact today" read as a stutter).
+  const next = hits.slice(0, 3).filter((hit): hit is TimingHit => Boolean(hit));
+  const cells: Array<TimingHit | null> = next.length ? next : [null];
   const whenKind = scope === "day" ? "time" : "day";
 
   return (
@@ -46,7 +52,7 @@ export function TimingHello({
               className="ulune-hello-cell"
             >
               <span data-hello-copy className="ulune-hello-copy">
-                {timingHelloEmpty(locale, scope)}
+                {timingHelloEmpty(locale, scope, earlier)}
               </span>
             </div>
           );

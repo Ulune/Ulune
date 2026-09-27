@@ -35,7 +35,7 @@ export function SegmentedToggle<T extends string>({
     <div
       role="group"
       aria-label={ariaLabel}
-      className="ulune-seg relative isolate flex overflow-hidden"
+      className="ulune-seg relative isolate overflow-hidden"
       style={{
         ["--ulune-seg-i" as string]: String(index),
         ["--ulune-seg-n" as string]: String(count),
@@ -57,7 +57,7 @@ export function SegmentedToggle<T extends string>({
               if (opt.value !== value) onChange(opt.value);
             }}
             className={cn(
-              "ulune-seg-btn relative z-[1] flex h-11 min-w-11 flex-1 items-center justify-center px-3",
+              "ulune-seg-btn relative z-[1] flex h-11 min-w-11 items-center justify-center px-3",
               active ? "is-on" : undefined,
             )}
           >

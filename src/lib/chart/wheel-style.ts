@@ -114,8 +114,15 @@ export function aspectLook(
  * grey and greens olive).
  */
 export function ink(color: string): string {
-  return `color-mix(in oklch, ${color} var(--ink-keep, 100%), black)`;
+  const keep = PALE.test(color) ? "var(--ink-keep-pale, var(--ink-keep, 100%))" : "var(--ink-keep, 100%)";
+  return `color-mix(in oklch, ${color} ${keep}, black)`;
 }
+
+/**
+ * The pale hues, air's yellow and the conjunctions' gold, take more ink on
+ * cream (--ink-keep-pale, --line-keep-pale) to keep a 3:1 contrast there.
+ */
+const PALE = /--(?:el-air|aspect-conj|aspect-outer-conj)\)/;
 
 /**
  * A chart colour as ink for an aspect line: itself on the dark theme, barely
@@ -123,7 +130,8 @@ export function ink(color: string): string {
  * element's colour on both.
  */
 export function lineInk(color: string): string {
-  return `color-mix(in oklch, ${color} var(--line-keep, 100%), black)`;
+  const keep = PALE.test(color) ? "var(--line-keep-pale, var(--line-keep, 100%))" : "var(--line-keep, 100%)";
+  return `color-mix(in oklch, ${color} ${keep}, black)`;
 }
 
 /** Signed shortest turn from `a` to `b`, degrees (−180 … 180). */

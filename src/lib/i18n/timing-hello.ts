@@ -26,7 +26,8 @@ export function timingHelloLine(
     .replaceAll("{when}", when);
 }
 
-export function timingHelloEmpty(locale: AppLocale, scope: TimingScope): string {
-  const pair = source.empty[scope];
+/** `more`: the period had exact aspects, all past already (today, before now). */
+export function timingHelloEmpty(locale: AppLocale, scope: TimingScope, more = false): string {
+  const pair = (more ? source.emptyMore : source.empty)[scope];
   return (locale === "fr" ? pair.fr : pair.en) || pair.en;
 }

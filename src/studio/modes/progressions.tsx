@@ -94,7 +94,7 @@ function ProgressionsFigure() {
       footer={
         <div className="ulune-time-scrub" data-testid="progressions-scrub-band">
           <p data-testid="progressions-scrub-readout" className="ulune-micro text-center text-fg-muted">
-            {dateFormat(undefined, { dateStyle: "medium" }).format(
+            {dateFormat(locale === "fr" ? "fr-FR" : "en-GB", { dateStyle: "medium" }).format(
               lifeMsFromYears(progressions.natalUtc, sliderYears),
             )}
           </p>

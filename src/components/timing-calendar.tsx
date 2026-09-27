@@ -11,6 +11,14 @@ import { useI18n } from "@/lib/i18n/locale";
 import { timingScopeLabel } from "@/lib/i18n/timing-ui";
 import { cn } from "@/lib/utils";
 import { dateFormat } from "@/lib/intl-cache";
+import type { MessageKey } from "@/lib/i18n/messages";
+
+/** "242 exact aspects", not a bare number. */
+function exactCount(t: (key: MessageKey, vars?: Record<string, string | number>) => string, n: number): string {
+  if (n === 0) return t("timingExactNone");
+  if (n === 1) return t("timingExactOne");
+  return t("timingExactMany", { n });
+}
 
 const WEEKDAYS = {
   en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -202,7 +210,7 @@ export function TimingMonthGrid({
   selectedDay: string | null;
   onPickDay: (civil: CivilDate) => void;
 }) {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const first: CivilDate = { year: civil.year, month: civil.month, day: 1 };
   const pad = mondayIndex(first);
   const count = daysInMonth(civil.year, civil.month);
@@ -248,7 +256,7 @@ export function TimingMonthGrid({
               type="button"
               data-testid={`timing-day-${key}`}
               data-count={list.length}
-              aria-label={`${day.day} · ${list.length}`}
+              aria-label={`${day.day} · ${exactCount(t, list.length)}`}
               aria-pressed={active}
               onClick={() => onPickDay(day)}
               className={cn("ulune-timing-cell", active && "is-on")}
@@ -284,7 +292,7 @@ export function TimingYearGrid({
   tz: string;
   onPickMonth: (civil: CivilDate) => void;
 }) {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const months = MONTHS[locale];
   const counts = useMemo(() => {
     const format = dateFormat("en-GB", { timeZone: tz, month: "numeric" });
@@ -318,7 +326,7 @@ export function TimingYearGrid({
             <span className="ulune-timing-year-bar" aria-hidden>
               <span style={{ width: `${Math.round(heat * 100)}%` }} />
             </span>
-            <span className="ulune-timing-year-count">{n}</span>
+            <span className="ulune-timing-year-count">{exactCount(t, n)}</span>
           </button>
         );
       })}

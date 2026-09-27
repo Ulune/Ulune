@@ -4,6 +4,7 @@ import { ChartWheel } from "@/components/chart-wheel";
 import { LoadingLines } from "@/components/loading-lines";
 import { NatalHello } from "@/components/natal-hello";
 import { HOUSE_SYSTEM_LABEL } from "@/lib/chart/constants";
+import { formatEuropeanDate } from "@/lib/chart/parse-birth";
 import { methodNotes } from "@/lib/chart/method-notes";
 import { mergeGrokIntoDossier } from "@/lib/chart/dossier";
 import { usePack } from "@/lib/content/packs";
@@ -49,8 +50,9 @@ function NatalCaption() {
   const input = useStudioStore((s) => s.input);
   const timeUnknown = useStudioStore((s) => s.timeUnknown);
   if (!chart) return null;
+  // The date as the form writes it (15/06/1990), not as it is stored.
   const caption = [
-    input.date,
+    formatEuropeanDate(input.date),
     timeUnknown ? t("timeUnknown") : input.time,
     input.placeLabel,
     t(HOUSE_SYSTEM_LABEL[chart.meta.houseSystem ?? input.houseSystem ?? "placidus"]),

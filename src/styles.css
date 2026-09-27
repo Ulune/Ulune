@@ -20,6 +20,18 @@
   inherits: true;
   initial-value: 100%;
 }
+/* The pale hues (air's yellow, the conjunctions' gold) keep less on cream,
+   for a 3:1 contrast there (wheel-style.ts `ink`, `lineInk`). */
+@property --ink-keep-pale {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 100%;
+}
+@property --line-keep-pale {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 100%;
+}
 @property --color-bg-panel {
   syntax: "<color>";
   inherits: true;
@@ -213,7 +225,8 @@ html.light {
   --color-bg-subtle: oklch(0.937 0.017 80);
   --color-fg: oklch(0.215 0.012 70);
   --color-fg-muted: oklch(0.445 0.015 70);
-  --color-fg-subtle: oklch(0.585 0.015 72);
+  /* Small grey text at about 5:1 on the cream (0.585 gave 3.8:1). */
+  --color-fg-subtle: oklch(0.52 0.015 72);
   --color-border: color-mix(in oklab, var(--color-fg) 10%, transparent);
   --color-border-strong: color-mix(in oklab, var(--color-fg) 20%, transparent);
   --color-accent: var(--color-fg);
@@ -1222,12 +1235,17 @@ html.theme-ready body {
 :root {
   --ink-keep: 100%;
   --line-keep: 100%;
+  --ink-keep-pale: 100%;
+  --line-keep-pale: 100%;
   --wheel-sign-line: color-mix(in oklab, var(--color-fg) 36%, transparent);
   --wheel-aspect-ring: color-mix(in oklab, var(--color-fg) 18%, transparent);
 }
 html.light {
   --ink-keep: 76%;
   --line-keep: 88%;
+  /* Air's yellow and the conjunctions' gold: 3:1 on cream (2.2 to 2.7 at the keeps above). */
+  --ink-keep-pale: 68%;
+  --line-keep-pale: 78%;
   --wheel-sign-line: color-mix(in oklab, var(--color-fg) 44%, transparent);
   --wheel-aspect-ring: color-mix(in oklab, var(--color-fg) 24%, transparent);
 }
@@ -1264,7 +1282,12 @@ html.light .ulune-wheel[data-focus-kind="transit"] .ulune-dim-cusp[data-cusp-kin
   opacity: 0.5;
 }
 html.light .ulune-wheel [data-kind="decan-glyph"] {
-  opacity: 0.75;
+  /* 0.75 left the decans' glyphs near 2:1 on cream; 0.9 keeps them over 3:1. */
+  opacity: 0.9;
+}
+/* Inside a bi-wheel they are drawn smaller, their strokes thinner: full ink. */
+html.light .ulune-wheel[data-bi] [data-kind="decan-glyph"] {
+  opacity: 1;
 }
 /* Applying / separating chevrons follow their line's focus. At rest a shade
    over their line, per theme (chart-wheel.tsx gives both: a theme switch
@@ -2221,6 +2244,16 @@ html.light .ulune-wheel [data-cfg-type] {
 }
 .ob-rc-p {
   color: var(--color-fg-muted);
+}
+/* The personal paragraph a birth chart's reading opens with carries the
+   weight the general note had. */
+.ob-rc-lead--first {
+  padding: 2px 0 2px 14px;
+  border-left: 2px solid var(--rc-tint, var(--color-accent));
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  max-width: 64ch;
 }
 .ob-rc-sec {
   display: flex;

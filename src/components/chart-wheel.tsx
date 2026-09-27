@@ -2168,6 +2168,7 @@ const ChartWheelView = memo(function ChartWheelView({
         key={wheelKey}
         viewBox={showTransits ? BIWHEEL_VIEW.vb : NATAL_VIEW.vb}
         className="ulune-wheel h-full w-full origin-center select-none"
+        data-bi={showTransits ? "1" : undefined}
         role="img"
         aria-label={t("wheelAria")}
         onPointerMove={(e) => {

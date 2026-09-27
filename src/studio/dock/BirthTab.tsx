@@ -1,6 +1,7 @@
 import { BirthForm } from "@/components/birth-form";
 import { HOUSE_SYSTEM_LABEL } from "@/lib/chart/constants";
 import { chartDisplayName } from "@/lib/chart/library";
+import { formatEuropeanDate } from "@/lib/chart/parse-birth";
 import { sampleBirth } from "@/lib/chart/sample";
 import { useI18n } from "@/lib/i18n/locale";
 import { localizeError } from "@/lib/i18n/errors";
@@ -65,7 +66,7 @@ export function BirthTab({ onStage = false, modeLine = null }: { onStage?: boole
             ? keptHint
             : editingName
           ? [
-              input.date,
+              formatEuropeanDate(input.date),
               timeUnknown ? t("timeUnknown") : input.time,
               input.placeLabel,
               t(HOUSE_SYSTEM_LABEL[chart?.meta.houseSystem ?? input.houseSystem ?? "placidus"]),

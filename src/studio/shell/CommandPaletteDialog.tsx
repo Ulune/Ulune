@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { chartDisplayName } from "@/lib/chart/library";
+import { formatEuropeanDate } from "@/lib/chart/parse-birth";
 import { bodyLabel } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
 import { useLookProfiles } from "@/lib/look-provider";
@@ -68,7 +69,7 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
         id: `chart:${r.id}`,
         section: secCharts,
         label: chartDisplayName(r.input, t("untitled")),
-        hint: [r.input.date, r.input.placeLabel.split(",")[0]].filter(Boolean).join(" · "),
+        hint: [formatEuropeanDate(r.input.date), r.input.placeLabel.split(",")[0]].filter(Boolean).join(" · "),
         run: () => useStudioStore.getState().select(r.id),
       });
     }

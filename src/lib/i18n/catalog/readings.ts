@@ -43,7 +43,7 @@ export const readings = {
   natal: ["Natal", "Thème natal"],
   readingAsk: ["Ask {name} about this", "Demander à {name}"],
   readingAskClose: ["Hide the question box", "Masquer la question"],
-  readingBack: ["Back to {name}", "Retour à {name}"],
+  readingBack: ["Back to {name}", "Retour\u202f: {name}"],
   readingComposed: ["Composed reading", "Lecture composée"],
   readingDepthLabel: ["Reading depth", "Niveau de détail"],
   readingFull: ["Full", "Complet"],

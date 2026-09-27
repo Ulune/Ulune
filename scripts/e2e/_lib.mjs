@@ -114,6 +114,10 @@ export async function pickPlace(page, query) {
 
 export async function castFixture(page, fixture) {
   await page.waitForSelector("#birth-date, [data-testid=chart-chip]", { timeout: 20000 });
+  // A private space open here seals the chart a moment after the cast
+  // (space-sync.ts): note its library now, to wait for the new chart below.
+  const spaced = (await databases(page)).includes("ulune-space");
+  const libraryBefore = spaced ? JSON.stringify(await readSpaceRecord(page, "state/library").catch(() => null)) : "";
   const natal = await page.getByTestId("studio-natal").count();
   if (natal) {
     const picker = page.getByTestId("chart-picker");
@@ -129,6 +133,15 @@ export async function castFixture(page, fixture) {
   await pickPlace(page, fixture.place);
   await page.getByTestId("cast-submit").click();
   await page.getByTestId("studio-natal").waitFor({ timeout: 45000 });
+  // With a space, a reload right after the cast must find the chart kept.
+  if (spaced) {
+    const until = Date.now() + 8000;
+    while (Date.now() < until) {
+      const now = JSON.stringify(await readSpaceRecord(page, "state/library").catch(() => null));
+      if (now !== libraryBefore && now !== "null") break;
+      await page.waitForTimeout(100);
+    }
+  }
 }
 
 export async function pointsTableText(page) {

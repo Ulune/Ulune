@@ -48,6 +48,7 @@ html.theme-switching * {
   width: 100%;
   height: 100dvh;
   overflow: hidden;
+  overflow: clip;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: var(--ob-top-h) minmax(0, 1fr) calc(var(--ob-group-h) + var(--ob-safe-b));
   grid-template-areas:
@@ -211,10 +212,15 @@ html.theme-switching * {
   color: #fff;
 }
 
-/* Segmented control: sunken track, inverted sliding pill. */
+/* Segmented control: sunken track, inverted sliding pill. Equal columns,
+   each as wide as the widest label when there is room (a flex row squeezed
+   "Progressed" under "Both"). */
 .ulune-seg {
   --ulune-seg-i: 0;
   --ulune-seg-n: 2;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   flex: 0 0 auto;
   min-width: 0;
   height: 44px;
@@ -729,12 +735,65 @@ html.theme-switching * {
   display: none;
 }
 .ob-aspect-strip {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 2px 4px;
   min-width: 0;
+}
+/* Each chip's name: spelled in the column beside the wheel when the margin
+   has room (wheel-zoom.tsx), otherwise said by the caption below. */
+.ob-aspect-chip-name {
+  display: none;
+  font: 500 12px/1 var(--font-ui);
+  color: var(--color-fg);
+  white-space: nowrap;
+}
+.ulune-wheel-legend[data-names] .ob-aspect-chip-name {
+  display: inline;
+  margin-inline-end: auto;
+}
+.ulune-wheel-legend[data-names] .ob-aspect-chip {
+  gap: 7px;
+}
+/* What the strip says about the chip under the pointer, in focus or just
+   tapped (aspect-strip.tsx): above the strip, like a tooltip, never in the way. */
+.ob-aspect-say {
+  position: absolute;
+  z-index: 5;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  width: max-content;
+  max-width: min(92vw, 340px);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--color-bg-elevated);
+  box-shadow: var(--ob-shadow, 0 4px 16px rgb(0 0 0 / 0.18));
+  color: var(--color-fg);
+  font: 500 12px/1.35 var(--font-ui);
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, 2px);
+  transition:
+    opacity var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out);
+  pointer-events: none;
+}
+.ob-aspect-say[data-show] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.ob-aspect-say:empty {
+  padding: 0;
+}
+.ulune-wheel-legend[data-place="side"] .ob-aspect-say {
+  left: 0;
+  transform: translate(0, 2px);
+}
+.ulune-wheel-legend[data-place="side"] .ob-aspect-say[data-show] {
+  transform: translate(0, 0);
 }
 /* Beside the wheel: a column in the free margin, like a map's legend. */
 .ulune-wheel-legend[data-place="side"] {
@@ -949,6 +1008,15 @@ html.theme-switching * {
 .ulune-aspect-layer .ulune-seg button {
   padding-inline: var(--space-2);
   white-space: nowrap;
+}
+@media (max-width: 359.98px) {
+  .ulune-aspect-layer .ulune-seg {
+    flex: 1 1 auto;
+  }
+  .ulune-aspect-layer .ulune-seg button {
+    padding-inline: 4px;
+    font-size: 12px;
+  }
 }
 .ulune-timing-scope .ulune-seg,
 .ulune-hd-control .ulune-seg {
@@ -1192,6 +1260,53 @@ html.theme-switching * {
   }
   .ob-panel[data-detent="peek"] .ob-panel-body {
     visibility: hidden;
+  }
+  /* The sheet's body is as tall as the part of the sheet on screen: at half
+     height its lower half used to lie below the screen's edge, so the end
+     of a reading could never be scrolled into view. */
+  .ob-panel-body {
+    max-height: calc(var(--ob-vis) - var(--ob-peek-h));
+  }
+  /* The sheet open leaves a small wheel above it: the first-run hint waits. */
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) .ulune-wheel-hint {
+    display: none;
+  }
+}
+
+/* Held upright, with the sheet folded, every wheel takes the stage's whole
+   width (a transit bi-wheel was about 180 px wide on a phone): the wheel's
+   frame is at least as tall as it is wide, and the stage scrolls when the
+   wheel, its controls and the footer need more than the screen. With the
+   sheet open, the wheel shrinks to stay whole above it, as before. */
+@media (max-width: 1023.98px) and (orientation: portrait) {
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-stage:has(.ulune-wheel-port) {
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-figure:has(.ulune-wheel-port) {
+    flex: 1 0 auto;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-figure .ulune-biwheel {
+    flex: 1 0 auto;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-figure .ulune-wheel-port {
+    flex: 1 0 auto;
+    aspect-ratio: 1;
+  }
+}
+
+/* The footer row fits narrow screens (Share fell off at 390 px with − and +,
+   and 3D at 320): the view switch keeps its icons (its names stay in its
+   labels and titles), and below 360 px − and + give way to pinching. */
+@media (max-width: 359.98px), (max-width: 440px) and (pointer: fine) {
+  .ob-view-label {
+    display: none;
+  }
+}
+@media (max-width: 359.98px) {
+  .ulune-wheel-zoom-bar [data-testid="wheel-zoom-out"],
+  .ulune-wheel-zoom-bar [data-testid="wheel-zoom-in"] {
+    display: none;
   }
 }
 
@@ -1550,9 +1665,13 @@ html.theme-switching * {
   }
 }
 
-/* The sheet translates below the body; the body clips it so it never covers the group bar. */
+/* The sheet translates below the body; the body clips it so it never covers
+   the group bar. Clipped, not hidden: a hidden box can still be scrolled by
+   focus and scroll-into-view, which slid the whole studio up under the top
+   bar after the sheet closed. */
 .ob-body-slot {
   overflow: hidden;
+  overflow: clip;
 }
 
 @media (min-width: 1024px) {
@@ -1597,52 +1716,6 @@ html.theme-switching * {
 [role="tab"].ob-subtab-on {
   color: var(--color-fg);
   box-shadow: inset 0 -2px 0 var(--color-fg);
-}
-
-/* Look → palette presets. */
-.ob-palettes {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-}
-.ob-palette {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 8px;
-  min-height: 64px;
-  padding: 10px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--color-fg);
-  font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 500;
-  text-align: left;
-  transition:
-    border-color var(--dur-hover) var(--ease-out),
-    background-color var(--dur-hover) var(--ease-out);
-}
-button.ob-palette:hover {
-  background: var(--color-bg-subtle);
-}
-.ob-palette.is-on {
-  border-color: var(--color-fg);
-}
-.ob-palette--custom {
-  color: var(--color-fg-muted);
-  border-style: dashed;
-}
-.ob-palette-dots {
-  display: flex;
-  gap: 3px;
-}
-.ob-palette-dots > span {
-  width: 12px;
-  height: 12px;
-  border-radius: 999px;
 }
 
 /* ---------------------------------------------------------------- toasts */
@@ -2056,6 +2129,8 @@ button.ob-wgrid-cell:hover,
   display: flex;
   align-items: center;
   gap: 8px;
+  /* Its own width: at left 50% it would otherwise wrap in half the stage. */
+  width: max-content;
   max-width: min(92%, 460px);
   padding: 7px 8px 7px 14px;
   border-radius: 999px;

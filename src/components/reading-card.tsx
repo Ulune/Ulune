@@ -118,6 +118,9 @@ function useMarkColor(reading: ElementReading, chart: NatalChart | null | undefi
   return `var(--el-${SIGN_META[sign].element})`;
 }
 
+/** The readings of a birth chart's own elements (not Human Design, numerology or timing). */
+const NATAL_READING = /^(planet|angle|house|sign|decan|aspect):/;
+
 /**
  * One reading, laid out for scanning: mark, title and the facts that locate
  * it (each fact opens its own reading), then the meaning, the lead, what it
@@ -147,6 +150,10 @@ export function ReadingCard({
   const structured = reading.lead != null || Boolean(reading.sections?.length);
   const lead = structured ? reading.lead : reading.paragraphs[0];
   const rest = structured ? [] : reading.paragraphs.slice(1);
+  // A birth chart's reading starts with what the element does in this chart
+  // ("The Sun in Capricorn…"); what the element is in general ("The Sun is the
+  // star at the centre…") opens its "About" instead of outweighing it.
+  const noteInAbout = Boolean(reading.note && lead && reading.about) && NATAL_READING.test(reading.id);
 
   return (
     <article
@@ -231,13 +238,13 @@ export function ReadingCard({
         </section>
       ) : null}
 
-      {reading.note ? (
+      {reading.note && !noteInAbout ? (
         <p className="ob-rc-note" data-testid="reading-note">
           {reading.note}
         </p>
       ) : null}
 
-      {lead ? <p className="ob-rc-lead">{lead}</p> : null}
+      {lead ? <p className={noteInAbout ? "ob-rc-lead ob-rc-lead--first" : "ob-rc-lead"}>{lead}</p> : null}
 
       {reading.sections?.map((s) =>
         s.paragraphs.length ? (
@@ -300,9 +307,14 @@ export function ReadingCard({
         </section>
       ) : null}
 
-      {reading.about?.paragraphs.length ? (
+      {reading.about && (reading.about.paragraphs.length || noteInAbout) ? (
         <details className="ob-rc-about" data-testid="reading-about">
           <summary>{reading.about.title}</summary>
+          {noteInAbout ? (
+            <p className="ob-rc-p" data-testid="reading-note">
+              {reading.note}
+            </p>
+          ) : null}
           {reading.about.paragraphs.map((p, i) => (
             <p key={i} className="ob-rc-p">
               {p}

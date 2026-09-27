@@ -109,6 +109,7 @@ function TimingHelloEmpty() {
       tz={timing.tz}
       selectedId={w.selectedId}
       onSelect={w.pick}
+      earlier={timing.scoped.length > 0}
     />
   );
 }

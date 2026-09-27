@@ -98,13 +98,13 @@ export function StudioWorkspace() {
   // The guide stands under the first visit's form only (BirthTab: firstVisit).
   const showGuide = !chart && !addingPartnerFor && rows.length === 0 && spaceStatus !== "locked";
 
-  // Compact: a fresh chart or mode starts with the sheet at peek so the
-  // figure is the first thing seen.
+  // Compact: a fresh chart, mode or view starts with the sheet at peek so the
+  // figure (or the table, which the open sheet squeezed) is the first thing seen.
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
     if (isWide()) return;
     if (panelOn) useStudioStore.setState({ dockOpen: false });
-  }, [panelOn, page]);
+  }, [panelOn, page, view]);
 
   // Why the form stands where a mode or the table was asked for.
   const modeLine = chart

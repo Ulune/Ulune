@@ -8,7 +8,7 @@
  * The wheel's zoom port places it: in the free margin beside the wheel when
  * there is room, else in the stage footer (wheel-zoom.tsx).
  */
-import { useMemo, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent, type ReactNode } from "react";
 import { ASPECT_COLOR } from "@/lib/chart/constants";
 import { resolveWheelFocus, type WheelFocusCtx } from "@/lib/chart/wheel-focus";
 import { ASPECT_PATTERN, lineInk } from "@/lib/chart/wheel-style";
@@ -102,6 +102,23 @@ function DensityButton() {
 
 const SCOPED = new Set(["planet", "angle", "transit", "partner", "progressed", "sign", "house", "decan"]);
 
+type PreviewHandlers = {
+  onPointerEnter?: (e: { pointerType?: string }) => void;
+  onPointerLeave?: () => void;
+  onPointerDown?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+};
+
+/** Fingers, not a mouse: the caption says "tap" and stays a moment after a tap. */
+function useTouch(): boolean {
+  const [touch, setTouch] = useState(false);
+  useEffect(() => {
+    if (typeof window.matchMedia === "function") setTouch(window.matchMedia("(hover: none)").matches);
+  }, []);
+  return touch;
+}
+
 export function AspectStrip({
   rows,
   hidden,
@@ -116,6 +133,19 @@ export function AspectStrip({
   selection: SelectionStore;
 }) {
   const { t, locale } = useI18n();
+  const touch = useTouch();
+  // What the strip says about the chip under the pointer, in focus or just
+  // tapped: each aspect's name, its count and what a click or a tap does
+  // (a hover title never shows on a phone, and shows late with a mouse).
+  const [say, setSay] = useState<{ type: AspectId; text: string } | null>(null);
+  const sayTimer = useRef(0);
+  useEffect(() => () => window.clearTimeout(sayTimer.current), []);
+  const speak = (type: AspectId, text: string, ms = 0) => {
+    window.clearTimeout(sayTimer.current);
+    setSay({ type, text });
+    if (ms) sayTimer.current = window.setTimeout(() => setSay(null), ms);
+  };
+  const hush = (type: AspectId) => setSay((cur) => (cur && cur.type === type ? null : cur));
   const selected = useSyncExternalStore(selection.subscribe, selection.get, () => null);
   const scope = useMemo(() => {
     if (!selected) return null;
@@ -166,6 +196,11 @@ export function AspectStrip({
         const on = n > 0;
         const shown = scope ? (inScope.get(type) ?? 0) : on ? n : (hidden.get(type) ?? 0);
         const name = aspectName(type, locale);
+        const off = hidden.get(type) ?? 0;
+        const hint = on
+          ? t(touch ? "aspectStripHideTap" : "aspectStripHide", { name, n })
+          : t(touch ? "aspectStripShowTap" : "aspectStripShow", { name, n: off });
+        const preview: PreviewHandlers = previewProps(on ? `atype:${type}` : null);
         return (
           <button
             key={type}
@@ -175,18 +210,44 @@ export function AspectStrip({
             data-on={on ? "1" : "0"}
             data-zero={scope && !shown ? "1" : undefined}
             aria-pressed={on}
-            title={on ? t("aspectStripHide", { name, n }) : t("aspectStripShow", { name, n: hidden.get(type) ?? 0 })}
+            aria-label={`${name}, ${shown}`}
             style={{ color: lineInk(ASPECT_COLOR[type]) }}
-            onClick={() => toggleAspectType(type)}
-            {...previewProps(on ? `atype:${type}` : null)}
+            onClick={() => {
+              toggleAspectType(type);
+              // After a tap the strip says what happened, a moment; a mouse
+              // still on the chip reads its new state at once.
+              if (touch) speak(type, t(on ? "aspectStripHidden" : "aspectStripShown", { name }), 2600);
+              else speak(type, on ? t("aspectStripShow", { name, n }) : t("aspectStripHide", { name, n: off }));
+            }}
+            {...preview}
+            onPointerEnter={(e: PointerEvent<HTMLButtonElement>) => {
+              preview.onPointerEnter?.(e);
+              if (e.pointerType === "mouse") speak(type, hint);
+            }}
+            onPointerLeave={(e: PointerEvent<HTMLButtonElement>) => {
+              preview.onPointerLeave?.();
+              if (e.pointerType === "mouse") hush(type);
+            }}
+            onFocus={() => {
+              preview.onFocus?.();
+              if (!touch) speak(type, hint);
+            }}
+            onBlur={() => {
+              preview.onBlur?.();
+              if (!touch) hush(type);
+            }}
           >
             <AspectSwatch type={type} />
             <AspectGlyph id={type} size={13} className="ob-aspect-chip-glyph" />
+            <span className="ob-aspect-chip-name">{name}</span>
             <span className="ob-aspect-chip-n">{shown}</span>
           </button>
         );
       })}
       <DensityButton />
+      <span className="ob-aspect-say" role="status" aria-live="polite" data-show={say ? "1" : undefined}>
+        {say?.text ?? ""}
+      </span>
     </div>
   );
 }

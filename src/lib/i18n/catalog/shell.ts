@@ -35,7 +35,7 @@ export const shell = {
   openCalendar: ["Open calendar", "Ouvrir le calendrier"],
   pageComposite: ["Composite", "Composite"],
   pageCompositeHint: ["The chart of the relationship itself.", "Le thème de la relation elle-même."],
-  pageDesign: ["Human design", "Design humain"],
+  pageDesign: ["Human Design", "Human Design"],
   pageDesignHint: ["Type, strategy, and the bodygraph.", "Type, stratégie, et le bodygraph."],
   pageNatal: ["Birth chart", "Thème natal"],
   pageNotFound: ["This page isn’t in Ulune.", "Cette page n’est pas dans Ulune."],

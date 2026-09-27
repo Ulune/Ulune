@@ -77,5 +77,8 @@ export const modes = {
     "Les aspects majeurs des planètes en mouvement vers votre thème : l’orbe, si chacun est applicatif (il se rapproche) ou séparatif, et l’instant exact (UTC).",
   ],
   transiting: ["Transiting {name}", "{name} en transit"],
+  timingExactNone: ["No exact aspect", "Aucun aspect exact"],
+  timingExactOne: ["1 exact aspect", "1 aspect exact"],
+  timingExactMany: ["{n} exact aspects", "{n} aspects exacts"],
   numerologyMethodTitle: ["How the numbers are worked out", "Comment les nombres sont calculés"],
 } as const satisfies Record<string, readonly [string, string]>;

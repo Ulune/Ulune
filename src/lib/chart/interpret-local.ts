@@ -484,6 +484,8 @@ function decanReading(chart: NatalChart, sign: SignId, face: 0 | 1 | 2, locale: 
     paragraphs: flatten(structured),
     ...structured,
     facts,
+    // What decans are in general opens here (reading-card.tsx), under the reading of this one.
+    about: { title: fr ? "À propos des décans" : "About decans", paragraphs: [] },
   };
 }
 

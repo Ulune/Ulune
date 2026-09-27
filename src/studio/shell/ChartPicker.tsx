@@ -3,6 +3,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { AnchoredPopover } from "@/components/anchored-popover";
 import { chartDisplayName } from "@/lib/chart/library";
+import { formatEuropeanDate } from "@/lib/chart/parse-birth";
 import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
 import { UluneMark } from "@/studio/shell/PageTopBar";
@@ -30,7 +31,7 @@ export function ChartPicker() {
     const q = query.trim().toLowerCase();
     const list = q
       ? rows.filter((r) =>
-          `${r.input.name} ${r.input.placeLabel} ${r.input.date}`.toLowerCase().includes(q),
+          `${r.input.name} ${r.input.placeLabel} ${r.input.date} ${formatEuropeanDate(r.input.date)}`.toLowerCase().includes(q),
         )
       : [...rows];
     const birthKey = (d: string) => {
@@ -158,7 +159,7 @@ export function ChartPicker() {
                         >
                           <span className="truncate">{label}</span>
                           <span className="ob-picker-meta">
-                            {[row.input.date, row.input.placeLabel.split(",")[0]].filter(Boolean).join(" · ")}
+                            {[formatEuropeanDate(row.input.date), row.input.placeLabel.split(",")[0]].filter(Boolean).join(" · ")}
                           </span>
                         </button>
                         {on ? (

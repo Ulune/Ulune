@@ -51,8 +51,21 @@ test("tightness follows the orb and the level's cap", () => {
 });
 
 test("inks keep the colour on the dark theme and deepen it on cream toward black, hue kept", () => {
-  assert.equal(ink("var(--el-air)"), "color-mix(in oklch, var(--el-air) var(--ink-keep, 100%), black)");
+  assert.equal(ink("var(--el-fire)"), "color-mix(in oklch, var(--el-fire) var(--ink-keep, 100%), black)");
   assert.equal(lineInk("var(--aspect-hard)"), "color-mix(in oklch, var(--aspect-hard) var(--line-keep, 100%), black)");
+});
+
+test("the pale hues (air, the conjunctions' gold) take their own, deeper keep on cream", () => {
+  assert.equal(ink("var(--el-air)"), "color-mix(in oklch, var(--el-air) var(--ink-keep-pale, var(--ink-keep, 100%)), black)");
+  assert.equal(
+    lineInk("var(--aspect-conj)"),
+    "color-mix(in oklch, var(--aspect-conj) var(--line-keep-pale, var(--line-keep, 100%)), black)",
+  );
+  assert.equal(
+    lineInk("var(--aspect-outer-conj)"),
+    "color-mix(in oklch, var(--aspect-outer-conj) var(--line-keep-pale, var(--line-keep, 100%)), black)",
+  );
+  assert.equal(lineInk("var(--aspect-soft)"), "color-mix(in oklch, var(--aspect-soft) var(--line-keep, 100%), black)");
 });
 
 test("a conjunction's yoke runs the short way round, across 0° Aries too", () => {

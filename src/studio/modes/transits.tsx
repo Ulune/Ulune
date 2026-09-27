@@ -80,6 +80,8 @@ function TransitsControls() {
         />
       </label>
       <button type="button" data-testid="transit-now" onClick={() => now()} className="ulune-transit-now">
+        {/* On a phone the live dot sits here and the Live / Pinned word is for screen readers only. */}
+        <span className={cn("ulune-transit-now-dot", live && "is-live")} aria-hidden />
         {transitClockLabel(locale, "now")}
       </button>
       <span

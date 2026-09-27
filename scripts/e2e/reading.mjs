@@ -35,7 +35,10 @@ async function run(width) {
     await page.getByTestId("natal-hello-sun").click();
     await page.getByTestId("reading-card").waitFor({ timeout: 8000 });
     if (!/sun|soleil/i.test(await title(page))) throw new Error("sun card title");
-    if (!(await page.getByTestId("reading-note").count())) throw new Error("sun card lacks meaning note");
+    // The personal reading leads; the general meaning opens "About the Sun".
+    const first = await page.getByTestId("reading-card").evaluate((card) => card.querySelector(".ob-rc-note, .ob-rc-lead")?.className ?? "");
+    if (!/ob-rc-lead/.test(first)) throw new Error(`sun card does not lead with its personal reading: ${first}`);
+    if (!(await page.getByTestId("reading-about").getByTestId("reading-note").count())) throw new Error("sun card's meaning note is not under About");
     const facts = page.getByTestId("reading-facts").locator("button");
     if ((await facts.count()) < 3) throw new Error("sun card facts < 3");
 

@@ -32,6 +32,8 @@ const FINE_TICK_D = 430;
 const CHROME = [".ob-strip", ".ob-foot"];
 /** Free width beside the wheel that takes the legend (the aspect count strip) as a column, px. */
 const LEGEND_SIDE_MIN = 92;
+/** Free width at which that column also spells each aspect's name, px. */
+const LEGEND_NAMES_MIN = 176;
 /** The aside (the aspect grid) needs this much free margin right of the wheel, px. */
 const ASIDE_SIDE_MIN = 196;
 
@@ -197,7 +199,7 @@ export function WheelZoom({
   const aspectSlotRef = useRef<HTMLElement | null>(null);
   aspectSlotRef.current = aspectSlot;
   /** Where the legend goes: a column in the free margin left of the wheel, or the footer. */
-  const [legendAt, setLegendAt] = useState<{ x: number; y: number } | null>(null);
+  const [legendAt, setLegendAt] = useState<{ x: number; y: number; names: boolean } | null>(null);
   /** Where the aside goes: the free margin right of the wheel, bottom corner (null: no room). */
   const [asideAt, setAsideAt] = useState<{ x: number; y: number; room: number } | null>(null);
   const outerRef = useRef<HTMLDivElement>(null);
@@ -278,7 +280,7 @@ export function WheelZoom({
     const port = portRef.current;
     const inner = innerRef.current;
     if (!port || !inner) return;
-    let last = { d: 0, x: 0, y: 0 };
+    let last = { d: 0, x: 0, y: 0, w: 0 };
     let frame = 0;
     const applySize = () => {
       const portRect = port.getBoundingClientRect();
@@ -291,14 +293,18 @@ export function WheelZoom({
       const d = Math.max(MIN_D, Math.round(avail - inset));
       const x = Math.round((box.l + box.r) / 2 - (portRect.left + portRect.right) / 2);
       const y = Math.round((box.t + box.b) / 2 - (portRect.top + portRect.bottom) / 2);
+      // The box's width counts too: the side panel opening or closing leaves a
+      // height-bound wheel as it was, but the legend's margin changes.
+      const w = Math.round(boxW(box));
       if (
         Math.abs(d - last.d) < FIT_EPS &&
         Math.abs(x - last.x) < FIT_EPS &&
-        Math.abs(y - last.y) < FIT_EPS
+        Math.abs(y - last.y) < FIT_EPS &&
+        Math.abs(w - last.w) < FIT_EPS
       ) {
         return;
       }
-      last = { d, x, y };
+      last = { d, x, y, w };
       fitRef.current = { x, y };
       // The legend takes the free margin left of the wheel when it is wide
       // enough (a wide stage); otherwise it goes to the footer.
@@ -316,8 +322,8 @@ export function WheelZoom({
         // Bottom-left, level with the wheel's foot: the circle leaves that
         // corner free (the ASC's label sits at mid-height on the left).
         const foot = Math.min(box.b, (box.t + box.b) / 2 + d / 2);
-        const next = { x: Math.round(box.l - or.left + 12), y: Math.round(foot - or.top - 8) };
-        return cur && cur.x === next.x && cur.y === next.y ? cur : next;
+        const next = { x: Math.round(box.l - or.left + 12), y: Math.round(foot - or.top - 8), names: side >= LEGEND_NAMES_MIN };
+        return cur && cur.x === next.x && cur.y === next.y && cur.names === next.names ? cur : next;
       });
       // The aside mirrors it bottom-right, where a margin that wide is free.
       setAsideAt((cur) => {
@@ -553,6 +559,7 @@ export function WheelZoom({
       <div
         className="ulune-wheel-legend"
         data-place="side"
+        data-names={legendAt.names ? "1" : undefined}
         style={{ left: `${legendAt.x}px`, top: `${legendAt.y}px` }}
         onPointerDown={(e) => e.stopPropagation()}
       >

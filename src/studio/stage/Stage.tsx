@@ -1,5 +1,5 @@
 import { Circle, Table2 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { SegmentedToggle } from "@/components/segmented-toggle";
 import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
@@ -88,10 +88,17 @@ export function Stage({
   // Store view comes from localStorage; only publish it once hydrated.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+  // On a phone the stage scrolls (a full-width wheel with its controls): each
+  // mode and view starts at the top.
+  const stageRef = useRef<HTMLElement>(null);
+  useLayoutEffect(() => {
+    if (stageRef.current) stageRef.current.scrollTop = 0;
+  }, [swapKey]);
   return (
     <ZoomSlotContext.Provider value={zoomSlot}>
     <AspectSlotContext.Provider value={aspectSlot}>
       <section
+        ref={stageRef}
         className={cn("ob-stage", table && "ob-stage--table", form && "ob-stage--form")}
         data-testid={testId ?? "studio-stage"}
         data-view={mounted ? view : undefined}

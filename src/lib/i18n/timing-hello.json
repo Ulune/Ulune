@@ -19,5 +19,19 @@
       "en": "No exact major aspect this year.",
       "fr": "Aucun aspect majeur exact cette année."
     }
+  },
+  "emptyMore": {
+    "day": {
+      "en": "Nothing more exact today.",
+      "fr": "Plus rien d’exact aujourd’hui."
+    },
+    "month": {
+      "en": "No more exact major aspect this month.",
+      "fr": "Plus d’aspect majeur exact ce mois-ci."
+    },
+    "year": {
+      "en": "No more exact major aspect this year.",
+      "fr": "Plus d’aspect majeur exact cette année."
+    }
   }
 }
