@@ -15,7 +15,7 @@ import { faceInFamily, typeFaces } from "../type-roles.mjs";
 
 const FAMILIES = ["astronomicon", "noto", "starfont-sans", "starfont-serif"];
 const FAMILY_FACE = {
-  astronomicon: "Astronomicon",
+  astronomicon: "Ulune Classic",
   noto: null,
   "starfont-sans": "StarFont Sans",
   "starfont-serif": "StarFont Serif",

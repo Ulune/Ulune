@@ -81,4 +81,49 @@ export const errors = {
     "Sign-in couldn’t come back to this page. Close extra tabs and try again.",
     "La connexion n’a pas pu revenir sur cette page. Fermez les autres onglets et réessayez.",
   ],
+  err_net_offline: [
+    "You’re offline: calculating needs the internet. Check the connection and try again.",
+    "Vous êtes hors ligne : le calcul a besoin d’internet. Vérifiez la connexion et réessayez.",
+  ],
+  err_net_timeout: [
+    "Ulune’s server took too long to answer. Try again in a moment.",
+    "Le serveur d’Ulune a mis trop de temps à répondre. Réessayez dans un instant.",
+  ],
+  err_input_range: [
+    "Ulune can’t calculate this entry. Check the date, the time and the place.",
+    "Ulune ne peut pas calculer cette saisie. Vérifiez la date, l’heure et le lieu.",
+  ],
+  appErrorTitle: ["Something went wrong", "Une erreur est survenue"],
+  appErrorBody: [
+    "Ulune ran into an error it didn’t expect. Reloading the page usually fixes it; your saved charts are safe on this device.",
+    "Ulune a rencontré une erreur imprévue. Recharger la page suffit en général ; vos thèmes enregistrés restent à l’abri sur cet appareil.",
+  ],
+  appErrorReload: ["Reload the page", "Recharger la page"],
+  appErrorDetails: ["Technical details", "Détails techniques"],
+  errorSlotBody: [
+    "Something in this view failed. Try again, or reload the page.",
+    "Quelque chose a échoué dans cette vue. Réessayez, ou rechargez la page.",
+  ],
+  reportProblem: ["Report a problem", "Signaler un problème"],
+  reportProblemLead: [
+    "A wrong position, a bug, a word out of place?",
+    "Une position fausse, un bug, un mot de travers ?",
+  ],
+  reportMailSubject: ["Ulune {version}: a problem", "Ulune {version} : un problème"],
+  reportMailBody: [
+    "What happened, on which page, and what you expected:",
+    "Ce qui s’est passé, sur quelle page, et ce que vous attendiez :",
+  ],
+  err_place_missing: [
+    "Add a birth place — a city name is enough.",
+    "Indiquez un lieu de naissance — un nom de ville suffit.",
+  ],
+  err_place_lookup: [
+    "Place lookup failed. Try again, or paste coordinates.",
+    "Lieu introuvable. Réessayez, ou collez des coordonnées.",
+  ],
+  err_place_notfound: [
+    "Could not find “{raw}”. Try another city, or paste coordinates.",
+    "Impossible de trouver « {raw} ». Essayez une autre ville, ou collez des coordonnées.",
+  ],
 } as const satisfies Record<string, readonly [string, string]>;

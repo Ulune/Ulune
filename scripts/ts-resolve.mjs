@@ -17,6 +17,11 @@ export async function resolve(specifier, context, nextResolve) {
     try {
       return await nextResolve(`${specifier}.ts`, context);
     } catch {
+      /* a folder, then */
+    }
+    try {
+      return await nextResolve(`${specifier}/index.ts`, context);
+    } catch {
       /* fall through */
     }
   }

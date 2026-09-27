@@ -680,6 +680,26 @@ html.theme-switching * {
 .ob-foot-cap:empty {
   display: none;
 }
+/* A chart's method note under its caption (lib/chart/method-notes.ts): the
+   houses in another system, the Moshier fallback, a body left out. */
+.ulune-method-note {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-fg);
+}
+.ulune-method-note-icon {
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+  margin-top: 2px;
+  color: var(--color-fg-muted);
+}
 .ob-foot-ctrls {
   display: flex;
   align-items: center;
@@ -1295,6 +1315,9 @@ html.theme-switching * {
   .ob-foot-cap {
     flex: 1 1 auto;
     text-align: left;
+  }
+  .ulune-method-note {
+    justify-content: flex-start;
   }
   .ob-foot-ctrls {
     flex: 0 0 auto;

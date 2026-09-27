@@ -1,4 +1,4 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Outlet, Scripts, useRouter } from "@tanstack/react-router";
 import { AiSurfaceProvider } from "@/lib/ai/use-ai-surface";
 import { SpaceGate } from "@/components/space/space-gate";
 import { LocaleProvider, LOCALE_BOOT } from "@/lib/i18n/locale";
@@ -7,16 +7,20 @@ import { RENAME_BOOT } from "@/lib/space/legacy";
 import { LookProvider } from "@/lib/look-provider";
 import { APP_DESCRIPTION, APP_NAME, SITE_URL } from "@/lib/app-identity";
 import { bootScript, firstViewScript } from "@/lib/boot";
+import { contentSecurityPolicy, isVercelPreview } from "@/lib/csp";
+import { installErrorReports } from "@/lib/error-report";
+import { installStaleChunkRecovery } from "@/lib/stale-chunks";
+import { useEffect } from "react";
 import appCss from "../styles.css?url";
 import shellCss from "../shell.css?url";
 import uiFont from "../assets/fonts/FamiljenGrotesk-latin-wght.woff2?url";
-import astronomicon from "../assets/fonts/Astronomicon.woff2?url";
+import uluneClassic from "../assets/fonts/UluneClassic.woff2?url";
 import starFontSans from "../assets/fonts/StarFontSans.woff2?url";
 import starFontSerif from "../assets/fonts/StarFontSerif.woff2?url";
 
 // The glyph font of the reader's Look is preloaded by the boot script.
 const BOOT = bootScript({
-  astronomicon,
+  astronomicon: uluneClassic,
   "starfont-sans": starFontSans,
   "starfont-serif": starFontSerif,
 });
@@ -32,7 +36,32 @@ const fontPreload = (href: string) => ({
   crossOrigin: "anonymous" as const,
 });
 
+/**
+ * An inline script with this page's nonce (lib/csp.ts). Browsers hide a
+ * nonce from the DOM once the page has loaded, so hydration would see a
+ * difference that is not one.
+ */
+function InlineScript({ code }: { code: string }) {
+  const nonce = useRouter().options.ssr?.nonce;
+  return <script nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: code }} />;
+}
+
+/** Once the page runs: error reports (lib/error-report.ts) and a reload for code gone after a deploy. */
+function ClientGuards() {
+  useEffect(() => {
+    installErrorReports();
+    installStaleChunkRecovery();
+  }, []);
+  return null;
+}
+
 export const Route = createRootRoute({
+  // Production pages carry a content security policy with their own nonce
+  // (router.tsx makes it; development has neither).
+  headers: ({ ssr }) =>
+    ssr?.nonce
+      ? { "Content-Security-Policy": contentSecurityPolicy(ssr.nonce, { preview: isVercelPreview() }) }
+      : undefined,
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -74,19 +103,20 @@ export const Route = createRootRoute({
     <html lang="en" className="antialiased" suppressHydrationWarning>
       <head>
         <HeadContent />
-        <script dangerouslySetInnerHTML={{ __html: RENAME_BOOT }} />
-        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
-        <script dangerouslySetInnerHTML={{ __html: LOCALE_BOOT }} />
-        <script dangerouslySetInnerHTML={{ __html: BOOT }} />
+        <InlineScript code={RENAME_BOOT} />
+        <InlineScript code={THEME_BOOT} />
+        <InlineScript code={LOCALE_BOOT} />
+        <InlineScript code={BOOT} />
       </head>
       <body className="min-h-dvh bg-bg text-fg">
-        <script dangerouslySetInnerHTML={{ __html: FIRST_VIEW }} />
+        <InlineScript code={FIRST_VIEW} />
         <ThemeProvider>
           <LookProvider>
             <LocaleProvider>
               <AiSurfaceProvider>
                 <Outlet />
                 <SpaceGate />
+                <ClientGuards />
               </AiSurfaceProvider>
             </LocaleProvider>
           </LookProvider>

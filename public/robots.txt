@@ -1,0 +1,6 @@
+# Ulune: every public page may be read. Settings and missing pages carry
+# their own "noindex"; preview deployments are kept out by Vercel.
+User-agent: *
+Allow: /
+
+Sitemap: https://ulune.app/sitemap.xml

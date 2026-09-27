@@ -1,5 +1,6 @@
 import type { AppLocale } from "@/lib/i18n/messages";
 import type { PlaceHit } from "./types";
+import { RecentCache } from "./recent-cache";
 
 const MIN_QUERY = 2;
 const FETCH_COUNT = 40;
@@ -205,6 +206,20 @@ export function gazetteerHits(query: string): PlaceHit[] {
 }
 
 /**
+ * Open-Meteo's answers, remembered by the server for a day: typing "Paris"
+ * asks for "Par", "Pari" and "Paris", and so do the next readers, so most
+ * searches never reach Open-Meteo (600 calls a minute and 10,000 a day on its
+ * free tier). The key is only the words typed and the language, tied to no
+ * one; failures and the major-city fallback are not kept.
+ */
+export const PLACE_CACHE = /* @__PURE__ */ new RecentCache<PlaceHit[]>(500, 24 * 60 * 60 * 1000);
+
+/** The cache's key: the language, and the query without case or extra spaces. */
+export function placeCacheKey(query: string, language: AppLocale): string {
+  return `${language}:${query.trim().replace(/\s+/g, " ").toLowerCase()}`;
+}
+
+/**
  * Open-Meteo geocoding, asked from Ulune's server (lib/chart/functions.ts,
  * searchPlaces). When the geocoder can't be reached, the major cities still
  * answer (gazetteerHits); a search the reader cancelled stays cancelled.
@@ -216,6 +231,9 @@ export async function geocodePlace(
 ): Promise<PlaceHit[]> {
   const query = q.trim();
   if (query.length < MIN_QUERY) return [];
+  const key = placeCacheKey(query, language);
+  const known = PLACE_CACHE.get(key);
+  if (known) return known;
   const url = new URL("https://geocoding-api.open-meteo.com/v1/search");
   url.searchParams.set("name", query);
   url.searchParams.set("count", String(FETCH_COUNT));
@@ -235,5 +253,7 @@ export async function geocodePlace(
   }
   if (!res.ok) return fallback(`Place lookup failed (${res.status}).`, res.status);
   const body = (await res.json()) as OpenMeteoBody;
-  return rankPlaceHits(body.results, query);
+  const hits = rankPlaceHits(body.results, query);
+  PLACE_CACHE.set(key, hits);
+  return hits;
 }

@@ -31,8 +31,8 @@ export const account = {
   ],
   dataServerTitle: ["Sent to Ulune’s server", "Envoyé au serveur d’Ulune"],
   dataServer: [
-    "The date, time and coordinates of each chart and view it calculates, and the places you search for, which it looks up with Open-Meteo’s place finder without your IP address. It answers and keeps nothing; names never leave this device.",
-    "La date, l’heure et les coordonnées de chaque thème et de chaque vue qu’il calcule, et les lieux que vous cherchez, qu’il trouve avec le service de lieux d’Open-Meteo sans votre adresse IP. Il répond et ne garde rien ; les noms ne quittent jamais cet appareil.",
+    "The date, time and coordinates of each chart and view it calculates, and the places you search for, which it looks up with Open-Meteo’s place finder without your IP address. It keeps nothing about you: only the finder’s answers stay a day in its memory, under the words searched. Names never leave this device.",
+    "La date, l’heure et les coordonnées de chaque thème et de chaque vue qu’il calcule, et les lieux que vous cherchez, qu’il trouve avec le service de lieux d’Open-Meteo sans votre adresse IP. Il ne garde rien de vous : seules les réponses du service restent un jour dans sa mémoire, sous les mots cherchés. Les noms ne quittent jamais cet appareil.",
   ],
   dataAiTitle: ["Sent to an AI", "Envoyé à une IA"],
   dataAi: [
@@ -77,4 +77,13 @@ export const account = {
   offlineOfferNo: ["No thanks", "Non merci"],
   offlineOn: ["Ulune is kept on this device", "Ulune est gardé sur cet appareil"],
   offlineOff: ["Ulune is no longer kept on this device", "Ulune n’est plus gardé sur cet appareil"],
+  dataReportsTitle: ["Error reports", "Rapports d’erreur"],
+  dataReports: [
+    "If the page breaks, it tells Ulune’s server what failed: the error with every number hidden, where in the code, the page and the version. Never a chart, a date, a place or an address.",
+    "Si la page plante, elle indique au serveur d’Ulune ce qui a échoué : l’erreur avec chaque chiffre masqué, l’endroit du code, la page et la version. Jamais un thème, une date, un lieu ni une adresse.",
+  ],
+  dataReportsSwitch: ["Send error reports", "Envoyer les rapports d’erreur"],
+  dataReportsSwitchHint: [" — anonymous, so what breaks gets fixed.", " — anonymes, pour que ce qui casse soit réparé."],
+  reportsOn: ["Error reports on", "Rapports d’erreur activés"],
+  reportsOff: ["Error reports off", "Rapports d’erreur désactivés"],
 } as const satisfies Record<string, readonly [string, string]>;

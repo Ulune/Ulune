@@ -7,7 +7,7 @@
 export type NoticeBlock = { h?: string; p?: string; list?: string[] };
 export type Notice = { title: string; updated: string; blocks: NoticeBlock[]; who: { h: string; p: string } };
 
-export const PRIVACY_UPDATED = "2026-09-26";
+export const PRIVACY_UPDATED = "2026-09-27";
 
 export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
   en: {
@@ -30,7 +30,8 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         h: "What leaves your device, and why",
         list: [
           "Drawing a chart or a view (transits, timing, progressions, Human Design): its date, time and coordinates go to Ulune’s server, which calculates and answers. The name you give a chart never leaves your device. Ulune’s code stores nothing from these requests and writes none of it to its logs.",
-          "Searching for a place: what you type goes to Ulune’s server, which looks it up with Open-Meteo’s geocoding service. Open-Meteo doesn’t receive your IP address.",
+          "Searching for a place: what you type goes to Ulune’s server, which looks it up with Open-Meteo’s geocoding service. Open-Meteo doesn’t receive your IP address. To answer the same search faster, the server keeps Open-Meteo’s answer in its memory for up to a day, under the words searched and nothing else.",
+          "When the page breaks: unless you turn it off in Settings, Your data, the page sends Ulune’s server a short report of what failed: the error with every number masked, where in Ulune’s code it happened, the page’s address without anything after it, the version and the browser’s engine (Blink, WebKit or Gecko). It holds no chart, date, place, name or address, and goes to the host’s technical logs (below) so the fault can be fixed.",
           "AI readings, only if you add your own key: the chart’s positions, never a name, date or place, go from your browser to the provider you chose (Anthropic, OpenAI or Google), or to xAI through Ulune’s server, which passes them on and keeps nothing. The provider’s terms, which you accepted with your key, apply to what it receives.",
           "Hosting: Ulune runs on Vercel. Like any host, Vercel receives your IP address and the addresses of the pages you open, and keeps technical logs of them under its own privacy policy.",
         ],
@@ -71,7 +72,8 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         h: "Ce qui quitte votre appareil, et pourquoi",
         list: [
           "Tracer un thème ou une vue (transits, timing, progressions, Human Design) : sa date, son heure et ses coordonnées partent vers le serveur d’Ulune, qui calcule et répond. Le nom que vous donnez à un thème ne quitte jamais votre appareil. Le code d’Ulune ne garde rien de ces requêtes et n’en écrit rien dans ses journaux.",
-          "Chercher un lieu : ce que vous tapez part vers le serveur d’Ulune, qui le cherche avec le service de géocodage d’Open-Meteo. Open-Meteo ne reçoit pas votre adresse IP.",
+          "Chercher un lieu : ce que vous tapez part vers le serveur d’Ulune, qui le cherche avec le service de géocodage d’Open-Meteo. Open-Meteo ne reçoit pas votre adresse IP. Pour répondre plus vite à la même recherche, le serveur garde la réponse d’Open-Meteo dans sa mémoire jusqu’à un jour, sous les mots cherchés et rien d’autre.",
+          "Quand la page plante : sauf si vous le désactivez dans Réglages, Vos données, la page envoie au serveur d’Ulune un court rapport de ce qui a échoué : l’erreur avec chaque chiffre masqué, l’endroit du code d’Ulune où elle s’est produite, l’adresse de la page sans ce qui la suit, la version et le moteur du navigateur (Blink, WebKit ou Gecko). Il ne contient ni thème, ni date, ni lieu, ni nom, ni adresse, et va dans les journaux techniques de l’hébergeur (ci-dessous) pour que la panne soit réparée.",
           "Lectures IA, seulement si vous ajoutez votre propre clé : les positions du thème, jamais un nom, une date ou un lieu, partent de votre navigateur vers le fournisseur choisi (Anthropic, OpenAI ou Google), ou vers xAI via le serveur d’Ulune, qui les transmet et ne garde rien. Les conditions du fournisseur, acceptées avec votre clé, s’appliquent à ce qu’il reçoit.",
           "Hébergement : Ulune fonctionne sur Vercel. Comme tout hébergeur, Vercel reçoit votre adresse IP et l’adresse des pages que vous ouvrez, et en garde des journaux techniques selon sa propre politique de confidentialité.",
         ],

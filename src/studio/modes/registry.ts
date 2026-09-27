@@ -4,6 +4,7 @@ import { importWithRetry } from "@/lib/lazy-retry";
 import { natalMode } from "@/studio/modes/natal";
 import type { ModeDef } from "@/studio/modes/types";
 import type { StudioPage } from "@/studio/url";
+import { recoverFromStaleChunk } from "@/lib/stale-chunks";
 
 /*
  * The modes load on demand: the natal chart ships with the studio, every
@@ -91,6 +92,10 @@ export function useModeDef(page: StudioPage): { def: ModeDef | null; error: unkn
     if (def || failed.has(page)) return;
     loadMode(page).catch(() => {});
   }, [page, def]);
+  // The mode's code gone after a deploy: reload once onto the new version.
+  useEffect(() => {
+    if (error) recoverFromStaleChunk(error);
+  }, [error]);
   return {
     def,
     error,

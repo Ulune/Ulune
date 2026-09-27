@@ -1,8 +1,10 @@
+import { Info } from "lucide-react";
 import { Suspense, useMemo } from "react";
 import { ChartWheel } from "@/components/chart-wheel";
 import { LoadingLines } from "@/components/loading-lines";
 import { NatalHello } from "@/components/natal-hello";
 import { HOUSE_SYSTEM_LABEL } from "@/lib/chart/constants";
+import { methodNotes } from "@/lib/chart/method-notes";
 import { mergeGrokIntoDossier } from "@/lib/chart/dossier";
 import { usePack } from "@/lib/content/packs";
 import { useI18n } from "@/lib/i18n/locale";
@@ -42,7 +44,7 @@ function NatalFigure() {
 }
 
 function NatalCaption() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const chart = useStudioStore((s) => s.chart);
   const input = useStudioStore((s) => s.input);
   const timeUnknown = useStudioStore((s) => s.timeUnknown);
@@ -56,7 +58,20 @@ function NatalCaption() {
   ]
     .filter(Boolean)
     .join(" · ");
-  return <>{caption}</>;
+  // When the engine changed its method (polar houses, Moshier, a body left
+  // out), the chart says so under its caption (lib/chart/method-notes.ts).
+  const notes = methodNotes(chart.meta, t, locale);
+  return (
+    <>
+      {caption}
+      {notes.map((note) => (
+        <span key={note} className="ulune-method-note" role="note" data-testid="method-note">
+          <Info className="ulune-method-note-icon" strokeWidth={1.75} aria-hidden />
+          {note}
+        </span>
+      ))}
+    </>
+  );
 }
 
 function NatalHelloEmpty() {

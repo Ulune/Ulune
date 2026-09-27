@@ -4,6 +4,7 @@ import { usePack } from "@/lib/content/packs";
 import type { HdView, HumanDesignChart } from "@/lib/chart/human-design";
 import { useI18n } from "@/lib/i18n/locale";
 import { useStudioStore } from "@/studio/store";
+import { errorForState } from "@/lib/i18n/errors";
 
 export function useHumanDesign() {
   const { locale, t } = useI18n();
@@ -34,7 +35,7 @@ export function useHumanDesign() {
       })
       .catch((err) => {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : t("couldNotCast"));
+        setError(errorForState(err));
         setBusy(false);
       });
     return () => {

@@ -9,8 +9,15 @@
  * The cast must come back from Swiss Ephemeris with no body skipped and its
  * time zone read from the coordinates (geo-tz's map); the page must show the
  * wheel without a console error.
+ *
+ * The routes' headers apply as on Vercel (config.json: every route before the
+ * filesystem whose pattern matches adds its headers; one without `continue`
+ * ends the list). Every answer must carry the security headers, and every
+ * page its content security policy, whose nonce every inline script holds;
+ * the modes, the 3D view and the other pages then run under that policy, and
+ * anything it blocks fails the check.
  */
-import { cpSync, createReadStream, existsSync, mkdtempSync, rmSync, statSync } from "node:fs";
+import { cpSync, createReadStream, existsSync, mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { extname, join, normalize, sep } from "node:path";
@@ -19,6 +26,15 @@ import { fromJSON } from "seroval";
 import { FUNCTION_DIR, REQUIRED, ROOT } from "./copy-server-assets.mjs";
 
 const OUTPUT = join(ROOT, ".vercel", "output");
+/** What every answer must carry (src/lib/security-headers.ts). */
+const SECURITY = [
+  "strict-transport-security",
+  "x-content-type-options",
+  "referrer-policy",
+  "x-frame-options",
+  "cross-origin-opener-policy",
+  "permissions-policy",
+];
 const PORT = Number(process.env.DEPLOY_CHECK_PORT || 8099);
 const TYPES = {
   ".js": "text/javascript; charset=utf-8",
@@ -33,6 +49,7 @@ const TYPES = {
   ".ico": "image/x-icon",
   ".woff2": "font/woff2",
   ".txt": "text/plain; charset=utf-8",
+  ".xml": "application/xml",
   ".wasm": "application/wasm",
 };
 
@@ -55,6 +72,22 @@ cpSync(join(OUTPUT, "static"), staticDir, { recursive: true, dereference: true }
 process.chdir(funcDir);
 const handler = (await import(pathToFileURL(join(funcDir, "index.mjs")).href)).default;
 
+// The routes before the filesystem, as Vercel runs them: headers only here.
+const routes = [];
+for (const route of JSON.parse(readFileSync(join(OUTPUT, "config.json"), "utf8")).routes) {
+  if (route.handle) break;
+  if (route.headers && !route.dest) routes.push({ re: new RegExp(`^${route.src}$`), headers: route.headers, stop: !route.continue });
+}
+function routeHeaders(pathname) {
+  const out = {};
+  for (const route of routes) {
+    if (!route.re.test(pathname)) continue;
+    for (const [k, v] of Object.entries(route.headers)) out[k.toLowerCase()] = v;
+    if (route.stop) break;
+  }
+  return out;
+}
+
 function staticFile(pathname) {
   let rel;
   try {
@@ -72,9 +105,9 @@ const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://127.0.0.1:${PORT}`);
     const file = req.method === "GET" || req.method === "HEAD" ? staticFile(url.pathname) : null;
+    const fromRoutes = routeHeaders(url.pathname);
     if (file) {
-      const headers = { "content-type": TYPES[extname(file)] ?? "application/octet-stream" };
-      if (url.pathname.startsWith("/assets/")) headers["cache-control"] = "public, max-age=31536000, immutable";
+      const headers = { ...fromRoutes, "content-type": TYPES[extname(file)] ?? "application/octet-stream" };
       res.writeHead(200, headers);
       if (req.method === "HEAD") return res.end();
       return createReadStream(file).pipe(res);
@@ -86,7 +119,7 @@ const server = createServer(async (req, res) => {
     for (const [k, v] of Object.entries(req.headers)) if (typeof v === "string") headers.set(k, v);
     headers.set("x-forwarded-for", "127.0.0.1");
     const answer = await handler.fetch(new Request(url, { method: req.method, headers, body }), { waitUntil() {} });
-    const out = {};
+    const out = { ...fromRoutes };
     answer.headers.forEach((v, k) => {
       if (k !== "set-cookie") out[k] = v;
     });
@@ -104,16 +137,117 @@ const server = createServer(async (req, res) => {
 await new Promise((ok) => server.listen(PORT, "127.0.0.1", ok));
 
 // A watchdog: the check fails rather than hangs.
-setTimeout(() => fail("no chart after 3 minutes"), 180_000).unref();
+setTimeout(() => fail("not done after 5 minutes"), 300_000).unref();
 
-process.env.ULUNE_DEV = `http://127.0.0.1:${PORT}`;
-const { FIXTURE_A, castFixture, gotoApp, launch } = await import("./e2e/_lib.mjs");
+const BASE = `http://127.0.0.1:${PORT}`;
+
+/** The headers every answer carries, and each page's policy with its own nonce. */
+async function checkHeaders() {
+  const get = async (path) => {
+    const res = await fetch(BASE + path, { headers: { accept: "text/html" } });
+    return { res, text: await res.text() };
+  };
+  const missing = (res) => SECURITY.filter((h) => !res.headers.get(h));
+  const nonceOf = (res) => /'nonce-([0-9a-f]{32})'/.exec(res.headers.get("content-security-policy") ?? "")?.[1];
+
+  const home = await get("/");
+  if (missing(home.res).length) fail(`/ is missing ${missing(home.res).join(", ")}`);
+  const nonce = nonceOf(home.res);
+  if (!nonce) fail(`/ has no content security policy with a nonce: ${home.res.headers.get("content-security-policy")}`);
+  if (!home.text.includes(`<meta property="csp-nonce" content="${nonce}"`)) fail("/ does not give its nonce to the page (csp-nonce meta)");
+  const scripts = [...home.text.matchAll(/<script\b[^>]*>/g)].map((m) => m[0]);
+  const inline = scripts.filter((tag) => !/\ssrc=/.test(tag) && !/type="application\/ld\+json"/.test(tag));
+  const bare = inline.filter((tag) => !tag.includes(`nonce="${nonce}"`) && !tag.includes(`nonce='${nonce}'`));
+  if (!inline.length || bare.length) fail(`/ has inline scripts without the nonce: ${bare.join(" ")}`);
+  const foreign = scripts.filter((tag) => /\ssrc="(?!\/)/.test(tag));
+  if (foreign.length) fail(`/ loads scripts from elsewhere: ${foreign.join(" ")}`);
+
+  const chunk = /\/assets\/[\w.-]+\.js/.exec(home.text)?.[0];
+  for (const path of ["/favicon.svg", "/manifest.webmanifest", chunk].filter(Boolean)) {
+    const { res } = await get(path);
+    if (res.status !== 200 || missing(res).length) fail(`${path}: ${res.status}, missing ${missing(res).join(", ")}`);
+  }
+  const a = nonceOf((await get("/privacy")).res);
+  const b = nonceOf((await get("/privacy")).res);
+  if (!a || a === b) fail("/privacy: no nonce, or the same nonce twice");
+  const lost = await get("/no-such-page");
+  if (lost.res.status !== 404 || !nonceOf(lost.res) || missing(lost.res).length) fail(`an unknown page: ${lost.res.status}, policy ${Boolean(nonceOf(lost.res))}`);
+  console.log(`headers: ${SECURITY.length} security headers on pages and files; a fresh nonce per page on ${inline.length} inline scripts, none from elsewhere`);
+
+  // What search engines read: robots.txt, the sitemap, each page's head.
+  const robots = await get("/robots.txt");
+  const sitemap = await get("/sitemap.xml");
+  if (robots.res.status !== 200 || !/Sitemap: https:\/\/ulune\.app\/sitemap\.xml/.test(robots.text)) fail("robots.txt");
+  if (sitemap.res.status !== 200 || (sitemap.text.match(/<loc>/g) ?? []).length !== 6) fail("sitemap.xml");
+  const canonical = (html) => /<link rel="canonical" href="([^"]+)"/.exec(html)?.[1];
+  const noindex = (html) => /<meta name="robots" content="noindex"/.test(html);
+  if (canonical(home.text) !== "https://ulune.app/" || noindex(home.text)) fail("/: canonical or robots");
+  if (!/<script type="application\/ld\+json"[^>]*>\{"@context":"https:\/\/schema.org","@type":"WebApplication"/.test(home.text)) fail("/: no structured data");
+  const privacy = await get("/privacy");
+  if (canonical(privacy.text) !== "https://ulune.app/privacy" || !/<title>Privacy · Ulune<\/title>/.test(privacy.text)) fail("/privacy: head");
+  const settings = await get("/settings");
+  if (!noindex(settings.text) || canonical(settings.text)) fail("/settings: should stay out of search");
+  if (!noindex(lost.text)) fail("an unknown page should stay out of search");
+  console.log("search: robots.txt, a 6-page sitemap, canonical addresses, settings and missing pages kept out");
+}
+
+/** The health check an uptime monitor calls, and where error reports arrive. */
+async function checkRoutes() {
+  const health = await fetch(`${BASE}/api/health`);
+  const body = await health.json();
+  if (health.status !== 200 || !body.ok || body.ephemeris !== "swiss" || body.zones !== "geo-tz")
+    fail(`/api/health: ${health.status} ${JSON.stringify(body)}`);
+  if (health.headers.get("cache-control") !== "no-store") fail("/api/health may be cached");
+
+  // A report: kept as one log line, masked, nothing else.
+  const lines = [];
+  const log = console.error;
+  console.error = (...args) => {
+    const text = args.join(" ");
+    if (text.startsWith("[ulune:report]")) lines.push(text);
+    else log(...args);
+  };
+  const post = (body, headers = {}) =>
+    fetch(`${BASE}/api/report`, {
+      method: "POST",
+      body,
+      headers: { "content-type": "application/json", "sec-fetch-site": "same-origin", ...headers },
+    });
+  try {
+    const report = { v: "1.0", kind: "error", message: "TypeError: born 1990-06-15", where: ["app-a1.js:1:23"], path: "/", engine: "blink", ip: "203.0.113.9" };
+    const sent = await post(JSON.stringify(report));
+    if (sent.status !== 204) fail(`/api/report: ${sent.status}`);
+    const line = lines.at(-1) ?? "";
+    if (!line.includes('"message":"TypeError: born ####-##-##"') || line.includes("1990") || line.includes("203.0.113.9"))
+      fail(`/api/report logged: ${line}`);
+    if ((await post(JSON.stringify(report), { "sec-fetch-site": "cross-site" })).status !== 403) fail("/api/report takes other sites' reports");
+    if ((await post("x".repeat(3000))).status !== 413) fail("/api/report takes more than 2 KB");
+    if ((await post('{"kind":"anything"}')).status !== 400) fail("/api/report takes a malformed report");
+    // At most 60 a minute per server instance.
+    const statuses = [];
+    for (let i = 0; i < 64; i += 1) statuses.push((await post("{}")).status);
+    if (!statuses.includes(429) || statuses.filter((s) => s !== 429).length > 58) fail(`/api/report has no limit: ${statuses.join(",")}`);
+  } finally {
+    console.error = log;
+  }
+  if (lines.length !== 1) fail(`/api/report wrote ${lines.length} lines for 1 report`);
+  console.log(`routes: /api/health ok (Swiss Ephemeris, geo-tz, ${body.ms} ms); /api/report keeps one masked line, refuses other sites, big or odd reports, and more than 60 a minute`);
+}
+
+process.env.ULUNE_DEV = BASE;
+const { FIXTURE_A, castFixture, goStudioPage, gotoApp, launch } = await import("./e2e/_lib.mjs");
 const { browser, page } = await launch(1280);
 const errors = [];
 page.on("console", (m) => {
   if (m.type() === "error") errors.push(m.text());
 });
 page.on("pageerror", (e) => errors.push(e.message));
+// Whatever the policy blocks is an error here, even what a browser only reports.
+await page.addInitScript(() => {
+  document.addEventListener("securitypolicyviolation", (e) =>
+    console.error(`content security policy blocked ${e.blockedURI || "an inline script"} (${e.violatedDirective})`),
+  );
+});
 // A production build names its server functions by hash, so a cast is the
 // server call whose answer holds a chart (one seroval node, as the page reads it).
 function nextChart() {
@@ -161,8 +295,28 @@ async function cast(fixture) {
   return chart;
 }
 
+/** The rest of the app under the policy: the modes, the 3D view, the other pages. */
+async function tour() {
+  const stages = { transits: "studio-transits", timing: "studio-timing", design: "studio-humandesign", numerology: "studio-numerology" };
+  for (const [mode, stage] of Object.entries(stages)) {
+    await goStudioPage(page, mode);
+    await page.locator(`[data-testid="${stage}"], [data-testid="${stage}-empty"]`).first().waitFor({ timeout: 30000 });
+  }
+  await goStudioPage(page, "natal");
+  await page.getByTestId("wheel-depth-3d").click();
+  await page.locator('[data-depth-view="3d"]').waitFor({ timeout: 30000 });
+  await page.waitForTimeout(1500);
+  await page.getByTestId("wheel-depth-3d").click();
+  for (const path of ["/settings", "/privacy", "/credits"]) {
+    await page.goto(BASE + path, { waitUntil: "networkidle" });
+  }
+  console.log("modes, 3D and pages: transits, timing, Human Design, numerology, 3D, settings, privacy, credits");
+}
+
 let ok = false;
 try {
+  await checkHeaders();
+  await checkRoutes();
   await gotoApp(page);
   // 1. A place from the search (the server asks Open-Meteo).
   const paris = await cast(FIXTURE_A);
@@ -174,6 +328,7 @@ try {
   if (time?.zoneSource !== "coordinates" || time.zone !== "America/New_York")
     fail(`typed coordinates read as ${time?.zone} from "${time?.zoneSource}", not from geo-tz's map`);
   console.log("typed coordinates: America/New_York from geo-tz's map");
+  await tour();
   if (errors.length) fail(`console: ${errors.join(" | ")}`);
   ok = true;
 } finally {

@@ -7,6 +7,7 @@ import { nitro } from "nitro/vite";
 import { contentPacksPlugin } from "./scripts/content-packs-plugin.mjs";
 // @ts-expect-error JS plugin alongside the TS vite config
 import { qaSelftestPlugin } from "./scripts/qa-selftest/plugin.mjs";
+import { SECURITY_HEADERS } from "./src/lib/security-headers";
 
 // The development server answers this machine only (127.0.0.1), on the
 // launcher's port; `vite preview` serves the built output on 8081.
@@ -96,6 +97,11 @@ export default defineConfig(({ command, isPreview }) => ({
           nitro({
             preset: "vercel",
             vercel: {
+              // The security headers on every answer, static files included
+              // (lib/security-headers.ts); `continue` lets routing go on.
+              config: {
+                routes: [{ src: "/(.*)", headers: { ...SECURITY_HEADERS }, continue: true }],
+              },
               functions: {
                 // A stuck call is cut after 90 s (the AI relay waits up to 85 s;
                 // a cast takes well under one). Vercel's default is 300 s.

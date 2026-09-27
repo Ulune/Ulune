@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/locale";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { offlineChoice, offlineSupported, turnOfflineOff, turnOfflineOn } from "@/lib/offline";
+import { reportsOn, setReportsOn } from "@/lib/error-report";
 import { toast } from "@/lib/toast";
 import { spaceSupported } from "@/lib/space/store";
 import { SPACE_FLAG } from "@/lib/space/flag";
@@ -65,10 +66,12 @@ export function YourData() {
   const [confirm, setConfirm] = useState(false);
   const [erasing, setErasing] = useState(false);
   const [offline, setOffline] = useState<boolean | null>(null);
+  const [reports, setReports] = useState(true);
 
   useEffect(() => {
     setCount(settingKeys().length);
     setOffline(offlineSupported() ? offlineChoice() === "on" : null);
+    setReports(reportsOn());
   }, []);
 
   async function exportAll() {
@@ -136,6 +139,7 @@ export function YourData() {
     { id: "here", title: "dataHereTitle", body: t("dataHere", { n: count }) },
     { id: "space", title: "dataSpaceTitle", body: t(SPACE_LINE[status]) },
     { id: "server", title: "dataServerTitle", body: t("dataServer") },
+    { id: "reports", title: "dataReportsTitle", body: t("dataReports") },
     { id: "ai", title: "dataAiTitle", body: t("dataAi") },
     { id: "never", title: "dataNeverTitle", body: t("dataNever") },
   ];
@@ -190,6 +194,25 @@ export function YourData() {
           </div>
         </div>
       ) : null}
+      <label className="ob-check" htmlFor="data-reports">
+        <input
+          id="data-reports"
+          type="checkbox"
+          data-testid="data-reports"
+          checked={reports}
+          onChange={(e) => {
+            const on = e.target.checked;
+            setReports(on);
+            setReportsOn(on);
+            setCount(settingKeys().length);
+            toast(on ? t("reportsOn") : t("reportsOff"));
+          }}
+        />
+        <span>
+          {t("dataReportsSwitch")}
+          <span className="ob-check-hint">{t("dataReportsSwitchHint")}</span>
+        </span>
+      </label>
       {offline === null ? null : (
         <label className="ob-check" htmlFor="data-offline">
           <input

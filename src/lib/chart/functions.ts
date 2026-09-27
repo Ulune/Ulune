@@ -29,7 +29,9 @@ const PLACE_TIMEOUT_MS = 6000;
 
 /**
  * Place search, relayed so the geocoder (Open-Meteo) sees Ulune's server
- * rather than the reader's address. Nothing is kept or logged.
+ * rather than the reader's address. Nothing is logged; Open-Meteo's answers
+ * stay a day in the server's memory, keyed only by the words typed
+ * (geocode.ts, PLACE_CACHE).
  */
 export const searchPlaces = createServerFn({ method: "POST" })
   .validator((data: { q: string; locale?: string }) => placeQuery(data))

@@ -1,0 +1,14 @@
+Ulune Classic
+=============
+
+Ulune Classic is a modified version of Astronomicon, Copyright (c) 2021,
+Roberto Corona (http://astronomicon.co), licensed under the SIL Open Font
+License 1.1 (UluneClassic-OFL.txt), which reserves the name "Astronomicon".
+
+Changes, 27 September 2026, for Ulune (https://ulune.app):
+- kept the 50 glyphs Ulune draws (planets, signs, points, aspects);
+- renamed "Ulune Classic" (name table: family, full name, PostScript name,
+  unique ID), as the licence asks of a modified version;
+- stored as WOFF2.
+
+The glyph outlines, metrics and character map are unchanged.

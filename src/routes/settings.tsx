@@ -8,8 +8,14 @@ import { useI18n } from "@/lib/i18n/locale";
 import { YourData } from "@/components/your-data";
 import { SpaceSettings } from "@/components/space/space-settings";
 import { LegalNav } from "@/components/legal-page";
+import { pageHead } from "@/lib/page-head";
+import { problemMailto } from "@/lib/contact";
 
-export const Route = createFileRoute("/settings")({ component: Settings });
+export const Route = createFileRoute("/settings")({
+  // Nothing here for a search engine: the page is about this browser.
+  head: () => pageHead({ path: "/settings", title: "Settings · Ulune", index: false }),
+  component: Settings,
+});
 
 function Settings() {
   const { t } = useI18n();
@@ -34,6 +40,12 @@ function Settings() {
         <section className="ulune-panel ob-settings-card" data-testid="settings-legal">
           <h2 className="ob-settings-h">{t("legalAbout")}</h2>
           <LegalNav />
+          <p className="ob-data-body">
+            {t("reportProblemLead")}{" "}
+            <a href={problemMailto(t)} className="ob-keep-link" data-testid="report-problem">
+              {t("reportProblem")}
+            </a>
+          </p>
         </section>
         <p className="font-mono text-xs text-fg-subtle" data-testid="app-version">
           Ulune {APP_VERSION}

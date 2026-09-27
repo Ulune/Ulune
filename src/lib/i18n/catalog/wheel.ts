@@ -30,4 +30,17 @@ export const wheel = {
   ],
   wheelHintTap: ["Tap a planet to see its aspects; tap again to let go.", "Touchez une planète pour voir ses aspects ; touchez encore pour la relâcher."],
   wheelHintClose: ["Close the hint", "Fermer l’astuce"],
+  noteHousesPolar: [
+    "Houses in {used}: {asked} has no cusps inside the polar circles.",
+    "Maisons en {used} : {asked} n’a pas de cuspides à l’intérieur des cercles polaires.",
+  ],
+  noteMoshier: [
+    "Positions from the Moshier approximation, within about 1″: no Swiss Ephemeris file covers this date.",
+    "Positions de l’approximation de Moshier, à environ 1″ près : aucun fichier Swiss Ephemeris ne couvre cette date.",
+  ],
+  noteBodySkipped: [
+    "Without {body}: its ephemeris file doesn’t cover this date.",
+    "Sans {body} : son fichier d’éphémérides ne couvre pas cette date.",
+  ],
+  noteStarUnplaced: ["Without {star}: the star couldn’t be placed.", "Sans {star} : l’étoile n’a pas pu être placée."],
 } as const satisfies Record<string, readonly [string, string]>;

@@ -561,7 +561,7 @@ html.theme-ready body {
 }
 
 /* Chart marks. The glyph fonts map letters to symbols ("Q" is a planet in
-   Astronomicon), so they block rather than show a letter while loading. */
+   Ulune Classic), so they block rather than show a letter while loading. */
 @font-face {
   font-family: "Noto Sans Symbols";
   src: url("./assets/fonts/NotoSansSymbols-astro.woff2") format("woff2");
@@ -578,9 +578,11 @@ html.theme-ready body {
   font-display: block;
   unicode-range: U+25A1, U+25B3, U+2609, U+2610, U+2B20, U+2BF0, U+2BF2;
 }
+/* Ulune Classic: a renamed subset of Astronomicon (the OFL reserves that
+   name for the original; UluneClassic-FONTLOG.txt says what changed). */
 @font-face {
-  font-family: "Astronomicon";
-  src: url("./assets/fonts/Astronomicon.woff2") format("woff2");
+  font-family: "Ulune Classic";
+  src: url("./assets/fonts/UluneClassic.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: block;

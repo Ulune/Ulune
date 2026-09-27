@@ -42,11 +42,13 @@ export function forgetBootLook(): void {
 
 /**
  * The inline script. `glyphUrls` are the hashed font files each glyph family
- * paints with (the Noto symbols need none: they are inlined in the CSS).
+ * paints with (the Noto symbols need none: they are inlined in the CSS). A
+ * Look kept before the glyph font was renamed (Astronomicon → Ulune Classic,
+ * 27 Sep 2026) names the old family: it reads as the new one.
  */
 export function bootScript(glyphUrls: Partial<Record<GlyphFamily, string>>): string {
   const urls = JSON.stringify(glyphUrls);
-  return `(function(){try{var d=document,r=d.documentElement,s=localStorage,t=r.classList.contains("light")?"light":"dark",b=s.getItem("${BOOT_LOOK_KEY}."+t),g="astronomicon";if(b){b=JSON.parse(b);if(b&&typeof b.css==="string"){r.style.cssText+=";"+b.css;if(b.glyph)g=b.glyph}}var u=${urls}[g];if(u){var l=d.createElement("link");l.rel="preload";l.as="font";l.type="font/woff2";l.crossOrigin="anonymous";l.href=u;d.head.appendChild(l)}var c=s.getItem("orbis.charts.v1");if(c&&c.length>2&&s.getItem("orbis.charts.active")||s.getItem("${SPACE_FLAG}"))r.setAttribute("data-returning","")}catch(e){}})();`;
+  return `(function(){try{var d=document,r=d.documentElement,s=localStorage,t=r.classList.contains("light")?"light":"dark",b=s.getItem("${BOOT_LOOK_KEY}."+t),g="astronomicon";if(b){b=JSON.parse(b);if(b&&typeof b.css==="string"){r.style.cssText+=";"+b.css.replace(/"Astronomicon"/g,'"Ulune Classic"');if(b.glyph)g=b.glyph}}var u=${urls}[g];if(u){var l=d.createElement("link");l.rel="preload";l.as="font";l.type="font/woff2";l.crossOrigin="anonymous";l.href=u;d.head.appendChild(l)}var c=s.getItem("orbis.charts.v1");if(c&&c.length>2&&s.getItem("orbis.charts.active")||s.getItem("${SPACE_FLAG}"))r.setAttribute("data-returning","")}catch(e){}})();`;
 }
 
 /**

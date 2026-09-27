@@ -18,10 +18,10 @@ export const look = {
   ],
   lookFireKicker: ["Aries, Leo, Sagittarius.", "Bélier, Lion, Sagittaire."],
   lookGlyphs: ["Glyphs", "Glyphes"],
-  lookGlyphsAstronomicon: ["Astronomicon", "Astronomicon"],
+  lookGlyphsAstronomicon: ["Ulune Classic", "Ulune Classic"],
   lookGlyphsKicker: [
-    "Wheel, chips, and tables. Noto by default; SVG when a face has no mark.",
-    "Roue, pastilles et tables. Noto par défaut ; un tracé si la face n’a pas le signe.",
+    "Wheel, chips and tables. Ulune Classic by default; a drawn mark when a face has none.",
+    "Roue, pastilles et tables. Ulune Classic par défaut ; un tracé si la face n’a pas le signe.",
   ],
   lookGlyphsNoto: ["Noto", "Noto"],
   lookGlyphsStarSans: ["StarFont Sans", "StarFont Sans"],

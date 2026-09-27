@@ -146,7 +146,7 @@ test("glyphFontStack keeps the Look face first and Noto before generics", () => 
   }
 });
 
-test("new users default to Astronomicon on the wheel", () => {
+test("new users default to Ulune Classic (the Astronomicon subset) on the wheel", () => {
   assert.equal(DEFAULT_GLYPH_FAMILY, "astronomicon");
   assert.equal(mappedGlyph("sun", DEFAULT_GLYPH_FAMILY), "Q");
   assert.equal(mappedGlyph("aries", DEFAULT_GLYPH_FAMILY), "A");
@@ -160,7 +160,7 @@ test("mapped glyph families paint letters, not tofu Unicode, for the Sun", () =>
   if (resolveGlyph("sun", "astronomicon").kind === "font") {
     assert.equal(resolveGlyph("sun", "astronomicon").text, "Q");
   }
-  assert.match(GLYPH_FONT_STACK.astronomicon, /Astronomicon/);
+  assert.match(GLYPH_FONT_STACK.astronomicon, /^"Ulune Classic",/);
   assert.match(GLYPH_FONT_STACK["starfont-serif"], /StarFont Serif/);
   assert.ok(ASTRONOMICON_GLYPH.aries);
   assert.ok(STARFONT_GLYPH.aries);

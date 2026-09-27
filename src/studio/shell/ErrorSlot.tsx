@@ -1,6 +1,8 @@
 import { Component, type ReactNode } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
+import { reportError } from "@/lib/error-report";
 import { useI18n } from "@/lib/i18n/locale";
+import { recoverFromStaleChunk } from "@/lib/stale-chunks";
 import { studioSearch } from "@/studio/url";
 import { useStudioStore } from "@/studio/store";
 
@@ -12,6 +14,8 @@ function StageThrower(): ReactNode {
 class ErrorSlotBoundary extends Component<
   {
     title: string;
+    body: string;
+    details: string;
     retryLabel: string;
     armThrow: boolean;
     onRetry: () => void;
@@ -25,6 +29,11 @@ class ErrorSlotBoundary extends Component<
     return { error };
   }
 
+  componentDidCatch(error: Error) {
+    // A code file gone after a deploy: one reload brings the new version.
+    if (!recoverFromStaleChunk(error)) reportError("slot", error);
+  }
+
   render() {
     if (this.state.error) {
       return (
@@ -33,9 +42,13 @@ class ErrorSlotBoundary extends Component<
           className="ulune-panel min-w-0 overflow-hidden px-5 py-10 md:px-8 md:py-14"
         >
           <p className="font-display text-2xl leading-none text-fg">{this.props.title}</p>
-          <p className="mt-[var(--space-2)] font-mono text-sm text-fg-muted">
-            {this.state.error.message}
-          </p>
+          <p className="mt-[var(--space-2)] text-sm text-fg-muted">{this.props.body}</p>
+          {this.state.error.message ? (
+            <details className="mt-[var(--space-2)] text-xs text-fg-subtle">
+              <summary className="cursor-pointer">{this.props.details}</summary>
+              <p className="mt-1 font-mono break-words">{this.state.error.message}</p>
+            </details>
+          ) : null}
           <button
             type="button"
             data-testid="error-slot-retry"
@@ -66,6 +79,8 @@ export function ErrorSlot({ children }: { children: ReactNode }) {
   return (
     <ErrorSlotBoundary
       title={t("errorSlotTitle")}
+      body={t("errorSlotBody")}
+      details={t("appErrorDetails")}
       retryLabel={t("errorSlotRetry")}
       armThrow={import.meta.env.DEV && search.__throw === "stage"}
       onRetry={() => {

@@ -14,7 +14,7 @@ import { useLookShape } from "@/lib/look-provider";
 
 const FAMILY_FACE: Record<GlyphFamily, string> = {
   noto: "Noto Sans Symbols",
-  astronomicon: "Astronomicon",
+  astronomicon: "Ulune Classic",
   "starfont-sans": "StarFont Sans",
   "starfont-serif": "StarFont Serif",
 };

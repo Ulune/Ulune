@@ -1,9 +1,5 @@
 /** common: [English, French]. */
 export const common = {
-  addBirthPlace: [
-    "Add a birth place — a city name is enough.",
-    "Indiquez un lieu de naissance — un nom de ville suffit.",
-  ],
   addCity: ["Add a city, or paste latitude, longitude.", "Ajoutez une ville, ou collez latitude et longitude."],
   calculatorFailed: ["Chart calculator failed to load.", "Le calculateur n’a pas pu se charger."],
   chartInFull: ["The chart in full", "Le thème en entier"],

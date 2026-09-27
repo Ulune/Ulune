@@ -21,7 +21,7 @@ export const DEFAULT_GLYPH_FAMILY: GlyphFamily = "astronomicon";
 
 export const GLYPH_FONT_STACK: Record<GlyphFamily, string> = {
   noto: '"Noto Sans Symbols", "Noto Sans Symbols 2", sans-serif',
-  astronomicon: '"Astronomicon", "Noto Sans Symbols", "Noto Sans Symbols 2", sans-serif',
+  astronomicon: '"Ulune Classic", "Noto Sans Symbols", "Noto Sans Symbols 2", sans-serif',
   "starfont-sans": '"StarFont Sans", "Noto Sans Symbols", "Noto Sans Symbols 2", sans-serif',
   "starfont-serif": '"StarFont Serif", "Noto Sans Symbols", "Noto Sans Symbols 2", sans-serif',
 };

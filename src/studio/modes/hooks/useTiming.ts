@@ -19,6 +19,7 @@ import { natalBodiesOf } from "@/studio/modes/hooks/natal-bodies";
 import { useStudioStore } from "@/studio/store";
 import { useVisibleInterval } from "@/lib/use-visible-interval";
 import { isAbort, lru } from "@/lib/chart/result-cache";
+import { errorForState } from "@/lib/i18n/errors";
 
 /** Timing windows already cast in this tab (a month, a year), by window and natal chart. */
 const castCache = lru<TimingCast>(24);
@@ -102,7 +103,7 @@ export function useTiming() {
       })
       .catch((err) => {
         if (n !== gen.current || isAbort(err)) return;
-        setError(err instanceof Error && err.message ? err.message : t("couldNotCastSky"));
+        setError(errorForState(err));
         setBusy(false);
       });
     return () => ctrl.abort();

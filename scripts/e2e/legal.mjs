@@ -36,9 +36,12 @@ try {
   // Studio → Settings → each legal page → back to the studio, all in the page.
   await openMenu(page);
   await page.getByTestId("menu-settings").click();
-  const links = page.locator('[data-testid="settings-legal"] a');
+  const links = page.locator('[data-testid="settings-legal"] [data-testid^="legal-link-"]');
   await links.first().waitFor({ timeout: 15000 });
   if ((await links.count()) !== PAGES.length) throw new Error(`Settings links ${await links.count()} legal pages`);
+  // And a way to write: an email with the version in its subject.
+  const report = await page.getByTestId("report-problem").getAttribute("href");
+  if (!/^mailto:[^@\s?]+@[^@\s?]+\?subject=Ulune%20[\d.]+/.test(report ?? "")) throw new Error(`Settings: report a problem is ${report}`);
   await page.getByTestId("legal-link-legal").first().click();
   await onPage(page, "legal", "Legal notice");
   const text = await page.getByTestId("legal-page").innerText();

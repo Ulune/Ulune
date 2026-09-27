@@ -6,6 +6,7 @@ import { SegmentedToggle } from "@/components/segmented-toggle";
 import { hdHelloCells, type HdHelloId } from "@/lib/i18n/hd-hello";
 import { hdAuthorityLabel, hdCaption, hdNoNatal, hdStrategyLabel, hdTypeLabel, hdViewLabel } from "@/lib/i18n/hd-ui";
 import type { HumanDesignChart } from "@/lib/chart/human-design";
+import { localizeError } from "@/lib/i18n/errors";
 import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { useModeData } from "@/studio/modes/data";
@@ -47,16 +48,16 @@ function mastValue(chart: HumanDesignChart, id: HdHelloId, locale: "en" | "fr") 
 }
 
 function DesignFigure() {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const w = useWheelView();
   const hd = useModeData("design");
   if (!hd) return null;
   if (hd.error) {
     return (
-      <div className="px-5 py-10">
-        <p className="font-display text-2xl text-fg">{hd.error}</p>
+      <div className="px-5 py-10" role="alert">
+        <p className="font-display text-2xl text-fg">{localizeError(hd.error, locale)}</p>
         <button type="button" className="mt-2 text-sm underline" onClick={hd.retry}>
-          Retry
+          {t("errorSlotRetry")}
         </button>
       </div>
     );

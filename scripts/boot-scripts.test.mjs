@@ -135,3 +135,14 @@ test("the old name's display settings move to Ulune's once; the prototype's char
   assert.equal(items.get(`${PREFIX}theme`), "light");
   assert.doesNotThrow(() => new Function("localStorage", RENAME_BOOT)({ get length() { throw new Error("blocked"); } }));
 });
+
+test("a Look kept before the glyph font's rename paints with Ulune Classic", async () => {
+  const { BOOT_LOOK_KEY } = await import("../src/lib/boot.ts");
+  const css = '--font-glyphs:"Astronomicon", "Noto Sans Symbols", sans-serif;--wheel-stroke:1';
+  const env = fakeDom(store({ [`${BOOT_LOOK_KEY}.dark`]: JSON.stringify({ css, glyph: "astronomicon" }) }));
+  run(bootScript(glyphs), env);
+  assert.match(env.root.style.cssText, /--font-glyphs:"Ulune Classic", "Noto Sans Symbols"/);
+  assert.doesNotMatch(env.root.style.cssText, /Astronomicon/);
+  // The glyph font is still preloaded.
+  assert.ok(env.appended.some((el) => el.href === "/assets/a.woff2"));
+});

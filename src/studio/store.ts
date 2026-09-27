@@ -19,6 +19,7 @@ import { providerName } from "@/lib/ai/providers";
 import { aiFailureText } from "@/lib/ai/failure-text";
 import { personalWords, type Hidden } from "@/lib/ai/scrub";
 import { translate, type AppLocale } from "@/lib/i18n/messages";
+import { errorForState } from "@/lib/i18n/errors";
 import { loadDockOpen, saveDockOpen } from "@/studio/dock/dock-layout";
 import { loadStudioView, type StudioPage, type StudioView } from "@/studio/url";
 
@@ -76,6 +77,14 @@ export function setStudioLocale(v: "en" | "fr") {
   locale = v;
 }
 
+/** A natal cast's deadline: a minute (the server stops at 90 s anyway). */
+const CAST_TIMEOUT_MS = 60_000;
+function castDeadline(): AbortSignal | undefined {
+  return typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function"
+    ? AbortSignal.timeout(CAST_TIMEOUT_MS)
+    : undefined;
+}
+
 /**
  * Where the birth is, found on this device: typed coordinates, the place
  * picked from the list, or else the first answer of the place search (which
@@ -93,15 +102,16 @@ async function resolvePlace(
   if (Number.isFinite(input.latitude) && Number.isFinite(input.longitude)) {
     return { latitude: input.latitude, longitude: input.longitude, placeLabel: label, zone: input.zone };
   }
-  if (!label) throw new Error(translate(lang, "addBirthPlace"));
+  if (!label) throw new Error("E:place.missing");
   let hits;
   try {
     hits = await searchPlaces({ data: { q: label, locale: lang } });
-  } catch {
-    throw new Error(translate(lang, "placeLookupFailed"));
+  } catch (err) {
+    const code = errorForState(err);
+    throw new Error(code === "E:net.offline" || code === "E:net.timeout" ? code : "E:place.lookup");
   }
   const hit = hits[0];
-  if (!hit) throw new Error(translate(lang, "couldNotFind", { query: label }));
+  if (!hit) throw new Error(`E:place.notfound|${label.replace(/\s+/g, " ").slice(0, 100)}`);
   return { latitude: hit.latitude, longitude: hit.longitude, placeLabel: hit.label, zone: hit.timezone || undefined };
 }
 
@@ -293,6 +303,8 @@ export const useStudioStore = create<StudioState>((set, get) => ({
       const place = await resolvePlace(next, locale);
       if (gen !== castGen) return;
       const result = await castChart({
+        // A cast is well under a second; one with no answer in a minute stops here.
+        signal: castDeadline(),
         data: {
           date: next.date,
           time: next.time,
@@ -371,7 +383,8 @@ export const useStudioStore = create<StudioState>((set, get) => ({
       }
     } catch (err) {
       if (gen !== castGen) return;
-      set({ error: err instanceof Error ? err.message : i18n.couldNotCast });
+      // A code the reader's language turns into a sentence (lib/i18n/errors.ts).
+      set({ error: errorForState(err) });
     } finally {
       if (gen === castGen) set({ casting: false });
     }

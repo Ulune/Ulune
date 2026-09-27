@@ -11,6 +11,7 @@ import type { Placement, ProgressedSky } from "@/lib/chart/types";
 import { useI18n } from "@/lib/i18n/locale";
 import { natalBodiesOf } from "@/studio/modes/hooks/natal-bodies";
 import { useStudioStore } from "@/studio/store";
+import { errorForState } from "@/lib/i18n/errors";
 
 function natalTimeOf(chart: { meta: { time?: string } }): string {
   const raw = chart.meta.time || "12:00";
@@ -169,7 +170,7 @@ export function useProgressions() {
         })
         .catch((err) => {
           if (n !== gen.current || isAbort(err)) return;
-          setError(err instanceof Error && err.message ? err.message : t("couldNotCastProgressions"));
+          setError(errorForState(err));
           setBusy(false);
         });
     }, delay);

@@ -1,10 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { pageHead } from "@/lib/page-head";
 import { LegalPage } from "@/components/legal-page";
 import { useI18n } from "@/lib/i18n/locale";
 import { LEGAL_PAGES, LEGAL_UPDATED } from "@/lib/legal/pages";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({ meta: [{ title: "Terms of use · Ulune" }] }),
+  head: () =>
+    pageHead({
+      path: "/terms",
+      title: "Terms of use · Ulune",
+      description:
+        "The terms of use of Ulune, a free website for astrology charts, Human Design and numerology, with its disclaimer: for self-reflection, never advice.",
+    }),
   component: Page,
 });
 

@@ -1,11 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { pageHead } from "@/lib/page-head";
 import { LegalPage, LegalText } from "@/components/legal-page";
 import { useI18n } from "@/lib/i18n/locale";
 import { OPERATOR } from "@/lib/legal/operator";
 import { PRIVACY_NOTICE, PRIVACY_UPDATED } from "@/lib/legal/privacy-notice";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({ meta: [{ title: "Privacy · Ulune" }] }),
+  head: () =>
+    pageHead({
+      path: "/privacy",
+      title: "Privacy · Ulune",
+      description:
+        "Ulune has no accounts, no cookies, no analytics and no advertising, and keeps nothing about you on its server. What you keep stays on your device, encrypted.",
+    }),
   component: Privacy,
 });
 

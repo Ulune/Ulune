@@ -7,6 +7,7 @@ import {
 } from "@/components/timing-calendar";
 import { TimingHello } from "@/components/timing-hello";
 import { LoadingLines } from "@/components/loading-lines";
+import { localizeError } from "@/lib/i18n/errors";
 import { useI18n } from "@/lib/i18n/locale";
 import { timingCasting, timingNoNatal } from "@/lib/i18n/timing-ui";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
@@ -38,7 +39,11 @@ function TimingFigure() {
       className="ulune-timing-hero w-full min-w-0 overflow-auto px-[var(--stage-pad)] py-[var(--space-2)]"
       style={{ opacity: timing.busy ? 0.7 : 1 }}
     >
-      {timing.error ? <p className="mb-2 text-sm text-danger">{timing.error}</p> : null}
+      {timing.error ? (
+        <p className="mb-2 text-sm text-danger" role="alert">
+          {localizeError(timing.error, locale, "couldNotCastSky")}
+        </p>
+      ) : null}
       <TimingScopeBar
         scope={timing.scope}
         civil={timing.civil}

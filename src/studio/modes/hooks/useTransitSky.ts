@@ -9,6 +9,7 @@ import { onWindow, prefetchWindows, windowAt, windowsWork } from "@/lib/chart/wi
 import { natalBodiesOf } from "@/studio/modes/hooks/natal-bodies";
 import { useStudioStore } from "@/studio/store";
 import { useVisibleInterval } from "@/lib/use-visible-interval";
+import { errorForState } from "@/lib/i18n/errors";
 
 /** Exact skies already cast in this tab, by moment and natal chart. */
 const skyCache = lru<TransitSky>(48);
@@ -132,7 +133,7 @@ export function useTransitSky() {
         })
         .catch((err) => {
           if (n !== gen.current || isAbort(err)) return;
-          setError(err instanceof Error && err.message ? err.message : t("couldNotCastSky"));
+          setError(errorForState(err));
           setBusy(false);
         });
     }, delay);

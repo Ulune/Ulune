@@ -301,6 +301,21 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
     onChange(draftRef.current);
   }
 
+  /**
+   * One cast per intent: a second click (or Enter) while the first cast runs,
+   * or right after it answered, sends nothing when the birth is the same.
+   * The button greys out too, but only once the page has drawn it again.
+   */
+  const lastCast = useRef<{ at: number; key: string } | null>(null);
+  function castOnce(next: BirthInput, opts: { placeConfirmed: boolean }) {
+    const key = JSON.stringify([next.name, next.date, next.time, next.timeUnknown, next.latitude, next.longitude, next.tz, next.houseSystem]);
+    const now = Date.now();
+    const last = lastCast.current;
+    if (last && last.key === key && (busy || now - last.at < 1500)) return;
+    lastCast.current = { at: now, key };
+    onCast(next, opts);
+  }
+
   async function submit() {
     setHint(null);
     const next: BirthInput = { ...draft, placeLabel: query.trim() || draft.placeLabel };
@@ -328,7 +343,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
       next.latitude = coords.latitude;
       next.longitude = coords.longitude;
       commitDraft(next);
-      onCast(withTime(next), { placeConfirmed: true });
+      castOnce(withTime(next), { placeConfirmed: true });
       return;
     }
     if (!picked || query.trim() !== next.placeLabel || !Number.isFinite(next.latitude)) {
@@ -352,7 +367,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
       }
       return;
     }
-    onCast(withTime(next), { placeConfirmed: true });
+    castOnce(withTime(next), { placeConfirmed: true });
   }
 
   // A stored override the select has no entry for (an imported zone id, an

@@ -264,6 +264,13 @@ function usedMoshier(swe: SwissEPH, calc: SweCalc): boolean {
 const MOSHIER_WARNING =
   "No Swiss Ephemeris file covers this date, so positions come from the Moshier approximation built into Swiss Ephemeris (planets within about 1″; the true node within about 1′ and osculating Lilith within a few ′).";
 
+/*
+ * A chart's warnings travel as codes the page translates (lib/chart/method-notes.ts):
+ * `W:moshier`, `W:body.skipped|<body id>`, `W:star.unplaced|<star id>`. The
+ * server's log keeps the English sentence with the engine's reason.
+ */
+const W_MOSHIER = "W:moshier";
+
 function isEpheFault(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err);
   return /ephemeris file|damaged|not found|could not be loaded/i.test(msg);
@@ -641,13 +648,12 @@ function collectSwissBodies(
       if (REQUIRED_BODIES.has(id)) {
         throw new Error(`Swiss Ephemeris failed for ${id}: ${reason}`);
       }
-      const warning = `${PLANET_META[id]?.name ?? id} could not be placed and was left out (${reason}).`;
-      warnings.push(warning);
-      console.warn(`[ulune] ${warning}`);
+      warnings.push(`W:body.skipped|${id}`);
+      console.warn(`[ulune] ${PLANET_META[id]?.name ?? id} could not be placed and was left out (${reason}).`);
     }
   }
   if (moshier) {
-    warnings.unshift(MOSHIER_WARNING);
+    warnings.unshift(W_MOSHIER);
     console.warn(`[ulune] ${MOSHIER_WARNING}`);
   }
   return { planets, warnings };
@@ -821,7 +827,8 @@ function fixedStarLongitudes(swe: SwissEPH, ut: number, warnings: string[]): Par
       if (Number.isFinite(lon)) out[id] = lon;
     } catch (err) {
       const reason = err instanceof Error ? err.message : "unknown";
-      warnings.push(`${STAR_META[id].name} could not be placed (${reason}).`);
+      warnings.push(`W:star.unplaced|${id}`);
+      console.warn(`[ulune] ${STAR_META[id].name} could not be placed (${reason}).`);
     }
   }
   return out;

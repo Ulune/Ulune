@@ -563,8 +563,9 @@ test("an unreachable body is skipped with a warning, not fatal to the chart", as
 
   assert.ok(Array.isArray(late.meta.warnings), "the skip must be visible on meta");
   assert.equal(late.meta.warnings.length, 2);
-  assert.match(late.meta.warnings.join(" | "), /Eris/);
-  assert.match(late.meta.warnings.join(" | "), /Sedna/);
+  // Codes the page translates (lib/chart/method-notes.ts).
+  assert.ok(late.meta.warnings.includes("W:body.skipped|eris"), late.meta.warnings.join(" | "));
+  assert.ok(late.meta.warnings.includes("W:body.skipped|sedna"), late.meta.warnings.join(" | "));
 
   // The rest of the chart is whole: angles, cusps, aspects, patterns.
   assert.equal(late.houses.length, 12);
