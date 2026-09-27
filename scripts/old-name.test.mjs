@@ -5,11 +5,11 @@ import { join } from "node:path";
 import { test } from "node:test";
 
 /*
- * Ulune was built under the working name Orbis. The old name may stay only in
- * the archive (docs/archive/) and where the code reads what the prototype
- * wrote in visitors' browsers: src/lib/space/legacy.ts, the storage names
- * listed there, and lines marked "legacy names" (on the line or the one
- * before). Anything else fails here.
+ * Ulune was built under the working name Orbis. The old name may stay only
+ * where the code reads what the prototype wrote in visitors' browsers:
+ * src/lib/space/legacy.ts, the storage names listed there, and lines marked
+ * "legacy names" (on the line or the one before). Anything else fails here.
+ * (The notes from those days are kept outside the repository.)
  */
 
 const ROOT = new URL("..", import.meta.url).pathname;
@@ -23,13 +23,13 @@ function legacyNames() {
   return [...text.matchAll(/"([a-z]+\.[a-z.]+[a-z0-9.]*)"/g)].map((m) => m[1]).filter((n) => n.toLowerCase().startsWith(OLD));
 }
 
-test("the old name is left only in the archive and the legacy reads", () => {
+test("the old name is left only in the legacy reads", () => {
   const names = legacyNames();
   assert.ok(names.length >= 6, "the legacy storage names are listed in legacy.ts");
   const files = execFileSync("git", ["ls-files"], { cwd: ROOT, encoding: "utf8" }).split("\n").filter(Boolean);
   const found = [];
   for (const rel of files) {
-    if (rel.startsWith("docs/archive/") || rel === LEGACY_FILE || rel === SELF || BINARY.test(rel)) continue;
+    if (rel === LEGACY_FILE || rel === SELF || BINARY.test(rel)) continue;
     let text;
     try {
       text = readFileSync(join(ROOT, rel), "utf8");
