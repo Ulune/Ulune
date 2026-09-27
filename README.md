@@ -48,6 +48,13 @@ time zone boundaries © OpenStreetMap contributors (ODbL). Human Design is
 named descriptively; Ulune is independent of Jovian Archive. Every credit:
 [ulune.app/credits](https://ulune.app/credits).
 
+## Contributing
+
+For now Ulune takes issues, not code: [report a bug, a wrong position or an
+idea](https://github.com/ulune/ulune/issues/new/choose), after a look at
+[CONTRIBUTING.md](CONTRIBUTING.md). Security problems go privately: see
+[SECURITY.md](SECURITY.md).
+
 ## Contact
 
 limiel.ulune@protonmail.com, for a question, a wrong position or a security

@@ -1,0 +1,22 @@
+name: An idea
+description: Something you would like to do with Ulune.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you would like to do
+      description: The need, in your own words; how to build it can wait.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it matters to you
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: This issue contains no real person's birth details.
+          required: true

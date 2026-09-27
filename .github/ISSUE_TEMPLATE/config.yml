@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security problem
+    url: https://github.com/ulune/ulune/security/advisories/new
+    about: Privately, never in a public issue.
+  - name: Write privately
+    url: https://github.com/ulune/ulune#contact
+    about: For a question about your data, or a problem that only shows with a real person's birth.

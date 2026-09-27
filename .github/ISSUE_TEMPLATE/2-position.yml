@@ -1,0 +1,36 @@
+name: A position looks wrong
+description: A planet, a house, an angle or a time that disagrees with another source.
+title: "[Position] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Issues are public.** Describe a moment and a place, not a person: the moment doesn't have to be anyone's birth. If the difference only shows with a real birth, write to limiel.ulune@protonmail.com instead.
+  - type: input
+    id: moment
+    attributes:
+      label: Date, time and place
+      description: As typed in Ulune. Add the time zone it used if you can (edit the chart, then open Options).
+      placeholder: 1 January 2000, 12:00, Greenwich (UTC+00:00)
+    validations:
+      required: true
+  - type: input
+    id: options
+    attributes:
+      label: House system and options
+      placeholder: Placidus, time zone automatic
+  - type: textarea
+    id: difference
+    attributes:
+      label: What differs
+      description: The value Ulune shows, the value you expected, and where yours comes from (another program, an ephemeris, a book).
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: This issue contains no real person's birth details.
+          required: true
