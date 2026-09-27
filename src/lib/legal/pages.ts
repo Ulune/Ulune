@@ -8,12 +8,13 @@
  * They say what is true of the code: change them with it, and change the date.
  */
 
+import { SOURCE_URL } from "@/lib/app-identity";
 import type { NoticeBlock } from "./privacy-notice";
 
 export type LegalPageId = "legal" | "terms" | "credits" | "accessibility";
 export type LegalText = { title: string; updated: string; blocks: NoticeBlock[] };
 
-export const LEGAL_UPDATED = "2026-09-26";
+export const LEGAL_UPDATED = "2026-09-27";
 
 export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = {
   legal: {
@@ -85,11 +86,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Calculations and readings",
-          p: "The positions are calculated with the Swiss Ephemeris and checked with care, but Ulune is provided as it is, as far as the law allows, without any guarantee that it is complete, exact or always available. Readings, including any written by an AI you connect, are interpretations and can be wrong.",
-        },
-        {
-          h: "Your own AI key (optional)",
-          p: "If you add a key from an AI provider, its readings are written by that provider under its own terms, which you accepted with the key, including its minimum age. Ulune sends it the chart’s positions only, never a name, a date or a place.",
+          p: "The positions are calculated with the Swiss Ephemeris and checked with care, but Ulune is provided as it is, as far as the law allows, without any guarantee that it is complete, exact or always available. Readings are interpretations and can be wrong.",
         },
         {
           h: "Other people’s charts",
@@ -123,11 +120,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Calculs et lectures",
-          p: "Les positions sont calculées avec la Swiss Ephemeris et vérifiées avec soin, mais Ulune est fourni tel quel, dans les limites prévues par la loi, sans garantie d’être complet, exact ou toujours disponible. Les lectures, y compris celles écrites par une IA que vous connectez, sont des interprétations et peuvent se tromper.",
-        },
-        {
-          h: "Votre propre clé d’IA (facultatif)",
-          p: "Si vous ajoutez la clé d’un fournisseur d’IA, ses lectures sont écrites par ce fournisseur selon ses propres conditions, que vous avez acceptées avec la clé, y compris son âge minimum. Ulune ne lui envoie que les positions du thème, jamais un nom, une date ou un lieu.",
+          p: "Les positions sont calculées avec la Swiss Ephemeris et vérifiées avec soin, mais Ulune est fourni tel quel, dans les limites prévues par la loi, sans garantie d’être complet, exact ou toujours disponible. Les lectures sont des interprétations et peuvent se tromper.",
         },
         {
           h: "Les thèmes des autres",
@@ -155,6 +148,10 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
       updated: "Updated {date}",
       blocks: [
         { p: "Ulune is built on the work of others. Thank you to all of them." },
+        {
+          h: "Ulune’s own code",
+          p: `Free software under the GNU Affero General Public License, version 3 or later, as the Swiss Ephemeris asks of what is built on it: [the source code](${SOURCE_URL}).`,
+        },
         {
           h: "Calculations",
           list: [
@@ -198,6 +195,10 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
       updated: "Mis à jour le {date}",
       blocks: [
         { p: "Ulune repose sur le travail d’autres personnes. Merci à toutes." },
+        {
+          h: "Le code d’Ulune",
+          p: `Un logiciel libre sous licence publique générale GNU Affero, version 3 ou ultérieure, comme la Swiss Ephemeris le demande à ce qui est bâti sur elle\u202f: [le code source](${SOURCE_URL}).`,
+        },
         {
           h: "Calculs",
           list: [

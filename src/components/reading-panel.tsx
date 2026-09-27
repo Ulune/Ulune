@@ -3,6 +3,7 @@ import { AiAccountsPanel } from "./ai-accounts";
 import { AiReadingFocus } from "./ai-reading-focus";
 import { useAiAccount } from "@/lib/ai/use-ai-account";
 import { providerName } from "@/lib/ai/providers";
+import { AI_ENABLED } from "@/lib/features";
 import type { AspectId, ElementReading, GrokReading, NatalChart, SignId } from "@/lib/chart/types";
 import { ASPECT_IDS } from "@/lib/chart/types";
 import { SIGN_IDS, decanOf } from "@/lib/chart/constants";
@@ -66,7 +67,7 @@ export function ReadingPanel({
         back={back}
         onBack={onBack}
       />
-      {chart ? <AskAbout key={`${mode}:${reading.id}`} chart={chart} reading={reading} mode={mode} /> : null}
+      {AI_ENABLED && chart ? <AskAbout key={`${mode}:${reading.id}`} chart={chart} reading={reading} mode={mode} /> : null}
     </div>
   );
 }

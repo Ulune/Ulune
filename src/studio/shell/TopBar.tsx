@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import { AiAccountsButton } from "@/components/ai-accounts";
+import { AI_ENABLED } from "@/lib/features";
 import { useI18n } from "@/lib/i18n/locale";
 import { AccountMenu } from "@/studio/shell/AccountMenu";
 import { SpaceButton } from "@/components/space/space-button";
@@ -10,10 +11,11 @@ import { UluneMark } from "@/studio/shell/PageTopBar";
 export function TopLeft() {
   return (
     <div className="ob-top ob-top-l" data-testid="top-left">
-      <h1 className="ob-brand">
+      {/* The wordmark, not a heading: each screen has its own (the form's title, or the chart's). */}
+      <div className="ob-brand">
         <UluneMark className="ob-brand-mark" />
         <span className="ob-brand-word">Ulune</span>
-      </h1>
+      </div>
       <ChartPicker />
     </div>
   );
@@ -41,7 +43,7 @@ export function TopRight() {
   return (
     <div className="ob-top ob-top-r" data-testid="top-right">
       <PaletteButton />
-      <AiAccountsButton />
+      {AI_ENABLED ? <AiAccountsButton /> : null}
       <SpaceButton />
       <AccountMenu />
     </div>

@@ -188,7 +188,16 @@ async function checkHeaders() {
   const settings = await get("/settings");
   if (!noindex(settings.text) || canonical(settings.text)) fail("/settings: should stay out of search");
   if (!noindex(lost.text)) fail("an unknown page should stay out of search");
-  console.log("search: robots.txt, a 6-page sitemap, canonical addresses, settings and missing pages kept out");
+  // The first screen as the server sends it: the form's title, the guide under it, the footer's source link.
+  const h1 = /<h1\b[^>]*>([^<]+)<\/h1>/.exec(home.text)?.[1];
+  if (h1 !== "Cast a birth chart") fail(`/: the page's heading is "${h1}", not the form's title`);
+  for (const id of ["guide", "guide-faq-time", "site-footer", "footer-link-source"]) {
+    if (!home.text.includes(`data-testid="${id}"`)) fail(`/: the server's page has no ${id}`);
+  }
+  const guidePage = await get("/guide");
+  if (guidePage.res.status !== 200 || !noindex(guidePage.text) || canonical(guidePage.text)) fail("/guide: should answer and stay out of search");
+  if (!guidePage.text.includes('data-testid="guide"')) fail("/guide: no guide in the server's page");
+  console.log("search: robots.txt, a 6-page sitemap, canonical addresses, settings, /guide and missing pages kept out; the guide in the home page");
 }
 
 /** The health check an uptime monitor calls, and where error reports arrive. */

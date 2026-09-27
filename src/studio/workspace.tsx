@@ -4,13 +4,19 @@ import { OfflineOffer } from "@/components/offline-offer";
 import { usePack } from "@/lib/content/packs";
 import { canPrefetchAhead, prefetch, whenIdle } from "@/lib/lazy-component";
 import { inferGrokLocale } from "@/lib/chart/grok-locale";
+import { AI_ENABLED } from "@/lib/features";
 import { useI18n } from "@/lib/i18n/locale";
 import { keepOfflineChoice } from "@/lib/offline";
+import { Guide } from "@/components/first-screen/Guide";
+import { SiteFooter } from "@/components/first-screen/SiteFooter";
+import { sampleBirth } from "@/lib/chart/sample";
+import { useSpace } from "@/lib/space/state";
+import { startTour } from "@/lib/tour/state";
 import { BirthTab } from "@/studio/dock/BirthTab";
 import { Dock } from "@/studio/dock/Dock";
 import { isWide } from "@/studio/dock/dock-layout";
 import { ModeRuntimes } from "@/studio/modes/data";
-import { MODE_META } from "@/studio/modes/meta";
+import { MODE_META, PAGE_LABEL } from "@/studio/modes/meta";
 import { loadNatalTable } from "@/studio/modes/natal";
 import { prefetchModesAtIdle, useModeDef } from "@/studio/modes/registry";
 import { Stage } from "@/studio/stage/Stage";
@@ -38,6 +44,8 @@ export function StudioWorkspace() {
   const hasChart = Boolean(chart);
 
   useEffect(() => {
+    // An AI reading on screen is written again in the new language (AI readings wait for v1.1).
+    if (!AI_ENABLED) return;
     return subscribeUserLocale((next) => {
       const s = useStudioStore.getState();
       if (!s.chart || s.creating) return;
@@ -82,9 +90,13 @@ export function StudioWorkspace() {
   }, [hasChart]);
 
   const panelOn = Boolean(chart) && !creating && !addingPartnerFor;
-  const formOnStage =
-    Boolean(addingPartnerFor) || (creating && !addingPartnerFor) || (!chart && page === "natal");
-  const startNew = useStudioStore((s) => s.startNew);
+  // With no chart, every page is the form: a link to a mode asks for a birth chart first.
+  const formOnStage = Boolean(addingPartnerFor) || creating || !chart;
+  const rows = useStudioStore((s) => s.rows);
+  const cast = useStudioStore((s) => s.cast);
+  const spaceStatus = useSpace((s) => s.status);
+  // The guide stands under the first visit's form only (BirthTab: firstVisit).
+  const showGuide = !chart && !addingPartnerFor && rows.length === 0 && spaceStatus !== "locked";
 
   // Compact: a fresh chart or mode starts with the sheet at peek so the
   // figure is the first thing seen.
@@ -94,39 +106,30 @@ export function StudioWorkspace() {
     if (panelOn) useStudioStore.setState({ dockOpen: false });
   }, [panelOn, page]);
 
-  // Each mode says what it needs in its own words (loaded with the mode).
-  const emptyText = page === "natal" ? t("blankSky") : (def?.emptyText?.(locale) ?? "");
+  // Why the form stands where a mode or the table was asked for.
+  const modeLine = chart
+    ? null
+    : page !== "natal"
+      ? t("firstModeLine", { mode: t(PAGE_LABEL[page]) })
+      : table
+        ? t("firstTableLine")
+        : null;
 
   let body: ReactNode;
   if (formOnStage) {
-    body = <BirthTab onStage />;
-  } else if (!chart) {
-    body = table ? (
-      <section data-testid="studio-table-empty" className="ob-empty">
-        <p className="ob-empty-title">{t("tableEmpty")}</p>
-        <p className="ob-empty-body">{t("tableEmptyHint")}</p>
-        <button
-          type="button"
-          className="ob-btn ob-btn--primary"
-          data-testid="empty-cast"
-          onClick={() => startNew()}
-        >
-          {t("castANatal")}
-        </button>
-      </section>
-    ) : (
-      <section data-testid={meta.emptyTestId} role="tabpanel" className="ob-empty">
-        <p className="ob-empty-title">{emptyText || "\u00a0"}</p>
-        <button
-          type="button"
-          className="ob-btn ob-btn--primary"
-          data-testid="empty-cast"
-          onClick={() => startNew()}
-        >
-          {t("castANatal")}
-        </button>
-      </section>
+    body = (
+      <>
+        <BirthTab onStage modeLine={modeLine} />
+        {showGuide ? (
+          <>
+            <Guide onTour={startTour} onSample={() => void cast(sampleBirth(t("sampleName")))} />
+            <SiteFooter />
+          </>
+        ) : null}
+      </>
     );
+  } else if (!chart) {
+    body = null;
   } else if (!def) {
     // The mode is still downloading (or its download failed).
     body = modeError ? (
@@ -147,7 +150,10 @@ export function StudioWorkspace() {
         className="ob-body"
         data-panel={panelOn ? "on" : "off"}
         data-form={formOnStage ? "1" : undefined}
+        data-guide={formOnStage && showGuide ? "1" : undefined}
       >
+        {/* The page's heading when a chart is on screen (the first screen's is the form's title). */}
+        {!formOnStage && chart ? <h1 className="sr-only">{`${t(PAGE_LABEL[page])} · ${chart.meta.name}`}</h1> : null}
         <Stage
           testId={
             showChart && !formOnStage ? (table ? "studio-table" : meta.stageTestId) : "studio-stage"
@@ -156,6 +162,7 @@ export function StudioWorkspace() {
           caption={!table && panelOn && def?.Caption ? <def.Caption /> : undefined}
           table={table && panelOn}
           form={formOnStage}
+          nav={formOnStage && !chart && !addingPartnerFor}
           foot={panelOn}
           swapKey={`${formOnStage ? "form" : page}:${table ? "table" : "wheel"}`}
           viewIntent={def?.preloadData}

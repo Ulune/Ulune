@@ -12,7 +12,9 @@ Ephemeris. Free, with no account: your charts stay on your device.
   calculates and answers and keeps nothing. Names never leave the device.
 - Charts you choose to keep stay in your browser, encrypted (AES-256-GCM)
   under your passphrase, a passkey or your recovery code.
-- AI readings exist only with your own key, and send positions only.
+- No AI in version 1.0: the readings are fixed texts. (Readings written with
+  a visitor's own AI key are in the code, switched off until 1.1:
+  `src/lib/features.ts`.)
 - The [privacy notice](https://ulune.app/privacy) says the rest.
 
 ## Run it

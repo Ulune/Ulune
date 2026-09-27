@@ -2,6 +2,7 @@ import { ComposeToolbar, FullReading, ReadingPanel } from "@/components/reading-
 import { AiReadingFocus } from "@/components/ai-reading-focus";
 import { ModeCompose, isComposeMode } from "@/studio/dock/ModeCompose";
 import { natalRootReading } from "@/lib/chart/dossier";
+import { AI_ENABLED } from "@/lib/features";
 import { LoadingLines } from "@/components/loading-lines";
 import { packNow, usePack, type PackKind } from "@/lib/content/packs";
 import { useI18n } from "@/lib/i18n/locale";
@@ -87,7 +88,7 @@ export function ReadingTab() {
           <div data-testid="click-reading-empty">
             {def ? <def.HelloEmpty /> : <LoadingLines lines={3} />}
           </div>
-          {page === "natal" ? (
+          {!AI_ENABLED ? null : page === "natal" ? (
             <section className="ob-portrait" data-testid="natal-portrait" style={{ order: grok ? -1 : 0 }}>
               <FullReading grok={grok} pending={composing} error={composing ? null : composeError} />
               <ComposeToolbar

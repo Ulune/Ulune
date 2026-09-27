@@ -7,6 +7,32 @@ import { Toaster } from "@/components/toaster";
 import { CommandPalette } from "@/studio/shell/CommandPalette";
 import { useEffect } from "react";
 import { importWithRetry } from "@/lib/lazy-retry";
+import { useI18n } from "@/lib/i18n/locale";
+import { useStudioStore } from "@/studio/store";
+import { TourHost } from "@/components/tour/TourHost";
+
+/**
+ * The first stop for the keyboard: straight to the form's first field when
+ * the form is on screen, else to the chart.
+ */
+function SkipLink() {
+  const { t } = useI18n();
+  const toForm = useStudioStore((s) => Boolean(s.pair.addingPartnerFor) || s.creating || !s.chart);
+  return (
+    <a
+      href="#main"
+      className="ob-skip"
+      data-testid="skip-link"
+      onClick={(e) => {
+        e.preventDefault();
+        const target = (toForm ? document.getElementById("native-name") : null) ?? document.getElementById("main");
+        target?.focus();
+      }}
+    >
+      {toForm ? t("skipToForm") : t("skipToChart")}
+    </a>
+  );
+}
 
 /**
  * The `?perf` overlay (lib/perf-overlay.ts), loaded only when asked for: the
@@ -59,6 +85,7 @@ export function Shell() {
   useStudioUrl();
   return (
     <div className="ob-app" data-testid="app-shell">
+      <SkipLink />
       <TopLeft />
       <GroupBar />
       <Toaster />
@@ -66,11 +93,12 @@ export function Shell() {
       {import.meta.env.DEV ? <SelfTest /> : null}
       <CommandPalette />
       <TopRight />
-      <div className="ob-body-slot">
+      <main id="main" className="ob-body-slot" tabIndex={-1}>
         <ErrorSlot>
           <HomeTree />
         </ErrorSlot>
-      </div>
+      </main>
+      <TourHost />
     </div>
   );
 }

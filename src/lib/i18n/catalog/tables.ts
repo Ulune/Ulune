@@ -79,8 +79,6 @@ export const tables = {
   tableCopied: ["Copied", "Copié"],
   tableCopy: ["Copy as text", "Copier en texte"],
   tableDay: ["Day chart", "Thème diurne"],
-  tableEmpty: ["Cast a chart first", "Calculez d’abord un thème"],
-  tableEmptyHint: ["The table shows this chart in numbers.", "Le tableau montre ce thème en chiffres."],
   tableExportCsv: ["Download CSV", "Télécharger CSV"],
   tableGrid: ["Aspect grid", "Grille d’aspects"],
   tableGridHint: [

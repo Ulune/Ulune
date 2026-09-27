@@ -15,3 +15,6 @@ scripts/perf/.out/
 
 # Self-test reports (scripts/qa-selftest)
 .qa-selftest/
+
+# An empty lock file an old tool left at the top (removed 27 Sep 2026)
+.node_modules.lock

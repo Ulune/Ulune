@@ -36,6 +36,7 @@
  */
 import { chromium } from "playwright";
 import {
+  AI_ON,
   DEV,
   FIXTURE_A,
   FIXTURE_B,
@@ -136,6 +137,8 @@ async function libraryNames(page) {
 }
 
 async function aiConnected(page) {
+  // AI readings wait for v1.1 (src/lib/features.ts): no key can be there.
+  if (!AI_ON) return (await page.getByTestId("ai-accounts").count()) > 0;
   await page.getByTestId("ai-accounts").click();
   await page.getByTestId("ai-accounts-panel").waitFor({ timeout: 8000 });
   const text = await page.getByTestId("ai-accounts-panel").innerText();
@@ -144,6 +147,7 @@ async function aiConnected(page) {
 }
 
 async function addKey(page) {
+  if (!AI_ON) return;
   await page.getByTestId("ai-accounts").click();
   await page.locator("#ai-key-claude").fill(KEY);
   await page.locator("#ai-key-claude").press("Enter");
@@ -279,8 +283,8 @@ async function run() {
       const names = await libraryNames(page);
       if (!names.some((n) => n.includes(FIXTURE_A.name)) || !names.some((n) => n.includes(FIXTURE_B.name)))
         throw new Error(`charts after unlock: ${names.join(", ")}`);
-      if (!(await aiConnected(page))) throw new Error("the AI key did not come back with the space");
-      console.log("unlocked: the charts and the AI key are back");
+      if (AI_ON && !(await aiConnected(page))) throw new Error("the AI key did not come back with the space");
+      console.log(AI_ON ? "unlocked: the charts and the AI key are back" : "unlocked: the charts are back");
 
       // 3. Lock now, then the recovery code and a new passphrase.
       await page.getByTestId("space-button").click();

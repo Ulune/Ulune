@@ -3,7 +3,7 @@ import { LangSwitch } from "@/components/lang-switch";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { PageTopBar } from "@/studio/shell/PageTopBar";
 import { Toaster } from "@/components/toaster";
-import { APP_VERSION } from "@/lib/app-identity";
+import { APP_VERSION, SOURCE_URL } from "@/lib/app-identity";
 import { useI18n } from "@/lib/i18n/locale";
 import { YourData } from "@/components/your-data";
 import { SpaceSettings } from "@/components/space/space-settings";
@@ -44,6 +44,19 @@ function Settings() {
             {t("reportProblemLead")}{" "}
             <a href={problemMailto(t)} className="ob-keep-link" data-testid="report-problem">
               {t("reportProblem")}
+            </a>
+          </p>
+          <p className="ob-data-body">
+            {t("guidePrecise4")}{" "}
+            <a
+              href={SOURCE_URL}
+              className="ob-keep-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="settings-source"
+            >
+              {t("guideSource")}
+              <span className="sr-only"> ({t("legalNewTab")})</span>
             </a>
           </p>
         </section>

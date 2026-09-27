@@ -35,7 +35,6 @@ export const birth = {
   ],
   placeChoose: ["Choose the right place from the list.", "Choisissez le bon lieu dans la liste."],
   birthOptions: ["Options", "Options"],
-  sampleChart: ["Try a sample chart", "Essayer un thème d’exemple"],
   sampleName: ["Sample", "Exemple"],
   houseNotePlacidus: [
     "The most common system; houses stretch with latitude.",

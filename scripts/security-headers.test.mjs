@@ -32,9 +32,10 @@ test("scripts come only from Ulune or carry the page's nonce", () => {
   }
 });
 
-test("the browser may call Ulune and the AI providers it reaches directly, only", () => {
+test("the browser may call Ulune only (and the AI providers it reaches directly while AI is on)", () => {
   const d = directives(contentSecurityPolicy("n"));
-  assert.deepEqual(d["connect-src"], ["'self'", ...AI_ORIGINS]);
+  const aiOn = /export const AI_ENABLED = true;/.test(readFileSync(new URL("../src/lib/features.ts", import.meta.url), "utf8"));
+  assert.deepEqual(d["connect-src"], aiOn ? ["'self'", ...AI_ORIGINS] : ["'self'"]);
   // src/lib/ai/chat.ts calls these, and Grok's api.x.ai from the relay only.
   const chat = readFileSync(new URL("../src/lib/ai/chat.ts", import.meta.url), "utf8");
   const call = readFileSync(new URL("../src/lib/ai/call.ts", import.meta.url), "utf8");

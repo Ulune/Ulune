@@ -1,13 +1,17 @@
 /**
  * A first-run hint on the wheel: how to read it (point or tap a planet to see
  * its aspects, click to pin). It goes away for good once something is pinned
- * or it is closed; the choice is kept in this browser only.
+ * or it is closed; the choice is kept in this browser only. It stays away
+ * while the tour runs, and the tour's second step, which teaches the same
+ * gesture, counts as having seen it.
  */
 import { useEffect, useState, useSyncExternalStore } from "react";
 import type { SelectionStore } from "@/lib/chart/selection-store";
 import { useI18n } from "@/lib/i18n/locale";
+import { useTour } from "@/lib/tour/state";
 
-const KEY = "ulune.hint.wheel.v1";
+export const WHEEL_HINT_KEY = "ulune.hint.wheel.v1";
+const KEY = WHEEL_HINT_KEY;
 
 function seen(): boolean {
   try {
@@ -30,6 +34,7 @@ export function WheelHint({ selection }: { selection: SelectionStore }) {
   const [open, setOpen] = useState(false);
   const [touch, setTouch] = useState(false);
   const pinned = useSyncExternalStore(selection.subscribe, selection.get, () => null);
+  const touring = useTour((s) => s.active);
   useEffect(() => {
     if (seen()) return;
     setTouch(typeof window.matchMedia === "function" && window.matchMedia("(hover: none)").matches);
@@ -43,7 +48,7 @@ export function WheelHint({ selection }: { selection: SelectionStore }) {
       setOpen(false);
     }
   }, [pinned, open]);
-  if (!open) return null;
+  if (!open || touring) return null;
   return (
     <div className="ulune-wheel-hint" role="note" data-testid="wheel-hint">
       <span>{t(touch ? "wheelHintTap" : "wheelHintPoint")}</span>

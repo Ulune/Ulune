@@ -14,12 +14,12 @@ export const account = {
   ],
   dataSpaceTitle: ["In your private space", "Dans votre espace privé"],
   dataSpaceOpen: [
-    "Your charts, partners and AI keys, encrypted, on this device only. Backups you download are encrypted too.",
-    "Vos thèmes, partenaires et clés IA, chiffrés, sur cet appareil seulement. Les sauvegardes que vous téléchargez sont chiffrées aussi.",
+    "Your charts and partners, encrypted, on this device only. Backups you download are encrypted too.",
+    "Vos thèmes et partenaires, chiffrés, sur cet appareil seulement. Les sauvegardes que vous téléchargez sont chiffrées aussi.",
   ],
   dataSpaceLocked: [
-    "Your charts, partners and AI keys, encrypted and locked, on this device only.",
-    "Vos thèmes, partenaires et clés IA, chiffrés et verrouillés, sur cet appareil seulement.",
+    "Your charts and partners, encrypted and locked, on this device only.",
+    "Vos thèmes et partenaires, chiffrés et verrouillés, sur cet appareil seulement.",
   ],
   dataSpaceNone: [
     "Nothing: there is no private space here. Charts stay in the open tab and go when it closes.",
@@ -46,14 +46,14 @@ export const account = {
   ],
   dataExport: ["Download a readable copy", "Télécharger une copie lisible"],
   dataExportHint: [
-    "The readable copy holds your display settings, and your charts and partners while your space is open, in a file anyone can read: keep it private. AI keys are never in it.",
-    "La copie lisible contient vos réglages d’affichage, et vos thèmes et partenaires quand votre espace est ouvert, dans un fichier que tout le monde peut lire : gardez-le pour vous. Les clés IA n’y sont jamais.",
+    "The readable copy holds your display settings, and your charts and partners while your space is open, in a file anyone can read: keep it private.",
+    "La copie lisible contient vos réglages d’affichage, et vos thèmes et partenaires quand votre espace est ouvert, dans un fichier que tout le monde peut lire : gardez-le pour vous.",
   ],
   dataExported: ["Data downloaded", "Données téléchargées"],
   dataWipe: ["Erase everything on this device", "Tout effacer de cet appareil"],
   dataWipeConfirm: [
-    "This erases your private space (charts, partners, AI keys), your settings and the offline copy of Ulune from this browser. It can’t be undone; a backup you downloaded still opens.",
-    "Cela efface de ce navigateur votre espace privé (thèmes, partenaires, clés IA), vos réglages et la copie hors ligne d’Ulune. C’est définitif ; une sauvegarde téléchargée s’ouvre toujours.",
+    "This erases your private space (charts and partners), your settings and the offline copy of Ulune from this browser. It can’t be undone; a backup you downloaded still opens.",
+    "Cela efface de ce navigateur votre espace privé (thèmes et partenaires), vos réglages et la copie hors ligne d’Ulune. C’est définitif ; une sauvegarde téléchargée s’ouvre toujours.",
   ],
   dataWipeGo: ["Erase everything", "Tout effacer"],
   dataErased: [

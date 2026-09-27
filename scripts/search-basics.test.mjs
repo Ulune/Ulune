@@ -34,8 +34,9 @@ test("each public page names its own address, title and description", () => {
   assert.ok(!head.meta.some((m) => m.name === "robots"));
 });
 
-test("settings and a missing page stay out of search", () => {
-  for (const file of ["src/routes/settings.tsx", "src/routes/$.tsx"]) {
+test("settings, the guide's own page and a missing page stay out of search", () => {
+  // /guide holds the same words as the home page's guide: the home page is the one found.
+  for (const file of ["src/routes/settings.tsx", "src/routes/guide.tsx", "src/routes/$.tsx"]) {
     assert.match(read(file), /index: false/, file);
   }
   const hidden = pageHead({ path: "/settings", title: "Settings · Ulune", index: false });
@@ -50,4 +51,14 @@ test("the home page says what Ulune is, as a free web application", () => {
   assert.equal(HOME_STRUCTURED_DATA.url, `${SITE_URL}/`);
   assert.equal(HOME_STRUCTURED_DATA.offers.price, "0");
   assert.match(read("src/routes/index.tsx"), /type: "application\/ld\+json", children: JSON\.stringify\(HOME_STRUCTURED_DATA\)/);
+});
+
+test("the home page's guide is in the server's page, in plain text", () => {
+  const guide = read("src/components/first-screen/Guide.tsx");
+  // No lazy loading or client-only switch around the guide: search engines read what the server sends.
+  assert.doesNotMatch(guide, /lazy\(|useEffect|"use client"/);
+  const workspace = read("src/studio/workspace.tsx");
+  assert.match(workspace, /<Guide /);
+  assert.match(workspace, /<SiteFooter \/>/);
+  assert.ok(!INDEXED_PAGES.includes("/guide"));
 });

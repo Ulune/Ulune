@@ -146,3 +146,14 @@ test("a Look kept before the glyph font's rename paints with Ulune Classic", asy
   // The glyph font is still preloaded.
   assert.ok(env.appended.some((el) => el.href === "/assets/a.woff2"));
 });
+
+test("a tour taken on this device hides its link before the page paints", () => {
+  const done = fakeDom(store({ "ulune.tour.v1": "done" }));
+  run(bootScript(glyphs), done);
+  assert.equal(done.attrs.has("data-tour-done"), true);
+  const fresh = fakeDom(store({}));
+  run(bootScript(glyphs), fresh);
+  assert.equal(fresh.attrs.has("data-tour-done"), false);
+  // A first visitor is not a returning reader because of the tour alone.
+  assert.equal(done.attrs.has("data-returning"), false);
+});

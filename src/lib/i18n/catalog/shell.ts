@@ -3,7 +3,6 @@ export const shell = {
   applying: ["applying", "applicatif"],
   backToChart: ["Back to the chart", "Retour au thème"],
   blankHint: ["Name, date, time and city — then cast.", "Nom, date, heure et ville — puis calculez."],
-  blankSky: ["A blank sky", "Un ciel vide"],
   charts: ["Charts", "Thèmes"],
   dockBirth: ["Birth", "Naissance"],
   dockBodies: ["Bodies", "Corps"],

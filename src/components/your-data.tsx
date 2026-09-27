@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Download, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AI_ENABLED } from "@/lib/features";
 import { useI18n } from "@/lib/i18n/locale";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { offlineChoice, offlineSupported, turnOfflineOff, turnOfflineOn } from "@/lib/offline";
@@ -135,7 +136,7 @@ export function YourData() {
     window.location.assign("/");
   }
 
-  const rows: { title: MessageKey; body: string; id: string }[] = [
+  const allRows: { title: MessageKey; body: string; id: string }[] = [
     { id: "here", title: "dataHereTitle", body: t("dataHere", { n: count }) },
     { id: "space", title: "dataSpaceTitle", body: t(SPACE_LINE[status]) },
     { id: "server", title: "dataServerTitle", body: t("dataServer") },
@@ -143,6 +144,8 @@ export function YourData() {
     { id: "ai", title: "dataAiTitle", body: t("dataAi") },
     { id: "never", title: "dataNeverTitle", body: t("dataNever") },
   ];
+  // Nothing goes to an AI while AI readings are off (lib/features.ts).
+  const rows = allRows.filter((row) => AI_ENABLED || row.id !== "ai");
 
   return (
     <section className="ulune-panel ob-settings-card" id="data" data-testid="settings-data">

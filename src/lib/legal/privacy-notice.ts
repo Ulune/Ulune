@@ -1,7 +1,8 @@
 /*
  * The privacy notice (routes/privacy.tsx), English and French. It says what
  * the code does: change it with the code (lib/space, lib/chart/functions.ts,
- * lib/ai), and change the date.
+ * lib/ai), and change the date. AI readings are off in 1.0 (lib/features.ts),
+ * so the notice says nothing about them; they return with their own lines.
  */
 
 export type NoticeBlock = { h?: string; p?: string; list?: string[] };
@@ -20,8 +21,8 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
       {
         h: "Kept on your device",
         list: [
-          "Display settings (theme, language, Looks, views), in your browser’s storage, in the clear.",
-          "If you sign in: your charts, the partners you pair them with, your AI keys and, if you choose to stay unlocked, a copy of the last chart for a quick start. They are sealed in your browser’s database with AES-256-GCM, under a key that only your passphrase, a passkey or your recovery code opens. Ulune never receives them.",
+          "Display settings (theme, language, Looks, views, the hints and the tour you closed), in your browser’s storage, in the clear.",
+          "If you sign in: your charts, the partners you pair them with and, if you choose to stay unlocked, a copy of the last chart for a quick start. They are sealed in your browser’s database with AES-256-GCM, under a key that only your passphrase, a passkey or your recovery code opens. Ulune never receives them.",
           "Backups you download are sealed the same way. A readable copy, if you ask for one, is not: keep it private.",
           "While you are just looking, charts stay in the open tab and go when it closes.",
         ],
@@ -32,7 +33,6 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
           "Drawing a chart or a view (transits, timing, progressions, Human Design): its date, time and coordinates go to Ulune’s server, which calculates and answers. The name you give a chart never leaves your device. Ulune’s code stores nothing from these requests and writes none of it to its logs.",
           "Searching for a place: what you type goes to Ulune’s server, which looks it up with Open-Meteo’s geocoding service. Open-Meteo doesn’t receive your IP address. To answer the same search faster, the server keeps Open-Meteo’s answer in its memory for up to a day, under the words searched and nothing else.",
           "When the page breaks: unless you turn it off in Settings, Your data, the page sends Ulune’s server a short report of what failed: the error with every number masked, where in Ulune’s code it happened, the page’s address without anything after it, the version and the browser’s engine (Blink, WebKit or Gecko). It holds no chart, date, place, name or address, and goes to the host’s technical logs (below) so the fault can be fixed.",
-          "AI readings, only if you add your own key: the chart’s positions, never a name, date or place, go from your browser to the provider you chose (Anthropic, OpenAI or Google), or to xAI through Ulune’s server, which passes them on and keeps nothing. The provider’s terms, which you accepted with your key, apply to what it receives.",
           "Hosting: Ulune runs on Vercel. Like any host, Vercel receives your IP address and the addresses of the pages you open, and keeps technical logs of them under its own privacy policy.",
         ],
       },
@@ -62,8 +62,8 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
       {
         h: "Gardé sur votre appareil",
         list: [
-          "Les réglages d’affichage (thème, langue, looks, vues), dans le stockage de votre navigateur, en clair.",
-          "Si vous vous connectez : vos thèmes, les partenaires que vous leur associez, vos clés IA et, si vous choisissez de rester déverrouillé, une copie du dernier thème pour un démarrage rapide. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
+          "Les réglages d’affichage (thème, langue, looks, vues, les astuces et la visite que vous avez fermées), dans le stockage de votre navigateur, en clair.",
+          "Si vous vous connectez : vos thèmes, les partenaires que vous leur associez et, si vous choisissez de rester déverrouillé, une copie du dernier thème pour un démarrage rapide. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
           "Les sauvegardes que vous téléchargez sont scellées de la même façon. Une copie lisible, si vous en demandez une, ne l’est pas : gardez-la pour vous.",
           "Tant que vous regardez sans vous connecter, les thèmes restent dans l’onglet ouvert et partent à sa fermeture.",
         ],
@@ -74,7 +74,6 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
           "Tracer un thème ou une vue (transits, timing, progressions, Human Design) : sa date, son heure et ses coordonnées partent vers le serveur d’Ulune, qui calcule et répond. Le nom que vous donnez à un thème ne quitte jamais votre appareil. Le code d’Ulune ne garde rien de ces requêtes et n’en écrit rien dans ses journaux.",
           "Chercher un lieu : ce que vous tapez part vers le serveur d’Ulune, qui le cherche avec le service de géocodage d’Open-Meteo. Open-Meteo ne reçoit pas votre adresse IP. Pour répondre plus vite à la même recherche, le serveur garde la réponse d’Open-Meteo dans sa mémoire jusqu’à un jour, sous les mots cherchés et rien d’autre.",
           "Quand la page plante : sauf si vous le désactivez dans Réglages, Vos données, la page envoie au serveur d’Ulune un court rapport de ce qui a échoué : l’erreur avec chaque chiffre masqué, l’endroit du code d’Ulune où elle s’est produite, l’adresse de la page sans ce qui la suit, la version et le moteur du navigateur (Blink, WebKit ou Gecko). Il ne contient ni thème, ni date, ni lieu, ni nom, ni adresse, et va dans les journaux techniques de l’hébergeur (ci-dessous) pour que la panne soit réparée.",
-          "Lectures IA, seulement si vous ajoutez votre propre clé : les positions du thème, jamais un nom, une date ou un lieu, partent de votre navigateur vers le fournisseur choisi (Anthropic, OpenAI ou Google), ou vers xAI via le serveur d’Ulune, qui les transmet et ne garde rien. Les conditions du fournisseur, acceptées avec votre clé, s’appliquent à ce qu’il reçoit.",
           "Hébergement : Ulune fonctionne sur Vercel. Comme tout hébergeur, Vercel reçoit votre adresse IP et l’adresse des pages que vous ouvrez, et en garde des journaux techniques selon sa propre politique de confidentialité.",
         ],
       },

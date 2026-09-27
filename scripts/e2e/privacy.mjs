@@ -11,6 +11,7 @@
  * The AI providers are answered here (page.route): no real key is used.
  */
 import {
+  AI_ON,
   DEV,
   FIXTURE_A,
   FIXTURE_B,
@@ -95,8 +96,20 @@ async function run() {
     }
     console.log("modes visited");
 
-    // Your AI: a Claude key (called from the page), then compose the natal reading.
     await goStudioPage(page, "natal");
+    if (!AI_ON) {
+      // AI readings wait for v1.1: nothing of them shows.
+      await page.getByTestId("studio-natal").waitFor({ timeout: 30000 });
+      const sun = page.locator("svg.ulune-wheel:not(.ulune-wheel-ghost) [data-kind=planet][data-body=sun]").first();
+      await sun.evaluate((el) => el instanceof SVGElement && el.focus());
+      await page.keyboard.press("Enter");
+      await page.getByTestId("click-note").waitFor({ timeout: 20000 });
+      for (const id of ["ai-accounts", "compose-grok", "reading-ask", "natal-portrait"]) {
+        if (await page.getByTestId(id).count()) throw new Error(`AI is off, yet "${id}" shows`);
+      }
+      console.log("no AI on screen");
+    } else {
+    // Your AI: a Claude key (called from the page), then compose the natal reading.
     await addKey(page, "claude", "sk-ant-test-0000000000000000");
     await page.getByTestId("compose-grok").click();
     await page.getByTestId("portrait").waitFor({ timeout: 20000 });
@@ -118,6 +131,7 @@ async function run() {
       { timeout: 45000 },
     );
     console.log("asked through the relay");
+    }
   } finally {
     await browser.close();
   }
@@ -144,14 +158,19 @@ async function run() {
     if (/"name"|"placeLabel"/.test(c.body)) failures.push(`a cast carries a name or place field: ${c.body.slice(0, 200)}`);
     if (!/"latitude"/.test(c.body) || !/"date"/.test(c.body)) failures.push("a cast lacks its date or coordinates");
   }
-  if (!aiBodies.length) failures.push("no request reached the direct AI provider");
+  if (!AI_ON) {
+    // No request to an AI provider, and none to the relay.
+    for (const r of seen) if (/anthropic|openai|googleapis|x\.ai/.test(new URL(r.url).host)) failures.push(`AI is off, yet a request went to ${r.url.slice(0, 80)}`);
+    if (fnCalls.some((r) => decodeFnName(r.url).startsWith("relayAi"))) failures.push("AI is off, yet a request went to the relay");
+  }
+  if (AI_ON && !aiBodies.length) failures.push("no request reached the direct AI provider");
   for (const a of aiBodies) {
     for (const word of PERSONAL) if (a.body.includes(word)) failures.push(`the AI request carries "${word}"`);
     if (!/Sun|Soleil/.test(a.body) || !/ASC/.test(a.body)) failures.push("the AI request lacks the positions");
     if (a.headers["anthropic-dangerous-direct-browser-access"] !== "true") failures.push("direct call without its browser header");
   }
   const relayed = fnCalls.filter((r) => decodeFnName(r.url).startsWith("relayAi"));
-  if (!relayed.length) failures.push("no request went to the relay");
+  if (AI_ON && !relayed.length) failures.push("no request went to the relay");
   for (const r of relayed) {
     if (!/Person A|Personne A|ASC/.test(r.body)) failures.push("the relayed prompt lacks the positions");
   }

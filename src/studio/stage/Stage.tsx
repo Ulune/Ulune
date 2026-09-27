@@ -51,7 +51,8 @@ function ViewToggle() {
 
 /**
  * Stage frame: strip (sub-modes + mode controls) / figure / footer
- * (caption · view toggle · zoom). `form` hides the strip controls and footer.
+ * (caption · view toggle · zoom). `form` hides the strip and footer, except
+ * the mode switch when the form stands in for a mode (`nav`: no chart yet).
  */
 export function Stage({
   children,
@@ -60,6 +61,7 @@ export function Stage({
   testId,
   table = false,
   form = false,
+  nav = false,
   foot = true,
   swapKey,
   viewIntent,
@@ -71,6 +73,8 @@ export function Stage({
   testId?: string;
   table?: boolean;
   form?: boolean;
+  /** With `form`: keep the mode switch above it (a mode was asked for before any chart). */
+  nav?: boolean;
   foot?: boolean;
   swapKey?: string;
   /** The view switch is pointed at or focused: fetch the table's code ahead. */
@@ -92,10 +96,10 @@ export function Stage({
         data-testid={testId ?? "studio-stage"}
         data-view={mounted ? view : undefined}
       >
-        {form ? null : (
+        {form && !nav ? null : (
           <div className="ob-strip">
             <SubModeSwitch />
-            {extraControls ? <div className="ob-strip-extra">{extraControls}</div> : null}
+            {!form && extraControls ? <div className="ob-strip-extra">{extraControls}</div> : null}
           </div>
         )}
         <div key={swapKey} className="ob-figure ulune-stage-figure ob-swap">

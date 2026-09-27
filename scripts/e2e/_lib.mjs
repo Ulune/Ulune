@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,6 +8,8 @@ import { fromJSON } from "seroval";
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
 export const SHOTS = join(ROOT, "screenshots/e2e");
 export const DEV = process.env.ULUNE_DEV || "http://127.0.0.1:8097";
+/** AI readings are on in this version (src/lib/features.ts); off in 1.0, so the suites check they are gone. */
+export const AI_ON = /export const AI_ENABLED = true;/.test(readFileSync(join(ROOT, "src/lib/features.ts"), "utf8"));
 
 export const VIEWPORTS = {
   390: { width: 390, height: 844 },
@@ -97,7 +100,7 @@ export async function assertNoOverflow(page) {
   if (overflow) throw new Error("horizontal overflow");
 }
 
-async function pickPlace(page, query) {
+export async function pickPlace(page, query) {
   await page.locator("#birth-place").fill(query);
   const list = page.locator("#birth-place-list [role=option] button");
   try {

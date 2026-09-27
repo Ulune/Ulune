@@ -113,16 +113,16 @@ export const space = {
   ],
   spaceSection: ["Private space", "Espace privé"],
   spaceStatusOpen: [
-    "Open on this device. Your charts, partners and AI keys are kept in it, encrypted.",
-    "Ouvert sur cet appareil. Vos thèmes, partenaires et clés IA y sont gardés, chiffrés.",
+    "Open on this device. Your charts and partners are kept in it, encrypted.",
+    "Ouvert sur cet appareil. Vos thèmes et partenaires y sont gardés, chiffrés.",
   ],
   spaceStatusLocked: [
     "Locked. Unlock it to see your charts.",
     "Verrouillé. Déverrouillez-le pour voir vos thèmes.",
   ],
   spaceStatusNone: [
-    "None yet. Sign in to keep charts, partners and AI keys on this device, encrypted.",
-    "Aucun pour l’instant. Connectez-vous pour garder thèmes, partenaires et clés IA sur cet appareil, chiffrés.",
+    "None yet. Sign in to keep charts and partners on this device, encrypted.",
+    "Aucun pour l’instant. Connectez-vous pour garder thèmes et partenaires sur cet appareil, chiffrés.",
   ],
   spaceLockTitle: ["When it locks", "Quand il se verrouille"],
   spaceLockClose: ["When Ulune is closed", "À la fermeture d’Ulune"],

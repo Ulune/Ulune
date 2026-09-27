@@ -11,6 +11,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n/locale";
 import { offlineChoice, offlineSupported, turnOfflineOff, turnOfflineOn } from "@/lib/offline";
 import { toast } from "@/lib/toast";
+import { useTour } from "@/lib/tour/state";
 
 /** Charts were saved here before this visit (the boot script's flag, read before the studio lifts it). */
 const RETURNING =
@@ -49,6 +50,8 @@ export function OfflineOffer() {
     const timer = window.setInterval(() => {
       const now = performance.now();
       if (now - since < SETTLE_MS || now - lastInput < QUIET_MS) return;
+      // Not while the tour speaks.
+      if (useTour.getState().active) return;
       window.clearInterval(timer);
       setOpen(true);
     }, 500);

@@ -1,8 +1,8 @@
 /**
  * The content security policy of every page the server renders, in
  * production: scripts only from Ulune itself or carrying this page's nonce,
- * connections only to Ulune and to the AI providers a reader's own key talks
- * to from the browser (src/lib/ai/call.ts), no plugins,
+ * connections only to Ulune (and, while AI readings are on, to the AI
+ * providers a reader's own key talks to from the browser), no plugins,
  * no framing, forms and <base> kept to Ulune.
  *
  * The nonce is made per page on the server (router.tsx) and reaches every
@@ -17,9 +17,12 @@
  * routes set them (vite.config.ts, SECURITY_HEADERS).
  */
 
+import { AI_ENABLED } from "./features";
+
 /**
  * Origins the browser calls with a reader's own AI key (lib/ai/call.ts,
  * DIRECT). Grok goes through Ulune's relay, so api.x.ai is not among them.
+ * Allowed only while AI readings are on (lib/features.ts: off in 1.0).
  */
 export const AI_ORIGINS = [
   "https://api.anthropic.com",
@@ -48,7 +51,7 @@ export function contentSecurityPolicy(nonce: string, options: { preview?: boolea
     ["style-src", "'self'", "'unsafe-inline'", ...extra("style")],
     ["img-src", "'self'", "data:", "blob:", ...extra("img")],
     ["font-src", "'self'", "data:", ...extra("font")],
-    ["connect-src", "'self'", ...AI_ORIGINS, ...extra("connect")],
+    ["connect-src", "'self'", ...(AI_ENABLED ? AI_ORIGINS : []), ...extra("connect")],
     ["frame-src", "'self'", ...extra("frame")],
     ["worker-src", "'self'"],
     ["manifest-src", "'self'"],

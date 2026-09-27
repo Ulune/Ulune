@@ -1,6 +1,7 @@
 import type { GlyphFamily } from "@/lib/chart/glyphs";
 import { FIRST_VIEW_ATTR, FIRST_VIEW_KEY, FIRST_VIEW_OVER, FIRST_VIEW_RECORD, FIRST_VIEW_TAG } from "@/lib/first-view";
 import { SPACE_FLAG } from "@/lib/space/flag";
+import { TOUR_DONE_ATTR, TOUR_KEY } from "@/lib/tour/keys";
 
 /*
  * What the page knows about the reader before anything paints, run inline at
@@ -12,7 +13,9 @@ import { SPACE_FLAG } from "@/lib/space/flag";
  *   - `data-returning` on <html> when charts are kept on this device (a
  *     private space, or charts from before it), so the empty "New chart"
  *     form is not the first thing a returning reader sees while the studio
- *     starts.
+ *     starts;
+ *   - `data-tour-done` when the tour was finished or skipped here, so its
+ *     link under the first screen's form never flashes (lib/tour/state.ts).
  * Everything is read from this device's own storage; nothing leaves it. It
  * must fail open: any error leaves the page as the server sent it.
  */
@@ -48,7 +51,7 @@ export function forgetBootLook(): void {
  */
 export function bootScript(glyphUrls: Partial<Record<GlyphFamily, string>>): string {
   const urls = JSON.stringify(glyphUrls);
-  return `(function(){try{var d=document,r=d.documentElement,s=localStorage,t=r.classList.contains("light")?"light":"dark",b=s.getItem("${BOOT_LOOK_KEY}."+t),g="astronomicon";if(b){b=JSON.parse(b);if(b&&typeof b.css==="string"){r.style.cssText+=";"+b.css.replace(/"Astronomicon"/g,'"Ulune Classic"');if(b.glyph)g=b.glyph}}var u=${urls}[g];if(u){var l=d.createElement("link");l.rel="preload";l.as="font";l.type="font/woff2";l.crossOrigin="anonymous";l.href=u;d.head.appendChild(l)}var c=s.getItem("orbis.charts.v1");if(c&&c.length>2&&s.getItem("orbis.charts.active")||s.getItem("${SPACE_FLAG}"))r.setAttribute("data-returning","")}catch(e){}})();`;
+  return `(function(){try{var d=document,r=d.documentElement,s=localStorage,t=r.classList.contains("light")?"light":"dark",b=s.getItem("${BOOT_LOOK_KEY}."+t),g="astronomicon";if(b){b=JSON.parse(b);if(b&&typeof b.css==="string"){r.style.cssText+=";"+b.css.replace(/"Astronomicon"/g,'"Ulune Classic"');if(b.glyph)g=b.glyph}}var u=${urls}[g];if(u){var l=d.createElement("link");l.rel="preload";l.as="font";l.type="font/woff2";l.crossOrigin="anonymous";l.href=u;d.head.appendChild(l)}var c=s.getItem("orbis.charts.v1");if(c&&c.length>2&&s.getItem("orbis.charts.active")||s.getItem("${SPACE_FLAG}"))r.setAttribute("data-returning","");if(s.getItem("${TOUR_KEY}")==="done")r.setAttribute("${TOUR_DONE_ATTR}","")}catch(e){}})();`;
 }
 
 /**

@@ -959,32 +959,6 @@ html.theme-switching * {
   animation: ob-fade var(--dur-swap) var(--ease-out) both;
 }
 
-/* Empty state and the birth form on the stage. */
-.ob-empty {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 32px 16px;
-  text-align: center;
-}
-.ob-empty-title {
-  max-width: 28rem;
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 24px;
-  line-height: 1.15;
-  color: var(--color-fg);
-}
-.ob-empty-body {
-  max-width: 32rem;
-  margin: 0;
-  font-size: 14px;
-  color: var(--color-fg-muted);
-}
-
 .ulune-dock-scroll {
   flex: 1 1 auto;
   min-height: 0;
@@ -2254,12 +2228,11 @@ button.ob-wgrid-cell:hover,
 }
 
 /* A returning reader (charts kept on this device, src/lib/boot.ts): the
-   server's empty "New chart" form, and a mode's empty state, stay hidden
+   server's first screen (the form and the guide under it) stays hidden
    while the studio starts and brings back their chart (a private space that
    stays unlocked opens a moment after the app); the flag is lifted as soon
    as it has. */
-html[data-returning] .ob-stage--form > .ob-figure,
-html[data-returning] .ob-body-slot .ob-empty {
+html[data-returning] .ob-stage--form > .ob-figure {
   visibility: hidden;
 }
 
@@ -2662,4 +2635,391 @@ html[data-first-view] .ulune-wheel[data-entering] > [data-kind="aspect-marks"] {
 .ob-space-locks legend {
   margin-bottom: 2px;
   padding: 0;
+}
+
+/* ------------------------------------------------------- the first screen */
+
+/* The first stop for the keyboard (studio/shell/Shell.tsx): hidden until focused. */
+.ob-skip {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 60;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-fg);
+  color: var(--color-bg);
+  font-size: 14px;
+  font-weight: 500;
+  transform: translateY(-160%);
+}
+.ob-skip:focus {
+  transform: none;
+}
+#main:focus {
+  outline: none;
+}
+
+/* The form, the guide and the footer scroll as one page under the top bar. */
+.ob-stage--form .ob-figure > * {
+  flex-shrink: 0;
+}
+.ob-birth-mode {
+  margin: 0 0 4px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--color-fg);
+}
+.ob-birth--stage h1.ob-birth-title[data-first] {
+  font-size: 30px;
+  line-height: 1.1;
+}
+.ob-first-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+/* The tour's link goes once it was taken here (lib/tour: <html data-tour-done>). */
+html[data-tour-done] .ob-tour-link {
+  display: none;
+}
+.ob-noscript {
+  color: var(--color-fg);
+}
+
+/* The guide (components/first-screen/Guide.tsx), under the form and on /guide. */
+.ob-guide {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 8px 16px 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-fg);
+}
+.ob-guide-sec {
+  padding: 28px 0;
+  border-top: 1px solid var(--color-border);
+}
+.ob-guide-h {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--color-fg);
+}
+.ob-guide-p {
+  max-width: 68ch;
+  margin: 0;
+  text-wrap: pretty;
+}
+.ob-guide-note {
+  margin-top: 10px;
+  color: var(--color-fg-muted);
+}
+.ob-guide-modes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ob-guide-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ob-guide-mode-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+.ob-guide-mode-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--color-fg-muted);
+}
+.ob-guide-mode-body {
+  color: var(--color-fg-muted);
+  text-wrap: pretty;
+}
+@media (min-width: 640px) {
+  .ob-guide-modes {
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 28px;
+  }
+}
+.ob-guide-steps,
+.ob-guide-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 68ch;
+  margin: 0;
+  padding-left: 1.3em;
+}
+.ob-guide-steps {
+  list-style: decimal outside;
+}
+.ob-guide-list {
+  list-style: disc outside;
+}
+.ob-guide-steps li,
+.ob-guide-list li {
+  display: list-item;
+  padding-left: 2px;
+}
+.ob-guide-list li::marker,
+.ob-guide-steps li::marker {
+  color: var(--color-fg-subtle);
+}
+.ob-guide-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 10px 0 0;
+}
+.ob-guide-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-fg);
+  font: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.ob-guide-link:hover {
+  text-decoration-color: currentColor;
+}
+.ob-guide-faq {
+  display: flex;
+  flex-direction: column;
+}
+.ob-guide-qa {
+  border-bottom: 1px solid var(--color-border);
+}
+.ob-guide-qa:first-child {
+  border-top: 1px solid var(--color-border);
+}
+.ob-guide-qa > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 8px 0;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+.ob-guide-qa > summary::-webkit-details-marker {
+  display: none;
+}
+.ob-guide-qa > summary::after {
+  content: "+";
+  flex: 0 0 auto;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--color-fg-muted);
+}
+.ob-guide-qa[open] > summary::after {
+  content: "−";
+}
+.ob-guide-qa > .ob-guide-p {
+  padding: 0 0 14px;
+  color: var(--color-fg-muted);
+}
+
+/* The guide's own page. */
+.ob-guide-page {
+  padding: 24px 0 0;
+}
+.ob-guide-page-title {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 16px;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+.ob-guide-page-lead {
+  width: 100%;
+  max-width: 680px;
+  margin: 8px auto 16px;
+  padding: 0 16px;
+  color: var(--color-fg-muted);
+}
+
+/* The footer (components/first-screen/SiteFooter.tsx). */
+.ob-footer {
+  width: calc(100% - 32px);
+  max-width: 648px;
+  margin: 8px auto 0;
+  padding: 20px 0 calc(32px + var(--ob-safe-b, 0px));
+  border-top: 1px solid var(--color-border);
+  font-size: 14px;
+  color: var(--color-fg-muted);
+}
+.ob-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 18px;
+}
+.ob-footer-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--color-fg-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+.ob-footer-link:hover {
+  color: var(--color-fg);
+}
+.ob-footer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+.ob-footer-version {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-fg-subtle);
+}
+.ob-footer .ulune-seg {
+  width: 112px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* The tour (components/tour/Tour.tsx): a ring around what a step is about, a card beside it. */
+.ob-tour-ring {
+  position: fixed;
+  z-index: 70;
+  border: 2px solid var(--color-ring);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-bg) 70%, transparent);
+  pointer-events: none;
+}
+.ob-tour-ring[data-round] {
+  border-radius: 50%;
+}
+.ob-tour-ring[data-motion="on"] {
+  transition:
+    left 200ms var(--ease-out),
+    top 200ms var(--ease-out),
+    width 200ms var(--ease-out),
+    height 200ms var(--ease-out),
+    border-radius 200ms var(--ease-out);
+}
+.ob-tour-card {
+  position: fixed;
+  z-index: 71;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  padding: 16px 16px 10px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  box-shadow: 0 12px 32px color-mix(in oklab, #000 28%, transparent);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ob-tour-card:focus {
+  outline: none;
+}
+.ob-tour-card[data-edge] {
+  left: 12px;
+  right: 12px;
+  width: auto;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.ob-tour-card[data-edge="bottom"] {
+  bottom: calc(var(--ob-group-h) + var(--ob-safe-b, 0px) + 12px);
+}
+.ob-tour-card[data-edge="top"] {
+  top: calc(var(--ob-top-h) + 8px);
+}
+@media (min-width: 1024px) {
+  .ob-tour-card[data-edge="bottom"] {
+    bottom: 24px;
+  }
+}
+.ob-tour-count {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-fg-subtle);
+}
+.ob-tour-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.ob-tour-body {
+  margin: 0;
+  color: var(--color-fg-muted);
+  text-wrap: pretty;
+}
+.ob-tour-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 8px;
+  margin-top: 6px;
+}
+.ob-tour-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-left: auto;
+}
+.ob-tour-nav .ob-btn {
+  min-height: 40px;
+  padding: 0 14px;
+}
+.ob-tour-nav .ob-btn:not(.ob-btn--primary) {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+}
+.ob-tour-skip {
+  min-height: 40px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--color-fg-muted);
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.ob-tour-skip:hover {
+  color: var(--color-fg);
 }

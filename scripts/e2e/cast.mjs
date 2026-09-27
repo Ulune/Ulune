@@ -383,15 +383,16 @@ async function runViewport(width) {
 
     console.log(`${width} opening table`);
     await page.goto(`${DEV}/?studio=table`, { waitUntil: "domcontentloaded", timeout: 20000 });
-    // Until the table is up, the empty caster must never be seen (the space
-    // opens a moment after the app; the page waits for it).
+    // Until the table is up, the empty form (what a page without a chart
+    // shows) must never be seen (the space opens a moment after the app; the
+    // page waits for it).
     const flashed = await page.evaluate(
       () =>
         new Promise((resolve) => {
           const t0 = performance.now();
           const look = () => {
-            const empty = document.querySelector("[data-testid=studio-table-empty]");
-            if (empty && getComputedStyle(empty).visibility !== "hidden" && empty.getBoundingClientRect().height > 0) return resolve("empty shown");
+            const empty = document.querySelector("#cast-form[data-on-stage]");
+            if (empty && getComputedStyle(empty).visibility !== "hidden" && empty.getBoundingClientRect().height > 0) return resolve("empty form shown");
             if (document.querySelector("[data-testid=studio-table]")) return resolve("");
             if (performance.now() - t0 > 20000) return resolve("no table");
             requestAnimationFrame(look);
@@ -404,6 +405,9 @@ async function runViewport(width) {
 
     await page.goto(`${DEV}/`, { waitUntil: "load", timeout: 20000 });
     await page.waitForSelector("html.theme-ready", { timeout: 20000 });
+    // The rows come from the space a moment after the app: count them once the chart is back
+    // (as the table: the view just chosen is kept).
+    await page.locator("[data-testid=studio-natal], [data-testid=studio-table]").first().waitFor({ timeout: 20000 });
     const beforeRemove = await chipNames(page);
     await openPicker(page);
     await page.getByTestId("chart-remove").click();

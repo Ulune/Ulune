@@ -5,18 +5,8 @@ import { useI18n } from "@/lib/i18n/locale";
 import { dateFormat } from "@/lib/intl-cache";
 import { OPERATOR } from "@/lib/legal/operator";
 import type { NoticeBlock } from "@/lib/legal/privacy-notice";
-import type { CatalogKey } from "@/lib/i18n/catalog";
+import { LEGAL_LINKS } from "@/lib/legal/links";
 
-type LegalPath = "/privacy" | "/legal" | "/terms" | "/credits" | "/accessibility";
-
-/** The legal pages, in the order the links show them. */
-const LEGAL_LINKS: { to: LegalPath; label: CatalogKey; id: string }[] = [
-  { to: "/privacy", label: "legalPrivacy", id: "privacy" },
-  { to: "/legal", label: "legalNotice", id: "legal" },
-  { to: "/terms", label: "legalTerms", id: "terms" },
-  { to: "/credits", label: "legalCredits", id: "credits" },
-  { to: "/accessibility", label: "legalAccessibility", id: "accessibility" },
-];
 
 const TOKEN = /\[([^\]]+)\]\(((?:https:\/\/|\/)[^)\s]*)\)|\{name\}|\{contact\}/g;
 
