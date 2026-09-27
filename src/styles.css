@@ -2425,9 +2425,20 @@ html.light .ulune-wheel [data-cfg-type] {
   text-align: left;
   cursor: pointer;
 }
-.ob-glance-cell:hover,
 .ob-glance-cell.is-on {
   background: var(--color-bg-subtle);
+}
+/* A line with nothing to open (no aspect between the two Moons). */
+.ob-glance-cell--still {
+  cursor: default;
+}
+/* Hover only where there is a pointer (a tap left the cell lit on phones),
+   and the cell answers the chart: pointing at the Sun lights its line. */
+@media (hover: hover) {
+  .ob-glance-cell:not(.ob-glance-cell--still):hover,
+  .ob-glance-cell[data-previewed="1"] {
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-glance-glyph {
   display: grid;

@@ -18,7 +18,9 @@ function channelEl(svg: SVGSVGElement, gates: readonly [number, number]) {
 
 function isOn(el: Element | null): boolean {
   if (!el) return false;
-  return el.getAttribute("data-tone") !== "off";
+  // A hanging gate colours half its channel, but the channel is not defined.
+  const tone = el.getAttribute("data-tone");
+  return tone !== "off" && tone !== "hanging";
 }
 
 /** The id a bodygraph element answers to (`center:g`, `gate:34`, `channel:34–20`). */

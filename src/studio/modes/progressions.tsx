@@ -93,10 +93,11 @@ function ProgressionsFigure() {
       banner={progressions.error ? <p className="text-sm text-danger">{localizeError(progressions.error, locale, "couldNotCastProgressions")}</p> : null}
       footer={
         <div className="ulune-time-scrub" data-testid="progressions-scrub-band">
-          <p data-testid="progressions-scrub-readout" className="ulune-micro text-center text-fg-muted">
-            {dateFormat(locale === "fr" ? "fr-FR" : "en-GB", { dateStyle: "medium" }).format(
-              lifeMsFromYears(progressions.natalUtc, sliderYears),
-            )}
+          <p data-testid="progressions-scrub-readout" className="ulune-scrub-readout ulune-micro text-center text-fg-muted">
+            {dateFormat(locale === "fr" ? "fr-FR" : "en-GB", {
+              dateStyle: "medium",
+              timeZone: progressions.tz || undefined,
+            }).format(lifeMsFromYears(progressions.natalUtc, sliderYears))}
           </p>
           <div className="ulune-time-ticks" aria-hidden="true">
             {ticks.map((tick) => (
@@ -189,7 +190,12 @@ function ProgressionsHelloEmpty() {
     );
   }
   return (
-    <ProgressionsHello sky={progressions.shownSky} selectedId={w.selectedId} onSelect={w.pick} />
+    <ProgressionsHello
+      sky={progressions.shownSky}
+      natal={w.chart}
+      selectedId={w.selectedId}
+      onSelect={w.pick}
+    />
   );
 }
 

@@ -34,6 +34,11 @@ const CHROME = [".ob-strip", ".ob-foot"];
 const LEGEND_SIDE_MIN = 92;
 /** Free width at which that column also spells each aspect's name, px. */
 const LEGEND_NAMES_MIN = 176;
+/**
+ * Height the column needs beside the wheel (nine aspects and the menu), px:
+ * in a shorter box (a phone with the sheet open) it went above the stage.
+ */
+const LEGEND_SIDE_MIN_H = 320;
 /** The aside (the aspect grid) needs this much free margin right of the wheel, px. */
 const ASIDE_SIDE_MIN = 196;
 
@@ -280,7 +285,7 @@ export function WheelZoom({
     const port = portRef.current;
     const inner = innerRef.current;
     if (!port || !inner) return;
-    let last = { d: 0, x: 0, y: 0, w: 0 };
+    let last = { d: 0, x: 0, y: 0, w: 0, h: 0 };
     let frame = 0;
     const applySize = () => {
       const portRect = port.getBoundingClientRect();
@@ -296,15 +301,17 @@ export function WheelZoom({
       // The box's width counts too: the side panel opening or closing leaves a
       // height-bound wheel as it was, but the legend's margin changes.
       const w = Math.round(boxW(box));
+      const h = Math.round(boxH(box));
       if (
         Math.abs(d - last.d) < FIT_EPS &&
         Math.abs(x - last.x) < FIT_EPS &&
         Math.abs(y - last.y) < FIT_EPS &&
-        Math.abs(w - last.w) < FIT_EPS
+        Math.abs(w - last.w) < FIT_EPS &&
+        Math.abs(h - last.h) < FIT_EPS
       ) {
         return;
       }
-      last = { d, x, y, w };
+      last = { d, x, y, w, h };
       fitRef.current = { x, y };
       // The legend takes the free margin left of the wheel when it is wide
       // enough (a wide stage); otherwise it goes to the footer.
@@ -319,6 +326,7 @@ export function WheelZoom({
       const or = outer?.getBoundingClientRect();
       setLegendAt((cur) => {
         if (!or || side < (cur ? LEGEND_SIDE_MIN - 8 : LEGEND_SIDE_MIN)) return null;
+        if (h + stripH < (cur ? LEGEND_SIDE_MIN_H - 8 : LEGEND_SIDE_MIN_H)) return null;
         // Bottom-left, level with the wheel's foot: the circle leaves that
         // corner free (the ASC's label sits at mid-height on the left).
         const foot = Math.min(box.b, (box.t + box.b) / 2 + d / 2);

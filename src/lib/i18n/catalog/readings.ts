@@ -26,6 +26,7 @@ export const readings = {
     "Rédaction de votre lecture. Comptez une trentaine de secondes.",
   ],
   composeWithAi: ["Compose with {name}", "Rédiger avec {name}"],
+  compositeGlanceTitle: ["The relationship at a glance", "La relation en un coup d’œil"],
   glanceElements: ["Elements", "Éléments"],
   glanceHint: [
     "Tap anything on the wheel, or a line here, to read it.",
@@ -51,4 +52,6 @@ export const readings = {
   readingOpen: ["Open its reading", "Ouvrir sa lecture"],
   readingShort: ["Short", "Court"],
   rewritingReading: ["Rewriting your reading in this language…", "Réécriture de votre lecture dans cette langue…"],
+  synastryGlanceTitle: ["Where your charts meet", "Là où vos thèmes se rencontrent"],
+  transitGlanceTitle: ["Closest transits", "Les transits les plus serrés"],
 } as const satisfies Record<string, readonly [string, string]>;

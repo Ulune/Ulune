@@ -467,6 +467,12 @@ export function bodyLabel(id: string, locale: Locale): string {
   return id;
 }
 
+/** The name alone, for titles: "Soleil", "Ascendant" (French drops its article). */
+export function bodyBare(id: string, locale: Locale): string {
+  if (locale !== "fr") return bodyLabel(id, locale);
+  return nomOf(id)?.name ?? bodyLabel(id, locale);
+}
+
 /** Compact natal/transit cell: ASC / MC / DSC / IC, else the usual body name. */
 export function bodyTableLabel(id: string, locale: Locale): string {
   if (id in ANGLE_ABBR) return ANGLE_ABBR[id as AngleId];

@@ -45,17 +45,17 @@ const GATE_XY: Record<number, [number, number]> = {
   12: [222, 216],
   35: [226, 190],
   // G (diamond)
-  7: [158, 278],
-  1: [180, 274],
-  13: [202, 278],
+  7: [156, 280],
+  1: [180, 272],
+  13: [204, 280],
   10: [144, 310],
-  25: [216, 310],
+  25: [212, 310],
   15: [158, 342],
   2: [180, 348],
   46: [202, 342],
   // Heart (right triangle)
   21: [246, 286],
-  51: [236, 310],
+  51: [238, 314],
   26: [246, 334],
   40: [268, 322],
   // Spleen (right triangle)
@@ -77,9 +77,9 @@ const GATE_XY: Record<number, [number, number]> = {
   3: [180, 454],
   42: [202, 448],
   // Solar Plexus (left triangle)
-  36: [274, 286],
-  22: [252, 312],
-  37: [252, 348],
+  36: [284, 278],
+  22: [262, 296],
+  37: [262, 354],
   6: [252, 384],
   49: [288, 400],
   55: [302, 424],
@@ -312,7 +312,8 @@ export function HumanDesignGraph({
         const mixed = Boolean(on && live?.mixed);
         const selected = selectedId === `channel:${ch.id}`;
         const mid: [number, number] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-        const tone = !on ? "off" : mixed ? "mixed" : live?.design && !live.personality ? "design" : "personality";
+        const hanging = !on && (t0 !== "off" || t1 !== "off");
+        const tone = !on ? (hanging ? "hanging" : "off") : mixed ? "mixed" : live?.design && !live.personality ? "design" : "personality";
         const seg = (tn: GateTone, x1: number, y1: number, x2: number, y2: number, key: string) => (
           <g key={key}>
             <line className={strokeClass(tn === "both" ? "personality" : tn)} x1={x1} y1={y1} x2={x2} y2={y2} pathLength={1} data-draw="" />
@@ -334,7 +335,12 @@ export function HumanDesignGraph({
           >
             <line className="hd-hit" x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} />
             {!on ? (
-              <line className="is-off" x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} pathLength={1} data-draw="" />
+              <>
+                <line className="is-off" x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} pathLength={1} data-draw="" />
+                {/* A hanging gate (its partner not activated) draws its own half, in its colour. */}
+                {t0 !== "off" ? seg(t0, a[0], a[1], mid[0], mid[1], "ha") : null}
+                {t1 !== "off" ? seg(t1, mid[0], mid[1], b[0], b[1], "hb") : null}
+              </>
             ) : mixed ? (
               <>
                 {seg(t0, a[0], a[1], mid[0], mid[1], "a")}

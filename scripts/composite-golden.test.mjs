@@ -10,6 +10,7 @@ import {
   compositeMajors,
 } from "../src/lib/chart/composite.ts";
 import { helloCells, NATAL_HELLO } from "../src/lib/i18n/natal-hello.ts";
+import { compositeLine, compositeTitle } from "../src/lib/i18n/mode-hello.ts";
 import {
   compositeMethodLabel,
   compositeReadingEmpty,
@@ -201,6 +202,18 @@ test("Paris 14:30 / 12:00 midpoint composite matches Swiss-derived longs to 1′
   assert.equal(cells[0]?.sentence, "Your core identity: what you are aiming to become and where you want to shine.");
   assert.equal(cells[1]?.sentence, "Your emotional needs: what makes you feel safe and how you react under stress.");
   assert.equal(cells[2]?.sentence, "Your rising sign: how you come across and how you approach anything new.");
+
+  // The Composite panel speaks of the pair, not of one person.
+  assert.equal(compositeTitle("sun", "en"), "Composite Sun");
+  assert.equal(compositeTitle("moon", "fr"), "Lune composite");
+  assert.equal(
+    compositeLine("sun", { sign: "sagittarius" }, "en", "optimistic, frank and adventurous"),
+    "What the relationship is for: what the two of you build and show together. In Sagittarius: optimistic, frank and adventurous.",
+  );
+  assert.equal(
+    compositeLine("moon", { sign: "aquarius" }, "fr", ""),
+    "Son climat affectif\u202f: ce qui vous fait vous sentir chez vous, ensemble.",
+  );
 
   assert.equal(compositeMethodLabel("en"), "Midpoint composite");
   assert.equal(compositeReadingEmpty("en"), "Tap a body or an aspect in the wheel.");

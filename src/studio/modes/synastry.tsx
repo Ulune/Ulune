@@ -126,6 +126,7 @@ function SynastryHelloEmpty() {
   return (
     <SynastryHello
       a={synastry.inner}
+      b={synastry.chartB ?? undefined}
       majors={synastry.synastry?.majors ?? []}
       selectedId={w.selectedId}
       onSelect={w.pick}

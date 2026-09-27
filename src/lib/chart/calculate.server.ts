@@ -33,6 +33,8 @@ import {
 import {
   isProgressionTablePair,
   lifeExactIso,
+  NAIBOD_DEG_PER_YEAR,
+  progressedArmc,
   progressedUtcFromNatal,
   TROPICAL_YEAR_DAYS,
   yearsOfLife,
@@ -500,6 +502,80 @@ function angleLonAt(
   return wrap360(mc + 180);
 }
 
+/** Ascendant, Midheaven and Vertex for an ARMC, as Swiss's house code gives them. */
+function ascmcFromArmc(
+  swe: SwissEPH,
+  armc: number,
+  latitude: number,
+  eps: number,
+  houseSystem: HouseSystemId,
+): { asc: number; mc: number; vertex: number } {
+  const attempt = (id: HouseSystemId) => {
+    try {
+      const raw = swe.swe_houses_armc(wrap360(armc), latitude, eps, HOUSE_SYSTEM_SWE[id]) as SweHouses;
+      const asc = wrap360(Number(raw.ascmc[0]));
+      const mc = wrap360(Number(raw.ascmc[1]));
+      const vertex = wrap360(Number(raw.ascmc[3]));
+      return Number.isFinite(asc) && Number.isFinite(mc) && Number.isFinite(vertex) ? { asc, mc, vertex } : null;
+    } catch {
+      return null;
+    }
+  };
+  const got = attempt(houseSystem) ?? (houseSystem !== POLAR_FALLBACK_SYSTEM ? attempt(POLAR_FALLBACK_SYSTEM) : null);
+  if (!got) throw new Error("E:chart.houses.failed");
+  return got;
+}
+
+type ProgressedAngles = {
+  asc: number;
+  mc: number;
+  vertex: number;
+  /** Degrees per year of life (a day of the ephemeris), as for the bodies. */
+  ascSpeed: number;
+  mcSpeed: number;
+  vertexSpeed: number;
+};
+
+/**
+ * The progressed Ascendant, Midheaven and Vertex at the birthplace: the
+ * progressed ARMC (the Naibod arc, see `progressedArmc`) with the true
+ * obliquity of the progressed moment; speeds from an hour of the ephemeris
+ * later, like the bodies'.
+ */
+function progressedAnglesAt(
+  swe: SwissEPH,
+  ut: number,
+  years: number,
+  latitude: number,
+  longitude: number,
+  houseSystem: HouseSystemId,
+): ProgressedAngles {
+  const eps = trueObliquity(swe, ut);
+  if (eps == null) throw new Error("E:chart.houses.failed");
+  const armc = progressedArmc(wrap360(swe.swe_sidtime(ut) * 15 + longitude), years);
+  const now = ascmcFromArmc(swe, armc, latitude, eps, houseSystem);
+  const later = ascmcFromArmc(swe, armc + NAIBOD_DEG_PER_YEAR / 24, latitude, eps, houseSystem);
+  return {
+    ...now,
+    ascSpeed: wrap180(later.asc - now.asc) * 24,
+    mcSpeed: wrap180(later.mc - now.mc) * 24,
+    vertexSpeed: wrap180(later.vertex - now.vertex) * 24,
+  };
+}
+
+function progressedLon(p: ProgressedAngles, id: AngleId | "vertex"): { lon: number; speed: number } {
+  if (id === "vertex") return { lon: p.vertex, speed: p.vertexSpeed };
+  if (id === "ascendant") return { lon: p.asc, speed: p.ascSpeed };
+  if (id === "descendant") return { lon: wrap360(p.asc + 180), speed: p.ascSpeed };
+  if (id === "midheaven") return { lon: p.mc, speed: p.mcSpeed };
+  return { lon: wrap360(p.mc + 180), speed: p.mcSpeed };
+}
+
+/**
+ * Longitude and speed of a body `days` of the ephemeris after `origin`. With
+ * `progressedYears` (the years of life at `origin`), the angles and the
+ * Vertex are the progressed ones; otherwise the sky's own.
+ */
 function lonAtFor(
   swe: SwissEPH,
   origin: Date,
@@ -508,7 +584,18 @@ function lonAtFor(
   latitude: number,
   longitude: number,
   houseSystem: HouseSystemId,
+  progressedYears?: number,
 ): ((days: number) => { lon: number; speed: number }) | null {
+  const isAngle = id === "ascendant" || id === "midheaven" || id === "descendant" || id === "ic";
+  if (progressedYears != null && (isAngle || id === "vertex")) {
+    return (days: number) => {
+      const ut = jdUt(swe, new Date(origin.getTime() + days * 86_400_000));
+      return progressedLon(
+        progressedAnglesAt(swe, ut, progressedYears + days, latitude, longitude, houseSystem),
+        id as AngleId | "vertex",
+      );
+    };
+  }
   if (id === "vertex") {
     return (days: number) => {
       const at = new Date(origin.getTime() + days * 86_400_000);
@@ -517,7 +604,7 @@ function lonAtFor(
       return { lon, speed: wrap180(later - lon) * 24 };
     };
   }
-  if (id === "ascendant" || id === "midheaven" || id === "descendant" || id === "ic") {
+  if (isAngle) {
     return (days: number) => {
       const at = new Date(origin.getTime() + days * 86_400_000);
       const lon = angleLonAt(swe, at, id, latitude, longitude, houseSystem);
@@ -1081,6 +1168,7 @@ function attachProgressedExacts(
   swe: SwissEPH,
   progressedOrigin: Date,
   targetUtc: Date,
+  years: number,
   flag: number,
   latitude: number,
   longitude: number,
@@ -1101,7 +1189,7 @@ function attachProgressedExacts(
     if (!isProgressionTablePair(next, pos)) {
       return { ...next, exactUtc: next.exactUtc ?? null };
     }
-    const lonAt = lonAtFor(swe, progressedOrigin, link.a, flag, latitude, longitude, houseSystem);
+    const lonAt = lonAtFor(swe, progressedOrigin, link.a, flag, latitude, longitude, houseSystem, years);
     if (!lonAt || natalEcl == null) return { ...next, applying: false, exactUtc: null };
     try {
       const days = findExactDays({
@@ -1124,7 +1212,9 @@ function attachProgressedExacts(
 
 /**
  * Secondary progressions (day-for-a-year). Swiss tropical, true node, osculating
- * Lilith. Progressed UT = natal UT + (target − birth) / 365.24219.
+ * Lilith. Progressed UT = natal UT + (target − birth) / 365.24219. The angles
+ * and the Vertex advance at the Naibod rate in right ascension (0°59′08″ a
+ * year of life), with the houses of the birthplace.
  * Exact dates are life-calendar moments — never invented if the pass will not lock to 1′.
  */
 export async function calculateProgressions(input: {
@@ -1150,6 +1240,7 @@ export async function calculateProgressions(input: {
 
   const swe = await withEngine((s) => s);
   const progressed = progressedUtcFromNatal(natalUtc, targetUtc);
+  const years = yearsOfLife(natalUtc, targetUtc);
   const timezone = (await zoneAt(input.latitude, input.longitude)).zone;
   const requested =
     input.houseSystem && (HOUSE_SYSTEM_IDS as readonly string[]).includes(input.houseSystem)
@@ -1162,25 +1253,19 @@ export async function calculateProgressions(input: {
   const collected = collectSwissBodies(swe, ut, flag, cuspEcl);
   const planets = collected.planets;
 
+  // The system the houses can be built with here (Porphyry inside the polar
+  // circles); the progressed angles and Vertex come from the Naibod ARMC.
   const frame = housesAt(swe, ut, input.latitude, input.longitude, requested);
   const houseSystem = frame.houseSystem;
-  const vertexEcl = wrap360(Number(frame.raw.ascmc[3]));
+  const prog = progressedAnglesAt(swe, ut, years, input.latitude, input.longitude, houseSystem);
+  const vertexEcl = prog.vertex;
   planets.push(makePlacement("vertex", vertexEcl, houseFromCusps(vertexEcl, cuspEcl), false));
   planets.sort((a, b) => PLANET_IDS.indexOf(a.id as PlanetId) - PLANET_IDS.indexOf(b.id as PlanetId));
 
-  const laterFrame = housesAt(
-    swe,
-    jdUt(swe, new Date(progressed.getTime() + 3_600_000)),
-    input.latitude,
-    input.longitude,
-    houseSystem,
-  );
-  const ascEcl = wrap360(Number(frame.raw.ascmc[0]));
-  const mcEcl = wrap360(Number(frame.raw.ascmc[1]));
-  const laterAsc = wrap360(Number(laterFrame.raw.ascmc[0]));
-  const laterMc = wrap360(Number(laterFrame.raw.ascmc[1]));
-  const ascSpeed = wrap180(laterAsc - ascEcl) * 24;
-  const mcSpeed = wrap180(laterMc - mcEcl) * 24;
+  const ascEcl = prog.asc;
+  const mcEcl = prog.mc;
+  const ascSpeed = prog.ascSpeed;
+  const mcSpeed = prog.mcSpeed;
   const dscEcl = wrap360(ascEcl + 180);
   const icEcl = wrap360(mcEcl + 180);
   // Progressed angles are housed against the natal cusps, same rule as bodies.
@@ -1199,6 +1284,7 @@ export async function calculateProgressions(input: {
     swe,
     progressed,
     targetUtc,
+    years,
     flag,
     input.latitude,
     input.longitude,
@@ -1220,7 +1306,7 @@ export async function calculateProgressions(input: {
       longitude: input.longitude,
       tropicalYearDays: TROPICAL_YEAR_DAYS,
       method: "secondary",
-      yearsOfLife: yearsOfLife(natalUtc, targetUtc),
+      yearsOfLife: years,
       houseSystem,
       ...(frame.requested === houseSystem ? {} : { houseSystemRequested: frame.requested }),
       ...(collected.warnings.length ? { warnings: collected.warnings } : {}),

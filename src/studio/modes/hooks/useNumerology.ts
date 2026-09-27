@@ -19,8 +19,9 @@ export function useNumerology() {
   const named = Boolean(numbers?.name);
   // The readings come with the numerology text (its own download).
   const pack = usePack("num", locale, enabled);
+  // With nothing chosen, the Life Path's reading: the panel is never empty here.
   const reading = useMemo(
-    () => (numbers && pack ? pack.numerologyReading(numbers, selectedId, locale) : null),
+    () => (numbers && pack ? pack.numerologyReading(numbers, selectedId ?? "core:lifepath", locale) : null),
     [numbers, pack, selectedId, locale],
   );
   return useMemo(() => ({ numbers, named, reading, enabled }), [numbers, named, reading, enabled]);

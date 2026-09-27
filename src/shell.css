@@ -1293,6 +1293,15 @@ html.theme-switching * {
     flex: 1 0 auto;
     aspect-ratio: 1;
   }
+  /* With the sheet open, the wheel left above it is small (the Chart / Both
+     switch and the time band covered it): the switch waits for the sheet to
+     fold, and the time band keeps only its slider (the date stays in the bar
+     above). */
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) .ulune-biwheel > .ulune-aspect-layer,
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) .ulune-biwheel-footer :is(.ulune-time-scrub-head, .ulune-time-ticks, .ulune-scrub-readout),
+  .ob-body:has(.ob-panel:not([data-detent="peek"])):has(.ulune-biwheel-footer) .ob-aspect-slot {
+    display: none;
+  }
 }
 
 /* The footer row fits narrow screens (Share fell off at 390 px with − and +,

@@ -104,6 +104,10 @@ export const guide = {
     "Ten house systems, Placidus by default. When the method has to change, a note under the chart says so: Porphyry houses inside the polar circles, for example.",
     "Dix systèmes de maisons, Placidus par défaut. Quand la méthode doit changer, une note sous le thème le dit : les maisons de Porphyre dans les cercles polaires, par exemple.",
   ],
+  guidePreciseProgressions: [
+    "Progressions: a day for a year, the angles advancing at the Naibod rate (0°59′08″ of right ascension a year).",
+    "Progressions\u202f: un jour pour une année, les angles avançant au rythme de Naibod (0°59′08″ d’ascension droite par an).",
+  ],
   guidePrecise4: ["Ulune’s code is public, under the GNU AGPL.", "Le code d’Ulune est public, sous licence GNU AGPL."],
   guideSource: ["Source code", "Code source"],
   guideFaqTitle: ["Questions", "Questions"],

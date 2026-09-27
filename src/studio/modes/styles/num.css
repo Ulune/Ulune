@@ -49,9 +49,35 @@
   line-height: 1;
   transform: translate(-50%, -50%);
 }
-.ulune-num-digit.is-life {
+.ulune-num-digit.is-life,
+.ulune-num-digit.is-core {
   border-color: var(--color-fg);
   color: var(--color-fg);
+}
+/* Which core numbers fall on this digit: under it on the lower half of the
+   ring, above it on the upper half, so the words stay inside the ring. */
+.ulune-num-digit-cores {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 2px);
+  width: max-content;
+  max-width: 9.5rem;
+  transform: translateX(-50%);
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--color-fg-muted);
+  /* The rings run under the labels: a patch of the page's colour keeps them clear. */
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--color-bg);
+  pointer-events: none;
+}
+.ulune-num-digit-cores[data-below] {
+  top: calc(100% + 2px);
+  bottom: auto;
 }
 .ulune-num-digit.is-active {
   color: var(--color-fg);

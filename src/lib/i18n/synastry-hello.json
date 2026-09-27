@@ -21,8 +21,8 @@
     }
   },
   "cells": [
-    { "id": "sun", "label": "Sun", "labelFr": "Soleil" },
-    { "id": "moon", "label": "Moon", "labelFr": "Lune" },
-    { "id": "ascendant", "label": "Ascendant", "labelFr": "Ascendant" }
+    { "id": "sun", "label": "The two Suns", "labelFr": "Les deux Soleils" },
+    { "id": "moon", "label": "The two Moons", "labelFr": "Les deux Lunes" },
+    { "id": "ascendant", "label": "The two Ascendants", "labelFr": "Les deux Ascendants" }
   ]
 }

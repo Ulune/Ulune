@@ -46,18 +46,51 @@
   line-height: 1.15;
   color: var(--color-fg);
 }
+/* On a phone the three stay side by side, smaller, so the bodygraph keeps
+   the height (stacked, they took a third of the screen). */
 @media (max-width: 640px) {
   .ulune-hd-mast {
-      grid-template-columns: 1fr;
-      gap: var(--space-2);
-    }
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .ulune-hd-mast-k {
+    font-size: 0.625rem;
+  }
+  .ulune-hd-mast-v {
+    font-size: 0.9375rem;
+  }
+}
+/* Held upright with the sheet folded, the bodygraph takes the whole width
+   and the stage scrolls, like the wheels (shell.css). */
+@media (max-width: 1023.98px) and (orientation: portrait) {
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-stage:has(.ulune-hd-depth) {
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-figure:has(.ulune-hd-depth) {
+    flex: 1 0 auto;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ulune-hd-figure {
+    flex: 1 0 auto;
+    height: auto;
+    overflow: visible;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ulune-depth.ulune-hd-depth {
+    flex: 0 0 auto;
+    width: min(100%, 36rem);
+    max-height: none;
+  }
 }
 .ulune-hd-sky,
 .ulune-hd-svg {
   --hd-personality: var(--color-fg);
   --hd-design: oklch(0.62 0.19 26);
-  --hd-open: transparent;
-  --hd-center-fill: color-mix(in oklab, var(--color-fg) 14%, transparent);
+  --hd-open: var(--color-bg);
+  /* A defined centre is filled, in the gold of the chart's halo: it reads at
+     a glance against the open ones, and the black, white and red gates on
+     its rim stay clear on it. */
+  --hd-center-fill: color-mix(in oklab, var(--color-halo) 72%, var(--color-bg));
+  --hd-center-edge: var(--color-halo);
 }
 .ulune-hd-control {
   min-width: 0;
@@ -120,7 +153,8 @@ html.light .ulune-hd-svg {
   stroke-width: 6;
 }
 .ulune-hd-center {
-  fill: transparent;
+  /* Open centres are the page's colour: channels end at their edge. */
+  fill: var(--hd-open);
   stroke: color-mix(in oklab, var(--color-fg) 30%, transparent);
   stroke-width: 1;
   cursor: pointer;
@@ -143,7 +177,7 @@ html.light .ulune-hd-svg {
 }
 .ulune-hd-center[data-defined] {
   fill: var(--hd-center-fill);
-  stroke: var(--color-fg);
+  stroke: var(--hd-center-edge);
 }
 .ulune-hd-center.is-selected,
 .ulune-hd-center:focus-visible {
@@ -283,8 +317,11 @@ html.light .ulune-hd-svg {
 /* Bodygraph in its depth scene: the scene takes the figure's old box
    (as tall as the stage, as wide as the bodygraph's proportions allow). */
 .ulune-depth.ulune-hd-depth {
-  flex: 0 0 auto;
-  height: 100%;
+  /* Whatever height the stage has left under the type, strategy and
+     authority (it used to take the whole height and run off the bottom). */
+  flex: 1 1 0;
+  min-height: 0;
+  height: auto;
   max-height: 100%;
   width: auto;
   aspect-ratio: 360 / 580;
@@ -319,7 +356,8 @@ html.light .ulune-hd-svg {
   stroke: var(--color-fg);
 }
 .ulune-hd-svg.ulune-relief-top[data-kind="center"] .ulune-hd-center[data-defined] {
-  fill: color-mix(in oklab, var(--color-fg) 14%, var(--color-bg));
+  fill: var(--hd-center-fill);
+  stroke: var(--hd-center-edge);
 }
 .ulune-hd-svg.ulune-relief-top[data-kind="channel"] .ulune-hd-channel line:not(.hd-hit):not(.is-off) {
   stroke-width: 5.5;

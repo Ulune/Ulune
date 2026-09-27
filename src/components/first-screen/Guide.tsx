@@ -111,6 +111,7 @@ export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () =
           <li>{t("guidePrecise1")}</li>
           <li>{t("guidePrecise2")}</li>
           <li>{t("guidePrecise3")}</li>
+          <li>{t("guidePreciseProgressions")}</li>
           <li>{t("guidePrecise4")}</li>
         </ul>
         <p className="ob-guide-links">

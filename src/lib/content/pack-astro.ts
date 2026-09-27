@@ -15,4 +15,5 @@ export {
   timingExactReading,
 } from "@/lib/chart/interpret-timing";
 export { withClickNote } from "@/lib/i18n/click-notes";
+export { signKeywords } from "@/lib/chart/plain";
 export { dumpChartForPrompt } from "@/lib/chart/dump";

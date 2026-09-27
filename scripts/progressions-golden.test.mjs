@@ -11,6 +11,8 @@ import { ANGLE_ASPECT_ORBS, aspectOrb } from "../src/lib/chart/constants.ts";
 import {
   isProgressionTablePair,
   lifeExactIso,
+  NAIBOD_DEG_PER_YEAR,
+  progressedArmc,
   progressedUtcFromNatal,
   progressionRowTestId,
   TROPICAL_YEAR_DAYS,
@@ -18,6 +20,7 @@ import {
 } from "../src/lib/chart/progressions.ts";
 import { applyingFromExactDays, residualForType } from "../src/lib/chart/transit-exact.ts";
 import { helloCells, NATAL_HELLO } from "../src/lib/i18n/natal-hello.ts";
+import { progressedLine, progressedTitle } from "../src/lib/i18n/mode-hello.ts";
 import {
   progressionClockLabel,
   progressionMethodLabel,
@@ -46,7 +49,12 @@ const NATAL_LON = {
   ascendant: 182.465211,
 };
 
-/** Frozen tropical longitudes at the secondary progressed UT (SEFLG_SWIEPH). */
+/**
+ * Frozen tropical longitudes at the secondary progressed UT (SEFLG_SWIEPH).
+ * The angles advance at the Naibod rate in right ascension; these two agree
+ * within 1″ with an independent calculation (Meeus's sidereal time and
+ * nutation, the textbook Midheaven and Ascendant formulas).
+ */
 const FROZEN = {
   sun: 118.684889,
   moon: 113.345879,
@@ -60,8 +68,8 @@ const FROZEN = {
   pluto: 224.973749,
   northnode: 307.263656,
   lilith: 257.796852,
-  ascendant: 262.531754,
-  midheaven: 203.018118,
+  ascendant: 208.356328,
+  midheaven: 126.674605,
 };
 
 function natalBodies(natal) {
@@ -109,6 +117,32 @@ test("Hello copy is natal-hello.json exactly", () => {
   assert.equal(cells[0].sentence, "Your core identity: what you are aiming to become and where you want to shine.");
   assert.equal(cells[1].sentence, "Your emotional needs: what makes you feel safe and how you react under stress.");
   assert.equal(cells[2].sentence, "Your rising sign: how you come across and how you approach anything new.");
+});
+
+test("the Progressions panel says what progressed, not the natal meanings", () => {
+  assert.equal(progressedTitle("sun", "en"), "Progressed Sun");
+  assert.equal(progressedTitle("moon", "fr"), "Lune progressée");
+  assert.equal(progressedTitle("ascendant", "fr"), "Ascendant progressé");
+  const at = (sign, signDegree, speed) => ({ id: "sun", sign, signDegree, speed });
+  // Changed sign: since when, and when it moves on.
+  assert.equal(
+    progressedLine(at("aquarius", 7.6, 1.017), at("capricorn", 10.4, 1.01), 26.74, "en"),
+    "In Aquarius since about age 19; in Capricorn at birth. Moves into Pisces at about age 49.",
+  );
+  // Still in its birth sign, moving on within two years: in months.
+  assert.equal(
+    progressedLine(at("capricorn", 29.5, 1.017), at("capricorn", 10.4, 1.01), 19, "en"),
+    "In Capricorn, as at birth. Moves into Aquarius in about 6 months.",
+  );
+  // The Moon back in its birth sign after going round.
+  assert.equal(
+    progressedLine(at("scorpio", 6.5, 12.2), at("scorpio", 13.3, 13), 26.74, "fr"),
+    "De retour en Scorpion, son signe de naissance, depuis l’âge de 26\u00a0ans environ. Entre en Sagittaire dans 23\u00a0mois environ.",
+  );
+  assert.equal(
+    progressedLine(at("aquarius", 7.6, 1.017), at("capricorn", 10.4, 1.01), 26.74, "fr"),
+    "En Verseau depuis l’âge de 19\u00a0ans environ\u202f; en Capricorne à la naissance. Entre en Poissons vers 49\u00a0ans.",
+  );
 });
 
 test("planet-to-angle majors use 6° trine and 4° sextile", () => {
@@ -290,10 +324,71 @@ test("progressed angles are housed from the natal cusps, not a hardcoded 1/10/7/
     assert.equal(p.house, houseFromCusps(p.ecliptic, cusps), `progressed ${p.id} house`);
   }
 
-  // The progressed ASC has moved ~107° off the natal ASC in 36 years, so it is
-  // emphatically not in house 1 any more — the old hardcoded 1 was wrong.
+  // The progressed ASC has left the natal first sign in 36 years, so it is
+  // not in house 1 any more — the old hardcoded 1 was wrong.
   assert.notEqual(sky.angles.ascendant.house, 1);
   assert.equal(wrap360(sky.angles.descendant.ecliptic - sky.angles.ascendant.ecliptic).toFixed(6), "180.000000");
+});
+
+test("progressed angles advance at the Naibod rate in right ascension", async () => {
+  const natal = await calculateNatal({ ...PARIS, date: "1990-06-15", time: "14:30" });
+  const natalUtc = new Date(natal.meta.utc);
+  const at = (iso) =>
+    calculateProgressions({
+      natalUtc,
+      targetUtc: new Date(iso),
+      latitude: natal.meta.latitude,
+      longitude: natal.meta.longitude,
+      natalCusps: natal.houses.map((h) => h.ecliptic),
+      natalBodies: natalBodies(natal),
+      houseSystem: natal.meta.houseSystem,
+    });
+  // Right ascension of a point on the ecliptic; the obliquity of the 1990s is
+  // close enough for differences (they barely depend on it).
+  const R = Math.PI / 180;
+  const eps = 23.4405;
+  const ra = (lon) => wrap360(Math.atan2(Math.sin(lon * R) * Math.cos(eps * R), Math.cos(lon * R)) / R);
+  const arc = (a, b) => ((b - a) % 360 + 360) % 360;
+
+  const a = await at("2026-01-10T00:00:00.000Z");
+  const b = await at("2026-07-10T00:00:00.000Z");
+  const years = b.meta.yearsOfLife - a.meta.yearsOfLife;
+  const rate = arc(ra(a.angles.midheaven.ecliptic), ra(b.angles.midheaven.ecliptic));
+  assert.ok(
+    Math.abs(rate - NAIBOD_DEG_PER_YEAR * years) * 3600 < 2,
+    `MC moved ${rate}° of right ascension in ${years} years`,
+  );
+  const fromBirth = arc(ra(natal.angles.midheaven.ecliptic), ra(a.angles.midheaven.ecliptic));
+  assert.ok(
+    Math.abs(fromBirth - NAIBOD_DEG_PER_YEAR * a.meta.yearsOfLife) * 3600 < 15,
+    `MC ${fromBirth}° of right ascension from birth in ${a.meta.yearsOfLife} years`,
+  );
+  // Half a year moves the Ascendant under a degree, never round the zodiac
+  // (houses cast at the progressed moment itself turned it once a year).
+  const asc = wrap360(b.angles.ascendant.ecliptic - a.angles.ascendant.ecliptic);
+  assert.ok(asc > 0.1 && asc < 1.5, `ASC moved ${asc}° in half a year`);
+  for (const sky of [a, b]) {
+    const speed = sky.angles.ascendant.speed;
+    assert.ok(speed > 0.1 && speed < 3, `ASC speed ${speed}° a year`);
+    assert.equal(sky.angles.ascendant.retrograde, false);
+  }
+
+  // Their exact dates lock: at the date given, the aspect is within 1′.
+  const angleExacts = [a, b]
+    .flatMap((sky) => sky.aspects)
+    .filter((x) => ["ascendant", "midheaven", "descendant", "ic"].includes(x.a) && x.exactUtc);
+  assert.ok(angleExacts.length > 0, "expected a progressed angle aspect with an exact date");
+  for (const x of angleExacts.slice(0, 3)) {
+    const there = await at(x.exactUtc);
+    const pair = there.aspects.find((y) => y.a === x.a && y.b === x.b && y.type === x.type);
+    assert.ok(pair && pair.orb <= 1 / 60 + 1e-6, `${x.id} at ${x.exactUtc}: orb ${pair?.orb}`);
+    const years = (Date.parse(x.exactUtc) - Date.parse(a.meta.targetUtc)) / (TROPICAL_YEAR_DAYS * 86_400_000);
+    assert.ok(Math.abs(years) < 60, `${x.id} exact ${years} years away`);
+  }
+
+  assert.equal(progressedArmc(100, 3), 100);
+  assert.equal(progressedArmc(100, 3.25), 10);
+  assert.equal(progressedArmc(10, 0.5), 190);
 });
 
 test("a polar progression falls back rather than failing", async () => {

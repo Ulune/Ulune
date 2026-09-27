@@ -15,6 +15,7 @@
  */
 import { computeCrossAspects, houseFromCusps, wrap180, wrap360 } from "./anatomy";
 import { makePlacement } from "./placement";
+import { NAIBOD_DEG_PER_YEAR, progressedArmc } from "./progressions";
 import type { AngleId, BodyId, Placement, PlanetId, ProgressedSky, TransitSky } from "./types";
 import { PLANET_IDS } from "./types";
 
@@ -189,13 +190,18 @@ export function armcAt(win: SkyWindow, ms: number, longitude: number): { armc: n
   return { armc: wrap360(f.st + longitude), eps: f.eps };
 }
 
-/** The transit sky's bodies at `ms` (Swiss bodies in the server's order, then the Vertex). */
+/**
+ * The transit sky's bodies at `ms` (Swiss bodies in the server's order, then
+ * the Vertex). With `years` (of life, for a progressed moment) the Vertex is
+ * the progressed one, from the Naibod ARMC as the server builds it.
+ */
 function transitPlanets(
   win: SkyWindow,
   ms: number,
   latitude: number,
   longitude: number,
   cusps: number[],
+  years?: number,
 ): Placement[] | null {
   const planets: Placement[] = [];
   for (const id of PLANET_IDS) {
@@ -206,7 +212,7 @@ function transitPlanets(
   }
   const { armc, eps } = armcAt(win, ms, longitude);
   if (!anglesSafe(latitude, eps)) return null;
-  const vertex = anglesFromArmc(armc, latitude, eps).vertex;
+  const vertex = anglesFromArmc(years == null ? armc : progressedArmc(armc, years), latitude, eps).vertex;
   planets.push(makePlacement("vertex", vertex, houseFromCusps(vertex, cusps), false));
   planets.sort((a, b) => PLANET_IDS.indexOf(a.id as PlanetId) - PLANET_IDS.indexOf(b.id as PlanetId));
   return planets;
@@ -251,8 +257,8 @@ export function provisionalTransitSky(
 
 /**
  * A progressed sky at the progressed moment `progMs` from the window, with
- * the angles rebuilt as the server builds them (houses at the birth place at
- * the progressed moment, speeds from an hour later) and no exact dates.
+ * the angles rebuilt as the server builds them (the Naibod ARMC at the birth
+ * place, speeds from an hour of the ephemeris later) and no exact dates.
  */
 export function provisionalProgressedSky(
   win: SkyWindow,
@@ -261,14 +267,14 @@ export function provisionalProgressedSky(
   natalCusps: number[],
   natalBodies: NatalRow[],
 ): ProgressedSky | null {
-  if (!covers(win, progMs) || !covers(win, progMs + 3_600_000)) return null;
+  if (!covers(win, progMs)) return null;
   const cusps = natalCusps.map((c) => wrap360(c));
-  const planets = transitPlanets(win, progMs, meta.latitude, meta.longitude, cusps);
+  const planets = transitPlanets(win, progMs, meta.latitude, meta.longitude, cusps, meta.yearsOfLife);
   if (!planets) return null;
   const now = armcAt(win, progMs, meta.longitude);
-  const later = armcAt(win, progMs + 3_600_000, meta.longitude);
-  const a = anglesFromArmc(now.armc, meta.latitude, now.eps);
-  const b = anglesFromArmc(later.armc, meta.latitude, later.eps);
+  const armc = progressedArmc(now.armc, meta.yearsOfLife);
+  const a = anglesFromArmc(armc, meta.latitude, now.eps);
+  const b = anglesFromArmc(armc + NAIBOD_DEG_PER_YEAR / 24, meta.latitude, now.eps);
   const ascSpeed = wrap180(b.asc - a.asc) * 24;
   const mcSpeed = wrap180(b.mc - a.mc) * 24;
   const dsc = wrap360(a.asc + 180);

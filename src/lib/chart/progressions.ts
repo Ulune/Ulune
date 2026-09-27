@@ -45,6 +45,28 @@ export function progressedUtcFromNatal(natalUtc: Date, targetUtc: Date): Date {
   return new Date(natalUtc.getTime() + years * MS_PER_DAY);
 }
 
+/**
+ * How far secondary progressions move the Midheaven in a year of life: the
+ * Naibod rate, the Sun's mean daily motion, 0°59′08″ of right ascension. It is
+ * what the sidereal time gains on a whole turn each day (360.98564736629° a
+ * day), so the progressed angles keep that and not the turn.
+ */
+export const NAIBOD_DEG_PER_YEAR = 0.98564736629;
+
+/**
+ * The progressed ARMC (local sidereal time, degrees) from the one at the
+ * progressed moment. That moment lies `years` days after birth, so its
+ * sidereal time has turned once for each whole year and once more for the
+ * part of a year: taking the turns back leaves ARMC(birth) + the Naibod arc.
+ * Houses cast at the progressed moment itself sent the Ascendant round the
+ * zodiac once a year of life; at birthdays the two agree.
+ */
+export function progressedArmc(armcAtMoment: number, years: number): number {
+  const part = years - Math.floor(years);
+  const armc = (armcAtMoment - 360 * part) % 360;
+  return armc < 0 ? armc + 360 : armc;
+}
+
 /** Life-calendar UTC of an exact that falls `ephDays` from the progressed epoch. */
 export function lifeExactIso(targetUtc: Date, ephDays: number): string {
   const ms = targetUtc.getTime() + ephDays * TROPICAL_YEAR_DAYS * MS_PER_DAY;

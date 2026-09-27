@@ -71,7 +71,7 @@ function DesignFigure() {
     );
   }
   return (
-    <div className="flex h-full min-h-0 w-full flex-col items-center justify-start overflow-auto" style={{ opacity: hd.busy ? 0.7 : 1 }}>
+    <div className="ulune-hd-figure flex h-full min-h-0 w-full flex-col items-center justify-start overflow-auto" style={{ opacity: hd.busy ? 0.7 : 1 }}>
       <div className="ulune-hd-mast" data-testid="hd-mast">
         {hdHelloCells(locale).map((cell) => (
           <div key={cell.id}>

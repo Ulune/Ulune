@@ -1,3 +1,4 @@
+import { LoadingLines } from "@/components/loading-lines";
 import { NumerologyPanel } from "@/components/numerology-panel";
 import { numerologyCoreLabel, numerologyNoNatal, numerologySystemLabel } from "@/lib/i18n/numerology-ui";
 import { valueOfCore, type NumerologyCoreId } from "@/lib/chart/numerology";
@@ -47,6 +48,18 @@ function NumerologyFigure() {
   const coreId = "core:lifepath";
   const coreActive = w.selectedId === coreId;
   const hot = hotDigit;
+  // Every core number on the ring, not the Life Path alone: each digit says
+  // which of the five fall on it ("Soul Urge · Personality"), with the
+  // number itself when it is a master or a larger one ("Life Path 11").
+  const coresOn = new Map<number, string[]>();
+  for (const id of TILES) {
+    const v = valueOfCore(numbers, id);
+    if (v.digit == null || v.number == null) continue;
+    const label = numerologyCoreLabel(locale, id);
+    const list = coresOn.get(v.digit) ?? [];
+    list.push(v.number !== v.digit ? `${label} ${v.number}` : label);
+    coresOn.set(v.digit, list);
+  }
 
   return (
     <div
@@ -83,21 +96,28 @@ function NumerologyFigure() {
           const y = 50 + Math.sin(a) * 38;
           const active = w.selectedId === `number:${n}` || (coreActive && n === lifeDigit);
           const life = n === lifeDigit;
+          const cores = coresOn.get(n);
           return (
             <button
               key={n}
               type="button"
               data-testid={`numerology-digit-${n}`}
               data-life={life ? "1" : undefined}
+              data-core={cores ? "1" : undefined}
               data-hot={hot === n ? "1" : undefined}
               aria-pressed={active}
-              aria-label={`${n}`}
+              aria-label={cores ? `${n}: ${cores.join(", ")}` : `${n}`}
               onClick={() => w.pick(`number:${n}`)}
               {...previewProps(`number:${n}`)}
-              className={cn("ulune-num-digit", active && "is-active", life && "is-life")}
+              className={cn("ulune-num-digit", active && "is-active", life && "is-life", cores && "is-core")}
               style={{ left: `${x}%`, top: `${y}%`, ["--enter" as string]: n - 1 }}
             >
               {n}
+              {cores ? (
+                <span className="ulune-num-digit-cores" data-below={y > 50 ? "1" : undefined} aria-hidden>
+                  {cores.join(" · ")}
+                </span>
+              ) : null}
             </button>
           );
         })}
@@ -143,8 +163,9 @@ function NumerologyFigure() {
   );
 }
 
+/** The Life Path reading opens by default (useNumerology); until its text has come, a quiet stand-in. */
 function NumerologyHelloEmpty() {
-  return null;
+  return <LoadingLines lines={4} />;
 }
 
 
