@@ -35,9 +35,9 @@ export function SiteFooter() {
         </a>
       </nav>
       <div className="ob-footer-meta">
-        <span className="ob-footer-version" data-testid="footer-version">
-          Ulune {APP_VERSION}
-        </span>
+        <Link to="/changes" className="ob-footer-version ob-footer-link" data-testid="footer-version">
+          Ulune {APP_VERSION} · {t("whatsNew")}
+        </Link>
         <LangSwitch testIdPrefix="footer-lang" />
       </div>
     </footer>

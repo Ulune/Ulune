@@ -55,4 +55,4 @@ export const HOME_STRUCTURED_DATA = {
 };
 
 /** The pages a search engine should know (public/sitemap.xml lists the same). */
-export const INDEXED_PAGES = ["/", "/privacy", "/legal", "/terms", "/credits", "/accessibility"] as const;
+export const INDEXED_PAGES = ["/", "/privacy", "/legal", "/terms", "/credits", "/accessibility", "/changes"] as const;

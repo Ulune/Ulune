@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { LangSwitch } from "@/components/lang-switch";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { PageTopBar } from "@/studio/shell/PageTopBar";
@@ -61,7 +61,9 @@ function Settings() {
           </p>
         </section>
         <p className="font-mono text-xs text-fg-subtle" data-testid="app-version">
-          Ulune {APP_VERSION}
+          <Link to="/changes" className="ob-notice-link">
+            Ulune {APP_VERSION} · {t("whatsNew")}
+          </Link>
         </p>
       </main>
     </div>

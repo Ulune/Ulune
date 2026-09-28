@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as AccessibilityRouteImport } from './routes/accessibility'
+import { Route as ChangesRouteImport } from './routes/changes'
 import { Route as CreditsRouteImport } from './routes/credits'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as LegalRouteImport } from './routes/legal'
@@ -35,6 +36,11 @@ const SplatRoute = SplatRouteImport.update({
 const AccessibilityRoute = AccessibilityRouteImport.update({
   id: '/accessibility',
   path: '/accessibility',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangesRoute = ChangesRouteImport.update({
+  id: '/changes',
+  path: '/changes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CreditsRoute = CreditsRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/accessibility': typeof AccessibilityRoute
+  '/changes': typeof ChangesRoute
   '/credits': typeof CreditsRoute
   '/guide': typeof GuideRoute
   '/legal': typeof LegalRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/accessibility': typeof AccessibilityRoute
+  '/changes': typeof ChangesRoute
   '/credits': typeof CreditsRoute
   '/guide': typeof GuideRoute
   '/legal': typeof LegalRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/accessibility': typeof AccessibilityRoute
+  '/changes': typeof ChangesRoute
   '/credits': typeof CreditsRoute
   '/guide': typeof GuideRoute
   '/legal': typeof LegalRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/accessibility'
+    | '/changes'
     | '/credits'
     | '/guide'
     | '/legal'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/accessibility'
+    | '/changes'
     | '/credits'
     | '/guide'
     | '/legal'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/accessibility'
+    | '/changes'
     | '/credits'
     | '/guide'
     | '/legal'
@@ -175,6 +187,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
   AccessibilityRoute: typeof AccessibilityRoute
+  ChangesRoute: typeof ChangesRoute
   CreditsRoute: typeof CreditsRoute
   GuideRoute: typeof GuideRoute
   LegalRoute: typeof LegalRoute
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/accessibility'
       fullPath: '/accessibility'
       preLoaderRoute: typeof AccessibilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changes': {
+      id: '/changes'
+      path: '/changes'
+      fullPath: '/changes'
+      preLoaderRoute: typeof ChangesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/credits': {
@@ -279,6 +299,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
   AccessibilityRoute: AccessibilityRoute,
+  ChangesRoute: ChangesRoute,
   CreditsRoute: CreditsRoute,
   GuideRoute: GuideRoute,
   LegalRoute: LegalRoute,

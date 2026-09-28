@@ -25,13 +25,16 @@ Node 22 or later.
 npm ci
 npm run dev           # http://127.0.0.1:8097
 npm test              # unit tests, then the end-to-end suites (the dev server must be running)
+npm run test:unit     # the unit and precision tests alone (what CI runs on every push)
 npm run build         # the Vercel output, in .vercel/output
 npm run check:deploy  # serves that build as Vercel does, and casts two charts through it
 ```
 
 Where things are: `src/lib/chart` (the engine and its inputs), `src/studio`
 (the app), `src/lib/space` (the private space), `scripts` (tests and checks).
-`GOLDENS.md` lists what the reference charts lock.
+`GOLDENS.md` lists what the reference charts lock; `PRODUCTION.md` how the
+site runs; `.github/workflows/ci.yml` the checks on every push, and the
+end-to-end suites each night.
 
 ## Licence
 

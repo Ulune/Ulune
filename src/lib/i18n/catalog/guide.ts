@@ -110,6 +110,7 @@ export const guide = {
   ],
   guidePrecise4: ["Ulune’s code is public, under the GNU AGPL.", "Le code d’Ulune est public, sous licence GNU AGPL."],
   guideSource: ["Source code", "Code source"],
+  whatsNew: ["What’s new", "Nouveautés"],
   guideFaqTitle: ["Questions", "Questions"],
   faqTimeQ: ["I don’t know my birth time.", "Je ne connais pas mon heure de naissance."],
   faqTimeA: [

@@ -76,6 +76,12 @@ async function firstVisit(width) {
         if (res.status() !== 200) throw new Error(`${href}: ${res.status()}`);
       }
     }
+    // The version leads to what's new.
+    if ((await page.getByTestId("footer-version").getAttribute("href")) !== "/changes") {
+      throw new Error("the version does not lead to What's new");
+    }
+    const changes = await page.request.get(DEV + "/changes");
+    if (changes.status() !== 200 || !/What’s new/.test(await changes.text())) throw new Error(`/changes: ${changes.status()}`);
     // A question opens without script help (native disclosure).
     await page.getByTestId("guide-faq-time").locator("summary").click();
     if (!(await page.getByTestId("guide-faq-time").evaluate((d) => d.open))) throw new Error("a question did not open");

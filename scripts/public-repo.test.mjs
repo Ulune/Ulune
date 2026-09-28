@@ -104,7 +104,9 @@ test("the notes from before the name Ulune stay out of the repository", () => {
   );
 });
 
-test("every commit carries the one public name", { skip: !existsSync(join(ROOT, ".git")) }, () => {
+// (Not on a pull request's checks: GitHub names itself on the merge it tests.)
+const pullRequest = process.env.GITHUB_EVENT_NAME === "pull_request";
+test("every commit carries the one public name", { skip: !existsSync(join(ROOT, ".git")) || pullRequest }, () => {
   const people = execFileSync("git", ["log", "--format=%an <%ae>%n%cn <%ce>"], {
     cwd: ROOT,
     encoding: "utf8",

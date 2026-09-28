@@ -178,7 +178,7 @@ async function checkHeaders() {
   const robots = await get("/robots.txt");
   const sitemap = await get("/sitemap.xml");
   if (robots.res.status !== 200 || !/Sitemap: https:\/\/ulune\.app\/sitemap\.xml/.test(robots.text)) fail("robots.txt");
-  if (sitemap.res.status !== 200 || (sitemap.text.match(/<loc>/g) ?? []).length !== 6) fail("sitemap.xml");
+  if (sitemap.res.status !== 200 || (sitemap.text.match(/<loc>/g) ?? []).length !== 7) fail("sitemap.xml");
   const canonical = (html) => /<link rel="canonical" href="([^"]+)"/.exec(html)?.[1];
   const noindex = (html) => /<meta name="robots" content="noindex"/.test(html);
   if (canonical(home.text) !== "https://ulune.app/" || noindex(home.text)) fail("/: canonical or robots");
@@ -197,7 +197,7 @@ async function checkHeaders() {
   const guidePage = await get("/guide");
   if (guidePage.res.status !== 200 || !noindex(guidePage.text) || canonical(guidePage.text)) fail("/guide: should answer and stay out of search");
   if (!guidePage.text.includes('data-testid="guide"')) fail("/guide: no guide in the server's page");
-  console.log("search: robots.txt, a 6-page sitemap, canonical addresses, settings, /guide and missing pages kept out; the guide in the home page");
+  console.log("search: robots.txt, a 7-page sitemap, canonical addresses, settings, /guide and missing pages kept out; the guide in the home page");
 }
 
 /** The health check an uptime monitor calls, and where error reports arrive. */
