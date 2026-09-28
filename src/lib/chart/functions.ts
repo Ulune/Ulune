@@ -160,5 +160,5 @@ export const castHumanDesign = createServerFn({ method: "POST" })
       throw new Error("Could not read this birth moment.");
     }
     const { calculateHumanDesign } = await import("./calculate.server");
-    return calculateHumanDesign({ natalUtc });
+    return calculateHumanDesign({ natalUtc, spanMinutes: data.spanMinutes });
   });

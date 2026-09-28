@@ -127,6 +127,9 @@ async function desktop() {
     await page.keyboard.press("ArrowDown");
     await page.waitForTimeout(200);
     const walked = await page.getByTestId("hd-say").innerText();
+    // While the list has the keyboard's focus, the chart shows the ring.
+    const ring = await page.evaluate(() => getComputedStyle(document.querySelector("[data-testid=hd-zoom]")).outlineStyle);
+    if (ring !== "solid") throw new Error(`no focus ring on the chart (${ring})`);
     await page.keyboard.press("Enter");
     await page.waitForTimeout(300);
     const said = await page.getByTestId("hd-keys-said").innerText();
@@ -226,6 +229,30 @@ async function desktop() {
     if (await page.getByTestId("hd-layer-hint").count()) throw new Error("the layer hint came back for a layer already explained");
     await page.getByTestId("hd-view-both").click();
 
+    // The arrows of Variable, by the Sun and North Node rows, with their names.
+    const arrows = await page.evaluate(() =>
+      Object.fromEntries([...document.querySelectorAll("[data-testid^=hd-arrow-]")].map((a) => [a.getAttribute("data-testid").slice(9), `${a.getAttribute("data-dir")} ${a.getAttribute("title")}`])),
+    );
+    if (
+      !/^left Determination: Appetite/.test(arrows.determination ?? "") ||
+      !/^left Environment: Shores/.test(arrows.environment ?? "") ||
+      !/^right Motivation: Innocence/.test(arrows.motivation ?? "") ||
+      !/^right Perspective: Survival/.test(arrows.perspective ?? "")
+    ) {
+      throw new Error(`arrows ${JSON.stringify(arrows)}`);
+    }
+    await page.getByTestId("hd-row-personality-northnode").click();
+    await page.mouse.move(2, 2);
+    await page.locator('[data-testid=click-note] [data-section="variable"]').waitFor({ timeout: 8000 });
+    if (!/Perspective · Survival/i.test(await page.locator('[data-testid=click-note] [data-section="variable"]').innerText())) throw new Error("the Personality Node's arrow in its reading");
+    // The true node (Jovian Archive's): the Personality North Node in 31.3.
+    if (!/31\.3/.test(await page.getByTestId("hd-row-personality-northnode").innerText())) throw new Error("the North Node row is not the true node's");
+    // A column's header opens the reading on the two layers.
+    await page.getByTestId("hd-col-head-design").click();
+    await page.waitForTimeout(400);
+    if (!/Personality and Design/.test(await page.getByTestId("click-note").innerText())) throw new Error("the layers reading");
+    await page.getByTestId("hd-col-head-design").click();
+
     // The Table view: the 26 activations, then the defined channels.
     await page.getByTestId("view-table").click();
     await page.getByTestId("hd-acts").waitFor({ timeout: 8000 });
@@ -242,6 +269,52 @@ async function desktop() {
 
     if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
     console.log("hd-1280 OK");
+  } finally {
+    await browser.close();
+  }
+}
+
+/** Without a birth time: cast at noon, what could differ marked ~, no arrows. */
+async function noTime() {
+  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  try {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    page.setDefaultTimeout(20000);
+    const errors = watch(page);
+    await page.addInitScript(() => {
+      try {
+        localStorage.setItem("ulune.hint.wheel.v1", "1");
+      } catch {
+        /* no storage: the hint shows, which the checks do not mind */
+      }
+    });
+    await gotoApp(page, "/");
+    await page.waitForSelector("#birth-date", { timeout: 20000 });
+    await page.locator("#native-name").fill("No time");
+    await page.locator("#birth-date").fill("01/01/2000");
+    await page.getByTestId("time-unknown").check();
+    await page.locator("#birth-place").fill("London");
+    await page.locator("#birth-place-list [role=option]").first().waitFor({ timeout: 15000 });
+    await page.locator("#birth-place").press("ArrowDown");
+    await page.locator("#birth-place").press("Enter");
+    await page.getByTestId("cast-submit").click();
+    await page.getByTestId("studio-natal").waitFor({ timeout: 45000 });
+    await goStudioPage(page, "design");
+    await page.getByTestId("hd-unknown").waitFor({ timeout: 30000 });
+    const marks = await page.evaluate(() => ({
+      rows: [...document.querySelectorAll(".ulune-hd-row[data-uncertain]")].map((r) => r.getAttribute("data-act")),
+      facts: [...document.querySelectorAll(".ulune-hd-fact[data-uncertain]")].map((r) => r.getAttribute("data-fact")),
+      arrows: document.querySelectorAll("[data-testid^=hd-arrow-]").length,
+      when: document.querySelector("[data-testid=hd-col-personality] .ulune-hd-col-when")?.textContent ?? "",
+    }));
+    if (!marks.rows.includes("act:personality:moon") || !marks.rows.includes("act:design:moon")) throw new Error(`rows ${JSON.stringify(marks)}`);
+    if (marks.rows.includes("act:personality:pluto")) throw new Error("Pluto marked");
+    if (!marks.facts.includes("profile") || marks.arrows !== 0 || /:/.test(marks.when)) throw new Error(`no time ${JSON.stringify(marks)}`);
+    await page.getByTestId("hd-row-personality-moon").click();
+    await page.locator('[data-testid=click-note] [data-section="unknown"]').waitFor({ timeout: 8000 });
+    await page.screenshot({ path: join(SHOTS, "hd-no-time-1280.png") });
+    if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
+    console.log("hd-no-time OK");
   } finally {
     await browser.close();
   }
@@ -300,5 +373,6 @@ async function phone() {
 
 await ensureShotsDir();
 await desktop();
+await noTime();
 await phone();
 console.log("HD OK", DEV);

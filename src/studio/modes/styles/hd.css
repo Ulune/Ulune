@@ -49,9 +49,6 @@ html.light {
   box-shadow: inset 0 0 0 1px var(--color-border);
   text-align: left;
   color: var(--color-fg);
-  transition:
-    background 160ms var(--chart-ease),
-    box-shadow 160ms var(--chart-ease);
 }
 .ulune-hd-fact:hover {
   background: var(--color-bg-subtle);
@@ -60,16 +57,8 @@ html.light {
   background: var(--color-bg-subtle);
   box-shadow: inset 0 0 0 1.5px var(--color-fg);
 }
-.ulune-hd-fact:focus-visible {
-  outline: 2px solid var(--color-ring);
-  outline-offset: 2px;
-}
 .ulune-hd-fact-k {
-  font-family: var(--font-sans);
   font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--color-fg-subtle);
 }
 .ulune-hd-fact-v {
@@ -80,13 +69,12 @@ html.light {
   overflow-wrap: anywhere;
 }
 .ulune-hd-fact-v[data-mono] {
-  font-family: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 13.5px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .ulune-hd-fact-sub {
-  font-family: var(--font-sans);
   font-size: 11px;
   line-height: 1.2;
   color: var(--color-fg-muted);
@@ -169,7 +157,6 @@ html.light {
   margin: var(--space-1) 0 0;
   padding-inline: var(--stage-pad);
   max-width: 44rem;
-  font-family: var(--font-sans);
   font-size: 13px;
   line-height: 1.35;
   text-align: center;
@@ -201,7 +188,6 @@ html.light {
   padding: 4px 8px;
   border-radius: 8px;
   text-align: left;
-  transition: background 140ms var(--chart-ease);
 }
 .ulune-hd-col-head > span {
   display: block;
@@ -210,38 +196,24 @@ html.light {
 .ulune-hd-col-head[aria-pressed="true"] {
   background: var(--color-bg-subtle);
 }
-.ulune-hd-col-head:focus-visible {
-  outline: 2px solid var(--color-ring);
-  outline-offset: -2px;
-}
 .ulune-hd-col[data-layer="design"] .ulune-hd-col-head {
   text-align: right;
 }
 .ulune-hd-col-k {
-  font-family: var(--font-sans);
-  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.ulune-hd-col[data-layer="design"] .ulune-hd-col-k {
-  color: var(--hd-design);
-}
-.ulune-hd-col[data-layer="personality"] .ulune-hd-col-k {
-  color: var(--hd-personality);
 }
 .ulune-hd-col-line {
   /* Two lines in both columns, so their rows line up. */
   min-height: 2.6em;
   margin-top: 2px;
-  font-family: var(--font-sans);
   font-size: 11px;
   line-height: 1.3;
   color: var(--color-fg-muted);
 }
 .ulune-hd-col-when {
   margin-top: 2px;
-  font-family: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 10.5px;
   font-variant-numeric: tabular-nums;
   color: var(--color-fg-subtle);
@@ -251,78 +223,96 @@ html.light {
   flex-direction: column;
   gap: 1px;
 }
+/* A row: name, gate.line, glyph and the arrow, the arrow next to the chart
+   (the Personality's row reads the other way round). */
+.ulune-hd-col[data-layer="design"] {
+  --hd-ink: var(--hd-design);
+}
+.ulune-hd-col[data-layer="personality"] {
+  --hd-ink: var(--hd-personality);
+}
 .ulune-hd-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 18px;
+  display: flex;
   align-items: center;
   gap: 8px;
   min-height: 28px;
   padding: 2px 8px;
   border-radius: 8px;
   cursor: pointer;
-  transition:
-    opacity 180ms var(--chart-ease),
-    background 140ms var(--chart-ease);
 }
 .ulune-hd-col[data-layer="personality"] .ulune-hd-row {
-  grid-template-columns: 18px auto minmax(0, 1fr);
-}
-.ulune-hd-col[data-layer="personality"] .ulune-hd-row-name {
-  order: 3;
-  text-align: left;
-}
-.ulune-hd-col[data-layer="personality"] .ulune-hd-row-gl {
-  order: 2;
-}
-.ulune-hd-col[data-layer="personality"] .ulune-hd-row-glyph {
-  order: 1;
+  flex-direction: row-reverse;
 }
 .ulune-hd-row-name {
+  flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
-  font-family: var(--font-sans);
   font-size: 12.5px;
   text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--color-fg-muted);
 }
+.ulune-hd-col[data-layer="personality"] .ulune-hd-row-name {
+  text-align: left;
+}
 .ulune-hd-row-gl {
-  font-family: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.ulune-hd-row-glyph {
+.ulune-hd-row-glyph,
+.ulune-hd-row-arrow {
   display: grid;
+  flex: none;
   place-items: center;
+  width: 18px;
 }
-.ulune-hd-col[data-layer="design"] :is(.ulune-hd-row-gl, .ulune-hd-row-glyph) {
-  color: var(--hd-design);
+.ulune-hd-row-arrow {
+  width: 12px;
 }
-.ulune-hd-col[data-layer="personality"] :is(.ulune-hd-row-gl, .ulune-hd-row-glyph) {
-  color: var(--hd-personality);
+.ulune-hd-col-k,
+.ulune-hd-row-gl,
+.ulune-hd-row-glyph,
+.ulune-hd-row-arrow {
+  color: var(--hd-ink);
 }
+/* The arrows of Variable, by the Sun and North Node rows, next to the chart;
+   faint when half an hour either side of the birth time turns them. */
+.ulune-hd-row-arrow[data-steady="0"] {
+  opacity: 0.45;
+}
+/* No birth time: a row, a fact or a channel that could differ at another
+   hour of that day is marked ~ (or drawn faint). */
+.ulune-hd-row[data-uncertain] .ulune-hd-row-gl::before,
+.ulune-hd-fact[data-uncertain] .ulune-hd-fact-v::before {
+  content: "~";
+  margin-right: 2px;
+  opacity: 0.75;
+}
+.ulune-hd-channel[data-uncertain] .hd-line {
+  opacity: 0.5;
+}
+.ulune-hd-unknown {
+  max-width: 44rem;
+  margin: 0 auto var(--space-2);
+  padding-inline: var(--stage-pad);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--color-fg-muted);
+}
+/* Pointed at or kept bright by the chosen piece; the others fade with the chart. */
 .ulune-hd-row:hover,
-.ulune-hd-row[data-hover] {
+.ulune-hd-row:is([data-hover], [data-lit]) {
   background: var(--color-bg-subtle);
 }
-.ulune-hd-row[data-hover] .ulune-hd-row-name {
+.ulune-hd-row:is([data-hover], [data-lit]) .ulune-hd-row-name {
   color: var(--color-fg);
 }
-.ulune-hd-row:focus-visible {
-  outline: 2px solid var(--color-ring);
-  outline-offset: -2px;
-}
-/* A chosen piece: its rows stay, the others fade with the chart. */
 .ulune-hd-graph[data-focus="pinned"] .ulune-hd-row:not([data-lit]) {
   opacity: 0.35;
-}
-.ulune-hd-row[data-lit] {
-  background: var(--color-bg-subtle);
-}
-.ulune-hd-row[data-lit] .ulune-hd-row-name {
-  color: var(--color-fg);
 }
 .ulune-hd-row[data-hero] {
   box-shadow: inset 0 0 0 1.5px var(--color-fg);
@@ -395,7 +385,7 @@ html.light {
   stroke: none;
 }
 .ulune-hd-gate text {
-  font-family: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font-family: var(--font-mono);
   /* 11.5 units: about 9 px on a 1280 x 800 laptop, two digits well inside the disc. */
   font-size: 11.5px;
   font-weight: 600;
@@ -471,18 +461,7 @@ html.light .ulune-hd-gate[data-tone="both"] text {
 
 /* The keyboard's list (figure-keys.tsx): read by screen readers, not drawn;
    while it has the focus, the figure shows the ring. */
-.ulune-figure-keys-list {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-}
-.ulune-hd-graph:has(.ulune-figure-keys-list:focus-visible) > .ulune-figure-zoom {
+.ulune-hd-graph:has(.ulune-figure-keys-list:focus-visible) .ulune-figure-zoom {
   outline: 2px solid var(--color-ring);
   outline-offset: 2px;
   border-radius: 12px;
@@ -571,7 +550,7 @@ html.light .ulune-hd-gate[data-tone="both"] text {
    the piece) wait for the sheet to fold, as the wheels' switch does
    (shell.css). */
 @media (max-width: 1023.98px) {
-  .ob-body:has(.ob-panel:not([data-detent="peek"])) :is(.ulune-hd-facts, .ulune-hd-col, .ulune-hd-say),
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) :is(.ulune-hd-facts, .ulune-hd-unknown, .ulune-hd-col, .ulune-hd-say),
   .ob-body:has(.ob-panel:not([data-detent="peek"])) .ob-strip-extra:has(.ulune-hd-control) {
     display: none;
   }
@@ -605,7 +584,6 @@ html.light .ulune-hd-gate[data-tone="both"] text {
   box-shadow:
     0 0 0 1px var(--color-border),
     0 10px 28px -12px color-mix(in oklab, var(--color-fg) 22%, transparent);
-  font-family: var(--font-sans);
   font-size: 13px;
   line-height: 1.3;
   color: var(--color-fg);
@@ -632,6 +610,25 @@ html.light .ulune-hd-gate[data-tone="both"] text {
   border-radius: 10px;
   color: var(--color-fg-muted);
 }
+/* The facts, the column headers and rows, the first read's steps: one
+   focus ring and the same short fades. */
+.ulune-hd-fact,
+.ulune-hd-col-head,
+.ulune-hd-step,
+.ulune-hd-row {
+  transition:
+    background 150ms var(--chart-ease),
+    box-shadow 150ms var(--chart-ease),
+    opacity 180ms var(--chart-ease);
+}
+.ulune-hd-fact:focus-visible,
+.ulune-hd-col-head:focus-visible,
+.ulune-hd-step:focus-visible,
+.ulune-hd-row:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: -2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ulune-hd-svg,
   .ulune-hd-svg [data-part],
@@ -652,11 +649,8 @@ html.light .ulune-hd-gate[data-tone="both"] text {
 }
 .ulune-hd-first-title {
   margin: 0;
-  font-family: var(--font-sans);
-  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: var(--color-fg-subtle);
 }
 .ulune-hd-steps {
@@ -676,16 +670,11 @@ html.light .ulune-hd-gate[data-tone="both"] text {
   border-radius: 12px;
   text-align: left;
   color: var(--color-fg);
-  transition: background 140ms var(--chart-ease);
 }
 .ulune-hd-step:hover,
 .ulune-hd-step[data-previewed],
 .ulune-hd-step.is-on {
   background: var(--color-bg-subtle);
-}
-.ulune-hd-step:focus-visible {
-  outline: 2px solid var(--color-ring);
-  outline-offset: 1px;
 }
 .ulune-hd-step-n {
   display: grid;
@@ -695,7 +684,7 @@ html.light .ulune-hd-gate[data-tone="both"] text {
   margin-top: 1px;
   border-radius: 999px;
   box-shadow: inset 0 0 0 1px var(--color-border-strong);
-  font-family: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: var(--color-fg-muted);
 }
@@ -712,11 +701,7 @@ html.light .ulune-hd-gate[data-tone="both"] text {
   gap: 2px 8px;
 }
 .ulune-hd-step-k {
-  font-family: var(--font-sans);
   font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--color-fg-subtle);
 }
 .ulune-hd-step-v {
@@ -726,7 +711,6 @@ html.light .ulune-hd-gate[data-tone="both"] text {
 }
 .ulune-hd-step-text,
 .ulune-hd-step-extra {
-  font-family: var(--font-sans);
   font-size: 13px;
   line-height: 1.45;
   color: var(--color-fg-muted);
@@ -737,16 +721,11 @@ html.light .ulune-hd-gate[data-tone="both"] text {
 .ulune-hd-first-next {
   margin: var(--space-1) 0 0;
   padding: 0 10px 0 40px;
-  font-family: var(--font-sans);
   font-size: 13px;
   line-height: 1.45;
   color: var(--color-fg-muted);
 }
 
-/* The layer switch's line (hd-layer-hint.tsx), in the wheel hint's pill. */
-.ulune-hd-layer-hint {
-  top: 4px;
-}
 
 /* The Table view's layer mark: a dot in the layer's colour. */
 .ulune-hd-layer-dot {

@@ -1,7 +1,16 @@
 import { hdCrossGates, hdCrossOf } from "@/lib/chart/hd-cross";
 import type { HumanDesignChart } from "@/lib/chart/human-design";
 import { previewProps } from "@/lib/depth/preview-bus";
-import { hdAngleLabel, hdAuthorityLabel, hdDefinitionLabel, hdFactLabel, hdGraphText, hdStrategyLabel, hdTypeLabel } from "@/lib/i18n/hd-ui";
+import {
+  hdAngleLabel,
+  hdAuthorityLabel,
+  hdDefinitionLabel,
+  hdFactLabel,
+  hdGraphText,
+  hdStrategyLabel,
+  hdTypeLabel,
+  hdUnknownText,
+} from "@/lib/i18n/hd-ui";
 import { useI18n } from "@/lib/i18n/locale";
 
 type Fact = { key: "type" | "strategy" | "authority" | "profile" | "definition" | "cross"; value: string; sub?: string };
@@ -34,7 +43,9 @@ export function HdFacts({
       {facts.map((f) => {
         const id = `hello:${f.key}`;
         const label = hdFactLabel(locale, f.key);
-        const value = f.sub ? `${f.sub} · ${f.value}` : f.value;
+        // Without a birth time, a key that differs at another hour is marked ~.
+        const maybe = chart.uncertain?.keys.includes(f.key) ?? false;
+        const value = `${f.sub ? `${f.sub} · ${f.value}` : f.value}${maybe ? ` (${hdUnknownText(locale, "mark")})` : ""}`;
         return (
           <button
             key={f.key}
@@ -42,12 +53,14 @@ export function HdFacts({
             className="ulune-hd-fact"
             data-testid={`hd-fact-${f.key}`}
             data-fact={f.key}
+            data-uncertain={maybe ? "1" : undefined}
+            title={maybe ? hdUnknownText(locale, "mark") : undefined}
             aria-pressed={selectedId === id}
             aria-label={hdGraphText(locale, "factOpen", { label, value })}
             onClick={() => onSelect(id)}
             {...previewProps(id)}
           >
-            <span className="ulune-hd-fact-k">{label}</span>
+            <span className="ulune-kicker ulune-hd-fact-k">{label}</span>
             <span className="ulune-hd-fact-v" data-mono={f.key === "profile" || f.key === "cross" ? "1" : undefined}>
               {f.value}
             </span>

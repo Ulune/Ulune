@@ -137,8 +137,8 @@ test("Paris 15 Jun 1990 14:30 — Personality + Design, type from the graph", as
   const natalNn = natal.planets.find((p) => p.id === "northnode");
   const hdNn = hd.activations.find((a) => a.layer === "personality" && a.body === "northnode");
   assert.ok(natalNn && hdNn);
-  // Mean vs true node: HD must not reuse the natal true-node longitude.
-  assert.ok(Math.abs(hdNn.ecliptic - natalNn.ecliptic) > 0.05);
+  // The true node, as Jovian Archive uses it: the birth chart's own node.
+  assert.ok(Math.abs(hdNn.ecliptic - natalNn.ecliptic) < 1e-9);
 
   assert.equal(hd.activations.filter((a) => a.layer === "personality").length, 13);
   assert.equal(hd.activations.filter((a) => a.layer === "design").length, 13);
@@ -232,23 +232,21 @@ test("Sun and Earth are exactly opposite in both layers", async () => {
   );
 });
 
-test("Mean-node fork: HD can put the node in a different gate than the natal table", async () => {
-  // 15 Oct 1998 is near the widest mean/true split. This is the frozen fork,
-  // not a bug: a reader comparing the bodygraph with the natal node degree
-  // will periodically see a neighbouring gate, and both are correct.
+test("True node: the bodygraph's node is the birth chart's, even where the mean node would change its gate", async () => {
+  // 15 Oct 1998 is near the widest mean/true split (1.8°): the mean node sat
+  // in gate 29, the true node, the natal table's, in gate 59. Human Design
+  // used the mean node until part 46; Jovian Archive's charts use the true
+  // one (hd-variable.test.mjs checks four node rows of a real Jovian chart).
   const natal = await calculateNatal({ ...PARIS, date: "1998-10-15", time: "12:00" });
   const trueNode = natal.planets.find((p) => p.id === "northnode");
   const hd = await calculateHumanDesign({ natalUtc: new Date(natal.meta.utc) });
-  const meanNode = hd.activations.find((a) => a.layer === "personality" && a.body === "northnode");
-  assert.ok(trueNode && meanNode);
-  assert.ok(
-    Math.abs(wrap180(meanNode.ecliptic - trueNode.ecliptic)) > 1.8,
-    "1998-10-15 should be near the widest mean/true node split",
-  );
+  const node = hd.activations.find((a) => a.layer === "personality" && a.body === "northnode");
+  assert.ok(trueNode && node);
+  assert.ok(Math.abs(wrap180(node.ecliptic - trueNode.ecliptic)) < 1e-9);
   assert.equal(eclipticToGate(trueNode.ecliptic).gate, 59);
-  assert.equal(meanNode.gate, 29);
-  // South node stays the mean node's opposite, not the true node's.
+  assert.equal(node.gate, 59);
+  // The South Node is its exact opposite.
   const southNode = hd.activations.find((a) => a.layer === "personality" && a.body === "southnode");
   assert.ok(southNode);
-  assert.equal(southNode.ecliptic, wrap360(meanNode.ecliptic + 180));
+  assert.equal(southNode.ecliptic, wrap360(node.ecliptic + 180));
 });

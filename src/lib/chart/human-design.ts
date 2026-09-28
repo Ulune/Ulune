@@ -5,19 +5,14 @@
  * Gate 41 starts at 02°00'00" Aquarius (302° tropical). Wheel order is the
  * official Rave I Ching sequence, not 1–64 around the ecliptic.
  *
- * Nodes: HD bodygraphs that match Jovian / Genetic Matrix use the **mean**
- * node for gates, while natal Ulune stays on the **true** node. That fork is
- * deliberate and frozen in GOLDENS.md — it is not an astrology bug. Measured
- * over 240 monthly samples (1985–2004) the two nodes sit up to 1.88° apart,
- * a third of a 5.625° gate, and land the node on a *different gate* in 18% of
- * charts. So a reader comparing this bodygraph against the natal table will
- * periodically see the node in a neighbouring gate, and that is correct for
- * both. Mean node is applied only in `hdBodiesAt`; this file just maps
- * longitudes to gates.
- *
- * The user-facing sentence that says this out loud is still owed: it belongs in
- * `src/lib/i18n/hd-ui.json` (EN + FR), which the i18n slice owns, so it was
- * left for whoever lands next in that file rather than edited underneath them.
+ * Nodes: the bodygraph uses the **true** node, the birth chart's own, as
+ * Jovian Archive's charts do (a third-party check against a real Jovian chart
+ * matched all four node rows with the true node and none with the mean one;
+ * GOLDENS.md). Until part 46 it used the mean node. Measured over 240 monthly
+ * samples (1985–2004) the two nodes sit up to 1.88° apart, a third of a
+ * 5.625° gate, and land the node on a *different gate* in 18% of charts, so a
+ * chart made elsewhere with the mean node can differ on the node's gate. The
+ * node is read only in `hdBodiesAt`; this file just maps longitudes to gates.
  */
 
 export const HD_GATE_SIZE = 360 / 64; // 5.625° = 5°37'30"
@@ -247,6 +242,24 @@ export type HdDefinedChannel = HdChannel & {
   mixed: boolean;
 };
 
+/** The four arrows of Variable (hd-variable.ts). */
+export type HdArrowId = "determination" | "environment" | "motivation" | "perspective";
+
+/**
+ * Without a birth time (cast at noon): what could differ at another hour of
+ * that day (hd-uncertain.ts).
+ */
+export type HdUncertain = {
+  /** How far either side of noon the day was cast, minutes. */
+  spanMinutes: number;
+  /** Rows whose gate or line could differ (act:<layer>:<body>). */
+  rows: string[];
+  /** Keys that could differ: type, strategy, authority, profile, definition, cross. */
+  keys: string[];
+  /** Channels that could be defined or not. */
+  channels: string[];
+};
+
 export type HumanDesignChart = {
   personalityUtc: string;
   designUtc: string;
@@ -260,6 +273,10 @@ export type HumanDesignChart = {
   definition: HdDefinition;
   definedChannels: HdDefinedChannel[];
   definedCenters: HdCenterId[];
+  /** Only without a birth time. */
+  uncertain?: HdUncertain;
+  /** Only with a birth time: does each arrow keep its colour and side 30 minutes either side? */
+  toneSteady?: Partial<Record<HdArrowId, boolean>>;
 };
 
 export function wrap360(n: number): number {

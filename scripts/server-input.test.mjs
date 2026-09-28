@@ -35,7 +35,16 @@ test("the app's own requests pass", () => {
   ok(progressionSchema, { ...transit, at: undefined, natalUtc: "1987-11-03T22:10:00.000Z", targetUtc: "2026-09-26T00:00:00.000Z" });
   ok(humanDesignSchema, { natalUtc: "2000-01-01T12:00:00.000Z" });
   ok(humanDesignSchema, { natalUtc: new Date(Date.UTC(-500, 5, 1)).toISOString() });
+  ok(humanDesignSchema, { natalUtc: "2000-01-01T12:00:00.000Z", spanMinutes: 720 });
+  ok(humanDesignSchema, { natalUtc: "2000-01-01T12:00:00.000Z", spanMinutes: 0 });
   ok(birthSchema, { date: "01/01/2000", time: "12:00", latitude: 51.48, longitude: 0, locale: "fr", tz: "Europe/London" });
+});
+
+test("a Human Design day is at most half a day either side, in whole minutes", () => {
+  refused(humanDesignSchema, { natalUtc: "2000-01-01T12:00:00.000Z", spanMinutes: 721 }, "more than 12 hours");
+  refused(humanDesignSchema, { natalUtc: "2000-01-01T12:00:00.000Z", spanMinutes: -1 }, "negative");
+  refused(humanDesignSchema, { natalUtc: "2000-01-01T12:00:00.000Z", spanMinutes: 1.5 }, "a fraction");
+  refused(humanDesignSchema, { natalUtc: "2000-01-01T12:00:00.000Z", spanMinutes: "720" }, "a string");
 });
 
 test("too many, repeated or unknown bodies are refused", () => {

@@ -98,6 +98,12 @@ export const progressionSchema = z.object({
 
 export const humanDesignSchema = z.object({
   natalUtc: momentSchema,
+  /**
+   * No birth time: the chart is cast at noon and the day is cast every hour
+   * this far either side (minutes, at most half a day), to mark what could
+   * differ.
+   */
+  spanMinutes: z.number().int().min(0).max(720).optional(),
 });
 
 /** Longest place name looked up: a place, not a paragraph. */

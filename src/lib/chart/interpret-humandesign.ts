@@ -21,10 +21,14 @@ import {
 } from "./human-design";
 import { hdCrossGates, hdCrossOf } from "./hd-cross";
 import { hdActId, hdActivationOf, parseHdActId } from "./hd-rows";
+import { hdArrowsOf } from "./hd-variable";
 import { hdHelloCells } from "@/lib/i18n/hd-hello";
 import {
   hdAngleLabel,
+  hdArrowLabel,
   hdAuthorityLabel,
+  hdColorLabel,
+  hdUnknownText,
   hdCenterLabel,
   hdCenterState,
   hdChannelCentersLine,
@@ -59,6 +63,8 @@ import {
   HD_SIGNPOSTS_LINE,
   HD_STRATEGY_STEP,
   HD_TYPE_STEP,
+  HD_UNKNOWN_TEXT,
+  HD_VARIABLE_TEXT,
 } from "@/lib/content/hd-first";
 
 function fill(text: string, vars: Record<string, string | number>): string {
@@ -135,6 +141,11 @@ function channelsThrough(chart: HumanDesignChart, n: number, view: HdView, local
   return rows.sort((a, b) => Number(b.on) - Number(a.on)).map((r) => r.link);
 }
 
+/** Without a birth time: the section that says this could differ at another hour. */
+function unknownSection(locale: AppLocale, kind: "row" | "key" | "channel") {
+  return { id: "unknown", title: hdUnknownText(locale, "title"), paragraphs: [pickBi(HD_UNKNOWN_TEXT[kind], locale)] };
+}
+
 /** The five steps shown before anything is chosen, with what to look at next. */
 export function hdFirstRead(chart: HumanDesignChart, locale: AppLocale) {
   const [a, b] = chart.profile.split("/").map(Number);
@@ -166,6 +177,28 @@ export function hdReading(
   pickId: string | null,
   locale: AppLocale,
   view: HdView = "both",
+): ElementReading | null {
+  const reading = hdReadingOf(chart, pickId, locale, view);
+  if (!reading || !chart.uncertain || !pickId) return reading;
+  // Without a birth time, what could differ at another hour of that day says so first.
+  const u = chart.uncertain;
+  const key = pickId.startsWith("hello:") ? pickId.slice(6) : null;
+  const gate = pickId.startsWith("gate:") ? Number(pickId.slice(5)) : null;
+  let kind: "row" | "key" | "channel" | null = null;
+  if (key && u.keys.includes(key)) kind = "key";
+  else if (pickId.startsWith("channel:") && u.channels.includes(pickId.slice(8))) kind = "channel";
+  else if (u.rows.includes(pickId)) kind = "row";
+  else if (gate !== null && chart.activations.some((a) => a.gate === gate && u.rows.includes(hdActId(a.layer, a.body)))) kind = "row";
+  if (!kind) return reading;
+  const section = unknownSection(locale, kind);
+  return { ...reading, sections: [section, ...(reading.sections ?? [])], paragraphs: [...reading.paragraphs, ...section.paragraphs] };
+}
+
+function hdReadingOf(
+  chart: HumanDesignChart,
+  pickId: string | null,
+  locale: AppLocale,
+  view: HdView,
 ): ElementReading | null {
   if (!pickId) return null;
   const hello = hdHelloCells(locale);
@@ -340,6 +373,24 @@ export function hdReading(
     const body = pickBi(HD_BODY_TEXT[row.body], locale);
     const gateText = pickBi(HD_GATE_TEXT[n]?.what, locale);
     const lead = [here, body].filter(Boolean).join(" ");
+    // The Sun and North Node rows carry an arrow of Variable (with a birth time).
+    const arrow = hdArrowsOf(chart).find((a) => a.layer === row.layer && a.body === row.body);
+    const variable = arrow
+      ? {
+          id: "variable",
+          title: `${hdArrowLabel(locale, arrow.id)} · ${hdColorLabel(locale, arrow.id, arrow.color)}`,
+          paragraphs: [
+            [
+              fillBi(HD_VARIABLE_TEXT.arrow[arrow.id], locale, { name: hdColorLabel(locale, arrow.id, arrow.color), color: arrow.color }),
+              fillBi(arrow.left ? HD_VARIABLE_TEXT.left : HD_VARIABLE_TEXT.right, locale, { tone: arrow.tone }),
+              arrow.steady ? "" : pickBi(HD_VARIABLE_TEXT.unsteady, locale),
+            ]
+              .filter(Boolean)
+              .join(" "),
+            pickBi(HD_VARIABLE_TEXT.about, locale),
+          ],
+        }
+      : null;
     return {
       id: pickId,
       kind: "planet",
@@ -355,6 +406,7 @@ export function hdReading(
       sections: [
         ...(gateText ? [{ id: "gate", title: gateLabel(locale, n), paragraphs: [gateText] }] : []),
         { id: "line", title: `${hdGraphText(locale, "lineWordCap")} ${row.line} · ${lineName(locale, row.line)}`, paragraphs: [lineText(locale, row.line)] },
+        ...(variable ? [variable] : []),
       ],
       links: { title: hdGraphText(locale, "channelsWord"), rows: channelsThrough(chart, n, view, locale) },
       about: {

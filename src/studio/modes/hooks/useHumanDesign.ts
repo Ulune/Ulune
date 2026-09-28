@@ -19,6 +19,9 @@ export function useHumanDesign() {
   const [error, setError] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
   const utc = chart?.meta.utc ?? "";
+  // Without a birth time the chart is cast at noon; the server casts the
+  // rest of the day too and says what could differ.
+  const spanMinutes = chart?.meta.timeUnknown ? 720 : undefined;
   const ready = useRef(false);
 
   useEffect(() => {
@@ -26,7 +29,7 @@ export function useHumanDesign() {
     let cancelled = false;
     if (!ready.current) setBusy(true);
     setError(null);
-    void castHumanDesign({ data: { natalUtc: utc } })
+    void castHumanDesign({ data: spanMinutes ? { natalUtc: utc, spanMinutes } : { natalUtc: utc } })
       .then((next) => {
         if (cancelled) return;
         ready.current = true;
@@ -41,7 +44,7 @@ export function useHumanDesign() {
     return () => {
       cancelled = true;
     };
-  }, [enabled, utc, t, tick]);
+  }, [enabled, utc, spanMinutes, t, tick]);
 
   // The readings come with the Human Design text (its own download).
   const pack = usePack("hd", locale, enabled);

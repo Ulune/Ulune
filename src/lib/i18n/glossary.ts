@@ -32,6 +32,7 @@ export type GlossaryId =
   | "hdProfile"
   | "hdDefinition"
   | "hdCross"
+  | "hdVariable"
   | "lifePath"
   | "nameNumbers"
   | "birthday"
@@ -219,6 +220,13 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
       "Les portes du Soleil et de la Terre à la naissance et dans le Design, lues ensemble comme un thème de vie. Son angle, droit, juxtaposition ou gauche, vient du profil.",
     ],
   },
+  hdVariable: {
+    term: ["Variable (the arrows)", "Variable (les flèches)"],
+    body: [
+      "Four arrows read from the tones of the Suns and the Nodes: Determination and Environment from the Design, Motivation and Perspective from the Personality. Each points left (tones 1 to 3) or right (4 to 6); they need an exact birth time.",
+      "Quatre flèches lues sur les tons des Soleils et des Nœuds : Détermination et Environnement pour le Design, Motivation et Perspective pour la Personnalité. Chacune pointe à gauche (tons 1 à 3) ou à droite (4 à 6) ; il leur faut une heure de naissance exacte.",
+    ],
+  },
   lifePath: {
     term: ["Life Path", "Chemin de vie"],
     body: [
@@ -265,6 +273,7 @@ export function glossaryFor(page: string, selectedId: string | null): GlossaryId
   if (page === "design") {
     // The words the chosen piece's reading uses first, then the keys.
     if (prefix === "gate" || prefix === "act") add("hdGate", "hdLine", "hdHanging", "hdChannel");
+    if (selectedId && /^act:(design|personality):(sun|northnode)$/.test(selectedId)) add("hdVariable");
     if (prefix === "act") add("hdLayers");
     if (prefix === "channel") add("hdChannel", "hdHanging", "hdGate");
     if (prefix === "center") add("hdCentres", "hdChannel");

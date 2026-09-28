@@ -76,9 +76,12 @@ import {
   buildHumanDesignChart,
   HD_BODY_IDS,
   type HdActivation,
+  type HdArrowId,
   type HdBodyId,
   type HumanDesignChart,
 } from "./human-design";
+import { HD_ARROWS, hdArrowLeft, hdFineOf } from "./hd-variable";
+import { hdUncertainOf } from "./hd-uncertain";
 
 type WasmMod = {
   FS: {
@@ -1355,18 +1358,21 @@ function hdPlanetIpl(swe: SwissEPH, id: HdBodyId): number | null {
 
 function hdBodiesAt(swe: SwissEPH, jd: number, flag: number, layer: "personality" | "design"): HdActivation[] {
   const rows: HdActivation[] = [];
-  // HD bodygraphs that match Jovian / Genetic Matrix use the mean node for gates.
-  // Natal Ulune stays on SE_TRUE_NODE; this fork is HD-only.
-  const meanNode = swissLonAt(swe, jd, swe.SE_MEAN_NODE, flag);
+  // The true node, as Jovian Archive's charts use it (a third-party check
+  // against a real Jovian chart matched all four node rows with the true
+  // node and none with the mean one; GOLDENS.md). The same node as the
+  // birth chart's, so the bodygraph and the natal table agree.
+  const node = swissLonAt(swe, jd, swe.SE_TRUE_NODE, flag);
   const sun = swissLonAt(swe, jd, swe.SE_SUN, flag);
   for (const id of HD_BODY_IDS) {
     let lon: number;
     // Sun and Earth come from the one Sun evaluation, so they are exactly
-    // opposite and can never land 1 ulp apart on a gate boundary.
+    // opposite and can never land 1 ulp apart on a gate boundary; the same
+    // for the two Nodes.
     if (id === "sun") lon = sun;
     else if (id === "earth") lon = wrap360(sun + 180);
-    else if (id === "northnode") lon = meanNode;
-    else if (id === "southnode") lon = wrap360(meanNode + 180);
+    else if (id === "northnode") lon = node;
+    else if (id === "southnode") lon = wrap360(node + 180);
     else {
       const ipl = hdPlanetIpl(swe, id);
       if (ipl == null) continue;
@@ -1446,38 +1452,89 @@ function hdDesignMs(swe: SwissEPH, personalityMs: number, target: number, flag: 
   return dLo <= dHi ? { ms: lo, residual: dLo } : { ms: hi, residual: dHi };
 }
 
+/** Both layers for one birth instant: the Design moment solved, then 13 bodies at each. */
+function hdCastAt(swe: SwissEPH, flag: number, natalMs: number) {
+  const personalityJd = jdUt(swe, new Date(natalMs));
+  const personalitySun = swissLonAt(swe, personalityJd, swe.SE_SUN, flag);
+  const target = wrap360(personalitySun - HD_DESIGN_ARC_DEG);
+  const solved = hdDesignMs(swe, natalMs, target, flag);
+  if (solved.residual > HD_DESIGN_TOLERANCE_DEG) {
+    throw new Error("The Design Sun could not be locked to 88° of solar arc.");
+  }
+  const designJd = jdUt(swe, new Date(solved.ms));
+  const designSun = swissLonAt(swe, designJd, swe.SE_SUN, flag);
+  const activations = [...hdBodiesAt(swe, personalityJd, flag, "personality"), ...hdBodiesAt(swe, designJd, flag, "design")];
+  return { designMs: solved.ms, personalitySun, designSun, activations };
+}
+
+/** An arrow keeps its colour and side this far either side of the birth time, or it is marked. */
+const HD_TONE_WINDOW_MS = 30 * 60_000;
+/** Without a birth time, the day is sampled this often. */
+const HD_SPAN_STEP_MS = 60 * 60_000;
+
 /**
  * Human Design Personality + Design from natal UT.
  * Design is the UT when the Sun was exactly 88° of ecliptic longitude before
  * the personality Sun (88° solar arc — not a frozen 88 days).
+ *
+ * With `spanMinutes` (no birth time: the chart is cast at noon and the day is
+ * ±12 h), the day is cast every hour as well, and `uncertain` lists what
+ * could differ: the rows whose gate or line changes, the keys, the defined
+ * channels. With a birth time, `toneSteady` says whether each arrow keeps its
+ * colour and its side half an hour either side.
  */
-export async function calculateHumanDesign(input: { natalUtc: Date }): Promise<HumanDesignChart> {
+export async function calculateHumanDesign(input: { natalUtc: Date; spanMinutes?: number }): Promise<HumanDesignChart> {
   const natalUtc = input.natalUtc;
   if (Number.isNaN(natalUtc.getTime())) {
     throw new Error("Could not read this birth moment.");
   }
   const swe = await withEngine((s) => s);
   const flag = swe.SEFLG_SWIEPH | swe.SEFLG_SPEED;
-  const personalityJd = jdUt(swe, natalUtc);
-  const personalitySun = swissLonAt(swe, personalityJd, swe.SE_SUN, flag);
-  const target = wrap360(personalitySun - HD_DESIGN_ARC_DEG);
+  const natalMs = natalUtc.getTime();
+  const main = hdCastAt(swe, flag, natalMs);
 
-  const solved = hdDesignMs(swe, natalUtc.getTime(), target, flag);
-  if (solved.residual > HD_DESIGN_TOLERANCE_DEG) {
-    throw new Error("The Design Sun could not be locked to 88° of solar arc.");
-  }
-
-  const designUtc = new Date(solved.ms);
-  const designJd = jdUt(swe, designUtc);
-  const designSun = swissLonAt(swe, designJd, swe.SE_SUN, flag);
-  const personality = hdBodiesAt(swe, personalityJd, flag, "personality");
-  const design = hdBodiesAt(swe, designJd, flag, "design");
-
-  return buildHumanDesignChart({
+  const chart = buildHumanDesignChart({
     personalityUtc: natalUtc.toISOString().replace(".000Z", "Z"),
-    designUtc: designUtc.toISOString().replace(".000Z", "Z"),
-    personalitySun,
-    designSun,
-    activations: [...personality, ...design],
+    designUtc: new Date(main.designMs).toISOString().replace(".000Z", "Z"),
+    personalitySun: main.personalitySun,
+    designSun: main.designSun,
+    activations: main.activations,
   });
+
+  const span = Math.max(0, Math.min(720, Math.round(input.spanMinutes ?? 0))) * 60_000;
+  if (span > 0) {
+    const others: HumanDesignChart[] = [];
+    for (let dt = -span; dt <= span; dt += HD_SPAN_STEP_MS) {
+      if (dt === 0) continue;
+      const at = hdCastAt(swe, flag, natalMs + dt);
+      others.push(
+        buildHumanDesignChart({
+          personalityUtc: chart.personalityUtc,
+          designUtc: chart.designUtc,
+          personalitySun: at.personalitySun,
+          designSun: at.designSun,
+          activations: at.activations,
+        }),
+      );
+    }
+    chart.uncertain = hdUncertainOf(chart, others, span / 60_000);
+  } else {
+    // An arrow is steady when half an hour either side it keeps its colour
+    // and its side (left for tones 1 to 3, right for 4 to 6): the Sun moves
+    // one tone in about 38 minutes, but one side in about two hours.
+    const steady: Partial<Record<HdArrowId, boolean>> = {};
+    const around = [hdCastAt(swe, flag, natalMs - HD_TONE_WINDOW_MS), hdCastAt(swe, flag, natalMs + HD_TONE_WINDOW_MS)];
+    for (const arrow of HD_ARROWS) {
+      const arrowAt = (acts: HdActivation[]) => {
+        const row = acts.find((r) => r.layer === arrow.layer && r.body === arrow.body);
+        if (!row) return "";
+        const fine = hdFineOf(row.ecliptic);
+        return `${fine.color}${hdArrowLeft(fine.tone) ? "L" : "R"}`;
+      };
+      const here = arrowAt(main.activations);
+      steady[arrow.id] = around.every((c) => arrowAt(c.activations) === here);
+    }
+    chart.toneSteady = steady as Record<HdArrowId, boolean>;
+  }
+  return chart;
 }

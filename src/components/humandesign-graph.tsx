@@ -10,6 +10,7 @@ import {
 } from "@/lib/chart/bodygraph-geometry";
 import { hdFocusOf, hdSay } from "@/lib/chart/hd-focus";
 import { parseHdActId } from "@/lib/chart/hd-rows";
+import { hdArrowsOf } from "@/lib/chart/hd-variable";
 import { graphForView, HD_CENTER_IDS, HD_CHANNELS, type HdView, type HumanDesignChart } from "@/lib/chart/human-design";
 import { announceChartHover, onChartPreview } from "@/lib/depth/preview-bus";
 import { prefersReducedMotion } from "@/lib/depth/env";
@@ -71,6 +72,9 @@ export function HumanDesignGraph({
     return out;
   }, [graph.activations]);
   const defined = useMemo(() => new Set(graph.centers), [graph.centers]);
+  const arrows = useMemo(() => hdArrowsOf(chart), [chart]);
+  const uncertainRows = useMemo(() => (chart.uncertain ? new Set(chart.uncertain.rows) : null), [chart.uncertain]);
+  const uncertainChannels = useMemo(() => new Set(chart.uncertain?.channels ?? []), [chart.uncertain]);
   const onChannels = useMemo(() => new Set(graph.channels.map((c) => c.id)), [graph.channels]);
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -169,6 +173,8 @@ export function HumanDesignGraph({
       selectedId={selectedId}
       lit={focus ? focus.rows : null}
       outlined={outline ? outline.rows : null}
+      arrows={arrows.filter((a) => a.layer === layer)}
+      uncertain={uncertainRows}
       onPoint={(id) => point(id, id !== null)}
       onPick={onSelect}
     />
@@ -224,6 +230,7 @@ export function HumanDesignGraph({
                     {...attrs(`channel:${ch.id}`)}
                     data-testid={`hd-channel-${ch.gates[0]}-${ch.gates[1]}`}
                     data-tone={on ? "defined" : t0 !== "off" || t1 !== "off" ? "hanging" : "off"}
+                    data-uncertain={uncertainChannels.has(ch.id) ? "1" : undefined}
                     className={cn("ulune-hd-channel", on && "is-on")}
                   >
                     <path className="hd-hit" d={draw.d} />

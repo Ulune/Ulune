@@ -1,7 +1,8 @@
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { hdActId, hdColumnRows } from "@/lib/chart/hd-rows";
+import type { HdArrow } from "@/lib/chart/hd-variable";
 import type { HdLayer, HdView, HumanDesignChart } from "@/lib/chart/human-design";
-import { hdBodyLabel, hdGraphText, hdLayerLabel } from "@/lib/i18n/hd-ui";
+import { hdArrowTitle, hdBodyLabel, hdGraphText, hdLayerLabel, hdUnknownText, hdVariableText } from "@/lib/i18n/hd-ui";
 import { useI18n } from "@/lib/i18n/locale";
 import { PlanetGlyph } from "./glyphs";
 
@@ -9,8 +10,26 @@ import { PlanetGlyph } from "./glyphs";
  * One column beside the bodygraph: the 13 bodies of the Design (left, red)
  * or of the Personality (right, ink), each with the gate and line it
  * colours. Pointing at a row outlines its gate on the chart; choosing it
- * opens that body's reading. One Tab stop; the arrows walk the rows.
+ * opens that body's reading. One Tab stop; the arrows walk the rows. The Sun
+ * and North Node rows carry the arrows of Variable (with a birth time);
+ * without one, the rows that could differ are marked ~.
  */
+
+/** A small arrow, left or right. */
+function ArrowMark({ left }: { left: boolean }) {
+  return (
+    <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+      <path
+        d={left ? "M10.5 6H2M5.5 2.5 2 6l3.5 3.5" : "M1.5 6H10M6.5 2.5 10 6l-3.5 3.5"}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 export function HdColumn({
   chart,
   layer,
@@ -19,6 +38,8 @@ export function HdColumn({
   selectedId,
   lit,
   outlined,
+  arrows,
+  uncertain,
   onPoint,
   onPick,
 }: {
@@ -32,6 +53,10 @@ export function HdColumn({
   lit: ReadonlySet<string> | null;
   /** Rows outlined by the pointer (act ids). */
   outlined: ReadonlySet<string> | null;
+  /** This column's arrows of Variable (none without a birth time). */
+  arrows: readonly HdArrow[];
+  /** Rows that could differ at another hour (no birth time). */
+  uncertain: ReadonlySet<string> | null;
   onPoint: (id: string | null) => void;
   onPick: (id: string) => void;
 }) {
@@ -80,7 +105,7 @@ export function HdColumn({
         aria-pressed={selectedId === "hello:layers"}
         onClick={() => onPick("hello:layers")}
       >
-        <span id={`${uid}-k`} className="ulune-hd-col-k">
+        <span id={`${uid}-k`} className="ulune-kicker ulune-hd-col-k">
           {name}
         </span>
         {moment ? <span className="ulune-hd-col-when">{moment}</span> : null}
@@ -97,13 +122,27 @@ export function HdColumn({
         {rows.map((row, i) => {
           const id = hdActId(layer, row.body);
           const body = hdBodyLabel(locale, row.body);
+          const arrow = arrows.find((a) => a.body === row.body);
+          const arrowTitle = arrow
+            ? `${hdArrowTitle(locale, arrow)}${arrow.steady ? "" : `. ${hdVariableText(locale, "unsteady")}`}`
+            : "";
+          const maybe = uncertain?.has(id) ?? false;
+          const label = [
+            hdGraphText(locale, "rowLabel", { layer: hdLayerLabel(locale, layer), body, gate: row.gate, line: row.line }),
+            arrowTitle,
+            maybe ? hdUnknownText(locale, "mark") : "",
+          ]
+            .filter(Boolean)
+            .join(". ");
           return (
             <div
               key={id}
               role="option"
               tabIndex={i === at ? 0 : -1}
               aria-selected={selectedId === id}
-              aria-label={hdGraphText(locale, "rowLabel", { layer: hdLayerLabel(locale, layer), body, gate: row.gate, line: row.line })}
+              aria-label={label}
+              data-uncertain={maybe ? "1" : undefined}
+              title={maybe ? hdUnknownText(locale, "mark") : undefined}
               data-testid={`hd-row-${layer}-${row.body}`}
               data-act={id}
               data-gate={row.gate}
@@ -131,6 +170,16 @@ export function HdColumn({
               </span>
               <span className="ulune-hd-row-glyph" aria-hidden>
                 <PlanetGlyph id={row.body} size={15} />
+              </span>
+              <span
+                className="ulune-hd-row-arrow"
+                data-testid={arrow ? `hd-arrow-${arrow.id}` : undefined}
+                data-dir={arrow ? (arrow.left ? "left" : "right") : undefined}
+                data-steady={arrow ? (arrow.steady ? "1" : "0") : undefined}
+                title={arrowTitle || undefined}
+                aria-hidden
+              >
+                {arrow ? <ArrowMark left={arrow.left} /> : null}
               </span>
             </div>
           );

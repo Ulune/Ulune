@@ -54,7 +54,7 @@ export function HdLayerHint({ view }: { view: HdView }) {
   }, [view]);
   if (!shown) return null;
   return (
-    <div className="ulune-wheel-hint ulune-hd-layer-hint" role="status" data-testid="hd-layer-hint">
+    <div className="ulune-wheel-hint" role="status" data-testid="hd-layer-hint">
       <span>{hdGraphText(locale, LINE[shown])}</span>
       <button type="button" className="ulune-wheel-hint-close" aria-label={hdGraphText(locale, "close")} onClick={() => setShown(null)}>
         <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">

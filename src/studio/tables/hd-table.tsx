@@ -98,7 +98,10 @@ export function HumanDesignTable({
                       </span>
                     </td>
                     <td data-col="gate" className="whitespace-nowrap">
-                      <span className="font-mono tabular-nums">{row.gate}</span>
+                      <span className="font-mono tabular-nums">
+                        {chart.uncertain?.rows.includes(selectId) ? "~" : ""}
+                        {row.gate}
+                      </span>
                       {gateName ? <span className="text-fg-muted"> · {gateName}</span> : null}
                     </td>
                     <td data-col="line" className="font-mono tabular-nums">
@@ -150,7 +153,10 @@ export function HumanDesignTable({
                       className={cn("cursor-pointer", selectedId === selectId && "bg-bg-subtle")}
                     >
                       <td data-col="channel">
-                        <span className="font-mono tabular-nums">{row.id}</span>
+                        <span className="font-mono tabular-nums">
+                          {chart.uncertain?.channels.includes(row.id) ? "~" : ""}
+                          {row.id}
+                        </span>
                         {name ? <span className="text-fg-muted"> · {name}</span> : null}
                       </td>
                       <td data-col="gates">

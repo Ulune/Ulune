@@ -1,11 +1,12 @@
 /**
  * Human Design: the words of the first read (the five steps in the side
  * panel before anything is chosen), what each of the 13 bodies stands for,
- * and the Incarnation Cross. Written for Ulune, in English and French side by
+ * the Incarnation Cross, the four arrows of Variable and what a chart
+ * without a birth time says. Written for Ulune, in English and French side by
  * side (one language per reading pack, scripts/content-packs-plugin.mjs).
  */
 import type { Bi } from "./types";
-import type { HdAuthority, HdBodyId, HdDefinition, HdStrategy, HdType } from "@/lib/chart/human-design";
+import type { HdArrowId, HdAuthority, HdBodyId, HdDefinition, HdStrategy, HdType } from "@/lib/chart/human-design";
 import type { HdAngle } from "@/lib/chart/hd-cross";
 
 /** What each body stands for in Human Design: the first lines of a row's reading. */
@@ -242,4 +243,64 @@ export const HD_IN_CHART: {
     fr: "Dans votre schéma, {act} colore la porte {gate}, ligne {line} ({lineName}).",
   },
   and: { en: " and ", fr: " et " },
+};
+
+/** Variable: the four arrows, read from the tones of the Suns and the Nodes. */
+export const HD_VARIABLE_TEXT: {
+  arrow: Record<HdArrowId, Bi>;
+  left: Bi;
+  right: Bi;
+  unsteady: Bi;
+  about: Bi;
+} = {
+  arrow: {
+    determination: {
+      en: "The Design Sun’s arrow, Determination, is about how your body is best nourished: {name}, colour {color}.",
+      fr: "La flèche du Soleil du Design, la Détermination, parle de la façon dont votre corps se nourrit le mieux : {name}, couleur {color}.",
+    },
+    environment: {
+      en: "The Design Node’s arrow, Environment, is about the kind of place where you do well: {name}, colour {color}.",
+      fr: "La flèche du Nœud du Design, l’Environnement, parle du genre de lieu où vous êtes bien : {name}, couleur {color}.",
+    },
+    motivation: {
+      en: "The Personality Sun’s arrow, Motivation, is about what drives your mind: {name}, colour {color}.",
+      fr: "La flèche du Soleil de la Personnalité, la Motivation, parle de ce qui pousse votre mental : {name}, couleur {color}.",
+    },
+    perspective: {
+      en: "The Personality Node’s arrow, Perspective, is about how your mind sees the world: {name}, colour {color}.",
+      fr: "La flèche du Nœud de la Personnalité, la Perspective, parle de la façon dont votre mental voit le monde : {name}, couleur {color}.",
+    },
+  },
+  left: {
+    en: "It points left (tone {tone}): focused and active, at its best with a clear, specific way of doing things.",
+    fr: "Elle pointe à gauche (ton {tone}) : concentrée et active, au mieux avec une façon de faire claire et précise.",
+  },
+  right: {
+    en: "It points right (tone {tone}): receptive and open, at its best taking things in as they come.",
+    fr: "Elle pointe à droite (ton {tone}) : réceptive et ouverte, au mieux en accueillant les choses comme elles viennent.",
+  },
+  unsteady: {
+    en: "Half an hour either side of your birth time this arrow changes: it could point the other way or take another colour.",
+    fr: "À une demi-heure près de votre heure de naissance, cette flèche change : elle pourrait pointer de l’autre côté ou prendre une autre couleur.",
+  },
+  about: {
+    en: "Variable is the finest layer of a bodygraph, read from four arrows: the tones of the Sun and of the Nodes, in the Design and in the Personality. Each arrow points left (tones 1 to 3) or right (tones 4 to 6). Teachers suggest living by type, strategy and authority for a long while before working with it.",
+    fr: "La Variable est la couche la plus fine d’un bodygraph, lue sur quatre flèches : les tons du Soleil et des Nœuds, dans le Design et dans la Personnalité. Chaque flèche pointe à gauche (tons 1 à 3) ou à droite (tons 4 à 6). Les enseignants conseillent de vivre longtemps selon son type, sa stratégie et son autorité avant de s’y intéresser.",
+  },
+};
+
+/** Without a birth time: what could differ at another hour of that day. */
+export const HD_UNKNOWN_TEXT: { row: Bi; key: Bi; channel: Bi } = {
+  row: {
+    en: "Without a birth time this could be another gate or line: the chart is cast at noon.",
+    fr: "Sans heure de naissance, ce pourrait être une autre porte ou une autre ligne : le schéma est calculé à midi.",
+  },
+  key: {
+    en: "Without a birth time this could be different: at another hour of that day the chart gives another answer.",
+    fr: "Sans heure de naissance, ce pourrait être différent : à une autre heure de ce jour-là, le schéma donne une autre réponse.",
+  },
+  channel: {
+    en: "Without a birth time this channel could be different: at another hour of that day it is defined or not.",
+    fr: "Sans heure de naissance, ce canal pourrait être différent : à une autre heure de ce jour-là, il est défini ou non.",
+  },
 };

@@ -7,7 +7,7 @@ import { HumanDesignHello } from "@/components/humandesign-hello";
 import { LoadingLines } from "@/components/loading-lines";
 import { SegmentedToggle } from "@/components/segmented-toggle";
 import { hdMomentLabel } from "@/lib/i18n/hd-moment";
-import { hdNoNatal, hdViewLabel } from "@/lib/i18n/hd-ui";
+import { hdNoNatal, hdUnknownText, hdViewLabel } from "@/lib/i18n/hd-ui";
 import { localizeError } from "@/lib/i18n/errors";
 import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
@@ -106,6 +106,11 @@ function DesignFigure() {
   return (
     <div className="ulune-hd-figure flex h-full min-h-0 w-full flex-col items-center justify-start overflow-auto" style={{ opacity: hd.busy ? 0.7 : 1 }}>
       <HdFacts chart={chart} selectedId={w.selectedId} onSelect={w.pick} />
+      {chart.uncertain ? (
+        <p className="ulune-hd-unknown" data-testid="hd-unknown" role="note">
+          {hdUnknownText(locale, "line")}
+        </p>
+      ) : null}
       <HumanDesignGraph
         chart={chart}
         view={hd.view}

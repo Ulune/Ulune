@@ -127,3 +127,34 @@ export function hdAngleLabel(locale: AppLocale, angle: keyof typeof source.angle
 export function hdWhoLabel(locale: AppLocale, row: { layer: "personality" | "design"; body: string }): string {
   return hdGraphText(locale, "who", { layer: hdLayerLabel(locale, row.layer), body: hdBodyLabel(locale, row.body) });
 }
+
+type ArrowKey = keyof typeof source.arrows;
+
+/** "Determination", "Environment", "Motivation", "Perspective". */
+export function hdArrowLabel(locale: AppLocale, arrow: ArrowKey): string {
+  return pick(source.arrows[arrow], locale);
+}
+
+/** An arrow's colour (1 to 6) by name: "Appetite", "Shores", "Innocence", "Survival". */
+export function hdColorLabel(locale: AppLocale, arrow: ArrowKey, color: number): string {
+  const row = source.colors[arrow];
+  const list = (locale === "fr" ? row.fr : row.en) ?? row.en;
+  return list[color - 1] ?? row.en[color - 1] ?? String(color);
+}
+
+/** "Determination: Appetite, pointing left". */
+export function hdArrowTitle(locale: AppLocale, arrow: { id: ArrowKey; color: number; left: boolean }): string {
+  return pick(source.variable.title, locale)
+    .replaceAll("{arrow}", hdArrowLabel(locale, arrow.id))
+    .replaceAll("{name}", hdColorLabel(locale, arrow.id, arrow.color))
+    .replaceAll("{dir}", pick(arrow.left ? source.variable.left : source.variable.right, locale));
+}
+
+/** The words for Variable and for a chart without a birth time. */
+export function hdVariableText(locale: AppLocale, key: keyof typeof source.variable): string {
+  return pick(source.variable[key], locale);
+}
+
+export function hdUnknownText(locale: AppLocale, key: keyof typeof source.unknown): string {
+  return pick(source.unknown[key], locale);
+}

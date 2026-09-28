@@ -168,6 +168,42 @@
     "juxtaposition": { "en": "Juxtaposition", "fr": "Juxtaposition" },
     "left": { "en": "Left Angle", "fr": "Angle gauche" }
   },
+  "arrows": {
+    "determination": { "en": "Determination", "fr": "Détermination" },
+    "environment": { "en": "Environment", "fr": "Environnement" },
+    "motivation": { "en": "Motivation", "fr": "Motivation" },
+    "perspective": { "en": "Perspective", "fr": "Perspective" }
+  },
+  "colors": {
+    "determination": {
+      "en": ["Appetite", "Taste", "Thirst", "Touch", "Sound", "Light"],
+      "fr": ["Appétit", "Goût", "Soif", "Toucher", "Son", "Lumière"]
+    },
+    "environment": {
+      "en": ["Caves", "Markets", "Kitchens", "Mountains", "Valleys", "Shores"],
+      "fr": ["Grottes", "Marchés", "Cuisines", "Montagnes", "Vallées", "Rivages"]
+    },
+    "motivation": {
+      "en": ["Fear", "Hope", "Desire", "Need", "Guilt", "Innocence"],
+      "fr": ["Peur", "Espoir", "Désir", "Besoin", "Culpabilité", "Innocence"]
+    },
+    "perspective": {
+      "en": ["Survival", "Possibility", "Power", "Wanting", "Probability", "Personal"],
+      "fr": ["Survie", "Possibilité", "Pouvoir", "Envie", "Probabilité", "Personnelle"]
+    }
+  },
+  "variable": {
+    "title": { "en": "{arrow}: {name}, pointing {dir}", "fr": "{arrow} : {name}, flèche à {dir}" },
+    "left": { "en": "left", "fr": "gauche" },
+    "right": { "en": "right", "fr": "droite" },
+    "unsteady": { "en": "It could be different: it changes within half an hour of the birth time.", "fr": "Elle pourrait être différente : elle change à une demi-heure près de l’heure de naissance." },
+    "word": { "en": "Variable", "fr": "Variable" }
+  },
+  "unknown": {
+    "line": { "en": "No birth time: the chart is cast at noon. What is marked ~ could differ at another hour of that day, and the arrows are left out.", "fr": "Pas d’heure de naissance : le schéma est calculé à midi. Ce qui est marqué ~ pourrait différer à une autre heure de ce jour-là, et les flèches sont laissées de côté." },
+    "mark": { "en": "Could differ at another hour of that day", "fr": "Pourrait différer à une autre heure de ce jour-là" },
+    "title": { "en": "No birth time", "fr": "Pas d’heure de naissance" }
+  },
   "activationTable": {
     "columns": {
       "en": ["Layer", "Body", "Gate", "Line", "Centre", "Channel"],

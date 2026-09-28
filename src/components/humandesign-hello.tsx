@@ -55,7 +55,7 @@ export function HumanDesignHello({
 
   return (
     <section data-testid="hd-hello" data-hello-id={HD_HELLO.id} className="ulune-hd-first" aria-labelledby="ulune-hd-first-title">
-      <h3 id="ulune-hd-first-title" className="ulune-hd-first-title">
+      <h3 id="ulune-hd-first-title" className="ulune-kicker ulune-hd-first-title">
         {hdGraphText(locale, "firstTitle")}
       </h3>
       <ol className="ulune-hd-steps">
@@ -83,7 +83,7 @@ export function HumanDesignHello({
                 </span>
                 <span className="ulune-hd-step-body">
                   <span className="ulune-hd-step-head">
-                    <span data-hello-label className="ulune-hd-step-k">
+                    <span data-hello-label className="ulune-kicker ulune-hd-step-k">
                       {label}
                     </span>
                     <span data-hello-title className="ulune-hd-step-v">

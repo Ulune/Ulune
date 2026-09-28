@@ -99,7 +99,7 @@ export function FigureKeys({
         aria-label={label}
         aria-describedby={`${uid}-hint`}
         aria-activedescendant={parts.length ? `${uid}-${at}` : undefined}
-        className="ulune-figure-keys-list"
+        className="sr-only ulune-figure-keys-list"
         onFocus={() => {
           const chosen = selectedId ? parts.findIndex((p) => p.id === selectedId) : -1;
           go(chosen >= 0 ? chosen : Math.min(at, Math.max(0, parts.length - 1)));
