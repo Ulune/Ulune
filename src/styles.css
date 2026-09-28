@@ -773,11 +773,6 @@ html.theme-ready body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-
-  
-
-  
-
 }
 
 /* Chrome enter: opacity only — no layout or travel. */
@@ -1387,26 +1382,21 @@ html.light .ulune-wheel [data-cfg-type] {
 
 @media (max-width: 430px) {
   /* Chart on phone: tabs only until a tab is opened, so HD/wheel stay in frame. */
-  
-  
 }
 @media (max-width: 1199px) {
   /* Page is the scroller: dock panels grow, no nested clip. */
-  
-  
+
   .ulune-table-wrap {
     max-height: none;
   }
 }
 
-.ulune-natal,
 .ulune-transits,
 .ulune-timing,
 .ulune-synastry,
 .ulune-composite,
 .ulune-progressions,
-.ulune-numerology,
-.ulune-humandesign {
+.ulune-numerology {
   --natal-gap: var(--space-3);
   --natal-sky-pad: var(--space-4);
   display: flex;
@@ -1416,14 +1406,12 @@ html.light .ulune-wheel [data-cfg-type] {
 }
 
 @media (max-width: 430px) {
-  .ulune-natal,
   .ulune-transits,
   .ulune-timing,
   .ulune-synastry,
   .ulune-composite,
   .ulune-progressions,
-  .ulune-numerology,
-  .ulune-humandesign {
+  .ulune-numerology {
     --natal-sky-pad: var(--space-2);
     --natal-gap: var(--space-2);
   }
@@ -1435,17 +1423,6 @@ html.light .ulune-wheel [data-cfg-type] {
   gap: 1rem;
   padding: var(--natal-sky-pad);
   min-width: 0;
-}
-
-.ulune-sky-wheel {
-  position: relative;
-  width: 100%;
-  min-width: 0;
-}
-
-.ulune-sky-wheel .ulune-wheel-stage {
-  width: 100%;
-  height: 100%;
 }
 
 .ulune-wheel-zoom {
@@ -1503,21 +1480,9 @@ html.light .ulune-wheel [data-cfg-type] {
   text-rendering: geometricPrecision;
 }
 
-.ulune-sky-wheel:has(.ulune-wheel-zoom) .ulune-wheel-zoom,
-.ulune-sky-wheel:has(.ulune-wheel-zoom) .ulune-wheel-zoom-port {
-  width: 100%;
-  max-width: 100%;
-}
-
 .ulune-sky-read {
   width: 100%;
   min-width: 0;
-}
-
-.ulune-sky-read-head {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
 }
 
 .ulune-sky-read-ai {
@@ -1542,22 +1507,6 @@ html.light .ulune-wheel [data-cfg-type] {
 .ulune-sky-read-ai svg {
   width: 16px;
   height: 16px;
-}
-
-.ulune-sky-read-empty {
-  margin: 0;
-  margin-top: var(--space-1);
-  font-family: var(--font-sans);
-  font-size: var(--text-base);
-  font-weight: 400;
-  line-height: 1.45;
-  color: var(--color-fg-muted);
-}
-
-.ulune-sky-read-body {
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border);
 }
 
 .ulune-hello {
@@ -1667,46 +1616,9 @@ html.light .ulune-wheel [data-cfg-type] {
     align-items: flex-start;
   }
 
-  .ulune-sky-wheel {
-    flex: 0 1 56%;
-    width: 56%;
-    min-width: 520px;
-    max-width: 56%;
-  }
-
   /* Filled-diameter zoom is natal-only. Other skies are content-sized
      grids (align-items: start); aspect-ratio: auto + min(width,height)
      in WheelZoom collapses the port to 0. */
-  .ulune-natal .ulune-sky-wheel:has(.ulune-wheel-zoom) {
-    display: flex;
-    flex-direction: column;
-    height: calc(
-      100dvh - var(--ulune-header-h, 6.75rem) - var(--ulune-nav-h, 4.125rem) - 2 *
-        var(--natal-sky-pad, 1.5rem)
-    );
-    max-height: calc(
-      100dvh - var(--ulune-header-h, 6.75rem) - var(--ulune-nav-h, 4.125rem) - 2 *
-        var(--natal-sky-pad, 1.5rem)
-    );
-  }
-
-  .ulune-natal .ulune-sky-wheel:has(.ulune-wheel-zoom) .ulune-wheel-zoom {
-    flex: 1 1 auto;
-    min-height: 0;
-  }
-
-  .ulune-natal .ulune-sky-wheel:has(.ulune-wheel-zoom) .ulune-wheel-zoom-port {
-    flex: 1 1 auto;
-    aspect-ratio: auto;
-    min-height: 0;
-    height: auto;
-  }
-
-  .ulune-sky-wheel .ulune-wheel-stage {
-    width: 100%;
-    height: 100%;
-    max-width: none;
-  }
 
   .ulune-sky-read {
     flex: 1 1 44%;
@@ -1775,192 +1687,7 @@ html.light .ulune-wheel [data-cfg-type] {
   pointer-events: auto;
 }
 
-@media (max-width: 1023.98px) {
-  .ulune-transits-sky,
-  .ulune-progressions-sky {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .ulune-transits-rail,
-  .ulune-progressions-rail {
-    display: contents;
-  }
-
-  .ulune-transits-sky .ulune-transit-clock,
-  .ulune-progressions-sky .ulune-progressions-clock {
-    order: 1;
-    position: sticky;
-    top: calc(var(--ulune-header-h, 6.75rem) + var(--ulune-nav-h, 4.125rem));
-    z-index: 21;
-    margin-inline: calc(-1 * var(--natal-sky-pad));
-    padding-inline: var(--natal-sky-pad);
-    background: var(--color-bg-elevated);
-    padding-top: 0.15rem;
-    padding-bottom: 0.35rem;
-  }
-
-  .ulune-transits-sky .ulune-transit-scrub,
-  .ulune-progressions-sky .ulune-progressions-scrub {
-    order: 2;
-  }
-
-  .ulune-transits-sky .ulune-sky-wheel,
-  .ulune-progressions-sky .ulune-sky-wheel {
-    order: 3;
-  }
-
-  .ulune-transits-sky .ulune-sky-read,
-  .ulune-progressions-sky .ulune-sky-read {
-    order: 4;
-  }
-
-}
-
-@media (min-width: 1024px) {
-  .ulune-transits-sky.ulune-sky,
-  .ulune-progressions-sky.ulune-sky {
-    display: grid;
-    grid-template-columns: minmax(520px, 56%) minmax(0, 44%);
-    align-items: start;
-    align-content: start;
-  }
-
-  .ulune-transits-sky .ulune-sky-wheel,
-  .ulune-progressions-sky .ulune-sky-wheel {
-    grid-column: 1;
-    grid-row: 1;
-    flex: none;
-    width: auto;
-    min-width: 520px;
-    max-width: none;
-  }
-
-  .ulune-transits-rail,
-  .ulune-progressions-rail {
-    grid-column: 2;
-    grid-row: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    min-width: 0;
-    position: sticky;
-    top: var(--ulune-header-h, 6.75rem);
-    max-height: calc(100dvh - var(--ulune-header-h, 6.75rem) - 1rem);
-    overflow-y: auto;
-  }
-
-  .ulune-transits-rail .ulune-sky-read,
-  .ulune-progressions-rail .ulune-sky-read {
-    order: 1;
-    flex: none;
-    width: auto;
-    position: static;
-    max-height: none;
-    overflow: visible;
-  }
-
-  .ulune-transits-rail .ulune-transit-clock,
-  .ulune-progressions-rail .ulune-progressions-clock {
-    order: 2;
-    position: static;
-  }
-
-  .ulune-transits-rail .ulune-transit-scrub,
-  .ulune-progressions-rail .ulune-progressions-scrub {
-    order: 3;
-  }
-}
-
-.ulune-chart-stage {
-  --reading-rail-side: 24rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-  width: 100%;
-  min-width: 0;
-}
-
-.ulune-wheel-col {
-  width: 100%;
-  min-width: 0;
-}
-
-.ulune-reading-rail {
-  width: 100%;
-  min-width: 0;
-}
-
-@media (min-width: 1024px) {
-  .ulune-chart-stage[data-reading="side"] {
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
-    gap: var(--space-4);
-  }
-
-  .ulune-chart-stage[data-reading="side"] .ulune-wheel-col {
-    width: min(100%, 89dvh, calc(100% - var(--reading-rail-side) - var(--space-4)));
-    flex: 0 1 auto;
-  }
-
-  .ulune-chart-stage[data-reading="side"] .ulune-reading-rail {
-    width: var(--reading-rail-side);
-    max-width: var(--reading-rail-side);
-    flex-shrink: 0;
-    position: sticky;
-    top: var(--space-7);
-    max-height: calc(100dvh - var(--space-7) - var(--space-3));
-    overflow-y: auto;
-  }
-}
-
 /* Click reading: large wrapping title so planet / aspect names stay readable. */
-[data-fold="click"] .ulune-fold-head,
-[data-fold="click"] .ulune-fold-hit {
-  align-items: flex-start;
-}
-
-[data-fold="click"] .ulune-fold-icon {
-  width: 2.75rem;
-  height: 2.75rem;
-  margin-top: var(--space-1);
-}
-
-[data-fold="click"] .ulune-fold-title {
-  overflow: visible;
-  text-overflow: unset;
-  white-space: normal;
-  font-size: var(--text-2xl);
-  line-height: 1.15;
-  text-wrap: balance;
-}
-
-[data-fold="click"] .ulune-fold-subtitle {
-  overflow: visible;
-  text-overflow: unset;
-  white-space: normal;
-  font-size: var(--text-sm);
-  line-height: var(--leading-phi-snug);
-}
-
-@media (min-width: 768px) {
-  [data-fold="click"] .ulune-fold-title {
-    font-size: var(--text-3xl);
-  }
-}
-
-@media (min-width: 1024px) {
-  .ulune-chart-stage[data-reading="side"] [data-fold="click"] .ulune-fold-title {
-    font-size: var(--text-2xl);
-  }
-}
-
-.ulune-fade,
-.ulune-fade-in {
-  animation: ulune-fade-in var(--motion-ui) var(--ease-out) both;
-}
 
 .ulune-live-dot {
   background: var(--color-halo);
@@ -2042,8 +1769,6 @@ html.light .ulune-wheel [data-cfg-type] {
     animation: none;
   }
 
-  .ulune-fade,
-.ulune-fade-in,
 .ulune-read,
 .ulune-wheel {
     animation: none;
@@ -2070,9 +1795,6 @@ html.light .ulune-wheel [data-cfg-type] {
     border-width: 1px;
   }
   /* Empty synastry/composite + birth form: birth dock first, readable empty */
-  
-  
-  
 }
 
 /* MOBILE_SOLO_NAV */
@@ -2095,7 +1817,6 @@ html.light .ulune-wheel [data-cfg-type] {
 /* DESKTOP_DOCK_NO_FIGHT_PAIR — resize/collapse only on normal shell row */
 
 /* Table beside dock: stage scrolls the data table */
-
 
 /* Inner wheel nodes are programmatic focus targets only; the wheel shows the ring. */
 .ulune-wheel :focus,
@@ -2952,19 +2673,7 @@ html.light {
 .ulune-depth-stack > svg[data-depth-base] {
   display: block;
 }
-.ulune-depth-plane {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: visible;
-  animation: none;
-  transform-origin: 50% 50% 0;
-}
-.ulune-depth-plane * {
-  animation: none !important;
-}
+
 /* Opacity, not visibility: a lifted piece keeps keyboard focus and the pointer. */
 [data-depth-hidden="1"] {
   opacity: 0 !important;

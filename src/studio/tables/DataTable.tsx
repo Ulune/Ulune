@@ -4,7 +4,6 @@ import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "@/lib/toast";
 import "@/studio/modes/styles/tables.css";
-import { onTablistKeyDown } from "@/lib/a11y/tablist";
 
 function cellText(el: Element) {
   return (el.textContent ?? "").replace(/\s+/g, " ").trim();
@@ -102,21 +101,23 @@ export function TableExport({
 }
 
 /**
- * A data table. On phones each row becomes a two-line item (first cell,
+ * A data table. Where the table is narrow (under 640 px: a phone, or a stage
+ * squeezed by the side panel) each row becomes a two-line item (first cell,
  * then the others labelled by their column), so nothing scrolls sideways.
  * `exportName` adds Copy / CSV.
  */
 export function DataTable({
   wide = false,
   stickyFirst = true,
-  group,
+  className,
   exportName,
   beforeExport,
   children,
 }: {
   wide?: boolean;
   stickyFirst?: boolean;
-  group?: "position" | "motion" | "condition";
+  /** Names the table for its own styles (the natal points: `ulune-points`). */
+  className?: string;
   exportName?: string;
   /** Called before Copy / CSV read the rows (see TableExport). */
   beforeExport?: () => void;
@@ -146,81 +147,13 @@ export function DataTable({
       {exportName ? <TableExport name={exportName} target={ref} beforeExport={beforeExport} /> : null}
       <div className="ulune-table-wrap" data-testid="table-wrap">
         <table
-          className="ulune-data-table"
+          className={cn("ulune-data-table", className)}
           data-wide={wide ? "1" : undefined}
           data-sticky-first={stickyFirst ? "1" : "0"}
-          data-group={group}
         >
           {children}
         </table>
       </div>
-    </div>
-  );
-}
-
-export function TableFrame({
-  testId,
-  title,
-  hint,
-  actions,
-  children,
-}: {
-  testId?: string;
-  title: string;
-  hint?: string;
-  actions?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <section data-testid={testId} className="ulune-panel flex min-h-0 min-w-0 flex-col overflow-hidden">
-      <header className="flex shrink-0 flex-col gap-[var(--space-3)] border-b border-border px-[var(--space-4)] py-[var(--space-3)] sm:flex-row sm:items-start sm:justify-between md:px-[var(--space-5)]">
-        <div className="min-w-0">
-          <h2 className="font-display text-2xl leading-none text-fg">{title}</h2>
-          {hint ? <p className="mt-[var(--space-2)] max-w-[61.8ch] text-sm text-fg-muted">{hint}</p> : null}
-        </div>
-        {actions ? <div className="flex shrink-0 flex-wrap items-center gap-[var(--space-2)]">{actions}</div> : null}
-      </header>
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden px-[var(--space-4)] py-[var(--space-4)] md:px-[var(--space-5)]">
-        {children}
-      </div>
-    </section>
-  );
-}
-
-export function TableGroupBar({
-  group,
-  onGroup,
-  labels,
-}: {
-  group: "position" | "motion" | "condition";
-  onGroup: (next: "position" | "motion" | "condition") => void;
-  labels: { position: string; motion: string; condition: string };
-}) {
-  const { t } = useI18n();
-  return (
-    <div
-      className="ulune-table-groups mb-[var(--space-3)] flex md:hidden"
-      role="tablist"
-      aria-label={t("tableColumnGroups")}
-      onKeyDown={(e) => onTablistKeyDown(e, true)}
-    >
-      {(["position", "motion", "condition"] as const).map((id) => (
-        <button
-          key={id}
-          type="button"
-          role="tab"
-          data-testid={`table-group-${id}`}
-          aria-selected={group === id}
-          tabIndex={group === id ? 0 : -1}
-          onClick={() => onGroup(id)}
-          className={cn(
-            "min-h-11 min-w-0 flex-1 px-2 text-xs",
-            group === id ? "ob-subtab-on" : "text-fg-muted",
-          )}
-        >
-          {labels[id]}
-        </button>
-      ))}
     </div>
   );
 }

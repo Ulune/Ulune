@@ -64,16 +64,6 @@
       z-index: 3;
     }
 }
-@media (max-width: 767.98px) {
-  .ulune-data-table[data-group="position"] th[data-group]:not([data-group="position"]),
-    .ulune-data-table[data-group="position"] td[data-group]:not([data-group="position"]),
-    .ulune-data-table[data-group="motion"] th[data-group]:not([data-group="motion"]),
-    .ulune-data-table[data-group="motion"] td[data-group]:not([data-group="motion"]),
-    .ulune-data-table[data-group="condition"] th[data-group]:not([data-group="condition"]),
-    .ulune-data-table[data-group="condition"] td[data-group]:not([data-group="condition"]) {
-      display: none;
-    }
-}
 [data-testid="table-houses"] .ulune-data-table th:first-child,
 [data-testid="table-houses"] .ulune-data-table td:first-child {
   position: static;
@@ -100,11 +90,14 @@
   padding-inline: 0.4rem;
 }
 /* ------------------------------------------------------------- Tables v2 */
+/* Each table is a size container: its rows fold into items by its own width
+   (a phone, or a stage squeezed by the side panel), not the window's. */
 .ob-table-block {
   display: flex;
   flex-direction: column;
   gap: 8px;
   min-width: 0;
+  container-type: inline-size;
 }
 .ob-table-export {
   display: flex;
@@ -131,7 +124,11 @@
 .ulune-data-table tbody tr.cursor-pointer:hover td {
   background: var(--color-bg-subtle);
 }
-@media (max-width: 639.98px) {
+@container (max-width: 639.98px) {
+  .ulune-table-wrap {
+      overflow: visible;
+      max-height: none;
+    }
   .ulune-data-table,
     .ulune-data-table[data-wide],
     .ulune-data-table tbody {
@@ -237,4 +234,286 @@
       width: auto;
       min-width: 0;
     }
+}
+
+/* ------------------------------------------------------- The table page
+   One scroll for all the parts of a table, a bar of links pinned at the top
+   (TablePage.tsx). Nothing scrolls inside the page: tables fit their width,
+   and their column headers pin under the bar. */
+.ulune-tpage {
+  --tbar-h: 45px;
+  min-width: 0;
+  padding: 0 var(--stage-pad) 40px;
+  container: tpage / inline-size;
+}
+.ulune-tbar {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  min-width: 0;
+  margin: 0 calc(var(--stage-pad) * -1);
+  padding: 0 calc(var(--stage-pad) - 4px);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+.ulune-tbar-list {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.ulune-tbar-list::-webkit-scrollbar {
+  display: none;
+}
+.ulune-tbar-list > li {
+  flex: 0 0 auto;
+}
+.ulune-tbar-link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  color: var(--color-fg-muted);
+  font: 500 13px/1 var(--font-ui);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color var(--dur-hover) var(--ease-out),
+    box-shadow var(--dur-move) var(--ease-out);
+}
+.ulune-tbar-link:hover {
+  color: var(--color-fg);
+}
+.ulune-tbar-link[aria-current="true"] {
+  color: var(--color-fg);
+  box-shadow: inset 0 -2px 0 var(--color-fg);
+}
+.ulune-tbar-link:focus-visible {
+  outline-offset: -2px;
+}
+.ulune-tbar-act {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 2px;
+}
+@container tpage (max-width: 559.98px) {
+  .ulune-tbar-act .ob-table-export-btn {
+    padding: 0 10px;
+  }
+  .ulune-tbar-act-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+.ulune-tpart {
+  scroll-margin-top: var(--tbar-h);
+}
+.ulune-tpart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 28px 0 14px;
+}
+.ulune-tpart-h {
+  margin: 0;
+  color: var(--color-fg);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1;
+}
+.ulune-tpart-h:focus {
+  outline: none;
+}
+.ulune-tpart-h:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 4px;
+}
+.ulune-tpart-hint {
+  max-width: 61.8ch;
+  margin: 8px 0 0;
+  color: var(--color-fg-muted);
+  font-size: 0.875rem;
+}
+.ulune-tpart-copy {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -10px -10px 0 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg-muted);
+  cursor: pointer;
+}
+.ulune-tpart-copy:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+}
+/* No box inside the page; headers pin under the bar. */
+.ulune-tpage .ulune-table-wrap {
+  overflow: visible;
+  max-height: none;
+}
+.ulune-tpage .ulune-data-table th {
+  top: var(--tbar-h);
+}
+/* A row's first cell holds a button, so the keyboard reaches every row. */
+.ulune-row-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+/* The natal points: eight columns that fit; latitude joins the declination
+   when the table narrows, and rows fold into items below 640 px. */
+.ulune-points td {
+  vertical-align: top;
+}
+.ulune-points td[data-col="notes"] {
+  min-width: 8rem;
+  white-space: normal;
+}
+.ulune-cell-sub {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-fg-muted);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.ulune-note {
+  display: inline-block;
+  margin: 0 4px 4px 0;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.ulune-lat-inline {
+  display: none;
+  margin-top: 2px;
+  color: var(--color-fg-muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+@container (max-width: 959.98px) {
+  .ulune-points [data-col="latitude"] {
+    display: none;
+  }
+  .ulune-points .ulune-lat-inline {
+    display: block;
+  }
+}
+/* Seven columns need about 860 px: narrower, each body becomes an item. */
+@container (max-width: 859.98px) {
+  .ulune-points,
+  .ulune-points tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .ulune-points thead {
+    display: none;
+  }
+  .ulune-points tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 3px 14px;
+    min-height: 44px;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .ulune-points tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .ulune-points td {
+    display: inline;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+    font-size: 0.8125rem;
+    color: var(--color-fg-muted);
+    background: transparent;
+  }
+  .ulune-points tbody tr[data-selected="1"],
+  .ulune-points tbody tr.bg-bg-subtle,
+  .ulune-points tbody tr[data-selected="1"] td,
+  .ulune-points tbody tr.bg-bg-subtle td {
+    background: var(--color-bg-subtle);
+  }
+  .ulune-points td:first-child {
+    flex: 1 0 100%;
+    font-size: 0.9375rem;
+    color: var(--color-fg);
+  }
+  .ulune-points td:nth-child(2)::before {
+    content: var(--col-label-2, none);
+  }
+  .ulune-points td:nth-child(3)::before {
+    content: var(--col-label-3, none);
+  }
+  .ulune-points td:nth-child(4)::before {
+    content: var(--col-label-4, none);
+  }
+  .ulune-points td:nth-child(5)::before {
+    content: var(--col-label-5, none);
+  }
+  .ulune-points td:nth-child(6)::before {
+    content: var(--col-label-6, none);
+  }
+  .ulune-points td:nth-child(7)::before {
+    content: var(--col-label-7, none);
+  }
+  .ulune-points td:not(:first-child)::before {
+    margin-right: 5px;
+    color: var(--color-fg-subtle);
+    font: 500 10px/1 var(--font-ui);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .ulune-points td:empty {
+    display: none;
+  }
+  .ulune-points td[data-col="notes"] {
+    flex: 1 0 100%;
+    min-width: 0;
+  }
+  .ulune-points td[data-col="notes"]::before {
+    display: none;
+  }
+  .ulune-points .ulune-cell-sub,
+  .ulune-points .ulune-lat-inline {
+    display: inline;
+    margin: 0 0 0 6px;
+  }
 }

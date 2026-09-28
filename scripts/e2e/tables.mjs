@@ -13,14 +13,98 @@ import {
   launch,
 } from "./_lib.mjs";
 
-const SECTIONS = ["identity", "points", "houses", "aspects", "patterns", "balance", "ranking"];
+/*
+ * The table as one page (part 47): every part one under the other in a single
+ * scroll, a bar of links pinned at the top. A link lands its part's heading
+ * just under the bar and gives it the focus; the link of the part being read
+ * is marked (aria-current) as the page scrolls; column headers pin under the
+ * bar; nothing scrolls sideways.
+ */
 
-async function visibleHeaders(page) {
-  return page.locator("[data-testid=table-points] thead th").evaluateAll((els) =>
-    els
-      .filter((el) => getComputedStyle(el).display !== "none")
-      .map((el) => el.textContent?.trim() ?? ""),
-  );
+const PARTS = ["identity", "points", "houses", "aspects", "grid", "patterns", "balance", "ranking"];
+
+/** The table's scroller, its bar and the marked link. */
+async function pageState(page) {
+  return page.evaluate(() => {
+    const fig = document.querySelector(".ob-stage--table .ob-figure");
+    const bar = document.querySelector("[data-testid=table-bar]");
+    return {
+      scrollTop: fig ? fig.scrollTop : -1,
+      max: fig ? fig.scrollHeight - fig.clientHeight : -1,
+      sideways: fig ? fig.scrollWidth - fig.clientWidth : -1,
+      figTop: fig ? fig.getBoundingClientRect().top : 0,
+      barTop: bar ? bar.getBoundingClientRect().top : -1,
+      barBottom: bar ? bar.getBoundingClientRect().bottom : -1,
+      current: document.querySelector("[data-testid=table-bar] [aria-current=true]")?.getAttribute("data-part") ?? null,
+      focus: document.activeElement?.id ?? "",
+    };
+  });
+}
+
+/** Wait until the page stops scrolling (a glide takes a few hundred ms). */
+async function settle(page) {
+  let last = -1;
+  for (let i = 0; i < 40; i += 1) {
+    await page.waitForTimeout(80);
+    const now = await page.evaluate(() => document.querySelector(".ob-stage--table .ob-figure")?.scrollTop ?? 0);
+    if (Math.abs(now - last) < 0.5) return;
+    last = now;
+  }
+}
+
+async function headTop(page, id) {
+  return page.locator(`#table-part-${id}-h`).evaluate((el) => el.closest("section").getBoundingClientRect().top);
+}
+
+async function checkLinks(page, label) {
+  for (const id of PARTS) {
+    await page.getByTestId(`table-section-${id}`).click();
+    await settle(page);
+    const s = await pageState(page);
+    if (s.current !== id) throw new Error(`${label}: ${id} link: marked ${s.current}`);
+    if (s.focus !== `table-part-${id}-h`) throw new Error(`${label}: ${id} link: focus on "${s.focus}"`);
+    if (Math.abs(s.barTop - s.figTop) > 1) throw new Error(`${label}: bar not pinned (${s.barTop} vs ${s.figTop})`);
+    const top = await headTop(page, id);
+    // The part lands just under the bar, unless the page ends first.
+    const atEnd = s.scrollTop >= s.max - 2;
+    if (!atEnd && Math.abs(top - s.barBottom) > 2) {
+      throw new Error(`${label}: ${id} landed at ${top}, bar bottom ${s.barBottom}`);
+    }
+  }
+}
+
+async function checkFollow(page, label) {
+  // Scroll by hand to the houses: their link is marked.
+  await page.evaluate(() => {
+    const fig = document.querySelector(".ob-stage--table .ob-figure");
+    const bar = document.querySelector("[data-testid=table-bar]");
+    const part = document.getElementById("table-part-houses");
+    fig.scrollTop += part.getBoundingClientRect().top - bar.getBoundingClientRect().bottom + 30;
+  });
+  await settle(page);
+  let s = await pageState(page);
+  if (s.current !== "houses") throw new Error(`${label}: scrolled to the houses, marked ${s.current}`);
+  // Up to the very top: the first part.
+  await page.evaluate(() => {
+    document.querySelector(".ob-stage--table .ob-figure").scrollTop = 0;
+  });
+  await settle(page);
+  s = await pageState(page);
+  if (s.current !== PARTS[0]) throw new Error(`${label}: at the top, marked ${s.current}`);
+  // Down to the very end: the last part, however short.
+  await page.evaluate(() => {
+    const fig = document.querySelector(".ob-stage--table .ob-figure");
+    fig.scrollTop = fig.scrollHeight;
+  });
+  await settle(page);
+  s = await pageState(page);
+  if (s.current !== PARTS.at(-1)) throw new Error(`${label}: at the end, marked ${s.current}`);
+}
+
+async function checkNoSideways(page, label) {
+  const s = await pageState(page);
+  if (s.sideways > 1) throw new Error(`${label}: the table scrolls sideways by ${s.sideways}px`);
+  await assertNoOverflow(page);
 }
 
 async function runViewport(width) {
@@ -34,8 +118,19 @@ async function runViewport(width) {
     await page.waitForSelector("html.theme-ready", { timeout: 20000 });
     await page.locator("section[data-testid=studio-table]").waitFor({ timeout: 15000 });
     await page.getByTestId("table-points").waitFor({ timeout: 8000 });
-    const pointsOn = await page.getByTestId("table-section-points").getAttribute("aria-selected");
-    if (pointsOn !== "true") throw new Error(`?studio=table did not open Points (aria-selected=${pointsOn})`);
+
+    // Every part on one page, in order, with the first one marked.
+    const order = await page.locator("[data-testid=table-page] > section").evaluateAll((els) =>
+      els.map((el) => el.getAttribute("data-testid")),
+    );
+    if (order.join(",") !== PARTS.map((id) => `table-${id}`).join(",")) {
+      throw new Error(`parts ${order.join(",")}`);
+    }
+    await settle(page);
+    const first = await pageState(page);
+    if (first.current !== PARTS[0]) throw new Error(`?studio=table marked ${first.current}, not ${PARTS[0]}`);
+    const bar = await page.getByTestId("table-bar").evaluate((el) => ({ tag: el.tagName, label: el.getAttribute("aria-label") }));
+    if (bar.tag !== "NAV" || !bar.label) throw new Error(`the bar is not a named navigation: ${JSON.stringify(bar)}`);
 
     const [download] = await Promise.all([
       page.waitForEvent("download", { timeout: 8000 }),
@@ -45,52 +140,75 @@ async function runViewport(width) {
     const chunks = [];
     for await (const chunk of stream) chunks.push(chunk);
     const csv = Buffer.concat(chunks).toString("utf8");
-    const first = csv.split(/\r?\n/)[0];
-    if (first !== "section,field,value") {
-      throw new Error(`CSV first line expected section,field,value got "${first}"`);
+    const firstLine = csv.split(/\r?\n/)[0];
+    if (firstLine !== "section,field,value") {
+      throw new Error(`CSV first line expected section,field,value got "${firstLine}"`);
     }
 
+    await checkNoSideways(page, `${width}`);
+    await checkLinks(page, `${width}`);
+    await checkFollow(page, `${width}`);
+
     if (width === 390) {
-      await page.getByTestId("table-group-position").waitFor();
-      const pos = await visibleHeaders(page);
-      if (!pos.includes("Name") || pos.length < 3 || pos.length > 6) {
-        throw new Error(`390 position headers unexpected: ${pos.join("|")}`);
-      }
-      await page.getByTestId("table-group-motion").click();
-      const motion = await visibleHeaders(page);
-      if (!motion.some((h) => /speed|dir/i.test(h))) {
-        throw new Error(`390 motion group did not swap columns: ${motion.join("|")}`);
-      }
-      await page.getByTestId("table-group-condition").click();
-      const cond = await visibleHeaders(page);
-      if (!cond.some((h) => /dignity|sect/i.test(h))) {
-        throw new Error(`390 condition group did not swap columns: ${cond.join("|")}`);
-      }
-      await assertNoOverflow(page);
-      const wrapScroll = await page.getByTestId("table-wrap").evaluate((el) => ({
-        sw: el.scrollWidth,
-        cw: el.clientWidth,
-        page: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      }));
-      if (wrapScroll.page > 1) throw new Error(`page horizontal overflow ${wrapScroll.page}`);
+      // Rows fold into items: no column headers, no column-group tabs.
+      const thead = await page.locator("[data-testid=table-points] thead").evaluate((el) => getComputedStyle(el).display);
+      if (thead !== "none") throw new Error(`390: points header shows (${thead})`);
+      if (await page.locator("[data-testid^=table-group-]").count()) throw new Error("390: column-group tabs still there");
+      const sun = await page.locator("[data-testid=table-points] tr[data-body=sun]").innerText();
+      if (!/Gemini/.test(sun) || !/\+23°18'30"/.test(sun)) throw new Error(`390: the Sun's item lacks its facts: ${sun}`);
     }
 
     if (width === 1280) {
-      const headers = await page.locator("[data-testid=table-points] thead th").evaluateAll((els) =>
+      // Column headers pin under the bar while their table scrolls past.
+      await page.getByTestId("table-section-aspects").click();
+      await settle(page);
+      await page.evaluate(() => {
+        document.querySelector(".ob-stage--table .ob-figure").scrollTop += 700;
+      });
+      await settle(page);
+      const pin = await page.evaluate(() => ({
+        th: document.querySelector("[data-testid=table-aspects] thead th").getBoundingClientRect().top,
+        bar: document.querySelector("[data-testid=table-bar]").getBoundingClientRect().bottom,
+      }));
+      if (Math.abs(pin.th - pin.bar) > 1) throw new Error(`1280: aspect headers at ${pin.th}, bar bottom ${pin.bar}`);
+      // With the side panel folded away the stage is wider: still nothing sideways.
+      await page.getByTestId("dock-collapse").click();
+      await page.waitForTimeout(500);
+      await checkNoSideways(page, "1280 panel folded");
+      const cols = await page.locator("[data-testid=table-points] thead th").evaluateAll((els) =>
         els.filter((el) => getComputedStyle(el).display !== "none").length,
       );
-      if (headers !== 17) throw new Error(`1280 expected 17 columns, got ${headers}`);
-      const wrap = page.getByTestId("table-wrap");
-      const th = wrap.locator("thead th").first();
-      const before = await th.evaluate((el) => el.getBoundingClientRect().top);
-      await wrap.evaluate((el) => {
-        el.scrollTop = Math.min(240, el.scrollHeight);
-      });
-      const after = await th.evaluate((el) => el.getBoundingClientRect().top);
-      if (Math.abs(after - before) > 2) {
-        throw new Error(`header not sticky: ${before} → ${after}`);
-      }
+      if (cols !== 8) throw new Error(`1280 panel folded: ${cols} points columns, expected 8`);
+      await page.getByTestId("dock-collapse").click();
+      await page.waitForTimeout(500);
+      // With reduced motion a link jumps: the part is there at once.
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.getByTestId("table-section-houses").click();
+      await page.waitForTimeout(60);
+      const s = await pageState(page);
+      const top = await headTop(page, "houses");
+      if (Math.abs(top - s.barBottom) > 2) throw new Error(`1280 reduced motion: houses at ${top}, bar ${s.barBottom}`);
+      await page.emulateMedia({ reducedMotion: "no-preference" });
     }
+
+    // The keyboard reaches a row: Enter on its button chooses it.
+    await page.getByTestId("table-section-points").click();
+    await settle(page);
+    await page.locator("[data-testid=table-points] tr[data-body=mars] .ulune-row-pick").focus();
+    await page.keyboard.press("Enter");
+    const byKey = await page.locator("[data-testid=studio-table][data-chart-pick]").getAttribute("data-selected");
+    if (byKey !== "planet:mars") throw new Error(`Enter on the Mars row chose "${byKey}"`);
+
+    // The part last read comes back after a trip to the wheel.
+    await page.getByTestId("table-section-balance").click();
+    await settle(page);
+    await page.getByTestId("view-wheel").click();
+    await page.getByTestId("studio-natal").waitFor({ timeout: 20000 });
+    await page.getByTestId("view-table").click();
+    await page.getByTestId("table-points").waitFor({ timeout: 8000 });
+    await settle(page);
+    const back = await pageState(page);
+    if (back.current !== "balance") throw new Error(`back from the wheel, marked ${back.current}`);
 
     await page.goto(`${DEV}/?view=wheel`, { waitUntil: "load", timeout: 20000 });
     await page.waitForSelector("html.theme-ready", { timeout: 20000 });
@@ -112,10 +230,8 @@ async function runViewport(width) {
     await clickDockTab(page, "reading");
     await page.getByTestId("click-note").waitFor({ timeout: 8000 });
     await clickDockTab(page, "data");
-    await page.getByTestId("table-points").waitFor({ timeout: 8000 });
+    await page.getByTestId("table-houses").waitFor({ timeout: 8000 });
 
-    await page.getByTestId("table-section-houses").click();
-    await page.getByTestId("table-houses").waitFor();
     const houses = await page.locator(".ulune-house-id-n").evaluateAll((els) =>
       els.map((el) => ({
         text: el.textContent?.trim() ?? "",
@@ -134,18 +250,8 @@ async function runViewport(width) {
       }
     }
 
-    for (const id of SECTIONS) {
-      await page.getByTestId(`table-section-${id}`).click();
-      await page.getByTestId(`table-${id}`).waitFor({ timeout: 5000 });
-      const others = await Promise.all(
-        SECTIONS.filter((s) => s !== id).map(async (s) => [s, await page.getByTestId(`table-${s}`).count()]),
-      );
-      const leaked = others.filter(([, n]) => n > 0);
-      if (leaked.length) throw new Error(`${id} still showing ${leaked.map(([s]) => s).join(",")}`);
-    }
-
     await page.getByTestId("table-section-points").click();
-    await page.getByTestId("table-points").waitFor();
+    await settle(page);
     await assertFixtureA(page);
     await page.screenshot({
       path: join(SHOTS, `w6-tables-${width}.png`),
@@ -160,7 +266,7 @@ async function runViewport(width) {
 
 await ensureShotsDir();
 const fail = [];
-for (const width of [390, 1280]) {
+for (const width of [390, 768, 1280]) {
   try {
     await runViewport(width);
   } catch (err) {

@@ -153,6 +153,9 @@ export async function pointsTableText(page) {
   await page.waitForFunction(() => !document.querySelector("[data-testid=table-loading]"), null, {
     timeout: 15000,
   });
+  // The table page holds every part at once: read the points alone when they are there.
+  const points = page.locator("[data-testid=table-points]");
+  if (await points.count()) return points.first().innerText();
   return table.first().innerText();
 }
 

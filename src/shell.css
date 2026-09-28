@@ -149,20 +149,7 @@ html.theme-switching * {
 .ob-avatar-btn[data-pending] {
   opacity: 0.5;
 }
-.ob-avatar-img,
-.ob-avatar-letter {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  object-fit: cover;
-}
-.ob-avatar-letter {
-  display: grid;
-  place-items: center;
-  background: var(--color-bg-subtle);
-  font-size: 13px;
-  font-weight: 600;
-}
+
 .ob-ai-btn {
   gap: 6px;
 }
@@ -1023,9 +1010,6 @@ html.theme-switching * {
   height: 44px;
   width: 100%;
 }
-.ulune-login-email {
-  animation: ob-fade var(--dur-swap) var(--ease-out) both;
-}
 
 .ulune-dock-scroll {
   flex: 1 1 auto;
@@ -1524,69 +1508,6 @@ html.theme-switching * {
   align-items: center;
 }
 
-.ulune-login {
-  display: grid;
-  gap: 32px;
-  width: 100%;
-  max-width: 440px;
-  margin: 0 auto;
-  padding: 32px 16px 48px;
-}
-.ulune-login-col {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-width: 0;
-}
-.ulune-login-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.ulune-login-read-col {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 0;
-}
-.ulune-login-read,
-.ulune-login-read-foot {
-  margin: 0;
-  font-family: var(--font-sans);
-  font-size: var(--text-base);
-  line-height: 1.5;
-  color: var(--color-fg-muted);
-}
-.ulune-auth-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  min-height: 44px;
-  padding: 0 16px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  background: var(--color-bg-subtle);
-  color: var(--color-fg);
-  font-family: var(--font-ui);
-  font-size: 14px;
-  font-weight: 500;
-  transition:
-    border-color var(--dur-hover) var(--ease-out),
-    background-color var(--dur-hover) var(--ease-out),
-    transform var(--dur-press) var(--ease-out);
-}
-.ulune-auth-btn:hover:not(:disabled) {
-  border-color: var(--color-border-strong);
-}
-.ulune-auth-btn:active:not(:disabled) {
-  transform: scale(0.98);
-}
-.ulune-auth-btn:disabled {
-  opacity: 0.6;
-}
-
 .ulune-settings {
   display: flex;
   flex-direction: column;
@@ -1616,32 +1537,6 @@ html.theme-switching * {
 .ob-settings-row .ulune-seg {
   width: 180px;
 }
-.ulune-connected-row {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-height: 44px;
-  padding: 0 12px;
-  border-radius: var(--radius-md);
-  background: var(--color-bg-subtle);
-  font-size: 14px;
-}
-
-@media (min-width: 1024px) {
-  .ulune-login {
-    grid-template-columns: 440px minmax(0, 1fr);
-    align-items: start;
-    gap: 64px;
-    max-width: 1040px;
-    padding: 64px 32px;
-  }
-  .ulune-login-read-col {
-    padding-top: 8px;
-  }
-  .ulune-login-read {
-    font-size: var(--text-lg);
-  }
-}
 
 /* ------------------------------------------------------- reduced motion */
 
@@ -1660,13 +1555,11 @@ html.theme-switching * {
   }
   .ob-swap,
   .ob-pop,
-  .ob-picker-confirm,
-  .ulune-login-email {
+  .ob-picker-confirm {
     animation: none !important;
   }
   .ob-icon-btn:active,
   .ob-btn:active,
-  .ulune-auth-btn:active,
   .ulune-wheel-zoom-btn:active,
   .ulune-wheel-zoom-fit:active,
   .ob-group:active .ob-group-icon {
@@ -1692,8 +1585,7 @@ html.theme-switching * {
 
 /* Content inside the frame keeps the content face and Look's text scale. */
 .ob-figure,
-.ob-panel-body,
-.ulune-login-read-col {
+.ob-panel-body {
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: 1.5;
@@ -1701,14 +1593,11 @@ html.theme-switching * {
 
 /* Sub-tabs inside panels and tables: one quiet row, ink underline on. */
 .ulune-wrap-tabs,
-.ulune-table-groups,
 [data-testid="num-pages"] {
   border-bottom: 1px solid var(--color-border);
 }
 .ulune-wrap-tabs > [role="tab"],
-.ulune-table-groups > [role="tab"],
 [role="tablist"] > [role="tab"][data-testid^="num-page-"],
-[role="tablist"] > [role="tab"][data-testid^="table-section-"],
 [role="tablist"] > [role="tab"][data-testid^="bodies-page-"],
 [role="tablist"] > [role="tab"][data-testid^="look-page-"] {
   font-family: var(--font-ui);

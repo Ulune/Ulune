@@ -13,6 +13,7 @@ import {
   signName,
 } from "@/lib/i18n/astro";
 import { translate, type AppLocale } from "@/lib/i18n/messages";
+import { tablePartLabel } from "@/lib/i18n/table-ui";
 import { formatDegreeSeconds, formatSignedDmsSeconds, formatSpeed } from "@/lib/utils";
 
 function yn(value: boolean, locale: AppLocale): string {
@@ -52,14 +53,27 @@ export function chartPoints(chart: NatalChart) {
   return [...chart.planets, ...Object.values(chart.angles)];
 }
 
-export function formatChartTableText(chart: NatalChart, locale: AppLocale): string {
+/** The parts of the text copy, in the table page's order (the grid has none). */
+export type ChartTextPartId = "identity" | "points" | "houses" | "aspects" | "patterns" | "balance" | "ranking";
+export type ChartTextPart = { id: ChartTextPartId; lines: string[] };
+
+/**
+ * The table as text, part by part: each part starts with its title. The
+ * table page's Copy buttons use one part each; Copy as text joins them all.
+ */
+export function chartTextParts(chart: NatalChart, locale: AppLocale): ChartTextPart[] {
   const fr = locale === "fr";
   const patterns = hydratePatterns(chart);
   const system = translate(locale, HOUSE_SYSTEM_LABEL[chart.meta.houseSystem] ?? "housePlacidus");
-  const lines: string[] = [];
-  const push = (s = "") => lines.push(s);
+  const parts: ChartTextPart[] = [];
+  let lines: string[] = [];
+  const start = (id: ChartTextPartId) => {
+    lines = [tablePartLabel(locale, id)];
+    parts.push({ id, lines });
+  };
+  const push = (s: string) => lines.push(s);
 
-  push(translate(locale, "tableIdentity"));
+  start("identity");
   push(`${translate(locale, "name")}: ${chart.meta.name}`);
   push(`${translate(locale, "date")}: ${chart.meta.date} ${chart.meta.time} (${birthZoneLine(chart.meta, locale)})`);
   push(`${translate(locale, "place")}: ${chart.meta.placeLabel} (${chart.meta.latitude.toFixed(4)}, ${chart.meta.longitude.toFixed(4)})`);
@@ -69,9 +83,8 @@ export function formatChartTableText(chart: NatalChart, locale: AppLocale): stri
   );
   push(`UT: ${universalTimeLine(chart.meta)}${julianDayLine(chart.meta) ? ` · ${julianDayLine(chart.meta)}` : ""}`);
   push(fr ? "Swiss Ephemeris · tropical · nœud vrai · Lilith vraie" : "Swiss Ephemeris · tropical · true node · true Lilith");
-  push();
 
-  push(translate(locale, "tablePoints"));
+  start("points");
   for (const p of chartPoints(chart)) {
     const flag = patterns.flags[p.id];
     const bits = [
@@ -94,15 +107,13 @@ export function formatChartTableText(chart: NatalChart, locale: AppLocale): stri
     ].filter((x) => x && x !== translate(locale, "flagNo") && x !== translate(locale, "motionOk"));
     push(bits.join(" · "));
   }
-  push();
 
-  push(translate(locale, "tableHouses"));
+  start("houses");
   for (const h of chart.houses) {
     push(`${fr ? "M" : "H"}${h.id} ${formatDegreeSeconds(h.ecliptic)} ${signName(h.sign, locale)}`);
   }
-  push();
 
-  push(translate(locale, "tableAspects"));
+  start("aspects");
   for (const a of chart.aspects) {
     const app =
       a.applying === true
@@ -114,9 +125,8 @@ export function formatChartTableText(chart: NatalChart, locale: AppLocale): stri
       `${bodyLabel(a.a, locale)} ${aspectName(a.type, locale)} ${bodyLabel(a.b, locale)} · ${a.orb.toFixed(2)}° ${app} (${a.level})`,
     );
   }
-  push();
 
-  push(translate(locale, "tablePatterns"));
+  start("patterns");
   if (patterns.configurations.length) {
     for (const c of patterns.configurations) {
       const label = CONFIG_LABEL[c.type][locale];
@@ -144,9 +154,8 @@ export function formatChartTableText(chart: NatalChart, locale: AppLocale): stri
       `${translate(locale, "patternRx")}: ${patterns.retrogrades.length} · ${patterns.retrogrades.map((id) => bodyLabel(id, locale)).join(", ")}`,
     );
   } else push(translate(locale, "noRx"));
-  push();
 
-  push(translate(locale, "tableBalance"));
+  start("balance");
   const w = patterns.weights;
   push(
     `${elementName("fire", locale)} ${w.elements.fire}, ${elementName("earth", locale)} ${w.elements.earth}, ${elementName("air", locale)} ${w.elements.air}, ${elementName("water", locale)} ${w.elements.water}`,
@@ -164,9 +173,8 @@ export function formatChartTableText(chart: NatalChart, locale: AppLocale): stri
   push(
     `${translate(locale, "tempoAngular")} ${w.angularity.angular} · ${translate(locale, "tempoSuccedent")} ${w.angularity.succedent} · ${translate(locale, "tempoCadent")} ${w.angularity.cadent}`,
   );
-  push();
 
-  push(translate(locale, "tableRanking"));
+  start("ranking");
   const ruler = chart.planets.find((p) => p.id === patterns.chartRuler);
   if (ruler) {
     push(
@@ -215,7 +223,14 @@ export function formatChartTableText(chart: NatalChart, locale: AppLocale): stri
     );
   } else push(translate(locale, "dominantNone"));
 
-  return lines.join("\n");
+  return parts;
+}
+
+/** The whole table as text: every part, a blank line between them. */
+export function formatChartTableText(chart: NatalChart, locale: AppLocale): string {
+  return chartTextParts(chart, locale)
+    .map((p) => p.lines.join("\n"))
+    .join("\n\n");
 }
 
 export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): string {

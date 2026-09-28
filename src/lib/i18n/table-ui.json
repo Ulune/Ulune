@@ -1,0 +1,67 @@
+{
+  "parts": {
+    "identity": { "en": "Chart", "fr": "Thème" },
+    "points": { "en": "Points", "fr": "Points" },
+    "houses": { "en": "Houses", "fr": "Maisons" },
+    "aspects": { "en": "Aspects", "fr": "Aspects" },
+    "grid": { "en": "Grid", "fr": "Grille" },
+    "patterns": { "en": "Patterns", "fr": "Figures" },
+    "balance": { "en": "Balance", "fr": "Équilibre" },
+    "ranking": { "en": "Ranking", "fr": "Classement" }
+  },
+  "hints": {
+    "identity": {
+      "en": "The moment, the place and how the chart is cast.",
+      "fr": "Le moment, le lieu et la façon dont le thème est calculé."
+    },
+    "points": {
+      "en": "Every body, point and angle: where it is, how it moves, how it stands.",
+      "fr": "Chaque corps, point et angle : où il se trouve, comment il avance, dans quel état."
+    },
+    "houses": {
+      "en": "Cusps 1 to 12 in the chosen house system.",
+      "fr": "Cuspides 1 à 12 dans le système de maisons choisi."
+    },
+    "aspects": {
+      "en": "Pair, aspect, orb, and whether it is applying or separating.",
+      "fr": "Paire, aspect, orbe, et s’il est appliquant ou séparant."
+    },
+    "grid": {
+      "en": "Every pair at a glance. Tap a symbol to read that aspect.",
+      "fr": "Chaque paire d’un coup d’œil. Touchez un symbole pour lire l’aspect."
+    },
+    "patterns": {
+      "en": "Configurations, mutual receptions, stelliums, unaspected planets and the Moon’s course.",
+      "fr": "Configurations, réceptions mutuelles, stelliums, planètes sans aspect et course de la Lune."
+    },
+    "balance": {
+      "en": "Weighted toward the personal planets and the four angles.",
+      "fr": "Pondéré vers les planètes personnelles et les quatre angles."
+    },
+    "ranking": {
+      "en": "Chart ruler, tightest aspect, dignity with sect, and the dominant shape.",
+      "fr": "Maître du thème, aspect le plus serré, dignité avec secte, et la figure dominante."
+    }
+  },
+  "bar": {
+    "copyPart": { "en": "Copy this part", "fr": "Copier cette partie" },
+    "copyPartNamed": { "en": "Copy {part}", "fr": "Copier {part}" }
+  },
+  "points": {
+    "body": { "en": "Body", "fr": "Corps" },
+    "position": { "en": "Position", "fr": "Position" },
+    "house": { "en": "House", "fr": "Maison" },
+    "motion": { "en": "Motion a day", "fr": "Mouvement par jour" },
+    "latitude": { "en": "Latitude", "fr": "Latitude" },
+    "declination": { "en": "Declination", "fr": "Déclinaison" },
+    "dignity": { "en": "Dignity", "fr": "Dignité" },
+    "notes": { "en": "Notes", "fr": "Notes" },
+    "latShort": { "en": "Lat.", "fr": "Lat." },
+    "retrograde": { "en": "retrograde", "fr": "rétrograde" },
+    "oob": { "en": "out of bounds", "fr": "hors limites" },
+    "angular": { "en": "angular", "fr": "angulaire" },
+    "anaretic": { "en": "anaretic", "fr": "anarétique" },
+    "ariesPoint": { "en": "0° Aries", "fr": "0° Bélier" },
+    "unaspected": { "en": "no major aspect", "fr": "aucun aspect majeur" }
+  }
+}
