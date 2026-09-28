@@ -1,7 +1,6 @@
 /* Timing: these styles load with the code that uses them, not with the
    first page (performance plan 1.9). Moved as they were from styles.css. */
-/* The timing calendar cascades in (and again on each new month). */
-.ulune-timing-cell:not(.is-empty),
+/* The calendar's year cascades in (the month's cells: .ulune-cal-cell below). */
 .ulune-timing-year-cell {
   animation: ulune-fade-plain 460ms var(--chart-ease) calc(min(var(--enter, 0), 34) * 12ms) backwards;
 }
@@ -11,18 +10,6 @@
   gap: 1rem;
   min-width: 0;
   width: 100%;
-}
-.ulune-timing-scope {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  min-width: 0;
-}
-.ulune-timing-caption {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
 }
 .ulune-timing-strip {
   min-width: 0;
@@ -89,70 +76,6 @@
   border-color: var(--color-fg);
   background: var(--color-bg-subtle);
 }
-.ulune-timing-month {
-  min-width: 0;
-}
-.ulune-timing-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 0.25rem;
-  margin-bottom: 0.35rem;
-  font-family: var(--font-sans);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-fg-subtle);
-  text-align: center;
-}
-.ulune-timing-grid {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 0.25rem;
-}
-.ulune-timing-cell {
-  display: flex;
-  min-height: 4.25rem;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
-  padding: 0.4rem 0.45rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background: var(--color-bg);
-  text-align: left;
-}
-.ulune-timing-cell.is-empty {
-  border-style: dashed;
-  background: transparent;
-}
-.ulune-timing-cell.is-on {
-  border-color: var(--color-fg);
-  background: var(--color-bg-subtle);
-}
-.ulune-timing-cell-n {
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-  color: var(--color-fg);
-}
-.ulune-timing-dots {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem;
-}
-.ulune-timing-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--color-fg-muted);
-}
-.ulune-timing-more {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  line-height: 6px;
-  color: var(--color-fg-muted);
-}
 .ulune-timing-year {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -207,82 +130,11 @@
   .ulune-timing-year {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
-  .ulune-timing-sky.ulune-sky {
-      display: grid;
-      grid-template-columns: minmax(520px, 56%) minmax(0, 44%);
-      align-items: start;
-      align-content: start;
-    }
-  .ulune-timing-sky .ulune-timing-cal {
-      grid-column: 1;
-      grid-row: 1;
-      flex: none;
-      width: auto;
-      min-width: 520px;
-      max-width: none;
-    }
-  .ulune-timing-sky .ulune-sky-read {
-      grid-column: 2;
-      grid-row: 1;
-      flex: none;
-      width: auto;
-      position: sticky;
-      top: var(--ulune-header-h, 6.75rem);
-      max-height: calc(100dvh - var(--ulune-header-h, 6.75rem) - 1rem);
-      overflow-y: auto;
-    }
 }
-@media (max-width: 1023.98px) {
-  .ulune-timing-sky {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      flex: none;
-      min-height: 0;
-      height: auto;
-      padding-bottom: var(--space-3);
-    }
-  .ulune-timing-sky .ulune-timing-cal {
-      order: 1;
-      width: 100%;
-      min-width: 0;
-      min-height: 0;
-      height: auto;
-      flex: none;
-    }
-  .ulune-timing-sky .ulune-timing-scope {
-      position: sticky;
-      top: calc(var(--ulune-header-h, 6.75rem) + var(--ulune-nav-h, 4.125rem));
-      z-index: 21;
-      margin-inline: calc(-1 * var(--natal-sky-pad));
-      padding-inline: var(--natal-sky-pad);
-      padding-top: 0.15rem;
-      padding-bottom: 0.45rem;
-      background: var(--color-bg-elevated);
-    }
-  .ulune-timing-sky .ulune-sky-read {
-      order: 2;
-      flex: none;
-      min-height: 0;
-    }
-  .ulune-timing-weekdays,
-    .ulune-timing-grid {
-      gap: 0.2rem;
-      margin-inline: -0.4rem;
-    }
-  .ulune-timing-cell {
-      min-width: 44px;
-      min-height: 44px;
-      padding: 0.3rem 0.25rem;
-      gap: 0.2rem;
-    }
-}
-/* ─── Depth: the timing calendar ─────────────────────────────────────────
-   Days with exact aspects cast a slightly deeper shadow (more hits, deeper,
-   capped), busy months too; what you point at pops in place. Nothing is
-   shifted: the grid stays aligned and a cell never slides out from under the
-   pointer. */
-.ulune-timing-cell:not(.is-empty),
+/* ─── Depth: the calendar's year and day ─────────────────────────────────
+   Busy months cast a slightly deeper shadow; what you point at pops in
+   place. Nothing is shifted: the grid stays aligned and a cell never slides
+   out from under the pointer. */
 .ulune-timing-year-cell,
 .ulune-timing-mark {
   transition:
@@ -291,18 +143,12 @@
     background-color 160ms var(--ease-out),
     border-color 160ms var(--ease-out);
 }
-.ulune-timing-cell:not(.is-empty) {
-  --relief: 0;
-  box-shadow: 0 calc(var(--relief) * 1.5px) calc(var(--relief) * 3px) calc(var(--relief) * -1.5px)
-    color-mix(in oklab, var(--depth-shadow-color) 70%, transparent);
-}
 .ulune-timing-year-cell {
   box-shadow: 0 calc(var(--heat, 0) * 5px) calc(var(--heat, 0) * 10px) calc(var(--heat, 0) * -5px)
     color-mix(in oklab, var(--depth-shadow-color) 70%, transparent);
 }
 @media (hover: hover) and (pointer: fine) {
-  .ulune-timing-cell:not(.is-empty):hover,
-    .ulune-timing-year-cell:hover {
+  .ulune-timing-year-cell:hover {
       position: relative;
       z-index: 1;
       transform: scale(1.03);
@@ -317,17 +163,454 @@
     }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ulune-timing-cell:not(.is-empty),
-    .ulune-timing-year-cell,
+  .ulune-timing-year-cell,
     .ulune-timing-mark {
       transition:
         box-shadow 120ms linear,
         background-color 120ms linear,
         border-color 120ms linear;
     }
-  .ulune-timing-cell:not(.is-empty):hover,
-    .ulune-timing-year-cell:hover,
+  .ulune-timing-year-cell:hover,
     .ulune-timing-mark:hover {
       transform: none;
     }
+}
+
+/* ---------------------------------------------------------------------------
+   The calendar (part 55 of the launch plan): the bar, the month, the legend,
+   the Now panel. The Moon is drawn by MoonGlyph (components/moon-glyph.tsx).
+   --------------------------------------------------------------------------- */
+.ulune-moon {
+  --moon-lit: #ece6d6;
+  --moon-dark: #2c2c2a;
+  --moon-rim: color-mix(in oklab, var(--color-fg) 24%, transparent);
+  flex: none;
+  display: inline-block;
+  vertical-align: middle;
+}
+html.light .ulune-moon {
+  --moon-lit: #fffdf6;
+  --moon-dark: oklch(0.78 0.012 80);
+  --moon-rim: color-mix(in oklab, var(--color-fg) 38%, transparent);
+}
+.ulune-moon-dark {
+  fill: var(--moon-dark);
+  stroke: var(--moon-rim);
+  stroke-width: 0.75;
+}
+.ulune-moon-lit {
+  fill: var(--moon-lit);
+}
+
+.ulune-cal-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+}
+.ulune-cal-caption,
+.ulune-cal-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  min-width: 0;
+}
+.ulune-cal-caption {
+  flex-wrap: nowrap;
+}
+.ulune-cal-title {
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  line-height: 1.1;
+  color: var(--color-fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Day, month or year, in the stage's strip: at the right of the pages of
+   Time on a wide screen, the full width under them otherwise. */
+.ulune-cal-scope {
+  display: flex;
+  flex: 0 1 17rem;
+  min-width: 0;
+  margin-left: auto;
+}
+.ulune-cal-scope .ulune-seg {
+  flex: 1 1 auto;
+}
+@media (max-width: 1023.98px) {
+  .ulune-cal-scope {
+    flex: 1 1 auto;
+    margin-left: 0;
+  }
+}
+.ulune-cal-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 32px;
+  padding: 0 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: var(--color-fg-muted);
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out);
+}
+.ulune-cal-chip:hover {
+  background: var(--color-bg-subtle);
+}
+.ulune-cal-chip.is-on {
+  color: var(--color-fg);
+  background: var(--color-bg-subtle);
+}
+.ulune-cal-chip:not(.is-on) .ulune-cal-dot {
+  opacity: 0.35;
+}
+.ulune-cal-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+.ulune-cal-switches {
+  display: flex;
+  gap: var(--space-2);
+}
+.ulune-cal-zone {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: var(--color-fg-subtle);
+  cursor: pointer;
+}
+.ulune-cal-zone-line {
+  text-decoration: underline dotted color-mix(in oklab, var(--color-fg) 35%, transparent);
+  text-underline-offset: 3px;
+}
+/* The native menu sits over the words, invisible: the words say the choice. */
+.ulune-cal-zone select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+.ulune-cal-zone:focus-within .ulune-cal-zone-line {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.ulune-cal-month {
+  container-type: inline-size;
+  min-width: 0;
+}
+.ulune-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 0.35rem;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+  text-align: center;
+}
+.ulune-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+.ulune-cal-cell {
+  display: flex;
+  min-width: 0;
+  min-height: 7rem;
+  flex-direction: column;
+  gap: 4px;
+  padding: 7px 8px 6px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  text-align: left;
+  overflow: hidden;
+  animation: ulune-fade-plain 460ms var(--chart-ease) calc(min(var(--enter, 0), 34) * 12ms) backwards;
+  transition:
+    border-color var(--dur-hover) var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out);
+}
+.ulune-cal-cell:hover:not(.is-empty) {
+  border-color: var(--color-border-strong);
+}
+.ulune-cal-cell.is-empty {
+  border-style: dashed;
+  border-color: color-mix(in oklab, var(--color-fg) 6%, transparent);
+  background: transparent;
+  animation: none;
+}
+.ulune-cal-cell.is-today {
+  box-shadow: inset 0 0 0 1px var(--color-fg);
+  border-color: var(--color-fg);
+}
+.ulune-cal-cell.is-on {
+  background: var(--color-bg-subtle);
+  border-color: var(--color-fg);
+}
+.ulune-cal-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-width: 0;
+}
+.ulune-cal-n {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--color-fg);
+}
+.ulune-cal-moon,
+.ulune-cal-signs,
+.ulune-cal-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+.ulune-cal-moon {
+  gap: 4px;
+}
+.ulune-cal-sign {
+  display: inline-flex;
+}
+.ulune-cal-arrow {
+  font-size: 10px;
+  color: var(--color-fg-subtle);
+}
+.ulune-cal-turn {
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--color-fg-muted);
+}
+.ulune-cal-sky {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  margin-top: 2px;
+}
+.ulune-cal-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--color-fg-muted);
+  white-space: nowrap;
+}
+.ulune-cal-word {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ulune-cal-more {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--color-fg-subtle);
+}
+.ulune-cal-eclipse {
+  display: inline-block;
+  flex: none;
+  border-radius: 999px;
+  background: radial-gradient(circle, var(--color-bg) 0 54%, var(--aspect-conj) 56% 70%, transparent 72%);
+}
+.ulune-cal-eclipse.is-lunar {
+  background: radial-gradient(circle at 60% 45%, oklch(0.55 0.15 35) 0 58%, oklch(0.42 0.12 30) 60% 70%, transparent 72%);
+}
+.ulune-cal-yours {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  margin-top: auto;
+  padding-top: 4px;
+  border-top: 1px dashed color-mix(in oklab, var(--color-fg) 8%, transparent);
+}
+.ulune-cal-you {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  color: var(--color-fg);
+  background: color-mix(in oklab, var(--c) 26%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--c) 70%, transparent);
+}
+/* Narrow cells (a phone): the words go, one sky line stays, smaller rings. */
+@container (max-width: 560px) {
+  .ulune-cal-grid,
+  .ulune-cal-weekdays {
+    gap: 4px;
+  }
+  .ulune-cal-cell {
+    min-height: 4rem;
+    padding: 4px;
+    gap: 2px;
+    border-radius: 9px;
+  }
+  /* The day and its Moon on the first line, the Moon's sign (or signs) under them. */
+  .ulune-cal-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    row-gap: 3px;
+  }
+  .ulune-cal-moon {
+    display: contents;
+  }
+  .ulune-cal-moon > .ulune-moon {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .ulune-cal-signs {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .ulune-cal-n {
+    font-size: 11px;
+  }
+  .ulune-cal-moon .ulune-moon {
+    width: 13px;
+    height: 13px;
+  }
+  .ulune-cal-signs .ulune-cal-sign svg {
+    width: 10px;
+    height: 10px;
+  }
+  .ulune-cal-word,
+  .ulune-cal-more,
+  .ulune-cal-line:nth-child(n + 2) {
+    display: none;
+  }
+  .ulune-cal-yours {
+    padding-top: 2px;
+    border-top: 0;
+    gap: 2px;
+  }
+  .ulune-cal-you {
+    width: 13px;
+    height: 13px;
+  }
+  .ulune-cal-you:nth-child(n + 3) {
+    display: none;
+  }
+  .ulune-cal-you svg {
+    width: 9px;
+    height: 9px;
+  }
+}
+/* A phone: the period alone above the month, the clock and switches under it. */
+@media (max-width: 639.98px) {
+  .ulune-cal-bar {
+    display: contents;
+  }
+  .ulune-cal-title {
+    font-size: 1.5rem;
+  }
+  .ulune-cal-options {
+    order: 1;
+    justify-content: space-between;
+  }
+  .ulune-cal-legend {
+    order: 2;
+  }
+}
+.ulune-cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  color: var(--color-fg-subtle);
+}
+.ulune-cal-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ulune-cal-now {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 16px 12px;
+}
+.ulune-cal-now-kicker {
+  margin: 14px 0 4px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.ulune-cal-now-line {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  width: 100%;
+  padding: 9px 4px;
+  border-top: 1px solid var(--color-border);
+  text-align: left;
+  border-radius: 8px;
+}
+button.ulune-cal-now-line:hover,
+.ulune-cal-now-line.is-on {
+  background: var(--color-bg-subtle);
+}
+.ulune-cal-now-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-height: 22px;
+  color: var(--color-fg-muted);
+}
+.ulune-cal-now-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ulune-cal-now-title {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-fg);
+}
+.ulune-cal-now-detail {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--color-fg-subtle);
 }

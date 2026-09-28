@@ -24,8 +24,8 @@
       "fr": "Aspects exacts"
     },
     "hint": {
-      "en": "The moments when a moving planet makes an exact major aspect (conjunction, sextile, square, trine, opposition) to your birth chart. Times are in the time zone of your birth place.",
-      "fr": "Les moments où une planète en mouvement forme un aspect majeur exact (conjonction, sextile, carré, trigone, opposition) avec votre thème natal. Les heures suivent le fuseau horaire de votre lieu de naissance."
+      "en": "The moments when a moving planet makes an exact major aspect (conjunction, sextile, square, trine, opposition) to your birth chart. Times follow the clock chosen in the calendar (this device’s, unless you pick another).",
+      "fr": "Les moments où une planète en mouvement forme un aspect majeur exact (conjonction, sextile, carré, trigone, opposition) avec votre thème natal. Les heures suivent l’horloge choisie dans le calendrier (celle de cet appareil, sauf si vous en choisissez une autre)."
     },
     "columns": {
       "en": ["When", "Transit", "Aspect", "Natal", "A", "S"],

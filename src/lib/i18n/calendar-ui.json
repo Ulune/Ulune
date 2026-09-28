@@ -1,0 +1,97 @@
+{
+  "id": "calendar.ui",
+  "kind": "chrome",
+  "switches": {
+    "sky": { "en": "Sky", "fr": "Ciel" },
+    "yours": { "en": "Your transits", "fr": "Vos transits" },
+    "today": { "en": "Today", "fr": "Aujourd’hui" }
+  },
+  "zone": {
+    "cityTime": { "en": "{city} time", "fr": "heure de {city}" },
+    "ut": { "en": "Universal time (UT)", "fr": "temps universel (UT)" },
+    "menu": { "en": "Times shown in", "fr": "Heures affichées en" },
+    "device": { "en": "This device’s time ({city})", "fr": "Heure de cet appareil ({city})" },
+    "birth": { "en": "The birth place’s time ({city})", "fr": "Heure du lieu de naissance ({city})" },
+    "utc": { "en": "Universal time (UT)", "fr": "Temps universel (UT)" }
+  },
+  "legend": {
+    "moon": { "en": "the Moon at noon, and its sign", "fr": "la Lune à midi, et son signe" },
+    "phase": { "en": "exact phase", "fr": "phase exacte" },
+    "ingress": { "en": "enters a sign", "fr": "entre dans un signe" },
+    "station": { "en": "turns retrograde", "fr": "devient rétrograde" },
+    "yours": { "en": "Your transits:", "fr": "Vos transits :" },
+    "conj": { "en": "joining", "fr": "union" },
+    "soft": { "en": "flowing", "fr": "fluide" },
+    "hard": { "en": "tense", "fr": "tendu" }
+  },
+  "panel": {
+    "now": { "en": "Now", "fr": "Maintenant" },
+    "forYou": { "en": "For you", "fr": "Pour vous" },
+    "inSky": { "en": "In the sky", "fr": "Dans le ciel" },
+    "quiet": { "en": "Nothing of yours is exact in the coming days.", "fr": "Rien de vôtre n’est exact dans les jours qui viennent." },
+    "loading": { "en": "Reading the sky…", "fr": "Lecture du ciel…" }
+  },
+  "moon": {
+    "phases": {
+      "en": ["New Moon", "First quarter", "Full Moon", "Last quarter"],
+      "fr": ["Nouvelle Lune", "Premier quartier", "Pleine Lune", "Dernier quartier"]
+    },
+    "daily": {
+      "en": ["Waxing crescent", "Waxing gibbous", "Waning gibbous", "Waning crescent"],
+      "fr": ["Premier croissant", "Gibbeuse croissante", "Gibbeuse décroissante", "Dernier croissant"]
+    },
+    "lit": { "en": "{n}% lit", "fr": "éclairée à {n} %" },
+    "inSign": { "en": "Moon in {sign}", "fr": "Lune en {sign}" },
+    "inSignThen": { "en": "Moon in {sign}, then {next} from {time}", "fr": "Lune en {sign}, puis en {next} dès {time}" },
+    "voidSince": { "en": "void of course since {time}", "fr": "vide de course depuis {time}" },
+    "entersAt": { "en": "enters {sign} at {time}", "fr": "entre en {sign} à {time}" },
+    "entersOn": { "en": "enters {sign} {when}", "fr": "entre en {sign} {when}" }
+  },
+  "sky": {
+    "enters": { "en": "{body} enters {sign}", "fr": "{body} entre en {sign}" },
+    "back": { "en": "{body} back into {sign}", "fr": "{body} revient en {sign}" },
+    "turnsRx": { "en": "{body} turns retrograde", "fr": "{body} devient rétrograde" },
+    "turnsDirect": { "en": "{body} turns direct", "fr": "{body} redevient {direct}" },
+    "seasons": {
+      "en": ["March equinox", "June solstice", "September equinox", "December solstice"],
+      "fr": ["Équinoxe de mars", "Solstice de juin", "Équinoxe de septembre", "Solstice de décembre"]
+    },
+    "eclipse": {
+      "en": "{type} {kind} eclipse",
+      "fr": "Éclipse {kind} {type}"
+    },
+    "eclipseKind": {
+      "solar": { "en": "solar", "fr": "solaire" },
+      "lunar": { "en": "lunar", "fr": "lunaire" }
+    },
+    "eclipseType": {
+      "total": { "en": "Total", "fr": "totale" },
+      "annular": { "en": "Annular", "fr": "annulaire" },
+      "hybrid": { "en": "Hybrid", "fr": "hybride" },
+      "partial": { "en": "Partial", "fr": "partielle" },
+      "penumbral": { "en": "Penumbral", "fr": "pénombrale" }
+    },
+    "voidUntil": { "en": "Moon void of course until {time}", "fr": "Lune vide de course jusqu’à {time}" },
+    "voidAfter": { "en": "after its last aspect, {aspect}", "fr": "après son dernier aspect, {aspect}" },
+    "short": {
+      "equinox": { "en": "Equinox", "fr": "Équinoxe" },
+      "solstice": { "en": "Solstice", "fr": "Solstice" },
+      "retrograde": { "en": "Retrograde", "fr": "Rétrograde" },
+      "direct": { "en": "Direct", "fr": "Direct" },
+      "solarEclipse": { "en": "Solar eclipse", "fr": "Éclipse solaire" },
+      "lunarEclipse": { "en": "Lunar eclipse", "fr": "Éclipse lunaire" }
+    }
+  },
+  "yours": {
+    "aspect": { "en": "{moving} {verb} your {natal}", "fr": "{moving} {verb} votre {natal}" },
+    "exactAt": { "en": "exact at {time}", "fr": "exact à {time}" },
+    "exactOn": { "en": "exact {when}", "fr": "exact {when}" },
+    "window": { "en": "within 1° from {from} to {to}", "fr": "à moins de 1° du {from} au {to}" },
+    "count": { "en": "{n} of your transits", "fr": "{n} de vos transits" },
+    "more": { "en": "+{n} more", "fr": "+{n} de plus" }
+  },
+  "when": {
+    "today": { "en": "Today", "fr": "Aujourd’hui" },
+    "tomorrow": { "en": "Tomorrow", "fr": "Demain" }
+  }
+}

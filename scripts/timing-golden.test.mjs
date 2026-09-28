@@ -48,21 +48,6 @@ function natalBodies(chart) {
   ];
 }
 
-test("timing-hello.json is the source of Hello-next copy", () => {
-  const hello = JSON.parse(readFileSync(join(ROOT, "src/lib/i18n/timing-hello.json"), "utf8"));
-  assert.equal(hello.id, "timing.hello");
-  assert.equal(hello.title, "Hello-next");
-  assert.equal(hello.line.en, "{aspect} natal {body} · {when}.");
-  assert.equal(hello.empty.day.en, "Nothing exact today.");
-  assert.equal(hello.empty.month.en, "No exact major aspect this month.");
-  assert.equal(hello.empty.year.en, "No exact major aspect this year.");
-  const line = hello.line.en
-    .replaceAll("{aspect}", "Square")
-    .replaceAll("{body}", "Saturn")
-    .replaceAll("{when}", "14:20");
-  assert.equal(line, "Square natal Saturn · 14:20.");
-});
-
 test("timing-ui.json is the source of Quill chrome copy", () => {
   const ui = JSON.parse(readFileSync(join(ROOT, "src/lib/i18n/timing-ui.json"), "utf8"));
   assert.deepEqual(ui.table.columns.en, ["When", "Transit", "Aspect", "Natal", "A", "S"]);

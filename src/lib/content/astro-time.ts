@@ -193,8 +193,8 @@ export const COMPOSITE_ABOUT: Bi = {
 };
 
 export const TIMING_ABOUT: Bi = {
-  en: "The timing view lists the dates when transiting planets make an exact aspect to your birth chart. The effect usually starts before and fades after the exact date; slow planets can be exact more than once because of retrograde motion.",
-  fr: "La vue Moments liste les dates où les planètes en transit forment un aspect exact à votre thème. L’effet commence en général avant la date exacte et s’estompe après ; les planètes lentes peuvent être exactes plusieurs fois à cause de la rétrogradation.",
+  en: "The calendar marks the dates when transiting planets make an exact aspect to your birth chart. The effect usually starts before and fades after the exact date; slow planets can be exact more than once because of retrograde motion.",
+  fr: "Le calendrier marque les dates où les planètes en transit forment un aspect exact à votre thème. L’effet commence en général avant la date exacte et s’estompe après ; les planètes lentes peuvent être exactes plusieurs fois à cause de la rétrogradation.",
 };
 
 export const ORB_ABOUT: Bi = {

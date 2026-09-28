@@ -38,8 +38,8 @@ export const guide = {
     "Votre thème natal en roue ou en tableau, avec une lecture écrite pour chaque planète, maison et aspect.",
   ],
   guideDoTime: [
-    "Today’s sky against your chart (transits), the aspects of the day, month and year (timing), and your progressed chart.",
-    "Le ciel du jour sur votre thème (transits), les aspects du jour, du mois et de l’année (moments), et votre thème progressé.",
+    "Today’s sky against your chart (transits), the sky day by day with the dates your transits are exact (calendar), and your progressed chart.",
+    "Le ciel du jour sur votre thème (transits), le ciel jour après jour avec les dates où vos transits sont exacts (calendrier), et votre thème progressé.",
   ],
   guideDoPair: [
     "Two charts compared contact by contact (synastry), and the chart of the relationship itself (composite).",

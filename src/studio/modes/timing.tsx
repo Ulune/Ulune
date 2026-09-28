@@ -1,15 +1,12 @@
 import { Suspense, useMemo } from "react";
-import {
-  TimingDayStrip,
-  TimingMonthGrid,
-  TimingScopeBar,
-  TimingYearGrid,
-} from "@/components/timing-calendar";
-import { TimingHello } from "@/components/timing-hello";
+import { CalendarBar, CalendarScope } from "@/components/calendar-bar";
+import { CalendarLegend, CalendarMonth } from "@/components/calendar-month";
+import { CalendarNow } from "@/components/calendar-now";
+import { TimingDayStrip, TimingYearGrid } from "@/components/timing-calendar";
 import { LoadingLines } from "@/components/loading-lines";
 import { localizeError } from "@/lib/i18n/errors";
 import { useI18n } from "@/lib/i18n/locale";
-import { timingCasting, timingNoNatal } from "@/lib/i18n/timing-ui";
+import { timingNoNatal } from "@/lib/i18n/timing-ui";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { useModeData } from "@/studio/modes/data";
 import { useTiming } from "@/studio/modes/hooks/useTiming";
@@ -44,11 +41,19 @@ function TimingFigure() {
           {localizeError(timing.error, locale, "couldNotCastSky")}
         </p>
       ) : null}
-      <TimingScopeBar
+      <CalendarBar
         scope={timing.scope}
         civil={timing.civil}
-        onScope={timing.changeScope}
         onShift={timing.shift}
+        onToday={timing.goToday}
+        zone={timing.prefs.zone}
+        zones={timing.zones}
+        onZone={(zone) => timing.updatePrefs({ zone })}
+        nowMs={timing.nowMs}
+        showSky={timing.prefs.sky}
+        showYours={timing.prefs.yours}
+        onSky={(sky) => timing.updatePrefs({ sky })}
+        onYours={(yours) => timing.updatePrefs({ yours })}
       />
       {timing.scope === "day" ? (
         <TimingDayStrip
@@ -59,17 +64,21 @@ function TimingFigure() {
         />
       ) : null}
       {timing.scope === "month" ? (
-        <TimingMonthGrid
-          civil={timing.civil}
-          hits={timing.scoped}
-          tz={timing.tz}
-          selectedDay={
-            selectedId?.startsWith("day:")
-              ? selectedId.slice(4)
-              : `${timing.civil.year}-${String(timing.civil.month).padStart(2, "0")}-${String(timing.civil.day).padStart(2, "0")}`
-          }
-          onPickDay={timing.pickDay}
-        />
+        <>
+          <CalendarMonth
+            civil={timing.civil}
+            tz={timing.tz}
+            events={timing.events}
+            wins={timing.wins}
+            hits={timing.scoped}
+            showSky={timing.prefs.sky}
+            showYours={timing.prefs.yours}
+            selectedDay={selectedId?.startsWith("day:") ? selectedId.slice(4) : null}
+            todayKey={timing.todayKey}
+            onPickDay={timing.pickDay}
+          />
+          <CalendarLegend />
+        </>
       ) : null}
       {timing.scope === "year" ? (
         <TimingYearGrid
@@ -83,33 +92,28 @@ function TimingFigure() {
   );
 }
 
+function TimingControls() {
+  const timing = useModeData("timing");
+  if (!timing?.enabled) return null;
+  return <CalendarScope scope={timing.scope} onScope={timing.changeScope} />;
+}
+
 function TimingHelloEmpty() {
-  const { locale } = useI18n();
   const w = useWheelView();
   const timing = useModeData("timing");
-  if (!timing || (timing.busy && !timing.cast)) {
-    return (
-      <section data-testid="timing-hello" className="ulune-hello ulune-panel" aria-busy="true">
-        <div className="ulune-hello-cell">
-          <span className="ulune-hello-copy">{timingCasting(locale)}</span>
-        </div>
-        <div className="ulune-hello-cell">
-          <span className="ulune-hello-copy">{timingCasting(locale)}</span>
-        </div>
-        <div className="ulune-hello-cell">
-          <span className="ulune-hello-copy">{timingCasting(locale)}</span>
-        </div>
-      </section>
-    );
-  }
+  if (!timing) return null;
   return (
-    <TimingHello
-      hits={timing.helloHits}
-      scope={timing.scope}
+    <CalendarNow
+      nowMs={timing.nowMs}
       tz={timing.tz}
+      events={timing.nowEvents}
+      wins={timing.nowWins}
+      hits={timing.nowHits}
+      windows={timing.windows}
+      showSky={timing.prefs.sky}
+      showYours={timing.prefs.yours}
       selectedId={w.selectedId}
       onSelect={w.pick}
-      earlier={timing.scoped.length > 0}
     />
   );
 }
@@ -140,6 +144,7 @@ function useTimingRuntime(): ModeRuntime<TimingState> {
 export const timingMode: ModeDef = {
   ...MODE_META.timing,
   emptyText: timingNoNatal,
+  Controls: TimingControls,
   Figure: TimingFigure,
   HelloEmpty: TimingHelloEmpty,
   Data: TimingData,

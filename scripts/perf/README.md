@@ -519,6 +519,11 @@ plan's goals are in the plan. On 26 Sep 2026 all 31 were within budget:
 | "/" JavaScript with the load, returning reader / style sheets / largest script | 256 / 39 / 73 KB gz | 262 / 42 / 80 KB gz |
 | Scrub: wheel updates per second / casts during the drag / exact sky after | 26 / 0 / 258 ms | ≥ 20 / 0 / 600 ms |
 
+Since part 55 (28 Sep 2026) the style sheets are counted twice: those the
+first paint waits for (30.8 KB gz, limit 32) and all of them once the modes'
+own have loaded after it (42.8 KB, limit 44; the calendar's month, bar and
+Now panel added 0.9 KB there, none up front).
+
 The `?perf` overlay (5.6): add `?perf` to the address (or set
 `localStorage["ulune.debug.perf"] = "1"`) and a panel in the bottom-right
 corner shows, once a second, the frames per second, the long tasks of the

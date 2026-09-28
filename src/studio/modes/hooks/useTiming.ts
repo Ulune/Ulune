@@ -1,7 +1,12 @@
 import { browserZone } from "@/lib/chart/client-zone";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { transitsInSlices } from "@/lib/chart/personal-transits";
+import { eventsOf } from "@/lib/chart/calendar-sky";
+import { CALENDAR_DEFAULTS, deviceZone, loadCalendarPrefs, saveCalendarPrefs, type CalendarPrefs, type CalendarZone } from "@/lib/chart/calendar-prefs";
+import { slowWindowsFromYears, transitsInSlices, type TransitWindow } from "@/lib/chart/personal-transits";
+import { skyEventId, type SkyEvent } from "@/lib/chart/sky-events";
+import type { SkyWindow } from "@/lib/chart/sky-window";
 import { loadWindowsBetween } from "@/lib/chart/window-cache";
+import { loadYearsBetween } from "@/lib/chart/year-cache";
 import { usePack } from "@/lib/content/packs";
 import {
   civilFromUtc,
@@ -13,7 +18,7 @@ import {
   yearBounds,
   type CivilDate,
 } from "@/lib/chart/timing-window";
-import { nextHelloExacts, type TimingHit, type TimingScope } from "@/lib/chart/transit-exact";
+import type { TimingHit, TimingScope } from "@/lib/chart/transit-exact";
 import type { ElementReading, TimingCast } from "@/lib/chart/types";
 import { useI18n } from "@/lib/i18n/locale";
 import { natalBodiesOf } from "@/studio/modes/hooks/natal-bodies";
@@ -22,28 +27,69 @@ import { useVisibleInterval } from "@/lib/use-visible-interval";
 import { lru } from "@/lib/chart/result-cache";
 import { errorForState } from "@/lib/i18n/errors";
 
-/** Timing windows already worked out in this tab (a month, a year), by window and natal chart. */
+const DAY_MS = 86_400_000;
+/** Your transits already worked out in this tab, by span and chart. */
 const castCache = lru<TimingCast>(24);
-/** Chunks needed beyond each end: the search looks a day and a half past the window. */
-const EDGE_MS = 2 * 86_400_000;
+/** Chunks needed beyond each end: the search looks a day and a half past the span, a void span starts up to 2.5 days before its end. */
+const EDGE_MS = 3 * DAY_MS;
+/** How far ahead the Now panel looks. */
+const AHEAD_MS = 16 * DAY_MS;
+/** Year files around now, for the slow transits in effect (a Pluto window can outlast a year). */
+const YEARS_AROUND_MS = 400 * DAY_MS;
+
+/** The hits of a span, worked out on the device from the chunks (kept per span and chart). */
+async function hitsFor(
+  wins: SkyWindow[],
+  natal: ReturnType<typeof natalBodiesOf>,
+  from: number,
+  to: number,
+  key: string,
+  signal: AbortSignal,
+): Promise<TimingHit[] | null> {
+  const cached = castCache.get(key);
+  if (cached) return cached.hits;
+  const hits = await transitsInSlices(wins, natal, from, to, signal);
+  if (!hits) return null;
+  castCache.set(key, { meta: { from: new Date(from).toISOString(), to: new Date(to).toISOString(), timezone: "", latitude: 0, longitude: 0 }, hits });
+  return hits;
+}
 
 export function useTiming() {
-  const { locale, t } = useI18n();
+  const { locale } = useI18n();
   const chart = useStudioStore((s) => s.chart);
   const creating = useStudioStore((s) => s.creating);
   const page = useStudioStore((s) => s.page);
   const selectedId = useStudioStore((s) => s.selectedId);
   const pick = useStudioStore((s) => s.pick);
-  const tz = browserZone(chart?.meta.timezone);
   const enabled = page === "timing" && Boolean(chart) && !creating;
 
-  const [scope, setScope] = useState<TimingScope>("day");
+  // Which clock the times follow (this device's by default), and the switches: kept in this browser.
+  const [prefs, setPrefs] = useState<CalendarPrefs>(CALENDAR_DEFAULTS);
+  useEffect(() => setPrefs(loadCalendarPrefs()), []);
+  const updatePrefs = useCallback((next: Partial<CalendarPrefs>) => {
+    setPrefs((cur) => {
+      const merged = { ...cur, ...next };
+      saveCalendarPrefs(merged);
+      return merged;
+    });
+  }, []);
+  const zones = useMemo<Record<CalendarZone, string>>(
+    () => ({ device: browserZone(deviceZone()), birth: browserZone(chart?.meta.timezone), utc: "UTC" }),
+    [chart?.meta.timezone],
+  );
+  const tz = zones[prefs.zone];
+
+  const [scope, setScope] = useState<TimingScope>("month");
   const [civil, setCivil] = useState<CivilDate>(() => {
     const now = civilFromUtc(new Date(), tz);
     return { year: now.year, month: now.month, day: now.day };
   });
   const [nowMs, setNowMs] = useState(() => Date.now());
-  const [cast, setCast] = useState<TimingCast | null>(null);
+  const [wins, setWins] = useState<SkyWindow[]>([]);
+  const [nowWins, setNowWins] = useState<SkyWindow[]>([]);
+  const [hits, setHits] = useState<TimingHit[] | null>(null);
+  const [nowHits, setNowHits] = useState<TimingHit[]>([]);
+  const [windows, setWindows] = useState<TransitWindow[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
@@ -55,55 +101,34 @@ export function useTiming() {
 
   const natalBodies = useMemo(() => (chart ? natalBodiesOf(chart) : []), [chart]);
   const natalSig = useMemo(
-    () =>
-      chart
-        ? [chart.meta.latitude, chart.meta.longitude, natalBodies.map((b) => `${b.id}:${b.ecliptic}`).join(",")].join("|")
-        : "",
+    () => (chart ? natalBodies.map((b) => `${b.id}:${b.ecliptic}`).join(",") : ""),
     [chart, natalBodies],
   );
   const needed = useMemo(
     () => (scope === "year" ? yearBounds(civil.year, tz) : scopeBounds("month", { ...civil, day: 1 }, tz)),
-    // The window depends on the month (or year) only: switching day and month
-    // views inside it asks for nothing.
+    // The span depends on the month (or year) only: switching day and month views inside it asks for nothing.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [fetchKey, tz],
   );
 
+  // The span shown: its chunks, then your transits in it, worked out here.
   useEffect(() => {
     if (!enabled || !chart) return;
-    const from = needed.from.toISOString();
-    const to = needed.to.toISOString();
-    const key = `${from}|${to}|${natalSig}`;
-    const cached = castCache.get(key);
-    if (cached) {
-      gen.current += 1;
-      ready.current = true;
-      setError(null);
-      setCast(cached);
-      setBusy(false);
-      return;
-    }
+    const from = needed.from.getTime();
+    const to = needed.to.getTime();
     const n = ++gen.current;
     const ctrl = new AbortController();
     if (!ready.current) setBusy(true);
     setError(null);
-    // Worked out here, from the sky chunks (the same for everyone, asked for
-    // by date): the chart never leaves the device for the calendar.
-    const fromMs = needed.from.getTime();
-    const toMs = needed.to.getTime();
     void (async () => {
-      const wins = await loadWindowsBetween(fromMs - EDGE_MS, toMs + EDGE_MS);
+      const got = await loadWindowsBetween(from - EDGE_MS, to + EDGE_MS);
       if (n !== gen.current || ctrl.signal.aborted) return;
-      if (!wins) throw new Error("Failed to fetch the sky");
-      const hits = await transitsInSlices(wins, natalBodies, fromMs, toMs, ctrl.signal);
-      if (!hits || n !== gen.current) return;
-      const next: TimingCast = {
-        meta: { from, to, timezone: chart.meta.timezone, latitude: chart.meta.latitude, longitude: chart.meta.longitude },
-        hits,
-      };
-      castCache.set(key, next);
+      if (!got) throw new Error("Failed to fetch the sky");
+      setWins(got);
+      const found = await hitsFor(got, natalBodies, from, to, `${from}|${to}|${natalSig}`, ctrl.signal);
+      if (!found || n !== gen.current) return;
       ready.current = true;
-      setCast(next);
+      setHits(found);
       setBusy(false);
     })().catch((err) => {
       if (n !== gen.current) return;
@@ -111,39 +136,69 @@ export function useTiming() {
       setBusy(false);
     });
     return () => ctrl.abort();
-  }, [enabled, needed, natalSig, natalBodies, chart, t, tick]);
+  }, [enabled, needed, natalSig, natalBodies, chart, tick]);
 
+  // Now: the sky and your transits of the coming days, and the slow transits in effect.
+  const nowDay = Math.floor(nowMs / DAY_MS);
+  useEffect(() => {
+    if (!enabled || !chart) return;
+    const ctrl = new AbortController();
+    const from = nowDay * DAY_MS;
+    void (async () => {
+      const got = await loadWindowsBetween(from - EDGE_MS, from + AHEAD_MS + EDGE_MS);
+      if (!got || ctrl.signal.aborted) return;
+      setNowWins(got);
+      const found = await hitsFor(got, natalBodies, from, from + AHEAD_MS, `now|${from}|${natalSig}`, ctrl.signal);
+      if (found && !ctrl.signal.aborted) setNowHits(found);
+      const years = await loadYearsBetween(from - YEARS_AROUND_MS, from + YEARS_AROUND_MS);
+      if (!years || ctrl.signal.aborted) return;
+      setWindows(slowWindowsFromYears(years, natalBodies, from - YEARS_AROUND_MS, from + YEARS_AROUND_MS));
+    })().catch(() => {
+      /* the panel waits; the span's own error shows */
+    });
+    return () => ctrl.abort();
+  }, [enabled, chart, natalBodies, natalSig, nowDay, tick]);
+
+  const events = useMemo<SkyEvent[]>(() => eventsOf(wins), [wins]);
+  const nowEvents = useMemo<SkyEvent[]>(() => eventsOf(nowWins), [nowWins]);
   const bounds = useMemo(() => scopeBounds(scope, civil, tz), [scope, civil, tz]);
-  const scoped = useMemo(
-    () => hitsInScope(cast?.hits ?? [], bounds.from.getTime(), bounds.to.getTime()),
-    [cast, bounds],
-  );
-  const helloHits = useMemo(
-    () => nextHelloExacts(scoped, bounds.from.getTime(), bounds.to.getTime(), nowMs, 3, scope),
-    [scoped, bounds, nowMs, scope],
+  const scoped = useMemo(() => hitsInScope(hits ?? [], bounds.from.getTime(), bounds.to.getTime()), [hits, bounds]);
+  const cast = useMemo<TimingCast | null>(
+    () => (hits ? { meta: { from: needed.from.toISOString(), to: needed.to.toISOString(), timezone: tz, latitude: 0, longitude: 0 }, hits } : null),
+    [hits, needed, tz],
   );
 
   // Readings come with the reading text (its own download).
   const astro = usePack("astro", locale, enabled);
   const reading = useMemo<ElementReading | null>(() => {
     if (!chart || !astro) return null;
-    const { timingBodyReading, timingDateReading, timingExactReading } = astro;
+    const { skyEventReading, timingBodyReading, timingDateReading, timingExactReading, windowReading } = astro;
+    const allHits = [...(hits ?? []), ...nowHits];
     if (selectedId?.startsWith("day:")) {
       const parsed = parseCivilKey(selectedId.slice(4));
       if (!parsed) return null;
       const dayBounds = scopeBounds("day", parsed, tz);
-      const dayHits = hitsInScope(cast?.hits ?? [], dayBounds.from.getTime(), dayBounds.to.getTime());
+      const dayHits = hitsInScope(hits ?? [], dayBounds.from.getTime(), dayBounds.to.getTime());
       return timingDateReading(civilKey(parsed), dayHits, locale, tz);
+    }
+    if (selectedId?.startsWith("sky:")) {
+      const id = selectedId.slice(4);
+      const ev = [...events, ...nowEvents].find((e) => skyEventId(e) === id);
+      return ev ? skyEventReading(ev, locale, tz) : null;
+    }
+    if (selectedId?.startsWith("win:")) {
+      const w = windows.find((x) => `win:${x.moving}:${x.type}:${x.natal}:${x.from}` === selectedId);
+      return w ? windowReading(w, locale, tz, nowMs) : null;
     }
     if (!selectedId?.startsWith("timing:")) return null;
     const raw = selectedId.slice("timing:".length);
-    const hit = (cast?.hits ?? []).find((h) => h.id === raw);
-    if (hit) return timingExactReading(hit, chart, locale, nowMs);
+    const hit = allHits.find((h) => h.id === raw);
+    if (hit) return timingExactReading(hit, chart, locale, nowMs, tz);
     if (raw.startsWith("date:")) {
       const parsed = parseCivilKey(raw.slice(5));
       if (!parsed) return null;
       const dayBounds = scopeBounds("day", parsed, tz);
-      const dayHits = hitsInScope(cast?.hits ?? [], dayBounds.from.getTime(), dayBounds.to.getTime());
+      const dayHits = hitsInScope(hits ?? [], dayBounds.from.getTime(), dayBounds.to.getTime());
       return timingDateReading(civilKey(parsed), dayHits, locale, tz);
     }
     if (raw.startsWith("body:")) {
@@ -156,14 +211,14 @@ export function useTiming() {
       );
     }
     return null;
-  }, [selectedId, cast, chart, locale, nowMs, tz, scoped, astro]);
+  }, [selectedId, hits, nowHits, chart, locale, nowMs, tz, scoped, astro, events, nowEvents, windows]);
 
   const pickHit = useCallback((hit: TimingHit) => pick(`timing:${hit.id}`), [pick]);
 
+  /** A day chosen in the month: its reading opens, the month stays. */
   const pickDay = useCallback(
     (next: CivilDate) => {
       setCivil(next);
-      setScope("day");
       pick(`day:${civilKey(next)}`);
     },
     [pick],
@@ -180,7 +235,6 @@ export function useTiming() {
 
   const changeScope = useCallback((next: TimingScope) => {
     setScope(next);
-    if (next === "month") setCivil((c) => ({ ...c, day: 1 }));
     if (next === "year") setCivil((c) => ({ year: c.year, month: 1, day: 1 }));
   }, []);
 
@@ -188,7 +242,12 @@ export function useTiming() {
     (dir: 1 | -1) => setCivil((c) => shiftCivil(scope, c, dir)),
     [scope],
   );
+  const goToday = useCallback(() => {
+    const now = civilFromUtc(new Date(), tz);
+    setCivil({ year: now.year, month: now.month, day: now.day });
+  }, [tz]);
   const retry = useCallback(() => setTick((n) => n + 1), []);
+  const todayKey = useMemo(() => civilKey(civilFromUtc(new Date(nowMs), tz)), [nowMs, tz]);
 
   return useMemo(
     () => ({
@@ -197,20 +256,31 @@ export function useTiming() {
       setCivil,
       changeScope,
       shift,
+      goToday,
       tz,
+      zones,
+      prefs,
+      updatePrefs,
       cast,
+      wins,
+      events,
+      nowWins,
+      nowEvents,
+      hits: hits ?? [],
+      nowHits,
+      windows,
       scoped,
-      helloHits,
       busy,
       error,
       retry,
       nowMs,
+      todayKey,
       reading,
       pickHit,
       pickDay,
       pickMonth,
       enabled,
     }),
-    [scope, civil, changeScope, shift, tz, cast, scoped, helloHits, busy, error, retry, nowMs, reading, pickHit, pickDay, pickMonth, enabled],
+    [scope, civil, changeScope, shift, goToday, tz, zones, prefs, updatePrefs, cast, wins, events, nowWins, nowEvents, hits, nowHits, windows, scoped, busy, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled],
   );
 }

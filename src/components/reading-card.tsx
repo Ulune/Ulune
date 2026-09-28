@@ -8,6 +8,7 @@ import { planetPaint } from "@/lib/look";
 import { useLookShape } from "@/lib/look-provider";
 import { useI18n } from "@/lib/i18n/locale";
 import { AspectGlyph, PlanetGlyph, SignGlyph } from "./glyphs";
+import { MoonGlyph } from "./moon-glyph";
 import { ASPECT_IDS } from "@/lib/chart/types";
 import { SIGN_IDS, decanOf } from "@/lib/chart/constants";
 import { previewProps } from "@/lib/depth/preview-bus";
@@ -17,8 +18,23 @@ function aspectTypeFromReadingId(id: string): AspectId | null {
   const body = id.startsWith("aspect:") ? id.slice(7) : id;
   const ranked = [...ASPECT_IDS].sort((a, b) => b.length - a.length);
   for (const type of ranked) {
-    if (body.includes(`_${type}_`)) return type;
+    // Chart aspects (sun_trine_moon), a slow transit's window (win:saturn:square:sun:…),
+    // two planets of the sky (sky:aspect-sun-trine-uranus-…).
+    if (body.includes(`_${type}_`) || body.includes(`:${type}:`) || body.includes(`-${type}-`)) return type;
   }
+  return null;
+}
+
+/** A calendar event's mark, from its id (lib/chart/sky-events.ts, skyEventId). */
+function SkyEventMark({ id, size }: { id: string; size: number }) {
+  const [kind, a, b] = id.split("-");
+  if (kind === "phase") return <MoonGlyph elong={Number(a) * 90} size={size} />;
+  if (kind === "eclipse") {
+    return <span className={a === "lunar" ? "ulune-cal-eclipse is-lunar" : "ulune-cal-eclipse"} style={{ width: size, height: size }} aria-hidden />;
+  }
+  if (kind === "ingress" || kind === "station") return <PlanetGlyph id={a ?? ""} size={size} />;
+  if (kind === "aspect" && b && (ASPECT_IDS as readonly string[]).includes(b)) return <AspectGlyph id={b as AspectId} size={size} />;
+  if (kind === "void") return <PlanetGlyph id="moon" size={size} />;
   return null;
 }
 
@@ -26,6 +42,7 @@ export function ReadingMark({ reading, size = 26 }: { reading: ElementReading; s
   const raw = reading.id.includes(":") ? reading.id.slice(reading.id.indexOf(":") + 1) : reading.id;
   // A row of the Human Design columns (act:design:mars): its body's glyph.
   if (reading.id.startsWith("act:")) return <PlanetGlyph id={reading.id.split(":")[2] ?? ""} size={size} />;
+  if (reading.id.startsWith("sky:")) return <SkyEventMark id={reading.id.slice(4)} size={size} />;
   if (reading.mark) return <span className="ob-rc-mark-text">{reading.mark}</span>;
   if (reading.kind === "planet" || reading.kind === "angle") {
     return <PlanetGlyph id={raw} size={size} />;
@@ -114,9 +131,11 @@ function useMarkColor(reading: ElementReading, chart: NatalChart | null | undefi
   if (reading.id.startsWith("act:design:")) return "var(--hd-design-ink, var(--color-fg))";
   if (reading.id.startsWith("act:personality:")) return "var(--color-fg)";
   if (reading.kind === "aspect") {
-    const type = Object.keys(ASPECT_FAMILY).find((k) => reading.id.includes(`_${k}_`));
-    return `var(--aspect-${type ? ASPECT_FAMILY[type] : "minor"})`;
+    const type = aspectTypeFromReadingId(reading.id);
+    return `var(--aspect-${type && ASPECT_FAMILY[type] ? ASPECT_FAMILY[type] : "minor"})`;
   }
+  // The sky's own events: in ink (their aspects above, in their family's colour).
+  if (reading.id.startsWith("sky:")) return "var(--color-fg)";
   const sign = signOfReading(reading, chart);
   if (!sign || !SIGN_META[sign]) return "var(--color-fg-muted)";
   if (reading.kind === "planet") return planetPaint(reading.id.slice(7), sign, look.planets);

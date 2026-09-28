@@ -115,12 +115,38 @@ async function runViewport(width) {
     await goMode(page, "timing");
     await page.getByTestId("studio-timing").waitFor({ timeout: 20000 });
     await page.getByTestId("timing-scope-month").click();
-    await page.getByTestId("timing-month").waitFor({ timeout: 8000 });
-    const dayCell = page.locator("[data-testid^=timing-day-]").first();
+    await page.getByTestId("calendar-month").waitFor({ timeout: 8000 });
+    // The sky arrives by date: each day has its Moon, and the Now panel reads it.
+    await page.waitForFunction(
+      () => document.querySelectorAll("[data-testid^=calendar-day-] .ulune-moon").length >= 28,
+      null,
+      { timeout: 20000 },
+    );
+    await clickDockTab(page, "reading");
+    await page.getByTestId("calendar-now-moon").waitFor({ timeout: 20000 });
+    // Your transits land on their days (worked out on this device).
+    await page.waitForFunction(
+      () => [...document.querySelectorAll("[data-testid^=calendar-day-]")].some((el) => Number(el.getAttribute("data-mine")) > 0),
+      null,
+      { timeout: 30000 },
+    );
+    // The switch hides them, and brings them back.
+    await page.getByTestId("calendar-switch-yours").click();
+    await page.waitForFunction(() => !document.querySelector(".ulune-cal-you"), null, { timeout: 4000 });
+    await page.getByTestId("calendar-switch-yours").click();
+    await page.waitForFunction(() => Boolean(document.querySelector(".ulune-cal-you")), null, { timeout: 4000 });
+    // Universal time: the clock line says so.
+    await page.getByTestId("calendar-zone-select").selectOption("utc");
+    await page.waitForFunction(() => /Universal time/.test(document.querySelector("[data-testid=calendar-zone-line]")?.textContent ?? ""), null, { timeout: 4000 });
+    await page.getByTestId("calendar-zone-select").selectOption("device");
+    await page.waitForFunction(() => !/Universal time/.test(document.querySelector("[data-testid=calendar-zone-line]")?.textContent ?? ""), null, { timeout: 4000 });
+    const dayCell = page.locator("[data-testid^=calendar-day-]").first();
     const dayId = await dayCell.getAttribute("data-testid");
     await dayCell.click();
     await clickDockTab(page, "reading");
     await page.getByTestId("click-note").waitFor({ timeout: 8000 });
+    // A day opens its reading and the month stays.
+    if (!(await page.getByTestId("calendar-month").isVisible())) throw new Error("picking a day left the month");
     const dayNote = await page.getByTestId("click-note").innerText();
     if (!dayNote.trim()) throw new Error("timing day click-note empty");
     const selectedDay = await page.evaluate(() => {

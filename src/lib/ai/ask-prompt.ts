@@ -101,8 +101,8 @@ function modeContext(locale: AppLocale, mode?: ModeId): string {
         : "Context: transits — today's sky (or the chosen date) over the natal chart. Talk about a season, pacing, what opens and closes; never a firm prediction.";
     case "timing":
       return fr
-        ? "Contexte : moments — les dates où des transits deviennent exacts. Relie chaque date à ce qu’elle touche dans le thème."
-        : "Context: timing — the dates when transits perfect. Tie each date to what it touches in the chart.";
+        ? "Contexte : calendrier — le ciel jour après jour et les dates où des transits deviennent exacts. Relie chaque date à ce qu’elle touche dans le thème."
+        : "Context: calendar — the sky day by day and the dates when transits perfect. Tie each date to what it touches in the chart.";
     case "progressions":
       return fr
         ? "Contexte : progressions secondaires — un jour après la naissance pour une année de vie. Parle de chapitre intérieur, lent."

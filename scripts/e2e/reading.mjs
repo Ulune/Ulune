@@ -1,7 +1,7 @@
 /**
  * Reading card: At a glance → card → fact navigation with a back trail,
  * Short/Full depth that persists, About disclosure, and structured
- * readings in Timing, Design and Numerology.
+ * readings in the Calendar, Design and Numerology.
  */
 import { join } from "node:path";
 import {

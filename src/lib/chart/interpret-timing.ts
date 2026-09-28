@@ -30,9 +30,11 @@ export function timingExactReading(
   chart: NatalChart,
   locale: Locale,
   nowMs: number,
+  /** The clock the calendar shows (the birth place's when not given). */
+  zone?: string,
 ): ElementReading {
   const natal = natalOf(chart, hit.natal);
-  const tz = browserZone(chart.meta.timezone);
+  const tz = zone ?? browserZone(chart.meta.timezone);
   const when = formatLocal(hit.exactUtc, tz, locale);
   const phrase = aspectLinkPhrase(hit.moving, hit.type, hit.natal, locale);
   const days = (Date.parse(hit.exactUtc) - nowMs) / 86_400_000;
@@ -72,7 +74,7 @@ export function timingExactReading(
       ],
     },
     about: {
-      title: fr ? "À propos des moments" : "About timing",
+      title: fr ? "À propos du calendrier" : "About the calendar",
       paragraphs: [pickBi(TIMING_ABOUT, locale), aspectInPractice(hit.type, locale)],
     },
   };

@@ -8,7 +8,7 @@
  *   - a cast carries a date, a time and coordinates, and no name or place;
  *   - nothing goes to the geocoder from the page (Ulune's server asks it);
  *   - an AI request carries positions, not the name, date, time or place;
- *   - Timing asks only for the sky, by date (the transits are worked out in
+ *   - The calendar asks only for the sky, by date (the transits are worked out in
  *     the page), and nothing else goes with those requests.
  * The AI providers are answered here (page.route): no real key is used.
  */
@@ -177,8 +177,8 @@ async function run() {
     if (!/Person A|Personne A|ASC/.test(r.body)) failures.push("the relayed prompt lacks the positions");
   }
 
-  // Timing asks the server only for the sky, by date; the transits are worked out here.
-  if (fnCalls.some((r) => /^castTiming/.test(decodeFnName(r.url)))) failures.push("Timing sent the chart to the server");
+  // The calendar asks the server only for the sky, by date; the transits are worked out here.
+  if (fnCalls.some((r) => /^castTiming/.test(decodeFnName(r.url)))) failures.push("The calendar sent the chart to the server");
   let skyAsks = 0;
   for (const r of seen) {
     const u = new URL(r.url);
@@ -187,7 +187,7 @@ async function run() {
     const keys = [...u.searchParams.keys()].sort().join(",");
     if (r.method !== "GET" || r.body || !(keys === "t0,v" || keys === "v,y")) failures.push(`a sky request carries more than a date: ${r.method} ${r.url.slice(0, 100)}`);
   }
-  if (!skyAsks) failures.push("Timing asked for no sky");
+  if (!skyAsks) failures.push("The calendar asked for no sky");
 
   if (failures.length) {
     console.error(failures.join("\n"));
