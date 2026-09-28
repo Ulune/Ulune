@@ -16,6 +16,7 @@ import { currentChartHover, currentChartPreview, onChartHover, onChartPreview, p
 import { aspectName, bodyLabel } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
 import { AspectGlyph, PlanetGlyph } from "./glyphs";
+import { formatArc } from "@/lib/utils";
 
 export type GridRow = { id: string; aspect: string; type: AspectId; a: BodyId; b: BodyId; orb: number };
 
@@ -147,7 +148,7 @@ export function WheelAspectGrid({
           const a = byPair.get(key);
           if (!a) return <span key={key} className="ob-wgrid-cell" data-empty aria-hidden="true" />;
           const lit = focus?.aspects?.has(a.aspect) ? "1" : undefined;
-          const label = `${bodyLabel(a.a, locale)} ${aspectName(a.type, locale)} ${bodyLabel(a.b, locale)}, ${a.orb.toFixed(1)}°`;
+          const label = `${bodyLabel(a.a, locale)} ${aspectName(a.type, locale)} ${bodyLabel(a.b, locale)}, ${formatArc(a.orb)}`;
           return (
             <button
               key={key}

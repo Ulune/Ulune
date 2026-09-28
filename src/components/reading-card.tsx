@@ -157,6 +157,9 @@ export function ReadingCard({
   const color = useMarkColor(reading, chart);
   const full = depth === "full";
   const structured = reading.lead != null || Boolean(reading.sections?.length);
+  // Without a birth time, what hangs on the hour says so first (interpret-local.ts).
+  const timeNote = reading.sections?.find((s) => s.id === "time");
+  const otherSections = reading.sections?.filter((s) => s.id !== "time");
   const lead = structured ? reading.lead : reading.paragraphs[0];
   const rest = structured ? [] : reading.paragraphs.slice(1);
   // A reading starts with what the element does in this chart ("The Sun in
@@ -248,6 +251,17 @@ export function ReadingCard({
         </section>
       ) : null}
 
+      {timeNote ? (
+        <section className="ob-rc-sec" data-section="time" data-testid="reading-time">
+          <h3 className="ob-rc-h">{timeNote.title}</h3>
+          {timeNote.paragraphs.map((p, i) => (
+            <p key={i} className="ob-rc-p">
+              {p}
+            </p>
+          ))}
+        </section>
+      ) : null}
+
       {reading.note && !noteInAbout ? (
         <p className="ob-rc-note" data-testid="reading-note">
           {reading.note}
@@ -256,7 +270,7 @@ export function ReadingCard({
 
       {lead ? <p className={noteInAbout ? "ob-rc-lead ob-rc-lead--first" : "ob-rc-lead"}>{lead}</p> : null}
 
-      {reading.sections?.map((s) =>
+      {otherSections?.map((s) =>
         s.paragraphs.length ? (
           <section key={s.id} className="ob-rc-sec" data-section={s.id}>
             <h3 className="ob-rc-h">{s.title}</h3>

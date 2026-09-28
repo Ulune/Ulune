@@ -87,6 +87,7 @@ import { WheelKeys } from "./wheel-keys";
 import { arcSpan, placeBadges, placeBeside, placeLabels, type Disc, type LabelPlace } from "@/lib/chart/wheel-layout";
 import { createSelectionStore, type SelectionStore } from "@/lib/chart/selection-store";
 import type { AspectId } from "@/lib/chart/types";
+import { formatArc } from "@/lib/utils";
 
 const CX = 360;
 const CY = 360;
@@ -1075,7 +1076,7 @@ const ChartWheelView = memo(function ChartWheelView({
     const colon = locale === "fr" ? "\u202f: " : ": ";
     const m = new Map<string, string>();
     for (const { a, focusId } of chords) {
-      const orb = locale === "fr" ? a.orb.toFixed(2).replace(".", ",") : a.orb.toFixed(2);
+      const orb = formatArc(a.orb);
       const dir = a.applying === true ? ` · ${t("applying")}` : a.applying === false ? ` · ${t("separating")}` : "";
       const tag = !showTransits
         ? ""
@@ -3487,7 +3488,7 @@ const ChartWheelView = memo(function ChartWheelView({
               <title>
                 {s.name}
                 {s.conjunct
-                  ? ` · ${bodyLabel(s.conjunct.body, locale)} ${s.conjunct.orb.toFixed(2)}°`
+                  ? ` · ${bodyLabel(s.conjunct.body, locale)} ${formatArc(s.conjunct.orb)}`
                   : ""}
               </title>
               <line

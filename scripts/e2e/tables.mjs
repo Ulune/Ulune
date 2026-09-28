@@ -315,6 +315,19 @@ async function runExact() {
     if (balance !== "1") throw new Error("no time: the hemispheres are not marked");
     await noDecimalDegree(page, "no time");
     await checkNoSideways(page, "no time");
+    // The side panel says so too: the Ascendant, the houses, the chart ruler and the tightest aspect marked ~,
+    // the orb in degrees and minutes; the Ascendant's reading opens with the note.
+    const ascPlace = await page.getByTestId("natal-hello-asc-place").innerText();
+    if (!ascPlace.startsWith("~")) throw new Error(`no time: the glance's Ascendant reads "${ascPlace}"`);
+    const marked = await page.locator("[data-testid=glance-highlights] [data-uncertain='1']").count();
+    if (marked < 2) throw new Error(`no time: ${marked} glance lines marked`);
+    const glance = await page.getByTestId("glance-highlights").innerText();
+    if (/\d[.,]\d+ ?°/.test(glance) || !/\d+°\d\d'/.test(glance)) throw new Error(`no time: the glance's orbs read "${glance}"`);
+    await page.getByTestId("natal-hello-asc").click();
+    await page.getByTestId("reading-time").waitFor({ timeout: 8000 });
+    // Back to the glance.
+    await page.keyboard.press("Escape");
+    await page.getByTestId("glance-highlights").waitFor({ timeout: 8000 });
 
     await page.getByTestId("chart-chip").click();
     await page.getByTestId("new-chart").click();
@@ -327,6 +340,8 @@ async function runExact() {
     if (!/^−4\s+detriment · face$/.test(dignity.trim())) throw new Error(`station: Mercury's dignity reads "${dignity}"`);
     await noDecimalDegree(page, "station");
     await checkNoSideways(page, "station");
+    const glanceKnown = await page.getByTestId("glance-highlights").innerText();
+    if (glanceKnown.includes("~") || /\d[.,]\d+ ?°/.test(glanceKnown)) throw new Error(`station: the glance reads "${glanceKnown}"`);
     console.log("exact points OK");
   } finally {
     await browser.close();

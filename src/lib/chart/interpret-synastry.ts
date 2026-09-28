@@ -5,10 +5,11 @@
 import { TIGHT_ORB } from "./constants";
 import { applyingWord, aspectFamily, aspectInPractice, aspectIs, bodyIs, bodyKeywords, houseArea, minorAspectNote, pairTheme } from "./plain";
 import type { Locale } from "@/lib/i18n/locale";
-import { aspectLinkPhrase, bodyInline, bodyLabel, formatOrb, houseInline, inSign, lowerLead, signName } from "@/lib/i18n/astro";
+import { aspectLinkPhrase, bodyInline, bodyLabel, houseInline, inSign, lowerLead, signName } from "@/lib/i18n/astro";
 import { pickBi } from "@/lib/content/types";
 import { ORB_ABOUT, SYNASTRY_ABOUT, SYNASTRY_FAMILY } from "@/lib/content/astro-time";
 import type { AngleId, AspectLink, BodyId, ElementReading, LocalDossier, NatalChart, Placement } from "./types";
+import { formatArc } from "@/lib/utils";
 
 function bodyOf(chart: NatalChart, id: BodyId): Placement | undefined {
   if (id in chart.angles) return chart.angles[id as AngleId];
@@ -68,14 +69,14 @@ export function synastryBodyReading(
   if (tight) {
     inChart.push(
       fr
-        ? `Le contact le plus serré : ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))}, à ${formatOrb(tight.orb, locale)}°. ${familyText(tight, aName, bName, locale)}`
-        : `The tightest contact is ${aspectLinkPhrase(tight.a, tight.type, tight.b, locale)} at ${formatOrb(tight.orb, locale)}°. ${familyText(tight, aName, bName, locale)}`,
+        ? `Le contact le plus serré : ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))}, à ${formatArc(tight.orb)}. ${familyText(tight, aName, bName, locale)}`
+        : `The tightest contact is ${aspectLinkPhrase(tight.a, tight.type, tight.b, locale)} at ${formatArc(tight.orb)}. ${familyText(tight, aName, bName, locale)}`,
     );
   }
   const rows = hits.map((row) => ({
     ref: `saspect:${row.id}`,
     label: aspectLinkPhrase(row.a, row.type, row.b, locale),
-    detail: `${formatOrb(row.orb, locale)}°`,
+    detail: `${formatArc(row.orb)}`,
     text: familyText(row, aName, bName, locale),
   }));
   const note = bodyIs(placement.id, locale);
@@ -106,7 +107,7 @@ export function synastryAspectReading(link: AspectLink, a: NatalChart, b: NatalC
   const aName = who(a, "A");
   const bName = who(b, "B");
   const phrase = aspectLinkPhrase(link.a, link.type, link.b, locale);
-  const orb = formatOrb(link.orb, locale);
+  const orb = formatArc(link.orb);
   const app = applyingWord(link.applying, locale);
   const lead = familyText(link, aName, bName, locale);
   const inChart: string[] = [];
@@ -121,8 +122,8 @@ export function synastryAspectReading(link: AspectLink, a: NatalChart, b: NatalC
   }
   inChart.push(
     fr
-      ? `Orbe ${orb}° : ${link.orb < 2 ? "un contact serré, très sensible entre vous" : link.orb < 5 ? "un contact net" : "un contact plus diffus"}.`
-      : `Orb ${orb}°: ${link.orb < 2 ? "a tight contact, strongly felt between you" : link.orb < 5 ? "a clear contact" : "a looser, more diffuse contact"}.`,
+      ? `Orbe ${orb} : ${link.orb < 2 ? "un contact serré, très sensible entre vous" : link.orb < 5 ? "un contact net" : "un contact plus diffus"}.`
+      : `Orb ${orb}: ${link.orb < 2 ? "a tight contact, strongly felt between you" : link.orb < 5 ? "a clear contact" : "a looser, more diffuse contact"}.`,
   );
   const note = aspectIs(link.type, locale);
   return {
@@ -130,12 +131,12 @@ export function synastryAspectReading(link: AspectLink, a: NatalChart, b: NatalC
     kind: "aspect",
     title: phrase,
     kicker: fr
-      ? `${link.level === "major" ? "Majeur" : "Mineur"} · orbe ${orb}°${app ? ` · ${app}` : ""}`
-      : `${link.level === "major" ? "Major" : "Minor"} · orb ${orb}°${app ? ` · ${app}` : ""}`,
+      ? `${link.level === "major" ? "Majeur" : "Mineur"} · orbe ${orb}${app ? ` · ${app}` : ""}`
+      : `${link.level === "major" ? "Major" : "Minor"} · orb ${orb}${app ? ` · ${app}` : ""}`,
     paragraphs: [note, lead, ...inChart],
     note,
     lead,
-    facts: [{ label: fr ? "Orbe" : "Orb", value: `${orb}°` }],
+    facts: [{ label: fr ? "Orbe" : "Orb", value: `${orb}` }],
     sections: [{ id: "chart", title: fr ? "Entre vous" : "Between you", paragraphs: inChart }],
     links: {
       title: fr ? "Les deux points" : "The two points",

@@ -9,9 +9,9 @@ import {
   synastryHelloLine,
   type MeetingCellId,
 } from "@/lib/i18n/synastry-hello";
-import { formatOrb, signName } from "@/lib/i18n/astro";
+import { signName } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
-import { cn } from "@/lib/utils";
+import { cn, formatArc } from "@/lib/utils";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useChartHoverId } from "@/lib/depth/use-chart-hover";
 import { PlanetGlyph, SignGlyph } from "./glyphs";
@@ -68,7 +68,7 @@ export function SynastryHello({
           const bBody = placeIn(b, cell.id);
           const color = aBody ? planetPaint(cell.id, aBody.sign, look.planets) : "var(--color-fg-muted)";
           const sentence = link
-            ? synastryHelloLine(locale, link.type, `${formatOrb(link.orb, locale)}°`)
+            ? synastryHelloLine(locale, link.type, `${formatArc(link.orb)}`)
             : synastryHelloEmpty(locale, cell.id);
           const signs = [aBody, bBody].filter((p): p is Placement => Boolean(p));
           const body = (

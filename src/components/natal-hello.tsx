@@ -1,6 +1,7 @@
 import { ChevronRight } from "lucide-react";
-import type { ElementId, ModalityId, NatalChart, SignId } from "@/lib/chart/types";
-import { SIGN_IDS, SIGN_META } from "@/lib/chart/constants";
+import type { ElementId, ModalityId, NatalChart, Placement } from "@/lib/chart/types";
+import { CLASSIC_BODIES, SIGN_IDS, SIGN_META } from "@/lib/chart/constants";
+import { isRough, signHolds } from "@/lib/chart/unknown-time";
 import { CONFIG_LABEL } from "@/lib/chart/overlay-filter";
 import { planetPaint } from "@/lib/look";
 import { useLookShape } from "@/lib/look-provider";
@@ -9,13 +10,12 @@ import {
   aspectLinkPhrase,
   bodyLabel,
   elementName,
-  formatOrb,
   houseName,
   modalityName,
   signName,
 } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
-import { cn } from "@/lib/utils";
+import { cn, formatArc } from "@/lib/utils";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useChartHoverId } from "@/lib/depth/use-chart-hover";
 import { PlanetGlyph, SignGlyph } from "./glyphs";
@@ -39,7 +39,13 @@ function refFor(id: string) {
   return id === "ascendant" || id === "midheaven" || id === "descendant" || id === "ic" ? `angle:${id}` : `planet:${id}`;
 }
 
-type Highlight = { key: string; label: string; value: string; ref?: string };
+/** `uncertain`: hangs on a birth time that is unknown (marked ~ and dimmed, as in the table). */
+type Highlight = { key: string; label: string; value: string; ref?: string; uncertain?: boolean };
+
+/** "~" before what hangs on an unknown birth time. */
+function mark(on: boolean): string {
+  return on ? "~" : "";
+}
 
 /**
  * "At a glance": the big three with their real placements, the chart's
@@ -62,12 +68,19 @@ export function NatalGlance({
   const sun = chart.planets.find((p) => p.id === "sun");
   const moon = chart.planets.find((p) => p.id === "moon");
   const asc = chart.angles.ascendant;
-  const placeOf: Record<HelloCellId, { sign: SignId; formatted: string; house: number } | null> = {
+  const placeOf: Record<HelloCellId, Placement | null> = {
     sun: sun ?? null,
     moon: moon ?? null,
     ascendant: asc ?? null,
   };
   const pat = chart.patterns;
+  // Without a birth time: the houses, the Ascendant and what follows from them
+  // hang on the time, and a quick body's place too (unknown-time.ts).
+  const unknown = chart.meta.timeUnknown === true;
+  const signsSure = !unknown || CLASSIC_BODIES.every((id) => {
+    const p = chart.planets.find((b) => b.id === id);
+    return !p || signHolds(chart, p);
+  });
 
   const highlights: Highlight[] = [];
   const ruler = chart.planets.find((p) => p.id === pat.chartRuler);
@@ -77,6 +90,8 @@ export function NatalGlance({
       label: t("glanceRuler"),
       value: `${bodyLabel(ruler.id, locale)} · ${signName(ruler.sign, locale)} · ${houseName(ruler.house, locale)}`,
       ref: `planet:${ruler.id}`,
+      // The chart ruler rules the rising sign.
+      uncertain: unknown,
     });
   }
   if (pat.tightest) {
@@ -87,8 +102,10 @@ export function NatalGlance({
     highlights.push({
       key: "tightest",
       label: t("glanceTightest"),
-      value: `${aspectLinkPhrase(tt.a, tt.type, tt.b, locale)} · ${formatOrb(tt.orb, locale)}°`,
+      value: `${aspectLinkPhrase(tt.a, tt.type, tt.b, locale)} · ${formatArc(tt.orb)}`,
       ref: link ? `aspect:${link.id}` : undefined,
+      // At another hour the angles perfect other aspects.
+      uncertain: unknown,
     });
   }
   if (pat.dominant) {
@@ -98,6 +115,7 @@ export function NatalGlance({
       label: t("glancePattern"),
       value: `${CONFIG_LABEL[d.type][locale === "fr" ? "fr" : "en"]} · ${d.members.map((m) => bodyLabel(m, locale)).join(", ")}`,
       ref: d.apex ? refFor(d.apex) : undefined,
+      uncertain: unknown,
     });
   }
   for (const st of pat.stelliums.slice(0, 2)) {
@@ -108,6 +126,13 @@ export function NatalGlance({
       label: t("glanceStellium"),
       value: `${houseN ? houseName(Number(houseN), locale) : sign ? signName(sign, locale) : st.place} · ${st.members.map((m) => bodyLabel(m, locale)).join(", ")}`,
       ref: houseN ? `house:${houseN}` : sign ? `sign:${sign}` : undefined,
+      uncertain:
+        unknown &&
+        (houseN != null ||
+          !st.members.every((id) => {
+            const p = chart.planets.find((b) => b.id === id);
+            return !p || signHolds(chart, p);
+          })),
     });
   }
   if (pat.retrogrades.length) {
@@ -152,7 +177,7 @@ export function NatalGlance({
             {...previewProps(selectId)}
             data-previewed={chartHover === selectId ? "1" : undefined}
               aria-pressed={active}
-              aria-label={`${cell.label}${place ? `, ${place.formatted} ${signName(place.sign, locale)}` : ""}. ${cell.sentence}`}
+              aria-label={`${cell.label}${place ? `, ${mark(isRough(chart, place))}${place.formatted} ${signName(place.sign, locale)}` : ""}. ${cell.sentence}`}
               className={cn("ob-glance-cell", active && "is-on")}
             >
               <span className="ob-glance-glyph" style={{ color }} aria-hidden>
@@ -168,8 +193,15 @@ export function NatalGlance({
                       <span className="ob-glance-sign" aria-hidden>
                         <SignGlyph id={place.sign} size={13} />
                       </span>
-                      {place.formatted} {signName(place.sign, locale)}
-                      <span className="ob-glance-house">· {houseName(place.house, locale)}</span>
+                      <span className={cn(isRough(chart, place) && "ulune-uncertain")} data-testid={`${TEST_ID[cell.id]}-place`}>
+                        {mark(isRough(chart, place))}
+                        {place.formatted} {signName(place.sign, locale)}
+                      </span>
+                      <span className={cn("ob-glance-house", unknown && "ulune-uncertain")}>
+                        {" "}
+                        · {mark(unknown)}
+                        {houseName(place.house, locale)}
+                      </span>
                     </span>
                   ) : null}
                 </span>
@@ -184,7 +216,8 @@ export function NatalGlance({
 
       <div className="ob-glance-balance">
         <BalanceRow
-          title={t("glanceElements")}
+          uncertain={!signsSure}
+          title={`${mark(!signsSure)}${t("glanceElements")}`}
           items={ELEMENTS.map((e) => ({
             id: e,
             label: elementName(e, locale),
@@ -194,7 +227,8 @@ export function NatalGlance({
           max={elMax}
         />
         <BalanceRow
-          title={t("glanceModes")}
+          uncertain={!signsSure}
+          title={`${mark(!signsSure)}${t("glanceModes")}`}
           items={MODALITIES.map((m) => ({
             id: m,
             label: modalityName(m, locale),
@@ -220,7 +254,10 @@ export function NatalGlance({
               >
                 <span className="ob-rc-row-main ob-glance-hl">
                   <span className="ob-glance-hl-k">{h.label}</span>
-                  <span className="ob-rc-row-label">{h.value}</span>
+                  <span className={cn("ob-rc-row-label", h.uncertain && "ulune-uncertain")} data-uncertain={h.uncertain ? "1" : undefined}>
+                    {mark(h.uncertain === true)}
+                    {h.value}
+                  </span>
                 </span>
                 <ChevronRight className="ob-rc-row-go size-4" strokeWidth={1.75} aria-hidden />
               </button>
@@ -237,14 +274,17 @@ function BalanceRow({
   title,
   items,
   max,
+  uncertain = false,
 }: {
   title: string;
   items: { id: string; label: string; n: number; color: string }[];
   max: number;
+  /** A body counted here may change sign in the day (no birth time). */
+  uncertain?: boolean;
 }) {
   const total = items.reduce((s, i) => s + i.n, 0);
   return (
-    <div className="ob-bal" role="group" aria-label={title}>
+    <div className={cn("ob-bal", uncertain && "ulune-uncertain")} role="group" aria-label={title}>
       <p className="ob-rc-h">{title}</p>
       <ul className="ob-bal-rows">
         {items.map((i) => (

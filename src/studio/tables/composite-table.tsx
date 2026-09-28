@@ -3,7 +3,7 @@ import { DataTable } from "@/studio/tables/DataTable";
 import { AspectGlyph, PlanetGlyph } from "@/components/glyphs";
 import { compositeBodyOf, compositeRowTestId } from "@/lib/chart/composite";
 import type { AspectLink, NatalChart, Placement } from "@/lib/chart/types";
-import { aspectName, bodyTableLabel, formatOrb } from "@/lib/i18n/astro";
+import { aspectName, bodyTableLabel } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
 import {
   COMPOSITE_TABLE_COLUMN_KEYS,
@@ -13,6 +13,7 @@ import {
   compositeTableTitle,
 } from "@/lib/i18n/composite-ui";
 import { previewProps } from "@/lib/depth/preview-bus";
+import { formatArc } from "@/lib/utils";
 
 export function CompositeTable({
   chart,
@@ -94,7 +95,7 @@ function CompositeAspectRow({
   onSelect: () => void;
   previewId?: string;
 }) {
-  const orb = formatOrb(link.orb, locale);
+  const orb = formatArc(link.orb);
   return (
     <tr
       {...previewProps(previewId)}
@@ -151,7 +152,7 @@ function CompositeAspectRow({
         </button>
       </td>
       <td data-col="orb" className="font-mono whitespace-nowrap">
-        {orb}°
+        {orb}
       </td>
     </tr>
   );

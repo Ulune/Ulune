@@ -3,9 +3,9 @@ import { tightestApplyingMajors } from "@/lib/chart/transit-exact";
 import { planetPaint } from "@/lib/look";
 import { useLookShape } from "@/lib/look-provider";
 import { TRANSITS_HELLO, transitHelloEmpty, transitHelloLine } from "@/lib/i18n/transits-hello";
-import { aspectLinkPhrase, bodyLabel, formatOrb } from "@/lib/i18n/astro";
+import { aspectLinkPhrase, bodyLabel } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
-import { cn } from "@/lib/utils";
+import { cn, formatArc } from "@/lib/utils";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useChartHoverId } from "@/lib/depth/use-chart-hover";
 import { PlanetGlyph } from "./glyphs";
@@ -69,7 +69,7 @@ export function TransitHello({
                 {...previewProps(selectId)}
                 data-previewed={chartHover === selectId ? "1" : undefined}
                 aria-pressed={active}
-                aria-label={`${label}, ${formatOrb(link.orb, locale)}°. ${sentence}`}
+                aria-label={`${label}, ${formatArc(link.orb)}. ${sentence}`}
                 className={cn("ob-glance-cell", active && "is-on")}
               >
                 <span className="ob-glance-glyph" style={{ color }} aria-hidden>
@@ -81,7 +81,7 @@ export function TransitHello({
                       {label}
                     </span>
                     <span className="ob-glance-place">
-                      {formatOrb(link.orb, locale)}°
+                      {formatArc(link.orb)}
                       {moving ? (
                         <span className="ob-glance-house">
                           · {bodyLabel(link.a, locale)} {moving.formatted}

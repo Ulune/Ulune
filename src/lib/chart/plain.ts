@@ -6,13 +6,14 @@
 import { SIGN_META } from "./constants";
 import type { AspectId, AspectLink, BodyId, NatalChart, Placement, PlanetId, SignId } from "./types";
 import type { Locale } from "@/lib/i18n/locale";
-import { aspectLinkPhrase, aspectName, bodyInline, bodyLabel, bodyThe, formatOrb, houseInline, inSign, joinList, signDe, signName } from "@/lib/i18n/astro";
+import { aspectLinkPhrase, aspectName, bodyInline, bodyLabel, bodyThe, houseInline, inSign, joinList, signDe, signName } from "@/lib/i18n/astro";
 import { pickBi } from "@/lib/content/types";
 import { BODY_TEXT } from "@/lib/content/astro-bodies";
 import { ANGLE_PAIR_TEXT, ASPECT_TEXT, PAIR_TEXT, type AspectFamily } from "@/lib/content/astro-aspects";
 import { HOUSE_TEXT, SIGN_TEXT } from "@/lib/content/astro-signs-houses";
 import { PLANET_IN_SIGN, type ClassicPlanet } from "@/lib/content/astro-planet-sign";
 import { BODY_KEYWORDS } from "@/lib/content/astro-time";
+import { formatArc } from "@/lib/utils";
 
 type HouseNo = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
@@ -154,7 +155,7 @@ export function aspectSentence(chart: NatalChart, link: AspectLink, from: BodyId
   const other = link.a === from ? link.b : link.a;
   const otherP = placementOf(chart, other);
   const app = applyingWord(link.applying, locale);
-  const orb = `${formatOrb(link.orb, locale)}°${app ? `, ${app}` : ""}`;
+  const orb = `${formatArc(link.orb)}${app ? `, ${app}` : ""}`;
   const practice = aspectPractice(from, other, link.type, locale);
   if (locale === "fr") {
     const phrase = aspectLinkPhrase(from, link.type, other, locale);
@@ -177,14 +178,14 @@ export function aspectParagraphs(chart: NatalChart, link: AspectLink, locale: Lo
         `${cap(bodyInline(link.a, locale))} est ${inSign(a.sign, locale)}, en ${houseInline(a.house, locale)} (${houseArea(a.house, locale)}) ; ${bodyInline(link.b, locale)} est ${inSign(b.sign, locale)}, en ${houseInline(b.house, locale)} (${houseArea(b.house, locale)}). L’aspect relie ces deux domaines de votre vie.`,
       );
       where.push(
-        `L’orbe est de ${formatOrb(link.orb, locale)}°${app ? ` et l’aspect est ${app}` : ""} : ${link.orb < 2 ? "il est serré et se fait nettement sentir" : link.orb < 5 ? "il est d’intensité moyenne" : "il est large et plus diffus"}.`,
+        `L’orbe est de ${formatArc(link.orb)}${app ? ` et l’aspect est ${app}` : ""} : ${link.orb < 2 ? "il est serré et se fait nettement sentir" : link.orb < 5 ? "il est d’intensité moyenne" : "il est large et plus diffus"}.`,
       );
     } else {
       where.push(
         `${bodyThe(link.a, locale, true)} is in ${signName(a.sign, locale)} in your ${houseInline(a.house, locale)} (${houseArea(a.house, locale)}); ${bodyThe(link.b, locale)} is in ${signName(b.sign, locale)} in your ${houseInline(b.house, locale)} (${houseArea(b.house, locale)}). The aspect links these two areas of your life.`,
       );
       where.push(
-        `The orb is ${formatOrb(link.orb, locale)}°${app ? ` and ${app}` : ""}: ${link.orb < 2 ? "tight, so it is strongly felt" : link.orb < 5 ? "of medium strength" : "wide, so its effect is more diffuse"}.`,
+        `The orb is ${formatArc(link.orb)}${app ? ` and ${app}` : ""}: ${link.orb < 2 ? "tight, so it is strongly felt" : link.orb < 5 ? "of medium strength" : "wide, so its effect is more diffuse"}.`,
       );
     }
   }

@@ -39,7 +39,7 @@ export const bodies = {
     "Tracer les aspects vers Fortune, Lilith, Vertex et les autres points du mixeur.",
   ],
   aspectToTargets: ["Aspect targets", "Cibles d’aspect"],
-  aspectTooltip: ["{phrase} · orb {orb}°", "{phrase} · orbe {orb}°"],
+  aspectTooltip: ["{phrase} · orb {orb}", "{phrase} · orbe {orb}"],
   bodiesBandAsteroids: ["Asteroids", "Astéroïdes"],
   bodiesBandClassical: ["Classical", "Classiques"],
   bodiesBandLuminaries: ["Luminaries", "Luminaires"],

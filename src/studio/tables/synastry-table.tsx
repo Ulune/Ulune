@@ -3,7 +3,7 @@ import { DataTable } from "@/studio/tables/DataTable";
 import { AspectGlyph, PlanetGlyph } from "@/components/glyphs";
 import { synastryRowTestId } from "@/lib/chart/synastry";
 import type { AngleId, AspectLink, NatalChart, Placement } from "@/lib/chart/types";
-import { aspectName, bodyTableLabel, formatOrb } from "@/lib/i18n/astro";
+import { aspectName, bodyTableLabel } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
 import {
   SYNASTRY_TABLE_COLUMN_KEYS,
@@ -16,6 +16,7 @@ import {
 } from "@/lib/i18n/synastry-ui";
 import { chartDisplayName } from "@/lib/chart/library";
 import { previewProps } from "@/lib/depth/preview-bus";
+import { formatArc } from "@/lib/utils";
 
 function bodyOf(chart: NatalChart, id: AspectLink["a"]): Placement | undefined {
   if (id in chart.angles) return chart.angles[id as AngleId];
@@ -108,7 +109,7 @@ function SynastryAspectRow({
 }) {
   const applying = link.applying === true;
   const separating = link.applying === false;
-  const orb = formatOrb(link.orb, locale);
+  const orb = formatArc(link.orb);
   return (
     <tr
       {...previewProps(previewId)}
@@ -155,7 +156,7 @@ function SynastryAspectRow({
         </span>
       </td>
       <td data-col="orb" className="font-mono whitespace-nowrap">
-        {orb}°
+        {orb}
       </td>
       <td data-col="as-a" className="ulune-as-cell">
         {applying ? (

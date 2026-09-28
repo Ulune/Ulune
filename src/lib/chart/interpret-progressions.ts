@@ -6,10 +6,11 @@ import { TIGHT_ORB } from "./constants";
 import { applyingWord, aspectInPractice, aspectIs, bodyIs, bodyKeywords, houseArea, pairTheme, signKeywords } from "./plain";
 import { movingFamilyText } from "./interpret-transit";
 import type { Locale } from "@/lib/i18n/locale";
-import { aspectLinkPhrase, bodyAgree, bodyInline, bodyLabel, formatOrb, houseInline, inSign, lowerLead, signName } from "@/lib/i18n/astro";
+import { aspectLinkPhrase, bodyAgree, bodyInline, bodyLabel, houseInline, inSign, lowerLead, signName } from "@/lib/i18n/astro";
 import { pickBi } from "@/lib/content/types";
 import { ORB_ABOUT, PROGRESSED_FAMILY, PROGRESSED_PACE, PROGRESSION_ABOUT } from "@/lib/content/astro-time";
 import type { AngleId, AspectLink, BodyId, ElementReading, LocalDossier, NatalChart, Placement, ProgressedSky } from "./types";
+import { formatArc } from "@/lib/utils";
 
 function cap(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
@@ -52,8 +53,8 @@ export function progressedReading(
   if (tight) {
     inChart.push(
       fr
-        ? `Son contact le plus serré : ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))} ${bodyAgree(tight.b, "natal", "natale")}, à ${formatOrb(tight.orb, locale)}°. Les progressions bougent lentement : un tel aspect reste actif environ un an de part et d’autre de l’exactitude.`
-        : `Its tightest contact is ${aspectLinkPhrase(tight.a, tight.type, tight.b, locale)} (natal), at ${formatOrb(tight.orb, locale)}°. Progressions move slowly: an aspect like this stays active for about a year either side of exact.`,
+        ? `Son contact le plus serré : ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))} ${bodyAgree(tight.b, "natal", "natale")}, à ${formatArc(tight.orb)}. Les progressions bougent lentement : un tel aspect reste actif environ un an de part et d’autre de l’exactitude.`
+        : `Its tightest contact is ${aspectLinkPhrase(tight.a, tight.type, tight.b, locale)} (natal), at ${formatArc(tight.orb)}. Progressions move slowly: an aspect like this stays active for about a year either side of exact.`,
     );
   } else if (!hits.length) {
     inChart.push(
@@ -65,7 +66,7 @@ export function progressedReading(
   const rows = hits.map((a) => ({
     ref: `paspect:${a.id}`,
     label: fr ? `${aspectLinkPhrase(a.a, a.type, a.b, locale)} ${bodyAgree(a.b, "natal", "natale")}` : `${aspectLinkPhrase(a.a, a.type, a.b, locale)} (natal)`,
-    detail: `${formatOrb(a.orb, locale)}°${applyingWord(a.applying, locale) ? ` · ${applyingWord(a.applying, locale)}` : ""}`,
+    detail: `${formatArc(a.orb)}${applyingWord(a.applying, locale) ? ` · ${applyingWord(a.applying, locale)}` : ""}`,
     text: movingFamilyText(PROGRESSED_FAMILY, a.a, a.b, a.type, locale),
   }));
   const note = pickBi(PROGRESSED_PACE[id], locale) || pickBi(PROGRESSION_ABOUT, locale);
@@ -104,7 +105,7 @@ export function progressedAspectReading(
   const moving = link.a in sky.angles ? sky.angles[link.a as AngleId] : sky.planets.find((p) => p.id === link.a);
   const natalP = natalBody(natal, link.b);
   const phrase = aspectLinkPhrase(link.a, link.type, link.b, locale);
-  const orb = formatOrb(link.orb, locale);
+  const orb = formatArc(link.orb);
   const app = applyingWord(link.applying, locale);
   const lead = movingFamilyText(PROGRESSED_FAMILY, link.a, link.b, link.type, locale);
   const inChart: string[] = [];
@@ -119,8 +120,8 @@ export function progressedAspectReading(
   if (theme) inChart.push(theme);
   inChart.push(
     fr
-      ? `Orbe ${orb}°${app ? `, ${app}` : ""}. Une progression d’un degré correspond à peu près à une année.`
-      : `Orb ${orb}°${app ? `, ${app}` : ""}. One degree of progressed movement corresponds to roughly one year.`,
+      ? `Orbe ${orb}${app ? `, ${app}` : ""}. Une progression d’un degré correspond à peu près à une année.`
+      : `Orb ${orb}${app ? `, ${app}` : ""}. One degree of progressed movement corresponds to roughly one year.`,
   );
   const note = aspectIs(link.type, locale);
   return {
@@ -128,12 +129,12 @@ export function progressedAspectReading(
     kind: "aspect",
     title: fr ? `Progressé · ${phrase}` : `Progressed · ${phrase}`,
     kicker: fr
-      ? `${link.level === "major" ? "Majeur" : "Mineur"} · orbe ${orb}°${app ? ` · ${app}` : ""}`
-      : `${link.level === "major" ? "Major" : "Minor"} · orb ${orb}°${app ? ` · ${app}` : ""}`,
+      ? `${link.level === "major" ? "Majeur" : "Mineur"} · orbe ${orb}${app ? ` · ${app}` : ""}`
+      : `${link.level === "major" ? "Major" : "Minor"} · orb ${orb}${app ? ` · ${app}` : ""}`,
     paragraphs: [note, lead, ...inChart],
     note,
     lead,
-    facts: [{ label: fr ? "Orbe" : "Orb", value: `${orb}°${app ? ` · ${app}` : ""}` }],
+    facts: [{ label: fr ? "Orbe" : "Orb", value: `${orb}${app ? ` · ${app}` : ""}` }],
     sections: [{ id: "chart", title: fr ? "Dans votre thème" : "In your chart", paragraphs: inChart }],
     links: {
       title: fr ? "Les deux points" : "The two points",

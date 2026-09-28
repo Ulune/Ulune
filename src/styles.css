@@ -2245,6 +2245,10 @@ html.light .ulune-wheel [data-cfg-type] {
   color: var(--color-fg-subtle);
   font-weight: 400;
 }
+/* Hangs on a birth time that is unknown: marked ~ and dimmed (the table, the side panel). */
+.ulune-uncertain {
+  opacity: 0.6;
+}
 .ob-glance-copy {
   font-size: 0.9375rem;
   line-height: 1.5;

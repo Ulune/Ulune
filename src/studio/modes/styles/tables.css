@@ -555,8 +555,8 @@
 .ulune-points .ulune-cell-words {
   white-space: nowrap;
 }
-/* Without a birth time: what depends on it is marked ~ and dimmed. */
-.ulune-uncertain,
+/* Without a birth time: what depends on it is marked ~ and dimmed
+   (.ulune-uncertain itself lives in styles.css, for the side panel too). */
 .ulune-data-table tr[data-uncertain="1"] td,
 .ob-bal[data-uncertain="1"] {
   opacity: 0.6;

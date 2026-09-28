@@ -3,7 +3,7 @@ import { DataTable } from "@/studio/tables/DataTable";
 import { AspectGlyph, PlanetGlyph } from "@/components/glyphs";
 import { isTransitTablePair, motionFlags, residualForType, transitRowTestId } from "@/lib/chart/transit-exact";
 import type { AngleId, AspectLink, NatalChart, Placement, TransitSky } from "@/lib/chart/types";
-import { aspectName, bodyTableLabel, formatOrb } from "@/lib/i18n/astro";
+import { aspectName, bodyTableLabel } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
 import {
   TRANSIT_TABLE_COLUMN_KEYS,
@@ -14,6 +14,7 @@ import {
 } from "@/lib/i18n/transits-ui";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { dateFormat } from "@/lib/intl-cache";
+import { formatArc } from "@/lib/utils";
 
 function formatExactUtc(iso: string, locale: "en" | "fr"): string {
   const d = new Date(iso);
@@ -135,7 +136,7 @@ function TransitAspectRow({
   const separating = link.applying === false;
   const shownOrb =
     moving && natal ? residualForType(moving.ecliptic, natal.ecliptic, link.type) : link.orb;
-  const aspectLabel = `${aspectName(link.type, locale)} ${formatOrb(shownOrb, locale)}°`;
+  const aspectLabel = `${aspectName(link.type, locale)} ${formatArc(shownOrb)}`;
   return (
     <tr
       {...previewProps(previewId)}

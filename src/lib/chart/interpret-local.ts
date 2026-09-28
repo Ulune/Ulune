@@ -3,8 +3,10 @@
  * note (what the thing is), lead (what it means in this chart), sections,
  * linked rows and an "About" block. Wording comes from src/lib/content.
  */
-import { SIGN_IDS, SIGN_META, decanOf } from "./constants";
+import { SIGN_IDS, SIGN_META, decanOf, signFromEcliptic } from "./constants";
+import { aspectHolds, dignityHolds } from "./day-checks";
 import { signDignity } from "./dignities";
+import { daySpan, extent, isRough, signHolds } from "./unknown-time";
 import {
   aspectInPractice,
   aspectIs,
@@ -31,7 +33,6 @@ import {
   dignityName,
   elementName,
   faceLabelLocale,
-  formatOrb,
   houseInline,
   houseName,
   inSign,
@@ -67,6 +68,7 @@ import type {
   PlanetId,
   SignId,
 } from "./types";
+import { formatArc, formatDegree } from "@/lib/utils";
 
 type HouseNo = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 type Rows = NonNullable<ElementReading["links"]>["rows"];
@@ -108,7 +110,7 @@ function aspectRows(chart: NatalChart, id: BodyId, locale: Locale, limit: number
   return [...major, ...minor].slice(0, limit).map((a) => ({
     ref: `aspect:${a.id}`,
     label: aspectLinkPhrase(a.a, a.type, a.b, locale),
-    detail: `${formatOrb(a.orb, locale)}°`,
+    detail: `${formatArc(a.orb)}`,
     text: aspectSentence(chart, a, id, locale),
   }));
 }
@@ -514,10 +516,10 @@ function aspectReading(chart: NatalChart, link: AspectLink, locale: Locale): Ele
     id: `aspect:${link.id}`,
     kind: "aspect",
     title,
-    kicker: fill(c.aspectKicker, { level: link.level === "major" ? c.major : c.minor, orb: formatOrb(link.orb, locale) }),
+    kicker: fill(c.aspectKicker, { level: link.level === "major" ? c.major : c.minor, orb: formatArc(link.orb) }),
     paragraphs: [structured.note, ...flatten(structured)],
     ...structured,
-    facts: [{ label: c.factOrb, value: `${formatOrb(link.orb, locale)}° · ${link.level === "major" ? c.major : c.minor}` }],
+    facts: [{ label: c.factOrb, value: `${formatArc(link.orb)} · ${link.level === "major" ? c.major : c.minor}` }],
     about: {
       title: c.aboutTitleAspect,
       paragraphs: [
@@ -549,12 +551,105 @@ export function dossierFor(chart: NatalChart, locale: Locale = "en"): LocalDossi
   return built;
 }
 
-export function buildDossier(chart: NatalChart, locale: Locale = "en"): LocalDossier {
+/**
+ * Without a birth time, what a reading says that hangs on the hour: a first
+ * section says so, and the facts that hang on it are marked ~ (as in the
+ * table). The angles, the houses, the Vertex and the lots move with the hour;
+ * a body keeps its sign and degree, but not its house, and a quick one (the
+ * Moon) only roughly its degree; an aspect may not hold all day
+ * (day-checks.ts).
+ */
+function withUnknownTime(chart: NatalChart, r: ElementReading, locale: Locale): ElementReading {
+  const c = readingCopy(locale);
+  const at = r.id.indexOf(":");
+  const kind = r.id.slice(0, at);
+  const id = r.id.slice(at + 1);
+  const texts: string[] = [];
+  let whole = false;
+  let place = false;
+  let decanMoves = false;
+  if (kind === "angle") {
+    texts.push(fill(c.timeAngle, { name: bodyThe(id, locale, true) }));
+    whole = true;
+  } else if (kind === "house") {
+    texts.push(c.timeHouse);
+    whole = true;
+  } else if (kind === "planet") {
+    const p = chart.planets.find((b) => b.id === id);
+    if (p?.uncertain) {
+      texts.push(fill(c.timePoint, { name: bodyThe(id, locale, true) }));
+      whole = true;
+    } else if (p) {
+      texts.push(fill(c.timeHouseOf, { house: houseName(p.house, locale) }));
+      const span = daySpan(chart, p);
+      if (span && isRough(chart, p)) {
+        place = true;
+        const [lo, hi] = extent(span);
+        decanMoves = Math.floor(lo / 10) !== Math.floor(hi / 10);
+        const where = (lon: number) => `${formatDegree(lon)} ${signName(signFromEcliptic(lon), locale)}`;
+        texts.push(
+          fill(c.timeRough, {
+            name: bodyThe(id, locale, true),
+            arc: formatArc(Math.abs(span.end - span.start)),
+            from: where(span.start),
+            to: where(span.end),
+          }),
+        );
+        if (!signHolds(chart, p)) {
+          texts.push(
+            fill(c.timeSigns, {
+              name: bodyThe(id, locale, true),
+              a: inSign(signFromEcliptic(span.start), locale),
+              b: inSign(signFromEcliptic(span.end), locale),
+            }),
+          );
+        }
+      }
+    }
+  } else if (kind === "aspect") {
+    const a = chart.aspects.find((x) => x.id === id);
+    if (a && !aspectHolds(chart, a)) {
+      texts.push(c.timeAspect);
+      whole = true;
+    }
+  }
+  if (!texts.length) return r;
+  const text = texts.join(" ");
+  const body = kind === "planet" ? chart.planets.find((b) => b.id === id) : undefined;
+  // An angle, a house, a lot or an aspect that may not hold: every fact hangs on the time.
+  const shaky = (label: string) =>
+    whole ||
+    label === c.factHouse ||
+    label === c.factCusp ||
+    (place && label === c.factSign) ||
+    (decanMoves && label === c.factDecan) ||
+    (label === c.factDignity && body != null && !dignityHolds(chart, body));
+  const facts = r.facts?.map((f) => (shaky(f.label) ? { ...f, value: `~${f.value}` } : f));
+  // "~" before the kicker's first number (the degree, the cusp, the orb), and before a body's house.
+  let kicker = r.kicker;
+  if (kicker && (whole || place)) kicker = kicker.replace(/\d/, (d) => `~${d}`);
+  if (kicker && kind === "planet" && !whole) {
+    const house = body ? houseName(body.house, locale) : "";
+    if (house && kicker.includes(house)) kicker = kicker.replace(house, `~${house}`);
+  }
+  const [note, ...rest] = r.paragraphs;
+  return {
+    ...r,
+    kicker,
+    facts,
+    sections: [{ id: "time", title: c.secTime, paragraphs: [text] }, ...(r.sections ?? [])],
+    paragraphs: note == null ? [text, ...rest] : [note, text, ...rest],
+  };
+}
+
+export function buildDossier(chart: NatalChart, locale: Locale = "en", notes: { unknownTime?: boolean } = {}): LocalDossier {
   const byId: Record<string, ElementReading> = {};
   const order: string[] = [];
+  const unknown = chart.meta.timeUnknown === true && notes.unknownTime !== false;
   const add = (r: ElementReading) => {
-    byId[r.id] = r;
-    order.push(r.id);
+    const read = unknown ? withUnknownTime(chart, r, locale) : r;
+    byId[read.id] = read;
+    order.push(read.id);
   };
 
   add(angleReading(chart, "ascendant", locale));
@@ -580,7 +675,8 @@ export { mergeGrokIntoDossier, natalRootReading } from "./dossier";
  * the relationship. A first section says how to read "you" here.
  */
 export function buildCompositeDossier(chart: NatalChart, locale: Locale): LocalDossier {
-  const base = buildDossier(chart, locale);
+  // The natal "cast for 12:00" wording does not fit a composite.
+  const base = buildDossier(chart, locale, { unknownTime: false });
   const fr = locale === "fr";
   const hint = {
     id: "composite",

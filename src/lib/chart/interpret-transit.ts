@@ -5,10 +5,11 @@
 import { TIGHT_ORB } from "./constants";
 import { applyingWord, aspectFamily, aspectInPractice, aspectIs, bodyAs, bodyIs, bodyKeywords, houseArea, minorAspectNote, pairTheme, signKeywords } from "./plain";
 import type { Locale } from "@/lib/i18n/locale";
-import { aspectLinkPhrase, bodyAgree, bodyInline, bodyLabel, bodyThe, formatOrb, houseInline, inSign, lowerLead, signName } from "@/lib/i18n/astro";
+import { aspectLinkPhrase, bodyAgree, bodyInline, bodyLabel, bodyThe, houseInline, inSign, lowerLead, signName } from "@/lib/i18n/astro";
 import { pickBi } from "@/lib/content/types";
 import { ORB_ABOUT, TRANSIT_ABOUT, TRANSIT_FAMILY, TRANSIT_PACE } from "@/lib/content/astro-time";
 import type { AspectLink, BodyId, ElementReading, LocalDossier, NatalChart, Placement, TransitSky } from "./types";
+import { formatArc } from "@/lib/utils";
 
 function cap(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
@@ -72,8 +73,8 @@ export function transitReading(
   if (tight) {
     inChart.push(
       fr
-        ? `Son contact le plus serré : ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))} ${bodyAgree(tight.b, "natal", "natale")}, à ${formatOrb(tight.orb, locale)}°. C’est là que le transit se fait le plus sentir en ce moment.`
-        : `Its tightest contact is ${aspectLinkPhrase(tight.a, tight.type, tight.b, locale)} (natal), at ${formatOrb(tight.orb, locale)}°: that is where this transit is felt most right now.`,
+        ? `Son contact le plus serré : ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))} ${bodyAgree(tight.b, "natal", "natale")}, à ${formatArc(tight.orb)}. C’est là que le transit se fait le plus sentir en ce moment.`
+        : `Its tightest contact is ${aspectLinkPhrase(tight.a, tight.type, tight.b, locale)} (natal), at ${formatArc(tight.orb)}: that is where this transit is felt most right now.`,
     );
   } else if (!hits.length) {
     inChart.push(
@@ -85,7 +86,7 @@ export function transitReading(
   const rows = hits.map((a) => ({
     ref: `taspect:${a.id}`,
     label: fr ? `${aspectLinkPhrase(a.a, a.type, a.b, locale)} ${bodyAgree(a.b, "natal", "natale")}` : `${aspectLinkPhrase(a.a, a.type, a.b, locale)} (natal)`,
-    detail: `${formatOrb(a.orb, locale)}°${applyingWord(a.applying, locale) ? ` · ${applyingWord(a.applying, locale)}` : ""}`,
+    detail: `${formatArc(a.orb)}${applyingWord(a.applying, locale) ? ` · ${applyingWord(a.applying, locale)}` : ""}`,
     text: movingFamilyText(TRANSIT_FAMILY, a.a, a.b, a.type, locale),
   }));
   const pace = TRANSIT_PACE[id];
@@ -125,7 +126,7 @@ export function transitAspectReading(
   const moving = sky.planets.find((p) => p.id === link.a);
   const natalP = natalBody(natal, link.b);
   const phrase = aspectLinkPhrase(link.a, link.type, link.b, locale);
-  const orb = formatOrb(link.orb, locale);
+  const orb = formatArc(link.orb);
   const app = applyingWord(link.applying, locale);
   const lead = movingFamilyText(TRANSIT_FAMILY, link.a, link.b, link.type, locale);
   const theme = pairTheme(link.a, link.b, locale);
@@ -140,8 +141,8 @@ export function transitAspectReading(
   if (theme) inChart.push(theme);
   inChart.push(
     fr
-      ? `Orbe ${orb}°${app ? `, ${app}` : ""} : ${link.applying ? "le contact se rapproche encore de l’exactitude" : link.applying === false ? "le point exact est passé, l’effet diminue" : "le contact est actif"}.`
-      : `Orb ${orb}°${app ? `, ${app}` : ""}: ${link.applying ? "the contact is still getting closer to exact" : link.applying === false ? "the exact point has passed and the effect is fading" : "the contact is active"}.`,
+      ? `Orbe ${orb}${app ? `, ${app}` : ""} : ${link.applying ? "le contact se rapproche encore de l’exactitude" : link.applying === false ? "le point exact est passé, l’effet diminue" : "le contact est actif"}.`
+      : `Orb ${orb}${app ? `, ${app}` : ""}: ${link.applying ? "the contact is still getting closer to exact" : link.applying === false ? "the exact point has passed and the effect is fading" : "the contact is active"}.`,
   );
   const pace = pickBi(TRANSIT_PACE[link.a], locale);
   if (pace) inChart.push(pace);
@@ -151,12 +152,12 @@ export function transitAspectReading(
     kind: "aspect",
     title: fr ? `Transit · ${phrase}` : `Transit · ${phrase}`,
     kicker: fr
-      ? `${link.level === "major" ? "Majeur" : "Mineur"} · orbe ${orb}°${app ? ` · ${app}` : ""}`
-      : `${link.level === "major" ? "Major" : "Minor"} · orb ${orb}°${app ? ` · ${app}` : ""}`,
+      ? `${link.level === "major" ? "Majeur" : "Mineur"} · orbe ${orb}${app ? ` · ${app}` : ""}`
+      : `${link.level === "major" ? "Major" : "Minor"} · orb ${orb}${app ? ` · ${app}` : ""}`,
     paragraphs: [note, lead, ...inChart],
     note,
     lead,
-    facts: [{ label: fr ? "Orbe" : "Orb", value: `${orb}°${app ? ` · ${app}` : ""}` }],
+    facts: [{ label: fr ? "Orbe" : "Orb", value: `${orb}${app ? ` · ${app}` : ""}` }],
     sections: [{ id: "chart", title: fr ? "Dans votre thème" : "In your chart", paragraphs: inChart }],
     links: {
       title: fr ? "Les deux points" : "The two points",

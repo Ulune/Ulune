@@ -12,6 +12,7 @@ import {
   signName,
 } from "@/lib/i18n/astro";
 import { translate } from "@/lib/i18n/messages";
+import { formatArc } from "@/lib/utils";
 
 /**
  * The chart as an AI reads it: positions, houses, patterns and aspects. It
@@ -127,7 +128,7 @@ export function dumpChartForPrompt(
   const listed = majors.slice(0, compact ? 14 : 22);
   for (const a of listed) {
     lines.push(
-      `${aspectLinkPhrase(a.a, a.type, a.b, locale)} · ${fr ? "orbe" : "orb"} ${fr ? a.orb.toFixed(2).replace(".", ",") : a.orb.toFixed(2)}°${a.applying === true ? (fr ? " applicatif" : " applying") : a.applying === false ? (fr ? " séparatif" : " separating") : ""}`,
+      `${aspectLinkPhrase(a.a, a.type, a.b, locale)} · ${fr ? "orbe" : "orb"} ${formatArc(a.orb)}${a.applying === true ? (fr ? " applicatif" : " applying") : a.applying === false ? (fr ? " séparatif" : " separating") : ""}`,
     );
   }
   return lines.join("\n");
