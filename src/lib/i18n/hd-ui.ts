@@ -73,3 +73,33 @@ export function hdCenterState(locale: AppLocale, defined: boolean): string {
 export function hdLayerLabel(locale: AppLocale, layer: "personality" | "design"): string {
   return pick(source.copy[layer], locale);
 }
+
+export type HdBodyKey = keyof typeof source.bodies;
+
+/** A Human Design body's name (Sun, Earth, the Nodes, the Moon, Mercury to Pluto). */
+export function hdBodyLabel(locale: AppLocale, body: string): string {
+  const row = (source.bodies as Record<string, { en: string; fr: string }>)[body];
+  return row ? pick(row, locale) : body;
+}
+
+type GraphKey = keyof typeof source.graph;
+
+/** The bodygraph's own words (hint, keyboard list, caption line), with {placeholders} filled. */
+export function hdGraphText(locale: AppLocale, key: GraphKey, vars: Record<string, string | number> = {}): string {
+  let s = pick(source.graph[key], locale);
+  for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, String(v));
+  return s;
+}
+
+/** "Personality Venus 34.2" (EN) or "Vénus (Personnalité) 34.2" (FR). */
+export function hdActivationLabel(
+  locale: AppLocale,
+  row: { layer: "personality" | "design"; body: string; gate: number; line: number },
+): string {
+  return hdGraphText(locale, "activation", {
+    layer: hdLayerLabel(locale, row.layer),
+    body: hdBodyLabel(locale, row.body),
+    gate: row.gate,
+    line: row.line,
+  });
+}

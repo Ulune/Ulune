@@ -3062,8 +3062,7 @@ html.light {
   fill: none;
   stroke-linecap: round;
 }
-.ulune-wheel.ulune-relief-top,
-.ulune-hd-svg.ulune-relief-top {
+.ulune-wheel.ulune-relief-top {
   animation: none;
   width: auto;
   height: auto;
@@ -3093,8 +3092,7 @@ html.light {
 }
 .ulune-wheel.ulune-relief-top[data-pop] .ulune-glyph-scale,
 .ulune-wheel.ulune-relief-top[data-pop] .ulune-relief-glyph,
-.ulune-wheel.ulune-relief-top[data-pop] .ulune-house-num-mark,
-.ulune-hd-svg.ulune-relief-top[data-kind="gate"][data-pop] > .ulune-hd-gate {
+.ulune-wheel.ulune-relief-top[data-pop] .ulune-house-num-mark {
   animation: ulune-relief-pop var(--relief-dur, 440ms) var(--ease-out) var(--relief-delay, 0ms) both !important;
 }
 @keyframes ulune-relief-pop {
@@ -3130,12 +3128,6 @@ html.light {
     transition: none;
   }
 }
-/* A figure without its own focus paint (the bodygraph) dims under a lift, so
-   what rose stands out. */
-.ulune-depth[data-lifting] > .ulune-depth-stack > svg[data-depth-base] {
-  opacity: 0.42;
-}
-
 /* ─── Depth: the 3D view ───────────────────────────────────────────────
    The chart as one solid, drawn with WebGL on a canvas over the scene
    (wheel-view3d.ts). The live chart stays in place, flat and unpainted: its

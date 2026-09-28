@@ -1,25 +1,10 @@
 /* Human Design (the bodygraph): these styles load with the code that uses them, not with the
-   first page (performance plan 1.9). Moved as they were from styles.css. */
-/* The bodygraph assembles the same way: centres settle in from the top
-   down, channels draw themselves, gates pop in a wave (--enter = height). */
+   first page (performance plan 1.9). The drawing itself is in bodygraph-geometry.ts. */
+
+/* The figure fades in as one piece, nothing scaled or moved (the old
+   per-part entrance scaled SVG groups, which Safari places differently). */
 .ulune-hd-svg {
-  animation: ulune-chart-in var(--chart-in) var(--chart-ease) both;
-}
-.ulune-hd-svg[data-entering] .ulune-hd-center {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: ulune-bloom 620ms var(--chart-ease) calc(60ms + var(--enter, 0) * 520ms) backwards;
-}
-.ulune-hd-svg[data-entering] .ulune-hd-channel [data-draw] {
-  animation: ulune-draw 640ms var(--chart-ease-io) calc(360ms + var(--enter, 0) * 520ms) backwards;
-}
-.ulune-hd-svg[data-entering] .ulune-hd-channel .is-both-dash {
-  animation: ulune-fade-plain 520ms var(--chart-ease) calc(560ms + var(--enter, 0) * 520ms) backwards;
-}
-.ulune-hd-svg[data-entering] .ulune-hd-gate {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: ulune-pop-in 520ms var(--chart-ease) calc(520ms + var(--enter, 0) * 560ms) backwards;
+  animation: ulune-fade-plain 420ms var(--chart-ease) both;
 }
 .ulune-hd-mast {
   display: grid;
@@ -60,191 +45,11 @@
     font-size: 0.9375rem;
   }
 }
-/* Held upright with the sheet folded, the bodygraph takes the whole width
-   and the stage scrolls, like the wheels (shell.css). */
-@media (max-width: 1023.98px) and (orientation: portrait) {
-  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-stage:has(.ulune-hd-depth) {
-    overflow-y: auto;
-    overscroll-behavior-y: contain;
-  }
-  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-figure:has(.ulune-hd-depth) {
-    flex: 1 0 auto;
-  }
-  .ob-body:has(.ob-panel[data-detent="peek"]) .ulune-hd-figure {
-    flex: 1 0 auto;
-    height: auto;
-    overflow: visible;
-  }
-  .ob-body:has(.ob-panel[data-detent="peek"]) .ulune-depth.ulune-hd-depth {
-    flex: 0 0 auto;
-    width: min(100%, 36rem);
-    max-height: none;
-  }
-}
-.ulune-hd-sky,
-.ulune-hd-svg {
-  --hd-personality: var(--color-fg);
-  --hd-design: oklch(0.62 0.19 26);
-  --hd-open: var(--color-bg);
-  /* A defined centre is filled, in the gold of the chart's halo: it reads at
-     a glance against the open ones, and the black, white and red gates on
-     its rim stay clear on it. */
-  --hd-center-fill: color-mix(in oklab, var(--color-halo) 72%, var(--color-bg));
-  --hd-center-edge: var(--color-halo);
-}
 .ulune-hd-control {
   min-width: 0;
   width: 100%;
   height: 44px;
   max-height: 44px;
-}
-.ulune-hd-stage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 0;
-}
-@media (max-width: 1023.98px) {
-  .ulune-hd-stage {
-      margin-inline: calc(-0.35 * var(--natal-sky-pad));
-    }
-}
-html.light .ulune-hd-svg {
-  --hd-design: oklch(0.54 0.19 26);
-}
-.ulune-hd-svg {
-  width: auto;
-  max-width: min(100%, 36rem);
-  max-height: 100%;
-  height: auto;
-  overflow: visible;
-  color: var(--color-fg);
-}
-/* Bodygraph: personality in ink, design in one warm red, hatched when both. */
-.ulune-hd-channel {
-  cursor: pointer;
-}
-.ulune-hd-channel line {
-  stroke-linecap: round;
-}
-.ulune-hd-channel line.hd-hit {
-  stroke: transparent;
-  stroke-width: 16;
-}
-.ulune-hd-channel line.is-off {
-  stroke: color-mix(in oklab, var(--color-fg) 16%, transparent);
-  stroke-width: 1;
-}
-.ulune-hd-channel line.is-personality {
-  stroke: var(--hd-personality);
-  stroke-width: 4;
-}
-.ulune-hd-channel line.is-design {
-  stroke: var(--hd-design);
-  stroke-width: 4;
-}
-.ulune-hd-channel line.is-both-dash {
-  stroke: var(--hd-design);
-  stroke-width: 4;
-  stroke-dasharray: 3 3;
-  stroke-linecap: butt;
-}
-.ulune-hd-channel.is-selected line:not(.hd-hit):not(.is-off) {
-  stroke-width: 6;
-}
-.ulune-hd-center {
-  /* Open centres are the page's colour: channels end at their edge. */
-  fill: var(--hd-open);
-  stroke: color-mix(in oklab, var(--color-fg) 30%, transparent);
-  stroke-width: 1;
-  cursor: pointer;
-  outline: none;
-  /* Switching the layer view (personality / design / both) cross-fades. */
-  transition:
-    fill 420ms var(--chart-ease),
-    stroke 420ms var(--chart-ease),
-    stroke-width 260ms var(--chart-ease);
-}
-.ulune-hd-channel line,
-.ulune-hd-gate .hd-gate-disc,
-.ulune-hd-gate .hd-gate-dot,
-.ulune-hd-gate text {
-  transition:
-    fill 420ms var(--chart-ease),
-    stroke 420ms var(--chart-ease),
-    stroke-width 260ms var(--chart-ease),
-    opacity 420ms var(--chart-ease);
-}
-.ulune-hd-center[data-defined] {
-  fill: var(--hd-center-fill);
-  stroke: var(--hd-center-edge);
-}
-.ulune-hd-center.is-selected,
-.ulune-hd-center:focus-visible {
-  stroke: var(--color-fg);
-  stroke-width: 2.25;
-}
-.ulune-hd-gate {
-  cursor: pointer;
-  outline: none;
-}
-.ulune-hd-gate .hd-gate-hit {
-  fill: transparent;
-  stroke: none;
-}
-.ulune-hd-gate .hd-gate-dot {
-  fill: var(--color-border-strong);
-}
-.ulune-hd-gate .hd-gate-disc {
-  fill: var(--color-bg);
-  stroke: var(--color-border-strong);
-  stroke-width: 1;
-  opacity: 0;
-}
-.ulune-hd-gate text {
-  font-family: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 9.5px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  fill: var(--color-fg);
-  pointer-events: none;
-  opacity: 0;
-}
-/* Inactive gates: a dot until hovered or focused. */
-.ulune-hd-gate:hover .hd-gate-disc,
-.ulune-hd-gate:focus-visible .hd-gate-disc,
-.ulune-hd-gate:hover text,
-.ulune-hd-gate:focus-visible text,
-.ulune-hd-gate:not([data-tone="off"]) .hd-gate-disc,
-.ulune-hd-gate:not([data-tone="off"]) text {
-  opacity: 1;
-}
-.ulune-hd-gate:not([data-tone="off"]) .hd-gate-dot {
-  opacity: 0;
-}
-.ulune-hd-gate[data-tone="personality"] .hd-gate-disc {
-  fill: var(--hd-personality);
-  stroke: var(--hd-personality);
-}
-.ulune-hd-gate[data-tone="design"] .hd-gate-disc {
-  fill: var(--hd-design);
-  stroke: var(--hd-design);
-}
-.ulune-hd-gate[data-tone="both"] .hd-gate-disc {
-  fill: url(#hd-stripe);
-  stroke: var(--hd-personality);
-}
-.ulune-hd-gate:not([data-tone="off"]) text {
-  fill: var(--color-bg);
-}
-.ulune-hd-gate.is-selected .hd-gate-disc,
-.ulune-hd-gate:focus-visible .hd-gate-disc {
-  stroke: var(--color-fg);
-  stroke-width: 2.25;
-  paint-order: stroke;
-}
-.ulune-hd-gate.is-selected .hd-gate-disc {
-  opacity: 1;
 }
 .ulune-hd-caption {
   margin: var(--space-2) 0 0;
@@ -255,114 +60,314 @@ html.light .ulune-hd-svg {
   line-height: 1.2;
   color: var(--color-fg-subtle);
 }
-@media (max-width: 1023.98px) {
-  .ulune-hd-sky.ulune-sky {
-      display: flex;
-      flex-direction: column;
-    }
-  .ulune-hd-sky .ulune-hd-control {
-      order: 1;
-      position: sticky;
-      top: calc(var(--ulune-header-h, 6.75rem) + var(--ulune-nav-h, 4.125rem));
-      z-index: 21;
-      margin-inline: calc(-1 * var(--natal-sky-pad));
-      padding-inline: var(--natal-sky-pad);
-      background: var(--color-bg-elevated);
-      box-sizing: border-box;
-      height: 44px;
-      max-height: 44px;
-      display: flex;
-      align-items: center;
-    }
-  .ulune-hd-sky .ulune-sky-wheel {
-      order: 2;
-    }
-  .ulune-hd-sky .ulune-sky-read {
-      order: 3;
-    }
+
+/* The figure: as tall as the stage allows under the heading, its width from
+   the drawing's proportions; the line under it says what is pointed at. */
+.ulune-hd-graph {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+  width: 100%;
 }
-@media (min-width: 1024px) {
-  .ulune-hd-sky.ulune-sky {
-      display: grid;
-      grid-template-columns: minmax(520px, 56%) minmax(0, 44%);
-      align-items: start;
-      align-content: start;
-    }
-  .ulune-hd-sky .ulune-hd-control {
-      grid-column: 1;
-      grid-row: 1;
-    }
-  .ulune-hd-sky .ulune-sky-wheel {
-      grid-column: 1;
-      grid-row: 2;
-      flex: none;
-      width: auto;
-      min-width: 520px;
-      max-width: none;
-    }
-  .ulune-hd-sky .ulune-sky-read {
-      grid-column: 2;
-      grid-row: 1 / span 2;
-      flex: none;
-      width: auto;
-      position: sticky;
-      top: var(--ulune-header-h, 6.75rem);
-      max-height: calc(100dvh - var(--ulune-header-h, 6.75rem) - 1rem);
-      overflow-y: auto;
-    }
-}
-.ulune-hd-depth > .ulune-depth-stack > svg[data-depth-base] {
-  transition: opacity 280ms var(--chart-ease);
-}
-/* Bodygraph in its depth scene: the scene takes the figure's old box
-   (as tall as the stage, as wide as the bodygraph's proportions allow). */
-.ulune-depth.ulune-hd-depth {
-  /* Whatever height the stage has left under the type, strategy and
-     authority (it used to take the whole height and run off the bottom). */
+.ulune-hd-graph > .ulune-figure-zoom {
   flex: 1 1 0;
   min-height: 0;
-  height: auto;
-  max-height: 100%;
-  width: auto;
-  aspect-ratio: 360 / 580;
-  max-width: min(100%, 36rem);
+  max-width: 100%;
+  aspect-ratio: 470 / 674;
 }
-.ulune-hd-depth > .ulune-depth-stack > svg[data-depth-base] {
+.ulune-figure-zoom {
+  position: relative;
+  overflow: hidden;
+  /* A page that scrolls keeps scrolling over the figure until it is zoomed. */
+  touch-action: pan-x pan-y;
+}
+.ulune-figure-zoom:not([data-zoom="1.00"]) {
+  touch-action: none;
+  cursor: grab;
+}
+.ulune-figure-zoom-inner {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+}
+.ulune-hd-svg {
   display: block;
   width: 100%;
   height: 100%;
-  max-width: none;
-  max-height: none;
+  overflow: visible;
+  color: var(--color-fg);
+  -webkit-tap-highlight-color: transparent;
+  --hd-personality: var(--color-fg);
+  --hd-design: oklch(0.62 0.19 26);
+  /* A defined centre is filled, in the gold of the chart's halo: it reads at
+     a glance against the open ones, and the ink and red gates on its rim stay
+     clear on it. */
+  --hd-center-fill: color-mix(in oklab, var(--color-halo) 72%, var(--color-bg));
+  --hd-center-edge: var(--color-halo);
 }
-/* Bodygraph pieces standing out: a lifted gate always shows its disc and
-   number, the focus gate grows a little, a lifted channel thickens. A lifted
-   centre is a solid tile (opaque, so its own shadow never shows through it)
-   carrying its gates. */
-.ulune-hd-svg.ulune-relief-top .ulune-hd-gate .hd-gate-disc,
-.ulune-hd-svg.ulune-relief-top .ulune-hd-gate text {
-  opacity: 1;
+html.light .ulune-hd-svg {
+  --hd-design: oklch(0.54 0.19 26);
 }
-.ulune-hd-svg.ulune-relief-top .ulune-hd-gate .hd-gate-dot {
-  opacity: 0;
+.ulune-hd-say {
+  min-height: 1.4em;
+  margin: var(--space-1) 0 0;
+  padding-inline: var(--stage-pad);
+  max-width: 44rem;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--color-fg-subtle);
 }
-.ulune-hd-svg.ulune-relief-top[data-kind="gate"] > .ulune-hd-gate {
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: scale(var(--glyph-s, 1));
+.ulune-hd-say[data-on] {
+  color: var(--color-fg);
 }
-.ulune-hd-svg.ulune-relief-top[data-kind="center"] .ulune-hd-center {
+
+/* Channels: a faint line for every channel; a gate's half in its colour
+   (ink for Personality, red for Design, both striped); a defined channel
+   thicker. */
+.ulune-hd-channel {
+  cursor: pointer;
+}
+.ulune-hd-channel path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ulune-hd-channel .hd-hit {
+  stroke: transparent;
+  stroke-width: 12;
+}
+.ulune-hd-channel .hd-off {
+  stroke: color-mix(in oklab, var(--color-fg) 20%, transparent);
+  stroke-width: 1.25;
+}
+.ulune-hd-channel .hd-line {
+  stroke-width: 3;
+}
+.ulune-hd-channel.is-on .hd-line {
+  stroke-width: 4.5;
+}
+.ulune-hd-channel .is-personality {
+  stroke: var(--hd-personality);
+}
+.ulune-hd-channel .is-design {
+  stroke: var(--hd-design);
+}
+.ulune-hd-channel .is-both-dash {
+  stroke: var(--hd-design);
+  stroke-dasharray: 3 3;
+  stroke-linecap: butt;
+}
+
+/* Centres: open ones in the page's colour, defined ones gold. */
+.ulune-hd-center {
   fill: var(--color-bg);
-  stroke-width: 2;
-  stroke: var(--color-fg);
+  stroke: color-mix(in oklab, var(--color-fg) 34%, transparent);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  cursor: pointer;
+  transition:
+    fill 420ms var(--chart-ease),
+    stroke 420ms var(--chart-ease),
+    opacity 180ms var(--chart-ease);
 }
-.ulune-hd-svg.ulune-relief-top[data-kind="center"] .ulune-hd-center[data-defined] {
+.ulune-hd-center[data-defined] {
   fill: var(--hd-center-fill);
   stroke: var(--hd-center-edge);
 }
-.ulune-hd-svg.ulune-relief-top[data-kind="channel"] .ulune-hd-channel line:not(.hd-hit):not(.is-off) {
+
+/* Gates: a disc on the rim of their centre, its number always shown; the
+   disc hides the rim and the line under it. Active gates are filled. */
+.ulune-hd-gate {
+  cursor: pointer;
+}
+.ulune-hd-gate .hd-gate-hit {
+  fill: transparent;
+}
+.ulune-hd-gate .hd-gate-disc {
+  fill: var(--color-bg);
+  stroke: none;
+}
+.ulune-hd-gate text {
+  font-family: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  fill: var(--color-fg-subtle);
+  pointer-events: none;
+}
+.ulune-hd-gate[data-tone="personality"] .hd-gate-disc {
+  fill: var(--hd-personality);
+}
+.ulune-hd-gate[data-tone="design"] .hd-gate-disc {
+  fill: var(--hd-design);
+}
+.ulune-hd-gate[data-tone="both"] .hd-gate-disc {
+  fill: url(#hd-stripe);
+  stroke: var(--hd-personality);
+  stroke-width: 1;
+}
+.ulune-hd-gate:not([data-tone="off"]) text {
+  fill: var(--color-bg);
+}
+.ulune-hd-gate[data-tone="both"] text {
+  paint-order: stroke;
+  stroke: color-mix(in oklab, var(--color-fg) 80%, var(--color-bg));
+  stroke-width: 2.4px;
+}
+html.light .ulune-hd-gate[data-tone="both"] text {
+  stroke: var(--color-fg);
+}
+
+/* A chosen piece: a ring on it; it and what it connects to stay, the rest
+   fades to a quarter. Only opacity, strokes and colours change: nothing moves. */
+.ulune-hd-svg [data-part] {
+  transition: opacity 180ms var(--chart-ease);
+}
+.ulune-hd-svg[data-focus="pinned"] [data-part]:not([data-lit]) {
+  opacity: 0.25;
+}
+.ulune-hd-gate[data-hero] .hd-gate-disc {
+  stroke: var(--color-fg);
+  stroke-width: 2.4;
+}
+.ulune-hd-gate[data-hero][data-tone="off"] text {
+  fill: var(--color-fg);
+}
+.ulune-hd-center[data-hero] {
+  stroke: var(--color-fg);
+  stroke-width: 2.4;
+}
+.ulune-hd-channel[data-hero] .hd-off {
+  stroke: color-mix(in oklab, var(--color-fg) 60%, transparent);
+  stroke-width: 2.5;
+}
+.ulune-hd-channel[data-hero] .hd-line {
   stroke-width: 5.5;
 }
-.ulune-hd-svg.ulune-relief-top[data-kind="channel"] .ulune-hd-channel line.is-off {
-  stroke: color-mix(in oklab, var(--color-fg) 45%, transparent);
-  stroke-width: 2;
+/* Pointing: an outline on the piece and its links; nothing fades. */
+.ulune-hd-gate[data-hover="hero"]:not([data-hero]) .hd-gate-disc {
+  stroke: var(--color-fg);
+  stroke-width: 1.6;
+}
+.ulune-hd-gate[data-hover][data-tone="off"] text {
+  fill: var(--color-fg);
+}
+.ulune-hd-center[data-hover="hero"]:not([data-hero]) {
+  stroke: var(--color-fg);
+  stroke-width: 1.8;
+}
+.ulune-hd-channel[data-hover] .hd-off {
+  stroke: color-mix(in oklab, var(--color-fg) 48%, transparent);
+  stroke-width: 1.8;
+}
+
+/* The keyboard's list (figure-keys.tsx): read by screen readers, not drawn;
+   while it has the focus, the figure shows the ring. */
+.ulune-figure-keys-list {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.ulune-hd-graph:has(.ulune-figure-keys-list:focus-visible) > .ulune-figure-zoom {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+/* Held upright with the sheet folded, the bodygraph takes the whole width
+   and the stage scrolls, like the wheels (shell.css). */
+@media (max-width: 1023.98px) and (orientation: portrait) {
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-stage:has(.ulune-hd-graph) {
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-figure:has(.ulune-hd-graph) {
+    flex: 1 0 auto;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ulune-hd-figure {
+    flex: 1 0 auto;
+    height: auto;
+    overflow: visible;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ulune-hd-graph {
+    flex: 0 0 auto;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ulune-hd-graph > .ulune-figure-zoom {
+    flex: 0 0 auto;
+    width: min(100%, 36rem);
+  }
+}
+/* With the sheet open, the bodygraph left above it is small: the facts, the
+   layer switch and the line under the chart (the reading names the piece)
+   wait for the sheet to fold, as the wheels' switch does (shell.css). */
+@media (max-width: 1023.98px) {
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) :is(.ulune-hd-mast, .ulune-hd-say),
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) .ob-strip-extra:has(.ulune-hd-control) {
+    display: none;
+  }
+}
+
+/* The phone's card: the chosen piece in one line, above the reading sheet. */
+.ulune-hd-card {
+  position: absolute;
+  z-index: 15;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: calc(var(--ob-peek-h) + var(--space-2));
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  border-radius: 14px;
+  background: var(--color-bg-elevated);
+  box-shadow:
+    0 0 0 1px var(--color-border),
+    0 10px 28px -12px color-mix(in oklab, var(--color-fg) 22%, transparent);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--color-fg);
+}
+.ulune-hd-card-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ulune-hd-card-read {
+  flex: none;
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  border-radius: 10px;
+  background: var(--color-fg);
+  color: var(--color-bg);
+  font-weight: 600;
+}
+.ulune-hd-card-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: var(--color-fg-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ulune-hd-svg,
+  .ulune-hd-svg [data-part],
+  .ulune-hd-center {
+    animation: none;
+    transition: none;
+  }
 }

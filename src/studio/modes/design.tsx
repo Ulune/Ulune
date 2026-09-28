@@ -1,5 +1,6 @@
-import { Suspense, useMemo } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { HumanDesignGraph } from "@/components/humandesign-graph";
+import { HdCard } from "@/components/hd-card";
 import { HumanDesignHello } from "@/components/humandesign-hello";
 import { LoadingLines } from "@/components/loading-lines";
 import { SegmentedToggle } from "@/components/segmented-toggle";
@@ -14,6 +15,8 @@ import { useHumanDesign } from "@/studio/modes/hooks/useHumanDesign";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import { isWide } from "@/studio/dock/dock-layout";
+import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/hd.css";
 
 const loadTable = () => import("@/studio/tables/hd-table");
@@ -47,9 +50,22 @@ function mastValue(chart: HumanDesignChart, id: HdHelloId, locale: "en" | "fr") 
   return hdAuthorityLabel(locale, chart.authority);
 }
 
+/** Wide screens read beside the chart; on a phone the reading is a sheet over it. */
+function useWide(): boolean {
+  const [wide, setWide] = useState(true);
+  useEffect(() => {
+    const on = () => setWide(isWide());
+    on();
+    window.addEventListener("resize", on);
+    return () => window.removeEventListener("resize", on);
+  }, []);
+  return wide;
+}
+
 function DesignFigure() {
   const { locale, t } = useI18n();
   const w = useWheelView();
+  const wide = useWide();
   const hd = useModeData("design");
   if (!hd) return null;
   if (hd.error) {
@@ -70,6 +86,12 @@ function DesignFigure() {
       </section>
     );
   }
+  // On a phone, choosing a piece keeps the chart whole: the reading waits
+  // behind the card's button instead of a sheet rising over the chart.
+  const select = (id: string) => {
+    if (wide) w.pick(id);
+    else useStudioStore.setState((s) => ({ selectedId: s.selectedId === id ? null : id }));
+  };
   return (
     <div className="ulune-hd-figure flex h-full min-h-0 w-full flex-col items-center justify-start overflow-auto" style={{ opacity: hd.busy ? 0.7 : 1 }}>
       <div className="ulune-hd-mast" data-testid="hd-mast">
@@ -80,7 +102,14 @@ function DesignFigure() {
           </div>
         ))}
       </div>
-      <HumanDesignGraph chart={chart} view={hd.view} selectedId={w.selectedId} onSelect={w.pick} />
+      <HumanDesignGraph
+        chart={chart}
+        view={hd.view}
+        selectedId={w.selectedId}
+        onSelect={select}
+        onClear={() => useStudioStore.getState().clear()}
+      />
+      {wide ? null : <HdCard chart={chart} view={hd.view} />}
     </div>
   );
 }

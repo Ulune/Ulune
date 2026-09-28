@@ -37,8 +37,6 @@ export type DepthAdapter = {
   planeClass: string;
   /** Multiplies every height (a small figure needs more to read as depth). */
   heightScale?: number;
-  /** Dim the figure under a lift (for figures without their own focus paint). */
-  dimBase?: boolean;
 };
 
 /** Heights are given in px on a figure this wide (they scale with the figure). */
@@ -290,22 +288,17 @@ export class DepthController {
     if (!req || !req.items.length) {
       if (this.active) this.sinkSlot(this.active);
       this.active = null;
-      this.syncDim();
       return;
     }
     const cur = this.active;
     if (cur?.req?.key === req.key) {
-      if (cur.req.mode !== req.mode) {
-        this.retarget(cur, req);
-        this.syncDim();
-      }
+      if (cur.req.mode !== req.mode) this.retarget(cur, req);
       return;
     }
     if (cur) this.sinkSlot(cur);
     const slot = this.newSlot(req);
     this.active = slot;
     slot?.rise("rise", reduced);
-    this.syncDim();
   }
 
   /** A second, lower lift for a panel preview while something is pinned. */
@@ -337,7 +330,6 @@ export class DepthController {
       return;
     }
     this.retarget(this.active, req);
-    this.syncDim();
   }
 
   /**
@@ -398,14 +390,6 @@ export class DepthController {
     this.sinking.clear();
     for (const el of this.hideCount.keys()) el.removeAttribute("data-depth-hidden");
     this.hideCount.clear();
-    this.syncDim();
-  }
-
-  private syncDim() {
-    if (!this.adapter.dimBase) return;
-    const on = Boolean(this.active?.req && this.active.req.mode !== "preview");
-    if (on) this.scene.setAttribute("data-lifting", "");
-    else this.scene.removeAttribute("data-lifting");
   }
 
   // ─── 3D camera ────────────────────────────────────────────────────────
@@ -693,7 +677,6 @@ export class DepthController {
     this.extras.clear();
     this.base?.removeAttribute("data-depth-base");
     this.scene.removeAttribute("data-depth-camera");
-    this.scene.removeAttribute("data-lifting");
     this.scene.style.perspective = "";
     this.scene.style.perspectiveOrigin = "";
     this.stack.style.transform = "";

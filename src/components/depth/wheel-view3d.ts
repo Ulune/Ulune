@@ -439,7 +439,7 @@ if (typeof document !== "undefined" && document.fonts) {
 }
 
 /** Attributes that say where the chart is in its life, not how it looks. */
-const VOLATILE = new Set(["data-focus-kind", "data-focus-id", "data-view3d", "data-depth-base", "data-entering", "data-gliding", "data-focus-fade", "data-depth-build-ms", "data-depth-gl", "data-depth-camera", "data-lifting", "data-depth-lite", "data-depth-reuse", "data-depth-kit"]);
+const VOLATILE = new Set(["data-focus-kind", "data-focus-id", "data-view3d", "data-depth-base", "data-entering", "data-gliding", "data-focus-fade", "data-depth-build-ms", "data-depth-gl", "data-depth-camera", "data-depth-lite", "data-depth-reuse", "data-depth-kit"]);
 /** Classes that come and go on the page as it moves or switches theme. */
 const VOLATILE_CLASS = /\b(is-moving|theme-switching)\b/g;
 

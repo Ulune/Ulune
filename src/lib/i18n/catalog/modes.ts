@@ -3,8 +3,8 @@ export const modes = {
   exactUnknown: ["—", "—"],
   exactPending: ["Exact time follows once time stops moving", "L’heure exacte suit dès que le temps s’arrête"],
   hdAria: [
-    "Human Design bodygraph. Tab through centers and active gates; Enter opens a reading.",
-    "Bodygraph Human Design. Tab pour parcourir centres et portes actives ; Entrée ouvre une lecture.",
+    "Human Design bodygraph: the nine centres, the channels between them and the 64 gates.",
+    "Bodygraph Human Design : les neuf centres, les canaux qui les relient et les 64 portes.",
   ],
   numerologyAddBirthName: ["Add a birth name", "Ajouter un nom de naissance"],
   numerologyAddBirthNameHint: [

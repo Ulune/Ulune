@@ -92,5 +92,41 @@
     },
     "personality": { "en": "Personality", "fr": "Personnalité" },
     "design": { "en": "Design", "fr": "Design" }
+  },
+  "bodies": {
+    "sun": { "en": "Sun", "fr": "Soleil" },
+    "earth": { "en": "Earth", "fr": "Terre" },
+    "northnode": { "en": "North Node", "fr": "Nœud Nord" },
+    "southnode": { "en": "South Node", "fr": "Nœud Sud" },
+    "moon": { "en": "Moon", "fr": "Lune" },
+    "mercury": { "en": "Mercury", "fr": "Mercure" },
+    "venus": { "en": "Venus", "fr": "Vénus" },
+    "mars": { "en": "Mars", "fr": "Mars" },
+    "jupiter": { "en": "Jupiter", "fr": "Jupiter" },
+    "saturn": { "en": "Saturn", "fr": "Saturne" },
+    "uranus": { "en": "Uranus", "fr": "Uranus" },
+    "neptune": { "en": "Neptune", "fr": "Neptune" },
+    "pluto": { "en": "Pluto", "fr": "Pluton" }
+  },
+  "graph": {
+    "hint": { "en": "Point at any shape for its name · click to read it", "fr": "Pointez une forme pour voir son nom · cliquez pour la lire" },
+    "hintTouch": { "en": "Tap any shape to read it", "fr": "Touchez une forme pour la lire" },
+    "keysLabel": { "en": "Bodygraph: centres, channels and gates", "fr": "Bodygraph : centres, canaux et portes" },
+    "keysHint": {
+      "en": "The arrows move through the centres, channels and gates, Page Up and Page Down by kind, a letter to a name; Enter opens its reading. The Table view lists the same as text.",
+      "fr": "Les flèches parcourent les centres, les canaux et les portes, Page précédente et Page suivante par sorte, une lettre jusqu’à un nom ; Entrée ouvre sa lecture. La vue Tableau donne la même chose en texte."
+    },
+    "keysOpened": { "en": "Opened: {name}", "fr": "Ouvert : {name}" },
+    "keysClosed": { "en": "Closed: {name}", "fr": "Fermé : {name}" },
+    "defined": { "en": "defined", "fr": "défini" },
+    "open": { "en": "open", "fr": "ouvert" },
+    "gatesActive": { "en": "{n} of {m} gates active", "fr": "{n} portes actives sur {m}" },
+    "notActivated": { "en": "not activated", "fr": "non activée" },
+    "channelDefined": { "en": "defined", "fr": "défini" },
+    "channelOpen": { "en": "not defined", "fr": "non défini" },
+    "channelHalf": { "en": "one half, from {who}", "fr": "une moitié, par {who}" },
+    "activation": { "en": "{layer} {body} {gate}.{line}", "fr": "{body} ({layer}) {gate}.{line}" },
+    "read": { "en": "Read", "fr": "Lire" },
+    "close": { "en": "Close", "fr": "Fermer" }
   }
 }

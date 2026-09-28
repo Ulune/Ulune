@@ -49,6 +49,16 @@ function channelLabel(locale: AppLocale, id: string) {
   return name ? `${id} · ${name}` : id;
 }
 
+/** A gate's name ("Power"), or "" if it has none. */
+export function hdGateName(locale: AppLocale, n: number): string {
+  return pickBi(HD_GATE_TEXT[n]?.name, locale);
+}
+
+/** A channel's name ("Charisma"), or "" if it has none. */
+export function hdChannelName(locale: AppLocale, id: string): string {
+  return pickBi(HD_CHANNEL_TEXT[id]?.name, locale);
+}
+
 function lineName(locale: AppLocale, line: number) {
   return pickBi(HD_LINE_TEXT[line as 1 | 2 | 3 | 4 | 5 | 6]?.name, locale);
 }

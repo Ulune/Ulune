@@ -539,18 +539,25 @@ async function desktop() {
     if ((await liveRelief(page)).length) throw new Error("lift still on after switching it off");
     await page.locator("[data-depth-pref=lift]").click();
 
-    // Bodygraph: a centre lifts as a tile with its channels; the rest dims.
+    // Bodygraph: pointing at a centre outlines it where it is drawn (the
+    // Human Design plan, part 44): nothing lifts, nothing is copied over the
+    // chart, nothing moves. The rest of its behaviour is in hd.mjs.
     await goStudioPage(page, "design");
     await page.getByTestId("hd-graph").waitFor({ timeout: 30000 });
+    await page.waitForTimeout(700);
+    const gBefore = await page.getByTestId("hd-center-g").boundingBox();
     await page.getByTestId("hd-center-g").hover();
     await page.waitForTimeout(600);
-    relief = await liveRelief(page, "[data-testid=hd-depth]");
-    const hd = relief[0];
-    if (!hd?.tops.some((t) => t.kind === "center" && t.tier === 0 && t.ids.includes("hd-center-g"))) throw new Error(`bodygraph focus ${JSON.stringify(relief)}`);
-    if (!hd.tops.some((t) => t.tier > 0)) throw new Error("bodygraph channels did not rise");
-    if (hd.walls < 3) throw new Error(`bodygraph tile has no sides (${hd.walls})`);
-    const dim = await page.evaluate(() => document.querySelector("[data-testid=hd-depth]")?.hasAttribute("data-lifting"));
-    if (!dim) throw new Error("bodygraph did not dim under the lift");
+    const hd = await page.evaluate(() => ({
+      copies: document.querySelectorAll("[data-testid=hd-box] .ulune-relief, [data-testid=hd-box] [data-clone-of]").length,
+      outlined: document.querySelector("[data-testid=hd-center-g]").getAttribute("data-hover"),
+      transformed: getComputedStyle(document.querySelector("[data-testid=hd-graph]")).transform,
+    }));
+    // (Its fade-in may leave an identity matrix behind: that moves nothing.)
+    const still = !hd.transformed || hd.transformed === "none" || hd.transformed === "matrix(1, 0, 0, 1, 0, 0)";
+    if (hd.copies || hd.outlined !== "hero" || !still) throw new Error(`bodygraph pointing ${JSON.stringify(hd)}`);
+    const gAfter = await page.getByTestId("hd-center-g").boundingBox();
+    if (Math.abs(gAfter.x - gBefore.x) > 0.5 || Math.abs(gAfter.y - gBefore.y) > 0.5) throw new Error("the pointed centre moved");
 
     // Numerology: pointing at a core tile raises its digit on the ring.
     await goStudioPage(page, "numerology");
