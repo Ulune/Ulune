@@ -4,8 +4,9 @@ import { chunkStart } from "@/lib/chart/sky-window";
 
 /**
  * One chunk of the scrub window (src/lib/chart/sky-window.ts): the sky every
- * 12 hours over 32 days, the same for every visitor. `t0` must be a chunk
- * boundary; `v` (the client's calculation version) only keys the caches.
+ * 12 hours over 32 days, and the sky's own events in them, the same for
+ * every visitor. `t0` must be a chunk boundary; `v` (the client's calculation
+ * version and chunk format) only keys the caches.
  * Kept a year by the edge and the browser: the sky at a moment never changes,
  * and a new calculation version asks under a new URL.
  */

@@ -123,9 +123,9 @@ export function scoreText(score: number): string {
   return score > 0 ? `+${score}` : score < 0 ? `−${Math.abs(score)}` : "0";
 }
 
-/** "9 Nov 2025, 19:02 UT" (the moment of a station, to the nearest minute). */
+/** "9 Nov 2025, 19:02 UT": the minute the station falls in, as the calendar's times. */
 export function stationMoment(utc: string, locale: AppLocale): string {
-  const minute = Math.round(Date.parse(utc) / 60_000) * 60_000;
+  const minute = Math.floor(Date.parse(utc) / 60_000) * 60_000;
   const when = dateFormat(locale === "fr" ? "fr-FR" : "en-GB", {
     day: "numeric",
     month: "short",

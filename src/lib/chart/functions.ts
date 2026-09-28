@@ -2,14 +2,13 @@ import { createServerFn } from "@tanstack/react-start";
 import type { z } from "zod";
 import { translate, type AppLocale } from "@/lib/i18n/messages";
 import { normalizeBirth } from "./parse-birth";
-import type { BirthInput, PlaceHit, ProgressedSky, TimingCast, TransitSky } from "./types";
+import type { BirthInput, PlaceHit, ProgressedSky, TransitSky } from "./types";
 import { geocodePlace } from "./geocode";
 import {
   birthSchema,
   humanDesignSchema,
   placeQuery,
   progressionSchema,
-  timingSchema,
   transitSchema,
 } from "./server-input";
 
@@ -103,28 +102,6 @@ export const castTransits = createServerFn({ method: "POST" })
         ecliptic: row.ecliptic,
       })),
       houseSystem: data.houseSystem,
-    });
-  });
-
-export const castTiming = createServerFn({ method: "POST" })
-  .validator((input: z.input<typeof timingSchema>) => timingSchema.parse(input))
-  .handler(async ({ data }): Promise<TimingCast> => {
-    const from = new Date(data.from);
-    const to = new Date(data.to);
-    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
-      throw new Error("Could not read this timing window.");
-    }
-    const { calculateTiming } = await import("./calculate.server");
-    return calculateTiming({
-      from,
-      to,
-      latitude: data.latitude,
-      longitude: data.longitude,
-      natalBodies: data.natalBodies.map((row) => ({
-        id: row.id as TransitSky["planets"][number]["id"],
-        name: row.name,
-        ecliptic: row.ecliptic,
-      })),
     });
   });
 

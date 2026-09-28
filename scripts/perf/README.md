@@ -443,7 +443,11 @@ progressions slider), the sky is drawn on the client from a window of Swiss
 samples: every body's longitude and speed, the sidereal time at Greenwich
 and the true obliquity every 12 hours, in chunks of 32 days
 (`src/lib/chart/sky-window.ts`, `/api/sky-window?t0=…`, 30 KB, 12 KB brotli,
-52–60 ms to compute warm, kept a year by the edge and the browser). Bodies
+52–60 ms to compute warm, kept a year by the edge and the browser). Since part
+53 each chunk also carries the sky's own events for the calendar (phases,
+eclipses, sign changes, stations, void-of-course spans, exact aspects: about
+130, 9 KB of the chunk's 39; 120–160 ms warm with them), found on Swiss
+(`src/lib/chart/sky-search.ts`, `scripts/sky-events.test.mjs`). Bodies
 follow the cubic Hermite curve through both samples; the Ascendant,
 Midheaven and Vertex are rebuilt from the interpolated sidereal time with
 Swiss's own formulas (checked against `swe_houses_armc` to 4e-10″, the

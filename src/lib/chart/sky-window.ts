@@ -16,6 +16,7 @@
 import { computeCrossAspects, houseFromCusps, wrap180, wrap360 } from "./anatomy";
 import { makePlacement } from "./placement";
 import { NAIBOD_DEG_PER_YEAR, progressedArmc } from "./progressions";
+import type { SkyEvent } from "./sky-events";
 import type { AngleId, BodyId, Placement, PlanetId, ProgressedSky, TransitSky } from "./types";
 import { PLANET_IDS } from "./types";
 
@@ -29,11 +30,18 @@ const STEP_MS = WINDOW_STEP_HOURS * 3_600_000;
 /** Chunks start on multiples of 32 days from this epoch (UTC midnight, 1 Jan 2000). */
 const EPOCH_MS = Date.UTC(2000, 0, 1);
 export const WINDOW_SAMPLES = (WINDOW_CHUNK_DAYS * 24) / WINDOW_STEP_HOURS + 1;
+/**
+ * What a chunk holds, for the caches (the request's `v` carries it with the
+ * calculation version): 2 adds the sky's own events.
+ */
+export const SKY_WINDOW_FORMAT = 2;
 
 /** One chunk as the server sends it. */
 export type SkyWindow = {
   /** The calculation version it was made with (constants.ts CALC_VERSION). */
   v: number;
+  /** Its format (SKY_WINDOW_FORMAT); absent before the sky's events. */
+  f?: number;
   /** First sample, ms UTC (a chunk boundary). */
   t0: number;
   /** Hours between samples. */
@@ -46,6 +54,8 @@ export type SkyWindow = {
   eps: number[];
   /** Per body: [lon0, speed0, lon1, speed1, …], degrees and degrees per day. */
   bodies: Partial<Record<PlanetId, number[]>>;
+  /** The sky's own events in [t0, t0 + 32 days), from Swiss (sky-events.ts), in time order. */
+  events?: SkyEvent[];
 };
 
 /** Where the chunk holding `ms` starts. */

@@ -1,6 +1,7 @@
 import { browserZone } from "@/lib/chart/client-zone";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { castTiming } from "@/lib/chart/functions";
+import { transitsInSlices } from "@/lib/chart/personal-transits";
+import { loadWindowsBetween } from "@/lib/chart/window-cache";
 import { usePack } from "@/lib/content/packs";
 import {
   civilFromUtc,
@@ -18,11 +19,13 @@ import { useI18n } from "@/lib/i18n/locale";
 import { natalBodiesOf } from "@/studio/modes/hooks/natal-bodies";
 import { useStudioStore } from "@/studio/store";
 import { useVisibleInterval } from "@/lib/use-visible-interval";
-import { isAbort, lru } from "@/lib/chart/result-cache";
+import { lru } from "@/lib/chart/result-cache";
 import { errorForState } from "@/lib/i18n/errors";
 
-/** Timing windows already cast in this tab (a month, a year), by window and natal chart. */
+/** Timing windows already worked out in this tab (a month, a year), by window and natal chart. */
 const castCache = lru<TimingCast>(24);
+/** Chunks needed beyond each end: the search looks a day and a half past the window. */
+const EDGE_MS = 2 * 86_400_000;
 
 export function useTiming() {
   const { locale, t } = useI18n();
@@ -84,28 +87,29 @@ export function useTiming() {
     const ctrl = new AbortController();
     if (!ready.current) setBusy(true);
     setError(null);
-    void castTiming({
-      data: {
-        from,
-        to,
-        latitude: chart.meta.latitude,
-        longitude: chart.meta.longitude,
-        natalBodies,
-      },
-      signal: ctrl.signal,
-    })
-      .then((next) => {
-        castCache.set(key, next);
-        if (n !== gen.current) return;
-        ready.current = true;
-        setCast(next);
-        setBusy(false);
-      })
-      .catch((err) => {
-        if (n !== gen.current || isAbort(err)) return;
-        setError(errorForState(err));
-        setBusy(false);
-      });
+    // Worked out here, from the sky chunks (the same for everyone, asked for
+    // by date): the chart never leaves the device for the calendar.
+    const fromMs = needed.from.getTime();
+    const toMs = needed.to.getTime();
+    void (async () => {
+      const wins = await loadWindowsBetween(fromMs - EDGE_MS, toMs + EDGE_MS);
+      if (n !== gen.current || ctrl.signal.aborted) return;
+      if (!wins) throw new Error("Failed to fetch the sky");
+      const hits = await transitsInSlices(wins, natalBodies, fromMs, toMs, ctrl.signal);
+      if (!hits || n !== gen.current) return;
+      const next: TimingCast = {
+        meta: { from, to, timezone: chart.meta.timezone, latitude: chart.meta.latitude, longitude: chart.meta.longitude },
+        hits,
+      };
+      castCache.set(key, next);
+      ready.current = true;
+      setCast(next);
+      setBusy(false);
+    })().catch((err) => {
+      if (n !== gen.current) return;
+      setError(errorForState(err));
+      setBusy(false);
+    });
     return () => ctrl.abort();
   }, [enabled, needed, natalSig, natalBodies, chart, t, tick]);
 

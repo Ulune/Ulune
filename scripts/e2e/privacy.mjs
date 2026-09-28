@@ -7,7 +7,9 @@
  *     birth date only in the calculations, which need it;
  *   - a cast carries a date, a time and coordinates, and no name or place;
  *   - nothing goes to the geocoder from the page (Ulune's server asks it);
- *   - an AI request carries positions, not the name, date, time or place.
+ *   - an AI request carries positions, not the name, date, time or place;
+ *   - Timing asks only for the sky, by date (the transits are worked out in
+ *     the page), and nothing else goes with those requests.
  * The AI providers are answered here (page.route): no real key is used.
  */
 import {
@@ -174,6 +176,18 @@ async function run() {
   for (const r of relayed) {
     if (!/Person A|Personne A|ASC/.test(r.body)) failures.push("the relayed prompt lacks the positions");
   }
+
+  // Timing asks the server only for the sky, by date; the transits are worked out here.
+  if (fnCalls.some((r) => /^castTiming/.test(decodeFnName(r.url)))) failures.push("Timing sent the chart to the server");
+  let skyAsks = 0;
+  for (const r of seen) {
+    const u = new URL(r.url);
+    if (u.pathname !== "/api/sky-window" && u.pathname !== "/api/sky-year") continue;
+    skyAsks += 1;
+    const keys = [...u.searchParams.keys()].sort().join(",");
+    if (r.method !== "GET" || r.body || !(keys === "t0,v" || keys === "v,y")) failures.push(`a sky request carries more than a date: ${r.method} ${r.url.slice(0, 100)}`);
+  }
+  if (!skyAsks) failures.push("Timing asked for no sky");
 
   if (failures.length) {
     console.error(failures.join("\n"));

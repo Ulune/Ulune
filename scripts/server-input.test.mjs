@@ -10,7 +10,6 @@ import {
   MAX_PLACE_QUERY,
   placeQuery,
   progressionSchema,
-  timingSchema,
   transitSchema,
 } from "../src/lib/chart/server-input.ts";
 
@@ -31,7 +30,6 @@ const refused = (schema, value, why) => assert.equal(schema.safeParse(value).suc
 test("the app's own requests pass", () => {
   ok(transitSchema, transit);
   ok(transitSchema, { ...transit, natalBodies: bodies.slice(0, 12), houseSystem: undefined });
-  ok(timingSchema, { from: "2026-01-01T00:00:00.000Z", to: "2027-01-01T00:00:00.000Z", latitude: 59.91, longitude: 10.75, natalBodies: bodies });
   ok(progressionSchema, { ...transit, at: undefined, natalUtc: "1987-11-03T22:10:00.000Z", targetUtc: "2026-09-26T00:00:00.000Z" });
   ok(humanDesignSchema, { natalUtc: "2000-01-01T12:00:00.000Z" });
   ok(humanDesignSchema, { natalUtc: new Date(Date.UTC(-500, 5, 1)).toISOString() });

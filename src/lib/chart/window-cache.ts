@@ -5,7 +5,7 @@
  * is asked for by its start time only.
  */
 import { CALC_VERSION } from "./constants";
-import { chunkStart, chunksAround, covers, type SkyWindow } from "./sky-window";
+import { chunkStart, chunksAround, covers, SKY_WINDOW_FORMAT, WINDOW_TIMES, type SkyWindow } from "./sky-window";
 
 /** About three years of chunks (32 days each), ~1 MB of numbers at most. */
 const MAX_CHUNKS = 36;
@@ -42,7 +42,8 @@ function valid(win: unknown, t0: number): win is SkyWindow {
     Array.isArray(w.eps) &&
     w.eps.length === w.n &&
     typeof w.bodies === "object" &&
-    Object.values(w.bodies).every((s) => Array.isArray(s) && s.length === 2 * w.n)
+    Object.values(w.bodies).every((s) => Array.isArray(s) && s.length === 2 * w.n) &&
+    (w.events === undefined || Array.isArray(w.events))
   );
 }
 
@@ -75,7 +76,7 @@ export function loadWindow(t0: number): Promise<SkyWindow | null> {
   if (failed != null && Date.now() - failed < RETRY_MS) return Promise.resolve(null);
   const run = (async () => {
     try {
-      const res = await fetch(`/api/sky-window?t0=${t0}&v=${CALC_VERSION}`);
+      const res = await fetch(`/api/sky-window?t0=${t0}&v=${CALC_VERSION}.${SKY_WINDOW_FORMAT}`);
       if (res.status === 404) {
         unavailable = true;
         return null;
@@ -97,6 +98,19 @@ export function loadWindow(t0: number): Promise<SkyWindow | null> {
   })();
   inflight.set(t0, run);
   return run;
+}
+
+/**
+ * Every chunk that covers [from, to], fetched if need be; null when one of
+ * them cannot be had (offline, server down), so nothing is worked out from
+ * half the sky.
+ */
+export async function loadWindowsBetween(from: number, to: number): Promise<SkyWindow[] | null> {
+  if (!Number.isFinite(from) || !Number.isFinite(to) || to < from) return null;
+  const starts: number[] = [];
+  for (let t0 = chunkStart(from); t0 <= to; t0 += WINDOW_TIMES.CHUNK_MS) starts.push(t0);
+  const wins = await Promise.all(starts.map((t0) => loadWindow(t0)));
+  return wins.every((w): w is SkyWindow => w != null) ? wins : null;
 }
 
 /** Ask for the chunk holding `ms`, and its neighbour when `ms` is near an edge. */

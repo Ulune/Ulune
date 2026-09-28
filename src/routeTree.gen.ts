@@ -22,6 +22,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiReportRouteImport } from './routes/api/report'
 import { Route as ApiSkyWindowRouteImport } from './routes/api/sky-window'
+import { Route as ApiSkyYearRouteImport } from './routes/api/sky-year'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -88,6 +89,11 @@ const ApiSkyWindowRoute = ApiSkyWindowRouteImport.update({
   path: '/api/sky-window',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSkyYearRoute = ApiSkyYearRouteImport.update({
+  id: '/api/sky-year',
+  path: '/api/sky-year',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/api/health': typeof ApiHealthRoute
   '/api/report': typeof ApiReportRoute
   '/api/sky-window': typeof ApiSkyWindowRoute
+  '/api/sky-year': typeof ApiSkyYearRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/api/health': typeof ApiHealthRoute
   '/api/report': typeof ApiReportRoute
   '/api/sky-window': typeof ApiSkyWindowRoute
+  '/api/sky-year': typeof ApiSkyYearRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/api/health': typeof ApiHealthRoute
   '/api/report': typeof ApiReportRoute
   '/api/sky-window': typeof ApiSkyWindowRoute
+  '/api/sky-year': typeof ApiSkyYearRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/report'
     | '/api/sky-window'
+    | '/api/sky-year'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/report'
     | '/api/sky-window'
+    | '/api/sky-year'
   id:
     | '__root__'
     | '/'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/api/health'
     | '/api/report'
     | '/api/sky-window'
+    | '/api/sky-year'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -197,6 +209,7 @@ export interface RootRouteChildren {
   ApiHealthRoute: typeof ApiHealthRoute
   ApiReportRoute: typeof ApiReportRoute
   ApiSkyWindowRoute: typeof ApiSkyWindowRoute
+  ApiSkyYearRoute: typeof ApiSkyYearRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSkyWindowRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/sky-year': {
+      id: '/api/sky-year'
+      path: '/api/sky-year'
+      fullPath: '/api/sky-year'
+      preLoaderRoute: typeof ApiSkyYearRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -309,6 +329,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHealthRoute: ApiHealthRoute,
   ApiReportRoute: ApiReportRoute,
   ApiSkyWindowRoute: ApiSkyWindowRoute,
+  ApiSkyYearRoute: ApiSkyYearRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -77,15 +77,6 @@ export const transitSchema = z.object({
   houseSystem: houseSystemSchema,
 });
 
-/** A Timing window (the calculation itself refuses one longer than 370 days). */
-export const timingSchema = z.object({
-  from: momentSchema,
-  to: momentSchema,
-  latitude: latitudeSchema,
-  longitude: longitudeSchema,
-  natalBodies: natalBodiesSchema,
-});
-
 export const progressionSchema = z.object({
   natalUtc: momentSchema,
   targetUtc: momentSchema,

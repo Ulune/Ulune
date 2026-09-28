@@ -70,7 +70,10 @@ import type {
 } from "./types";
 import { ANGLE_IDS, HOUSE_SYSTEM_IDS, PLANET_IDS, STAR_IDS } from "./types";
 import { makePlacement } from "./placement";
-import { chunkStart, WINDOW_SAMPLES, WINDOW_STEP_HOURS, type SkyWindow } from "./sky-window";
+import { chunkStart, SKY_WINDOW_FORMAT, WINDOW_SAMPLES, WINDOW_STEP_HOURS, WINDOW_TIMES, type SkyWindow } from "./sky-window";
+import type { EclipseType, SkyEvent } from "./sky-events";
+import { findSkyEvents, sortSkyEvents, type SkyProvider } from "./sky-search";
+import { SKY_SLOW_BODIES, SKY_YEAR_FORMAT, SKY_YEAR_MAX, SKY_YEAR_MIN, yearStart, type SkyYear, type SlowBody } from "./sky-year";
 import {
   activationOf,
   buildHumanDesignChart,
@@ -107,6 +110,10 @@ type WasmMod = {
   _swe_set_ephe_path: (ptr: number) => void;
   _swe_calc_ut: (tjdUt: number, ipl: number, iflag: number, xx: number, serr: number) => number;
   _swe_fixstar2_ut: (star: number, tjdUt: number, iflag: number, xx: number, serr: number) => number;
+  _swe_sol_eclipse_when_glob: (tjdStart: number, ifl: number, ifltype: number, tret: number, backward: number, serr: number) => number;
+  _swe_lun_eclipse_when: (tjdStart: number, ifl: number, ifltype: number, tret: number, backward: number, serr: number) => number;
+  _swe_sol_eclipse_where: (tjdUt: number, ifl: number, geopos: number, attr: number, serr: number) => number;
+  _swe_lun_eclipse_how: (tjdUt: number, ifl: number, geopos: number, attr: number, serr: number) => number;
 };
 
 let engine: SwissEPH | null = null;
@@ -1153,7 +1160,146 @@ export async function calculateSkyWindow(t0: number): Promise<SkyWindow> {
     }
     bodies[id] = series;
   }
-  return { v: CALC_VERSION, t0, step: WINDOW_STEP_HOURS, n, st, eps, bodies };
+  const to = t0 + WINDOW_TIMES.CHUNK_MS;
+  const events = skyEventsBetween(swe, flag, t0, to, true);
+  return { v: CALC_VERSION, f: SKY_WINDOW_FORMAT, t0, step: WINDOW_STEP_HOURS, n, st, eps, bodies, events };
+}
+
+/**
+ * Swiss at a UTC moment: UTC to UT1 through Swiss at every moment (not a line
+ * from a start), so an event found by two neighbouring files lands on the same
+ * millisecond.
+ */
+function swissClock(swe: SwissEPH, t0: number) {
+  const jd0 = jdUt(swe, new Date(t0));
+  const jdOf = (ms: number) => {
+    const whole = Math.floor(ms);
+    return jdUt(swe, new Date(whole)) + (ms - whole) / 86_400_000;
+  };
+  const msOf = (jd: number) => {
+    const guess = t0 + (jd - jd0) * 86_400_000;
+    return guess - (jdOf(guess) - jd) * 86_400_000;
+  };
+  return { jdOf, msOf };
+}
+
+/** The sky's events in [from, to) from Swiss, eclipses included; `moon: false` for the year's file. */
+function skyEventsBetween(swe: SwissEPH, flag: number, from: number, to: number, moon: boolean): SkyEvent[] {
+  const { jdOf, msOf } = swissClock(swe, from);
+  const provider: SkyProvider = (body, ms) => {
+    const xx = calcUt(swe, jdOf(ms), SWE_BODY[body](swe), flag).xx;
+    return { lon: wrap360(Number(xx[0])), speed: Number(xx[3]) };
+  };
+  return sortSkyEvents([...findSkyEvents(provider, from, to, { moon }), ...eclipsesBetween(swe, jdOf(from), jdOf(to), msOf)]);
+}
+
+/**
+ * The year's sky file (sky-year.ts): the slow bodies every day at 00:00 UTC
+ * and the year's events without the Moon's own (its phases kept). The same
+ * for everyone, so it can be kept at the edge.
+ */
+export async function calculateSkyYear(year: number): Promise<SkyYear> {
+  if (!Number.isInteger(year) || year < SKY_YEAR_MIN || year > SKY_YEAR_MAX) {
+    throw new Error("E:year.range");
+  }
+  const swe = await withEngine((s) => s);
+  const flag = swe.SEFLG_SWIEPH | swe.SEFLG_SPEED;
+  const t0 = yearStart(year);
+  const t1 = yearStart(year + 1);
+  const n = Math.round((t1 - t0) / 86_400_000) + 1;
+  const r7 = (x: number) => Math.round(x * 1e7) / 1e7;
+  const uts: number[] = [];
+  for (let i = 0; i < n; i += 1) uts.push(jdUt(swe, new Date(t0 + i * 86_400_000)));
+  const bodies: Partial<Record<SlowBody, number[]>> = {};
+  for (const id of SKY_SLOW_BODIES) {
+    const ipl = SWE_BODY[id](swe);
+    const series: number[] = [];
+    try {
+      for (const ut of uts) {
+        const pos = calcUt(swe, ut, ipl, flag).xx;
+        const lon = wrap360(Number(pos[0]));
+        const speed = Number(pos[3]);
+        if (!Number.isFinite(lon) || !Number.isFinite(speed)) throw new Error("Swiss returned no longitude");
+        series.push(r7(lon), r7(speed));
+      }
+    } catch (err) {
+      if (REQUIRED_BODIES.has(id)) throw err;
+      continue;
+    }
+    bodies[id] = series;
+  }
+  const events = skyEventsBetween(swe, flag, t0, t1, false);
+  return { v: CALC_VERSION, f: SKY_YEAR_FORMAT, y: year, t0, step: 24, n, bodies, events };
+}
+
+/**
+ * Eclipses whose greatest phase falls in [jdFrom, jdTo) (UT), from Swiss's
+ * own global searches: the type from its flags, NASA's magnitude (for a solar
+ * eclipse the diameter ratio when central, else the share of the diameter
+ * covered; for a lunar one the umbral magnitude, or the penumbral one when
+ * the Moon misses the umbra). Longitude of the Sun or the Moon at that moment.
+ */
+function eclipsesBetween(swe: SwissEPH, jdFrom: number, jdTo: number, msOf: (jd: number) => number): SkyEvent[] {
+  const wasm = engineWasm;
+  if (!wasm) return [];
+  const out: SkyEvent[] = [];
+  const tret = wasm._malloc(10 * 8);
+  const attr = wasm._malloc(20 * 8);
+  const geo = wasm._malloc(10 * 8);
+  const serr = wasm._malloc(256);
+  const typeOf = (f: number, solar: boolean): EclipseType =>
+    f & swe.SE_ECL_TOTAL
+      ? "total"
+      : solar && f & swe.SE_ECL_ANNULAR_TOTAL
+        ? "hybrid"
+        : solar && f & swe.SE_ECL_ANNULAR
+          ? "annular"
+          : f & swe.SE_ECL_PARTIAL
+            ? "partial"
+            : "penumbral";
+  try {
+    for (const kind of ["solar", "lunar"] as const) {
+      let jd = jdFrom;
+      // At most two of a kind fit in 32 days (solar eclipses a lunation apart).
+      for (let guard = 0; guard < 3; guard += 1) {
+        wasm.setValue(serr, 0, "i8");
+        const f =
+          kind === "solar"
+            ? wasm._swe_sol_eclipse_when_glob(jd, swe.SEFLG_SWIEPH, 0, tret, 0, serr)
+            : wasm._swe_lun_eclipse_when(jd, swe.SEFLG_SWIEPH, 0, tret, 0, serr);
+        if (f <= 0) break;
+        const max = wasm.getValue(tret, "double");
+        if (!Number.isFinite(max) || max >= jdTo) break;
+        if (max >= jdFrom) {
+          for (let i = 0; i < 20; i += 1) wasm.setValue(attr + i * 8, 0, "double");
+          for (let i = 0; i < 10; i += 1) wasm.setValue(geo + i * 8, 0, "double");
+          let mag = Number.NaN;
+          if (kind === "solar") {
+            if (wasm._swe_sol_eclipse_where(max, swe.SEFLG_SWIEPH, geo, attr, serr) >= 0) mag = wasm.getValue(attr + 8 * 8, "double");
+          } else if (wasm._swe_lun_eclipse_how(max, swe.SEFLG_SWIEPH, geo, attr, serr) >= 0) {
+            const umbral = wasm.getValue(attr, "double");
+            mag = umbral > 0 ? umbral : wasm.getValue(attr + 8, "double");
+          }
+          const lon = wrap360(Number(calcUt(swe, max, kind === "solar" ? swe.SE_SUN : swe.SE_MOON, swe.SEFLG_SWIEPH).xx[0]));
+          out.push({
+            k: "eclipse",
+            t: Math.round(msOf(max)),
+            kind,
+            type: typeOf(f, kind === "solar"),
+            lon: Math.round(lon * 1e6) / 1e6,
+            mag: Number.isFinite(mag) ? Math.round(mag * 1e4) / 1e4 : 0,
+          });
+        }
+        jd = max + 1;
+      }
+    }
+  } finally {
+    wasm._free(tret);
+    wasm._free(attr);
+    wasm._free(geo);
+    wasm._free(serr);
+  }
+  return out;
 }
 
 const TIMING_PAIR_SKIP = new Set([
@@ -1169,6 +1315,8 @@ const TIMING_PAIR_SKIP = new Set([
  * Every major exact of a moving body to this natal inside [from, to).
  * Same Swiss engine as transits — tropical, true node, osculating Lilith.
  * Never invents a time: a crossing that will not lock to 1′ is dropped.
+ * Not served since part 54: the calendar finds your transits on the device
+ * (personal-transits.ts); this stays the reference its tests check against.
  */
 export async function calculateTiming(input: {
   from: Date;
