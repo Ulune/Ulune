@@ -7,6 +7,7 @@ import { preloadMode } from "@/studio/modes/registry";
 import { useStudioStore } from "@/studio/store";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { MODE_GROUPS, groupOf, type ModeGroupId, type StudioPage } from "@/studio/url";
+import { onTablistKeyDown } from "@/lib/a11y/tablist";
 
 const ICON: Record<ModeGroupId, ComponentType<{ className?: string; strokeWidth?: number }>> = {
   chart: CircleDot,
@@ -51,7 +52,7 @@ export function GroupBar() {
       className="ob-groups"
       style={{ ["--ob-i" as string]: String(Math.max(0, index)) }}
     >
-      <div className="ob-groups-track" role="tablist" aria-label={t("studioNav")}>
+      <div className="ob-groups-track" role="tablist" aria-label={t("studioNav")} onKeyDown={(e) => onTablistKeyDown(e)}>
         <span className="ob-groups-ind" aria-hidden />
         {MODE_GROUPS.map((g) => {
           const on = active === g.id;
@@ -73,6 +74,7 @@ export function GroupBar() {
               role="tab"
               data-testid={`mode-group-${g.id}`}
               aria-selected={on}
+              tabIndex={on ? 0 : -1}
               onPointerEnter={ahead}
               onFocus={ahead}
               onClick={() => {

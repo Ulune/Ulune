@@ -903,6 +903,26 @@ html.theme-ready body {
   content: none;
 }
 
+/* The wheel's keyboard list (wheel-keys.tsx) is for screen readers, not the
+   eye; while it has the keyboard, a ring round the wheel says so, and the
+   part reached lights up as if pointed at. */
+.ulune-wheel-keys-list {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.ulune-wheel-stage:has(.ulune-wheel-keys-list:focus-visible) {
+  outline: 2px solid var(--color-ring);
+  outline-offset: -2px;
+  border-radius: 12px;
+}
+
 /* The focus is painted in JS; it fades in quickly on hover (the response
    starts at once) and slower on a pin or unpin ([data-focus-fade]). */
 .ulune-wheel [data-dimmable],
@@ -2383,6 +2403,36 @@ html.light .ulune-wheel [data-cfg-type] {
 }
 .ob-rc-about > .ob-rc-p {
   margin-bottom: 10px;
+}
+/* The glossary under a reading (glossary-details.tsx). */
+.ob-glossary-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 12px;
+}
+.ob-glossary-h {
+  margin: 6px 0 0;
+  font: 500 11px/1.3 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.ob-glossary-dl {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+.ob-glossary-item dt {
+  font: 600 14px/1.35 var(--font-ui);
+  color: var(--color-fg);
+}
+.ob-glossary-item dd {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-fg-muted);
 }
 @media (prefers-reduced-motion: reduce) {
   .ob-rc-depth button,

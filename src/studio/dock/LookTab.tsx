@@ -19,6 +19,7 @@ import { coerceNumerologyPage } from "@/studio/numerology-pages";
 import { coerceBodiesPage } from "@/studio/bodies-pages";
 import { useStudioStore } from "@/studio/store";
 import { studioSearch } from "@/studio/url";
+import { onTablistKeyDown } from "@/lib/a11y/tablist";
 
 export function LookTab() {
   const { t } = useI18n();
@@ -70,6 +71,7 @@ export function LookTab() {
         className="ulune-wrap-tabs min-w-0"
         role="tablist"
         aria-label={t("dockLook")}
+        onKeyDown={(e) => onTablistKeyDown(e, true)}
       >
         {LOOK_PAGES.map((id) => {
           const on = page === id;
@@ -80,6 +82,7 @@ export function LookTab() {
               role="tab"
               data-testid={`look-page-${id}`}
               aria-selected={on}
+              tabIndex={on ? 0 : -1}
               onClick={() => setPage(id)}
               className={cn(
                 "inline-flex min-h-11 items-center justify-center px-3 text-sm",

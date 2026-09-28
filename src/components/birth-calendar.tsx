@@ -34,6 +34,7 @@ export function BirthCalendar({
       month={month}
       onMonthChange={onMonthChange}
       selected={selected}
+      autoFocus
       onSelect={(day) => {
         if (day) onPick(day);
       }}

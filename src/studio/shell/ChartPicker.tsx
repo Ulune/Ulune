@@ -64,7 +64,7 @@ export function ChartPicker() {
         type="button"
         data-testid="chart-chip"
         aria-expanded={open}
-        aria-haspopup="menu"
+        aria-haspopup="dialog"
         title={chip}
         onClick={() => (open ? close() : setOpen(true))}
         className="ob-chip"
@@ -78,6 +78,8 @@ export function ChartPicker() {
         anchorRef={chipRef}
         onClose={close}
         width={320}
+        role="dialog"
+        aria-label={t("charts")}
         hideLabel={t("charts")}
       >
         <div data-testid="chart-picker" className="ob-pop ob-picker">

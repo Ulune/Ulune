@@ -27,6 +27,7 @@ import { BirthTab } from "@/studio/dock/BirthTab";
 import { isWide, loadPanelWidth, savePanelWidth, type PanelWidth } from "@/studio/dock/dock-layout";
 import { ReadingTab } from "@/studio/dock/ReadingTab";
 import { useStudioStore, type DockTab } from "@/studio/store";
+import { onTablistKeyDown } from "@/lib/a11y/tablist";
 
 export const PANEL_TABS: {
   id: DockTab;
@@ -222,7 +223,7 @@ export function Dock() {
         onClickCapture={onHeadClickCapture}
       >
         <span className="ob-sheet-grip" aria-hidden />
-        <div className="ob-panel-tabs" role="tablist" aria-label={t("dockExpand")}>
+        <div className="ob-panel-tabs" role="tablist" aria-label={t("dockExpand")} onKeyDown={(e) => onTablistKeyDown(e, true)}>
           {PANEL_TABS.map((tab) => {
             const on = dock === tab.id;
             const Icon = tab.icon;
@@ -233,6 +234,7 @@ export function Dock() {
                 role="tab"
                 data-testid={`dock-tab-${tab.id}`}
                 aria-selected={on}
+                tabIndex={on ? 0 : -1}
                 aria-label={t(tab.label)}
                 title={t(tab.label)}
                 onPointerEnter={TAB_AHEAD[tab.id]}

@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 import { SOURCE_URL } from "@/lib/app-identity";
 import { useI18n } from "@/lib/i18n/locale";
 import type { MessageKey } from "@/lib/i18n/messages";
+import { GlossaryDetails } from "@/components/glossary-details";
 
 type Icon = ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean }>;
 
@@ -84,6 +85,7 @@ export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () =
             {t("guideNewSample")}
           </button>
         </p>
+        <GlossaryDetails all testId="guide-glossary" />
       </section>
 
       <section className="ob-guide-sec" aria-labelledby="guide-data">

@@ -17,6 +17,8 @@ const MONTHS: Record<string, number> = {
   feb: 2,
   february: 2,
   fev: 2,
+  fevr: 2,
+  févr: 2,
   fevrier: 2,
   février: 2,
   mar: 3,
@@ -50,6 +52,7 @@ const MONTHS: Record<string, number> = {
   november: 11,
   novembre: 11,
   dec: 12,
+  déc: 12,
   december: 12,
   decembre: 12,
   décembre: 12,
@@ -173,14 +176,16 @@ export function parseDate(raw: string): { year: number; month: number; day: numb
     return checkDate(y, b, a);
   }
 
-  m = s.match(/^(\d{1,2})\s+([A-Za-zéûôàèùîç.]+)\s+(\d{4})$/);
+  // "15 juin 1990", "1er mai 1990", "15th June 1990", "3 déc. 1985".
+  m = s.match(/^(\d{1,2})(?:er|st|nd|rd|th)?\s+([A-Za-zÀ-ÿ.]+),?\s+(\d{4})$/i);
   if (m) {
     const month = MONTHS[m[2].toLowerCase().replace(/\./g, "")];
     if (!month) throw new Error(`E:birth.month.unreadable|${raw}`);
     return checkDate(+m[3], month, +m[1]);
   }
 
-  m = s.match(/^([A-Za-zéûôàèùîç.]+)\s+(\d{1,2}),?\s+(\d{4})$/);
+  // "June 15, 1990", "June 15th 1990".
+  m = s.match(/^([A-Za-zÀ-ÿ.]+)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})$/i);
   if (m) {
     const month = MONTHS[m[1].toLowerCase().replace(/\./g, "")];
     if (!month) throw new Error(`E:birth.month.unreadable|${raw}`);

@@ -4,6 +4,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "@/lib/toast";
 import "@/studio/modes/styles/tables.css";
+import { onTablistKeyDown } from "@/lib/a11y/tablist";
 
 function cellText(el: Element) {
   return (el.textContent ?? "").replace(/\s+/g, " ").trim();
@@ -195,8 +196,14 @@ export function TableGroupBar({
   onGroup: (next: "position" | "motion" | "condition") => void;
   labels: { position: string; motion: string; condition: string };
 }) {
+  const { t } = useI18n();
   return (
-    <div className="ulune-table-groups mb-[var(--space-3)] flex md:hidden" role="tablist">
+    <div
+      className="ulune-table-groups mb-[var(--space-3)] flex md:hidden"
+      role="tablist"
+      aria-label={t("tableColumnGroups")}
+      onKeyDown={(e) => onTablistKeyDown(e, true)}
+    >
       {(["position", "motion", "condition"] as const).map((id) => (
         <button
           key={id}
@@ -204,6 +211,7 @@ export function TableGroupBar({
           role="tab"
           data-testid={`table-group-${id}`}
           aria-selected={group === id}
+          tabIndex={group === id ? 0 : -1}
           onClick={() => onGroup(id)}
           className={cn(
             "min-h-11 min-w-0 flex-1 px-2 text-xs",

@@ -164,6 +164,8 @@ export function ComposeToolbar({
           open={showKeys}
           anchorRef={triggerRef}
           onClose={closeKeys}
+          role="dialog"
+          aria-label={t("aiOpenAccounts")}
           hideLabel={t("hidePanel")}
           align="end"
           width={22 * 16}

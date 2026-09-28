@@ -83,6 +83,7 @@ import { hideWheelTip, showWheelTip } from "./wheel-tip";
 import { AspectStrip } from "./aspect-strip";
 import { WheelAspectGrid, type GridRow } from "./wheel-aspect-grid";
 import { WheelHint } from "./wheel-hint";
+import { WheelKeys } from "./wheel-keys";
 import { arcSpan, placeBadges, placeBeside, placeLabels, type Disc, type LabelPlace } from "@/lib/chart/wheel-layout";
 import { createSelectionStore, type SelectionStore } from "@/lib/chart/selection-store";
 import type { AspectId } from "@/lib/chart/types";
@@ -1063,14 +1064,35 @@ const ChartWheelView = memo(function ChartWheelView({
    * closing or opening.
    */
   const aspectTips = useMemo(() => {
+    // On a bi-wheel a line says which rings it joins ("Transits × Your
+    // chart: …"), in the order its bodies are named.
+    const outer = synastryMode
+      ? t("wheelRingOuter")
+      : progressedMode
+        ? t("progressionLegendOuter")
+        : t("transitLegendOuter");
+    const inner = synastryMode ? t("wheelRingInner") : t("transitLegendInner");
+    const colon = locale === "fr" ? "\u202f: " : ": ";
     const m = new Map<string, string>();
     for (const { a, focusId } of chords) {
       const orb = locale === "fr" ? a.orb.toFixed(2).replace(".", ",") : a.orb.toFixed(2);
       const dir = a.applying === true ? ` · ${t("applying")}` : a.applying === false ? ` · ${t("separating")}` : "";
-      m.set(focusId, `${t("aspectTooltip", { phrase: aspectLinkPhrase(a.a, a.type, a.b, locale), orb })}${dir}`);
+      const tag = !showTransits
+        ? ""
+        : focusId.startsWith(`${crossPrefix}:`)
+          ? synastryMode
+            ? `${inner} × ${outer}`
+            : `${outer} × ${inner}`
+          : focusId.startsWith("oaspect:")
+            ? outer
+            : inner;
+      m.set(
+        focusId,
+        `${tag ? tag + colon : ""}${t("aspectTooltip", { phrase: aspectLinkPhrase(a.a, a.type, a.b, locale), orb })}${dir}`,
+      );
     }
     return m;
-  }, [chords, locale, t]);
+  }, [chords, locale, t, showTransits, synastryMode, progressedMode, crossPrefix]);
   const aspectTipsRef = useRef(aspectTips);
   aspectTipsRef.current = aspectTips;
   useEffect(() => () => hideWheelTip(), []);
@@ -1725,7 +1747,9 @@ const ChartWheelView = memo(function ChartWheelView({
   // memoized zodiac is not rebuilt by every render.
   const hoverProps = useCallback(
     (id: string) => ({
-      tabIndex: 0,
+      // Out of the Tab order: the wheel is one stop, its parts a list the
+      // arrows walk (WheelKeys). Focus by script still lights them.
+      tabIndex: -1,
       onFocus: (e: ReactFocusEvent<SVGElement>) => {
         hoverIdRef.current = id;
         paintNowRef.current(id);
@@ -1972,6 +1996,34 @@ const ChartWheelView = memo(function ChartWheelView({
   };
   const pickRef = useRef(pickFromWheel);
 
+  // The keyboard's walk through the wheel (WheelKeys): the part reached is
+  // lit like a pointed one, turned to the front in 3D, and named by the tip.
+  const keysPoint = useCallback((id: string | null, el: Element | null, label: string) => {
+    hoverIdRef.current = id;
+    paintNowRef.current(id);
+    if (!id) {
+      hideWheelTip();
+      return;
+    }
+    turnRef.current(id);
+    if (!el || view3dRef.current?.entered) {
+      hideWheelTip();
+      return;
+    }
+    const at = el.getAttribute("data-mark-at")?.split(" ").map(Number);
+    const m = at && at.length === 2 ? svgRef.current?.getScreenCTM() : null;
+    if (at && m) {
+      showWheelTip(label, m.a * at[0] + m.c * at[1] + m.e, m.b * at[0] + m.d * at[1] + m.f);
+    } else {
+      const r = el.getBoundingClientRect();
+      showWheelTip(label, r.left + r.width / 2, r.top + r.height / 2);
+    }
+  }, []);
+  const keysPick = useCallback((id: string) => {
+    pickRef.current();
+    onSelectRef.current(id);
+  }, []);
+
   /** The camera from the top, tilted or low (the zoom bar's angle button). */
   const setCameraAngle = (a: CameraAngle) => {
     const depth = depthRef.current;
@@ -2162,6 +2214,7 @@ const ChartWheelView = memo(function ChartWheelView({
         onDoubleClick={() => view3dRef.current?.resetCamera()}
         onKeyDown={onChartKey}
       >
+      <WheelKeys svgRef={svgRef} selection={selection} onPoint={keysPoint} onPick={keysPick} />
       <div ref={stackRef} className="ulune-depth-stack">
       <svg
         ref={svgRef}
@@ -3061,6 +3114,7 @@ const ChartWheelView = memo(function ChartWheelView({
               data-kind="angle"
               data-uncertain={uncertain ? "1" : undefined}
               data-dimmable
+              aria-label={`${bodyLabel(key, locale)} ${angle.formatted} ${signName(angle.sign, locale)}${uncertain ? ` · ${t("timeUnknown")}` : ""}`}
               {...hoverProps(id)}
             >
               {uncertain ? (

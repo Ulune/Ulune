@@ -4,6 +4,7 @@ import { ModeCompose, isComposeMode } from "@/studio/dock/ModeCompose";
 import { natalRootReading } from "@/lib/chart/dossier";
 import { AI_ENABLED } from "@/lib/features";
 import { LoadingLines } from "@/components/loading-lines";
+import { GlossaryDetails } from "@/components/glossary-details";
 import { packNow, usePack, type PackKind } from "@/lib/content/packs";
 import { useI18n } from "@/lib/i18n/locale";
 import { useModeReading } from "@/studio/modes/data";
@@ -103,6 +104,7 @@ export function ReadingTab() {
           ) : null}
         </>
       )}
+      <GlossaryDetails page={page} selectedId={selectedId0} />
     </div>
   );
 }

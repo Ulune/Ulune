@@ -34,6 +34,8 @@ export function BirthDateField({
   calendarLabel,
   locale,
   testId,
+  invalid,
+  describedBy,
   onTyped,
   onBlur,
 }: {
@@ -44,6 +46,9 @@ export function BirthDateField({
   calendarLabel: string;
   locale: "en" | "fr";
   testId?: string;
+  /** Marked invalid, and described by the message that says why. */
+  invalid?: boolean;
+  describedBy?: string;
   onTyped: (next: string) => void;
   onBlur: () => void;
 }) {
@@ -80,6 +85,8 @@ export function BirthDateField({
           className="min-w-0 flex-1"
           aria-expanded={open}
           aria-controls={`${id}-calendar-pop`}
+          aria-invalid={invalid || undefined}
+          aria-describedby={describedBy}
           onTyped={onTyped}
           onBlur={onBlur}
         />

@@ -25,7 +25,7 @@ export function AccountMenu() {
         ref={ref}
         type="button"
         data-testid="account-menu"
-        aria-haspopup="menu"
+        aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={t("shellMenu")}
         title={t("shellMenu")}
@@ -41,7 +41,7 @@ export function AccountMenu() {
         align="end"
         width={280}
         testId="account-menu-panel"
-        role="menu"
+        role="dialog"
         aria-label={t("shellMenu")}
         hideLabel={t("shellMenu")}
       >

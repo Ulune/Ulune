@@ -11,6 +11,7 @@ export const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"in
           "placeholder:italic placeholder:font-normal placeholder:text-[color-mix(in_oklab,var(--color-fg)_34%,transparent)]",
           "focus-visible:outline-none focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-ring",
           "disabled:opacity-50",
+          "aria-invalid:border-danger aria-invalid:focus-visible:ring-danger",
           className,
         )}
         {...props}

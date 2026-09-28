@@ -32,6 +32,7 @@ import { useWheelView } from "@/studio/modes/wheel-view";
 import { useStudioStore } from "@/studio/store";
 import { studioSearch } from "@/studio/url";
 import { pickBi, type Bi } from "@/lib/content/types";
+import { onTablistKeyDown } from "@/lib/a11y/tablist";
 
 function cycleText(table: Record<number, Bi> | undefined, n: number | null, locale: "en" | "fr") {
   return table && n != null ? pickBi(table[n], locale) : "";
@@ -138,6 +139,7 @@ export function NumerologyPanel() {
         className="flex min-w-0 flex-wrap items-stretch border-b border-border"
         role="tablist"
         aria-label={t("pageNumerology")}
+        onKeyDown={(e) => onTablistKeyDown(e, true)}
       >
         {NUMEROLOGY_PAGES.map((id) => {
           const on = page === id;
@@ -148,6 +150,7 @@ export function NumerologyPanel() {
               role="tab"
               data-testid={`num-page-${id}`}
               aria-selected={on}
+              tabIndex={on ? 0 : -1}
               onClick={() => setPage(id)}
               className={cn(
                 "inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1 px-1.5 text-xs sm:px-2 sm:text-xs",

@@ -69,6 +69,7 @@ export function SpaceButton() {
             <div className="ob-menu-group ob-menu-group--last">
               <button
                 type="button"
+                role="menuitem"
                 className="ob-menu-item"
                 data-testid="space-lock-now"
                 onClick={() => {
@@ -83,6 +84,7 @@ export function SpaceButton() {
               </button>
               <button
                 type="button"
+                role="menuitem"
                 className="ob-menu-item"
                 data-testid="space-backup-now"
                 onClick={() => {
@@ -105,7 +107,7 @@ export function SpaceButton() {
                   ) : null}
                 </span>
               </button>
-              <Link to="/settings" hash="data" className="ob-menu-item" data-testid="space-your-data" onClick={close}>
+              <Link to="/settings" hash="data" role="menuitem" className="ob-menu-item" data-testid="space-your-data" onClick={close}>
                 <Settings className="size-4" strokeWidth={1.75} aria-hidden />
                 <span>{t("dataTitle")}</span>
               </Link>

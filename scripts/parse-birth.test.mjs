@@ -200,3 +200,22 @@ test("historical dates: years 1–2399, and Julian leap days before 1582-10-15",
   assert.deepEqual(parseDate("15/06/0800"), { year: 800, month: 6, day: 15 });
   assert.throws(() => parseDate("01/01/2400"), /E:birth.year.range/);
 });
+
+test("a month in words, in English or French, with or without an ordinal", () => {
+  const june15 = { year: 1990, month: 6, day: 15 };
+  assert.deepEqual(parseDate("15 juin 1990"), june15);
+  assert.deepEqual(parseDate("15 Juin 1990"), june15);
+  assert.deepEqual(parseDate("15 June 1990"), june15);
+  assert.deepEqual(parseDate("15th June 1990"), june15);
+  assert.deepEqual(parseDate("June 15, 1990"), june15);
+  assert.deepEqual(parseDate("June 15th, 1990"), june15);
+  assert.deepEqual(parseDate("1er mai 1990"), { year: 1990, month: 5, day: 1 });
+  assert.deepEqual(parseDate("3 déc. 1985"), { year: 1985, month: 12, day: 3 });
+  assert.deepEqual(parseDate("12 févr. 2001"), { year: 2001, month: 2, day: 12 });
+  assert.deepEqual(parseDate("7 août 1969"), { year: 1969, month: 8, day: 7 });
+  assert.equal(formatEuropeanDate("15 juin 1990"), "15/06/1990");
+  // The precise reasons the form now shows.
+  assert.throws(() => parseDate("15 juni 1990"), /E:birth.month.unreadable\|15 juni 1990/);
+  assert.throws(() => parseDate("31/02/1990"), /E:birth.date.invalid/);
+  assert.throws(() => parseDate("30 février 1990"), /E:birth.date.invalid/);
+});

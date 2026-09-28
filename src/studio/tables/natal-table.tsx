@@ -24,6 +24,7 @@ import { cn, formatDegreeSeconds, formatSignedDmsSeconds, formatSpeed } from "@/
 import { DataTable, TableFrame, TableGroupBar } from "@/studio/tables/DataTable";
 import { toast } from "@/lib/toast";
 import { previewProps } from "@/lib/depth/preview-bus";
+import { onTablistKeyDown } from "@/lib/a11y/tablist";
 
 const SECTIONS = ["identity", "points", "houses", "aspects", "grid", "patterns", "balance", "ranking"] as const;
 type SectionId = (typeof SECTIONS)[number];
@@ -599,7 +600,12 @@ export function NatalTable({
       data-selected={selectedId ?? ""}
       className="flex min-h-0 min-w-0 flex-col gap-[var(--space-3)]"
     >
-      <div className="ulune-wrap-tabs min-w-0" role="tablist">
+      <div
+        className="ulune-wrap-tabs min-w-0"
+        role="tablist"
+        aria-label={t("tableSections")}
+        onKeyDown={(e) => onTablistKeyDown(e, true)}
+      >
         {SECTIONS.map((id) => (
           <button
             key={id}
@@ -607,6 +613,7 @@ export function NatalTable({
             role="tab"
             data-testid={`table-section-${id}`}
             aria-selected={section === id}
+            tabIndex={section === id ? 0 : -1}
             onClick={() => setSection(id)}
             className={cn(
               "min-h-11 px-3 text-sm",

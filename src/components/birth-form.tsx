@@ -8,7 +8,10 @@ import {
   isValidBirthTime,
   maskBirthTime,
   parseCoords,
+  parseDate,
+  parseTime,
 } from "@/lib/chart/parse-birth";
+import { errorForState, localizeError } from "@/lib/i18n/errors";
 import { HOUSE_SYSTEM_LABEL } from "@/lib/chart/constants";
 import type { MessageKey } from "@/lib/i18n/messages";
 
@@ -92,6 +95,38 @@ function focusControl(id: string) {
   });
 }
 
+/** The field a message is about: it is marked invalid and described by the message. */
+type FieldId = "birth-date" | "birth-time" | "birth-place";
+
+function two(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+/**
+ * A date as typed, read the way the chart will read it: DD/MM/YYYY, or a
+ * month in words ("15 juin 1990", "June 15, 1990", "1er mai 1990"), or ISO.
+ * The form's own form of it, or the precise reason it can't be read.
+ */
+function readDate(raw: string): { ok: string } | { error: string } {
+  try {
+    const d = parseDate(raw);
+    return { ok: `${two(d.day)}/${two(d.month)}/${d.year}` };
+  } catch (err) {
+    return { error: errorForState(err) };
+  }
+}
+
+/** A time as typed ("14:30", "2:30 pm", "14h30"): HH:MM(:SS), or the reason it can't be read. */
+function readTime(raw: string): { ok: string } | { error: string } {
+  try {
+    const t = parseTime(raw);
+    if (t.unknown) return { ok: "" };
+    return { ok: t.second ? `${two(t.hour)}:${two(t.minute)}:${two(t.second)}` : `${two(t.hour)}:${two(t.minute)}` };
+  } catch (err) {
+    return { error: errorForState(err) };
+  }
+}
+
 function dateForField(raw: string): string {
   const s = raw.trim();
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
@@ -129,6 +164,8 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
   const [hits, setHits] = useState<PlaceHit[]>([]);
   const [open, setOpen] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
+  // The field the message is about (marked and described), if any.
+  const [hintField, setHintField] = useState<FieldId | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [looking, setLooking] = useState(false);
   const [active, setActive] = useState(0);
@@ -156,6 +193,17 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
     setPicked(Number.isFinite(value.latitude) && Number.isFinite(value.longitude));
   }, [incoming, value]);
 
+  /** Say something under the form; with a field, mark that field and tie the message to it. */
+  function flag(text: string | null, field: FieldId | null = null) {
+    setHint(text);
+    setHintField(text ? field : null);
+  }
+
+  /** Typing in a field clears the message about it. */
+  function clearFlag(field: FieldId) {
+    if (hintField === field) flag(null);
+  }
+
   function markEdit() {
     if (beganRef.current) return;
     beganRef.current = true;
@@ -172,6 +220,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
   }
 
   function onDateTyped(raw: string) {
+    clearFlag("birth-date");
     const next = dateForField(raw);
     const prev = draftRef.current.date;
     // A repeated-hour choice belongs to the moment it was made for.
@@ -190,6 +239,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
   );
 
   function onTimeTyped(next: string) {
+    clearFlag("birth-time");
     const prev = draftRef.current.time;
     patch({ time: next, fold: undefined });
     if (advanceTimer.current != null) {
@@ -243,14 +293,14 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           setActive(0);
           setOpen(true);
           setLooking(false);
-          setHint(next.length ? null : t("couldNotFind", { query: q }));
+          flag(next.length ? null : t("couldNotFind", { query: q }));
         })
         .catch((err) => {
           if (cancelled || isAbortError(err)) return;
           setLooking(false);
           setHits([]);
           setOpen(false);
-          setHint(t("placeLookupFailed"));
+          flag(t("placeLookupFailed"));
         });
     }, PLACE_DEBOUNCE_MS);
     return () => {
@@ -285,7 +335,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
     setQuery(hit.label);
     setOpen(false);
     setPicked(true);
-    setHint(null);
+    flag(null);
     setDraft(next);
     draftRef.current = next;
     onChange(next);
@@ -317,25 +367,38 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
   }
 
   async function submit() {
-    setHint(null);
-    const next: BirthInput = { ...draft, placeLabel: query.trim() || draft.placeLabel };
+    flag(null);
+    const next: BirthInput = { ...draftRef.current, placeLabel: query.trim() || draftRef.current.placeLabel };
     if (!next.date.trim()) {
-      setHint(t("err_birth_date_missing"));
+      flag(t("err_birth_date_missing"), "birth-date");
       focusControl("birth-date");
       return;
     }
     if (!isCompleteBirthDate(next.date)) {
-      setHint(t("err_birth_date_format"));
-      focusControl("birth-date");
-      return;
+      // A month in words or another way of writing it: read it, or say
+      // precisely what is wrong (a 31 February, a year out of range).
+      const read = readDate(next.date);
+      if ("error" in read) {
+        flag(localizeError(read.error, locale, "err_birth_date_format"), "birth-date");
+        focusControl("birth-date");
+        return;
+      }
+      next.date = read.ok;
+      commitDraft(next);
     }
     if (!noTime && next.time.trim() && !isValidBirthTime(next.time)) {
-      setHint(t("err_birth_time_format"));
-      focusControl("birth-time");
-      return;
+      const read = readTime(next.time);
+      if ("error" in read) {
+        flag(localizeError(read.error, locale, "err_birth_time_format"), "birth-time");
+        focusControl("birth-time");
+        return;
+      }
+      next.time = read.ok;
+      commitDraft(next);
     }
     if (!next.placeLabel.trim() && !Number.isFinite(next.latitude)) {
-      setHint(t("addCity"));
+      flag(t("addCity"), "birth-place");
+      focusControl("birth-place");
       return;
     }
     const coords = parseCoords(next.placeLabel);
@@ -348,7 +411,8 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
     }
     if (!picked || query.trim() !== next.placeLabel || !Number.isFinite(next.latitude)) {
       if (query.trim().length < 2) {
-        setHint(t("addCity"));
+        flag(t("addCity"), "birth-place");
+        focusControl("birth-place");
         return;
       }
       // Never take the first result silently: show the list and ask.
@@ -359,10 +423,10 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
         setHits(rows ?? []);
         setActive(0);
         setOpen(true);
-        setHint(rows?.length ? t("placeChoose") : t("couldNotFind", { query: query.trim() }));
+        flag(rows?.length ? t("placeChoose") : t("couldNotFind", { query: query.trim() }), "birth-place");
         inputRef.current?.focus();
       } catch {
-        setHint(t("placeLookupFailed"));
+        flag(t("placeLookupFailed"), "birth-place");
         setStatus(null);
       }
       return;
@@ -474,8 +538,21 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           placeholder={t("datePlaceholder")}
           calendarLabel={t("openCalendar")}
           locale={locale}
+          invalid={hintField === "birth-date"}
+          describedBy={hintField === "birth-date" ? "birth-form-hint" : undefined}
           onTyped={onDateTyped}
-          onBlur={pushParent}
+          onBlur={() => {
+            // "15 juin 1990" becomes 15/06/1990 on leaving the field: what was read, as the form writes it.
+            const typed = draftRef.current.date;
+            if (typed.trim() && !isCompleteBirthDate(typed)) {
+              const read = readDate(typed);
+              if ("ok" in read) {
+                commitDraft({ ...draftRef.current, date: read.ok });
+                return;
+              }
+            }
+            pushParent();
+          }}
         />
       </div>
       <div className="ulune-birth-when min-w-0">
@@ -494,6 +571,8 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           value={noTime ? "" : draft.time}
           disabled={noTime}
           mask={maskBirthTime}
+          aria-invalid={hintField === "birth-time" || undefined}
+          aria-describedby={hintField === "birth-time" ? "birth-form-hint" : undefined}
           onTyped={onTimeTyped}
           onBlur={pushParent}
         />
@@ -506,6 +585,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           checked={noTime}
           onChange={(e) => {
             markEdit();
+            clearFlag("birth-time");
             setNoTime(e.target.checked);
             if (e.target.checked) patch({ time: "" });
             else focusControl("birth-time");
@@ -535,6 +615,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           aria-controls="birth-place-list"
           aria-activedescendant={open && !picked && hits[active] ? `birth-place-opt-${active}` : undefined}
           aria-describedby={hint ? "birth-form-hint" : undefined}
+          aria-invalid={hintField === "birth-place" || undefined}
           onChange={(e) => {
             markEdit();
             const next: BirthInput = {
@@ -548,7 +629,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
             draftRef.current = next;
             setQuery(e.target.value);
             setPicked(false);
-            setHint(null);
+            flag(null);
             setDraft(next);
           }}
           onBlur={() =>
@@ -586,6 +667,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           onClose={closeList}
           hideLabel={t("place")}
           backdrop={false}
+          takeFocus={false}
         >
           <ul
             id="birth-place-list"

@@ -6,6 +6,7 @@ import { rememberGroupPage } from "@/studio/shell/GroupBar";
 import { useStudioStore } from "@/studio/store";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { MODE_GROUPS, groupOf, type StudioPage } from "@/studio/url";
+import { onTablistKeyDown } from "@/lib/a11y/tablist";
 
 /** Modes inside the active group. Hidden for one-mode groups. */
 export function SubModeSwitch() {
@@ -22,6 +23,7 @@ export function SubModeSwitch() {
       role="tablist"
       aria-label={t("shellModes")}
       data-testid="submode-switch"
+      onKeyDown={(e) => onTablistKeyDown(e)}
       style={{ ["--ob-i" as string]: String(index), ["--ob-n" as string]: String(pages.length) }}
     >
       <span className="ob-submodes-ind" aria-hidden />
@@ -35,6 +37,7 @@ export function SubModeSwitch() {
             data-page={id}
             data-testid={`studio-page-${id}`}
             aria-selected={on}
+            tabIndex={on ? 0 : -1}
             onPointerEnter={() => preloadMode(id)}
             onFocus={() => preloadMode(id)}
             onClick={() => {

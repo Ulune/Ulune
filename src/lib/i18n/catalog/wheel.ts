@@ -1,6 +1,15 @@
 /** wheel: [English, French]. */
 export const wheel = {
   wheelAria: ["Chart wheel", "Roue du thème"],
+  wheelKeysLabel: ["The chart’s parts", "Les éléments du thème"],
+  wheelKeysHint: [
+    "The arrow keys move through the chart, Page Down to the next kind, a letter to a name; Enter opens a reading. The Table view shows it all as text.",
+    "Les flèches parcourent le thème, Page suivante passe au type suivant, une lettre à un nom ; Entrée ouvre une lecture. La vue Tableau montre tout en texte.",
+  ],
+  wheelKeysOpened: ["{name}: reading open.", "{name}\u202f: lecture ouverte."],
+  wheelKeysClosed: ["{name}: reading closed.", "{name}\u202f: lecture fermée."],
+  wheelRingInner: ["Inner ring", "Anneau intérieur"],
+  wheelRingOuter: ["Outer ring", "Anneau extérieur"],
   zoomFit: ["Fit", "Ajuster"],
   zoomIn: ["Zoom in", "Agrandir"],
   zoomOut: ["Zoom out", "Réduire"],
