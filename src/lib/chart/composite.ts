@@ -34,16 +34,8 @@ import {
   STAR_CONJUNCT_ORB,
   signFromEcliptic,
 } from "./constants";
-import {
-  buildPatterns,
-  computeAspects,
-  computeMidpoints,
-  houseFromCusps,
-  isDayChart,
-  midpointLon,
-  sep180,
-  wrap360,
-} from "./anatomy";
+import { computeAspects, computeMidpoints, houseFromCusps, midpointLon, sep180, wrap360 } from "./anatomy";
+import { buildPatterns, isDayChart } from "./patterns";
 import { motionFlags } from "./transit-exact";
 import { houseRing } from "./synastry";
 import { PLANET_IDS } from "./types";
@@ -115,12 +107,15 @@ function retarget(
     speed,
     retrograde: motion.retrograde,
     fast: motion.fast,
+    slow: motion.slow,
     stationary: motion.stationary,
     latitude: extra?.latitude,
     declination: extra?.declination,
   };
   if (extra?.uncertain) next.uncertain = true;
   else delete next.uncertain;
+  // A station's moment belongs to one sky, not to a midpoint of two.
+  delete next.station;
   return next;
 }
 

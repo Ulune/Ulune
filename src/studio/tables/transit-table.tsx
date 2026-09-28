@@ -130,7 +130,7 @@ function TransitAspectRow({
 }) {
   const { t } = useI18n();
   const flags = moving ? motionFlags(moving.id, moving.speed ?? 0) : null;
-  const motion = flags?.stationary ? t("motionSta") : flags?.fast ? t("motionFast") : null;
+  const motion = flags?.stationary ? t("motionSta") : flags?.fast ? t("motionSwift") : null;
   const applying = link.applying === true;
   const separating = link.applying === false;
   const shownOrb =

@@ -95,7 +95,7 @@ export const bodies = {
   overlayCombust: ["Combust / cazimi", "Combustion / cazimi"],
   overlayConfigs: ["Configurations", "Configurations"],
   overlayDignity: ["Dignity", "Dignité"],
-  overlayFast: ["Unusually fast", "Inhabituellement rapide"],
+  overlayFast: ["Swift", "Rapide"],
   overlayHemisphere: ["Hemisphere", "Hémisphère"],
   overlayOob: ["Out of bounds", "Hors limites"],
   overlayQuadrant: ["Quadrants", "Quadrants"],

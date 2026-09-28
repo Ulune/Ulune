@@ -18,7 +18,7 @@ import {
   tightestApplyingMajors,
   transitRowTestId,
 } from "../src/lib/chart/transit-exact.ts";
-import { FAST_RATIO, MEAN_SPEED, STATIONARY_SPEED } from "../src/lib/chart/constants.ts";
+import { MEAN_SPEED, STATION_SPEED } from "../src/lib/chart/constants.ts";
 import { formatDegree } from "../src/lib/utils.ts";
 
 const PARIS = {
@@ -82,8 +82,8 @@ test("findExactDays perfects a linear separating square in the past", () => {
 });
 
 test("motion flags match natal contract", () => {
-  assert.equal(STATIONARY_SPEED, 0.05);
-  assert.equal(FAST_RATIO, 1.35);
+  // Stationary by the body's own speed (Mercury within about a day of its station).
+  assert.ok(STATION_SPEED.mercury > 0.1 && STATION_SPEED.mercury < 0.13);
   const sta = motionFlags("mercury", 0.02);
   assert.equal(sta.stationary, true);
   assert.equal(sta.fast, false);
@@ -280,7 +280,7 @@ test("Paris natal + 2026-08-27 12:00 UTC transits match Swiss to 1′", async ()
     assert.equal(Boolean(p.stationary), flags.stationary, `${p.id} sta`);
     assert.equal(Boolean(p.fast), flags.fast, `${p.id} fast`);
     if (flags.stationary) {
-      assert.ok(Math.abs(p.speed) < STATIONARY_SPEED, `${p.id} station speed`);
+      assert.ok(Math.abs(p.speed) < STATION_SPEED[p.id], `${p.id} station speed`);
     }
   }
 

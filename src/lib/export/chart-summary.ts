@@ -1,15 +1,30 @@
 import { HOUSE_SYSTEM_LABEL } from "@/lib/chart/constants";
-import type { NatalChart } from "@/lib/chart/types";
+import { aspectHolds, isRough } from "@/lib/chart/day-checks";
+import type { NatalChart, Placement } from "@/lib/chart/types";
 import {
   aspectLinkPhrase,
   bodyLabel,
   elementName,
-  formatOrb,
   houseName,
   modalityName,
   signName,
 } from "@/lib/i18n/astro";
 import { translate, type AppLocale } from "@/lib/i18n/messages";
+import { formatArc } from "@/lib/utils";
+
+/** "~" before what hangs on an unknown birth time (as in the table). */
+function mark(on: boolean): string {
+  return on ? "~" : "";
+}
+
+/** A position, "~" when the birth time is unknown and it moves enough in the day (or is an angle). */
+function position(chart: NatalChart, p: Placement): string {
+  return `${mark(isRough(chart, p))}${p.formatted}`;
+}
+
+function house(chart: NatalChart, n: number, locale: AppLocale, timeUnknown: boolean): string {
+  return `${mark(timeUnknown || chart.meta.timeUnknown === true)}${houseName(n, locale)}`;
+}
 
 function esc(s: string) {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
@@ -20,7 +35,7 @@ function when(chart: NatalChart, locale: AppLocale, timeUnknown: boolean) {
   return [m.date, timeUnknown ? translate(locale, "timeUnknown") : m.time, m.placeLabel].filter(Boolean).join(" · ");
 }
 
-function bigThree(chart: NatalChart, locale: AppLocale) {
+function bigThree(chart: NatalChart, locale: AppLocale, timeUnknown: boolean) {
   const rows: { label: string; value: string }[] = [];
   const sun = chart.planets.find((p) => p.id === "sun");
   const moon = chart.planets.find((p) => p.id === "moon");
@@ -33,7 +48,7 @@ function bigThree(chart: NatalChart, locale: AppLocale) {
     if (!p) continue;
     rows.push({
       label: bodyLabel(id, locale),
-      value: `${p.formatted} ${signName(p.sign, locale)} · ${houseName(p.house, locale)}`,
+      value: `${position(chart, p)} ${signName(p.sign, locale)} · ${house(chart, p.house, locale, timeUnknown)}`,
     });
   }
   return rows;
@@ -46,9 +61,10 @@ export function chartSummaryText(chart: NatalChart, locale: AppLocale, timeUnkno
   const lines: string[] = [];
   lines.push(chart.meta.name || t("untitled"));
   lines.push(when(chart, locale, timeUnknown));
-  lines.push(`${t(HOUSE_SYSTEM_LABEL[chart.meta.houseSystem ?? "placidus"])} · ${pat.isDay ? t("tableDay") : t("tableNight")}`);
+  const unknown = timeUnknown || chart.meta.timeUnknown === true;
+  lines.push(`${t(HOUSE_SYSTEM_LABEL[chart.meta.houseSystem ?? "placidus"])} · ${unknown ? `~${t("sectNeedsTime")}` : pat.isDay ? t("tableDay") : t("tableNight")}`);
   lines.push("");
-  for (const r of bigThree(chart, locale)) lines.push(`${r.label}: ${r.value}`);
+  for (const r of bigThree(chart, locale, unknown)) lines.push(`${r.label}: ${r.value}`);
   lines.push("");
   lines.push(
     `${t("glanceElements")}: ${(["fire", "earth", "air", "water"] as const)
@@ -61,14 +77,14 @@ export function chartSummaryText(chart: NatalChart, locale: AppLocale, timeUnkno
       .join(" · ")}`,
   );
   const ruler = chart.planets.find((p) => p.id === pat.chartRuler);
-  if (ruler) lines.push(`${t("glanceRuler")}: ${bodyLabel(ruler.id, locale)} · ${signName(ruler.sign, locale)} · ${houseName(ruler.house, locale)}`);
+  if (ruler) lines.push(`${t("glanceRuler")}: ${mark(unknown)}${bodyLabel(ruler.id, locale)} · ${signName(ruler.sign, locale)} · ${house(chart, ruler.house, locale, unknown)}`);
   if (pat.tightest) {
-    lines.push(`${t("glanceTightest")}: ${aspectLinkPhrase(pat.tightest.a, pat.tightest.type, pat.tightest.b, locale)} · ${formatOrb(pat.tightest.orb, locale)}°`);
+    lines.push(`${t("glanceTightest")}: ${mark(unknown)}${aspectLinkPhrase(pat.tightest.a, pat.tightest.type, pat.tightest.b, locale)} · ${formatArc(pat.tightest.orb)}`);
   }
   lines.push("");
   lines.push(`${t("tablePoints")}:`);
   for (const p of chart.planets) {
-    lines.push(`  ${bodyLabel(p.id, locale)} ${p.formatted} ${signName(p.sign, locale)} · ${houseName(p.house, locale)}${p.retrograde ? " ℞" : ""}`);
+    lines.push(`  ${bodyLabel(p.id, locale)} ${position(chart, p)} ${signName(p.sign, locale)} · ${house(chart, p.house, locale, unknown)}${p.retrograde ? " ℞" : ""}`);
   }
   lines.push("");
   lines.push("Ulune");
@@ -78,13 +94,14 @@ export function chartSummaryText(chart: NatalChart, locale: AppLocale, timeUnkno
 /** One-page printable chart sheet: wheel, Big Three, positions and aspects. */
 export function chartSheetHtml(chart: NatalChart, locale: AppLocale, svg: string | null, timeUnknown = false): string {
   const t = (k: Parameters<typeof translate>[1]) => translate(locale, k);
-  const three = bigThree(chart, locale)
+  const unknown = timeUnknown || chart.meta.timeUnknown === true;
+  const three = bigThree(chart, locale, unknown)
     .map((r) => `<div class="b3"><span>${esc(r.label)}</span><strong>${esc(r.value)}</strong></div>`)
     .join("");
   const points = chart.planets
     .map(
       (p) =>
-        `<tr><td>${esc(bodyLabel(p.id, locale))}</td><td>${esc(p.formatted)} ${esc(signName(p.sign, locale))}</td><td>${p.house}</td><td>${p.retrograde ? "℞" : ""}</td></tr>`,
+        `<tr><td>${esc(bodyLabel(p.id, locale))}</td><td>${esc(position(chart, p))} ${esc(signName(p.sign, locale))}</td><td>${mark(unknown)}${p.house}</td><td>${p.retrograde ? "℞" : ""}</td></tr>`,
     )
     .join("");
   const aspects = chart.aspects
@@ -93,7 +110,7 @@ export function chartSheetHtml(chart: NatalChart, locale: AppLocale, svg: string
     .slice(0, 16)
     .map(
       (a) =>
-        `<tr><td>${esc(aspectLinkPhrase(a.a, a.type, a.b, locale))}</td><td>${esc(formatOrb(a.orb, locale))}°</td></tr>`,
+        `<tr><td>${esc(`${mark(!aspectHolds(chart, a))}${aspectLinkPhrase(a.a, a.type, a.b, locale)}`)}</td><td>${esc(formatArc(a.orb))}</td></tr>`,
     )
     .join("");
   return `<!doctype html><html lang="${locale}"><head><meta charset="utf-8"><title>${esc(chart.meta.name || "Ulune")}</title>

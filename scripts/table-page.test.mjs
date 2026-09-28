@@ -81,9 +81,12 @@ test("the text copy comes in the page's parts, each with its title, and joins in
       assert.ok(p.lines.every((l) => l.trim().length > 0), `${p.id} has no blank line`);
     }
     assert.equal(formatChartTableText(chart, locale), parts.map((p) => p.lines.join("\n")).join("\n\n"));
-    // One line per body and angle, one per cusp, one per aspect.
+    // One line per body and angle (under its group's heading), one per cusp, one per aspect.
     const count = (id) => parts.find((p) => p.id === id).lines.length - 1;
-    assert.equal(count("points"), chart.planets.length + Object.keys(chart.angles).length);
+    const points = parts.find((p) => p.id === "points").lines.slice(1);
+    const headings = points.filter((l) => !l.includes(" · "));
+    assert.equal(headings.length, 5, `groups: ${headings.join(" | ")}`);
+    assert.equal(points.length - headings.length, chart.planets.length + Object.keys(chart.angles).length);
     assert.equal(count("houses"), 12);
     assert.equal(count("aspects"), chart.aspects.length);
   }

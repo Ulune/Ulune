@@ -7,6 +7,7 @@ import { formatDegree } from "../utils";
 import { formatLocalMinute, resolveBirthMoment, zoneAt } from "./birth-time.server";
 import {
   CALC_VERSION,
+  STATION_DAYS,
   HOUSE_LABELS,
   HOUSE_SYSTEM_SWE,
   MAJOR_ASPECT_IDS,
@@ -42,16 +43,15 @@ import {
 import {
   altitudeFromEquatorial,
   arabicLot,
-  buildPatterns,
   computeAspects,
   computeCrossAspects,
   computeMidpoints,
   computeStars,
   houseFromCusps,
-  isDayChart,
   wrap180,
   wrap360,
 } from "./anatomy";
+import { buildPatterns, isDayChart } from "./patterns";
 import type {
   AngleId,
   AspectLink,
@@ -679,6 +679,104 @@ function attachExactDates(
 const DERIVED_IDS = new Set<PlanetId>(["vertex", "antivertex", "fortune", "spirit"]);
 
 /**
+ * The station nearest a moment, within `span` days: the body's speed from
+ * Swiss Ephemeris every six hours around it, then halved down to a second
+ * where it changes sign. `days` is the station's offset from `ut`; `direct`
+ * tells that the body turns direct there (its speed goes from minus to plus).
+ */
+function stationNear(
+  swe: SwissEPH,
+  ut: number,
+  id: PlanetId,
+  flag: number,
+  span: number,
+): { days: number; direct: boolean; lon: number } | null {
+  const ipl = SWE_BODY[id](swe);
+  if (ipl < 0) return null;
+  const at = (t: number) => calcUt(swe, t, ipl, flag).xx;
+  const speedAt = (t: number) => Number(at(t)[3]);
+  const step = 0.25;
+  let best: { at: number; direct: boolean } | null = null;
+  let t0 = ut - span;
+  let v0 = speedAt(t0);
+  for (let t1 = t0 + step; t1 <= ut + span + 1e-9; t1 += step) {
+    const v1 = speedAt(t1);
+    if (v0 < 0 !== v1 < 0) {
+      let a = t0;
+      let b = t1;
+      let va = v0;
+      while (b - a > 1 / 86_400) {
+        const m = (a + b) / 2;
+        const vm = speedAt(m);
+        if (vm < 0 === va < 0) {
+          a = m;
+          va = vm;
+        } else b = m;
+      }
+      const mid = (a + b) / 2;
+      if (!best || Math.abs(mid - ut) < Math.abs(best.at - ut)) best = { at: mid, direct: v0 < 0 };
+    }
+    t0 = t1;
+    v0 = v1;
+  }
+  if (!best) return null;
+  return { days: best.at - ut, direct: best.direct, lon: wrap360(Number(at(best.at)[0])) };
+}
+
+/**
+ * The station of a stationary body, for its row: searched within twice its
+ * stationary span (STATION_DAYS), since the speed test is a median and a
+ * slow station can sit a little further off.
+ */
+function stationOf(swe: SwissEPH, ut: number, utc: Date, p: Placement, flag: number): Placement["station"] {
+  const span = STATION_DAYS[p.id];
+  if (!p.stationary || span == null) return undefined;
+  try {
+    const hit = stationNear(swe, ut, p.id as PlanetId, flag, 2 * span);
+    return hit ? { utc: daysToIso(utc, hit.days), direct: hit.direct } : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** The station nearest a moment within `span` days (tests: stations against a published calendar). */
+export async function stationNearUtc(
+  utc: Date,
+  id: PlanetId,
+  span: number,
+): Promise<{ utc: string; direct: boolean; lon: number } | null> {
+  const swe = await withEngine((s) => s);
+  const ut = jdUt(swe, utc);
+  const hit = stationNear(swe, ut, id, swe.SEFLG_SWIEPH | swe.SEFLG_SPEED, span);
+  return hit ? { utc: daysToIso(utc, hit.days), direct: hit.direct, lon: hit.lon } : null;
+}
+
+/**
+ * Without a birth time: where each cast body stands at the start and at the
+ * end of the birth day (the noon stand-in ± 12 hours).
+ */
+function dayRangeOf(swe: SwissEPH, ut: number, flag: number, planets: Placement[]): Partial<Record<PlanetId, [number, number]>> {
+  const out: Partial<Record<PlanetId, [number, number]>> = {};
+  const r7 = (x: number) => Math.round(x * 1e7) / 1e7;
+  for (const p of planets) {
+    const id = p.id as PlanetId;
+    if (DERIVED_IDS.has(id)) continue;
+    const ipl = SWE_BODY[id](swe);
+    if (ipl < 0) continue;
+    try {
+      const lonAt = (t: number) => {
+        const lon = wrap360(Number(calcUt(swe, t, ipl, flag).xx[0]));
+        return id === "southnode" ? wrap360(lon + 180) : lon;
+      };
+      out[id] = [r7(lonAt(ut - 0.5)), r7(lonAt(ut + 0.5))];
+    } catch {
+      // A body Swiss could not place at the day's edges is simply left out.
+    }
+  }
+  return out;
+}
+
+/**
  * Every Swiss body for one moment, housed against `cusps`. A body whose
  * ephemeris file is missing is skipped with a warning unless it is one of the
  * ten classical bodies or a node — those still fail the cast.
@@ -801,8 +899,12 @@ export async function calculateNatal(input: BirthInput): Promise<NatalChart> {
   });
 
   const collected = collectSwissBodies(swe, ut, flag, cuspEcl, { equatorialFlag: eqFlag });
-  const planets = collected.planets;
+  const planets = collected.planets.map((p) => {
+    const station = stationOf(swe, ut, utc, p, flag);
+    return station ? { ...p, station } : p;
+  });
   const warnings = collected.warnings;
+  const dayRange = timeUnknown ? dayRangeOf(swe, ut, flag, planets) : undefined;
 
   const ascEcl = wrap360(Number(houseRaw.ascmc[0]));
   const mcEcl = wrap360(Number(houseRaw.ascmc[1]));
@@ -893,12 +995,15 @@ export async function calculateNatal(input: BirthInput): Promise<NatalChart> {
       ...(obliquity != null ? { obliquity } : {}),
       jdUt: ut,
       deltaT: Number((swe.swe_deltat(ut) * 86400).toFixed(2)),
+      ...(Number.isFinite(armc) ? { armc } : {}),
+      ...(sunAlt != null && Number.isFinite(sunAlt) ? { sunAltitude: sunAlt } : {}),
+      ...(dayRange ? { dayRange } : {}),
     },
     angles,
     planets,
     houses,
     aspects,
-    patterns: buildPatterns(planets, houses, angles, aspects, { isDay, obliquity }),
+    patterns: buildPatterns(planets, houses, angles, aspects, { isDay, obliquity, timeUnknown }),
     stars: computeStars(stars, starBodies),
     midpoints: computeMidpoints(planets, angles),
   };

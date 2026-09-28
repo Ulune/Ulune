@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { calculateNatal } from "../src/lib/chart/calculate.server.ts";
 import { houseFromCusps, minutesApart, midpointLon, wrap360 } from "../src/lib/chart/anatomy.ts";
-import { ANGLE_ASPECT_ORBS, MEAN_SPEED, STATIONARY_SPEED, aspectOrb } from "../src/lib/chart/constants.ts";
+import { ANGLE_ASPECT_ORBS, STATION_SPEED, aspectOrb } from "../src/lib/chart/constants.ts";
 import { HOUSE_SYSTEM_IDS } from "../src/lib/chart/types.ts";
 import {
   COMPOSITE_HOUSE_METHOD,
@@ -487,12 +487,8 @@ test("composite motion is read off the mean speed, not inherited from A", async 
     const pb = b.planets.find((x) => x.id === p.id);
     assert.equal(p.speed, ((pa.speed ?? 0) + (pb.speed ?? 0)) / 2, `${p.id} speed`);
     assert.equal(p.retrograde, p.speed < 0, `${p.id} retrograde`);
-    const meanSpeed = Math.abs(MEAN_SPEED[p.id] ?? 0);
-    assert.equal(
-      p.stationary,
-      meanSpeed > 0 && Math.abs(p.speed) < STATIONARY_SPEED,
-      `${p.id} stationary`,
-    );
+    const limit = STATION_SPEED[p.id];
+    assert.equal(p.stationary, limit != null && Math.abs(p.speed) < limit, `${p.id} stationary`);
   }
   // patterns.isDay is the one sect answer; a composite has no horizon, so it is
   // read off the Sun's house and captions must take it from there.

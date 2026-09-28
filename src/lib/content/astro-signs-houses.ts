@@ -704,8 +704,8 @@ export const DIGNITY_TEXT: Record<"domicile" | "exaltation" | "detriment" | "fal
     fr: "Une planète est en chute dans le signe opposé à celui de son exaltation. Sa fonction y est moins soutenue et peut s’exprimer avec hésitation ou de façon détournée, sans pour autant mal fonctionner. La Lune en Scorpion en est un exemple : le besoin de réconfort rencontre l’intensité, si bien que les émotions sont profondes et souvent gardées secrètes.",
   },
   peregrine: {
-    en: "A planet is peregrine (Latin for foreigner) when its sign gives it no dignity or debility: neither domicile, exaltation, detriment nor fall. Like a traveller, it relies on its aspects and on the ruler of its sign; Mercury in Leo, for example, leans on the Sun’s condition.",
-    fr: "Une planète est pérégrine (du latin peregrinus, étranger) quand son signe ne lui donne ni dignité ni débilité : ni domicile, ni exaltation, ni exil, ni chute. Comme une voyageuse, elle s’appuie sur ses aspects et sur le maître de son signe ; Mercure en Lion, par exemple, dépend de l’état du Soleil.",
+    en: "A planet is peregrine (Latin for foreigner) when it holds no dignity where it stands, neither domicile, exaltation, triplicity, term nor face, and is not in its detriment or fall either. Like a traveller, it relies on its aspects and on the ruler of its sign; the Moon in Gemini, for example, leans on Mercury’s condition.",
+    fr: "Une planète est pérégrine (du latin peregrinus, étranger) quand elle n’a aucune dignité là où elle se trouve, ni domicile, ni exaltation, ni triplicité, ni terme, ni face, sans être non plus en exil ou en chute. Comme une voyageuse, elle s’appuie sur ses aspects et sur le maître de son signe ; la Lune en Gémeaux, par exemple, dépend de l’état de Mercure.",
   },
 };
 

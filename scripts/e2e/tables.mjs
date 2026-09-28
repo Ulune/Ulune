@@ -11,6 +11,7 @@ import {
   gotoApp,
   keepCharts,
   launch,
+  pickPlace,
 } from "./_lib.mjs";
 
 /*
@@ -146,6 +147,7 @@ async function runViewport(width) {
     }
 
     await checkNoSideways(page, `${width}`);
+    await noDecimalDegree(page, `${width}`);
     await checkLinks(page, `${width}`);
     await checkFollow(page, `${width}`);
 
@@ -264,6 +266,73 @@ async function runViewport(width) {
   }
 }
 
+/*
+ * Exact points (part 48): a chart without a birth time says so and marks what
+ * hangs on the time (~); a birth at a station gives the station's moment; no
+ * decimal degree anywhere on the page.
+ */
+async function openTable(page, fixture) {
+  await page.waitForSelector("#birth-date", { timeout: 20000 });
+  await page.locator("#native-name").fill(fixture.name);
+  await page.locator("#birth-date").fill(fixture.date);
+  if (fixture.time) await page.locator("#birth-time").fill(fixture.time);
+  else await page.getByTestId("time-unknown").check();
+  await pickPlace(page, fixture.place);
+  await page.getByTestId("cast-submit").click();
+  // A cast from the table's own new-chart form comes back to the table.
+  await page.locator("[data-testid=studio-natal], [data-testid=table-points]").first().waitFor({ timeout: 45000 });
+  if (!(await page.getByTestId("table-points").count())) await page.getByTestId("view-table").click();
+  await page.getByTestId("table-points").waitFor({ timeout: 15000 });
+  await page.waitForFunction((name) => document.querySelector("[data-testid=table-fact-name]")?.textContent?.includes(name), fixture.name, { timeout: 15000 });
+  await settle(page);
+}
+
+async function noDecimalDegree(page, label) {
+  const text = await page.getByTestId("table-page").innerText();
+  const hit = /\d[.,]\d+ ?°|°\/d/.exec(text);
+  if (hit) throw new Error(`${label}: a decimal degree on the page: "${text.slice(Math.max(0, hit.index - 40), hit.index + 20)}"`);
+}
+
+async function runExact() {
+  const { browser, page } = await launch(1280);
+  try {
+    await gotoApp(page);
+    await openTable(page, { name: "NoTimeQA", date: "15/06/1990", time: "", place: "Paris, France" });
+    const born = await page.getByTestId("table-fact-born").innerText();
+    if (!/time unknown/.test(born) || /12:00/.test(born.split("\n")[0])) throw new Error(`no time: born reads "${born}"`);
+    const sect = await page.getByTestId("table-fact-sect").innerText();
+    if (!sect.startsWith("~")) throw new Error(`no time: the sect reads "${sect}"`);
+    if (!(await page.locator("[data-testid=table-points] .ulune-unknown-note").count())) throw new Error("no time: no note over the points");
+    const asc = await page.locator("[data-testid=table-points] tr[data-body=ascendant]").getAttribute("data-uncertain");
+    if (asc !== "1") throw new Error("no time: the Ascendant is not marked");
+    const moon = await page.locator("[data-testid=table-points] tr[data-body=moon] td[data-col=position]").innerText();
+    if (!moon.startsWith("~") || !/over the day/.test(moon)) throw new Error(`no time: the Moon's position reads "${moon}"`);
+    const pluto = await page.locator("[data-testid=table-points] tr[data-body=pluto] td[data-col=position]").innerText();
+    if (pluto.startsWith("~")) throw new Error(`no time: Pluto is marked though it barely moves: "${pluto}"`);
+    const cusp = await page.locator("[data-testid=table-houses] tr[data-house='1']").getAttribute("data-uncertain");
+    if (cusp !== "1") throw new Error("no time: the first cusp is not marked");
+    const balance = await page.locator("[data-testid=table-balance] .ob-bal[data-group=hemisphere]").getAttribute("data-uncertain");
+    if (balance !== "1") throw new Error("no time: the hemispheres are not marked");
+    await noDecimalDegree(page, "no time");
+    await checkNoSideways(page, "no time");
+
+    await page.getByTestId("chart-chip").click();
+    await page.getByTestId("new-chart").click();
+    await openTable(page, { name: "StationQA", date: "09/11/2025", time: "20:00", place: "London, United Kingdom" });
+    const station = await page.getByTestId("station-mercury").innerText();
+    if (!/^station retrograde 9 Nov 2025, 19:0\d UT$/.test(station)) throw new Error(`station: Mercury reads "${station}"`);
+    const words = await page.locator("[data-testid=table-points] tr[data-body=mercury] td[data-col=motion]").innerText();
+    if (!/retrograde · stationary/.test(words)) throw new Error(`station: Mercury's motion reads "${words}"`);
+    const dignity = await page.getByTestId("dignity-mercury").innerText();
+    if (!/^−4\s+detriment · face$/.test(dignity.trim())) throw new Error(`station: Mercury's dignity reads "${dignity}"`);
+    await noDecimalDegree(page, "station");
+    await checkNoSideways(page, "station");
+    console.log("exact points OK");
+  } finally {
+    await browser.close();
+  }
+}
+
 await ensureShotsDir();
 const fail = [];
 for (const width of [390, 768, 1280]) {
@@ -272,6 +341,11 @@ for (const width of [390, 768, 1280]) {
   } catch (err) {
     fail.push(`${width}: ${err instanceof Error ? err.message : String(err)}`);
   }
+}
+try {
+  await runExact();
+} catch (err) {
+  fail.push(`exact: ${err instanceof Error ? err.message : String(err)}`);
 }
 if (fail.length) {
   console.error("W6 TABLES FAIL\n" + fail.map((l) => "- " + l).join("\n"));

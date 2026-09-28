@@ -60,6 +60,35 @@ export function formatSignedDmsSeconds(deg: number): string {
   return `${sign}${d}°${String(minutes).padStart(2, "0")}'${String(seconds).padStart(2, "0")}"`;
 }
 
+/** An unsigned arc as D°MM' (orbs, distances): nearest minute, never rolling into the next degree. */
+export function formatArc(deg: number): string {
+  const { deg: d, minutes } = arcParts(Math.abs(deg), 60);
+  return `${d}°${String(minutes).padStart(2, "0")}'`;
+}
+
+/** An unsigned arc as D°MM'SS" (an excess, a small distance): nearest second. */
+export function formatArcSeconds(deg: number): string {
+  const { deg: d, minutes, seconds } = arcParts(Math.abs(deg), 1);
+  return `${d}°${String(minutes).padStart(2, "0")}'${String(seconds).padStart(2, "0")}"`;
+}
+
+/** Geographic coordinates as 48°51'24" N · 2°21'08" E (to the second). */
+export function formatLatLon(lat: number, lon: number, locale: "en" | "fr" = "en"): string {
+  const ns = lat < 0 ? "S" : "N";
+  const ew = lon < 0 ? (locale === "fr" ? "O" : "W") : "E";
+  return `${formatArcSeconds(lat)} ${ns} · ${formatArcSeconds(lon)} ${ew}`;
+}
+
+/** Hours as HH:MM:SS.s (sidereal time). */
+export function formatHms(hours: number): string {
+  const h = ((hours % 24) + 24) % 24;
+  const tenths = Math.round(h * 36000);
+  const hh = Math.floor(tenths / 36000) % 24;
+  const mm = Math.floor((tenths % 36000) / 600);
+  const ss = (tenths % 600) / 10;
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${ss.toFixed(1).padStart(4, "0")}`;
+}
+
 export function formatSpeed(speed: number): string {
   const n = Number.isFinite(speed) ? speed : 0;
   const abs = Math.abs(n).toFixed(4);

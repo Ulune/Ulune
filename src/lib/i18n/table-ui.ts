@@ -23,3 +23,33 @@ export function tableBarText(locale: AppLocale, key: keyof typeof source.bar, va
 export function pointsText(locale: AppLocale, key: PointsWord): string {
   return pick(source.points[key], locale);
 }
+
+function fill(text: string, vars?: Record<string, string>): string {
+  let out = text;
+  for (const [k, v] of Object.entries(vars ?? {})) out = out.replace(`{${k}}`, v);
+  return out;
+}
+
+export function chartFactText(locale: AppLocale, key: keyof typeof source.chart, vars?: Record<string, string>): string {
+  return fill(pick(source.chart[key], locale), vars);
+}
+
+export function moonPhaseName(locale: AppLocale, id: keyof typeof source.phases): string {
+  return pick(source.phases[id], locale);
+}
+
+export function pointsGroupLabel(locale: AppLocale, id: keyof typeof source.groups): string {
+  return pick(source.groups[id], locale);
+}
+
+export function pointsWord(locale: AppLocale, key: PointsWord, vars?: Record<string, string>): string {
+  return fill(pick(source.points[key], locale), vars);
+}
+
+export function angleShort(locale: AppLocale, id: keyof typeof source.angleShort): string {
+  return pick(source.angleShort[id], locale);
+}
+
+export function unknownTimeNote(locale: AppLocale, key: keyof typeof source.unknown): string {
+  return pick(source.unknown[key], locale);
+}

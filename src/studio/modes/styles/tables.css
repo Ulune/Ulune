@@ -517,3 +517,62 @@
     margin: 0 0 0 6px;
   }
 }
+/* Group rows of the points: a quiet heading across the table. */
+.ulune-points .ulune-group-row th {
+  position: static;
+  padding-top: 18px;
+  padding-bottom: 6px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-fg-muted);
+  font: 500 10.5px/1.2 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ulune-points tbody:first-of-type .ulune-group-row th {
+  padding-top: 10px;
+}
+@container (max-width: 859.98px) {
+  .ulune-points .ulune-group-row {
+    display: block;
+    min-height: 0;
+    padding: 16px 4px 4px;
+  }
+  .ulune-points .ulune-group-row th {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+}
+/* Lilly's points on top, the dignities that make them below. */
+.ulune-score {
+  color: var(--color-fg);
+}
+/* In the points, the lines under a value may wrap: the table keeps to its width. */
+.ulune-points .ulune-cell-sub {
+  white-space: normal;
+}
+.ulune-points .ulune-cell-words {
+  white-space: nowrap;
+}
+/* Without a birth time: what depends on it is marked ~ and dimmed. */
+.ulune-uncertain,
+.ulune-data-table tr[data-uncertain="1"] td,
+.ob-bal[data-uncertain="1"] {
+  opacity: 0.6;
+}
+.ulune-data-table tr[data-uncertain="1"] .ulune-uncertain {
+  opacity: 1;
+}
+.ulune-unknown-note {
+  max-width: 61.8ch;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-left: 2px solid var(--color-border-strong);
+  color: var(--color-fg-muted);
+  font-size: 0.8125rem;
+}
+/* The table's balance: labels wide enough for "Q4 (houses 10–12)" on one line. */
+.ob-balance-grid .ob-bal-row {
+  grid-template-columns: 9.5em minmax(0, 1fr) 2em;
+}

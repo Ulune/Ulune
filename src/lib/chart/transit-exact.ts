@@ -1,4 +1,4 @@
-import { ASPECT_META, aspectOrb, MAJOR_ASPECT_IDS, MEAN_SPEED, STATIONARY_SPEED, FAST_RATIO } from "./constants";
+import { ASPECT_META, aspectOrb, MAJOR_ASPECT_IDS, MEAN_SPEED, STATION_SPEED, SWIFT_BODIES } from "./constants";
 import type { AspectId, AspectLink, BodyId, TimingHit } from "./types";
 
 const MAJOR = new Set<string>(MAJOR_ASPECT_IDS);
@@ -105,17 +105,28 @@ export function aspectTarget(type: AspectId): number {
   return ASPECT_META[type].angle;
 }
 
+/**
+ * How a body moves: retrograde (going backward), stationary (within a few
+ * days of a station, by its own speed: STATION_SPEED), and for the seven
+ * traditional planets moving forward, swift (`fast`: faster than its mean
+ * daily motion) or slow (slower), as Lilly counted them. The nodes, Lilith,
+ * the asteroids, the angles and the lots are neither stationary nor swift.
+ */
 export function motionFlags(id: BodyId, speed: number): {
   retrograde: boolean;
   stationary: boolean;
   fast: boolean;
+  slow: boolean;
 } {
+  const limit = STATION_SPEED[id];
+  const stationary = limit != null && Math.abs(speed) < limit;
   const mean = Math.abs(MEAN_SPEED[id] ?? 0);
-  const abs = Math.abs(speed);
+  const measured = SWIFT_BODIES.includes(id) && mean > 0 && !stationary && speed >= 0;
   return {
     retrograde: speed < 0,
-    stationary: mean > 0 && abs < STATIONARY_SPEED,
-    fast: mean > 0 && abs > FAST_RATIO * mean,
+    stationary,
+    fast: measured && speed > mean,
+    slow: measured && speed <= mean,
   };
 }
 

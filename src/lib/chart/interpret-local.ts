@@ -3,7 +3,8 @@
  * note (what the thing is), lead (what it means in this chart), sections,
  * linked rows and an "About" block. Wording comes from src/lib/content.
  */
-import { SIGN_IDS, SIGN_META, decanOf, dignityOf } from "./constants";
+import { SIGN_IDS, SIGN_META, decanOf } from "./constants";
+import { signDignity } from "./dignities";
 import {
   aspectInPractice,
   aspectIs,
@@ -154,7 +155,7 @@ function aboutTitle(locale: Locale, id: string) {
 function planetReading(chart: NatalChart, p: Placement, locale: Locale): ElementReading {
   const c = readingCopy(locale);
   const decan = decanOf(p.ecliptic);
-  const dignity = p.kind === "planet" ? dignityOf(p.id as PlanetId, p.sign) : null;
+  const dignity = p.kind === "planet" ? signDignity(p.id as PlanetId, p.ecliptic, chart.patterns.isDay) : null;
   const name = bodyLabel(p.id, locale);
   const kicker = fill(c.kickerPlanet, {
     formatted: p.formatted,

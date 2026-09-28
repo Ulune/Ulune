@@ -106,6 +106,8 @@ export type BodyFlags = {
   ariesPoint: boolean;
   oob: boolean;
   fast: boolean;
+  /** Missing on charts cast before CALC_VERSION 3. */
+  slow?: boolean;
   stationary: boolean;
   unaspected: boolean;
 };
@@ -153,13 +155,24 @@ export type Placement = {
   retrograde: boolean;
   /** Tropical longitude speed in degrees/day (Swiss). Missing on pre-Swiss saves. */
   speed?: number;
-  /** |speed| > 1.35 × that body's mean. Missing on pre-Swiss saves. */
+  /**
+   * Swift: one of the seven traditional planets moving forward faster than
+   * its mean daily motion (motionFlags). Missing on pre-Swiss saves.
+   */
   fast?: boolean;
+  /** Slow: the same planets moving forward at or below their mean daily motion. */
+  slow?: boolean;
   /** Ecliptic latitude, degrees. */
   latitude?: number;
   /** Equatorial declination, degrees. */
   declination?: number;
   stationary?: boolean;
+  /**
+   * The station this body is at (natal casts, when stationary): its moment
+   * (UTC ISO, to the second) and whether it turns direct there (else it
+   * turns retrograde).
+   */
+  station?: { utc: string; direct: boolean };
   /**
    * Depends on the birth time, which is unknown — this longitude is the noon
    * placeholder, not a known position. Angles, Vertex and the lots only.
@@ -273,6 +286,15 @@ export type NatalChart = {
     jdUt?: number;
     /** ΔT = TT − UT at birth, in seconds (Swiss Ephemeris's model). */
     deltaT?: number;
+    /** The right ascension of the MC at birth (degrees): the local sidereal time × 15. */
+    armc?: number;
+    /** The Sun's altitude above the horizon at birth (degrees; negative below). */
+    sunAltitude?: number;
+    /**
+     * Without a birth time: each body's longitude at the start and the end of
+     * the birth day (local noon ± 12 hours), from Swiss Ephemeris.
+     */
+    dayRange?: Partial<Record<PlanetId, [number, number]>>;
   };
   angles: Record<AngleId, Placement>;
   planets: Placement[];

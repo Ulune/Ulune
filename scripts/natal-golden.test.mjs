@@ -1,16 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { calculateNatal } from "../src/lib/chart/calculate.server.ts";
-import {
-  arabicLot,
-  computeAspects,
-  houseFromCusps,
-  isMoonVoidOfCourse,
-  minutesApart,
-  wrap360,
-} from "../src/lib/chart/anatomy.ts";
+import { arabicLot, computeAspects, houseFromCusps, minutesApart, wrap360 } from "../src/lib/chart/anatomy.ts";
+import { isMoonVoidOfCourse } from "../src/lib/chart/patterns.ts";
 import { formatDegree } from "../src/lib/utils.ts";
-import { dignityOf } from "../src/lib/chart/constants.ts";
+import { signDignity } from "../src/lib/chart/dignities.ts";
 
 const PARIS = {
   name: "Paris fixture",
@@ -173,12 +167,15 @@ test("Paris 15 Jun 1990 14:30 matches Swiss Ephemeris to 1′", async () => {
   assert.ok("tightest" in chart.patterns);
 });
 
-test("server payload flags peregrine and succedent/cadent weights", async () => {
-  assert.equal(dignityOf("sun", "gemini"), "peregrine");
-  assert.equal(dignityOf("mercury", "gemini"), "domicile");
-  assert.equal(dignityOf("moon", "pisces"), "peregrine");
-  assert.equal(dignityOf("jupiter", "cancer"), "exalted");
-  assert.equal(dignityOf("uranus", "aquarius"), null);
+test("server payload flags peregrine (by all five dignities) and succedent/cadent weights", async () => {
+  // The Sun at 24° Gemini holds its face (Gemini 20–30 is the Sun's), so it
+  // is not peregrine; the Moon at 15° Pisces holds nothing (it only
+  // participates in the water triplicity, which is not scored).
+  assert.equal(signDignity("sun", DAY_LON.sun, true), null);
+  assert.equal(signDignity("mercury", DAY_LON.mercury, true), "domicile");
+  assert.equal(signDignity("moon", DAY_LON.moon, true), "peregrine");
+  assert.equal(signDignity("jupiter", DAY_LON.jupiter, true), "exalted");
+  assert.equal(signDignity("uranus", DAY_LON.uranus, true), null);
 
   const chart = await calculateNatal({ ...PARIS, date: "1990-06-15", time: "14:30" });
   const payload = JSON.stringify(chart);
@@ -189,7 +186,7 @@ test("server payload flags peregrine and succedent/cadent weights", async () => 
   const sun = chart.planets.find((p) => p.id === "sun");
   const moon = chart.planets.find((p) => p.id === "moon");
   const mercury = chart.planets.find((p) => p.id === "mercury");
-  assert.equal(chart.patterns.flags.sun?.dignity, "peregrine");
+  assert.equal(chart.patterns.flags.sun?.dignity, null);
   assert.equal(chart.patterns.flags.moon?.dignity, "peregrine");
   assert.equal(chart.patterns.flags.mercury?.dignity, "domicile");
   assert.equal(sun?.sign, "gemini");

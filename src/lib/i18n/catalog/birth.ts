@@ -111,7 +111,6 @@ export const birth = {
   ],
   tzFixedOffset: ["fixed offset", "décalage fixe"],
   tzJulianShort: ["Julian calendar", "calendrier julien"],
-  tableUniversalTime: ["Universal Time", "Temps universel"],
   tzApproximate: [
     "The zone was found approximately; check it against the record.",
     "Le fuseau a été trouvé approximativement ; vérifiez-le sur l’acte.",

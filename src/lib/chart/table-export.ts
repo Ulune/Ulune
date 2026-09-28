@@ -1,57 +1,43 @@
-import { birthZoneLine, julianDayLine, universalTimeLine } from "./birth-time-label";
-import { hydratePatterns } from "./anatomy";
-import { CONFIG_LABEL } from "./overlay-filter";
-import { HOUSE_SYSTEM_LABEL } from "./constants";
-import type { NatalChart } from "./types";
+/**
+ * The chart table as text (part by part, for the Copy buttons) and as CSV.
+ * Both read the same cells as the table page (table-cells.ts): the same
+ * words, the same numbers, the same ~ where the birth time is unknown. The
+ * CSV keeps full decimals for other programs.
+ */
+import { hydratePatterns } from "./patterns";
+import { CLASSIC_BODIES } from "./constants";
+import { isRough, signsHold } from "./day-checks";
 import {
-  aspectName,
-  bodyLabel,
-  dignityName,
-  elementName,
-  modalityName,
-  planetName,
-  signName,
-} from "@/lib/i18n/astro";
+  aspectRow,
+  aspectRowText,
+  balanceGroups,
+  balanceGroupText,
+  cellText,
+  chartFactLine,
+  chartFacts,
+  chartPoints,
+  groupedPoints,
+  hasLatitude,
+  houseLine,
+  patternSections,
+  pointRow,
+  pointRowText,
+  rankingFacts,
+  type PointRow,
+} from "./table-cells";
+import { armcOf, localSiderealHours, moonPhase, nearestAngle, outOfBoundsBy, separation } from "./table-facts";
+import type { NatalChart } from "./types";
+import { bodyBare } from "@/lib/i18n/astro";
 import { translate, type AppLocale } from "@/lib/i18n/messages";
-import { tablePartLabel } from "@/lib/i18n/table-ui";
-import { formatDegreeSeconds, formatSignedDmsSeconds, formatSpeed } from "@/lib/utils";
-
-function yn(value: boolean, locale: AppLocale): string {
-  return value ? translate(locale, "flagYes") : translate(locale, "flagNo");
-}
-
-function motionOf(
-  speed: number | undefined,
-  stationary: boolean | undefined,
-  fast: boolean | undefined,
-  locale: AppLocale,
-): string {
-  if (stationary) return translate(locale, "motionSta");
-  if (fast) return translate(locale, "motionFast");
-  if (speed == null) return translate(locale, "motionOk");
-  return translate(locale, "motionOk");
-}
-
-function sunFlag(combust: boolean, cazimi: boolean, locale: AppLocale): string {
-  if (cazimi) return translate(locale, "flagCazimi");
-  if (combust) return translate(locale, "flagCombust");
-  return translate(locale, "flagNo");
-}
-
-function sectFlag(value: boolean | null, locale: AppLocale): string {
-  if (value === true) return translate(locale, "inSect");
-  if (value === false) return translate(locale, "outOfSect");
-  return translate(locale, "flagNo");
-}
+import { pointsGroupLabel, pointsText, tablePartLabel, unknownTimeNote } from "@/lib/i18n/table-ui";
+import { formatDegreeSeconds, formatHms } from "@/lib/utils";
 
 function csvEscape(value: string): string {
   if (/[",\n]/.test(value)) return `"${value.replaceAll('"', '""')}"`;
   return value;
 }
 
-export function chartPoints(chart: NatalChart) {
-  return [...chart.planets, ...Object.values(chart.angles)];
-}
+export { chartPoints };
 
 /** The parts of the text copy, in the table page's order (the grid has none). */
 export type ChartTextPartId = "identity" | "points" | "houses" | "aspects" | "patterns" | "balance" | "ranking";
@@ -62,9 +48,8 @@ export type ChartTextPart = { id: ChartTextPartId; lines: string[] };
  * table page's Copy buttons use one part each; Copy as text joins them all.
  */
 export function chartTextParts(chart: NatalChart, locale: AppLocale): ChartTextPart[] {
-  const fr = locale === "fr";
+  const unknown = chart.meta.timeUnknown === true;
   const patterns = hydratePatterns(chart);
-  const system = translate(locale, HOUSE_SYSTEM_LABEL[chart.meta.houseSystem] ?? "housePlacidus");
   const parts: ChartTextPart[] = [];
   let lines: string[] = [];
   const start = (id: ChartTextPartId) => {
@@ -74,154 +59,49 @@ export function chartTextParts(chart: NatalChart, locale: AppLocale): ChartTextP
   const push = (s: string) => lines.push(s);
 
   start("identity");
-  push(`${translate(locale, "name")}: ${chart.meta.name}`);
-  push(`${translate(locale, "date")}: ${chart.meta.date} ${chart.meta.time} (${birthZoneLine(chart.meta, locale)})`);
-  push(`${translate(locale, "place")}: ${chart.meta.placeLabel} (${chart.meta.latitude.toFixed(4)}, ${chart.meta.longitude.toFixed(4)})`);
-  push(`${translate(locale, "houseSystem")}: ${system}`);
-  push(
-    `${translate(locale, "tableDay").split(" ")[0]}: ${patterns.isDay ? translate(locale, "tableDay") : translate(locale, "tableNight")}`,
-  );
-  push(`UT: ${universalTimeLine(chart.meta)}${julianDayLine(chart.meta) ? ` · ${julianDayLine(chart.meta)}` : ""}`);
-  push(fr ? "Swiss Ephemeris · tropical · nœud vrai · Lilith vraie" : "Swiss Ephemeris · tropical · true node · true Lilith");
+  for (const f of chartFacts(chart, patterns.isDay, locale)) push(chartFactLine(f));
 
   start("points");
-  for (const p of chartPoints(chart)) {
-    const flag = patterns.flags[p.id];
-    const bits = [
-      bodyLabel(p.id, locale),
-      formatDegreeSeconds(p.ecliptic),
-      signName(p.sign, locale),
-      `${fr ? "M" : "H"}${p.house}`,
-      p.speed != null ? formatSpeed(p.speed) : "",
-      p.retrograde ? translate(locale, "dirRx") : translate(locale, "dirDirect"),
-      motionOf(p.speed, flag?.stationary, flag?.fast, locale),
-      p.declination != null ? formatSignedDmsSeconds(p.declination) : "",
-      flag?.oob ? "OOB" : "",
-      flag?.dignity ? dignityName(flag.dignity, locale) : "",
-      flag?.dignity === "peregrine" ? translate(locale, "colPeregrine") : "",
-      sunFlag(Boolean(flag?.combust), Boolean(flag?.cazimi), locale),
-      flag?.angular ? translate(locale, "colAngular") : "",
-      flag?.anaretic ? translate(locale, "colAnaretic") : "",
-      flag?.ariesPoint ? translate(locale, "colAries") : "",
-      sectFlag(flag?.inSect ?? null, locale),
-    ].filter((x) => x && x !== translate(locale, "flagNo") && x !== translate(locale, "motionOk"));
-    push(bits.join(" · "));
+  if (unknown) push(pointsText(locale, "needsTime"));
+  for (const g of groupedPoints(chart)) {
+    push(pointsGroupLabel(locale, g.id));
+    for (const p of g.rows) push(pointRowText(pointRow(p, chart, patterns, locale), locale));
   }
 
   start("houses");
-  for (const h of chart.houses) {
-    push(`${fr ? "M" : "H"}${h.id} ${formatDegreeSeconds(h.ecliptic)} ${signName(h.sign, locale)}`);
-  }
+  if (unknown) push(unknownTimeNote(locale, "houses"));
+  for (const h of chart.houses) push(houseLine(h, chart, locale));
 
   start("aspects");
-  for (const a of chart.aspects) {
-    const app =
-      a.applying === true
-        ? translate(locale, "applying")
-        : a.applying === false
-          ? translate(locale, "separating")
-          : "";
-    push(
-      `${bodyLabel(a.a, locale)} ${aspectName(a.type, locale)} ${bodyLabel(a.b, locale)} · ${a.orb.toFixed(2)}° ${app} (${a.level})`,
-    );
-  }
+  if (unknown) push(unknownTimeNote(locale, "aspects"));
+  for (const a of chart.aspects) push(aspectRowText(aspectRow(a, chart, locale), locale));
 
   start("patterns");
-  if (patterns.configurations.length) {
-    for (const c of patterns.configurations) {
-      const label = CONFIG_LABEL[c.type][locale];
-      const apex = c.apex ? ` · ${translate(locale, "configApex", { name: bodyLabel(c.apex, locale) })}` : "";
-      push(`${label}: ${c.members.map((id) => bodyLabel(id, locale)).join(", ")}${apex}`);
+  if (unknown) push(unknownTimeNote(locale, "patterns"));
+  for (const s of patternSections(chart, patterns, locale)) {
+    if (s.id === "voc" || s.id === "unaspected" || s.id === "retrogrades") {
+      // One line each: "Title: what it says".
+      const item = s.items[0];
+      push(`${s.title}: ${item ? cellText(item) : s.none}`);
+      continue;
     }
-  } else push(translate(locale, "noConfigs"));
-  if (patterns.receptions.length) {
-    for (const r of patterns.receptions) {
-      push(`${bodyLabel(r.a, locale)} ⇄ ${bodyLabel(r.b, locale)}`);
-    }
-  } else push(translate(locale, "noReceptions"));
-  if (patterns.stelliums.length) {
-    for (const s of patterns.stelliums) {
-      push(`${s.place}: ${s.members.map((id) => bodyLabel(id, locale)).join(", ")}`);
-    }
-  } else push(translate(locale, "noStelliums"));
-  const unaspected = chart.planets.filter((p) => patterns.flags[p.id]?.unaspected);
-  if (unaspected.length) {
-    push(`${translate(locale, "patternUnaspected")}: ${unaspected.map((p) => bodyLabel(p.id, locale)).join(", ")}`);
-  } else push(translate(locale, "noUnaspected"));
-  push(patterns.vocMoon ? translate(locale, "vocYes") : translate(locale, "vocNo"));
-  if (patterns.retrogrades.length) {
-    push(
-      `${translate(locale, "patternRx")}: ${patterns.retrogrades.length} · ${patterns.retrogrades.map((id) => bodyLabel(id, locale)).join(", ")}`,
-    );
-  } else push(translate(locale, "noRx"));
+    push(s.title);
+    if (s.items.length) for (const item of s.items) push(cellText(item));
+    else push(s.none);
+  }
 
   start("balance");
-  const w = patterns.weights;
-  push(
-    `${elementName("fire", locale)} ${w.elements.fire}, ${elementName("earth", locale)} ${w.elements.earth}, ${elementName("air", locale)} ${w.elements.air}, ${elementName("water", locale)} ${w.elements.water}`,
-  );
-  push(
-    `${modalityName("cardinal", locale)} ${w.modalities.cardinal}, ${modalityName("fixed", locale)} ${w.modalities.fixed}, ${modalityName("mutable", locale)} ${w.modalities.mutable}`,
-  );
-  push(`${translate(locale, "polarityPositive")} ${w.polarity.positive} · ${translate(locale, "polarityNegative")} ${w.polarity.negative}`);
-  push(
-    `${translate(locale, "hemiEast")} ${w.hemisphere.east} · ${translate(locale, "hemiWest")} ${w.hemisphere.west} · ${translate(locale, "hemiNorth")} ${w.hemisphere.north} · ${translate(locale, "hemiSouth")} ${w.hemisphere.south}`,
-  );
-  push(
-    `${translate(locale, "quad1")} ${w.quadrants[0]} · ${translate(locale, "quad2")} ${w.quadrants[1]} · ${translate(locale, "quad3")} ${w.quadrants[2]} · ${translate(locale, "quad4")} ${w.quadrants[3]}`,
-  );
-  push(
-    `${translate(locale, "tempoAngular")} ${w.angularity.angular} · ${translate(locale, "tempoSuccedent")} ${w.angularity.succedent} · ${translate(locale, "tempoCadent")} ${w.angularity.cadent}`,
-  );
+  if (unknown) push(unknownTimeNote(locale, "balance"));
+  for (const g of balanceGroups(chart, patterns, locale)) push(balanceGroupText(g));
 
   start("ranking");
-  const ruler = chart.planets.find((p) => p.id === patterns.chartRuler);
-  if (ruler) {
-    push(
-      `${translate(locale, "chartRulerHead")}: ${translate(locale, "chartRulerDetail", {
-        planet: planetName(patterns.chartRuler, locale),
-        sign: signName(ruler.sign, locale),
-        house: String(ruler.house),
-      })}`,
-    );
-  }
-  if (patterns.tightest) {
-    const t = patterns.tightest;
-    push(
-      `${translate(locale, "tightestHead")}: ${translate(locale, "tightestLine", {
-        a: bodyLabel(t.a, locale),
-        aspect: aspectName(t.type, locale),
-        b: bodyLabel(t.b, locale),
-        orb: t.orb.toFixed(2),
-      })}${t.applying === true ? ` ${translate(locale, "applying")}` : t.applying === false ? ` ${translate(locale, "separating")}` : ""}`,
-    );
-  }
-  for (const row of patterns.ranking) {
-    const dignity = row.dignity ? dignityName(row.dignity, locale) : "—";
-    const sect =
-      row.inSect === true
-        ? `, ${translate(locale, "inSect")}`
-        : row.inSect === false
-          ? `, ${translate(locale, "outOfSect")}`
-          : "";
-    push(
-      translate(locale, "rankingLine", {
-        planet: bodyLabel(row.id, locale),
-        score: String(row.score),
-        dignity,
-        sect,
-      }),
-    );
-  }
-  if (patterns.dominant) {
-    const d = patterns.dominant;
-    push(
-      translate(locale, "dominantLine", {
-        shape: CONFIG_LABEL[d.type][locale],
-        planet: d.apex ? bodyLabel(d.apex, locale) : "—",
-      }),
-    );
-  } else push(translate(locale, "dominantNone"));
+  if (unknown) push(unknownTimeNote(locale, "ranking"));
+  const r = rankingFacts(chart, patterns, locale);
+  if (r.ruler) push(`${translate(locale, "chartRulerHead")}: ${cellText(r.ruler)}${r.ruler.aspects ? ` (${r.ruler.aspects})` : ""}`);
+  if (r.tightest) push(`${translate(locale, "tightestHead")}: ${cellText(r.tightest)}`);
+  push(`${translate(locale, "rankingHead")}:`);
+  r.rows.forEach((row, i) => push(`${i + 1}. ${cellText(row)}`));
+  push(`${translate(locale, "dominantHead")}: ${cellText(r.dominant)}`);
 
   return parts;
 }
@@ -233,18 +113,24 @@ export function formatChartTableText(chart: NatalChart, locale: AppLocale): stri
     .join("\n\n");
 }
 
+const num = (x: number | null | undefined, digits = 6) => (x != null && Number.isFinite(x) ? x.toFixed(digits) : "");
+const bit = (x: boolean | null | undefined) => (x ? "1" : "0");
+
 export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): string {
   const patterns = hydratePatterns(chart);
+  const unknown = chart.meta.timeUnknown === true;
   const rows: string[][] = [];
   const add = (row: string[]) => rows.push(row.map(csvEscape));
 
   add(["section", "field", "value"]);
   add(["identity", "name", chart.meta.name]);
   add(["identity", "date", chart.meta.date]);
-  add(["identity", "time", chart.meta.time]);
+  add(["identity", "time", unknown ? "" : chart.meta.time]);
+  add(["identity", "timeUnknown", bit(unknown)]);
+  if (unknown) add(["identity", "castAt", chart.meta.time]);
   add(["identity", "timezone", chart.meta.timezone]);
   if (chart.meta.birthTime) {
-    add(["identity", "utcOffset", chart.meta.birthTime.offsetLabel.replace("\u2212", "-")]);
+    add(["identity", "utcOffset", chart.meta.birthTime.offsetLabel.replace("−", "-")]);
     add(["identity", "zoneAbbr", chart.meta.birthTime.abbr]);
     add(["identity", "summerTime", chart.meta.birthTime.dst ? "yes" : "no"]);
     add(["identity", "timeBasis", chart.meta.birthTime.basis]);
@@ -254,16 +140,32 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): strin
   add(["identity", "latitude", chart.meta.latitude.toFixed(4)]);
   add(["identity", "longitude", chart.meta.longitude.toFixed(4)]);
   add(["identity", "houseSystem", chart.meta.houseSystem]);
-  add(["identity", "sect", patterns.isDay ? "day" : "night"]);
+  if (chart.meta.houseSystemRequested) add(["identity", "houseSystemRequested", chart.meta.houseSystemRequested]);
+  add(["identity", "sect", unknown ? "" : patterns.isDay ? "day" : "night"]);
+  if (chart.meta.sunAltitude != null) add(["identity", "sunAltitude", num(chart.meta.sunAltitude)]);
   add(["identity", "utc", chart.meta.utc]);
   if (chart.meta.jdUt != null) add(["identity", "jdUt", chart.meta.jdUt.toFixed(6)]);
   if (chart.meta.deltaT != null) add(["identity", "deltaT", chart.meta.deltaT.toFixed(2)]);
+  const armc = armcOf(chart);
+  const lst = localSiderealHours(chart);
+  if (armc != null) add(["identity", "armc", num(armc)]);
+  if (lst != null) add(["identity", "localSiderealTime", formatHms(lst)]);
+  if (chart.meta.obliquity != null) add(["identity", "obliquity", num(chart.meta.obliquity)]);
+  const sun = chart.planets.find((p) => p.id === "sun");
+  const moon = chart.planets.find((p) => p.id === "moon");
+  if (sun && moon) {
+    const phase = moonPhase(sun.ecliptic, moon.ecliptic, moon.latitude ?? 0);
+    add(["identity", "moonPhase", phase.phase]);
+    add(["identity", "moonPhaseAngle", num(phase.angle)]);
+    add(["identity", "moonLit", num(phase.lit, 4)]);
+  }
 
   add([]);
   add([
     "point",
     "id",
     "name",
+    "group",
     "sign",
     "house",
     "longitude",
@@ -271,55 +173,89 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): strin
     "speed",
     "direction",
     "stationary",
-    "fast",
+    "swift",
+    "slow",
+    "stationUtc",
+    "stationTurns",
     "rx",
+    "latitude",
     "declination",
     "oob",
+    "oobBy",
     "dignity",
+    "dignities",
+    "dignityScore",
     "peregrine",
     "combust",
     "cazimi",
+    "sunDistance",
     "angular",
+    "angle",
+    "angleDistance",
     "anaretic",
     "ariesPoint",
     "inSect",
+    "unaspected",
+    "uncertain",
+    "dayFrom",
+    "dayTo",
   ]);
+  const groupOf = new Map<string, string>();
+  for (const g of groupedPoints(chart)) for (const p of g.rows) groupOf.set(p.id, g.id);
   for (const p of chartPoints(chart)) {
     const flag = patterns.flags[p.id];
+    const row: PointRow = pointRow(p, chart, patterns, locale);
+    const near = p.kind !== "angle" ? nearestAngle(p.ecliptic, chart.angles) : null;
+    const range = chart.meta.dayRange?.[p.id as keyof NonNullable<NatalChart["meta"]["dayRange"]>];
     add([
       "point",
       p.id,
-      bodyLabel(p.id, locale),
+      bodyBare(p.id, locale),
+      groupOf.get(p.id) ?? "",
       p.sign,
       String(p.house),
       p.ecliptic.toFixed(6),
       formatDegreeSeconds(p.ecliptic),
-      p.speed != null ? p.speed.toFixed(6) : "",
-      p.retrograde ? "Rx" : "D",
-      flag?.stationary ? "1" : "0",
-      flag?.fast ? "1" : "0",
-      p.retrograde ? "1" : "0",
-      p.declination != null ? p.declination.toFixed(6) : "",
-      flag?.oob ? "1" : "0",
+      row.motion && p.speed != null ? p.speed.toFixed(6) : "",
+      row.motion ? (p.retrograde ? "Rx" : "D") : "",
+      bit(flag?.stationary),
+      bit(flag?.fast),
+      bit(flag?.slow),
+      p.station?.utc ?? "",
+      p.station ? (p.station.direct ? "direct" : "retrograde") : "",
+      bit(p.retrograde),
+      hasLatitude(p) ? num(p.latitude) : "",
+      num(p.declination),
+      bit(flag?.oob),
+      flag?.oob ? num(outOfBoundsBy(p.declination, chart.meta.obliquity)) : "",
       flag?.dignity ?? "",
-      flag?.dignity === "peregrine" ? "1" : "0",
-      flag?.combust ? "1" : "0",
-      flag?.cazimi ? "1" : "0",
-      flag?.angular ? "1" : "0",
-      flag?.anaretic ? "1" : "0",
-      flag?.ariesPoint ? "1" : "0",
+      row.dignity ? row.dignity.kinds.join("|") : "",
+      row.dignity ? String(row.dignity.score) : "",
+      bit(flag?.dignity === "peregrine"),
+      bit(flag?.combust),
+      bit(flag?.cazimi),
+      sun && p.id !== "sun" && p.kind !== "angle" ? num(separation(p.ecliptic, sun.ecliptic)) : "",
+      bit(flag?.angular),
+      near?.id ?? "",
+      near ? num(near.distance) : "",
+      bit(flag?.anaretic),
+      bit(flag?.ariesPoint),
       flag?.inSect === true ? "1" : flag?.inSect === false ? "0" : "",
+      bit(flag?.unaspected),
+      bit(unknown && (p.uncertain === true || isRough(chart, p))),
+      range ? num(range[0]) : "",
+      range ? num(range[1]) : "",
     ]);
   }
 
   add([]);
-  add(["house", "id", "sign", "longitude", "formatted"]);
+  add(["house", "id", "sign", "longitude", "formatted", "uncertain"]);
   for (const h of chart.houses) {
-    add(["house", String(h.id), h.sign, h.ecliptic.toFixed(6), formatDegreeSeconds(h.ecliptic)]);
+    add(["house", String(h.id), h.sign, h.ecliptic.toFixed(6), formatDegreeSeconds(h.ecliptic), bit(unknown)]);
   }
 
   add([]);
-  add(["aspect", "a", "b", "type", "level", "orb", "applying"]);
+  add(["aspect", "a", "b", "type", "level", "orb", "applying", "uncertain"]);
   for (const a of chart.aspects) {
     add([
       "aspect",
@@ -329,6 +265,7 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): strin
       a.level,
       a.orb.toFixed(4),
       a.applying === true ? "applying" : a.applying === false ? "separating" : "",
+      bit(aspectRow(a, chart, locale).uncertain),
     ]);
   }
 
@@ -344,7 +281,7 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): strin
     "unaspected",
     chart.planets.filter((p) => patterns.flags[p.id]?.unaspected).map((p) => p.id).join("|"),
   ]);
-  add(["pattern", "vocMoon", patterns.vocMoon ? "1" : "0"]);
+  add(["pattern", "vocMoon", unknown ? "" : bit(patterns.vocMoon)]);
   add(["pattern", "retrogrades", patterns.retrogrades.join("|")]);
 
   const w = patterns.weights;
@@ -370,6 +307,11 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): strin
   add(["balance", "angular", String(w.angularity.angular)]);
   add(["balance", "succedent", String(w.angularity.succedent)]);
   add(["balance", "cadent", String(w.angularity.cadent)]);
+  if (unknown) {
+    add(["balance", "anglesLeftOut", "1"]);
+    add(["balance", "signsUncertain", bit(!signsHold(chart, CLASSIC_BODIES))]);
+    add(["balance", "housesUncertain", "1"]);
+  }
 
   add([]);
   add(["ranking", "field", "value"]);

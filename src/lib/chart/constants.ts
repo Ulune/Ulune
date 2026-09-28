@@ -639,8 +639,15 @@ export const STAR_META: Record<import("./types").StarId, { name: string; swiss: 
  * opened (visibility.needsSwissUpgrade).
  * 2 — historical time zones (tzdb with backzone), birthplace LMT, Julian
  *     dates before 1582-10-15, Swiss fixed stars, ephemeris files 600 BC–2400 AD.
+ * 3 — stations by each body's own speed (with the station's moment), swift
+ *     and slow against the mean daily motion, peregrine by all five
+ *     dignities; the chart carries its ARMC, the Sun's altitude and, without
+ *     a birth time, where each body stands at the start and end of the day
+ *     (and its balance leaves out the angles, a noon stand-in); applying or
+ *     separating read from the speeds at the instant, not from a step of 72
+ *     minutes (which misread aspects that perfect within it).
  */
-export const CALC_VERSION = 2;
+export const CALC_VERSION = 3;
 
 export const MIDPOINT_DEFS: {
   id: import("./types").MidpointId;
@@ -654,8 +661,39 @@ export const MIDPOINT_DEFS: {
   { id: "mars-saturn", a: "mars", b: "saturn" },
 ];
 
-export const STATIONARY_SPEED = 0.05;
-export const FAST_RATIO = 1.35;
+/**
+ * A body is stationary within a few days of its station: Mercury 1, Venus and
+ * Mars 3, Jupiter and Saturn 5, Chiron and the outer planets 7 (the spans
+ * astrologers give, shorter for the quick planets). STATION_SPEED is the
+ * speed each body has that many days from a station: the median over every
+ * station of 1900–2050 in Swiss Ephemeris (947 of Mercury, 140 of Mars…).
+ * Below it, the body is stationary; the speed alone tells, so the flag is the
+ * same on the server, in the scrub window and in a composite.
+ */
+export const STATION_DAYS: Partial<Record<BodyId, number>> = {
+  mercury: 1,
+  venus: 3,
+  mars: 3,
+  jupiter: 5,
+  saturn: 5,
+  chiron: 7,
+  uranus: 7,
+  neptune: 7,
+  pluto: 7,
+};
+export const STATION_SPEED: Partial<Record<BodyId, number>> = {
+  mercury: 0.1218,
+  venus: 0.1186,
+  mars: 0.0387,
+  jupiter: 0.0161,
+  saturn: 0.0087,
+  chiron: 0.0076,
+  uranus: 0.0061,
+  neptune: 0.0039,
+  pluto: 0.0033,
+};
+/** Swift or slow (against the mean daily motion) is said of the seven traditional planets only. */
+export const SWIFT_BODIES: readonly BodyId[] = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn"];
 export const ANGULAR_ORB = 8;
 export const CAZIMI_ORB = 17 / 60;
 export const COMBUST_ORB = 8;
@@ -764,16 +802,4 @@ export function decanOf(ecliptic: number): Decan {
 
 export function faceLabel(face: 1 | 2 | 3): string {
   return face === 1 ? "1st" : face === 2 ? "2nd" : "3rd";
-}
-
-/** Traditional essential dignity. Classical seven only; no-dignity planets are peregrine. */
-export function dignityOf(id: PlanetId, sign: SignId): DignityKind | null {
-  if (!CLASSICAL_PLANETS.includes(id)) return null;
-  if (TRADITIONAL_RULER[sign] === id) return "domicile";
-  if (EXALTATION[id] === sign) return "exalted";
-  const homes = SIGN_IDS.filter((s) => TRADITIONAL_RULER[s] === id);
-  if (homes.some((h) => oppositeSign(h) === sign)) return "detriment";
-  const exalt = EXALTATION[id];
-  if (exalt && oppositeSign(exalt) === sign) return "fall";
-  return "peregrine";
 }

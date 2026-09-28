@@ -47,5 +47,6 @@ export function makePlacement(
     declination: extra?.declination,
     stationary: motion.stationary,
     fast: motion.fast,
+    slow: motion.slow,
   };
 }

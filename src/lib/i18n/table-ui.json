@@ -1,13 +1,37 @@
 {
   "parts": {
-    "identity": { "en": "Chart", "fr": "Thème" },
-    "points": { "en": "Points", "fr": "Points" },
-    "houses": { "en": "Houses", "fr": "Maisons" },
-    "aspects": { "en": "Aspects", "fr": "Aspects" },
-    "grid": { "en": "Grid", "fr": "Grille" },
-    "patterns": { "en": "Patterns", "fr": "Figures" },
-    "balance": { "en": "Balance", "fr": "Équilibre" },
-    "ranking": { "en": "Ranking", "fr": "Classement" }
+    "identity": {
+      "en": "Chart",
+      "fr": "Thème"
+    },
+    "points": {
+      "en": "Points",
+      "fr": "Points"
+    },
+    "houses": {
+      "en": "Houses",
+      "fr": "Maisons"
+    },
+    "aspects": {
+      "en": "Aspects",
+      "fr": "Aspects"
+    },
+    "grid": {
+      "en": "Grid",
+      "fr": "Grille"
+    },
+    "patterns": {
+      "en": "Patterns",
+      "fr": "Figures"
+    },
+    "balance": {
+      "en": "Balance",
+      "fr": "Équilibre"
+    },
+    "ranking": {
+      "en": "Ranking",
+      "fr": "Classement"
+    }
   },
   "hints": {
     "identity": {
@@ -44,24 +68,325 @@
     }
   },
   "bar": {
-    "copyPart": { "en": "Copy this part", "fr": "Copier cette partie" },
-    "copyPartNamed": { "en": "Copy {part}", "fr": "Copier {part}" }
+    "copyPart": {
+      "en": "Copy this part",
+      "fr": "Copier cette partie"
+    },
+    "copyPartNamed": {
+      "en": "Copy {part}",
+      "fr": "Copier {part}"
+    }
   },
   "points": {
-    "body": { "en": "Body", "fr": "Corps" },
-    "position": { "en": "Position", "fr": "Position" },
-    "house": { "en": "House", "fr": "Maison" },
-    "motion": { "en": "Motion a day", "fr": "Mouvement par jour" },
-    "latitude": { "en": "Latitude", "fr": "Latitude" },
-    "declination": { "en": "Declination", "fr": "Déclinaison" },
-    "dignity": { "en": "Dignity", "fr": "Dignité" },
-    "notes": { "en": "Notes", "fr": "Notes" },
-    "latShort": { "en": "Lat.", "fr": "Lat." },
-    "retrograde": { "en": "retrograde", "fr": "rétrograde" },
-    "oob": { "en": "out of bounds", "fr": "hors limites" },
-    "angular": { "en": "angular", "fr": "angulaire" },
-    "anaretic": { "en": "anaretic", "fr": "anarétique" },
-    "ariesPoint": { "en": "0° Aries", "fr": "0° Bélier" },
-    "unaspected": { "en": "no major aspect", "fr": "aucun aspect majeur" }
+    "body": {
+      "en": "Body",
+      "fr": "Corps"
+    },
+    "position": {
+      "en": "Position",
+      "fr": "Position"
+    },
+    "house": {
+      "en": "House",
+      "fr": "Maison"
+    },
+    "motion": {
+      "en": "Motion a day",
+      "fr": "Mouvement par jour"
+    },
+    "latitude": {
+      "en": "Latitude",
+      "fr": "Latitude"
+    },
+    "declination": {
+      "en": "Declination",
+      "fr": "Déclinaison"
+    },
+    "dignity": {
+      "en": "Dignity",
+      "fr": "Dignité"
+    },
+    "notes": {
+      "en": "Notes",
+      "fr": "Notes"
+    },
+    "latShort": {
+      "en": "Lat.",
+      "fr": "Lat."
+    },
+    "declShort": {
+      "en": "Decl.",
+      "fr": "Décl."
+    },
+    "houseN": {
+      "en": "house {n}",
+      "fr": "maison {n}"
+    },
+    "perDay": {
+      "en": "{arc} a day",
+      "fr": "{arc} par jour"
+    },
+    "orb": {
+      "en": "orb {arc}",
+      "fr": "orbe {arc}"
+    },
+    "retrograde": {
+      "en": "retrograde",
+      "fr": "rétrograde"
+    },
+    "anaretic": {
+      "en": "anaretic",
+      "fr": "anarétique"
+    },
+    "ariesPoint": {
+      "en": "0° Aries",
+      "fr": "0° Bélier"
+    },
+    "unaspected": {
+      "en": "no major aspect",
+      "fr": "aucun aspect majeur"
+    },
+    "swift": {
+      "en": "swift",
+      "fr": "rapide"
+    },
+    "slow": {
+      "en": "slow",
+      "fr": "lent"
+    },
+    "ofMean": {
+      "en": "{pct}% of its mean",
+      "fr": "{pct} % de sa moyenne"
+    },
+    "stationary": {
+      "en": "stationary",
+      "fr": "stationnaire"
+    },
+    "stationDirect": {
+      "en": "station direct {when}",
+      "fr": "station directe {when}"
+    },
+    "stationRetro": {
+      "en": "station retrograde {when}",
+      "fr": "station rétrograde {when}"
+    },
+    "oobBy": {
+      "en": "out of bounds by {arc}",
+      "fr": "hors limites de {arc}"
+    },
+    "combustBy": {
+      "en": "combust, {arc} from the Sun",
+      "fr": "combuste, à {arc} du Soleil"
+    },
+    "cazimiBy": {
+      "en": "cazimi, {arc} from the Sun",
+      "fr": "cazimi, à {arc} du Soleil"
+    },
+    "angularBy": {
+      "en": "{arc} from the {angle}",
+      "fr": "à {arc} de l’angle {angle}"
+    },
+    "dayRange": {
+      "en": "{from} to {to} over the day",
+      "fr": "de {from} à {to} dans la journée"
+    },
+    "exaltation": {
+      "en": "exaltation",
+      "fr": "exaltation"
+    },
+    "needsTime": {
+      "en": "Without a birth time the chart is cast for 12:00, a stand-in. What depends on the time is marked ~, and a body that moves half a degree or more that day shows how far it goes.",
+      "fr": "Sans heure de naissance, le thème est calculé pour 12 h, en attendant. Ce qui dépend de l’heure est marqué ~, et un corps qui avance d’un demi-degré ou plus ce jour-là montre sa course."
+    },
+    "triplicity": {
+      "en": "triplicity",
+      "fr": "triplicité"
+    },
+    "term": {
+      "en": "term",
+      "fr": "terme"
+    },
+    "face": {
+      "en": "face",
+      "fr": "face"
+    }
+  },
+  "chart": {
+    "born": {
+      "en": "Born",
+      "fr": "Naissance"
+    },
+    "timeUnknown": {
+      "en": "time unknown",
+      "fr": "heure inconnue"
+    },
+    "standIn": {
+      "en": "the chart is cast at 12:00 as a stand-in",
+      "fr": "le thème est calculé à 12 h en attendant"
+    },
+    "universalTime": {
+      "en": "Universal time",
+      "fr": "Temps universel"
+    },
+    "place": {
+      "en": "Place",
+      "fr": "Lieu"
+    },
+    "sidereal": {
+      "en": "Local sidereal time",
+      "fr": "Temps sidéral local"
+    },
+    "obliquity": {
+      "en": "obliquity of the ecliptic {arc}",
+      "fr": "obliquité de l’écliptique {arc}"
+    },
+    "houses": {
+      "en": "House system",
+      "fr": "Système de maisons"
+    },
+    "fallback": {
+      "en": "{system}: {requested} is not defined this close to the pole",
+      "fr": "{system} : {requested} n’est pas défini si près du pôle"
+    },
+    "sect": {
+      "en": "Sect",
+      "fr": "Secte"
+    },
+    "sunAbove": {
+      "en": "the Sun {arc} above the horizon",
+      "fr": "le Soleil {arc} au-dessus de l’horizon"
+    },
+    "sunBelow": {
+      "en": "the Sun {arc} below the horizon",
+      "fr": "le Soleil {arc} sous l’horizon"
+    },
+    "needsTime": {
+      "en": "needs the birth time",
+      "fr": "demande l’heure de naissance"
+    },
+    "moonPhase": {
+      "en": "Moon phase",
+      "fr": "Phase de la Lune"
+    },
+    "phaseDetail": {
+      "en": "{arc} past the Sun · {lit}% lit · {trend}",
+      "fr": "{arc} après le Soleil · éclairée à {lit} % · {trend}"
+    },
+    "waxing": {
+      "en": "waxing",
+      "fr": "croissante"
+    },
+    "waning": {
+      "en": "waning",
+      "fr": "décroissante"
+    },
+    "settings": {
+      "en": "Settings",
+      "fr": "Réglages"
+    },
+    "settingsLine": {
+      "en": "Tropical zodiac · Swiss Ephemeris · true node · true Lilith",
+      "fr": "Zodiaque tropical · Swiss Ephemeris · nœud vrai · Lilith vraie"
+    },
+    "name": {
+      "en": "Name",
+      "fr": "Nom"
+    }
+  },
+  "phases": {
+    "new": {
+      "en": "New Moon",
+      "fr": "Nouvelle Lune"
+    },
+    "crescent": {
+      "en": "Crescent",
+      "fr": "Croissant"
+    },
+    "firstQuarter": {
+      "en": "First quarter",
+      "fr": "Premier quartier"
+    },
+    "gibbous": {
+      "en": "Gibbous",
+      "fr": "Gibbeuse"
+    },
+    "full": {
+      "en": "Full Moon",
+      "fr": "Pleine Lune"
+    },
+    "disseminating": {
+      "en": "Disseminating",
+      "fr": "Disséminante"
+    },
+    "lastQuarter": {
+      "en": "Last quarter",
+      "fr": "Dernier quartier"
+    },
+    "balsamic": {
+      "en": "Balsamic",
+      "fr": "Balsamique"
+    }
+  },
+  "groups": {
+    "planets": {
+      "en": "Planets",
+      "fr": "Planètes"
+    },
+    "points": {
+      "en": "Chiron, the nodes and Lilith",
+      "fr": "Chiron, les nœuds et Lilith"
+    },
+    "asteroids": {
+      "en": "Asteroids and dwarf planets",
+      "fr": "Astéroïdes et planètes naines"
+    },
+    "angles": {
+      "en": "Angles and Vertex",
+      "fr": "Angles et Vertex"
+    },
+    "lots": {
+      "en": "Lots",
+      "fr": "Parts"
+    }
+  },
+  "angleShort": {
+    "ascendant": {
+      "en": "ASC",
+      "fr": "ASC"
+    },
+    "midheaven": {
+      "en": "MC",
+      "fr": "MC"
+    },
+    "descendant": {
+      "en": "DSC",
+      "fr": "DSC"
+    },
+    "ic": {
+      "en": "IC",
+      "fr": "FC"
+    }
+  },
+  "unknown": {
+    "houses": {
+      "en": "Without a birth time these cusps are cast for 12:00, a stand-in only.",
+      "fr": "Sans heure de naissance, ces cuspides sont calculées pour 12 h, en attendant."
+    },
+    "balance": {
+      "en": "Without a birth time the angles are left out. Hemispheres, quadrants and angularity come from the houses, cast for 12:00: marked ~.",
+      "fr": "Sans heure de naissance, les angles sont laissés de côté. Hémisphères, quadrants et angularité viennent des maisons, calculées pour 12 h : marqués ~."
+    },
+    "aspects": {
+      "en": "Without a birth time these aspects are for 12:00. Marked ~: those to the angles, the Vertex and the lots, and those that may leave their orb or become exact at another hour of the day (the Moon’s, mostly).",
+      "fr": "Sans heure de naissance, ces aspects sont ceux de 12 h. Marqués ~ : ceux aux angles, au Vertex et aux parts, et ceux qui peuvent sortir de leur orbe ou devenir exacts à une autre heure du jour (ceux de la Lune, surtout)."
+    },
+    "patterns": {
+      "en": "Without a birth time: marked ~, what may change at another hour of the day.",
+      "fr": "Sans heure de naissance : marqué ~, ce qui peut changer à une autre heure du jour."
+    },
+    "ranking": {
+      "en": "Without a birth time, what here depends on the rising sign, the sect or the angles is unknown: marked ~.",
+      "fr": "Sans heure de naissance, ce qui dépend ici du signe ascendant, de la secte ou des angles est inconnu : marqué ~."
+    }
   }
 }
