@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { hdHeroOf, hdSay } from "@/lib/chart/hd-focus";
+import { parseHdActId } from "@/lib/chart/hd-rows";
 import type { HdView, HumanDesignChart } from "@/lib/chart/human-design";
 import { hdGraphText } from "@/lib/i18n/hd-ui";
 import { useI18n } from "@/lib/i18n/locale";
@@ -18,6 +19,8 @@ export function HdCard({ chart, view }: { chart: HumanDesignChart; view: HdView 
     selectedId && /^(gate|channel|center|act):/.test(selectedId)
       ? hdHeroOf(selectedId, chart)
       : null;
+  // A row of the columns is named by its body first.
+  const sayId = hero && selectedId && parseHdActId(selectedId) ? selectedId : hero;
   // The card stands just above the sheet, over the stage (which scrolls under it).
   const anchor = useRef<HTMLSpanElement>(null);
   const [host, setHost] = useState<HTMLElement | null>(null);
@@ -27,7 +30,7 @@ export function HdCard({ chart, view }: { chart: HumanDesignChart; view: HdView 
   const card =
     !hero || dockOpen ? null : (
       <div className="ulune-hd-card" data-testid="hd-card" role="status">
-        <span className="ulune-hd-card-text">{hdSay(chart, view, hero, locale, names)}</span>
+        <span className="ulune-hd-card-text">{hdSay(chart, view, sayId ?? hero, locale, names)}</span>
         <button
           type="button"
           className="ulune-hd-card-read"

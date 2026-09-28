@@ -6,6 +6,7 @@
  */
 export const GLYPH_INK: Record<string, readonly [number, number, number, number]> = {
   sun: [5, 5, 19, 19],
+  earth: [4.5, 4.5, 19.5, 19.5],
   moon: [5.68, 4.5, 14.85, 19.5],
   mercury: [6.45, 3.8, 17.55, 22.2],
   venus: [6.7, 3.15, 17.3, 20.75],

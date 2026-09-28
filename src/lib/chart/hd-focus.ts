@@ -1,7 +1,9 @@
 /**
- * What a selection lights on the bodygraph, and the one line that names a
- * piece (under the chart, on the phone's card, in the keyboard's list).
+ * What a selection lights on the bodygraph and in its two columns, and the
+ * one line that names a piece (under the chart, on the phone's card, in the
+ * keyboard's list).
  */
+import { hdActId, hdColumnRows, parseHdActId } from "./hd-rows";
 import {
   bodiesOnGate,
   graphForView,
@@ -26,6 +28,11 @@ const AUTHORITY_CENTER: Partial<Record<HdAuthority, HdCenterId>> = {
   "Self-Projected": "g",
 };
 
+/** The centre an authority speaks from (none for Mental and Lunar). */
+export function hdAuthoritySeat(authority: HdAuthority): HdCenterId | null {
+  return AUTHORITY_CENTER[authority] ?? null;
+}
+
 /**
  * The piece of the chart a selection stands for: a gate, channel or centre
  * as itself, a row of the columns as its gate, the authority as its centre.
@@ -33,9 +40,9 @@ const AUTHORITY_CENTER: Partial<Record<HdAuthority, HdCenterId>> = {
 export function hdHeroOf(id: string | null, chart: HumanDesignChart): string | null {
   if (!id) return null;
   if (/^(gate|channel|center):/.test(id)) return id;
-  if (id.startsWith("act:")) {
-    const [, layer, body] = id.split(":");
-    const row = chart.activations.find((a) => a.layer === layer && a.body === body);
+  const act = parseHdActId(id);
+  if (act) {
+    const row = chart.activations.find((a) => a.layer === act.layer && a.body === act.body);
     return row ? `gate:${row.gate}` : null;
   }
   if (id === "hello:authority") {
@@ -75,6 +82,58 @@ export function hdLitOf(hero: string | null): Set<string> {
   return out;
 }
 
+/** The gates a hero stands on: a gate itself, a channel's two, a centre's own. */
+function heroGates(hero: string): Set<number> {
+  const sep = hero.indexOf(":");
+  const kind = hero.slice(0, sep);
+  const key = hero.slice(sep + 1);
+  if (kind === "gate") return new Set([Number(key)]);
+  if (kind === "channel") return new Set(HD_CHANNELS.find((c) => c.id === key)?.gates ?? []);
+  if (kind === "center") {
+    return new Set(
+      Object.entries(HD_GATE_CENTER)
+        .filter(([, c]) => c === key)
+        .map(([g]) => Number(g)),
+    );
+  }
+  return new Set();
+}
+
+/**
+ * What a selection (or the pointer) lights: the piece that gets the ring,
+ * what stays bright on the chart, and the rows that stay bright in the
+ * columns. The profile lights the two Suns; the cross its four gates.
+ */
+export type HdFocus = { hero: string | null; lit: Set<string>; rows: Set<string> };
+
+export function hdFocusOf(id: string | null, chart: HumanDesignChart): HdFocus | null {
+  if (!id) return null;
+  const rowsOn = (gates: Set<number>) => {
+    const out = new Set<string>();
+    for (const layer of ["design", "personality"] as const) {
+      for (const row of hdColumnRows(chart, layer)) if (gates.has(row.gate)) out.add(hdActId(layer, row.body));
+    }
+    return out;
+  };
+  const hero = hdHeroOf(id, chart);
+  if (hero) return { hero, lit: hdLitOf(hero), rows: rowsOn(heroGates(hero)) };
+  if (id === "hello:profile" || id === "hello:cross") {
+    const bodies = id === "hello:profile" ? (["sun"] as const) : (["sun", "earth"] as const);
+    const rows = new Set<string>();
+    const lit = new Set<string>();
+    for (const layer of ["personality", "design"] as const) {
+      for (const body of bodies) {
+        const row = chart.activations.find((a) => a.layer === layer && a.body === body);
+        if (!row) continue;
+        rows.add(hdActId(layer, body));
+        lit.add(`gate:${row.gate}`);
+      }
+    }
+    return lit.size ? { hero: null, lit, rows } : null;
+  }
+  return null;
+}
+
 type Names = HdNames;
 
 function gateName(locale: AppLocale, n: number, names: Names | null): string {
@@ -89,12 +148,20 @@ function channelName(id: string, names: Names | null): string {
 
 /**
  * One line naming a piece for the line under the chart and the phone's card:
- * "Gate 34 · Power · Sacral · Personality Venus 34.2".
+ * "Gate 34 · Power · Sacral · Personality Venus 34.2"; a row of the columns
+ * starts with its body: "Personality Venus 34.2 · Gate 34 · Power · Sacral".
  */
-export function hdSay(chart: HumanDesignChart, view: HdView, hero: string, locale: AppLocale, names: Names | null): string {
-  const sep = hero.indexOf(":");
-  const kind = hero.slice(0, sep);
-  const key = hero.slice(sep + 1);
+export function hdSay(chart: HumanDesignChart, view: HdView, id: string, locale: AppLocale, names: Names | null): string {
+  const act = parseHdActId(id);
+  if (act) {
+    const row = chart.activations.find((a) => a.layer === act.layer && a.body === act.body);
+    if (!row) return "";
+    const c = HD_GATE_CENTER[row.gate];
+    return [hdActivationLabel(locale, row), gateName(locale, row.gate, names), c ? hdCenterLabel(locale, c) : ""].filter(Boolean).join(" · ");
+  }
+  const sep = id.indexOf(":");
+  const kind = id.slice(0, sep);
+  const key = id.slice(sep + 1);
   if (kind === "gate") {
     const n = Number(key);
     const rows = bodiesOnGate(chart, n, view);
@@ -115,16 +182,17 @@ export function hdSay(chart: HumanDesignChart, view: HdView, hero: string, local
     return [channelName(key, names), hdChannelCentersLine(locale, ch.centers[0], ch.centers[1]), state].join(" · ");
   }
   if (kind === "center") {
-    const id = key as HdCenterId;
+    const cid = key as HdCenterId;
     const graph = graphForView(chart, view);
-    const gates = Object.entries(HD_GATE_CENTER).filter(([, c]) => c === id).map(([g]) => Number(g));
+    const gates = Object.entries(HD_GATE_CENTER)
+      .filter(([, c]) => c === cid)
+      .map(([g]) => Number(g));
     const active = gates.filter((g) => graph.gates.has(g)).length;
     return [
-      hdCenterLabel(locale, id),
-      hdGraphText(locale, graph.centers.includes(id) ? "defined" : "open"),
+      hdCenterLabel(locale, cid),
+      hdGraphText(locale, graph.centers.includes(cid) ? "defined" : "open"),
       hdGraphText(locale, "gatesActive", { n: active, m: gates.length }),
     ].join(" · ");
   }
   return "";
 }
-

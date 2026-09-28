@@ -24,6 +24,8 @@ function aspectTypeFromReadingId(id: string): AspectId | null {
 
 export function ReadingMark({ reading, size = 26 }: { reading: ElementReading; size?: number }) {
   const raw = reading.id.includes(":") ? reading.id.slice(reading.id.indexOf(":") + 1) : reading.id;
+  // A row of the Human Design columns (act:design:mars): its body's glyph.
+  if (reading.id.startsWith("act:")) return <PlanetGlyph id={reading.id.split(":")[2] ?? ""} size={size} />;
   if (reading.mark) return <span className="ob-rc-mark-text">{reading.mark}</span>;
   if (reading.kind === "planet" || reading.kind === "angle") {
     return <PlanetGlyph id={raw} size={size} />;
@@ -108,6 +110,9 @@ function signOfReading(reading: ElementReading, chart: NatalChart | null | undef
 /** Colour of the reading's mark: the planet's own paint, else its sign's element. */
 function useMarkColor(reading: ElementReading, chart: NatalChart | null | undefined) {
   const look = useLookShape();
+  // Human Design's two layers: the Design in red, the Personality in ink.
+  if (reading.id.startsWith("act:design:")) return "var(--hd-design-ink, var(--color-fg))";
+  if (reading.id.startsWith("act:personality:")) return "var(--color-fg)";
   if (reading.kind === "aspect") {
     const type = Object.keys(ASPECT_FAMILY).find((k) => reading.id.includes(`_${k}_`));
     return `var(--aspect-${type ? ASPECT_FAMILY[type] : "minor"})`;
@@ -118,8 +123,12 @@ function useMarkColor(reading: ElementReading, chart: NatalChart | null | undefi
   return `var(--el-${SIGN_META[sign].element})`;
 }
 
-/** The readings of a birth chart's own elements (not Human Design, numerology or timing). */
-const NATAL_READING = /^(planet|angle|house|sign|decan|aspect):/;
+/**
+ * Readings that open with this chart and keep what the element is in general
+ * for "About": a birth chart's own elements, and the bodygraph's gates,
+ * channels and centres (not the Human Design keys, numerology or timing).
+ */
+const PERSONAL_FIRST = /^(planet|angle|house|sign|decan|aspect|gate|channel|center):/;
 
 /**
  * One reading, laid out for scanning: mark, title and the facts that locate
@@ -150,10 +159,11 @@ export function ReadingCard({
   const structured = reading.lead != null || Boolean(reading.sections?.length);
   const lead = structured ? reading.lead : reading.paragraphs[0];
   const rest = structured ? [] : reading.paragraphs.slice(1);
-  // A birth chart's reading starts with what the element does in this chart
-  // ("The Sun in Capricorn…"); what the element is in general ("The Sun is the
-  // star at the centre…") opens its "About" instead of outweighing it.
-  const noteInAbout = Boolean(reading.note && lead && reading.about) && NATAL_READING.test(reading.id);
+  // A reading starts with what the element does in this chart ("The Sun in
+  // Capricorn…", "In your chart: Personality Venus…"); what the element is in
+  // general ("The Sun is the star…", "A gate is one of the 64…") opens its
+  // "About" instead of outweighing it.
+  const noteInAbout = Boolean(reading.note && lead && reading.about) && PERSONAL_FIRST.test(reading.id);
 
   return (
     <article

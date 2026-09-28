@@ -34,6 +34,8 @@ export const GLYPH_SVG: Record<string, string> = {
   sun: svg(
     `<circle cx="12" cy="12" r="6.1" ${ST} /><circle cx="12" cy="12" r="1.5" fill="currentColor" />`,
   ),
+  /** The Earth (Human Design's columns): a circle and a cross that reaches its rim (the Part of Fortune's cross stops short). */
+  earth: svg(`<circle cx="12" cy="12" r="6.6" ${ST} /><path d="M12 5.4v13.2M5.4 12h13.2" ${ST} />`),
   moon: svg(`<path fill="currentColor" d="M14.9 4.7A7.5 7.5 0 1 0 14.9 19.3 5.45 5.45 0 1 1 14.9 4.7Z"/>`),
   mercury: svg(
     `<path d="M7.35 9.35a4.65 4.65 0 0 1 9.3 0" ${ST} /><circle cx="12" cy="13.15" r="3.45" ${ST} /><path d="M12 16.6v4.7M9.2 19.15h5.6" ${ST} />`,

@@ -23,6 +23,20 @@
       "labelFr": "Autorité",
       "en": "The inner signal Human Design says you can trust when deciding.",
       "fr": "Le signal intérieur auquel, selon le Human Design, vous pouvez vous fier pour décider."
+    },
+    {
+      "id": "profile",
+      "label": "Profile",
+      "labelFr": "Profil",
+      "en": "Two numbers from the lines of your two Suns: the role you tend to play.",
+      "fr": "Deux nombres, les lignes de vos deux Soleils : le rôle que vous avez tendance à jouer."
+    },
+    {
+      "id": "definition",
+      "label": "Definition",
+      "labelFr": "Définition",
+      "en": "How your coloured centres connect to each other.",
+      "fr": "La façon dont vos centres colorés sont reliés entre eux."
     }
   ]
 }

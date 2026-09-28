@@ -253,6 +253,7 @@ export const UNICODE_GLYPH: Record<string, string> = {
 
 /** Ids with no standard codepoint — always the SVG path. */
 export const SVG_ONLY_IDS = [
+  "earth",
   "vertex",
   "antivertex",
   "fortune",

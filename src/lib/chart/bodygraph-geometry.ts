@@ -18,7 +18,7 @@ export type Pt = readonly [number, number];
 /** The drawing's box, units. */
 export const BODYGRAPH_W = 470;
 export const BODYGRAPH_H = 674;
-/** A gate's disc, units (its number is drawn at 10.5). */
+/** A gate's disc, units (its number is drawn at 11.5, hd.css). */
 export const GATE_R = 9.5;
 
 export type CenterShape = "tri-up" | "tri-down" | "square" | "diamond" | "tri-right" | "tri-left";

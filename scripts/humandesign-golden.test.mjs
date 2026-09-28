@@ -19,6 +19,7 @@ import {
 } from "../src/lib/chart/human-design.ts";
 import { HD_HELLO, hdHelloCells } from "../src/lib/i18n/hd-hello.ts";
 import {
+  hdActivationColumns,
   hdNoNatal,
   hdReadingEmpty,
   hdTableColumns,
@@ -53,16 +54,22 @@ test("Rave mandala: Gate 41 at 2° Aquarius, 64 unique gates, 6 lines", () => {
   assert.equal(last.line, 6);
 });
 
-test("Committed copy: no-natal, empty reading, Hello sentences, table columns", () => {
+test("Committed copy: no-natal, empty reading, the first read's steps, table columns", () => {
   assert.equal(hdNoNatal("en"), "Cast a birth chart first.");
   assert.equal(hdReadingEmpty("en"), "Tap a channel, a gate, or a center.");
   assert.equal(HD_HELLO.id, "hd.hello");
+  // The five keys in the order Human Design teaches them (the plan, part 45).
   const cells = hdHelloCells("en");
-  assert.equal(cells.map((c) => c.id).join(","), "type,strategy,authority");
+  assert.equal(cells.map((c) => c.id).join(","), "type,strategy,authority,profile,definition");
   assert.equal(cells[0].sentence, "Your energy type: how you are built to use energy and meet other people.");
   assert.equal(cells[1].sentence, "The way of engaging with opportunities that works best for your type.");
   assert.equal(cells[2].sentence, "The inner signal Human Design says you can trust when deciding.");
-  assert.deepEqual([...hdTableColumns("en")], ["Channel", "Gates", "Centers"]);
+  assert.equal(cells[3].sentence, "Two numbers from the lines of your two Suns: the role you tend to play.");
+  assert.equal(cells[4].sentence, "How your coloured centres connect to each other.");
+  assert.equal(hdHelloCells("fr")[3].label, "Profil");
+  assert.deepEqual([...hdTableColumns("en")], ["Channel", "Gates", "Centres"]);
+  assert.deepEqual([...hdActivationColumns("en")], ["Layer", "Body", "Gate", "Line", "Centre", "Channel"]);
+  assert.deepEqual([...hdActivationColumns("fr")], ["Couche", "Corps", "Porte", "Ligne", "Centre", "Canal"]);
 });
 
 test("Type, strategy, and authority follow the graph, not a sun-sign table", () => {

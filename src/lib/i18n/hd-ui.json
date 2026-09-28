@@ -19,7 +19,7 @@
   },
   "table": {
     "columns": {
-      "en": ["Channel", "Gates", "Centers"],
+      "en": ["Channel", "Gates", "Centres"],
       "fr": ["Canal", "Portes", "Centres"]
     }
   },
@@ -127,6 +127,51 @@
     "channelHalf": { "en": "one half, from {who}", "fr": "une moitié, par {who}" },
     "activation": { "en": "{layer} {body} {gate}.{line}", "fr": "{body} ({layer}) {gate}.{line}" },
     "read": { "en": "Read", "fr": "Lire" },
-    "close": { "en": "Close", "fr": "Fermer" }
+    "close": { "en": "Close", "fr": "Fermer" },
+    "colDesign": { "en": "Design", "fr": "Design" },
+    "colPersonality": { "en": "Personality", "fr": "Personnalité" },
+    "colDesignLine": { "en": "The body, unconscious: the sky about three months before birth", "fr": "Le corps, inconscient : le ciel environ trois mois avant la naissance" },
+    "colPersonalityLine": { "en": "The mind, conscious: the sky at birth", "fr": "Le mental, conscient : le ciel à la naissance" },
+    "rowLabel": { "en": "{layer} {body}: gate {gate}, line {line}", "fr": "{body} ({layer}) : porte {gate}, ligne {line}" },
+    "who": { "en": "{layer} {body}", "fr": "{body} ({layer})" },
+    "onGate": { "en": "{who} on gate {gate}", "fr": "{who} sur la porte {gate}" },
+    "factOpen": { "en": "{label}: {value}. Open its reading.", "fr": "{label} : {value}. Ouvrir sa lecture." },
+    "firstTitle": { "en": "Your chart in five steps", "fr": "Votre schéma en cinq étapes" },
+    "lineWord": { "en": "line", "fr": "ligne" },
+    "lineWordCap": { "en": "Line", "fr": "Ligne" },
+    "gateWord": { "en": "Gate", "fr": "Porte" },
+    "gatesWord": { "en": "Gates", "fr": "Portes" },
+    "centreWord": { "en": "Centre", "fr": "Centre" },
+    "channelsWord": { "en": "Channels", "fr": "Canaux" },
+    "channelsAndGates": { "en": "Channels and gates", "fr": "Canaux et portes" },
+    "channelHalfShort": { "en": "one half", "fr": "à moitié" },
+    "signposts": { "en": "Signposts", "fr": "Repères" },
+    "crossTitle": { "en": "Incarnation Cross", "fr": "Croix d’incarnation" },
+    "layersTitle": { "en": "Personality and Design", "fr": "Personnalité et Design" },
+    "angleWord": { "en": "Angle", "fr": "Angle" },
+    "activations": { "en": "Activations", "fr": "Activations" },
+    "definedChannels": { "en": "Defined channels", "fr": "Canaux définis" },
+    "layerPersonality": { "en": "Personality, in ink: the mind, from the sky at birth.", "fr": "Personnalité, à l’encre : le mental, d’après le ciel à la naissance." },
+    "layerDesign": { "en": "Design, in red: the body, from the sky about three months before birth.", "fr": "Design, en rouge : le corps, d’après le ciel environ trois mois avant la naissance." },
+    "layerBoth": { "en": "Both: the whole chart, the Personality in ink and the Design in red.", "fr": "Les deux : le schéma entier, la Personnalité à l’encre et le Design en rouge." }
+  },
+  "facts": {
+    "type": { "en": "Type", "fr": "Type" },
+    "strategy": { "en": "Strategy", "fr": "Stratégie" },
+    "authority": { "en": "Authority", "fr": "Autorité" },
+    "profile": { "en": "Profile", "fr": "Profil" },
+    "definition": { "en": "Definition", "fr": "Définition" },
+    "cross": { "en": "Cross", "fr": "Croix" }
+  },
+  "angle": {
+    "right": { "en": "Right Angle", "fr": "Angle droit" },
+    "juxtaposition": { "en": "Juxtaposition", "fr": "Juxtaposition" },
+    "left": { "en": "Left Angle", "fr": "Angle gauche" }
+  },
+  "activationTable": {
+    "columns": {
+      "en": ["Layer", "Body", "Gate", "Line", "Centre", "Channel"],
+      "fr": ["Couche", "Corps", "Porte", "Ligne", "Centre", "Canal"]
+    }
   }
 }

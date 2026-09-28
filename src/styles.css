@@ -2024,16 +2024,10 @@ html.light .ulune-wheel [data-cfg-type] {
   line-height: 1;
 }
 
-[data-testid="numerology-hello"] .ulune-hello-head,
-[data-testid="hd-hello"] .ulune-hello-head {
+[data-testid="numerology-hello"] .ulune-hello-head {
   justify-content: space-between;
   align-items: baseline;
   gap: var(--space-3);
-}
-
-[data-testid="hd-hello"] .ulune-hello-title {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
 }
 
 .hd-fill-personality {

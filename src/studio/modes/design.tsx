@@ -1,12 +1,13 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { HumanDesignGraph } from "@/components/humandesign-graph";
 import { HdCard } from "@/components/hd-card";
+import { HdFacts } from "@/components/hd-facts";
+import { HdLayerHint } from "@/components/hd-layer-hint";
 import { HumanDesignHello } from "@/components/humandesign-hello";
 import { LoadingLines } from "@/components/loading-lines";
 import { SegmentedToggle } from "@/components/segmented-toggle";
-import { hdHelloCells, type HdHelloId } from "@/lib/i18n/hd-hello";
-import { hdAuthorityLabel, hdCaption, hdNoNatal, hdStrategyLabel, hdTypeLabel, hdViewLabel } from "@/lib/i18n/hd-ui";
-import type { HumanDesignChart } from "@/lib/chart/human-design";
+import { hdMomentLabel } from "@/lib/i18n/hd-moment";
+import { hdNoNatal, hdViewLabel } from "@/lib/i18n/hd-ui";
 import { localizeError } from "@/lib/i18n/errors";
 import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
@@ -44,12 +45,6 @@ function DesignControls() {
   );
 }
 
-function mastValue(chart: HumanDesignChart, id: HdHelloId, locale: "en" | "fr") {
-  if (id === "type") return hdTypeLabel(locale, chart.type);
-  if (id === "strategy") return hdStrategyLabel(locale, chart.strategy);
-  return hdAuthorityLabel(locale, chart.authority);
-}
-
 /** Wide screens read beside the chart; on a phone the reading is a sheet over it. */
 function useWide(): boolean {
   const [wide, setWide] = useState(true);
@@ -67,6 +62,21 @@ function DesignFigure() {
   const w = useWheelView();
   const wide = useWide();
   const hd = useModeData("design");
+  const natal = useStudioStore((s) => s.chart);
+  const hdChart = hd?.hd ?? null;
+  const tz = natal?.meta.timezone;
+  const withTime = !natal?.meta.timeUnknown;
+  // When each column was taken, in the birth place's time.
+  const moments = useMemo(
+    () =>
+      hdChart
+        ? {
+            design: hdMomentLabel(hdChart.designUtc, tz, locale, withTime),
+            personality: hdMomentLabel(hdChart.personalityUtc, tz, locale, withTime),
+          }
+        : { design: "", personality: "" },
+    [hdChart, tz, locale, withTime],
+  );
   if (!hd) return null;
   if (hd.error) {
     return (
@@ -86,42 +96,27 @@ function DesignFigure() {
       </section>
     );
   }
-  // On a phone, choosing a piece keeps the chart whole: the reading waits
-  // behind the card's button instead of a sheet rising over the chart.
+  // On a phone, choosing a piece of the chart keeps it whole: the reading
+  // waits behind the card's button instead of a sheet rising over the chart.
+  // What is only words (the layers) opens its reading at once.
   const select = (id: string) => {
-    if (wide) w.pick(id);
+    if (wide || id.startsWith("hello:")) w.pick(id);
     else useStudioStore.setState((s) => ({ selectedId: s.selectedId === id ? null : id }));
   };
   return (
     <div className="ulune-hd-figure flex h-full min-h-0 w-full flex-col items-center justify-start overflow-auto" style={{ opacity: hd.busy ? 0.7 : 1 }}>
-      <div className="ulune-hd-mast" data-testid="hd-mast">
-        {hdHelloCells(locale).map((cell) => (
-          <div key={cell.id}>
-            <p className="ulune-hd-mast-k">{cell.label}</p>
-            <p className="ulune-hd-mast-v">{mastValue(chart, cell.id, locale)}</p>
-          </div>
-        ))}
-      </div>
+      <HdFacts chart={chart} selectedId={w.selectedId} onSelect={w.pick} />
       <HumanDesignGraph
         chart={chart}
         view={hd.view}
         selectedId={w.selectedId}
         onSelect={select}
         onClear={() => useStudioStore.getState().clear()}
+        moments={moments}
       />
+      <HdLayerHint view={hd.view} />
       {wide ? null : <HdCard chart={chart} view={hd.view} />}
     </div>
-  );
-}
-
-function DesignCaption() {
-  const { locale } = useI18n();
-  const hd = useModeData("design");
-  if (!hd?.hd) return null;
-  return (
-    <p data-testid="hd-caption" className="ulune-hd-caption text-center text-xs text-fg-muted">
-      {hdCaption(locale, hd.hd.profile, hd.hd.definition)}
-    </p>
   );
 }
 
@@ -154,7 +149,6 @@ export const designMode: ModeDef = {
   emptyText: hdNoNatal,
   Controls: DesignControls,
   Figure: DesignFigure,
-  Caption: DesignCaption,
   HelloEmpty: DesignHelloEmpty,
   Data: DesignData,
   preloadData: () => prefetch(loadTable),

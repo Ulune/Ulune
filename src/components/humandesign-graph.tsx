@@ -8,7 +8,8 @@ import {
   GATE_R,
   centerPath,
 } from "@/lib/chart/bodygraph-geometry";
-import { hdHeroOf, hdLitOf, hdSay } from "@/lib/chart/hd-focus";
+import { hdFocusOf, hdSay } from "@/lib/chart/hd-focus";
+import { parseHdActId } from "@/lib/chart/hd-rows";
 import { graphForView, HD_CENTER_IDS, HD_CHANNELS, type HdView, type HumanDesignChart } from "@/lib/chart/human-design";
 import { announceChartHover, onChartPreview } from "@/lib/depth/preview-bus";
 import { prefersReducedMotion } from "@/lib/depth/env";
@@ -17,13 +18,15 @@ import { hdGraphText } from "@/lib/i18n/hd-ui";
 import { cn } from "@/lib/utils";
 import { FigureKeys, type FigurePart } from "./figure-keys";
 import { FigureZoom } from "./figure-zoom";
+import { HdColumn } from "./hd-columns";
 import { useHdNames } from "./use-hd-names";
 
 /*
- * The bodygraph: nine centres, 36 channels and 64 gates drawn from
- * bodygraph-geometry.ts. Pointing outlines a piece and what it connects to;
- * choosing it keeps those bright and fades the rest. Nothing is copied or
- * moved: what is lit is always where it is drawn.
+ * The bodygraph between its two columns: nine centres, 36 channels and 64
+ * gates drawn from bodygraph-geometry.ts, the Design's 13 bodies on the left
+ * and the Personality's on the right. Pointing outlines a piece, what it
+ * connects to and its rows; choosing it keeps those bright and fades the
+ * rest. Nothing is copied or moved: what is lit is always where it is drawn.
  */
 
 type Tone = "off" | "personality" | "design" | "both";
@@ -32,6 +35,8 @@ type Tone = "off" | "personality" | "design" | "both";
 const HOVER_LINGER_MS = 90;
 /** On a touch screen, a tap this close to a gate chooses it (CSS px). */
 const TOUCH_GATE_PX = 14;
+/** What a panel may point at on the chart (a row, a fact, a reading's link). */
+const PREVIEWABLE = /^(gate|channel|center|act):|^hello:(authority|profile|cross)$/;
 
 function partOf(target: EventTarget | null): string | null {
   const el = target instanceof Element ? target.closest("[data-part]") : null;
@@ -44,6 +49,7 @@ export function HumanDesignGraph({
   selectedId,
   onSelect,
   onClear,
+  moments,
 }: {
   chart: HumanDesignChart;
   view: HdView;
@@ -51,6 +57,8 @@ export function HumanDesignGraph({
   onSelect: (id: string) => void;
   /** A click on empty space lets the chosen piece go. */
   onClear: () => void;
+  /** When each column was taken ("6 Oct 1999, 02:48 BST"). */
+  moments: { design: string; personality: string };
 }) {
   const { locale, t } = useI18n();
   const names = useHdNames(locale);
@@ -70,21 +78,18 @@ export function HumanDesignGraph({
   const [preview, setPreview] = useState<string | null>(null);
   const linger = useRef(0);
   const pointerType = useRef("mouse");
+  // A screen without a pointer that hovers gets the tap hint from the start.
   const [touch, setTouch] = useState(false);
+  useEffect(() => {
+    if (typeof window.matchMedia === "function" && window.matchMedia("(hover: none)").matches) setTouch(true);
+  }, []);
 
-  const pinned = hdHeroOf(selectedId, chart);
-  const lit = useMemo(() => hdLitOf(pinned), [pinned]);
-  const outlined = hover ?? (pinned ? null : preview);
-  const outlinedSet = useMemo(() => hdLitOf(outlined), [outlined]);
-  const mode = pinned ? "pinned" : outlined ? "hover" : null;
+  const focus = useMemo(() => hdFocusOf(selectedId, chart), [selectedId, chart]);
+  const pointed = hover ?? (focus ? null : preview);
+  const outline = useMemo(() => hdFocusOf(pointed, chart), [pointed, chart]);
+  const mode = focus ? "pinned" : outline ? "hover" : null;
 
-  useEffect(
-    () =>
-      onChartPreview((id) => {
-        setPreview(id && (/^(gate|channel|center):/.test(id) || id.startsWith("act:") || id === "hello:authority") ? hdHeroOf(id, chart) : null);
-      }),
-    [chart],
-  );
+  useEffect(() => onChartPreview((id) => setPreview(id && PREVIEWABLE.test(id) ? id : null)), []);
   useEffect(() => () => window.clearTimeout(linger.current), []);
   useEffect(() => () => announceChartHover(null), []);
 
@@ -140,112 +145,135 @@ export function HumanDesignGraph({
     return out;
   }, [chart, view, locale, names, defined, onChannels, tones]);
 
-  const sayId = hover ?? pinned ?? preview;
+  // The line under the chart: what the pointer is on, else the chosen row or
+  // piece, else what a panel points at, else the hint.
+  const sayId =
+    hover ??
+    (parseHdActId(selectedId) ? selectedId : (focus?.hero ?? null)) ??
+    (preview && parseHdActId(preview) ? preview : (outline?.hero ?? null));
   const sayLine = sayId ? hdSay(chart, view, sayId, locale, names) : hdGraphText(locale, touch ? "hintTouch" : "hint");
 
   const attrs = (id: string) => ({
     "data-part": id,
-    "data-lit": mode === "pinned" && lit.has(id) ? "1" : undefined,
-    "data-hero": id === pinned ? "1" : undefined,
-    "data-hover": outlined && outlinedSet.has(id) ? (id === outlined ? "hero" : "1") : undefined,
+    "data-lit": focus?.lit.has(id) ? "1" : undefined,
+    "data-hero": focus?.hero === id ? "1" : undefined,
+    "data-hover": outline?.lit.has(id) ? (outline.hero === id ? "hero" : "1") : undefined,
   });
 
+  const column = (layer: "design" | "personality") => (
+    <HdColumn
+      chart={chart}
+      layer={layer}
+      view={view}
+      moment={moments[layer]}
+      selectedId={selectedId}
+      lit={focus ? focus.rows : null}
+      outlined={outline ? outline.rows : null}
+      onPoint={(id) => point(id, id !== null)}
+      onPick={onSelect}
+    />
+  );
+
   return (
-    <div className="ulune-hd-graph" data-testid="hd-box">
-      <FigureZoom testId="hd-zoom">
-        <svg
-          ref={svgRef}
-          viewBox={`0 0 ${BODYGRAPH_W} ${BODYGRAPH_H}`}
-          className="ulune-hd-svg"
-          data-testid="hd-graph"
-          data-view={view}
-          data-focus={mode ?? undefined}
-          role="img"
-          aria-label={t("hdAria")}
-          onPointerDown={(e: ReactPointerEvent<SVGSVGElement>) => {
-            pointerType.current = e.pointerType;
-            if (e.pointerType === "touch" && !touch) setTouch(true);
-          }}
-          onPointerMove={(e) => {
-            if (e.pointerType === "touch") return;
-            point(partOf(e.target));
-          }}
-          onPointerLeave={() => point(null, true)}
-          onClick={onClick}
-        >
-          <defs>
-            <pattern id="hd-stripe" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              <rect width="5" height="5" className="hd-fill-personality" />
-              <rect width="2.5" height="5" className="hd-fill-design" />
-            </pattern>
-          </defs>
-          <g className="hd-channels">
-            {HD_CHANNELS.map((ch) => {
-              const draw = BODYGRAPH_CHANNELS[ch.id];
-              const t0 = tones.get(ch.gates[0]) ?? "off";
-              const t1 = tones.get(ch.gates[1]) ?? "off";
-              const on = onChannels.has(ch.id);
-              const half = (tone: Tone, d: string) =>
-                tone === "off" ? null : (
-                  <>
-                    <path className={tone === "design" ? "hd-line is-design" : "hd-line is-personality"} d={d} />
-                    {tone === "both" ? <path className="hd-line is-both-dash" d={d} /> : null}
-                  </>
+    <div className="ulune-hd-graph" data-testid="hd-box" data-focus={mode ?? undefined}>
+      <div className="ulune-hd-row3">
+        {column("design")}
+        <FigureZoom testId="hd-zoom">
+          <svg
+            ref={svgRef}
+            viewBox={`0 0 ${BODYGRAPH_W} ${BODYGRAPH_H}`}
+            className="ulune-hd-svg"
+            data-testid="hd-graph"
+            data-view={view}
+            data-focus={mode ?? undefined}
+            role="img"
+            aria-label={t("hdAria")}
+            onPointerDown={(e: ReactPointerEvent<SVGSVGElement>) => {
+              pointerType.current = e.pointerType;
+              if (e.pointerType === "touch" && !touch) setTouch(true);
+            }}
+            onPointerMove={(e) => {
+              if (e.pointerType === "touch") return;
+              point(partOf(e.target));
+            }}
+            onPointerLeave={() => point(null, true)}
+            onClick={onClick}
+          >
+            <defs>
+              <pattern id="hd-stripe" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <rect width="5" height="5" className="hd-fill-personality" />
+                <rect width="2.5" height="5" className="hd-fill-design" />
+              </pattern>
+            </defs>
+            <g className="hd-channels">
+              {HD_CHANNELS.map((ch) => {
+                const draw = BODYGRAPH_CHANNELS[ch.id];
+                const t0 = tones.get(ch.gates[0]) ?? "off";
+                const t1 = tones.get(ch.gates[1]) ?? "off";
+                const on = onChannels.has(ch.id);
+                const half = (tone: Tone, d: string) =>
+                  tone === "off" ? null : (
+                    <>
+                      <path className={tone === "design" ? "hd-line is-design" : "hd-line is-personality"} d={d} />
+                      {tone === "both" ? <path className="hd-line is-both-dash" d={d} /> : null}
+                    </>
+                  );
+                return (
+                  <g
+                    key={ch.id}
+                    {...attrs(`channel:${ch.id}`)}
+                    data-testid={`hd-channel-${ch.gates[0]}-${ch.gates[1]}`}
+                    data-tone={on ? "defined" : t0 !== "off" || t1 !== "off" ? "hanging" : "off"}
+                    className={cn("ulune-hd-channel", on && "is-on")}
+                  >
+                    <path className="hd-hit" d={draw.d} />
+                    <path className="hd-off" d={draw.d} />
+                    {half(t0, draw.dA)}
+                    {half(t1, draw.dB)}
+                  </g>
                 );
-              return (
-                <g
-                  key={ch.id}
-                  {...attrs(`channel:${ch.id}`)}
-                  data-testid={`hd-channel-${ch.gates[0]}-${ch.gates[1]}`}
-                  data-tone={on ? "defined" : t0 !== "off" || t1 !== "off" ? "hanging" : "off"}
-                  className={cn("ulune-hd-channel", on && "is-on")}
-                >
-                  <path className="hd-hit" d={draw.d} />
-                  <path className="hd-off" d={draw.d} />
-                  {half(t0, draw.dA)}
-                  {half(t1, draw.dB)}
-                </g>
-              );
-            })}
-          </g>
-          <g className="hd-centers">
-            {HD_CENTER_IDS.map((c) => (
-              <path
-                key={c}
-                {...attrs(`center:${c}`)}
-                d={centerPath(c)}
-                data-testid={`hd-center-${c}`}
-                data-center={c}
-                data-shape={BODYGRAPH_CENTERS[c].shape}
-                data-defined={defined.has(c) ? "1" : undefined}
-                className="ulune-hd-center"
-              />
-            ))}
-          </g>
-          <g className="hd-gates">
-            {Object.entries(BODYGRAPH_GATES).map(([key, g]) => {
-              const n = Number(key);
-              const tone = tones.get(n) ?? "off";
-              return (
-                <g key={n} {...attrs(`gate:${n}`)} data-testid={`hd-gate-${n}`} data-tone={tone} className="ulune-hd-gate">
-                  <circle className="hd-gate-hit" cx={g.x} cy={g.y} r={GATE_R + 2.5} />
-                  <circle className="hd-gate-disc" cx={g.x} cy={g.y} r={GATE_R} />
-                  <text x={g.x} y={g.y} dy="0.36em" textAnchor="middle">
-                    {n}
-                  </text>
-                </g>
-              );
-            })}
-          </g>
-        </svg>
-      </FigureZoom>
+              })}
+            </g>
+            <g className="hd-centers">
+              {HD_CENTER_IDS.map((c) => (
+                <path
+                  key={c}
+                  {...attrs(`center:${c}`)}
+                  d={centerPath(c)}
+                  data-testid={`hd-center-${c}`}
+                  data-center={c}
+                  data-shape={BODYGRAPH_CENTERS[c].shape}
+                  data-defined={defined.has(c) ? "1" : undefined}
+                  className="ulune-hd-center"
+                />
+              ))}
+            </g>
+            <g className="hd-gates">
+              {Object.entries(BODYGRAPH_GATES).map(([key, g]) => {
+                const n = Number(key);
+                const tone = tones.get(n) ?? "off";
+                return (
+                  <g key={n} {...attrs(`gate:${n}`)} data-testid={`hd-gate-${n}`} data-tone={tone} className="ulune-hd-gate">
+                    <circle className="hd-gate-hit" cx={g.x} cy={g.y} r={GATE_R + 2.5} />
+                    <circle className="hd-gate-disc" cx={g.x} cy={g.y} r={GATE_R} />
+                    <text x={g.x} y={g.y} dy="0.36em" textAnchor="middle">
+                      {n}
+                    </text>
+                  </g>
+                );
+              })}
+            </g>
+          </svg>
+        </FigureZoom>
+        {column("personality")}
+      </div>
       <p className="ulune-hd-say" data-testid="hd-say" data-on={sayId ? "1" : undefined}>
         {sayLine}
       </p>
       <FigureKeys
         testId="hd-keys"
         parts={parts}
-        selectedId={selectedId && /^(gate|channel|center):/.test(selectedId) ? selectedId : pinned}
+        selectedId={selectedId && /^(gate|channel|center):/.test(selectedId) ? selectedId : (focus?.hero ?? null)}
         label={hdGraphText(locale, "keysLabel")}
         hint={hdGraphText(locale, "keysHint")}
         said={(opened, name) => hdGraphText(locale, opened ? "keysOpened" : "keysClosed", { name })}

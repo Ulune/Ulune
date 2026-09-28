@@ -1,35 +1,44 @@
 /**
- * Human Design readings: type, strategy, authority, profile, definition,
- * centres, channels and gates. Wording comes from src/lib/content/hd.ts and
+ * Human Design readings: type, strategy, authority, profile, definition, the
+ * cross, centres, channels, gates and the rows of the two columns, plus the
+ * first read shown before anything is chosen. Each reading starts with this
+ * chart; what the element is in general opens its "About". Wording comes
+ * from src/lib/content/hd.ts, src/lib/content/hd-first.ts and
  * src/lib/i18n/hd-prose.ts.
  */
-import type { ElementReading } from "./types";
+import type { ElementReading, ReadingLink } from "./types";
 import type { AppLocale } from "@/lib/i18n/messages";
 import {
   bodiesOnGate,
   graphForView,
-  HD_BODY_LABEL,
   HD_CENTER_IDS,
   HD_GATE_CENTER,
   HD_CHANNELS,
+  type HdActivation,
   type HdCenterId,
   type HdView,
   type HumanDesignChart,
 } from "./human-design";
+import { hdCrossGates, hdCrossOf } from "./hd-cross";
+import { hdActId, hdActivationOf, parseHdActId } from "./hd-rows";
 import { hdHelloCells } from "@/lib/i18n/hd-hello";
 import {
+  hdAngleLabel,
   hdAuthorityLabel,
   hdCenterLabel,
   hdCenterState,
   hdChannelCentersLine,
   hdDefinitionLabel,
+  hdFactLabel,
   hdGateTitle,
+  hdGraphText,
   hdLayerLabel,
   hdStrategyLabel,
   hdTypeLabel,
+  hdWhoLabel,
 } from "@/lib/i18n/hd-ui";
 import { hdAuthorityProse, hdCenterProse, hdStrategyProse, hdTypeProse } from "@/lib/i18n/hd-prose";
-import { pickBi } from "@/lib/content/types";
+import { pickBi, type Bi } from "@/lib/content/types";
 import {
   HD_ABOUT,
   HD_CHANNEL_TEXT,
@@ -38,6 +47,29 @@ import {
   HD_LINE_TEXT,
   HD_PROFILE_TEXT,
 } from "@/lib/content/hd";
+import {
+  HD_AUTHORITY_STEP,
+  HD_BODY_TEXT,
+  HD_CROSS_TEXT,
+  HD_DEFINITION_STEP,
+  HD_IN_CHART,
+  HD_NEXT,
+  HD_PROFILE_STEP,
+  HD_SIGNPOSTS,
+  HD_SIGNPOSTS_LINE,
+  HD_STRATEGY_STEP,
+  HD_TYPE_STEP,
+} from "@/lib/content/hd-first";
+
+function fill(text: string, vars: Record<string, string | number>): string {
+  let s = text;
+  for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, String(v));
+  return s;
+}
+
+function fillBi(b: Bi, locale: AppLocale, vars: Record<string, string | number>): string {
+  return fill(pickBi(b, locale), vars);
+}
 
 function gateLabel(locale: AppLocale, n: number) {
   const name = pickBi(HD_GATE_TEXT[n]?.name, locale);
@@ -63,6 +95,72 @@ function lineName(locale: AppLocale, line: number) {
   return pickBi(HD_LINE_TEXT[line as 1 | 2 | 3 | 4 | 5 | 6]?.name, locale);
 }
 
+function lineText(locale: AppLocale, line: number) {
+  return pickBi(HD_LINE_TEXT[line as 1 | 2 | 3 | 4 | 5 | 6]?.what, locale);
+}
+
+/** "a", "a and b", "a, b and c". */
+function joinList(items: string[], locale: AppLocale): string {
+  const and = pickBi(HD_IN_CHART.and, locale);
+  if (items.length <= 1) return items[0] ?? "";
+  return `${items.slice(0, -1).join(", ")}${and}${items[items.length - 1]}`;
+}
+
+/** "Personality Venus, line 2 (Hermit)". */
+function whoOnLine(locale: AppLocale, row: HdActivation): string {
+  return `${hdWhoLabel(locale, row)}, ${hdGraphText(locale, "lineWord")} ${row.line} (${lineName(locale, row.line)})`;
+}
+
+/** Every channel through a gate, the defined ones first, each with its state in this view. */
+function channelsThrough(chart: HumanDesignChart, n: number, view: HdView, locale: AppLocale): ReadingLink[] {
+  const graph = graphForView(chart, view);
+  const rows = HD_CHANNELS.filter((ch) => ch.gates.includes(n)).map((ch) => {
+    const on = graph.channels.some((c) => c.id === ch.id);
+    const other = ch.gates[0] === n ? ch.gates[1] : ch.gates[0];
+    const otherOn = graph.gates.has(other);
+    const state = on
+      ? hdGraphText(locale, "channelDefined")
+      : graph.gates.has(n) || otherOn
+        ? hdGraphText(locale, "channelHalfShort")
+        : hdGraphText(locale, "channelOpen");
+    return {
+      on,
+      link: {
+        ref: `channel:${ch.id}`,
+        label: channelLabel(locale, ch.id),
+        detail: `${hdChannelCentersLine(locale, ch.centers[0], ch.centers[1])} · ${state}`,
+      },
+    };
+  });
+  return rows.sort((a, b) => Number(b.on) - Number(a.on)).map((r) => r.link);
+}
+
+/** The five steps shown before anything is chosen, with what to look at next. */
+export function hdFirstRead(chart: HumanDesignChart, locale: AppLocale) {
+  const [a, b] = chart.profile.split("/").map(Number);
+  const signs = HD_SIGNPOSTS[chart.type];
+  return {
+    profileName: pickBi(HD_PROFILE_TEXT[chart.profile]?.name, locale),
+    steps: [
+      {
+        id: "type" as const,
+        text: pickBi(HD_TYPE_STEP[chart.type], locale),
+        extra: signs
+          ? fillBi(HD_SIGNPOSTS_LINE, locale, { notSelf: pickBi(signs.notSelf, locale), signature: pickBi(signs.signature, locale) })
+          : undefined,
+      },
+      { id: "strategy" as const, text: pickBi(HD_STRATEGY_STEP[chart.strategy], locale) },
+      { id: "authority" as const, text: pickBi(HD_AUTHORITY_STEP[chart.authority], locale) },
+      {
+        id: "profile" as const,
+        text: a && b ? fillBi(HD_PROFILE_STEP, locale, { a, b, aName: lineName(locale, a), bName: lineName(locale, b) }) : "",
+      },
+      { id: "definition" as const, text: pickBi(HD_DEFINITION_STEP[chart.definition], locale) },
+    ],
+    next: pickBi(HD_NEXT, locale),
+  };
+}
+
 export function hdReading(
   chart: HumanDesignChart,
   pickId: string | null,
@@ -74,10 +172,18 @@ export function hdReading(
   const fr = locale === "fr";
   const inDesign = fr ? "Dans votre carte" : "In your design";
   const aboutTitle = fr ? "À propos du Human Design" : "About Human Design";
+  const cross = hdCrossOf(chart);
+  const crossFact = cross
+    ? [{ label: hdFactLabel(locale, "cross"), value: hdCrossGates(cross), ref: "hello:cross" }]
+    : [];
 
   if (pickId === "hello:type") {
     const cell = hello.find((c) => c.id === "type");
     const profile = HD_PROFILE_TEXT[chart.profile];
+    const signs = HD_SIGNPOSTS[chart.type];
+    const signposts = signs
+      ? fillBi(HD_SIGNPOSTS_LINE, locale, { notSelf: pickBi(signs.notSelf, locale), signature: pickBi(signs.signature, locale) })
+      : "";
     return {
       id: pickId,
       kind: "house",
@@ -85,14 +191,16 @@ export function hdReading(
       kicker: cell?.sentence ?? "",
       note: cell?.sentence,
       lead: hdTypeProse(locale, chart.type),
-      paragraphs: [hdTypeProse(locale, chart.type), pickBi(profile?.what, locale), pickBi(HD_DEFINITION_TEXT[chart.definition], locale)].filter(Boolean),
+      paragraphs: [hdTypeProse(locale, chart.type), signposts, pickBi(profile?.what, locale), pickBi(HD_DEFINITION_TEXT[chart.definition], locale)].filter(Boolean),
       facts: [
-        { label: fr ? "Profil" : "Profile", value: chart.profile, ref: "hello:profile" },
-        { label: fr ? "Définition" : "Definition", value: hdDefinitionLabel(locale, chart.definition), ref: "hello:definition" },
-        { label: fr ? "Stratégie" : "Strategy", value: hdStrategyLabel(locale, chart.strategy), ref: "hello:strategy" },
-        { label: fr ? "Autorité" : "Authority", value: hdAuthorityLabel(locale, chart.authority), ref: "hello:authority" },
+        { label: hdFactLabel(locale, "profile"), value: chart.profile, ref: "hello:profile" },
+        { label: hdFactLabel(locale, "definition"), value: hdDefinitionLabel(locale, chart.definition), ref: "hello:definition" },
+        { label: hdFactLabel(locale, "strategy"), value: hdStrategyLabel(locale, chart.strategy), ref: "hello:strategy" },
+        { label: hdFactLabel(locale, "authority"), value: hdAuthorityLabel(locale, chart.authority), ref: "hello:authority" },
+        ...crossFact,
       ],
       sections: [
+        ...(signposts ? [{ id: "signposts", title: hdGraphText(locale, "signposts"), paragraphs: [signposts] }] : []),
         {
           id: "chart",
           title: inDesign,
@@ -112,7 +220,7 @@ export function hdReading(
       note: cell?.sentence,
       lead: hdStrategyProse(locale, chart.strategy),
       paragraphs: [hdStrategyProse(locale, chart.strategy), hdTypeProse(locale, chart.type)],
-      facts: [{ label: fr ? "Type" : "Type", value: hdTypeLabel(locale, chart.type), ref: "hello:type" }],
+      facts: [{ label: hdFactLabel(locale, "type"), value: hdTypeLabel(locale, chart.type), ref: "hello:type" }],
       sections: [{ id: "chart", title: inDesign, paragraphs: [hdTypeProse(locale, chart.type)] }],
       about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
     };
@@ -128,8 +236,8 @@ export function hdReading(
       lead: hdAuthorityProse(locale, chart.authority),
       paragraphs: [hdAuthorityProse(locale, chart.authority)],
       facts: [
-        { label: fr ? "Type" : "Type", value: hdTypeLabel(locale, chart.type), ref: "hello:type" },
-        { label: fr ? "Stratégie" : "Strategy", value: hdStrategyLabel(locale, chart.strategy), ref: "hello:strategy" },
+        { label: hdFactLabel(locale, "type"), value: hdTypeLabel(locale, chart.type), ref: "hello:type" },
+        { label: hdFactLabel(locale, "strategy"), value: hdStrategyLabel(locale, chart.strategy), ref: "hello:strategy" },
       ],
       about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
     };
@@ -137,16 +245,17 @@ export function hdReading(
   if (pickId === "hello:profile") {
     const p = HD_PROFILE_TEXT[chart.profile];
     const [a, b] = chart.profile.split("/").map(Number);
+    const suns = [hdActivationOf(chart, "personality", "sun"), hdActivationOf(chart, "design", "sun")];
     const lines = [a, b].filter(Boolean).map((n, i) => ({
-      ref: "",
-      label: `${fr ? "Ligne" : "Line"} ${n} · ${lineName(locale, n)}`,
-      detail: i === 0 ? (fr ? "consciente" : "conscious") : fr ? "inconsciente" : "unconscious",
-      text: pickBi(HD_LINE_TEXT[n as 1 | 2 | 3 | 4 | 5 | 6]?.what, locale),
+      ref: suns[i] ? hdActId(suns[i]!.layer, "sun") : "",
+      label: `${hdGraphText(locale, "lineWordCap")} ${n} · ${lineName(locale, n)}`,
+      detail: suns[i] ? `${hdWhoLabel(locale, suns[i]!)} ${suns[i]!.gate}.${suns[i]!.line}` : undefined,
+      text: lineText(locale, n),
     }));
     return {
       id: pickId,
       kind: "house",
-      title: `${fr ? "Profil" : "Profile"} ${chart.profile}${p ? ` · ${pickBi(p.name, locale)}` : ""}`,
+      title: `${hdFactLabel(locale, "profile")} ${chart.profile}${p ? ` · ${pickBi(p.name, locale)}` : ""}`,
       kicker: "",
       mark: chart.profile,
       note: pickBi(HD_ABOUT.profile, locale),
@@ -160,12 +269,98 @@ export function hdReading(
     return {
       id: pickId,
       kind: "house",
-      title: `${fr ? "Définition" : "Definition"} · ${hdDefinitionLabel(locale, chart.definition)}`,
+      title: `${hdFactLabel(locale, "definition")} · ${hdDefinitionLabel(locale, chart.definition)}`,
       kicker: "",
       note: pickBi(HD_ABOUT.definition, locale),
       lead: pickBi(HD_DEFINITION_TEXT[chart.definition], locale),
       paragraphs: [pickBi(HD_DEFINITION_TEXT[chart.definition], locale)],
       about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
+    };
+  }
+  if (pickId === "hello:layers") {
+    const suns = [hdActivationOf(chart, "personality", "sun"), hdActivationOf(chart, "design", "sun")].filter(
+      (r): r is HdActivation => Boolean(r),
+    );
+    return {
+      id: pickId,
+      kind: "house",
+      title: hdGraphText(locale, "layersTitle"),
+      kicker: "",
+      lead: pickBi(HD_ABOUT.personalityDesign, locale),
+      paragraphs: [pickBi(HD_ABOUT.personalityDesign, locale)],
+      facts: suns.map((r) => ({ label: hdWhoLabel(locale, r), value: `${r.gate}.${r.line}`, ref: hdActId(r.layer, r.body) })),
+      about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
+    };
+  }
+  if (pickId === "hello:cross") {
+    if (!cross) return null;
+    const angle = cross.angle ? hdAngleLabel(locale, cross.angle) : "";
+    const four = [
+      hdActivationOf(chart, "personality", "sun"),
+      hdActivationOf(chart, "personality", "earth"),
+      hdActivationOf(chart, "design", "sun"),
+      hdActivationOf(chart, "design", "earth"),
+    ].filter((r): r is HdActivation => Boolean(r));
+    const lead = fillBi(HD_CROSS_TEXT.mine, locale, {
+      gates: hdCrossGates(cross),
+      ps: cross.personality[0],
+      pe: cross.personality[1],
+      ds: cross.design[0],
+      de: cross.design[1],
+    });
+    return {
+      id: pickId,
+      kind: "house",
+      title: hdGraphText(locale, "crossTitle"),
+      kicker: hdCrossGates(cross),
+      lead,
+      paragraphs: [lead, cross.angle ? pickBi(HD_CROSS_TEXT.angle[cross.angle], locale) : ""].filter(Boolean),
+      facts: [
+        ...four.map((r) => ({ label: hdWhoLabel(locale, r), value: `${r.gate}.${r.line}`, ref: hdActId(r.layer, r.body) })),
+        ...(angle ? [{ label: hdGraphText(locale, "angleWord"), value: angle }] : []),
+        { label: hdFactLabel(locale, "profile"), value: chart.profile, ref: "hello:profile" },
+      ],
+      sections: cross.angle ? [{ id: "angle", title: angle, paragraphs: [pickBi(HD_CROSS_TEXT.angle[cross.angle], locale)] }] : undefined,
+      links: {
+        title: fr ? "Les quatre portes" : "The four gates",
+        rows: four.map((r) => ({ ref: `gate:${r.gate}`, label: gateLabel(locale, r.gate), detail: hdWhoLabel(locale, r) })),
+      },
+      about: { title: aboutTitle, paragraphs: [pickBi(HD_CROSS_TEXT.what, locale), pickBi(HD_ABOUT.system, locale)] },
+    };
+  }
+
+  const act = parseHdActId(pickId);
+  if (act) {
+    const row = hdActivationOf(chart, act.layer, act.body);
+    if (!row) return null;
+    const n = row.gate;
+    const centerId = HD_GATE_CENTER[n];
+    const who = hdWhoLabel(locale, row);
+    const here = fillBi(HD_IN_CHART.rowHere, locale, { act: who, gate: n, line: row.line, lineName: lineName(locale, row.line) });
+    const body = pickBi(HD_BODY_TEXT[row.body], locale);
+    const gateText = pickBi(HD_GATE_TEXT[n]?.what, locale);
+    const lead = [here, body].filter(Boolean).join(" ");
+    return {
+      id: pickId,
+      kind: "planet",
+      title: `${who} ${n}.${row.line}`,
+      kicker: gateLabel(locale, n),
+      lead,
+      paragraphs: [lead, gateText, lineText(locale, row.line)].filter(Boolean),
+      facts: [
+        { label: hdGraphText(locale, "gateWord"), value: hdGateName(locale, n) ? `${n} · ${hdGateName(locale, n)}` : String(n), ref: `gate:${n}` },
+        { label: hdGraphText(locale, "lineWordCap"), value: `${row.line} · ${lineName(locale, row.line)}` },
+        ...(centerId ? [{ label: hdGraphText(locale, "centreWord"), value: hdCenterLabel(locale, centerId), ref: `center:${centerId}` }] : []),
+      ],
+      sections: [
+        ...(gateText ? [{ id: "gate", title: gateLabel(locale, n), paragraphs: [gateText] }] : []),
+        { id: "line", title: `${hdGraphText(locale, "lineWordCap")} ${row.line} · ${lineName(locale, row.line)}`, paragraphs: [lineText(locale, row.line)] },
+      ],
+      links: { title: hdGraphText(locale, "channelsWord"), rows: channelsThrough(chart, n, view, locale) },
+      about: {
+        title: aboutTitle,
+        paragraphs: [pickBi(HD_ABOUT.personalityDesign, locale), pickBi(HD_ABOUT.system, locale)],
+      },
     };
   }
 
@@ -176,12 +371,23 @@ export function hdReading(
     const text = HD_CHANNEL_TEXT[id];
     const graph = graphForView(chart, view);
     const live = graph.channels.find((row) => row.id === id);
-    const aBodies = bodiesOnGate(chart, ch.gates[0], view);
-    const bBodies = bodiesOnGate(chart, ch.gates[1], view);
+    const [ga, gb] = ch.gates;
+    const aBodies = bodiesOnGate(chart, ga, view);
+    const bBodies = bodiesOnGate(chart, gb, view);
+    const onGate = (g: number, rows: HdActivation[]) =>
+      hdGraphText(locale, "onGate", { who: joinList(rows.map((r) => hdWhoLabel(locale, r)), locale), gate: g });
+    const inChart = live
+      ? fillBi(HD_IN_CHART.channelBoth, locale, { a: onGate(ga, aBodies), b: onGate(gb, bBodies) })
+      : aBodies.length || bBodies.length
+        ? fillBi(HD_IN_CHART.channelHalf, locale, {
+            a: aBodies.length ? onGate(ga, aBodies) : onGate(gb, bBodies),
+            open: aBodies.length ? gb : ga,
+          })
+        : pickBi(HD_IN_CHART.channelNone, locale);
     const tone = !live
-      ? fr
-        ? "Non défini"
-        : "Not defined"
+      ? aBodies.length || bBodies.length
+        ? hdGraphText(locale, "channelHalfShort")
+        : hdGraphText(locale, "channelOpen")
       : live.mixed
         ? `${hdLayerLabel(locale, "personality")} + ${hdLayerLabel(locale, "design")}`
         : live.personality
@@ -194,26 +400,28 @@ export function hdReading(
       : fr
         ? `Ce canal n’est pas défini dans cette vue${aBodies.length || bBodies.length ? " : une seule de ses portes est activée, et l’autre moitié peut être apportée par une autre personne ou un transit" : ""}.`
         : `This channel is not defined in this view${aBodies.length || bBodies.length ? ": only one of its gates is activated, and the other half can be supplied by another person or a transit" : ""}.`;
-    const act = (g: number, rows: typeof aBodies) =>
-      rows.map((row) => `${hdLayerLabel(locale, row.layer)} ${HD_BODY_LABEL[row.body]} ${g}.${row.line}`).join(", ");
+    const lead = [inChart, pickBi(text?.what, locale)].filter(Boolean).join(" ");
     return {
       id: pickId,
       kind: "house",
       title: channelLabel(locale, id),
       kicker: hdChannelCentersLine(locale, ch.centers[0], ch.centers[1]),
       note: pickBi(HD_ABOUT.channel, locale),
-      lead: pickBi(text?.what, locale),
-      paragraphs: [pickBi(text?.what, locale), state].filter(Boolean),
+      lead,
+      paragraphs: [lead, state].filter(Boolean),
       facts: [{ label: fr ? "Couche" : "Layer", value: tone }],
       sections: [{ id: "chart", title: inDesign, paragraphs: [state] }],
       links: {
         title: fr ? "Portes et centres" : "Gates and centres",
         rows: [
-          ...ch.gates.map((g, i) => ({
-            ref: `gate:${g}`,
-            label: gateLabel(locale, g),
-            detail: act(g, i === 0 ? aBodies : bBodies) || undefined,
-          })),
+          ...ch.gates.map((g, i) => {
+            const rows = i === 0 ? aBodies : bBodies;
+            return {
+              ref: `gate:${g}`,
+              label: gateLabel(locale, g),
+              detail: rows.map((row) => `${hdWhoLabel(locale, row)} ${g}.${row.line}`).join(", ") || undefined,
+            };
+          }),
           ...ch.centers.map((c) => ({ ref: `center:${c}`, label: hdCenterLabel(locale, c) })),
         ],
       },
@@ -240,6 +448,11 @@ export function hdReading(
       : fr
         ? "Cette porte n’est pas activée dans votre carte ; vous pouvez en vivre le thème à travers d’autres personnes ou des transits."
         : "This gate is not activated in your chart; you can experience its theme through other people or transits.";
+    const inChart = rows.length
+      ? fillBi(HD_IN_CHART.gateBy, locale, { acts: joinList(rows.map((r) => whoOnLine(locale, r)), locale) })
+      : pickBi(HD_IN_CHART.gateNone, locale);
+    const lead = [inChart, pickBi(text?.what, locale)].filter(Boolean).join(" ");
+    const linesSeen = [...new Set(rows.map((r) => r.line))];
     return {
       id: pickId,
       kind: "house",
@@ -247,31 +460,25 @@ export function hdReading(
       kicker: centerId ? hdCenterLabel(locale, centerId) : "",
       mark: String(n),
       note: pickBi(HD_ABOUT.gate, locale),
-      lead: pickBi(text?.what, locale),
-      paragraphs: [pickBi(text?.what, locale), state, ...rows.map((row) => `${hdLayerLabel(locale, row.layer)} ${HD_BODY_LABEL[row.body]}, ${fr ? "ligne" : "line"} ${row.line}.`)].filter(Boolean),
+      lead,
+      paragraphs: [lead, state].filter(Boolean),
       facts: [
-        { label: fr ? "État" : "State", value: rows.length ? (fr ? "Activée" : "Activated") : fr ? "Non activée" : "Not activated" },
-        ...(centerId ? [{ label: fr ? "Centre" : "Centre", value: hdCenterLabel(locale, centerId), ref: `center:${centerId}` }] : []),
+        ...(rows.length
+          ? rows.map((r) => ({ label: hdWhoLabel(locale, r), value: `${n}.${r.line}`, ref: hdActId(r.layer, r.body) }))
+          : [{ label: fr ? "État" : "State", value: fr ? "Non activée" : "Not activated" }]),
+        ...(centerId ? [{ label: hdGraphText(locale, "centreWord"), value: hdCenterLabel(locale, centerId), ref: `center:${centerId}` }] : []),
       ],
-      sections: [{ id: "chart", title: inDesign, paragraphs: [state] }],
-      links:
-        rows.length || channels.length
-          ? {
-              title: fr ? "Activations" : "Activations",
-              rows: [
-                ...rows.map((row) => ({
-                  ref: "",
-                  label: `${hdLayerLabel(locale, row.layer)} ${HD_BODY_LABEL[row.body]}`,
-                  detail: `${n}.${row.line} · ${lineName(locale, row.line)}`,
-                })),
-                ...channels.map((ch) => ({
-                  ref: `channel:${ch.id}`,
-                  label: channelLabel(locale, ch.id),
-                  detail: hdChannelCentersLine(locale, ch.centers[0], ch.centers[1]),
-                })),
-              ],
-            }
-          : undefined,
+      sections: [
+        {
+          id: "chart",
+          title: inDesign,
+          paragraphs: [
+            state,
+            ...linesSeen.map((line) => `${hdGraphText(locale, "lineWordCap")} ${line} · ${lineName(locale, line)}. ${lineText(locale, line)}`),
+          ],
+        },
+      ],
+      links: { title: hdGraphText(locale, "channelsWord"), rows: channelsThrough(chart, n, view, locale) },
       about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
     };
   }
@@ -283,6 +490,10 @@ export function hdReading(
     const defined = graph.centers.includes(id);
     const channels = graph.channels.filter((ch) => ch.centers.includes(id));
     const prose = hdCenterProse(locale, id, defined);
+    const gates = Object.entries(HD_GATE_CENTER)
+      .filter(([, c]) => c === id)
+      .map(([g]) => Number(g));
+    const active = gates.filter((g) => graph.gates.has(g));
     return {
       id: pickId,
       kind: "house",
@@ -290,18 +501,31 @@ export function hdReading(
       kicker: hdCenterState(locale, defined),
       note: prose.role,
       lead: prose.state,
-      paragraphs: [prose.role, prose.state],
-      facts: [{ label: fr ? "État" : "State", value: hdCenterState(locale, defined) }],
-      links: channels.length
-        ? {
-            title: fr ? "Canaux" : "Channels",
-            rows: channels.map((ch) => ({
-              ref: `channel:${ch.id}`,
-              label: channelLabel(locale, ch.id),
-              detail: hdChannelCentersLine(locale, ch.centers[0], ch.centers[1]),
-            })),
-          }
-        : undefined,
+      paragraphs: [prose.state, prose.role],
+      facts: [
+        { label: fr ? "État" : "State", value: hdCenterState(locale, defined) },
+        { label: hdGraphText(locale, "gatesWord"), value: hdGraphText(locale, "gatesActive", { n: active.length, m: gates.length }) },
+      ],
+      links:
+        channels.length || active.length
+          ? {
+              title: hdGraphText(locale, "channelsAndGates"),
+              rows: [
+                ...channels.map((ch) => ({
+                  ref: `channel:${ch.id}`,
+                  label: channelLabel(locale, ch.id),
+                  detail: hdChannelCentersLine(locale, ch.centers[0], ch.centers[1]),
+                })),
+                ...active.map((g) => ({
+                  ref: `gate:${g}`,
+                  label: gateLabel(locale, g),
+                  detail: bodiesOnGate(chart, g, view)
+                    .map((r) => `${hdWhoLabel(locale, r)} ${g}.${r.line}`)
+                    .join(", "),
+                })),
+              ],
+            }
+          : undefined,
       about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
     };
   }

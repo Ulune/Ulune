@@ -23,7 +23,15 @@ export type GlossaryId =
   | "hdStrategy"
   | "hdAuthority"
   | "hdCentres"
+  | "hdGate"
+  | "hdChannel"
+  | "hdLine"
+  | "hdHanging"
   | "hdLayers"
+  | "hdNotSelf"
+  | "hdProfile"
+  | "hdDefinition"
+  | "hdCross"
   | "lifePath"
   | "nameNumbers"
   | "birthday"
@@ -148,11 +156,67 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
       "Les neuf centres du bodygraph portent 64 portes, une par hexagramme du Yi King, allumées par les planètes. Un canal relie deux portes ; quand les deux sont allumées, il définit les deux centres qu’il relie.",
     ],
   },
+  hdGate: {
+    term: ["Gate", "Porte"],
+    body: [
+      "One of the bodygraph’s 64 gates, one for each hexagram of the I Ching and about 5.6° of the zodiac. A planet standing in it at birth, or in the Design, colours it.",
+      "L’une des 64 portes du bodygraph, une par hexagramme du Yi King et d’environ 5,6° du zodiaque. Une planète qui s’y trouve à la naissance, ou dans le Design, la colore.",
+    ],
+  },
+  hdChannel: {
+    term: ["Channel", "Canal"],
+    body: [
+      "The line between two gates in two centres. With both gates coloured, the channel is defined, and so are the two centres it joins.",
+      "La ligne entre deux portes de deux centres. Quand les deux portes sont colorées, le canal est défini, ainsi que les deux centres qu’il relie.",
+    ],
+  },
+  hdLine: {
+    term: ["Line", "Ligne"],
+    body: [
+      "Each gate has six lines, the finer shade of its theme, written after the gate: 34.2 is gate 34, line 2. The lines of the two Suns make the profile.",
+      "Chaque porte a six lignes, la nuance fine de son thème, notée après la porte : 34.2 est la porte 34, ligne 2. Les lignes des deux Soleils forment le profil.",
+    ],
+  },
+  hdHanging: {
+    term: ["Hanging gate", "Porte suspendue"],
+    body: [
+      "A coloured gate whose partner across the channel is not: half a channel, a theme you carry that someone with the other gate can complete.",
+      "Une porte colorée dont la partenaire, de l’autre côté du canal, ne l’est pas : un demi-canal, un thème que vous portez et qu’une personne ayant l’autre porte peut compléter.",
+    ],
+  },
   hdLayers: {
     term: ["Personality, Design", "Personnalité, Design"],
     body: [
       "Personality: the planets at birth. Design: the planets when the Sun stood 88° further back, about three months before birth.",
       "Personnalité : les planètes à la naissance. Design : les planètes quand le Soleil était 88° plus tôt, environ trois mois avant la naissance.",
+    ],
+  },
+  hdNotSelf: {
+    term: ["Not-self theme, signature", "Thème du non-soi, signature"],
+    body: [
+      "Feelings Human Design uses as signposts for each type: the not-self theme when you are off track (anger, frustration, bitterness, disappointment), the signature when you are on it (peace, satisfaction, success, surprise).",
+      "Des ressentis que le Human Design utilise comme repères pour chaque type : le thème du non-soi quand vous vous écartez de votre voie (colère, frustration, amertume, déception), la signature quand vous la suivez (paix, satisfaction, succès, surprise).",
+    ],
+  },
+  hdProfile: {
+    term: ["Profile", "Profil"],
+    body: [
+      "Two numbers, the lines of the two Suns: the Personality Sun’s first, then the Design Sun’s. There are twelve, from 1/3 to 6/3.",
+      "Deux nombres, les lignes des deux Soleils : celle du Soleil de la Personnalité, puis celle du Soleil du Design. Il y en a douze, de 1/3 à 6/3.",
+    ],
+  },
+  hdDefinition: {
+    term: ["Definition", "Définition"],
+    body: [
+      "How the coloured centres connect: all in one group (single), in two, three or four separate groups (split), or not at all when none is coloured.",
+      "La façon dont les centres colorés sont reliés : en un seul groupe (simple), en deux, trois ou quatre groupes séparés (double, triple, quadruple), ou pas du tout quand aucun n’est coloré.",
+    ],
+  },
+  hdCross: {
+    term: ["Incarnation Cross", "Croix d’incarnation"],
+    body: [
+      "The gates of the Sun and the Earth at birth and in the Design, read together as a life theme. Its angle, right, juxtaposition or left, comes from the profile.",
+      "Les portes du Soleil et de la Terre à la naissance et dans le Design, lues ensemble comme un thème de vie. Son angle, droit, juxtaposition ou gauche, vient du profil.",
     ],
   },
   lifePath: {
@@ -198,7 +262,19 @@ export function glossaryFor(page: string, selectedId: string | null): GlossaryId
   if (page === "progressions") add("progression");
   if (page === "synastry") add("synastry");
   if (page === "composite") add("composite");
-  if (page === "design") add("hdType", "hdStrategy", "hdAuthority", "hdCentres", "hdLayers");
+  if (page === "design") {
+    // The words the chosen piece's reading uses first, then the keys.
+    if (prefix === "gate" || prefix === "act") add("hdGate", "hdLine", "hdHanging", "hdChannel");
+    if (prefix === "act") add("hdLayers");
+    if (prefix === "channel") add("hdChannel", "hdHanging", "hdGate");
+    if (prefix === "center") add("hdCentres", "hdChannel");
+    if (selectedId === "hello:type") add("hdType", "hdNotSelf");
+    if (selectedId === "hello:profile") add("hdProfile", "hdLine");
+    if (selectedId === "hello:definition") add("hdDefinition", "hdCentres");
+    if (selectedId === "hello:cross") add("hdCross", "hdProfile", "hdGate");
+    if (selectedId === "hello:layers") add("hdLayers");
+    add("hdType", "hdStrategy", "hdAuthority", "hdProfile", "hdDefinition", "hdCentres", "hdLayers");
+  }
   if (page === "numerology") add("lifePath", "nameNumbers", "birthday", "masterNumbers");
   if (/aspect$/.test(prefix)) add("aspect", "orb", "applying");
   if (prefix === "planet" || prefix === "transit" || prefix === "progressed" || prefix === "partner") {

@@ -31,6 +31,13 @@ export function hdTableColumns(locale: AppLocale): readonly string[] {
   return localizedColumns(source.table.columns, locale, HD_TABLE_COLUMN_KEYS.length);
 }
 
+/** The Table view's 26 activations: which side, which body, its gate and line, the gate's centre and channel. */
+export const HD_ACTIVATION_COLUMN_KEYS = ["layer", "body", "gate", "line", "centre", "channel"] as const;
+
+export function hdActivationColumns(locale: AppLocale): readonly string[] {
+  return localizedColumns(source.activationTable.columns, locale, HD_ACTIVATION_COLUMN_KEYS.length);
+}
+
 export function hdViewLabel(locale: AppLocale, view: HdView): string {
   return pick(source.views[view], locale);
 }
@@ -102,4 +109,21 @@ export function hdActivationLabel(
     gate: row.gate,
     line: row.line,
   });
+}
+
+export type HdFactKey = keyof typeof source.facts;
+
+/** The names of the five keys and the cross ("Type", "Profile", "Cross"). */
+export function hdFactLabel(locale: AppLocale, key: HdFactKey): string {
+  return pick(source.facts[key], locale);
+}
+
+/** "Right Angle", "Juxtaposition", "Left Angle". */
+export function hdAngleLabel(locale: AppLocale, angle: keyof typeof source.angle): string {
+  return pick(source.angle[angle], locale);
+}
+
+/** "Personality Venus" (EN) or "Vénus (Personnalité)" (FR). */
+export function hdWhoLabel(locale: AppLocale, row: { layer: "personality" | "design"; body: string }): string {
+  return hdGraphText(locale, "who", { layer: hdLayerLabel(locale, row.layer), body: hdBodyLabel(locale, row.body) });
 }

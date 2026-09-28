@@ -3,7 +3,7 @@ import source from "./hd-hello.json" with { type: "json" };
 
 export const HD_HELLO = source;
 
-export type HdHelloId = "type" | "strategy" | "authority";
+export type HdHelloId = "type" | "strategy" | "authority" | "profile" | "definition";
 
 export type HdHelloCell = {
   id: HdHelloId;
@@ -11,8 +11,10 @@ export type HdHelloCell = {
   sentence: string;
 };
 
+const HELLO_IDS: readonly string[] = ["type", "strategy", "authority", "profile", "definition"];
+
 function isHelloId(id: string): id is HdHelloId {
-  return id === "type" || id === "strategy" || id === "authority";
+  return HELLO_IDS.includes(id);
 }
 
 export function hdHelloCells(locale: AppLocale): HdHelloCell[] {
