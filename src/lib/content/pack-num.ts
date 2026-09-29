@@ -4,4 +4,10 @@
  */
 export { numerologyReading } from "@/lib/chart/interpret-numerology";
 export { numerologyNumberParagraphs } from "@/lib/i18n/numerology-text";
-export { PERSONAL_DAY_TEXT, PERSONAL_MONTH_TEXT, UNIVERSAL_YEAR_TEXT } from "@/lib/content/numerology";
+export {
+  NUMBER_TEXT,
+  PERSONAL_DAY_TEXT,
+  PERSONAL_MONTH_TEXT,
+  PERSONAL_YEAR_TEXT,
+  UNIVERSAL_YEAR_TEXT,
+} from "@/lib/content/numerology";

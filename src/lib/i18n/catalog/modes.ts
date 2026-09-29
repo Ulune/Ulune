@@ -4,47 +4,6 @@ export const modes = {
     "Human Design bodygraph: the nine centres, the channels between them and the 64 gates.",
     "Bodygraph Human Design : les neuf centres, les canaux qui les relient et les 64 portes.",
   ],
-  numerologyAddBirthName: ["Add a birth name", "Ajouter un nom de naissance"],
-  numerologyAddBirthNameHint: [
-    "Expression, Soul Urge and Personality are calculated from the full birth name, so they need one.",
-    "Expression, Élan de l’âme et Personnalité se calculent à partir du nom de naissance complet : il en faut un.",
-  ],
-  numerologyBridge: ["Shared digits", "Chiffres partagés"],
-  numerologyEmptyCompare: ["Save another person to compare.", "Enregistrez une autre personne pour comparer."],
-  numerologyEmptyCompareHint: [
-    "Compare needs a second person in your library. Cast their birth chart, then come back here.",
-    "Comparer demande une deuxième personne dans votre bibliothèque. Calculez son thème natal, puis revenez ici.",
-  ],
-  numerologyPageCompare: ["Compare", "Comparer"],
-  numerologyPageCores: ["Cores", "Noyaux"],
-  numerologyPageNumbers: ["Numbers", "Nombres"],
-  numerologyPageOverview: ["Overview", "Aperçu"],
-  numerologyPageTiming: ["Timing", "Moments"],
-  numerologyPersonA: ["Person A", "Personne A"],
-  numerologyPersonB: ["Person B", "Personne B"],
-  numerologyPersonalDay: ["Personal Day", "Jour personnel"],
-  numerologyPersonalMonth: ["Personal Month", "Mois personnel"],
-  numerologyTeachBridge: [
-    "Digits found in both people’s core numbers. They point to common ground; they are not a compatibility score.",
-    "Chiffres présents dans les nombres principaux des deux personnes. Ils indiquent un terrain commun ; ce n’est pas un score de compatibilité.",
-  ],
-  numerologyTeachMethod: [
-    "Ulune uses the Pythagorean letter values (A to I = 1 to 9, then J = 1 again; Y always counts as a vowel). For the Life Path, the month, day and year are each reduced, then added: 15 June 1990 gives 6 + 6 (1 + 5) + 1 (1 + 9 + 9 + 0 = 19, 1 + 9 = 10, 1 + 0 = 1) = 13, and 1 + 3 = 4. Totals of 11, 22 and 33 are kept as master numbers.",
-    "Ulune utilise les valeurs pythagoriciennes des lettres (de A à I = de 1 à 9, puis J = 1 à nouveau ; le Y compte toujours comme une voyelle). Pour le Chemin de vie, le mois, le jour et l’année sont réduits séparément, puis additionnés : le 15 juin 1990 donne 6 + 6 (1 + 5) + 1 (1 + 9 + 9 + 0 = 19, 1 + 9 = 10, 1 + 0 = 1) = 13, puis 1 + 3 = 4. Les totaux 11, 22 et 33 sont gardés comme nombres maîtres.",
-  ],
-  numerologyTeachPersonalDay: [
-    "Your Personal Month plus the calendar day shown, reduced to one digit.",
-    "Votre Mois personnel plus le jour civil affiché, réduits à un chiffre.",
-  ],
-  numerologyTeachPersonalMonth: [
-    "Your Personal Year plus the calendar month shown, reduced to one digit. It sets the tone of that month within your year.",
-    "Votre Année personnelle plus le mois civil affiché, réduits à un chiffre. Il donne le ton de ce mois à l’intérieur de votre année.",
-  ],
-  numerologyTeachUniversalYear: [
-    "The calendar year alone, reduced to one digit. It is the same for everyone, so it describes the general climate of the year.",
-    "L’année civile seule, réduite à un chiffre. Elle est la même pour tout le monde : elle décrit le climat général de l’année.",
-  ],
-  numerologyUniversalYear: ["Universal Year", "Année universelle"],
   periodNext: ["Next", "Suivant"],
   periodPrev: ["Previous", "Précédent"],
   progressedBody: ["Progressed {name}", "{name} progressé"],
@@ -71,5 +30,4 @@ export const modes = {
   transitLegendInner: ["Your chart", "Votre thème"],
   transitLegendOuter: ["Transits", "Transits"],
   transiting: ["Transiting {name}", "{name} en transit"],
-  numerologyMethodTitle: ["How the numbers are worked out", "Comment les nombres sont calculés"],
 } as const satisfies Record<string, readonly [string, string]>;

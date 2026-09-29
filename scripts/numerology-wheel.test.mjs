@@ -123,8 +123,8 @@ test("Each part of the wheel has its line, in English and French", () => {
   assert.equal(say("core:personalYear"), "Personal year 4 in 2026: 6 + 6 + 1 = 13 → 4");
   assert.equal(say("time:month"), "Personal month 4, September");
   assert.equal(say("time:day"), "Personal day 6, 29 September");
-  assert.equal(say("number:3", "fr"), "3 : 5 lettres, C L L L U, le plus, la passion cachée ; Expression 3, Élan de l’âme 3");
-  assert.equal(say("core:lifepath", "fr"), "Chemin de vie 13/4 : 6 + 6 + 1 = 13 → 4, dette karmique 13");
+  assert.equal(say("number:3", "fr"), "3\u202f: 5 lettres, C L L L U, le plus, la passion cachée\u202f; Expression 3, Élan de l’âme 3");
+  assert.equal(say("core:lifepath", "fr"), "Chemin de vie 13/4\u202f: 6 + 6 + 1 = 13 → 4, dette karmique 13");
   assert.equal(say("time:day", "fr"), "Jour personnel 6, 29 septembre");
   // Without a name, a number says only which core numbers fall on it.
   const bare = cast("1990-06-15", null);

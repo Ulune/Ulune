@@ -11,6 +11,9 @@
  *     Enter opens a part;
  *   - the year stepper moves the year's disc and its cycles, and comes back;
  *   - a Y switched by hand moves to the other track and changes the numbers;
+ *   - the Table view (part 61): one scroll with its parts in order, the lit
+ *     link following the scroll, every number with its steps, the CSV, a Y
+ *     switched from the name's letters, no English left in French;
  *   - without a name, only the birth date's numbers;
  *   - in French; on a phone the wheel takes the width, the tiles scroll
  *     sideways and nothing else does.
@@ -171,6 +174,68 @@ async function desktop() {
     if ((await page.getByTestId("num-year").innerText()) !== String(thisYear)) throw new Error("the year did not come back");
     await page.screenshot({ path: join(SHOTS, "numerology-1280.png") });
 
+    // The Table view: one scroll under the bar, the parts in order.
+    await page.getByTestId("view-table").click();
+    await page.getByTestId("numerology-table").waitFor({ timeout: 10000 });
+    await page.waitForTimeout(800);
+    const order = await page.evaluate(() =>
+      [...document.querySelectorAll('[data-testid="numerology-table"] [data-testid="table-page"] > section')].map((e) => e.getAttribute("data-testid")).join(","),
+    );
+    if (order !== "table-core,table-name,table-grid,table-cycles,table-years,table-bridges,table-numbers") throw new Error(`parts ${order}`);
+    const table = await page.evaluate(() => {
+      const t = (id) => document.querySelector(`[data-testid="${id}"]`)?.innerText.replace(/\s+/g, " ").trim() ?? "";
+      return {
+        lp: t("num-core-lifepath"),
+        camille: t("num-words-0"),
+        counts: t("num-counts"),
+        lessons: t("num-detail-lessons"),
+        chaldean: t("num-detail-chaldean"),
+        full: [...document.querySelectorAll('[data-testid^="num-line-"][data-state="full"]')].map((r) => r.getAttribute("data-testid")),
+        pinnacle2: t("num-cycle-pinnacle-2"),
+        bridge: t("num-bridge-soulUrgePersonality"),
+        years: document.querySelectorAll('[data-testid="num-years"] tr').length,
+        sideways: document.querySelector(".ob-stage--table .ob-figure").scrollWidth - document.querySelector(".ob-stage--table .ob-figure").clientWidth,
+        words: document.querySelector('[data-testid="numerology-table"]').innerText,
+      };
+    });
+    const want61 = {
+      lp: /Life Path 13\/4 karmic debt 13 6 \+ 6 \+ 1 = 13 → 4 the birth date/,
+      camille: /Camille C ?3 A ?1 M ?4 I ?9 L ?3 L ?3 E ?5 28 → 10 → 1 15 → 6 13 → 4/,
+      counts: /^Letters 3 1 5 2 4 0 0 0 4$/,
+      lessons: /Karmic lessons 6, 7, 8/,
+      chaldean: /59 → 14 → 5/,
+      pinnacle2: /Pinnacle 2 7 32–41/,
+      bridge: /3 · 9 6$/,
+    };
+    for (const [k, re] of Object.entries(want61)) if (!re.test(table[k])) throw new Error(`table ${k}: ${table[k]}`);
+    if (table.full.join() !== "num-line-1-5-9" || table.years !== 9 || table.sideways > 1) throw new Error(`table ${JSON.stringify({ ...table, words: "" })}`);
+    if (/undefined|NaN|\{[a-z]+\}/.test(table.words)) throw new Error("unfilled words in the table");
+    // The link of the part being read is lit as the page scrolls.
+    await page.evaluate(() => document.querySelector('[data-testid="table-cycles"]').scrollIntoView({ block: "start" }));
+    await page.waitForTimeout(700);
+    if ((await page.getByTestId("table-section-cycles").getAttribute("aria-current")) !== "true") throw new Error("the bar does not follow the scroll");
+    await page.getByTestId("table-section-numbers").click();
+    await page.waitForTimeout(1200);
+    if ((await page.getByTestId("table-section-numbers").getAttribute("aria-current")) !== "true") throw new Error("the Numbers link not lit");
+    // The Lo Shu layout: the same digits, other lines.
+    await page.getByTestId("num-grid-loshu").click();
+    const loshu = await page.evaluate(() => [...document.querySelectorAll('[data-testid^="num-line-"]')].map((r) => r.getAttribute("data-testid").slice(9)).join(" "));
+    if (loshu !== "4-9-2 3-5-7 8-1-6 4-3-8 9-5-1 2-7-6 4-5-6 2-5-8") throw new Error(`Lo Shu lines ${loshu}`);
+    // The whole life: from the birth year to 90.
+    await page.getByTestId("num-years-life").click();
+    if ((await page.locator('[data-testid="num-years"] tr').count()) !== 91) throw new Error("the whole life's years");
+    // The CSV, the same in every language.
+    const [download] = await Promise.all([page.waitForEvent("download", { timeout: 8000 }), page.getByTestId("table-csv").click()]);
+    const chunks = [];
+    for await (const chunk of await download.createReadStream()) chunks.push(chunk);
+    const csv = Buffer.concat(chunks).toString("utf8");
+    if (!csv.startsWith("section,field,value\nnumerology,birthDate,1990-06-15\nnumerology,name,Camille Marie Laurent")) throw new Error(`CSV head ${csv.slice(0, 120)}`);
+    const yearRows = csv.split("\n").filter((l) => /^year,\d/.test(l)).length;
+    if (!/\ncore,lifepath,4,4,6 \+ 6 \+ 1 = 13 → 4,13,0\n/.test(csv) || yearRows !== 91) throw new Error(`CSV rows: ${yearRows} years`);
+    await page.getByTestId("num-years-nine").click();
+    await page.getByTestId("view-wheel").click();
+    await page.getByTestId("numerology-ring").waitFor({ timeout: 10000 });
+
     // A Y switched by hand.
     await goStudioPage(page, "natal");
     await castFixture(page, YOLANDA);
@@ -193,6 +258,16 @@ async function desktop() {
     await page.getByTestId("num-y-consonant").click();
     await page.waitForTimeout(400);
     if (!/^19\/1/.test(await page.getByTestId("numerology-tile-soulurge").innerText())) throw new Error("the Y did not switch back");
+    // The same Y, switched from the name's letters in the Table view.
+    await page.getByTestId("view-table").click();
+    await page.getByTestId("num-y-0").waitFor({ timeout: 10000 });
+    await page.getByTestId("num-y-0").click();
+    await page.waitForTimeout(400);
+    const suRow = (await page.getByTestId("num-core-soulurge").innerText()).replace(/\s+/g, " ");
+    if (!/^Soul Urge 8 /.test(suRow)) throw new Error(`the table's Y switch: ${suRow}`);
+    await page.getByTestId("num-y-0").click();
+    await page.waitForTimeout(300);
+    await page.getByTestId("view-wheel").click();
 
     // Without a name: the birth date's numbers only, no letters and no lessons.
     await goStudioPage(page, "natal");
@@ -205,9 +280,18 @@ async function desktop() {
       throw new Error(`no name ${JSON.stringify(bare)}`);
     }
 
-    // In French.
+    // In French, the wheel and the Table view: no English left.
     await setLang(page, "fr");
     await page.waitForTimeout(800);
+    await page.getByTestId("view-table").click();
+    await page.getByTestId("numerology-table").waitFor({ timeout: 10000 });
+    await page.waitForTimeout(600);
+    const frTable = await page.getByTestId("numerology-table").innerText();
+    const english = ["The core numbers", "Karmic", "Hidden passion", "Pinnacle", "Challenge", "Personal year", "Vowels", "Consonants", "Letters", "Keywords", "What it stands for", "Between", "Whole life", "Nine years", "Steps", "the birth date", "Add a birth name", "How the numbers"];
+    const left = english.filter((w) => frTable.includes(w));
+    if (left.length) throw new Error(`English in the French table: ${left.join(", ")}`);
+    await page.getByTestId("view-wheel").click();
+    await page.getByTestId("numerology-ring").waitFor({ timeout: 10000 });
     const fr = await page.evaluate(() => ({
       say: document.querySelector('[data-testid="num-say"]').textContent,
       chips: document.querySelector('[data-testid="num-year-line"]').textContent,

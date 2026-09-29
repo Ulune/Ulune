@@ -274,7 +274,7 @@ async function runViewport(width) {
     await clickDockTab(page, "reading");
     await page.getByTestId("click-note").waitFor({ timeout: 8000 });
     await clickDockTab(page, "data");
-    await page.getByTestId("numerology-panel").waitFor({ timeout: 8000 });
+    await page.getByTestId("numerology-table").waitFor({ timeout: 8000 });
     console.log(`${width} numerology`);
 
     await goMode(page, "natal");

@@ -25,9 +25,6 @@ export type StudioSearch = {
   view?: StudioView;
   bodies?: string;
   look?: string;
-  num?: string;
-  numa?: string;
-  numb?: string;
   __throw?: "stage";
 };
 
@@ -54,16 +51,10 @@ export function parseStudioSearch(search: Record<string, unknown>): StudioSearch
   const thrown = import.meta.env.DEV && search.__throw === "stage" ? ("stage" as const) : undefined;
   const bodies = typeof search.bodies === "string" ? search.bodies : undefined;
   const look = typeof search.look === "string" ? search.look : undefined;
-  const num = typeof search.num === "string" ? search.num : undefined;
-  const numa = typeof search.numa === "string" ? search.numa : undefined;
-  const numb = typeof search.numb === "string" ? search.numb : undefined;
   const extra: StudioSearch = {};
   if (thrown) extra.__throw = thrown;
   if (bodies) extra.bodies = bodies;
   if (look) extra.look = look;
-  if (num) extra.num = num;
-  if (numa) extra.numa = numa;
-  if (numb) extra.numb = numb;
   if (search.studio === "table") {
     return { studio: "natal", view: view ?? "table", ...extra };
   }
@@ -80,9 +71,6 @@ export function studioSearch(
   thrown?: "stage",
   bodies?: string,
   look?: string,
-  num?: string,
-  numa?: string,
-  numb?: string,
 ): StudioSearch {
   const search: StudioSearch = {};
   if (page !== "natal") search.studio = page;
@@ -90,9 +78,6 @@ export function studioSearch(
   if (thrown) search.__throw = thrown;
   if (bodies) search.bodies = bodies;
   if (look) search.look = look;
-  if (num) search.num = num;
-  if (numa) search.numa = numa;
-  if (numb) search.numb = numb;
   return search;
 }
 

@@ -7,8 +7,8 @@ import { previewProps } from "@/lib/depth/preview-bus";
 import type { AppLocale } from "@/lib/i18n/messages";
 import { numerologyDay } from "@/lib/i18n/numerology-say";
 import { numerologyCoreLabel, numerologyWheelText } from "@/lib/i18n/numerology-ui";
+import { useSwitchY } from "@/studio/modes/hooks/useSwitchY";
 import { NUMEROLOGY_FIRST_YEAR, NUMEROLOGY_LAST_YEAR, setNumerologyYear } from "@/studio/numerology-year";
-import { useStudioStore } from "@/studio/store";
 
 /*
  * Under the numerology wheel (part 60): the switch for a Y chosen on it, and
@@ -17,17 +17,12 @@ import { useStudioStore } from "@/studio/store";
 
 /** For a Y chosen on the wheel: count it as a vowel or a consonant (kept with the chart). */
 export function NumerologyYSwitch({ numbers, selectedId, locale }: { numbers: NumerologyChart; selectedId: string | null; locale: AppLocale }) {
-  const setNumerologyY = useStudioStore((s) => s.setNumerologyY);
+  const switchY = useSwitchY();
   const letters = numbers.names.birth?.parsed.letters ?? [];
   const at = selectedId?.startsWith("letter:") ? Number(selectedId.slice(7)) : -1;
   const letter = letters.find((l) => l.index === at);
   if (!letter || letter.y == null || !letter.yRule || !numbers.name) return null;
-  const ys = letters.filter((l) => l.y != null);
-  const choose = (role: YRole) => {
-    const roles = ys.map((l) => (l.y === letter.y ? role : l.vowel ? "v" : "c"));
-    const asRule = ys.every((l, k) => roles[k] === l.yRule);
-    setNumerologyY(asRule ? null : { name: numbers.name!, roles: roles.join("") });
-  };
+  const choose = (role: YRole) => switchY(numbers, letter, role);
   const rule = numerologyWheelText(locale, letter.yRule === "v" ? "roleVowel" : "roleConsonant");
   return (
     <div className="ulune-num-yswitch" role="group" aria-label={numerologyWheelText(locale, "yLabel")} data-testid="num-y-switch">

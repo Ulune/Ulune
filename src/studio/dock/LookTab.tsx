@@ -15,7 +15,6 @@ import {
   saveLookPage,
   type LookPage,
 } from "@/studio/look-pages";
-import { coerceNumerologyPage } from "@/studio/numerology-pages";
 import { coerceBodiesPage } from "@/studio/bodies-pages";
 import { useStudioStore } from "@/studio/store";
 import { studioSearch } from "@/studio/url";
@@ -49,9 +48,6 @@ export function LookTab() {
           undefined,
           coerceBodiesPage(search.bodies),
           next,
-          coerceNumerologyPage(search.num) ?? search.num,
-          search.numa,
-          search.numb,
         ),
         replace: true,
       });

@@ -21,8 +21,8 @@ const CORE: Record<NumerologyCoreId, { role: Pair; how: Pair }> = {
       fr: "Le nombre d’Expression (aussi appelé Destinée) vient de toutes les lettres de votre nom de naissance complet. Il décrit vos aptitudes naturelles et la façon dont vous les employez — votre manière de travailler, de parler et de mener les choses.",
     },
     how: {
-      en: "Expression adds the value of every letter of the full birth name (A = 1 … I = 9, then J = 1 again) and reduces the total, keeping 11, 22 and 33.",
-      fr: "L’Expression additionne la valeur de chaque lettre du nom de naissance complet (A = 1 … I = 9, puis J = 1 à nouveau) et réduit le total, en gardant 11, 22 et 33.",
+      en: "Expression adds the letters of each name of the full birth name (A = 1 … I = 9, then J = 1 again) and reduces each name on its own, then adds the names and reduces the total, keeping 11, 22 and 33 (Hans Decoz’s way).",
+      fr: "L’Expression additionne les lettres de chaque nom du nom de naissance complet (A = 1 … I = 9, puis J = 1 à nouveau) et réduit chaque nom à part, puis additionne les noms et réduit le total, en gardant 11, 22 et 33 (la méthode de Hans Decoz).",
     },
   },
   soulurge: {
@@ -31,8 +31,8 @@ const CORE: Record<NumerologyCoreId, { role: Pair; how: Pair }> = {
       fr: "Le nombre d’Élan de l’âme (aussi appelé Désir du cœur) vient des voyelles de votre nom de naissance. Il décrit ce que vous voulez au fond — la motivation derrière vos choix, que les autres ne voient pas toujours.",
     },
     how: {
-      en: "Soul Urge adds the vowels of the full birth name: A, E, I, O, U, and Y, which Ulune always counts as a vowel.",
-      fr: "L’Élan de l’âme additionne les voyelles du nom de naissance complet : A, E, I, O, U, et Y, qu’Ulune compte toujours comme une voyelle.",
+      en: "Soul Urge adds the vowels of each name the same way: A, E, I, O, U, and Y where it sounds like a vowel, by its place in the name. Each Y can be switched by hand.",
+      fr: "L’Élan de l’âme additionne de la même façon les voyelles de chaque nom\u202f: A, E, I, O, U, et Y là où il sonne comme une voyelle, selon sa place dans le nom. Chaque Y peut être changé à la main.",
     },
   },
   personality: {
@@ -41,8 +41,8 @@ const CORE: Record<NumerologyCoreId, { role: Pair; how: Pair }> = {
       fr: "Le nombre de Personnalité vient des consonnes de votre nom de naissance. Il décrit l’impression que vous faites sur les personnes qui ne vous connaissent pas encore — ce qu’elles remarquent en premier, avant de voir vos motivations profondes.",
     },
     how: {
-      en: "Personality adds the consonants of the full birth name.",
-      fr: "La Personnalité additionne les consonnes du nom de naissance complet.",
+      en: "Personality adds the consonants of each name the same way; W is always one, and Y is one where it goes with a vowel.",
+      fr: "La Personnalité additionne de la même façon les consonnes de chaque nom\u202f; le W en est toujours une, et le Y aussi là où il accompagne une voyelle.",
     },
   },
   birthday: {

@@ -1,12 +1,13 @@
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { LoadingLines } from "@/components/loading-lines";
-import { NumerologyPanel } from "@/components/numerology-panel";
+import { chartNameOf } from "@/lib/chart/library";
 import { valueOfCore } from "@/lib/chart/numerology";
 import { WHEEL_CORES } from "@/lib/chart/numerology-focus";
 import { wholeText } from "@/lib/chart/numerology-reduce";
 import { useDepthPrefs } from "@/lib/depth/prefs";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
+import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import {
   numerologyCoreLabel,
   numerologyNoNatal,
@@ -23,6 +24,9 @@ import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/num.css";
+
+const loadTable = () => import("@/studio/tables/numerology-table");
+const NumerologyTable = lazyNamed(loadTable, "NumerologyTable");
 
 export type NumerologyState = ReturnType<typeof useNumerology>;
 
@@ -74,7 +78,27 @@ function NumerologyHelloEmpty() {
 }
 
 function NumerologyData() {
-  return <NumerologyPanel />;
+  const { t } = useI18n();
+  const w = useWheelView();
+  const numerology = useModeData("numerology");
+  const rows = useStudioStore((s) => s.rows);
+  const activeId = useStudioStore((s) => s.activeId);
+  const openDock = useStudioStore((s) => s.openDock);
+  const numbers = numerology?.numbers;
+  if (!numbers) return null;
+  return (
+    <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
+      <NumerologyTable
+        chart={numbers}
+        name={w.chart ? chartNameOf(w.chart, t("untitled")) : ""}
+        rows={rows}
+        activeId={activeId}
+        selectedId={w.selectedId}
+        onSelect={w.pick}
+        openBirth={() => openDock("birth")}
+      />
+    </Suspense>
+  );
 }
 
 function useNumerologyRuntime(): ModeRuntime<NumerologyState> {
@@ -88,5 +112,6 @@ export const numerologyMode: ModeDef = {
   Figure: NumerologyFigure,
   HelloEmpty: NumerologyHelloEmpty,
   Data: NumerologyData,
+  preloadData: () => prefetch(loadTable),
   useRuntime: useNumerologyRuntime,
 };

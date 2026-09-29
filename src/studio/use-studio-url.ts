@@ -14,7 +14,6 @@ import {
 } from "@/studio/url";
 import { coerceBodiesPage } from "@/studio/bodies-pages";
 import { coerceLookPage } from "@/studio/look-pages";
-import { coerceNumerologyPage } from "@/studio/numerology-pages";
 
 /** Shared across hook instances so StageControls setView isn’t clobbered by Shell hydrate. */
 const pendingNav: { current: { page: StudioPage; view: StudioView } | null } = {
@@ -79,13 +78,10 @@ export function useStudioUrl(opts?: { hydrate?: boolean }) {
         undefined,
         coerceBodiesPage(search.bodies),
         coerceLookPage(search.look),
-        coerceNumerologyPage(search.num) ?? search.num,
-        search.numa,
-        search.numb,
       ),
       replace: true,
     });
-  }, [urlPage, urlView, navigate, hydrate, search.bodies, search.look, search.num, search.numa, search.numb]);
+  }, [urlPage, urlView, navigate, hydrate, search.bodies, search.look]);
 
   function setPage(next: StudioPage) {
     const view = useStudioStore.getState().view;
@@ -100,9 +96,6 @@ export function useStudioUrl(opts?: { hydrate?: boolean }) {
         undefined,
         coerceBodiesPage(search.bodies),
         coerceLookPage(search.look),
-        coerceNumerologyPage(search.num) ?? search.num,
-        search.numa,
-        search.numb,
       ),
       replace: true,
     });
@@ -121,9 +114,6 @@ export function useStudioUrl(opts?: { hydrate?: boolean }) {
         undefined,
         coerceBodiesPage(search.bodies),
         coerceLookPage(search.look),
-        coerceNumerologyPage(search.num) ?? search.num,
-        search.numa,
-        search.numb,
       ),
       replace: true,
     });

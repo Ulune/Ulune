@@ -19,7 +19,6 @@ import {
   type BodiesPage,
 } from "@/studio/bodies-pages";
 import { coerceLookPage } from "@/studio/look-pages";
-import { coerceNumerologyPage } from "@/studio/numerology-pages";
 import { useStudioStore } from "@/studio/store";
 import { studioSearch } from "@/studio/url";
 import { onTablistKeyDown } from "@/lib/a11y/tablist";
@@ -53,7 +52,7 @@ export function BodiesTab() {
       saveBodiesPage(next);
       void navigate({
         to: "/",
-        search: studioSearch(studioPage, studioView, undefined, next, coerceLookPage(search.look), coerceNumerologyPage(search.num) ?? search.num, search.numa, search.numb),
+        search: studioSearch(studioPage, studioView, undefined, next, coerceLookPage(search.look)),
         replace: true,
       });
     },

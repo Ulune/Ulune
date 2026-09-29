@@ -20,13 +20,7 @@ import {
 } from "../src/lib/chart/numerology.ts";
 import { parseName } from "../src/lib/chart/numerology-name.ts";
 import { NUMEROLOGY_HELLO, numerologyHelloCells } from "../src/lib/i18n/numerology-hello.ts";
-import {
-  numerologyFromLabel,
-  numerologyNoNatal,
-  numerologyReadingEmpty,
-  numerologySystemLabel,
-  numerologyTableColumns,
-} from "../src/lib/i18n/numerology-ui.ts";
+import { numerologyNoNatal, numerologyPageText, numerologySystemLabel } from "../src/lib/i18n/numerology-ui.ts";
 
 const PARIS = {
   name: "",
@@ -229,9 +223,8 @@ test("Display-name fallbacks are not treated as a birth name", async () => {
   assert.equal(withName.maturity.number, 3);
 });
 
-test("Committed copy: Pythagorean, empty reading, no-natal, Hello sentences, table columns", () => {
+test("Committed copy: Pythagorean, no-natal, Hello sentences, the table's words", () => {
   assert.equal(numerologySystemLabel("en"), "Pythagorean");
-  assert.equal(numerologyReadingEmpty("en"), "Tap a number in the ring.");
   assert.equal(numerologyNoNatal("en"), "Cast a birth chart first.");
   assert.equal(NUMEROLOGY_HELLO.id, "numerology.hello");
   const cells = numerologyHelloCells("en");
@@ -239,11 +232,9 @@ test("Committed copy: Pythagorean, empty reading, no-natal, Hello sentences, tab
   assert.equal(cells[0].sentence, "From your full birth date: the main theme and lessons of your life.");
   assert.equal(cells[1].sentence, "From your full birth name: your natural abilities and how you use them.");
   assert.equal(cells[2].sentence, "From the vowels of your name: what you want deep down.");
-  assert.deepEqual([...numerologyTableColumns("en")], ["Number", "Digit", "From"]);
-  assert.equal(numerologyFromLabel("en", "birthday"), "Birthday");
-  assert.equal(numerologyFromLabel("en", "personality"), "Personality");
-  assert.equal(numerologyFromLabel("en", "maturity"), "Maturity");
-  assert.equal(numerologyFromLabel("en", "personalYear", 2026), "Personal year (2026)");
+  assert.equal(numerologyPageText("en", "cycle_pinnacle", { n: 2 }), "Pinnacle 2");
+  assert.equal(numerologyPageText("fr", "cycle_pinnacle", { n: 2 }), "Réalisation 2");
+  assert.equal(numerologyPageText("fr", "line_full"), "pleine\u202f: une flèche");
 });
 
 

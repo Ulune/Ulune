@@ -5,57 +5,9 @@
     "en": "Pythagorean",
     "fr": "Pythagoricien"
   },
-  "readingEmpty": {
-    "en": "Tap a number in the ring.",
-    "fr": "Touchez un nombre dans l’anneau."
-  },
   "noNatal": {
     "en": "Cast a birth chart first.",
     "fr": "Calculez d’abord un thème natal."
-  },
-  "missing": {
-    "en": "—",
-    "fr": "—"
-  },
-  "table": {
-    "title": {
-      "en": "More numbers",
-      "fr": "Autres nombres"
-    },
-    "hint": {
-      "en": "Number keeps the master numbers 11, 22 and 33. Digit always reduces to a single digit from 1 to 9 (29 → 11 → 2).",
-      "fr": "Nombre garde les nombres maîtres 11, 22 et 33. Chiffre réduit toujours à un seul chiffre de 1 à 9 (29 → 11 → 2)."
-    },
-    "columns": {
-      "en": [
-        "Number",
-        "Digit",
-        "From"
-      ],
-      "fr": [
-        "Nombre",
-        "Chiffre",
-        "Source"
-      ]
-    },
-    "from": {
-      "birthday": {
-        "en": "Birthday",
-        "fr": "Anniversaire"
-      },
-      "personality": {
-        "en": "Personality",
-        "fr": "Personnalité"
-      },
-      "maturity": {
-        "en": "Maturity",
-        "fr": "Maturité"
-      },
-      "personalYear": {
-        "en": "Personal year ({year})",
-        "fr": "Année personnelle ({year})"
-      }
-    }
   },
   "cores": {
     "lifepath": {
@@ -85,151 +37,6 @@
     "personalYear": {
       "en": "Personal year",
       "fr": "Année personnelle"
-    }
-  },
-  "pages": {
-    "note": "Sol 2026-09-18 Numerology GO. Five pages. Timing includes Universal Year as backdrop. Pythagorean throughout. Local only.",
-    "sections": [
-      {
-        "id": "overview",
-        "en": "Overview",
-        "fr": "Aperçu",
-        "testid": "numerology-page-overview"
-      },
-      {
-        "id": "cores",
-        "en": "Cores",
-        "fr": "Noyaux",
-        "testid": "numerology-page-cores"
-      },
-      {
-        "id": "timing",
-        "en": "Timing",
-        "fr": "Cycles",
-        "testid": "numerology-page-timing"
-      },
-      {
-        "id": "compare",
-        "en": "Compare",
-        "fr": "Comparer",
-        "testid": "numerology-page-compare"
-      },
-      {
-        "id": "numbers",
-        "en": "Numbers",
-        "fr": "Nombres",
-        "testid": "numerology-page-numbers"
-      }
-    ],
-    "teach": {
-      "overview": {
-        "en": "Ulune uses the Pythagorean method: each letter has a value from 1 to 9 (A = 1, B = 2 … I = 9, then J = 1 again), and totals are added digit by digit until one digit is left. The totals 11, 22 and 33 are kept as they are: these are the master numbers.",
-        "fr": "Ulune utilise la méthode pythagoricienne : chaque lettre vaut de 1 à 9 (A = 1, B = 2 … I = 9, puis J = 1 à nouveau), et les totaux sont additionnés chiffre par chiffre jusqu’à ce qu’il n’en reste qu’un. Les totaux 11, 22 et 33 sont gardés tels quels : ce sont les nombres maîtres."
-      },
-      "cores": {
-        "en": "The core numbers stay the same all your life. Life Path comes from your full birth date; Expression from every letter of your birth name, Soul Urge from its vowels and Personality from its consonants. Birthday is the day of the month you were born, and Maturity is Life Path plus Expression.",
-        "fr": "Les nombres principaux restent les mêmes toute la vie. Le Chemin de vie vient de la date de naissance complète ; l’Expression de toutes les lettres du nom de naissance, l’Élan de l’âme de ses voyelles et la Personnalité de ses consonnes. L’Anniversaire est le jour du mois de votre naissance, et la Maturité est la somme du Chemin de vie et de l’Expression."
-      },
-      "timing": {
-        "en": "Your Personal Year adds your birth month and day to the calendar year shown, and moves through a nine-year cycle. The Universal Year is the calendar year alone, reduced (2026: 2 + 0 + 2 + 6 = 10, then 1 + 0 = 1). It is the same for everyone, so it describes the general climate of the year rather than your own.",
-        "fr": "L’Année personnelle additionne votre mois et votre jour de naissance à l’année civile affichée, et suit un cycle de neuf ans. L’Année universelle est l’année civile seule, réduite (2026 : 2 + 0 + 2 + 6 = 10, puis 1 + 0 = 1). Elle est la même pour tout le monde : elle décrit le climat général de l’année, pas le vôtre."
-      },
-      "compare": {
-        "en": "Two people’s core numbers side by side, calculated the same way. Numbers you share point to common ground; different ones show where you go about things differently. There is no compatibility score.",
-        "fr": "Les nombres principaux de deux personnes côte à côte, calculés de la même façon. Les nombres communs indiquent un terrain partagé ; les autres montrent où vous fonctionnez différemment. Il n’y a pas de score de compatibilité."
-      },
-      "numbers": {
-        "en": "What each number means, from 1 to 9, plus the master numbers 11, 22 and 33. Tap one to read it. In the tables, Number can be a master number, while Digit is always reduced to one digit (11 → 2, 22 → 4, 33 → 6).",
-        "fr": "Ce que signifie chaque nombre, de 1 à 9, plus les nombres maîtres 11, 22 et 33. Touchez-en un pour le lire. Dans les tableaux, Nombre peut être un nombre maître, alors que Chiffre est toujours réduit à un seul chiffre (11 → 2, 22 → 4, 33 → 6)."
-      }
-    },
-    "timingBands": {
-      "personalYear": {
-        "en": "Personal Year",
-        "fr": "Année personnelle",
-        "teach": {
-          "en": "Your birth month and day added to the calendar year shown, then reduced to one digit. It moves through a nine-year cycle.",
-          "fr": "Votre mois et votre jour de naissance additionnés à l’année civile affichée, puis réduits à un chiffre. Elle suit un cycle de neuf ans."
-        }
-      },
-      "universalYear": {
-        "en": "Universal Year",
-        "fr": "Année universelle",
-        "teach": {
-          "en": "The calendar year alone, reduced to one digit. It is the same for everyone, so it describes the general climate of the year.",
-          "fr": "L’année civile seule, réduite à un chiffre. Elle est la même pour tout le monde : elle décrit le climat général de l’année."
-        }
-      }
-    },
-    "method": {
-      "en": "Ulune uses the Pythagorean letter values (A to I = 1 to 9, then J = 1 again; Y always counts as a vowel). For the Life Path, the month, day and year are each reduced, then added: 15 June 1990 gives 6 + 6 (1 + 5) + 1 (1 + 9 + 9 + 0 = 19, 1 + 9 = 10, 1 + 0 = 1) = 13, and 1 + 3 = 4. Totals of 11, 22 and 33 are kept as master numbers.",
-      "fr": "Ulune utilise les valeurs pythagoriciennes des lettres (de A à I = de 1 à 9, puis J = 1 à nouveau ; le Y compte toujours comme une voyelle). Pour le Chemin de vie, le mois, le jour et l’année sont réduits séparément, puis additionnés : le 15 juin 1990 donne 6 + 6 (1 + 5) + 1 (1 + 9 + 9 + 0 = 19, 1 + 9 = 10, 1 + 0 = 1) = 13, puis 1 + 3 = 4. Les totaux 11, 22 et 33 sont gardés comme nombres maîtres."
-    }
-  },
-  "empty": {
-    "compare": {
-      "en": "Save another person to compare.",
-      "fr": "Enregistrez une autre personne pour comparer."
-    },
-    "compareHint": {
-      "en": "Compare needs a second person in your library. Cast their birth chart, then come back here.",
-      "fr": "Comparer demande une deuxième personne dans votre bibliothèque. Calculez son thème natal, puis revenez ici."
-    },
-    "addBirthName": {
-      "en": "Add a birth name",
-      "fr": "Ajouter un nom de naissance"
-    },
-    "addBirthNameHint": {
-      "en": "Expression, Soul Urge and Personality are calculated from the full birth name, so they need one.",
-      "fr": "Expression, Élan de l’âme et Personnalité se calculent à partir du nom de naissance complet : il en faut un."
-    }
-  },
-  "timingBands": {
-    "personalYear": {
-      "en": "Personal Year",
-      "fr": "Année personnelle"
-    },
-    "personalMonth": {
-      "en": "Personal Month",
-      "fr": "Mois personnel",
-      "teach": {
-        "en": "Your Personal Year plus the calendar month shown, reduced to one digit. It sets the tone of that month within your year.",
-        "fr": "Votre Année personnelle plus le mois civil affiché, réduits à un chiffre. Il donne le ton de ce mois à l’intérieur de votre année."
-      }
-    },
-    "personalDay": {
-      "en": "Personal Day",
-      "fr": "Jour personnel",
-      "teach": {
-        "en": "Your Personal Month plus the calendar day shown, reduced to one digit.",
-        "fr": "Votre Mois personnel plus le jour civil affiché, réduits à un chiffre."
-      }
-    },
-    "universalYear": {
-      "en": "Universal Year",
-      "fr": "Année universelle",
-      "teach": {
-        "en": "The calendar year alone, reduced to one digit. It is the same for everyone, so it describes the general climate of the year.",
-        "fr": "L’année civile seule, réduite à un chiffre. Elle est la même pour tout le monde : elle décrit le climat général de l’année."
-      }
-    }
-  },
-  "compare": {
-    "personA": {
-      "en": "Person A",
-      "fr": "Personne A"
-    },
-    "personB": {
-      "en": "Person B",
-      "fr": "Personne B"
-    },
-    "bridge": {
-      "en": "Shared digits",
-      "fr": "Chiffres partagés"
-    },
-    "bridgeTeach": {
-      "en": "Digits found in both people’s core numbers. They point to common ground; they are not a compatibility score.",
-      "fr": "Chiffres présents dans les nombres principaux des deux personnes. Ils indiquent un terrain commun ; ce n’est pas un score de compatibilité."
     }
   },
   "wheel": {
@@ -404,6 +211,516 @@
     "tiles": {
       "en": "The core numbers",
       "fr": "Les nombres principaux"
+    }
+  },
+  "page": {
+    "part_core": {
+      "en": "Core",
+      "fr": "Principaux"
+    },
+    "part_name": {
+      "en": "Name",
+      "fr": "Nom"
+    },
+    "part_grid": {
+      "en": "Grid",
+      "fr": "Grille"
+    },
+    "part_cycles": {
+      "en": "Cycles",
+      "fr": "Cycles"
+    },
+    "part_years": {
+      "en": "Years",
+      "fr": "Années"
+    },
+    "part_bridges": {
+      "en": "Bridges",
+      "fr": "Ponts"
+    },
+    "part_numbers": {
+      "en": "Numbers",
+      "fr": "Nombres"
+    },
+    "headCore": {
+      "en": "The core numbers",
+      "fr": "Les nombres principaux"
+    },
+    "headName": {
+      "en": "The name, letter by letter",
+      "fr": "Le nom, lettre par lettre"
+    },
+    "headGrid": {
+      "en": "The birth grid",
+      "fr": "La grille de naissance"
+    },
+    "headCycles": {
+      "en": "The long cycles",
+      "fr": "Les grands cycles"
+    },
+    "headYears": {
+      "en": "Year by year",
+      "fr": "Année par année"
+    },
+    "headBridges": {
+      "en": "Bridges",
+      "fr": "Ponts"
+    },
+    "headNumbers": {
+      "en": "What the numbers mean",
+      "fr": "Ce que disent les nombres"
+    },
+    "hint_core": {
+      "en": "They stay the same all your life. Each comes with its steps: a master number (11, 22, 33) is kept whole, a karmic debt (13, 14, 16, 19) is written before its number.",
+      "fr": "Ils restent les mêmes toute la vie. Chacun vient avec son calcul : un nombre maître (11, 22, 33) est gardé entier, une dette karmique (13, 14, 16, 19) est écrite devant son nombre."
+    },
+    "hint_name": {
+      "en": "Each name is added and reduced on its own, then the names are added (Hans Decoz’s way). Vowels are in bold; a Y counts by its place, and a tap on it switches it.",
+      "fr": "Chaque nom est additionné et réduit à part, puis les noms sont additionnés (la méthode de Hans Decoz). Les voyelles sont en gras ; un Y compte selon sa place, et le toucher le change."
+    },
+    "hint_grid": {
+      "en": "The birth date’s digits on a square of nine, zeros aside. A full line of three is an arrow; an empty one points to what is missing (David A. Phillips). The Lo Shu square lays the same digits out another way.",
+      "fr": "Les chiffres de la date de naissance sur un carré de neuf, zéros mis à part. Une ligne pleine de trois est une flèche ; une ligne vide montre ce qui manque (David A. Phillips). Le carré Lo Shu dispose les mêmes chiffres autrement."
+    },
+    "hint_cycles": {
+      "en": "Three period cycles from the birth date’s month, day and year; four pinnacles and four challenges. They change on birthdays; the main challenge colours the whole of life.",
+      "fr": "Trois cycles de vie tirés du mois, du jour et de l’année de naissance ; quatre réalisations et quatre défis. Ils changent aux anniversaires ; le défi principal colore toute la vie."
+    },
+    "hint_years": {
+      "en": "Each year’s personal year (from 1 January) and the cycles from that year’s birthday on. The letter cycles walk through the name’s letters, each for as many years as its value.",
+      "fr": "L’année personnelle de chaque année (dès le 1er janvier) et les cycles à partir de l’anniversaire de cette année-là. Les cycles des lettres parcourent les lettres du nom, chacune pendant autant d’années que sa valeur."
+    },
+    "hint_bridges": {
+      "en": "The gap between two numbers, from 0 to 8: the smaller it is, the more easily the two work together. Below, two people from your library side by side.",
+      "fr": "L’écart entre deux nombres, de 0 à 8 : plus il est petit, plus les deux s’accordent facilement. Dessous, deux personnes de votre bibliothèque côte à côte."
+    },
+    "hint_numbers": {
+      "en": "What 1 to 9 and the master numbers 11, 22 and 33 stand for. Tap one to read it.",
+      "fr": "Ce que représentent 1 à 9 et les nombres maîtres 11, 22 et 33. Touchez-en un pour le lire."
+    },
+    "col_number": {
+      "en": "Number",
+      "fr": "Nombre"
+    },
+    "col_value": {
+      "en": "Value",
+      "fr": "Valeur"
+    },
+    "col_steps": {
+      "en": "Steps",
+      "fr": "Calcul"
+    },
+    "col_from": {
+      "en": "From",
+      "fr": "Source"
+    },
+    "col_name": {
+      "en": "Name",
+      "fr": "Nom"
+    },
+    "col_letters": {
+      "en": "Letters",
+      "fr": "Lettres"
+    },
+    "col_all": {
+      "en": "All",
+      "fr": "Toutes"
+    },
+    "col_how": {
+      "en": "How",
+      "fr": "Comment"
+    },
+    "col_line": {
+      "en": "Line",
+      "fr": "Ligne"
+    },
+    "col_state": {
+      "en": "State",
+      "fr": "État"
+    },
+    "col_cycle": {
+      "en": "Cycle",
+      "fr": "Cycle"
+    },
+    "col_ages": {
+      "en": "Ages",
+      "fr": "Âges"
+    },
+    "col_years": {
+      "en": "Years",
+      "fr": "Années"
+    },
+    "col_year": {
+      "en": "Year",
+      "fr": "Année"
+    },
+    "col_age": {
+      "en": "Age",
+      "fr": "Âge"
+    },
+    "col_personalYear": {
+      "en": "Personal year",
+      "fr": "Année personnelle"
+    },
+    "col_pinnacle": {
+      "en": "Pinnacle",
+      "fr": "Réalisation"
+    },
+    "col_challenge": {
+      "en": "Challenge",
+      "fr": "Défi"
+    },
+    "col_period": {
+      "en": "Period",
+      "fr": "Cycle"
+    },
+    "col_essence": {
+      "en": "Essence",
+      "fr": "Essence"
+    },
+    "col_bridge": {
+      "en": "Bridge",
+      "fr": "Pont"
+    },
+    "col_between": {
+      "en": "Between",
+      "fr": "Entre"
+    },
+    "col_gap": {
+      "en": "Gap",
+      "fr": "Écart"
+    },
+    "col_keywords": {
+      "en": "Keywords",
+      "fr": "Mots-clés"
+    },
+    "col_meaning": {
+      "en": "What it stands for",
+      "fr": "Ce qu’il représente"
+    },
+    "vowels": {
+      "en": "Vowels",
+      "fr": "Voyelles"
+    },
+    "consonants": {
+      "en": "Consonants",
+      "fr": "Consonnes"
+    },
+    "letters": {
+      "en": "Letters",
+      "fr": "Lettres"
+    },
+    "total": {
+      "en": "Total",
+      "fr": "Total"
+    },
+    "from_lifepath": {
+      "en": "the birth date",
+      "fr": "la date de naissance"
+    },
+    "from_expression": {
+      "en": "every letter of the name",
+      "fr": "toutes les lettres du nom"
+    },
+    "from_soulurge": {
+      "en": "its vowels",
+      "fr": "ses voyelles"
+    },
+    "from_personality": {
+      "en": "its consonants",
+      "fr": "ses consonnes"
+    },
+    "from_birthday": {
+      "en": "the day of birth",
+      "fr": "le jour de naissance"
+    },
+    "from_maturity": {
+      "en": "Life Path + Expression",
+      "fr": "Chemin de vie + Expression"
+    },
+    "from_attitude": {
+      "en": "month + day",
+      "fr": "mois + jour"
+    },
+    "from_rationalThought": {
+      "en": "first name + day",
+      "fr": "prénom + jour"
+    },
+    "attitude": {
+      "en": "Attitude",
+      "fr": "Attitude"
+    },
+    "rationalThought": {
+      "en": "Rational thought",
+      "fr": "Pensée rationnelle"
+    },
+    "debtNote": {
+      "en": "karmic debt {debt}",
+      "fr": "dette karmique {debt}"
+    },
+    "masterNote": {
+      "en": "master number",
+      "fr": "nombre maître"
+    },
+    "lessons": {
+      "en": "Karmic lessons",
+      "fr": "Leçons karmiques"
+    },
+    "lessonsHow": {
+      "en": "numbers no letter gives",
+      "fr": "nombres qu’aucune lettre ne donne"
+    },
+    "passion": {
+      "en": "Hidden passion",
+      "fr": "Passion cachée"
+    },
+    "passionHow": {
+      "en": "{count} letters, the most",
+      "fr": "{count} lettres, le plus"
+    },
+    "subconscious": {
+      "en": "Subconscious self",
+      "fr": "Moi subconscient"
+    },
+    "subconsciousHow": {
+      "en": "9 − {n} karmic lessons",
+      "fr": "9 − {n} leçons karmiques"
+    },
+    "balance": {
+      "en": "Balance",
+      "fr": "Équilibre"
+    },
+    "plane_physical": {
+      "en": "Physical plane",
+      "fr": "Plan physique"
+    },
+    "plane_mental": {
+      "en": "Mental plane",
+      "fr": "Plan mental"
+    },
+    "plane_emotional": {
+      "en": "Emotional plane",
+      "fr": "Plan émotionnel"
+    },
+    "plane_intuitive": {
+      "en": "Intuitive plane",
+      "fr": "Plan intuitif"
+    },
+    "planeLetters": {
+      "en": "no letter among {letters}",
+      "fr": "aucune lettre parmi {letters}"
+    },
+    "cornerstone": {
+      "en": "Cornerstone",
+      "fr": "Pierre angulaire"
+    },
+    "cornerstoneHow": {
+      "en": "first letter of the first name",
+      "fr": "première lettre du prénom"
+    },
+    "capstone": {
+      "en": "Capstone",
+      "fr": "Pierre de faîte"
+    },
+    "capstoneHow": {
+      "en": "last letter of the first name",
+      "fr": "dernière lettre du prénom"
+    },
+    "firstVowel": {
+      "en": "First vowel",
+      "fr": "Première voyelle"
+    },
+    "firstVowelHow": {
+      "en": "first vowel of the first name",
+      "fr": "première voyelle du prénom"
+    },
+    "chaldean": {
+      "en": "Chaldean number (Cheiro)",
+      "fr": "Nombre chaldéen (Cheiro)"
+    },
+    "chaldeanNote": {
+      "en": "Cheiro’s letter values, 1 to 8 by sound: a second, separate number, never mixed with the others.",
+      "fr": "Les valeurs de Cheiro, de 1 à 8 selon le son : un second nombre, à part, jamais mêlé aux autres."
+    },
+    "none": {
+      "en": "none",
+      "fr": "aucune"
+    },
+    "noName": {
+      "en": "No birth name yet: the name’s numbers wait for it.",
+      "fr": "Pas encore de nom de naissance : les nombres du nom l’attendent."
+    },
+    "currentHead": {
+      "en": "Name used now, {name}: its minor numbers",
+      "fr": "Nom utilisé aujourd’hui, {name} : ses nombres mineurs"
+    },
+    "minorNote": {
+      "en": "The name used now adds to the birth name’s numbers; it never replaces them.",
+      "fr": "Le nom utilisé aujourd’hui s’ajoute aux nombres du nom de naissance ; il ne les remplace jamais."
+    },
+    "countsLabel": {
+      "en": "Letters on each number",
+      "fr": "Lettres sur chaque nombre"
+    },
+    "ySwitchTitle": {
+      "en": "Y counted as {role}: switch",
+      "fr": "Y compté comme {role} : changer"
+    },
+    "digits": {
+      "en": "Digits",
+      "fr": "Chiffres"
+    },
+    "missing": {
+      "en": "Missing",
+      "fr": "Absents"
+    },
+    "layout_phillips": {
+      "en": "Phillips",
+      "fr": "Phillips"
+    },
+    "layout_loshu": {
+      "en": "Lo Shu",
+      "fr": "Lo Shu"
+    },
+    "layoutLabel": {
+      "en": "Layout of the grid",
+      "fr": "Disposition de la grille"
+    },
+    "line_full": {
+      "en": "full: an arrow",
+      "fr": "pleine : une flèche"
+    },
+    "line_empty": {
+      "en": "empty: what is missing",
+      "fr": "vide : ce qui manque"
+    },
+    "line_partial": {
+      "en": "—",
+      "fr": "—"
+    },
+    "gridAria": {
+      "en": "The birth grid, {layout}",
+      "fr": "La grille de naissance, {layout}"
+    },
+    "cycle_period": {
+      "en": "Period {n}",
+      "fr": "Cycle {n}"
+    },
+    "cycle_pinnacle": {
+      "en": "Pinnacle {n}",
+      "fr": "Réalisation {n}"
+    },
+    "cycle_challenge": {
+      "en": "Challenge {n}",
+      "fr": "Défi {n}"
+    },
+    "main": {
+      "en": "main",
+      "fr": "principal"
+    },
+    "onwards": {
+      "en": "{from} on",
+      "fr": "{from} et après"
+    },
+    "now": {
+      "en": "now",
+      "fr": "maintenant"
+    },
+    "ageShort": {
+      "en": "age {age}",
+      "fr": "{age} ans"
+    },
+    "beforeBirth": {
+      "en": "before the birth",
+      "fr": "avant la naissance"
+    },
+    "wholeLife": {
+      "en": "Whole life",
+      "fr": "Toute la vie"
+    },
+    "nineYears": {
+      "en": "Nine years",
+      "fr": "Neuf ans"
+    },
+    "yearsLabel": {
+      "en": "Years shown",
+      "fr": "Années montrées"
+    },
+    "thisYearHead": {
+      "en": "{year}: the year, the month and the day",
+      "fr": "{year} : l’année, le mois et le jour"
+    },
+    "universalYear": {
+      "en": "Universal year",
+      "fr": "Année universelle"
+    },
+    "bridgeLpEx": {
+      "en": "Life Path – Expression",
+      "fr": "Chemin de vie – Expression"
+    },
+    "bridgeSuPe": {
+      "en": "Soul Urge – Personality",
+      "fr": "Élan de l’âme – Personnalité"
+    },
+    "compareHead": {
+      "en": "{a} and {b}",
+      "fr": "{a} et {b}"
+    },
+    "compareTitle": {
+      "en": "Two people",
+      "fr": "Deux personnes"
+    },
+    "mastersNote": {
+      "en": "11, 22 and 33 are master numbers: kept whole where Decoz keeps them, read as a stronger form of 2, 4 and 6.",
+      "fr": "11, 22 et 33 sont des nombres maîtres : gardés entiers là où Decoz les garde, lus comme une forme plus forte de 2, 4 et 6."
+    },
+    "tableLabel": {
+      "en": "Numerology table",
+      "fr": "Tableau de numérologie"
+    },
+    "fileName": {
+      "en": "{name} numerology",
+      "fr": "{name} numérologie"
+    },
+    "emptyCompare": {
+      "en": "Save another person to compare.",
+      "fr": "Enregistrez une autre personne pour comparer."
+    },
+    "emptyCompareHint": {
+      "en": "Compare needs a second person in your library. Cast their birth chart, then come back here.",
+      "fr": "Comparer demande une deuxième personne dans votre bibliothèque. Calculez son thème natal, puis revenez ici."
+    },
+    "addBirthName": {
+      "en": "Add a birth name",
+      "fr": "Ajouter un nom de naissance"
+    },
+    "addBirthNameHint": {
+      "en": "Expression, Soul Urge and Personality are calculated from the full birth name, so they need one.",
+      "fr": "Expression, Élan de l’âme et Personnalité se calculent à partir du nom de naissance complet : il en faut un."
+    },
+    "personA": {
+      "en": "Person A",
+      "fr": "Personne A"
+    },
+    "personB": {
+      "en": "Person B",
+      "fr": "Personne B"
+    },
+    "methodTitle": {
+      "en": "How the numbers are worked out",
+      "fr": "Comment les nombres sont calculés"
+    },
+    "method": {
+      "en": "Ulune uses the Pythagorean letter values (A to I = 1 to 9, then J = 1 again) and Hans Decoz’s rules (World Numerology). Each name is added and reduced on its own, then the names are added. Y is a vowel where it sounds like one, by its place in the name, and each Y can be switched by hand; W is always a consonant. For the Life Path, the month, the day and the year are each reduced, then added: 15 June 1990 gives 6 + 6 + 1 = 13 → 4, and the 13 is kept as a karmic debt. 11, 22 and 33 are kept as master numbers in the core numbers, the pinnacles and the periods; the challenges, the balance and the yearly cycles reduce to 1–9. The personal year runs from 1 January. Everything is worked out on this device.",
+      "fr": "Ulune utilise les valeurs pythagoriciennes des lettres (de A à I = de 1 à 9, puis J = 1 à nouveau) et les règles de Hans Decoz (World Numerology). Chaque nom est additionné et réduit à part, puis les noms sont additionnés. Le Y est une voyelle là où il en a le son, selon sa place dans le nom, et chaque Y peut être changé à la main ; le W est toujours une consonne. Pour le Chemin de vie, le mois, le jour et l’année sont réduits séparément, puis additionnés : le 15 juin 1990 donne 6 + 6 + 1 = 13 → 4, et le 13 est gardé comme dette karmique. 11, 22 et 33 sont gardés comme nombres maîtres dans les nombres principaux, les réalisations et les cycles de vie ; les défis, l’équilibre et les cycles annuels se réduisent de 1 à 9. L’année personnelle commence le 1er janvier. Tout est calculé sur cet appareil."
+    },
+    "personalMonth": {
+      "en": "Personal month",
+      "fr": "Mois personnel"
+    },
+    "personalDay": {
+      "en": "Personal day",
+      "fr": "Jour personnel"
     }
   }
 }
