@@ -65,13 +65,13 @@ test("the text copy comes in the page's parts, each with its title, and joins in
     houseSystem: "placidus",
   });
   for (const [locale, titles] of [
-    ["en", ["Chart", "Points", "Houses", "Aspects", "Patterns", "Balance", "Ranking"]],
-    ["fr", ["Thème", "Points", "Maisons", "Aspects", "Figures", "Équilibre", "Classement"]],
+    ["en", ["Chart", "Points", "Houses", "Aspects", "Dignities", "Patterns", "Balance"]],
+    ["fr", ["Thème", "Points", "Maisons", "Aspects", "Dignités", "Figures", "Équilibre"]],
   ]) {
     const parts = chartTextParts(chart, locale);
     assert.deepEqual(
       parts.map((p) => p.id),
-      ["identity", "points", "houses", "aspects", "patterns", "balance", "ranking"],
+      ["identity", "points", "houses", "aspects", "dignities", "patterns", "balance"],
     );
     assert.deepEqual(
       parts.map((p) => p.lines[0]),
@@ -89,7 +89,7 @@ test("the text copy comes in the page's parts, each with its title, and joins in
     assert.equal(headings.length, 5, `groups: ${headings.join(" | ")}`);
     assert.equal(points.length - headings.length, chart.planets.length + Object.keys(chart.angles).length);
     assert.equal(count("houses"), 12);
-    // One per aspect, its mirrors folded in; then the parallels under their heading.
-    assert.equal(count("aspects"), aspectTableRows(chart, locale).rows.length + 1 + parallelRows(chart).length);
+    // The tightest major, one line per aspect (its mirrors folded in), then the parallels under their heading.
+    assert.equal(count("aspects"), 1 + aspectTableRows(chart, locale).rows.length + 1 + parallelRows(chart).length);
   }
 });

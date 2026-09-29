@@ -13,6 +13,7 @@ import {
   parallelsOf,
   PARALLEL_ORB,
   allowedText,
+  tightestText,
   type AspectOptions,
   type AspectSort,
 } from "@/lib/chart/table-aspects";
@@ -24,20 +25,30 @@ import {
   patternSections,
   pointRow,
   pointSelectId,
-  rankingFacts,
   weightText,
   type BalanceGroup,
   type Cell,
 } from "@/lib/chart/table-cells";
 import { chartTextParts, formatChartTableCsv, formatChartTableText, type ChartTextPartId } from "@/lib/chart/table-export";
+import {
+  chartRulerFacts,
+  dignityRows,
+  dispositorsOf,
+  mutualReceptions,
+  receptionDetail,
+  strongestLine,
+} from "@/lib/chart/table-dignities";
 import { houseRows, interceptedText, twoCuspsText } from "@/lib/chart/table-houses";
+import { shapeText, type MergedShape } from "@/lib/chart/table-patterns";
 import type { ChartPatterns, NatalChart } from "@/lib/chart/types";
 import { aspectName, bodyBare, bodyLabel, houseName, signName } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
 import {
   aspectsWord,
+  dignitiesWord,
   gridWord,
   housesWord,
+  patternsWord,
   pointsGroupLabel,
   pointsText,
   tablePartHint,
@@ -45,7 +56,7 @@ import {
   unknownTimeNote,
   type TablePartId,
 } from "@/lib/i18n/table-ui";
-import { cn, formatArc, formatSignedDms, formatSignedDmsSeconds } from "@/lib/utils";
+import { cn, formatArc, formatDegree, formatSignedDms, formatSignedDmsSeconds } from "@/lib/utils";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TablePage, type TablePart } from "@/studio/tables/TablePage";
 import { ParallelGlyph } from "@/studio/tables/table-glyphs";
@@ -53,7 +64,7 @@ import { toast } from "@/lib/toast";
 import { previewProps } from "@/lib/depth/preview-bus";
 
 /** The parts of the natal table, in reading order. */
-const PARTS: TablePartId[] = ["identity", "points", "houses", "aspects", "grid", "patterns", "balance", "ranking"];
+const PARTS: TablePartId[] = ["identity", "points", "houses", "aspects", "grid", "dignities", "patterns", "balance"];
 
 /** A value that hangs on an unknown birth time: ~ before it, dimmed. */
 function Maybe({ cell, mono = false, className }: { cell: Cell; mono?: boolean; className?: string }) {
@@ -133,7 +144,7 @@ export function NatalTable({
     grid: <AspectGrid chart={chart} selectedId={selectedId} onSelect={onSelect} />,
     patterns: <PatternsPart chart={chart} patterns={patterns} onSelect={onSelect} />,
     balance: <BalancePart chart={chart} patterns={patterns} />,
-    ranking: <RankingPart chart={chart} patterns={patterns} onSelect={onSelect} />,
+    dignities: <DignitiesPart chart={chart} patterns={patterns} selectedId={selectedId} onSelect={onSelect} />,
   };
 
   const parts: TablePart[] = PARTS.map((id) => ({
@@ -475,6 +486,7 @@ function AspectsPart({
   ]
     .filter(Boolean)
     .join(" · ");
+  const tightest = tightestText(chart, locale);
   const sorts: AspectSort[] = ["orb", "body", "aspect"];
   const sortWord = { orb: "sortOrb", body: "sortBody", aspect: "sortAspect" } as const;
   return (
@@ -505,6 +517,11 @@ function AspectsPart({
       <p className="ulune-part-count" data-testid="aspects-count" aria-live="polite">
         {count}
       </p>
+      {tightest ? (
+        <p className="ulune-part-count" data-testid="aspects-tightest">
+          <Maybe cell={{ ...tightest, text: tightest.text.charAt(0).toUpperCase() + tightest.text.slice(1) }} />
+        </p>
+      ) : null}
       {rows.length ? (
         <DataTable className="ulune-aspects" stickyFirst={false}>
           <thead>
@@ -646,6 +663,297 @@ function AspectsPart({
   );
 }
 
+/** A shape of the Patterns part: its name (and "dominant"), its corners and focal point, the orbs that hold it. */
+function ShapeLine({ shape, uncertain }: { shape: MergedShape; uncertain: boolean }) {
+  const { locale } = useI18n();
+  const t = shapeText(shape, locale);
+  return (
+    <span className={cn("ulune-shape", uncertain && "ulune-uncertain")}>
+      <span className="ulune-shape-name">
+        {uncertain ? "~" : ""}
+        {t.name}
+        {shape.dominant ? <span className="ulune-note ulune-shape-tag">{patternsWord(locale, "dominant")}</span> : null}
+      </span>
+      <span className="ulune-cell-sub">
+        {t.members}
+        {t.focal ? ` · ${t.focal}` : ""}
+      </span>
+      <span className="ulune-cell-sub">
+        {t.orbs}
+        {t.ways ? ` · ${t.ways}` : ""}
+      </span>
+    </span>
+  );
+}
+
+/** A ruler's glyph in the dignity table; its name for screen readers; marked when it is the row's own planet. */
+function RulerGlyph({ id, own, scored, title }: { id: string | null; own?: boolean; scored?: boolean; title?: string }) {
+  const { locale, t } = useI18n();
+  if (!id) return <span className="ulune-dig-none">{t("flagNo")}</span>;
+  const name = bodyLabel(id, locale);
+  return (
+    <span className={cn("ulune-dig-ruler", own && "is-own", scored && "is-scored")} title={title ? `${name} · ${title}` : name} data-body={id}>
+      <PlanetGlyph id={id} size={15} />
+      <span className="sr-only">
+        {name}
+        {title ? ` (${title})` : ""}
+      </span>
+    </span>
+  );
+}
+
+/** A body's glyph and name, inline (dispositor chains, receptions). */
+function BodyName({ id }: { id: string }) {
+  const { locale } = useI18n();
+  return (
+    <span className="ulune-body-name" data-body={id}>
+      <PlanetGlyph id={id} size={14} />
+      {bodyBare(id, locale)}
+    </span>
+  );
+}
+
+function DignitiesPart({
+  chart,
+  patterns,
+  selectedId,
+  onSelect,
+}: {
+  chart: NatalChart;
+  patterns: ChartPatterns;
+  selectedId: string | null;
+  onSelect?: (id: string) => void;
+}) {
+  const { locale, t } = useI18n();
+  const unknown = chart.meta.timeUnknown === true;
+  const rulers = useMemo(() => chartRulerFacts(chart, patterns, locale), [chart, patterns, locale]);
+  const rows = useMemo(() => dignityRows(chart, patterns, locale), [chart, patterns, locale]);
+  const disp = useMemo(() => dispositorsOf(chart), [chart]);
+  const receptions = useMemo(() => mutualReceptions(chart), [chart]);
+  const strongest = strongestLine(rows, locale);
+  const w = (key: Parameters<typeof dignitiesWord>[1], vars?: Record<string, string>) => dignitiesWord(locale, key, vars);
+  const inLoop = new Set<string>(disp.loops.flat());
+  return (
+    <>
+      {unknown ? <UnknownNote>{unknownTimeNote(locale, "dignities")}</UnknownNote> : null}
+      <div className="ulune-subpart ulune-subpart-first" data-testid="dignities-ruler">
+        <h3 className="ulune-subpart-h">{w("rulerHead")}</h3>
+        <p className="ulune-tpart-hint">{w("rulerHint")}</p>
+        <dl className="ulune-ruler-facts">
+          {rulers.map((r) => (
+            <div key={r.planet} data-by={r.by}>
+              <dt className="ulune-kicker text-fg-muted">{w(r.by === "both" ? "rulerBoth" : r.by === "traditional" ? "rulerTraditional" : "rulerModern")}</dt>
+              <dd>
+                <PickRow onClick={onSelect ? () => onSelect(pointSelectId(r.planet)) : undefined}>
+                  <span className="inline-flex items-center gap-2">
+                    <PlanetGlyph id={r.planet} size={16} />
+                    <Maybe cell={r.where} />
+                  </span>
+                </PickRow>
+                <p className="ulune-ruler-lines">
+                  {r.dignity ? (
+                    <span className={cn(r.dignity.uncertain && "ulune-uncertain")}>
+                      <span className="ulune-score font-mono">
+                        {r.dignity.uncertain ? "~" : ""}
+                        {r.dignity.scoreText}
+                      </span>{" "}
+                      {r.dignity.words.join(" · ")}
+                    </span>
+                  ) : null}
+                  {r.notes.map((n) => (
+                    <Maybe key={n.text} cell={n} className="ulune-note" />
+                  ))}
+                </p>
+                <p className="ulune-ruler-aspects text-sm text-fg-muted">
+                  <span className="text-fg">{w("aspectsLabel")}:</span>{" "}
+                  {r.aspects.length ? (
+                    <span className={cn(unknown && "ulune-uncertain")}>
+                      {unknown ? "~" : ""}
+                      {r.aspects.map((a) => a.text).join(", ")}
+                    </span>
+                  ) : (
+                    w("noAspects")
+                  )}
+                </p>
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      <div className="ulune-subpart" data-testid="dignities-table">
+        <h3 className="ulune-subpart-h">{w("tableHead")}</h3>
+        <p className="ulune-tpart-hint">{w("tableHint")}</p>
+        <DataTable className="ulune-dignities" stickyFirst={false}>
+          <thead>
+            <tr>
+              <th data-col="planet">{w("planet")}</th>
+              <th data-col="position">{w("position")}</th>
+              <th data-col="domicile" data-glyph>{w("domicile")}</th>
+              <th data-col="exaltation" data-glyph>{w("exaltation")}</th>
+              <th data-col="triplicity" data-glyph>{w("triplicity")}</th>
+              <th data-col="term" data-glyph>{w("term")}</th>
+              <th data-col="face" data-glyph>{w("face")}</th>
+              <th data-col="detriment" data-glyph>{w("detriment")}</th>
+              <th data-col="fall" data-glyph>{w("fall")}</th>
+              <th data-col="score">{w("score")}</th>
+              <th data-col="sect">{w("sect")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => {
+              const id = pointSelectId(r.planet);
+              const on = selectedId === id;
+              const x = r.rulers;
+              const trip = [w("tripDay"), w("tripNight"), w("tripPart")];
+              return (
+                <tr
+                  key={r.planet}
+                  data-planet={r.planet}
+                  data-selected={on ? "1" : undefined}
+                  data-uncertain={r.dignity.uncertain ? "1" : undefined}
+                  className={cn(onSelect && "cursor-pointer")}
+                  onClick={() => onSelect?.(id)}
+                  {...previewProps(id)}
+                >
+                  <td data-col="planet">
+                    <button type="button" className="ulune-row-pick" aria-pressed={on}>
+                      <span className="grid size-5 place-items-center text-fg">
+                        <PlanetGlyph id={r.planet} size={14} />
+                      </span>
+                      {bodyBare(r.planet, locale)}
+                    </button>
+                  </td>
+                  <td data-col="position" className="whitespace-nowrap" data-label={w("position")}>
+                    <span className="font-mono">{formatDegree(r.point.ecliptic)}</span>{" "}
+                    <span className="inline-flex items-center gap-1.5 align-[-1px]">
+                      <SignGlyph id={r.point.sign} size={12} />
+                      {signName(r.point.sign, locale)}
+                    </span>
+                  </td>
+                  <td data-col="domicile" data-glyph data-label={w("domicile")}>
+                    <RulerGlyph id={x.domicile} own={x.domicile === r.planet} />
+                  </td>
+                  <td data-col="exaltation" data-glyph data-label={w("exaltation")}>
+                    <RulerGlyph id={x.exaltation} own={x.exaltation === r.planet} />
+                  </td>
+                  <td data-col="triplicity" data-glyph data-label={w("triplicity")}>
+                    <span className="ulune-dig-trip">
+                      {x.triplicity.map((tp, i) => (
+                        <RulerGlyph
+                          key={`${tp}-${i}`}
+                          id={tp}
+                          own={tp === r.planet && i === r.sectTriplicity}
+                          scored={i === r.sectTriplicity}
+                          title={`${trip[i]}${i === r.sectTriplicity ? `, ${w("scored")}` : ""}`}
+                        />
+                      ))}
+                    </span>
+                  </td>
+                  <td data-col="term" data-glyph data-label={w("term")}>
+                    <RulerGlyph id={x.term} own={x.term === r.planet} />
+                  </td>
+                  <td data-col="face" data-glyph data-label={w("face")}>
+                    <RulerGlyph id={x.face} own={x.face === r.planet} />
+                  </td>
+                  <td data-col="detriment" data-glyph data-label={w("detriment")}>
+                    <RulerGlyph id={x.detriment} own={x.detriment === r.planet} />
+                  </td>
+                  <td data-col="fall" data-glyph data-label={w("fall")}>
+                    <RulerGlyph id={x.fall} own={x.fall === r.planet} />
+                  </td>
+                  <td data-col="score" data-testid={`dignity-score-${r.planet}`} data-label={w("score")}>
+                    <span className="ulune-score font-mono">
+                      {r.dignity.uncertain ? "~" : ""}
+                      {r.dignity.scoreText}
+                    </span>
+                    <span className="ulune-cell-sub">{r.dignity.words.join(" · ")}</span>
+                  </td>
+                  <td data-col="sect" data-label={w("sect")}>
+                    {r.sect ? <Maybe cell={r.sect} /> : t("flagNo")}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </DataTable>
+        <p className="ulune-part-count" data-testid="dignities-strongest">
+          {w("strongest")}: <Maybe cell={strongest} />
+        </p>
+      </div>
+
+      <div className="ulune-subpart" data-testid="dignities-dispositors">
+        <h3 className="ulune-subpart-h">{w("dispositorsHead")}</h3>
+        <p className="ulune-tpart-hint">{w("dispositorsHint")}</p>
+        <p className="ulune-disp-finals" data-testid="dispositors-finals">
+          <span className="ulune-kicker text-fg-muted">{w(disp.single ? "finalOne" : "finals")}</span>{" "}
+          {disp.finals.length ? (
+            <>
+              {disp.finals.map((id) => (
+                <BodyName key={id} id={id} />
+              ))}
+              <span className="text-fg-muted"> · {w(disp.single ? "finalOneNote" : "finalsNote")}</span>
+            </>
+          ) : (
+            <span className="text-fg-muted">{w("noFinal")}</span>
+          )}
+        </p>
+        <ul className="ulune-disp-chains">
+          {disp.chains
+            .filter((c) => !inLoop.has(c.path[0] as string))
+            .map((c) => (
+              <li key={c.path.join(">")} data-chain={c.path.join(">")} className={cn(c.uncertain && "ulune-uncertain")}>
+                {c.uncertain ? "~" : ""}
+                {c.path.map((id, i) => (
+                  <span key={`${id}-${i}`}>
+                    {i ? <span className="ulune-disp-arrow" aria-hidden> → </span> : null}
+                    <BodyName id={id} />
+                  </span>
+                ))}
+                {c.end === "loop" ? <span className="text-fg-muted"> · {w("loop")}</span> : null}
+              </li>
+            ))}
+          {disp.loops.map((ring) => (
+            <li key={ring.join("|")} data-loop={ring.join("|")}>
+              {ring.map((id, i) => (
+                <span key={id}>
+                  {i ? <span className="ulune-disp-arrow" aria-hidden> ⇄ </span> : null}
+                  <BodyName id={id} />
+                </span>
+              ))}
+              <span className="text-fg-muted"> · {w("loop")}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="ulune-subpart" data-testid="dignities-receptions">
+        <h3 className="ulune-subpart-h">{w("receptionsHead")}</h3>
+        <p className="ulune-tpart-hint">{w("receptionsHint")}</p>
+        {receptions.length ? (
+          <ul className="ulune-disp-chains">
+            {receptions.map((r) => (
+              <li key={`${r.a}|${r.b}`} data-reception={`${r.a}|${r.b}`} data-kind={r.kind} className={cn(r.uncertain && "ulune-uncertain")}>
+                {r.uncertain ? "~" : ""}
+                <BodyName id={r.a} />
+                <span className="ulune-disp-arrow" aria-hidden>
+                  {" "}
+                  ⇄{" "}
+                </span>
+                <BodyName id={r.b} />
+                <span className="text-fg-muted"> · {w(r.kind === "domicile" ? "byDomicile" : r.kind === "exaltation" ? "byExaltation" : "byMixed")}</span>
+                <span className="ulune-cell-sub">{receptionDetail(r, chart, locale)}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-fg-muted">{w("noReceptions")}</p>
+        )}
+      </div>
+    </>
+  );
+}
+
 function PatternsPart({
   chart,
   patterns,
@@ -670,9 +978,9 @@ function PatternsPart({
             ) : s.items.some((i) => i.pick) ? (
               <ul className="mt-2 grid gap-2">
                 {s.items.map((item) => (
-                  <li key={item.text}>
+                  <li key={item.text} data-shape={item.shape?.type} data-dominant={item.shape?.dominant ? "1" : undefined}>
                     <PickRow onClick={onSelect && item.pick ? () => onSelect(item.pick!) : undefined}>
-                      <Maybe cell={item} />
+                      {item.shape ? <ShapeLine shape={item.shape} uncertain={item.uncertain} /> : <Maybe cell={item} />}
                     </PickRow>
                   </li>
                 ))}
@@ -703,58 +1011,6 @@ function BalancePart({ chart, patterns }: { chart: NatalChart; patterns: ChartPa
           <BarGroup key={g.id} group={g} />
         ))}
       </div>
-    </>
-  );
-}
-
-function RankingPart({
-  chart,
-  patterns,
-  onSelect,
-}: {
-  chart: NatalChart;
-  patterns: ChartPatterns;
-  onSelect?: (id: string) => void;
-}) {
-  const { locale, t } = useI18n();
-  const unknown = chart.meta.timeUnknown === true;
-  const facts = rankingFacts(chart, patterns, locale);
-  return (
-    <>
-      {unknown ? <UnknownNote>{unknownTimeNote(locale, "ranking")}</UnknownNote> : null}
-      <dl className="grid gap-[var(--space-4)]">
-        <div>
-          <dt className="ulune-kicker text-fg-muted">{t("chartRulerHead")}</dt>
-          <dd className="mt-2 text-sm text-fg">
-            {facts.ruler ? <Maybe cell={facts.ruler} /> : t("flagNo")}
-            {facts.ruler?.aspects ? <span className="mt-1 block text-fg-muted">{facts.ruler.aspects}</span> : null}
-          </dd>
-        </div>
-        <div>
-          <dt className="ulune-kicker text-fg-muted">{t("tightestHead")}</dt>
-          <dd className="mt-2 text-sm text-fg">{facts.tightest ? <Maybe cell={facts.tightest} /> : t("flagNo")}</dd>
-        </div>
-        <div>
-          <dt className="ulune-kicker text-fg-muted">{t("rankingHead")}</dt>
-          <dd className="mt-2">
-            <ol className="grid gap-1">
-              {facts.rows.map((row, i) => (
-                <li key={row.id}>
-                  <PickRow onClick={onSelect ? () => onSelect(pointSelectId(row.id)) : undefined}>
-                    {i + 1}. <Maybe cell={row} />
-                  </PickRow>
-                </li>
-              ))}
-            </ol>
-          </dd>
-        </div>
-        <div>
-          <dt className="ulune-kicker text-fg-muted">{t("dominantHead")}</dt>
-          <dd className="mt-2 text-sm text-fg">
-            <Maybe cell={facts.dominant} />
-          </dd>
-        </div>
-      </dl>
     </>
   );
 }

@@ -340,3 +340,17 @@ export function parallelRowText(p: ParallelRow, locale: AppLocale, decl: (x: num
   if (p.twins.length) bits.push(aspectsWord(locale, "also", { list: p.twins.map((t) => parallelPhrase(t, locale)).join(", ") }));
   return bits.join(" · ");
 }
+
+/**
+ * "tightest major: Jupiter conjunction Chiron, 0°11'". Without a birth time
+ * the angles sweep the zodiac in the day: at some hour one of them perfects
+ * an aspect, so the tightest is never known (~).
+ */
+export function tightestText(chart: NatalChart, locale: AppLocale): Cell | null {
+  const best = chart.aspects.filter((a) => a.level === "major").sort((x, y) => x.orb - y.orb)[0];
+  if (!best) return null;
+  return {
+    text: aspectsWord(locale, "tightest", { aspect: aspectPhrase(best, locale), orb: formatArc(best.orb) }),
+    uncertain: chart.meta.timeUnknown === true,
+  };
+}

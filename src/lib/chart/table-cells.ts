@@ -14,7 +14,6 @@ import {
   elementName,
   houseName,
   modalityName,
-  planetName,
   signName,
 } from "@/lib/i18n/astro";
 import { translate, type AppLocale } from "@/lib/i18n/messages";
@@ -37,7 +36,6 @@ import {
   ariesPointHolds,
   dignityHolds,
   isRough,
-  membersHold,
   RANGE_WORTH,
   signHolds,
   signsHold,
@@ -45,7 +43,7 @@ import {
   unaspectedHolds,
 } from "./day-checks";
 import { essentialDignity, isTraditionalPlanet, type DebilityKind, type EssentialKind } from "./dignities";
-import { CONFIG_LABEL } from "./overlay-filter";
+import { mergedShapes, shapeLine, type MergedShape } from "./table-patterns";
 import { formatEuropeanDate } from "./parse-birth";
 import { declinationOf, localSiderealHours, moonPhase, nearestAngle, outOfBoundsBy, separation } from "./table-facts";
 import { ANGLE_IDS, type AspectLink, type BodyFlags, type ChartPatterns, type NatalChart, type Placement } from "./types";
@@ -55,6 +53,11 @@ export type Cell = { text: string; uncertain: boolean };
 
 function mark(on: boolean): string {
   return on ? "~" : "";
+}
+
+/** "Label: value", with the French space before the colon. */
+export function colon(locale: AppLocale): string {
+  return locale === "fr" ? " : " : ": ";
 }
 
 /** A cell as text: "~" before it when it hangs on the time. */
@@ -334,9 +337,11 @@ export function stelliumPlace(place: string, locale: AppLocale): string {
 export type PatternItem = Cell & {
   /** What choosing it selects on the wheel (a point or a house). */
   pick?: string;
+  /** A configuration, merged with its near-duplicates (table-patterns.ts). */
+  shape?: MergedShape;
 };
 
-export type PatternSectionId = "configurations" | "receptions" | "stelliums" | "unaspected" | "voc" | "retrogrades";
+export type PatternSectionId = "configurations" | "stelliums" | "unaspected" | "voc" | "retrogrades";
 
 export type PatternSection = {
   id: PatternSectionId;
@@ -358,26 +363,13 @@ export function patternSections(chart: NatalChart, patterns: ChartPatterns, loca
     {
       id: "configurations",
       title: translate(locale, "patternConfigs"),
-      items: patterns.configurations.map((c) => ({
-        text: `${CONFIG_LABEL[c.type][locale]} · ${names(c.members)}${c.apex ? ` · ${translate(locale, "configApex", { name: bodyBare(c.apex, locale) })}` : ""}`,
-        uncertain: !membersHold(chart, c.members),
-        pick: pointSelectId(c.apex ?? c.members[0] ?? "sun"),
+      items: mergedShapes(chart, patterns).map((shape) => ({
+        text: shapeLine(shape, locale),
+        uncertain: shape.uncertain,
+        pick: pointSelectId(shape.representative.apex ?? shape.representative.members[0] ?? "sun"),
+        shape,
       })),
       none: translate(locale, "noConfigs"),
-    },
-    {
-      id: "receptions",
-      title: translate(locale, "patternReceptions"),
-      items: patterns.receptions.map((r) => {
-        const a = pointById(chart, r.a);
-        const b = pointById(chart, r.b);
-        return {
-          text: `${bodyBare(r.a, locale)} ⇄ ${bodyBare(r.b, locale)}`,
-          uncertain: !(a && b && signHolds(chart, a) && signHolds(chart, b)),
-          pick: pointSelectId(r.a),
-        };
-      }),
-      none: translate(locale, "noReceptions"),
     },
     {
       id: "stelliums",
@@ -386,7 +378,7 @@ export function patternSections(chart: NatalChart, patterns: ChartPatterns, loca
         const house = /^House (\d+)$/.exec(s.place)?.[1];
         const members = s.members.map((id) => pointById(chart, id));
         return {
-          text: `${stelliumPlace(s.place, locale)}: ${names(s.members)}`,
+          text: `${stelliumPlace(s.place, locale)}${colon(locale)}${names(s.members)}`,
           uncertain: unknown && (house != null || !members.every((p) => p && signHolds(chart, p))),
           pick: house ? `house:${house}` : pointSelectId(s.members[0] ?? "sun"),
         };
@@ -494,88 +486,8 @@ export function balanceGroups(chart: NatalChart, patterns: ChartPatterns, locale
 }
 
 /** "Elements: Fire 7 · Earth 3 · Air 5 · Water 2". */
-export function balanceGroupText(g: BalanceGroup): string {
-  return `${mark(g.uncertain)}${g.title}: ${g.rows.map((r) => `${r.label} ${weightText(r.value)}`).join(" · ")}`;
-}
-
-/* ── Ranking ────────────────────────────────────────────────────────── */
-
-export type RankingFacts = {
-  ruler: (Cell & { aspects: string }) | null;
-  tightest: Cell | null;
-  rows: (Cell & { id: string })[];
-  dominant: Cell;
-};
-
-export function rankingFacts(chart: NatalChart, patterns: ChartPatterns, locale: AppLocale): RankingFacts {
-  const unknown = chart.meta.timeUnknown === true;
-  const t = (key: Parameters<typeof translate>[1], vars?: Record<string, string>) => translate(locale, key, vars);
-  const sectWord = (inSect: boolean | null | undefined) => (inSect === true ? t("inSect") : inSect === false ? t("outOfSect") : "");
-
-  const rulerPoint = chart.planets.find((p) => p.id === patterns.chartRuler);
-  let ruler: RankingFacts["ruler"] = null;
-  if (rulerPoint) {
-    const dignity = dignityCell(rulerPoint, patterns.isDay, chart, locale);
-    const sect = sectWord(patterns.flags[rulerPoint.id]?.inSect);
-    const aspects = chart.aspects
-      .filter((a) => a.level === "major" && (a.a === patterns.chartRuler || a.b === patterns.chartRuler))
-      .map((a) => `${aspectWord(a.type, locale)} ${bodyBare(a.a === patterns.chartRuler ? a.b : a.a, locale)} ${formatArc(a.orb)}`)
-      .join(" · ");
-    ruler = {
-      text: [
-        t("chartRulerDetail", {
-          planet: planetName(patterns.chartRuler, locale),
-          sign: signName(rulerPoint.sign, locale),
-          house: String(rulerPoint.house),
-        }),
-        dignity ? `${dignity.label} ${dignity.scoreText}` : "",
-        sect,
-      ]
-        .filter(Boolean)
-        .join(" · "),
-      // The chart ruler is the ruler of the Ascendant's sign.
-      uncertain: unknown,
-      aspects,
-    };
-  }
-
-  const tt = patterns.tightest;
-  const tightest: Cell | null = tt
-    ? {
-        text: `${t("tightestLine", {
-          a: bodyBare(tt.a, locale),
-          aspect: aspectWord(tt.type, locale),
-          b: bodyBare(tt.b, locale),
-          orb: formatArc(tt.orb),
-        })}${tt.applying != null ? ` · ${phaseWord(tt.applying, locale)}` : ""}`,
-        // Without a birth time the angles sweep the whole zodiac in the day: at some
-        // hour one of them perfects an aspect, so the tightest is never known.
-        uncertain: unknown,
-      }
-    : null;
-
-  const rows = patterns.ranking.map((row) => ({
-    id: row.id as string,
-    text: t("rankingLine", {
-      planet: bodyBare(row.id, locale),
-      score: String(row.score),
-      dignity: row.dignity ? dignityName(row.dignity, locale) : t("flagNo"),
-      sect: sectWord(row.inSect) ? `, ${sectWord(row.inSect)}` : "",
-    }),
-    // The score counts the sect, which needs the time.
-    uncertain: unknown,
-  }));
-
-  const d = patterns.dominant;
-  const dominant: Cell = d
-    ? {
-        text: t("dominantLine", { shape: CONFIG_LABEL[d.type][locale], planet: d.apex ? bodyBare(d.apex, locale) : "—" }),
-        // The shapes count the Ascendant and the MC: at another hour another may lead.
-        uncertain: unknown,
-      }
-    : { text: t("dominantNone"), uncertain: unknown };
-
-  return { ruler, tightest, rows, dominant };
+export function balanceGroupText(g: BalanceGroup, locale: AppLocale = "en"): string {
+  return `${mark(g.uncertain)}${g.title}${colon(locale)}${g.rows.map((r) => `${r.label} ${weightText(r.value)}`).join(" · ")}`;
 }
 
 /* ── Chart ──────────────────────────────────────────────────────────── */
@@ -694,6 +606,6 @@ export function chartFacts(chart: NatalChart, isDay: boolean, locale: AppLocale)
 }
 
 /** A Chart fact as a line of text: "Label: value · note (detail)". */
-export function chartFactLine(f: ChartFact): string {
-  return `${f.label}: ${mark(f.uncertain === true)}${f.value}${f.note ? ` · ${f.note}` : ""}${f.detail ? ` (${f.detail})` : ""}`;
+export function chartFactLine(f: ChartFact, locale: AppLocale = "en"): string {
+  return `${f.label}${colon(locale)}${mark(f.uncertain === true)}${f.value}${f.note ? ` · ${f.note}` : ""}${f.detail ? ` (${f.detail})` : ""}`;
 }

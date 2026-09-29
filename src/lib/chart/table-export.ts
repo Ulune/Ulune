@@ -11,6 +11,7 @@ import {
   aspectTableRow,
   aspectTableRows,
   aspectTableRowText,
+  tightestText,
   isOutOfSign,
   parallelRows,
   parallelRowText,
@@ -24,21 +25,25 @@ import {
   chartFactLine,
   chartFacts,
   chartPoints,
+  colon,
   groupedPoints,
   hasLatitude,
   patternSections,
   pointRow,
   pointRowText,
-  rankingFacts,
   type PointRow,
 } from "./table-cells";
 import { armcOf, declinationOf, localSiderealHours, moonPhase, nearestAngle, outOfBoundsBy, separation } from "./table-facts";
+import { dispositorsOf, dignityRows, dignitiesText, mutualReceptions } from "./table-dignities";
 import { houseRows, houseRowText } from "./table-houses";
+import { mergedShapes } from "./table-patterns";
 import type { NatalChart } from "./types";
 import { bodyBare } from "@/lib/i18n/astro";
-import { translate, type AppLocale } from "@/lib/i18n/messages";
+import type { AppLocale } from "@/lib/i18n/messages";
 import { aspectsWord, pointsGroupLabel, pointsText, tablePartLabel, unknownTimeNote } from "@/lib/i18n/table-ui";
 import { formatDegreeSeconds, formatHms, formatSignedDms, formatSignedDmsSeconds } from "@/lib/utils";
+
+const capitalize = (x: string) => (x ? x.charAt(0).toUpperCase() + x.slice(1) : x);
 
 function csvEscape(value: string): string {
   if (/[",\n]/.test(value)) return `"${value.replaceAll('"', '""')}"`;
@@ -48,7 +53,7 @@ function csvEscape(value: string): string {
 export { chartPoints };
 
 /** The parts of the text copy, in the table page's order (the grid has none). */
-export type ChartTextPartId = "identity" | "points" | "houses" | "aspects" | "patterns" | "balance" | "ranking";
+export type ChartTextPartId = "identity" | "points" | "houses" | "aspects" | "dignities" | "patterns" | "balance";
 export type ChartTextPart = { id: ChartTextPartId; lines: string[] };
 
 /**
@@ -67,7 +72,7 @@ export function chartTextParts(chart: NatalChart, locale: AppLocale): ChartTextP
   const push = (s: string) => lines.push(s);
 
   start("identity");
-  for (const f of chartFacts(chart, patterns.isDay, locale)) push(chartFactLine(f));
+  for (const f of chartFacts(chart, patterns.isDay, locale)) push(chartFactLine(f, locale));
 
   start("points");
   if (unknown) push(pointsText(locale, "needsTime"));
@@ -82,6 +87,8 @@ export function chartTextParts(chart: NatalChart, locale: AppLocale): ChartTextP
 
   start("aspects");
   if (unknown) push(unknownTimeNote(locale, "aspects"));
+  const tightest = tightestText(chart, locale);
+  if (tightest) push(`${tightest.uncertain ? "~" : ""}${capitalize(tightest.text)}`);
   for (const r of aspectTableRows(chart, locale).rows) push(aspectTableRowText(r, locale));
   push(aspectsWord(locale, "parallelsHead"));
   if (unknown) push(aspectsWord(locale, "parallelsUnknown"));
@@ -90,13 +97,17 @@ export function chartTextParts(chart: NatalChart, locale: AppLocale): ChartTextP
   if (parallels.length) for (const p of parallels) push(parallelRowText(p, locale, decl));
   else push(aspectsWord(locale, "noParallels"));
 
+  start("dignities");
+  if (unknown) push(unknownTimeNote(locale, "dignities"));
+  for (const line of dignitiesText(chart, patterns, locale)) push(line);
+
   start("patterns");
   if (unknown) push(unknownTimeNote(locale, "patterns"));
   for (const s of patternSections(chart, patterns, locale)) {
     if (s.id === "voc" || s.id === "unaspected" || s.id === "retrogrades") {
       // One line each: "Title: what it says".
       const item = s.items[0];
-      push(`${s.title}: ${item ? cellText(item) : s.none}`);
+      push(`${s.title}${colon(locale)}${item ? cellText(item) : s.none}`);
       continue;
     }
     push(s.title);
@@ -106,16 +117,7 @@ export function chartTextParts(chart: NatalChart, locale: AppLocale): ChartTextP
 
   start("balance");
   if (unknown) push(unknownTimeNote(locale, "balance"));
-  for (const g of balanceGroups(chart, patterns, locale)) push(balanceGroupText(g));
-
-  start("ranking");
-  if (unknown) push(unknownTimeNote(locale, "ranking"));
-  const r = rankingFacts(chart, patterns, locale);
-  if (r.ruler) push(`${translate(locale, "chartRulerHead")}: ${cellText(r.ruler)}${r.ruler.aspects ? ` (${r.ruler.aspects})` : ""}`);
-  if (r.tightest) push(`${translate(locale, "tightestHead")}: ${cellText(r.tightest)}`);
-  push(`${translate(locale, "rankingHead")}:`);
-  r.rows.forEach((row, i) => push(`${i + 1}. ${cellText(row)}`));
-  push(`${translate(locale, "dominantHead")}: ${cellText(r.dominant)}`);
+  for (const g of balanceGroups(chart, patterns, locale)) push(balanceGroupText(g, locale));
 
   return parts;
 }
@@ -321,7 +323,6 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): strin
   for (const c of patterns.configurations) {
     add(["pattern", c.type, `${c.members.join("|")}${c.apex ? ` apex:${c.apex}` : ""}`]);
   }
-  for (const r of patterns.receptions) add(["pattern", "reception", `${r.a}|${r.b}`]);
   for (const s of patterns.stelliums) add(["pattern", "stellium", `${s.place}|${s.members.join("|")}`]);
   add([
     "pattern",
@@ -361,29 +362,89 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): strin
   }
 
   add([]);
-  add(["ranking", "field", "value"]);
-  add(["ranking", "chartRuler", patterns.chartRuler]);
+  add(["shape", "type", "members", "focal", "ways", "orbMin", "orbMax", "dominant", "uncertain"]);
+  for (const sh of mergedShapes(chart, patterns)) {
+    add([
+      "shape",
+      sh.type,
+      sh.corners.map((c) => c.join("/")).join("|"),
+      sh.focal ? sh.focal.join("/") : "",
+      String(sh.ways),
+      sh.orbs[0].toFixed(4),
+      sh.orbs[1].toFixed(4),
+      bit(sh.dominant),
+      bit(sh.uncertain),
+    ]);
+  }
+
+  add([]);
+  add(["ruler", "by", "planet", "sign", "house", "dignities", "score", "uncertain"]);
+  const trad = patterns.chartRulerTraditional ?? patterns.chartRuler;
+  const modern = patterns.chartRulerModern ?? trad;
+  for (const [by, id] of [["traditional", trad], ["modern", modern]] as const) {
+    const p = chart.planets.find((x) => x.id === id);
+    const row = dignityRows(chart, patterns, locale).find((r) => r.planet === id);
+    add(["ruler", by, id, p?.sign ?? "", p ? String(p.house) : "", row ? row.dignity.kinds.join("|") : "", row ? String(row.dignity.score) : "", bit(unknown)]);
+  }
+
+  add([]);
+  add([
+    "dignity",
+    "planet",
+    "sign",
+    "longitude",
+    "domicile",
+    "exaltation",
+    "triplicityDay",
+    "triplicityNight",
+    "triplicityParticipating",
+    "term",
+    "face",
+    "detriment",
+    "fall",
+    "dignities",
+    "score",
+    "sect",
+    "uncertain",
+  ]);
+  for (const r of dignityRows(chart, patterns, locale)) {
+    const x = r.rulers;
+    add([
+      "dignity",
+      r.planet,
+      r.point.sign,
+      r.point.ecliptic.toFixed(6),
+      x.domicile,
+      x.exaltation ?? "",
+      x.triplicity[0],
+      x.triplicity[1],
+      x.triplicity[2],
+      x.term,
+      x.face,
+      x.detriment,
+      x.fall ?? "",
+      r.dignity.kinds.join("|"),
+      String(r.dignity.score),
+      unknown ? "" : patterns.flags[r.planet]?.inSect === true ? "in" : patterns.flags[r.planet]?.inSect === false ? "out" : "",
+      bit(r.dignity.uncertain),
+    ]);
+  }
+
+  add([]);
+  add(["dispositor", "planet", "chain", "end", "uncertain"]);
+  const disp = dispositorsOf(chart);
+  for (const id of disp.finals) add(["dispositor", id, id, "own sign", bit(false)]);
+  for (const c of disp.chains) add(["dispositor", c.path[0] ?? "", c.path.join("|"), c.end, bit(c.uncertain)]);
+
+  add([]);
+  add(["reception", "a", "b", "kind", "uncertain"]);
+  for (const r of mutualReceptions(chart)) add(["reception", r.a, r.b, r.kind, bit(r.uncertain)]);
+
   if (patterns.tightest) {
     const t = patterns.tightest;
-    add([
-      "ranking",
-      "tightest",
-      `${t.a}|${t.type}|${t.b}|${t.orb.toFixed(4)}|${t.applying === true ? "applying" : t.applying === false ? "separating" : ""}`,
-    ]);
-  }
-  for (const row of patterns.ranking) {
-    add([
-      "ranking",
-      "dignitySect",
-      `${row.id}|${row.score}|${row.dignity ?? ""}|${row.inSect === true ? "in" : row.inSect === false ? "out" : ""}`,
-    ]);
-  }
-  if (patterns.dominant) {
-    add([
-      "ranking",
-      "dominant",
-      `${patterns.dominant.type}|${patterns.dominant.members.join("|")}|apex:${patterns.dominant.apex ?? ""}`,
-    ]);
+    add([]);
+    add(["tightest", "a", "type", "b", "orb", "applying"]);
+    add(["tightest", t.a, t.type, t.b, t.orb.toFixed(4), t.applying === true ? "applying" : t.applying === false ? "separating" : ""]);
   }
 
   return rows.map((r) => r.join(",")).join("\n");

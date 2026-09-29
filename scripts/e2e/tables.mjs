@@ -22,7 +22,7 @@ import {
  * bar; nothing scrolls sideways.
  */
 
-const PARTS = ["identity", "points", "houses", "aspects", "grid", "patterns", "balance", "ranking"];
+const PARTS = ["identity", "points", "houses", "aspects", "grid", "dignities", "patterns", "balance"];
 
 /** The table's scroller, its bar and the marked link. */
 async function pageState(page) {
@@ -176,6 +176,44 @@ async function checkHousesAspects(page, width) {
   await page.getByTestId("grid-parallels").uncheck();
 }
 
+/*
+ * Dignities (part 50): the chart ruler, the dignity table and its scores,
+ * the dispositors and the receptions; the patterns' shapes merged, the
+ * dominant first.
+ */
+async function checkDignities(page, width) {
+  const label = `${width} dignities`;
+  const ruler = await page.getByTestId("dignities-ruler").innerText();
+  if (!/Mercury in Gemini, house 10/.test(ruler) || !/\+7/.test(ruler)) throw new Error(`${label}: the chart ruler reads "${ruler}"`);
+  const scores = {};
+  for (const id of ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn"]) {
+    scores[id] = (await page.getByTestId(`dignity-score-${id}`).innerText()).split(/\s+/)[0];
+  }
+  const want = { sun: "+1", moon: "−5", mercury: "+7", venus: "+8", mars: "+5", jupiter: "+4", saturn: "+7" };
+  if (JSON.stringify(scores) !== JSON.stringify(want)) throw new Error(`${label}: scores ${JSON.stringify(scores)}`);
+  const own = await page.locator("[data-testid=dignities-table] tr[data-planet=mercury] .ulune-dig-ruler.is-own").count();
+  if (own !== 2) throw new Error(`${label}: Mercury holds ${own} marked dignities, expected 2 (domicile, term)`);
+  if (width < 800) {
+    const head = await page.locator("[data-testid=dignities-table] thead").evaluate((el) => getComputedStyle(el).display);
+    if (head !== "none") throw new Error(`${label}: the dignity table keeps its header on a narrow page`);
+  }
+  const finals = await page.getByTestId("dispositors-finals").innerText();
+  for (const name of ["Mercury", "Venus", "Mars", "Saturn"]) if (!finals.includes(name)) throw new Error(`${label}: finals read "${finals}"`);
+  const receptions = await page.locator("[data-testid=dignities-receptions] li[data-kind]").evaluateAll((els) => els.map((el) => el.getAttribute("data-kind")));
+  if (receptions.join(",") !== "exaltation,domicile") throw new Error(`${label}: receptions ${receptions.join(",")}`);
+  await page.locator("[data-testid=dignities-table] tr[data-planet=venus] .ulune-row-pick").click();
+  const chosen = await page.locator("[data-testid=studio-table][data-chart-pick]").getAttribute("data-selected");
+  if (chosen !== "planet:venus") throw new Error(`${label}: the Venus row chose "${chosen}"`);
+  const shapes = await page.locator("[data-testid=table-patterns] li[data-shape]").evaluateAll((els) =>
+    els.map((el) => `${el.getAttribute("data-shape")}${el.getAttribute("data-dominant") ? "*" : ""}`),
+  );
+  if (shapes.join(",") !== "kite*,kite,mysticRectangle,grandTrine,tsquare") throw new Error(`${label}: shapes ${shapes.join(",")}`);
+  const tsquare = await page.locator("[data-testid=table-patterns] li[data-shape=tsquare]").innerText();
+  if (!/Jupiter or Chiron, Neptune or Uranus/.test(tsquare) || !/4 ways/.test(tsquare)) throw new Error(`${label}: the T-square reads "${tsquare}"`);
+  const tightest = await page.getByTestId("aspects-tightest").innerText();
+  if (tightest !== "Tightest major: Jupiter conjunction Chiron, 0°11'") throw new Error(`${label}: the tightest reads "${tightest}"`);
+}
+
 async function runViewport(width) {
   const { browser, page } = await launch(width);
   try {
@@ -217,6 +255,7 @@ async function runViewport(width) {
     await checkNoSideways(page, `${width}`);
     await noDecimalDegree(page, `${width}`);
     await checkHousesAspects(page, width);
+    await checkDignities(page, width);
     await checkLinks(page, `${width}`);
     await checkFollow(page, `${width}`);
 
@@ -388,6 +427,12 @@ async function runExact() {
     if (moonPar !== "1") throw new Error("no time: the Moon's contra-parallel to Mars is not marked");
     const slowPar = await page.locator("[data-testid=table-parallels] tr[data-parallel='saturn|parallel|neptune']").getAttribute("data-uncertain");
     if (slowPar === "1") throw new Error("no time: Saturn parallel Neptune is marked though it holds all day");
+    // The dignities: the chart ruler hangs on the rising sign, the sect on the time.
+    if (!(await page.locator("[data-testid=table-dignities] > .ulune-unknown-note").count())) throw new Error("no time: no note over the dignities");
+    const rulerMark = await page.locator("[data-testid=dignities-ruler] dd .ob-pick-row").innerText();
+    if (!rulerMark.includes("~")) throw new Error(`no time: the chart ruler reads "${rulerMark}"`);
+    const sunSect = await page.locator("[data-testid=dignities-table] tr[data-planet=sun] td[data-col=sect]").innerText();
+    if (!sunSect.startsWith("~")) throw new Error(`no time: the Sun's sect reads "${sunSect}"`);
     const balance = await page.locator("[data-testid=table-balance] .ob-bal[data-group=hemisphere]").getAttribute("data-uncertain");
     if (balance !== "1") throw new Error("no time: the hemispheres are not marked");
     await noDecimalDegree(page, "no time");

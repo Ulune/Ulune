@@ -65,3 +65,11 @@ export function aspectsWord(locale: AppLocale, key: keyof typeof source.aspects,
 export function gridWord(locale: AppLocale, key: keyof typeof source.grid): string {
   return pick(source.grid[key], locale);
 }
+
+export function dignitiesWord(locale: AppLocale, key: keyof typeof source.dignities, vars?: Record<string, string>): string {
+  return fill(pick(source.dignities[key], locale), vars);
+}
+
+export function patternsWord(locale: AppLocale, key: keyof typeof source.patterns, vars?: Record<string, string>): string {
+  return fill(pick(source.patterns[key], locale), vars);
+}

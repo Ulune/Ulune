@@ -20,6 +20,10 @@
       "en": "Grid",
       "fr": "Grille"
     },
+    "dignities": {
+      "en": "Dignities",
+      "fr": "Dignités"
+    },
     "patterns": {
       "en": "Patterns",
       "fr": "Figures"
@@ -27,10 +31,6 @@
     "balance": {
       "en": "Balance",
       "fr": "Équilibre"
-    },
-    "ranking": {
-      "en": "Ranking",
-      "fr": "Classement"
     }
   },
   "hints": {
@@ -54,17 +54,17 @@
       "en": "Every pair at a glance, with its orb and A (applying) or S (separating). Tap a symbol to read that aspect.",
       "fr": "Chaque paire d’un coup d’œil, avec son orbe et A (applicatif) ou S (séparatif). Touchez un symbole pour lire l’aspect."
     },
+    "dignities": {
+      "en": "The chart ruler, who rules the degree each planet stands in and which of those it is itself, the dispositors and the mutual receptions.",
+      "fr": "Le maître du thème, qui gouverne le degré de chaque planète et lesquels de ces maîtres elle est elle-même, les dispositeurs et les réceptions mutuelles."
+    },
     "patterns": {
-      "en": "Configurations, mutual receptions, stelliums, unaspected planets and the Moon’s course.",
-      "fr": "Configurations, réceptions mutuelles, stelliums, planètes sans aspect et course de la Lune."
+      "en": "Configurations (the dominant first, each with the orbs that hold it), stelliums, unaspected planets and the Moon’s course.",
+      "fr": "Configurations (la dominante d’abord, chacune avec les orbes qui la tiennent), stelliums, planètes sans aspect et course de la Lune."
     },
     "balance": {
       "en": "Weighted toward the personal planets and the four angles.",
       "fr": "Pondéré vers les planètes personnelles et les quatre angles."
-    },
-    "ranking": {
-      "en": "Chart ruler, tightest aspect, dignity with sect, and the dominant shape.",
-      "fr": "Maître du thème, aspect le plus serré, dignité avec secte, et la figure dominante."
     }
   },
   "bar": {
@@ -384,9 +384,9 @@
       "en": "Without a birth time: marked ~, what may change at another hour of the day.",
       "fr": "Sans heure de naissance : marqué ~, ce qui peut changer à une autre heure du jour."
     },
-    "ranking": {
-      "en": "Without a birth time, what here depends on the rising sign, the sect or the angles is unknown: marked ~.",
-      "fr": "Sans heure de naissance, ce qui dépend ici du signe ascendant, de la secte ou des angles est inconnu : marqué ~."
+    "dignities": {
+      "en": "Without a birth time, the chart ruler (the ruler of the rising sign), the sect and the scores that hang on it are unknown, and a planet may reach another term or face in the day: marked ~.",
+      "fr": "Sans heure de naissance, le maître du thème (celui du signe ascendant), la secte et les scores qui en dépendent sont inconnus, et une planète peut passer dans un autre terme ou une autre face dans la journée : marqué ~."
     }
   },
   "houses": {
@@ -563,6 +563,10 @@
     "parallelsUnknown": {
       "en": "Without a birth time these declinations are for 12:00. Marked ~: those to the angles and the Vertex, and those that may leave 1° or change kind at another hour (the Moon’s, mostly).",
       "fr": "Sans heure de naissance, ces déclinaisons sont celles de 12 h. Marqués ~ : ceux aux angles et au Vertex, et ceux qui peuvent dépasser 1° ou changer de sorte à une autre heure (ceux de la Lune, surtout)."
+    },
+    "tightest": {
+      "en": "tightest major: {aspect}, {orb}",
+      "fr": "le majeur le plus serré : {aspect}, {orb}"
     }
   },
   "grid": {
@@ -585,6 +589,202 @@
     "legendParallels": {
       "en": "∥ parallel · # contra-parallel, above the diagonal",
       "fr": "∥ parallèle · # contre-parallèle, au-dessus de la diagonale"
+    }
+  },
+  "dignities": {
+    "rulerHead": {
+      "en": "Chart ruler",
+      "fr": "Maître du thème"
+    },
+    "rulerHint": {
+      "en": "The ruler of the sign on the Ascendant, and how it stands.",
+      "fr": "Le maître du signe à l’Ascendant, et dans quel état il se trouve."
+    },
+    "rulerBoth": {
+      "en": "Ruler of the rising sign",
+      "fr": "Maître du signe ascendant"
+    },
+    "rulerTraditional": {
+      "en": "Traditional ruler",
+      "fr": "Maître traditionnel"
+    },
+    "rulerModern": {
+      "en": "Modern ruler",
+      "fr": "Maître moderne"
+    },
+    "aspectsLabel": {
+      "en": "Its major aspects",
+      "fr": "Ses aspects majeurs"
+    },
+    "noAspects": {
+      "en": "No major aspect.",
+      "fr": "Aucun aspect majeur."
+    },
+    "tableHead": {
+      "en": "Essential dignities",
+      "fr": "Dignités essentielles"
+    },
+    "tableHint": {
+      "en": "Who rules the degree each planet stands in, and which of those it is itself: domicile +5, exaltation +4, triplicity of the chart’s sect +3, term +2, face +1; detriment −5, fall −4; none at all, peregrine −5 (Lilly’s points; Dorothean triplicities, Egyptian terms, Chaldean faces).",
+      "fr": "Qui gouverne le degré de chaque planète, et lesquels de ces maîtres elle est elle-même : domicile +5, exaltation +4, triplicité de la secte du thème +3, terme +2, face +1 ; exil −5, chute −4 ; aucune, pérégrine −5 (points de Lilly ; triplicités de Dorothée, termes égyptiens, faces chaldéennes)."
+    },
+    "planet": {
+      "en": "Planet",
+      "fr": "Planète"
+    },
+    "position": {
+      "en": "Position",
+      "fr": "Position"
+    },
+    "domicile": {
+      "en": "Ruler",
+      "fr": "Maître"
+    },
+    "exaltation": {
+      "en": "Exalt.",
+      "fr": "Exalt."
+    },
+    "triplicity": {
+      "en": "Triplicity",
+      "fr": "Triplicité"
+    },
+    "term": {
+      "en": "Term",
+      "fr": "Terme"
+    },
+    "face": {
+      "en": "Face",
+      "fr": "Face"
+    },
+    "detriment": {
+      "en": "Detr.",
+      "fr": "Exil"
+    },
+    "fall": {
+      "en": "Fall",
+      "fr": "Chute"
+    },
+    "score": {
+      "en": "Score",
+      "fr": "Score"
+    },
+    "sect": {
+      "en": "Sect",
+      "fr": "Secte"
+    },
+    "tripDay": {
+      "en": "by day",
+      "fr": "de jour"
+    },
+    "tripNight": {
+      "en": "by night",
+      "fr": "de nuit"
+    },
+    "tripPart": {
+      "en": "participating",
+      "fr": "participante"
+    },
+    "scored": {
+      "en": "scored in this chart",
+      "fr": "compte dans ce thème"
+    },
+    "itself": {
+      "en": "its own",
+      "fr": "elle-même"
+    },
+    "rulersLine": {
+      "en": "rulers of its degree: domicile {domicile}, exaltation {exaltation}, triplicity {day}/{night}/{part}, term {term}, face {face}; detriment {detriment}, fall {fall}",
+      "fr": "maîtres de son degré : domicile {domicile}, exaltation {exaltation}, triplicité {day}/{night}/{part}, terme {term}, face {face} ; exil {detriment}, chute {fall}"
+    },
+    "strongest": {
+      "en": "Strongest by Lilly’s points",
+      "fr": "Du plus fort au plus faible (points de Lilly)"
+    },
+    "dispositorsHead": {
+      "en": "Dispositors",
+      "fr": "Dispositeurs"
+    },
+    "dispositorsHint": {
+      "en": "Each planet is disposed of by the ruler of its sign; from ruler to ruler the chain ends at a planet in its own sign (a final dispositor) or turns in a loop.",
+      "fr": "Chaque planète a pour dispositeur le maître de son signe ; de maître en maître, la chaîne s’arrête à une planète dans son propre signe (un dispositeur final) ou tourne en boucle."
+    },
+    "finals": {
+      "en": "Final dispositors",
+      "fr": "Dispositeurs finaux"
+    },
+    "finalOne": {
+      "en": "Final dispositor",
+      "fr": "Dispositeur final"
+    },
+    "finalsNote": {
+      "en": "each in its own sign",
+      "fr": "chacune dans son propre signe"
+    },
+    "finalOneNote": {
+      "en": "in its own sign: every chain ends there",
+      "fr": "dans son propre signe : toutes les chaînes y mènent"
+    },
+    "noFinal": {
+      "en": "None: no planet is in its own sign.",
+      "fr": "Aucun : aucune planète n’est dans son propre signe."
+    },
+    "loop": {
+      "en": "a loop",
+      "fr": "une boucle"
+    },
+    "receptionsHead": {
+      "en": "Mutual receptions",
+      "fr": "Réceptions mutuelles"
+    },
+    "receptionsHint": {
+      "en": "Two planets each in a sign of the other’s: by domicile, by exaltation, or one of each.",
+      "fr": "Deux planètes chacune dans un signe de l’autre : par domicile, par exaltation, ou l’un et l’autre."
+    },
+    "byDomicile": {
+      "en": "by domicile",
+      "fr": "par domicile"
+    },
+    "byExaltation": {
+      "en": "by exaltation",
+      "fr": "par exaltation"
+    },
+    "byMixed": {
+      "en": "by domicile and exaltation",
+      "fr": "par domicile et exaltation"
+    },
+    "inSignOf": {
+      "en": "{planet} in {sign}, {other}’s sign",
+      "fr": "{planet} en {sign}, signe {ofOther}"
+    },
+    "inExaltationOf": {
+      "en": "{planet} in {sign}, where {other} is exalted",
+      "fr": "{planet} en {sign}, exaltation {ofOther}"
+    },
+    "noReceptions": {
+      "en": "No mutual reception.",
+      "fr": "Aucune réception mutuelle."
+    }
+  },
+  "patterns": {
+    "or": {
+      "en": " or ",
+      "fr": " ou "
+    },
+    "focal": {
+      "en": "focal {name}",
+      "fr": "foyer {name}"
+    },
+    "orbs": {
+      "en": "orbs {from} to {to}",
+      "fr": "orbes de {from} à {to}"
+    },
+    "ways": {
+      "en": "{n} ways, with the bodies in conjunction",
+      "fr": "{n} façons, avec les corps en conjonction"
+    },
+    "dominant": {
+      "en": "dominant",
+      "fr": "dominante"
     }
   }
 }

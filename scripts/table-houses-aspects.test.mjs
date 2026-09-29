@@ -320,7 +320,8 @@ test("the text copy and the CSV carry the houses, the aspects and the parallels"
   assert.equal(houses[1], "House 1 · 5°08'43\" Virgo · size 21°24' · ruled by Mercury in Gemini, house 10 · inside: — · Virgo on cusps 1 and 2");
   assert.ok(houses.includes("House 4 · 28°02'18\" Scorpio · size 37°09' · ruled by Pluto in Scorpio, house 3, traditionally Mars in Aries, house 8 · inside: True Lilith, Lot of Spirit · intercepted sign: Sagittarius"));
   const aspects = parts.find((p) => p.id === "aspects").lines;
-  assert.equal(aspects[1], "Jupiter conjunction Chiron · orb 0°11' of 8° · applying");
+  assert.equal(aspects[1], "Tightest major: Jupiter conjunction Chiron, 0°11'");
+  assert.equal(aspects[2], "Jupiter conjunction Chiron · orb 0°11' of 8° · applying");
   assert.ok(aspects.includes("Sun quincunx Saturn · orb 0°01' of 3° · separating · minor"));
   assert.ok(aspects.includes("Uranus trine Ascendant · orb 3°01' of 6° · applying · mirror: Uranus sextile Descendant"), aspects.join("\n"));
   assert.ok(aspects.includes("In declination"));
