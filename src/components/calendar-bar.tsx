@@ -19,7 +19,7 @@ function caption(scope: TimingScope, civil: CivilDate, locale: "en" | "fr", shor
   const text =
     scope === "day"
       ? dateFormat(loc, { timeZone: "UTC", weekday: short ? "short" : "long", day: "numeric", month: short ? "short" : "long", ...year }).format(at)
-      : dateFormat(loc, { timeZone: "UTC", month: "long", year: "numeric" }).format(at);
+      : dateFormat(loc, { timeZone: "UTC", month: short ? "short" : "long", year: "numeric" }).format(at);
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
@@ -102,7 +102,8 @@ export function CalendarBar({
         </button>
         <p data-testid="timing-caption" className="ulune-cal-title" aria-live="polite">
           <span className="ulune-cal-title-long">{caption(scope, civil, locale)}</span>
-          {scope === "day" ? <span className="ulune-cal-title-short">{caption(scope, civil, locale, true)}</span> : null}
+          {/* On a phone the short form (“Wed 30 Sept”, “Sept 2026”): the long one cut its year. */}
+          {scope !== "year" ? <span className="ulune-cal-title-short">{caption(scope, civil, locale, true)}</span> : null}
           {num ? (
             <button
               type="button"
