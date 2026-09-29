@@ -25,7 +25,8 @@ function Settings() {
       <Toaster />
       <main className="ulune-settings">
         <section className="ulune-panel ob-settings-card" data-testid="settings-prefs">
-          <h2 className="ob-settings-h">{t("shellSettings")}</h2>
+          {/* The page's title (the same look as the other cards' headings). */}
+          <h1 className="ob-settings-h">{t("shellSettings")}</h1>
           <div className="ob-settings-row">
             <span className="ob-menu-label">{t("language")}</span>
             <LangSwitch />

@@ -14,7 +14,7 @@ import type { NoticeBlock } from "./privacy-notice";
 export type LegalPageId = "legal" | "terms" | "credits" | "accessibility";
 export type LegalText = { title: string; updated: string; blocks: NoticeBlock[] };
 
-export const LEGAL_UPDATED = "2026-09-27";
+export const LEGAL_UPDATED = "2026-09-30";
 
 export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = {
   legal: {
@@ -261,7 +261,8 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
           list: [
             "The chart wheel is hard to use with a screen reader: not all its parts are named, and choosing one is not announced. The tables are the way in for now.",
             "Some menus don’t take the keyboard focus when they open.",
-            "In the light theme, some small grey text and a few chart marks have too little contrast.",
+            "Some chart marks, such as the faintest aspect lines, have less contrast than the guidelines ask; the text passes the automated contrast checks in both themes.",
+            "A few pages skip a heading level, which makes them harder to skim with a screen reader.",
             "Most text sizes are fixed: a larger default font in the browser changes little, though page zoom works.",
           ],
         },
@@ -295,7 +296,8 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
           list: [
             "La roue du thème est difficile à utiliser avec un lecteur d’écran\u202f: ses éléments ne sont pas tous nommés, et le choix de l’un d’eux n’est pas annoncé. Les tableaux restent le bon accès pour l’instant.",
             "Certains menus ne prennent pas le focus du clavier à leur ouverture.",
-            "Dans le thème clair, quelques petits textes gris et quelques marques du thème manquent de contraste.",
+            "Certaines marques du thème, comme les lignes d’aspect les plus fines, ont moins de contraste que les règles ne le demandent\u202f; les textes passent les vérifications automatiques de contraste dans les deux thèmes.",
+            "Quelques pages sautent un niveau de titre, ce qui les rend moins faciles à parcourir avec un lecteur d’écran.",
             "La plupart des tailles de texte sont fixes\u202f: agrandir la police par défaut du navigateur change peu, mais le zoom de la page fonctionne.",
           ],
         },

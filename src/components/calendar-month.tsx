@@ -98,15 +98,20 @@ export function CalendarMonth({
   while (cells.length % 7 !== 0) cells.push(null);
 
   const dayName = dateFormat(loc, { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" });
-  // One Tab stop for the month (the chosen day, else today, else the 1st); the arrows walk the days,
-  // Home and End the week, Page Up and Page Down the months.
+  // One Tab stop for the month (the chosen day, else today, else the 1st); the arrows walk the days
+  // (on into the next or last month at an edge), Home and End the week, Page Up and Page Down the months.
   const grid = useRef<HTMLDivElement>(null);
-  // After Page Up / Page Down the focus follows into the new month.
+  // After Page Up / Page Down the focus follows into the new month; an arrow past the month's first
+  // or last day goes on into the month before or after, to the day it reached.
   const refocus = useRef(false);
+  const refocusDay = useRef<number | null>(null);
   useEffect(() => {
     if (!refocus.current) return;
     refocus.current = false;
-    grid.current?.querySelector<HTMLElement>('[tabindex="0"]')?.focus();
+    const day = refocusDay.current;
+    refocusDay.current = null;
+    const target = day ? grid.current?.querySelector<HTMLElement>(`[data-day="${day}"]`) : null;
+    (target ?? grid.current?.querySelector<HTMLElement>('[tabindex="0"]'))?.focus();
   }, [civil.year, civil.month]);
   const inMonth = (key: string | null) => (key && key.startsWith(`${civil.year}-${String(civil.month).padStart(2, "0")}-`) ? key : null);
   const stop = inMonth(selectedDay) ?? inMonth(todayKey) ?? civilKey(first);
@@ -126,6 +131,14 @@ export function CalendarMonth({
       return;
     } else return;
     e.preventDefault();
+    if (e.key in step && (next < 1 || next > count) && onShiftMonth) {
+      // Past the edge: the neighbouring month, on the day the arrow reached.
+      const before = new Date(Date.UTC(civil.year, civil.month - 1, 0)).getUTCDate();
+      refocus.current = true;
+      refocusDay.current = next < 1 ? before + next : next - count;
+      onShiftMonth(next < 1 ? -1 : 1);
+      return;
+    }
     next = Math.min(count, Math.max(1, next));
     grid.current?.querySelector<HTMLElement>(`[data-day="${next}"]`)?.focus();
   };

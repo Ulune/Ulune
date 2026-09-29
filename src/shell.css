@@ -857,6 +857,16 @@ html.theme-switching * {
 .ob-aspect-chip[data-on="0"] {
   opacity: 0.5;
 }
+/* On the light paper the same fade needs less: 0.65 keeps a switched-off name at 4.5:1. */
+.light .ob-aspect-chip[data-on="0"] {
+  opacity: 0.65;
+}
+/* The calendar's past rows (timing.css) fade to 0.7; on the light paper their greys
+   fade too far, so there every text in them takes the main ink before the fade. */
+.light .ulune-data-table tr.ulune-row-past > td {
+  --color-fg-subtle: var(--color-fg);
+  --color-fg-muted: var(--color-fg);
+}
 .ob-aspect-chip[data-on="0"] .ob-aspect-chip-n {
   text-decoration: line-through;
 }
