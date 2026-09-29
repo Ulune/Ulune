@@ -6,7 +6,6 @@ import {
   digitalRoot,
   foldLetter,
   givenBirthName,
-  isVowel,
   lettersOf,
   lifePathFromParts,
   nameNumbers,
@@ -19,6 +18,7 @@ import {
   reduceKeepMasters,
   sumLetters,
 } from "../src/lib/chart/numerology.ts";
+import { parseName } from "../src/lib/chart/numerology-name.ts";
 import { NUMEROLOGY_HELLO, numerologyHelloCells } from "../src/lib/i18n/numerology-hello.ts";
 import {
   numerologyFromLabel,
@@ -58,16 +58,18 @@ test("JOHN SMITH — Expression 8, Soul Urge 6, Personality 11", () => {
   assert.equal(n.personality.digit, 2);
 });
 
-test("Y is always a vowel; accents fold; punctuation is ignored", () => {
+test("Y between consonants is a vowel; accents fold; punctuation is ignored", () => {
   const lynn = nameNumbers("LYNN");
-  // L3 Y7 N5 N5 = 20 → 2; vowels Y7; consonants L3 N5 N5 = 13 → 4
+  // L3 Y7 N5 N5 = 20 → 2; vowels Y7 (between consonants); consonants L3 N5 N5 = 13 → 4
   assert.equal(lynn.expression.number, 2);
   assert.equal(lynn.soulUrge.number, 7);
   assert.equal(lynn.personality.number, 4);
 
   const jose = nameNumbers("José");
   const josePlain = nameNumbers("JOSE");
-  assert.deepEqual(jose, josePlain);
+  for (const key of ["expression", "soulUrge", "personality"]) {
+    assert.deepEqual([jose[key].number, jose[key].chain], [josePlain[key].number, josePlain[key].chain], key);
+  }
   assert.ok(lettersOf("Mary-Jane O'Brien").join("") === "MARYJANEOBRIEN");
 });
 
@@ -122,21 +124,21 @@ test("Ligatures expand instead of vanishing: œ, ß, æ, ø, ł, þ", () => {
   assert.equal(l.personality.digit, 2);
 });
 
-test("Y is a vowel in every position, and no letter is dropped or double-counted", () => {
+test("Y as a vowel before a consonant, after one and between two; no letter is dropped or double-counted", () => {
   // Y initial, medial, final. The partition invariant is the real assertion:
-  // vowels + consonants must rebuild the expression total exactly, so a letter
+  // vowels + consonants must rebuild each name's letters exactly, so a letter
   // can never be counted in both halves or in neither.
   for (const name of ["YVONNE", "LYNN", "AMY", "Lœuillet", "Mary-Jane O'Brien", "José"]) {
-    const letters = lettersOf(name);
-    const vowels = letters.filter(isVowel);
-    const consonants = letters.filter((ch) => !isVowel(ch));
+    const parsed = parseName(name);
+    const letters = parsed.letters.map((l) => l.ch);
+    assert.deepEqual(letters, lettersOf(name), name);
+    const vowels = parsed.letters.filter((l) => l.vowel).map((l) => l.ch);
+    const consonants = parsed.letters.filter((l) => !l.vowel).map((l) => l.ch);
     assert.equal(vowels.length + consonants.length, letters.length, name);
+    assert.equal(sumLetters(vowels) + sumLetters(consonants), sumLetters(letters), name);
     const n = nameNumbers(name);
-    assert.equal(
-      reduceKeepMasters(sumLetters(vowels) + sumLetters(consonants)),
-      n.expression.number,
-      name,
-    );
+    // One name: its letters reduce as a whole.
+    if (parsed.words.length === 1) assert.equal(reduceKeepMasters(sumLetters(letters)), n.expression.number, name);
   }
 
   // Y7 V4 O6 N5 N5 E5 = 32 → 5; vowels Y O E = 18 → 9; consonants V N N = 14 → 5

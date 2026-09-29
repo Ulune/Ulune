@@ -1,26 +1,64 @@
 import type { NatalChart } from "./types";
+import {
+  MASTERS,
+  NO_MASTERS,
+  absent,
+  digitalRoot,
+  digitSum,
+  fromTerms,
+  gapOf,
+  present,
+  reduceKeepMasters,
+  term,
+  type KarmicDebt,
+  type NumerologyValue,
+} from "./numerology-reduce";
+import {
+  chaldeanOf,
+  lettersOf,
+  nameDetail,
+  nameNumbersOf,
+  parseName,
+  type ChaldeanNumber,
+  type NameDetail,
+  type NameLetter,
+  type ParsedName,
+  type YRole,
+} from "./numerology-name";
+import {
+  ageOn,
+  attitudeOf,
+  birthdayOf,
+  cyclesAt,
+  letterCycleSources,
+  lifeCyclesOf,
+  lifePathOf,
+  personalDayOf,
+  personalMonthOf,
+  personalYearOf,
+  universalYearOf,
+  yearRow,
+  type BirthDate,
+  type CyclesAt,
+  type LetterCycleId,
+  type LifeCycles,
+  type NumerologyYearRow,
+} from "./numerology-cycles";
+import { birthGrid, type BirthGrid } from "./numerology-grid";
 
-/**
- * Pythagorean letter map (A=1 … I=9, then J=1 … R=9, S=1 … Z=8):
- *   1 AJS  2 BKT  3 CLU  4 DMV  5 ENW  6 FOX  7 GPY  8 HQZ  9 IR
+/*
+ * Numerology, worked out on the device from the birth date and the name
+ * (nothing here is sent anywhere). The arithmetic is in numerology-reduce.ts,
+ * the name in numerology-name.ts, the cycles in numerology-cycles.ts and the
+ * birth grid in numerology-grid.ts; this file puts a whole reading together.
+ * Rules: Hans Decoz (World Numerology), as the numerology plan of part 59 sets
+ * out; the Chaldean number (Cheiro) stands beside, never mixed in.
  */
-export const PYTHAGOREAN_VALUE: Readonly<Record<string, number>> = {
-  A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8, I: 9,
-  J: 1, K: 2, L: 3, M: 4, N: 5, O: 6, P: 7, Q: 8, R: 9,
-  S: 1, T: 2, U: 3, V: 4, W: 5, X: 6, Y: 7, Z: 8,
-};
 
-/** House rule: Y is always treated as a vowel (not only when it stands in for one). */
-const VOWELS = new Set(["A", "E", "I", "O", "U", "Y"]);
+export { digitSum, digitalRoot, reduceBirthday, reduceKeepMasters, type NumerologyValue } from "./numerology-reduce";
+export { PYTHAGOREAN_VALUE, foldLetter, lettersOf, nameNumbers, sumLetters, type YRole } from "./numerology-name";
 
 export const NUMEROLOGY_DASH = "—";
-
-export type NumerologyValue = {
-  /** Master-aware value (11/22/33 kept). Null when the name is missing. */
-  number: number | null;
-  /** Always the 1–9 digital root. Null when the name is missing. */
-  digit: number | null;
-};
 
 export type NumerologyCoreId =
   | "lifepath"
@@ -31,6 +69,20 @@ export type NumerologyCoreId =
   | "maturity"
   | "personalYear";
 
+/** A name read letter by letter, with every number it gives. */
+export type NumerologyName = {
+  text: string;
+  parsed: ParsedName;
+  expression: NumerologyValue;
+  soulUrge: NumerologyValue;
+  personality: NumerologyValue;
+  detail: NameDetail;
+  chaldean: ChaldeanNumber | null;
+};
+
+/** A core number that went through 13, 14, 16 or 19. */
+export type NumerologyDebt = { id: NumerologyCoreId; debt: KarmicDebt };
+
 export type NumerologyChart = {
   year: number;
   month: number;
@@ -38,139 +90,41 @@ export type NumerologyChart = {
   calendarYear: number;
   calendarMonth: number;
   calendarDay: number;
+  /** Completed years on the calendar day (negative before the birth). */
+  age: number;
+  /** The full name at birth, as typed; null without one. */
   name: string | null;
+  /** The name used now, when it differs from the birth name. */
+  currentName: string | null;
   lifePath: NumerologyValue;
   expression: NumerologyValue;
   soulUrge: NumerologyValue;
   personality: NumerologyValue;
   birthday: NumerologyValue;
   maturity: NumerologyValue;
+  attitude: NumerologyValue;
+  rationalThought: NumerologyValue;
+  balance: NumerologyValue;
+  subconsciousSelf: NumerologyValue;
   personalYear: NumerologyValue;
   personalMonth: NumerologyValue;
   personalDay: NumerologyValue;
   universalYear: NumerologyValue;
+  /** The birth name (the core numbers) and the name used now (its minor numbers). */
+  names: { birth: NumerologyName | null; current: NumerologyName | null };
+  debts: NumerologyDebt[];
+  /** The gaps between two core numbers, 0 to 8. */
+  bridges: { lifePathExpression: NumerologyValue; soulUrgePersonality: NumerologyValue };
+  /** Pinnacles, challenges and period cycles over the whole life. */
+  life: LifeCycles;
+  /** The letters each letter cycle walks through (null without a name). */
+  letterSources: Record<LetterCycleId, NameLetter[]> | null;
+  /** Every cycle running on the calendar day (null before the birth). */
+  cycles: CyclesAt | null;
+  grid: BirthGrid;
 };
 
-export function digitSum(n: number): number {
-  let s = 0;
-  let x = Math.abs(Math.trunc(n));
-  if (x === 0) return 0;
-  while (x > 0) {
-    s += x % 10;
-    x = Math.floor(x / 10);
-  }
-  return s;
-}
-
-/** Always 1–9. 11→2, 22→4, 33→6. */
-export function digitalRoot(n: number): number {
-  let x = Math.abs(Math.trunc(n));
-  if (x === 0) return 0;
-  while (x > 9) x = digitSum(x);
-  return x;
-}
-
-/** Reduce by summing digits; keep 11, 22, 33 unreduced. */
-export function reduceKeepMasters(n: number): number {
-  let x = Math.abs(Math.trunc(n));
-  while (x > 9 && x !== 11 && x !== 22 && x !== 33) x = digitSum(x);
-  return x;
-}
-
-/** Birthday: keep 11 and 22 (including a compound day that reduces to them). Not 33. */
-export function reduceBirthday(day: number): number {
-  if (day === 11 || day === 22) return day;
-  let x = Math.abs(Math.trunc(day));
-  while (x > 9 && x !== 11 && x !== 22) x = digitSum(x);
-  return x;
-}
-
-function present(n: number): NumerologyValue {
-  return { number: n, digit: digitalRoot(n) };
-}
-
-function absent(): NumerologyValue {
-  return { number: null, digit: null };
-}
-
-/**
- * Latin letters NFD does not decompose, so stripping combining marks alone
- * leaves them outside A–Z and they would be dropped — losing a letter from the
- * name and quietly changing every name number. These are the standard ASCII
- * transliterations. French `œ` and German `ß` are the two that actually turn
- * up; `ß` already uppercases to `SS` in JS, so only the capital `ẞ` needs a row.
- */
-const LIGATURE_FOLD: Readonly<Record<string, string>> = {
-  Æ: "AE",
-  Œ: "OE",
-  ẞ: "SS",
-  Ø: "O",
-  Ł: "L",
-  Đ: "D",
-  Ð: "D",
-  Þ: "TH",
-};
-
-/**
- * One source character → the A–Z letters it counts as. Accents fold (`é` → `E`),
- * ligatures expand (`œ` → `OE`, `ß` → `SS`), and anything with no Latin letter
- * in it returns an empty string rather than a zero-valued letter.
- */
-export function foldLetter(ch: string): string {
-  const upper = ch.normalize("NFD").replace(/\p{M}/gu, "").toUpperCase();
-  let out = "";
-  for (const c of upper) {
-    const mapped = LIGATURE_FOLD[c];
-    if (mapped) out += mapped;
-    else if (c >= "A" && c <= "Z") out += c;
-  }
-  return out;
-}
-
-export function lettersOf(name: string): string[] {
-  const out: string[] = [];
-  for (const ch of name) {
-    for (const letter of foldLetter(ch)) out.push(letter);
-  }
-  return out;
-}
-
-export function letterValue(letter: string): number {
-  return PYTHAGOREAN_VALUE[letter] ?? 0;
-}
-
-export function isVowel(letter: string): boolean {
-  return VOWELS.has(letter);
-}
-
-export function sumLetters(letters: string[]): number {
-  let s = 0;
-  for (const ch of letters) s += letterValue(ch);
-  return s;
-}
-
-export type NameNumbers = {
-  expression: NumerologyValue;
-  soulUrge: NumerologyValue;
-  personality: NumerologyValue;
-};
-
-/** Full-name Pythagorean totals. Empty letter list → absent (never a fake 0). */
-export function nameNumbers(name: string): NameNumbers {
-  const letters = lettersOf(name);
-  if (!letters.length) {
-    return { expression: absent(), soulUrge: absent(), personality: absent() };
-  }
-  const vowels = letters.filter(isVowel);
-  const consonants = letters.filter((ch) => !isVowel(ch));
-  return {
-    expression: present(reduceKeepMasters(sumLetters(letters))),
-    soulUrge: vowels.length ? present(reduceKeepMasters(sumLetters(vowels))) : absent(),
-    personality: consonants.length ? present(reduceKeepMasters(sumLetters(consonants))) : absent(),
-  };
-}
-
-export function parseChartDate(date: string): { year: number; month: number; day: number } | null {
+export function parseChartDate(date: string): BirthDate | null {
   const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(date.trim());
   if (!m) return null;
   const year = Number(m[1]);
@@ -196,93 +150,138 @@ export function givenBirthName(raw: string | null | undefined, chart: NatalChart
   return name;
 }
 
-export function localCalendarYear(now: Date = new Date()): number {
-  return now.getFullYear();
-}
-
+/** Life Path as a number alone (month, day and year reduced apart; masters kept). */
 export function lifePathFromParts(month: number, day: number, year: number): number {
-  const m = reduceKeepMasters(month);
-  const d = reduceKeepMasters(day);
-  const y = reduceKeepMasters(year);
-  return reduceKeepMasters(m + d + y);
+  return reduceKeepMasters(reduceKeepMasters(month) + reduceKeepMasters(day) + reduceKeepMasters(year));
 }
 
-/**
- * Timing cycles reduce fully to 1–9 (no masters). Sol lock 2026-09-18:
- * PY = reduce_single(birthMonth + birthDay + calendarYear).
- */
-export function reduceSingle(n: number): number {
-  return digitalRoot(n);
-}
-
+/** The yearly cycles reduce fully to 1–9 (no masters): PY = month + day + year. */
 export function personalYearFromParts(month: number, day: number, calendarYear: number): number {
-  return reduceSingle(month + day + calendarYear);
+  return digitalRoot(month + day + calendarYear);
 }
 
 export function personalMonthFromParts(personalYear: number, calendarMonth: number): number {
-  return reduceSingle(personalYear + calendarMonth);
+  return digitalRoot(personalYear + calendarMonth);
 }
 
 export function personalDayFromParts(personalMonth: number, calendarDay: number): number {
-  return reduceSingle(personalMonth + calendarDay);
+  return digitalRoot(personalMonth + calendarDay);
 }
 
-/** Collective backdrop: reduce the calendar year’s digits to 1–9. */
+/** Collective backdrop: reduce the calendar year's digits to 1–9. */
 export function universalYearFromYear(calendarYear: number): number {
-  return reduceSingle(digitSum(calendarYear));
+  return digitalRoot(digitSum(calendarYear));
 }
 
-export function castNumerology(
-  chart: NatalChart,
-  opts?: {
-    now?: Date;
-    name?: string | null;
-    calendarYear?: number;
-    calendarMonth?: number;
-    calendarDay?: number;
-  },
-): NumerologyChart | null {
-  const parts = parseChartDate(chart.meta.date);
-  if (!parts) return null;
+/** A name's letters, numbers and finer numbers; null when it holds no letter. */
+export function readName(text: string, yRoles?: readonly YRole[] | null): NumerologyName | null {
+  const parsed = parseName(text, yRoles);
+  if (!parsed.letters.length) return null;
+  return { text: parsed.text, parsed, ...nameNumbersOf(parsed), detail: nameDetail(parsed), chaldean: chaldeanOf(parsed) };
+}
+
+/** Rational thought: the first name and the day of birth, reduced to 1–9. */
+function rationalThoughtOf(name: NumerologyName | null, b: BirthDate): NumerologyValue {
+  const first = name?.parsed.words[0];
+  if (!first) return absent();
+  const raw = first.letters.reduce((s, l) => s + l.value, 0);
+  return fromTerms([term(first.text, raw, NO_MASTERS), term("day", b.day, NO_MASTERS)], NO_MASTERS, false);
+}
+
+function gapOrAbsent(a: NumerologyValue, b: NumerologyValue): NumerologyValue {
+  return a.number != null && b.number != null ? gapOf(a.number, b.number) : absent();
+}
+
+export type NumerologyOptions = {
+  now?: Date;
+  /** The full name at birth (when left out, the chart's own name if it is a typed one). */
+  name?: string | null;
+  /** The name used now, if it differs (its numbers are the minor numbers). */
+  currentName?: string | null;
+  /** Each Y of the birth name as a vowel or a consonant, in order (switched by hand). */
+  yRoles?: readonly YRole[] | null;
+  currentYRoles?: readonly YRole[] | null;
+  calendarYear?: number;
+  calendarMonth?: number;
+  calendarDay?: number;
+};
+
+export function castNumerology(chart: NatalChart, opts?: NumerologyOptions): NumerologyChart | null {
+  const b = parseChartDate(chart.meta.date);
+  if (!b) return null;
   const now = opts?.now ?? new Date();
-  const calendarYear = opts?.calendarYear ?? localCalendarYear(now);
+  const calendarYear = opts?.calendarYear ?? now.getFullYear();
   const calendarMonth = opts?.calendarMonth ?? now.getMonth() + 1;
   const calendarDay = opts?.calendarDay ?? now.getDate();
   const typed = opts?.name !== undefined ? opts.name : givenBirthName(chart.meta.name, chart);
-  const name = typed && lettersOf(typed).length ? typed : null;
-  const names = name ? nameNumbers(name) : { expression: absent(), soulUrge: absent(), personality: absent() };
-  const lifePath = present(lifePathFromParts(parts.month, parts.day, parts.year));
-  const birthday = present(reduceBirthday(parts.day));
-  const py = personalYearFromParts(parts.month, parts.day, calendarYear);
-  const pm = personalMonthFromParts(py, calendarMonth);
-  const pd = personalDayFromParts(pm, calendarDay);
-  const personalYear = present(py);
-  const personalMonth = present(pm);
-  const personalDay = present(pd);
-  const universalYear = present(universalYearFromYear(calendarYear));
+  const birth = typed ? readName(typed, opts?.yRoles) : null;
+  const currentTyped = (opts?.currentName ?? "").trim();
+  const sameName = birth != null && lettersOf(currentTyped).join("") === lettersOf(birth.text).join("");
+  const current = currentTyped && !sameName ? readName(currentTyped, opts?.currentYRoles) : null;
+
+  const lifePath = lifePathOf(b);
+  const birthday = birthdayOf(b);
+  const expression = birth?.expression ?? absent();
+  const soulUrge = birth?.soulUrge ?? absent();
+  const personality = birth?.personality ?? absent();
   const maturity =
-    lifePath.number != null && names.expression.number != null
-      ? present(reduceKeepMasters(lifePath.number + names.expression.number))
+    lifePath.number != null && expression.number != null
+      ? fromTerms([term("lifePath", lifePath.number, MASTERS), term("expression", expression.number, MASTERS)], MASTERS, false)
       : absent();
+  const cores: [NumerologyCoreId, NumerologyValue][] = [
+    ["lifepath", lifePath],
+    ["expression", expression],
+    ["soulurge", soulUrge],
+    ["personality", personality],
+    ["birthday", birthday],
+  ];
+  const debts = cores.flatMap(([id, v]) => (v.debt ? [{ id, debt: v.debt }] : []));
+
+  const personalYear = personalYearOf(b, calendarYear);
+  const personalMonth = personalMonthOf(personalYear.number ?? 0, calendarMonth);
+  const personalDay = personalDayOf(personalMonth.number ?? 0, calendarDay);
+  const life = lifeCyclesOf(b, lifePath.digit ?? 0);
+  const letterSources = letterCycleSources(birth?.parsed ?? null);
+  const age = ageOn(b, calendarYear, calendarMonth, calendarDay);
+
   return {
-    year: parts.year,
-    month: parts.month,
-    day: parts.day,
+    ...b,
     calendarYear,
     calendarMonth,
     calendarDay,
-    name,
+    age,
+    name: birth ? typed : null,
+    currentName: current ? currentTyped : null,
     lifePath,
-    expression: names.expression,
-    soulUrge: names.soulUrge,
-    personality: names.personality,
+    expression,
+    soulUrge,
+    personality,
     birthday,
     maturity,
+    attitude: attitudeOf(b),
+    rationalThought: rationalThoughtOf(birth, b),
+    balance: birth?.detail.balance ?? absent(),
+    subconsciousSelf: birth ? present(birth.detail.subconsciousSelf) : absent(),
     personalYear,
     personalMonth,
     personalDay,
-    universalYear,
+    universalYear: universalYearOf(calendarYear),
+    names: { birth, current },
+    debts,
+    bridges: {
+      lifePathExpression: gapOrAbsent(lifePath, expression),
+      soulUrgePersonality: gapOrAbsent(soulUrge, personality),
+    },
+    life,
+    letterSources,
+    cycles: cyclesAt(life, letterSources, age),
+    grid: birthGrid(b),
   };
+}
+
+/** One calendar year of a reading: its personal year, and the cycles from the birthday on. */
+export function numerologyYear(chart: NumerologyChart, year: number): NumerologyYearRow {
+  return yearRow(chart, chart.life, chart.letterSources, year);
 }
 
 export function formatNumerologyNumber(value: NumerologyValue, dash = NUMEROLOGY_DASH): string {
