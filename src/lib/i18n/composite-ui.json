@@ -24,23 +24,5 @@
   "pair": {
     "a": { "en": "A", "fr": "A" },
     "b": { "en": "B", "fr": "B" }
-  },
-  "table": {
-    "title": {
-      "en": "Major aspects",
-      "fr": "Aspects majeurs"
-    },
-    "hint": {
-      "en": "Major aspects (conjunction, sextile, square, trine, opposition) inside the composite: the chart built from the midpoints between the two birth charts.",
-      "fr": "Aspects majeurs (conjonction, sextile, carré, trigone, opposition) dans le composite : le thème construit à partir des mi-points entre les deux thèmes natals."
-    },
-    "columns": {
-      "en": ["Body", "Aspect", "Body", "Orb"],
-      "fr": ["Astre", "Aspect", "Astre", "Orbe"]
-    },
-    "empty": {
-      "en": "No major aspect in this composite.",
-      "fr": "Aucun aspect majeur dans ce composite."
-    }
   }
 }

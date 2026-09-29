@@ -1,19 +1,8 @@
-import { hdCrossGates, hdCrossOf } from "@/lib/chart/hd-cross";
 import type { HumanDesignChart } from "@/lib/chart/human-design";
+import { hdKeyRows } from "@/lib/chart/hd-keys";
 import { previewProps } from "@/lib/depth/preview-bus";
-import {
-  hdAngleLabel,
-  hdAuthorityLabel,
-  hdDefinitionLabel,
-  hdFactLabel,
-  hdGraphText,
-  hdStrategyLabel,
-  hdTypeLabel,
-  hdUnknownText,
-} from "@/lib/i18n/hd-ui";
+import { hdGraphText, hdUnknownText } from "@/lib/i18n/hd-ui";
 import { useI18n } from "@/lib/i18n/locale";
-
-type Fact = { key: "type" | "strategy" | "authority" | "profile" | "definition" | "cross"; value: string; sub?: string };
 
 /**
  * The five keys of a bodygraph and its cross, in the order Human Design reads
@@ -29,22 +18,12 @@ export function HdFacts({
   onSelect: (id: string) => void;
 }) {
   const { locale } = useI18n();
-  const cross = hdCrossOf(chart);
-  const facts: Fact[] = [
-    { key: "type", value: hdTypeLabel(locale, chart.type) },
-    { key: "strategy", value: hdStrategyLabel(locale, chart.strategy) },
-    { key: "authority", value: hdAuthorityLabel(locale, chart.authority) },
-    { key: "profile", value: chart.profile },
-    { key: "definition", value: hdDefinitionLabel(locale, chart.definition) },
-  ];
-  if (cross) facts.push({ key: "cross", value: hdCrossGates(cross), sub: cross.angle ? hdAngleLabel(locale, cross.angle) : undefined });
   return (
     <div className="ulune-hd-facts" data-testid="hd-facts">
-      {facts.map((f) => {
+      {hdKeyRows(chart, locale).map((f) => {
         const id = `hello:${f.key}`;
-        const label = hdFactLabel(locale, f.key);
         // Without a birth time, a key that differs at another hour is marked ~.
-        const maybe = chart.uncertain?.keys.includes(f.key) ?? false;
+        const maybe = f.uncertain;
         const value = `${f.sub ? `${f.sub} · ${f.value}` : f.value}${maybe ? ` (${hdUnknownText(locale, "mark")})` : ""}`;
         return (
           <button
@@ -56,11 +35,11 @@ export function HdFacts({
             data-uncertain={maybe ? "1" : undefined}
             title={maybe ? hdUnknownText(locale, "mark") : undefined}
             aria-pressed={selectedId === id}
-            aria-label={hdGraphText(locale, "factOpen", { label, value })}
+            aria-label={hdGraphText(locale, "factOpen", { label: f.label, value })}
             onClick={() => onSelect(id)}
             {...previewProps(id)}
           >
-            <span className="ulune-kicker ulune-hd-fact-k">{label}</span>
+            <span className="ulune-kicker ulune-hd-fact-k">{f.label}</span>
             <span className="ulune-hd-fact-v" data-mono={f.key === "profile" || f.key === "cross" ? "1" : undefined}>
               {f.value}
             </span>

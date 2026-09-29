@@ -124,18 +124,12 @@ test("Hello-now takes the three tightest applying majors and skips the rest", ()
 
 test("transits-ui.json is the source of Quill chrome copy", () => {
   const ui = JSON.parse(readFileSync(join(ROOT, "src/lib/i18n/transits-ui.json"), "utf8"));
-  assert.deepEqual(ui.table.columns.en, ["Transit", "Aspect", "Natal", "A", "S", "Exact"]);
-  assert.equal(ui.table.columns.en.includes("Type"), false);
-  assert.equal(ui.table.columns.en.includes("Orb"), false);
-  assert.equal(ui.table.columns.en.includes("Applying"), false);
   assert.equal(ui.table.empty.en, "No moving planet makes a major aspect to your chart at this moment.");
   assert.equal(ui.noNatal.en, "Cast a birth chart first.");
   assert.equal(ui.readingEmpty.en, "Tap a transit, a natal body, or an aspect in the wheel.");
   assert.equal(ui.clock.now.en, "Now");
   assert.equal(ui.clock.date.en, "Date");
   assert.equal(ui.clock.time.en, "Time");
-  assert.equal(ui.table.applying.en, "Applying");
-  assert.equal(ui.table.separating.en, "Separating");
 });
 
 test("a past-exact stationary transit cannot be tagged applying", () => {
@@ -560,4 +554,34 @@ test("noon Paris natal keeps Pluto trine MC and drops Pluto sextile IC", async (
   assert.ok(trineMc, "5.6° Pluto trine MC must stay a table row");
   assert.equal(Boolean(sextileIc), false, "5.6° Pluto sextile IC must not be a table row");
   assert.ok(Math.abs(trineMc.orb - mcTrine) < 1 / 60, `UI orb ${trineMc.orb} vs Swiss ${mcTrine}`);
+});
+
+test("a transit a few minutes short of exact is applying, exact in minutes (not the other pole weeks before)", async () => {
+  // The Moon 0°06' short of its square to natal Neptune: it perfects 10 minutes later.
+  const natal = await calculateNatal({ ...PARIS, date: "2004-11-04", time: "23:59" });
+  const sky = await calculateTransits({
+    utc: new Date("2026-09-29T12:00:00Z"),
+    latitude: natal.meta.latitude,
+    longitude: natal.meta.longitude,
+    natalCusps: natal.houses.map((h) => h.ecliptic),
+    natalBodies: [
+      ...natal.planets.map((p) => ({ id: p.id, name: p.name, ecliptic: p.ecliptic })),
+      ...Object.values(natal.angles).map((a) => ({ id: a.id, name: a.name, ecliptic: a.ecliptic })),
+    ],
+  });
+  const square = sky.aspects.find((a) => a.id === "tmoon_square_neptune");
+  assert.ok(square, "Moon square Neptune");
+  assert.equal(square.applying, true);
+  // Native Swiss Ephemeris (pyswisseph 2.10.03, same files): 2026-09-29 12:10:21.0 UT.
+  assert.ok(Math.abs(Date.parse(square.exactUtc) - Date.parse("2026-09-29T12:10:21Z")) <= 2000, square.exactUtc);
+
+  // The same on a straight line: 0.1° short of a square at 14°/day, and 0.1° past it.
+  const line = (lon0, speed) => (days) => ({ lon: wrap360(lon0 + speed * days), speed });
+  const ahead = findExactDays({ lonAt: line(100 - 0.1, 14), natalLon: 10, target: 90, applying: null, maxDays: 40 });
+  assert.ok(Math.abs(ahead - 0.1 / 14) < 1e-6, `ahead ${ahead}`);
+  const past = findExactDays({ lonAt: line(100 + 0.1, 14), natalLon: 10, target: 90, applying: null, maxDays: 40 });
+  assert.ok(Math.abs(past + 0.1 / 14) < 1e-6, `past ${past}`);
+  // Five degrees past, separating: the pass just gone, not the other square half a month back.
+  const gone = findExactDays({ lonAt: line(105, 14), natalLon: 10, target: 90, applying: false, maxDays: 40 });
+  assert.ok(Math.abs(gone + 5 / 14) < 1e-6, `gone ${gone}`);
 });

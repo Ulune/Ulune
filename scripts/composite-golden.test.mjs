@@ -14,8 +14,6 @@ import { compositeLine, compositeTitle } from "../src/lib/i18n/mode-hello.ts";
 import {
   compositeMethodLabel,
   compositeReadingEmpty,
-  compositeTableColumns,
-  compositeTableEmpty,
 } from "../src/lib/i18n/composite-ui.ts";
 
 const PARIS = {
@@ -217,8 +215,6 @@ test("Paris 14:30 / 12:00 midpoint composite matches Swiss-derived longs to 1′
 
   assert.equal(compositeMethodLabel("en"), "Midpoint composite");
   assert.equal(compositeReadingEmpty("en"), "Tap a body or an aspect in the wheel.");
-  assert.equal(compositeTableEmpty("en"), "No major aspect in this composite.");
-  assert.deepEqual([...compositeTableColumns("en")], ["Body", "Aspect", "Body", "Orb"]);
 });
 
 test("every composite longitude and cusp is frozen to 1′", async () => {

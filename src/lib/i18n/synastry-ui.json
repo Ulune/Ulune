@@ -22,20 +22,6 @@
     "outer": { "en": "Outer", "fr": "Extérieur" }
   },
   "table": {
-    "title": {
-      "en": "A to B",
-      "fr": "A vers B"
-    },
-    "hint": {
-      "en": "Major aspects (conjunction, sextile, square, trine, opposition) between the two birth charts, with the orb. Applying or separating is worked out from each planet’s speed at birth. Birth charts don’t move, so there is no exact date.",
-      "fr": "Aspects majeurs (conjonction, sextile, carré, trigone, opposition) entre les deux thèmes natals, avec l’orbe. Applicatif ou séparatif se déduit de la vitesse de chaque planète à la naissance. Un thème natal ne bouge pas : il n’y a donc pas de date exacte."
-    },
-    "columns": {
-      "en": ["A", "Aspect", "B", "Orb", "A", "S"],
-      "fr": ["A", "Aspect", "B", "Orbe", "A", "S"]
-    },
-    "applying": { "en": "Applying", "fr": "Applicatif" },
-    "separating": { "en": "Separating", "fr": "Séparatif" },
     "empty": {
       "en": "No major aspect between these two charts.",
       "fr": "Aucun aspect majeur entre ces deux thèmes."

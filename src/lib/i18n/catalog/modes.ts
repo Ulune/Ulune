@@ -1,7 +1,5 @@
 /** modes: [English, French]. */
 export const modes = {
-  exactUnknown: ["—", "—"],
-  exactPending: ["Exact time follows once time stops moving", "L’heure exacte suit dès que le temps s’arrête"],
   hdAria: [
     "Human Design bodygraph: the nine centres, the channels between them and the 64 gates.",
     "Bodygraph Human Design : les neuf centres, les canaux qui les relient et les 64 portes.",
@@ -72,11 +70,6 @@ export const modes = {
   skyPinned: ["Pinned", "Figé"],
   transitLegendInner: ["Your chart", "Votre thème"],
   transitLegendOuter: ["Transits", "Transits"],
-  transitTable: ["Transits to your chart", "Transits sur votre thème"],
-  transitTableHint: [
-    "Major aspects from the moving planets to your chart: the orb, whether each is applying (getting closer) or separating, and the exact moment (UTC).",
-    "Les aspects majeurs des planètes en mouvement vers votre thème : l’orbe, si chacun est applicatif (il se rapproche) ou séparatif, et l’instant exact (UTC).",
-  ],
   transiting: ["Transiting {name}", "{name} en transit"],
   timingExactNone: ["No exact aspect", "Aucun aspect exact"],
   timingExactOne: ["1 exact aspect", "1 aspect exact"],

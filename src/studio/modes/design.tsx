@@ -9,6 +9,7 @@ import { SegmentedToggle } from "@/components/segmented-toggle";
 import { hdMomentLabel } from "@/lib/i18n/hd-moment";
 import { hdNoNatal, hdUnknownText, hdViewLabel } from "@/lib/i18n/hd-ui";
 import { localizeError } from "@/lib/i18n/errors";
+import { chartNameOf } from "@/lib/chart/library";
 import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { useModeData } from "@/studio/modes/data";
@@ -134,12 +135,19 @@ function DesignHelloEmpty() {
 }
 
 function DesignData() {
+  const { t } = useI18n();
   const w = useWheelView();
   const hd = useModeData("design");
   if (!hd?.hd) return null;
   return (
     <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
-      <HumanDesignTable chart={hd.hd} view={hd.view} selectedId={w.selectedId} onSelect={w.pick} />
+      <HumanDesignTable
+        chart={hd.hd}
+        view={hd.view}
+        name={w.chart ? chartNameOf(w.chart, t("untitled")) : ""}
+        selectedId={w.selectedId}
+        onSelect={w.pick}
+      />
     </Suspense>
   );
 }

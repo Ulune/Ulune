@@ -13,7 +13,7 @@ import {
 } from "../src/lib/chart/synastry.ts";
 import { synastryHelloEmpty, synastryHelloLine } from "../src/lib/i18n/synastry-hello.ts";
 import { formatOrb } from "../src/lib/i18n/astro.ts";
-import { synastryTableColumns, synastryTableEmpty } from "../src/lib/i18n/synastry-ui.ts";
+import { synastryTableEmpty } from "../src/lib/i18n/synastry-ui.ts";
 
 const PARIS = {
   latitude: 48.8566,
@@ -213,8 +213,6 @@ test("Paris 14:30 and 12:00 match Swiss to 1′; Hello-meeting matches the table
   assert.equal(synastryHelloEmpty("en", "ascendant"), "No major aspect between the two Ascendants.");
   assert.equal(synastryTableEmpty("en"), "No major aspect between these two charts.");
 
-  const cols = synastryTableColumns("en", "Person A", "Person B");
-  assert.deepEqual([...cols], ["Person A", "Aspect", "Person B", "Orb", "A", "S"]);
 });
 
 test("synastry applying uses both natal speeds, not transit moving-only", async () => {

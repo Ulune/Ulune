@@ -1,4 +1,4 @@
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, Download } from "lucide-react";
 import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { prefersReducedMotion } from "@/lib/depth/env";
 import type { GlossaryId } from "@/lib/i18n/glossary";
@@ -6,6 +6,7 @@ import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { useI18n } from "@/lib/i18n/locale";
 import { tableBarText } from "@/lib/i18n/table-ui";
 import { toast } from "@/lib/toast";
+import { downloadText } from "@/lib/download-text";
 import { activePartIndex, barScrollFor, isAtEnd, scrollTargetFor } from "@/studio/tables/table-spy";
 import "@/studio/modes/styles/tables.css";
 
@@ -13,6 +14,8 @@ export type TablePart = {
   id: string;
   /** The link's words in the bar, and the part's heading. */
   label: string;
+  /** The heading when it says more than the link ("January 2026" for "Jan"). */
+  heading?: string;
   hint?: string;
   /** The glossary's words for this part, folded under its hint. */
   terms?: GlossaryId[];
@@ -54,6 +57,7 @@ export function TablePage({
   label,
   parts,
   actions,
+  intro,
 }: {
   /** Which table (one memory of the part last read per table). */
   name: string;
@@ -61,6 +65,8 @@ export function TablePage({
   label: string;
   parts: TablePart[];
   actions?: ReactNode;
+  /** Before the parts, under the bar: what applies to all of them (the calendar's filters). */
+  intro?: ReactNode;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLElement>(null);
@@ -218,6 +224,7 @@ export function TablePage({
         </ol>
         {actions ? <div className="ulune-tbar-act">{actions}</div> : null}
       </nav>
+      {intro}
       {parts.map((p) => (
         <section
           key={p.id}
@@ -229,12 +236,12 @@ export function TablePage({
           <header className="ulune-tpart-head">
             <div className="min-w-0">
               <h2 id={headDomId(p.id)} className="ulune-tpart-h" tabIndex={-1}>
-                {p.label}
+                {p.heading ?? p.label}
               </h2>
               {p.hint ? <p className="ulune-tpart-hint">{p.hint}</p> : null}
               {p.terms?.length ? <PartTerms ids={p.terms} testId={`table-terms-${p.id}`} /> : null}
             </div>
-            {p.copyText ? <PartCopy label={p.label} text={p.copyText} testId={`table-copy-${p.id}`} /> : null}
+            {p.copyText ? <PartCopy label={p.heading ?? p.label} text={p.copyText} testId={`table-copy-${p.id}`} /> : null}
           </header>
           {p.children}
         </section>
@@ -287,5 +294,59 @@ function PartCopy({ label, text, testId }: { label: string; text: () => string; 
     >
       {done ? <Check className="size-4" aria-hidden /> : <Copy className="size-4" aria-hidden />}
     </button>
+  );
+}
+
+/**
+ * The whole table's Copy (as text) and CSV, at the right end of the bar.
+ * Both are made on this device when asked for; nothing is sent.
+ */
+export function TableActions({
+  text,
+  csv,
+  fileName,
+  extra,
+}: {
+  text: () => string;
+  csv: () => string;
+  fileName: string;
+  /** More buttons after Copy and CSV (the calendar's file). */
+  extra?: ReactNode;
+}) {
+  const { t } = useI18n();
+  const [copied, setCopied] = useState(false);
+  const slug =
+    fileName
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, "-")
+      .replace(/^-+|-+$/g, "") || "table";
+  return (
+    <>
+      <button
+        type="button"
+        className="ob-table-export-btn"
+        data-testid="table-copy"
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(text());
+            setCopied(true);
+            toast(t("tableCopied"));
+            window.setTimeout(() => setCopied(false), 1600);
+          } catch {
+            setCopied(false);
+          }
+        }}
+      >
+        <Copy className="size-3.5" aria-hidden />
+        <span className="ulune-tbar-act-label" aria-live="polite">
+          {copied ? t("tableCopied") : t("tableCopy")}
+        </span>
+      </button>
+      <button type="button" className="ob-table-export-btn" data-testid="table-csv" onClick={() => downloadText(`${slug}.csv`, csv())}>
+        <Download className="size-3.5" aria-hidden />
+        <span className="ulune-tbar-act-label">{t("tableExportCsv")}</span>
+      </button>
+      {extra}
+    </>
   );
 }

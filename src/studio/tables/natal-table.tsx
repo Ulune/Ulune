@@ -1,4 +1,4 @@
-import { ChevronRight, Copy, Download } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { AspectGlyph, PlanetGlyph, SignGlyph } from "@/components/glyphs";
 import { SegmentedToggle } from "@/components/segmented-toggle";
@@ -27,7 +27,6 @@ import {
   pointSelectId,
   weightText,
   type BalanceGroup,
-  type Cell,
 } from "@/lib/chart/table-cells";
 import { chartTextParts, formatChartTableCsv, formatChartTableText, type ChartTextPartId } from "@/lib/chart/table-export";
 import {
@@ -61,9 +60,9 @@ import {
 } from "@/lib/i18n/table-ui";
 import { cn, formatArc, formatDegree, formatDegreeSeconds, formatSignedDms, formatSignedDmsSeconds } from "@/lib/utils";
 import { DataTable } from "@/studio/tables/DataTable";
-import { TablePage, type TablePart } from "@/studio/tables/TablePage";
+import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 import { ParallelGlyph } from "@/studio/tables/table-glyphs";
-import { toast } from "@/lib/toast";
+import { Maybe, ToolCheck, UnknownNote } from "@/studio/tables/cross-parts";
 import { previewProps } from "@/lib/depth/preview-bus";
 
 /** The parts of the natal table, in reading order. */
@@ -81,69 +80,34 @@ const TERMS: Partial<Record<TablePartId, GlossaryId[]>> = {
   stars: ["fixedStar", "midpoint"],
 };
 
-/** A value that hangs on an unknown birth time: ~ before it, dimmed. */
-function Maybe({ cell, mono = false, className }: { cell: Cell; mono?: boolean; className?: string }) {
-  return (
-    <span className={cn(mono && "font-mono", cell.uncertain && "ulune-uncertain", className)}>
-      {cell.uncertain ? "~" : ""}
-      {cell.text}
-    </span>
-  );
-}
-
-function UnknownNote({ children }: { children: ReactNode }) {
-  return <p className="ulune-unknown-note">{children}</p>;
-}
-
 export function NatalTable({
   chart,
   selectedId = null,
   onSelect,
+  parts,
+  name = "natal",
+  testId = "studio-table",
 }: {
   chart: NatalChart;
   selectedId?: string | null;
   onSelect?: (id: string) => void;
+  /** The parts to show, in their order (all nine by default; the composite shows five). */
+  parts?: TablePartId[];
+  /** Which table (the part last read is kept per table, for the visit). */
+  name?: string;
+  testId?: string;
 }) {
   const { locale, t } = useI18n();
-  const [copied, setCopied] = useState(false);
   const patterns = useMemo(() => hydratePatterns(chart), [chart]);
-
-  function downloadCsv() {
-    const csv = formatChartTableCsv(chart, locale);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${chart.meta.name.replace(/\s+/g, "-").toLowerCase() || "natal"}-table.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  async function copyText() {
-    const text = formatChartTableText(chart, locale);
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      toast(t("tableCopied"));
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
-  }
+  const shown = parts ?? PARTS;
+  const scope = { parts, composite: name === "composite" };
 
   const actions = (
-    <>
-      <button type="button" className="ob-table-export-btn" data-testid="table-copy" onClick={() => void copyText()}>
-        <Copy className="size-3.5" aria-hidden />
-        <span className="ulune-tbar-act-label" aria-live="polite">
-          {copied ? t("tableCopied") : t("tableCopy")}
-        </span>
-      </button>
-      <button type="button" className="ob-table-export-btn" data-testid="table-csv" onClick={downloadCsv}>
-        <Download className="size-3.5" aria-hidden />
-        <span className="ulune-tbar-act-label">{t("tableExportCsv")}</span>
-      </button>
-    </>
+    <TableActions
+      text={() => formatChartTableText(chart, locale, scope)}
+      csv={() => formatChartTableCsv(chart, locale, scope)}
+      fileName={`${chart.meta.name || name} table`}
+    />
   );
 
   const textOf = (id: ChartTextPartId) => () =>
@@ -163,18 +127,18 @@ export function NatalTable({
     stars: <StarsPart chart={chart} onSelect={onSelect} />,
   };
 
-  const parts: TablePart[] = PARTS.map((id) => ({
+  const page: TablePart[] = shown.map((id) => ({
     id,
     label: tablePartLabel(locale, id),
     hint: tablePartHint(locale, id),
     terms: TERMS[id],
-    copyText: id === "grid" ? undefined : textOf(id),
+    copyText: id === "grid" ? undefined : textOf(id as ChartTextPartId),
     children: content[id],
   }));
 
   return (
-    <div data-testid="studio-table" data-chart-pick data-selected={selectedId ?? ""} className="min-w-0">
-      <TablePage name="natal" label={t("tableSections")} parts={parts} actions={actions} />
+    <div data-testid={testId} data-chart-pick data-selected={selectedId ?? ""} className="min-w-0">
+      <TablePage name={name} label={t("tableSections")} parts={page} actions={actions} />
     </div>
   );
 }
@@ -462,16 +426,6 @@ function HousesPart({
         </tbody>
       </DataTable>
     </>
-  );
-}
-
-/** A check box with its words, in a part's tools. */
-function ToolCheck({ checked, onChange, testId, children }: { checked: boolean; onChange: (on: boolean) => void; testId: string; children: ReactNode }) {
-  return (
-    <label className="ulune-tool-check">
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} data-testid={testId} />
-      {children}
-    </label>
   );
 }
 

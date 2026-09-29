@@ -1,37 +1,24 @@
 import { useMemo } from "react";
-import { DataTable } from "@/studio/tables/DataTable";
-import { AspectGlyph, PlanetGlyph } from "@/components/glyphs";
-import { isTransitTablePair, motionFlags, residualForType, transitRowTestId } from "@/lib/chart/transit-exact";
-import type { AngleId, AspectLink, NatalChart, Placement, TransitSky } from "@/lib/chart/types";
-import { aspectName, bodyTableLabel } from "@/lib/i18n/astro";
-import { useI18n } from "@/lib/i18n/locale";
-import {
-  TRANSIT_TABLE_COLUMN_KEYS,
-  transitApplyingTitle,
-  transitSeparatingTitle,
-  transitTableColumns,
-  transitTableEmpty,
-} from "@/lib/i18n/transits-ui";
+import { chartNameOf } from "@/lib/chart/library";
+import { GRID_BODIES, skyGroups, transitAspectRows, transitCheck, type SkyRow } from "@/lib/chart/cross-table";
+import { joinParts, natalSide, transitSide, transitTableCsv, transitTextParts } from "@/lib/chart/cross-export";
+import { motionFlags, transitRowTestId } from "@/lib/chart/transit-exact";
+import type { NatalChart, TransitSky } from "@/lib/chart/types";
 import { previewProps } from "@/lib/depth/preview-bus";
-import { dateFormat } from "@/lib/intl-cache";
-import { formatArc } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n/locale";
+import { modesWord, pointsGroupLabel, pointsText } from "@/lib/i18n/table-ui";
+import { transitTableEmpty } from "@/lib/i18n/transits-ui";
+import { cn, formatDegreeSeconds } from "@/lib/utils";
+import { Body, CrossAspects, CrossGrid, Maybe, Position, UnknownNote } from "@/studio/tables/cross-parts";
+import { DataTable } from "@/studio/tables/DataTable";
+import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
-function formatExactUtc(iso: string, locale: "en" | "fr"): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  const stamp = dateFormat(locale === "fr" ? "fr-FR" : "en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "UTC",
-  }).format(d);
-  return `${stamp} UTC`;
-}
-
-function natalOf(chart: NatalChart, id: AspectLink["b"]): Placement | undefined {
-  if (id in chart.angles) return chart.angles[id as AngleId];
-  return chart.planets.find((p) => p.id === id);
-}
-
+/**
+ * The Transits table (part 52 of the launch plan): the moving planets'
+ * aspects to the birth chart with their orbs and exact moments, where each
+ * body stands now and which house of the chart it crosses, and the grid of
+ * every moving body against every natal one.
+ */
 export function TransitTable({
   sky,
   chart,
@@ -44,172 +31,158 @@ export function TransitTable({
   onSelect: (id: string) => void;
 }) {
   const { locale, t } = useI18n();
-  const columns = transitTableColumns(locale);
-  const byId = useMemo(() => new Map(sky.planets.map((p) => [p.id, p])), [sky.planets]);
-  const majors = useMemo(
-    () =>
-      sky.aspects.filter((a) => {
-        const moving = byId.get(a.a);
-        const natal = natalOf(chart, a.b);
-        const pos =
-          moving && natal
-            ? { movingLon: moving.ecliptic, natalLon: natal.ecliptic }
-            : undefined;
-        return isTransitTablePair(a, pos);
-      }),
-    [sky.aspects, byId, chart],
-  );
+  const unknown = chart.meta.timeUnknown === true;
+  const name = chartNameOf(chart, t("untitled"));
+  const rows = useMemo(() => transitAspectRows(sky, chart), [sky, chart]);
+  const groups = useMemo(() => skyGroups(sky, chart, locale), [sky, chart, locale]);
+  const check = useMemo(() => transitCheck(sky, chart), [sky, chart]);
+  const moving = useMemo(() => new Map(sky.planets.map((p) => [p.id as string, p])), [sky.planets]);
+  const text = () => transitTextParts(sky, chart, name, locale);
+  const partText = (id: string) => () => text().find((p) => p.id === id)?.lines.join("\n") ?? "";
+
+  const movingNote = (id: string) => {
+    const p = moving.get(id);
+    if (!p || p.speed == null) return "";
+    const f = motionFlags(p.id, p.speed);
+    return [f.retrograde ? pointsText(locale, "retrograde") : "", f.stationary ? pointsText(locale, "stationary") : ""].filter(Boolean).join(" · ");
+  };
+
+  const rowIds = GRID_BODIES.filter((id) => moving.has(id));
+  const colIds = [...GRID_BODIES.filter((id) => chart.planets.some((p) => p.id === id)), "ascendant", "midheaven"];
+
+  const parts: TablePart[] = [
+    {
+      id: "aspects",
+      label: modesWord(locale, "partAspects"),
+      hint: modesWord(locale, "hintTransitAspects"),
+      terms: ["transit", "aspect", "orb", "applying", "exact"],
+      copyText: partText("aspects"),
+      children: (
+        <>
+          {unknown ? <UnknownNote>{modesWord(locale, "unknownTransits")}</UnknownNote> : null}
+          <CrossAspects
+            rows={rows}
+            columns={{ a: { key: "transit", label: modesWord(locale, "transit") }, b: { key: "natal", label: modesWord(locale, "natal") } }}
+            sides={{ a: transitSide(locale), b: natalSide(locale) }}
+            exact={{ kind: "moment", pending: Boolean(sky.meta.provisional) }}
+            selectPrefix="taspect:"
+            rowTestId={transitRowTestId}
+            rowData={(l) => ({ "data-transit": l.a, "data-aspect": l.type, "data-natal": l.b })}
+            movingNote={(l) => movingNote(l.a)}
+            colTestPrefix="transit"
+            empty={transitTableEmpty(locale)}
+            selectedId={selectedId}
+            onSelect={onSelect}
+          />
+        </>
+      ),
+    },
+    {
+      id: "sky",
+      label: modesWord(locale, "partSky"),
+      hint: modesWord(locale, "hintSky"),
+      terms: ["retrograde", "station", "house"],
+      copyText: partText("sky"),
+      children: <SkyPart groups={groups} selectedId={selectedId} onSelect={onSelect} />,
+    },
+    {
+      id: "grid",
+      label: modesWord(locale, "partGrid"),
+      hint: modesWord(locale, "hintTransitGrid"),
+      terms: ["aspect", "orb", "applying"],
+      children: (
+        <CrossGrid
+          links={sky.aspects}
+          rowIds={rowIds}
+          colIds={colIds}
+          selectPrefix="taspect:"
+          uncertain={(l) => check(l).uncertain}
+          axes={modesWord(locale, "gridAxes", { rows: modesWord(locale, "transits"), cols: modesWord(locale, "yourChart") })}
+          label={modesWord(locale, "partGrid")}
+          selectedId={selectedId}
+          onSelect={onSelect}
+        />
+      ),
+    },
+  ];
 
   return (
-    <section data-testid="transit-table" className="ulune-panel min-w-0 overflow-hidden">
-      <header className="flex flex-col gap-[var(--space-3)] border-b border-border px-[var(--space-4)] py-[var(--space-3)] md:px-[var(--space-5)]">
-        <div className="min-w-0">
-          <h2 className="font-display text-2xl leading-none text-fg">{t("transitTable")}</h2>
-          <p className="mt-[var(--space-2)] max-w-[61.8ch] text-sm text-fg-muted">{t("transitTableHint")}</p>
-        </div>
-      </header>
-      <div className="min-w-0 px-[var(--space-4)] py-[var(--space-4)] md:px-[var(--space-5)]">
-        {majors.length ? (
-          <DataTable wide exportName="ulune-transits">
-              <thead>
-                <tr data-testid="transit-table-cols">
-                  {columns.map((label, i) => {
-                    const key = TRANSIT_TABLE_COLUMN_KEYS[i] ?? label.toLowerCase();
-                    return (
-                      <th key={key} data-col={key} data-testid={`transit-col-${key}`}>
-                        {label}
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {majors.map((a) => (
-                  <TransitAspectRow
-                    key={a.id}
-                    link={a}
-                    pending={Boolean(sky.meta.provisional)}
-                    moving={byId.get(a.a)}
-                    natal={natalOf(chart, a.b)}
-                    selected={selectedId === `taspect:${a.id}`}
-                    locale={locale}
-                    onSelect={() => onSelect(`taspect:${a.id}`)}
-                    previewId={`taspect:${a.id}`}
-                  />
-                ))}
-              </tbody>
-            </DataTable>
-        ) : (
-          <p data-testid="transit-table-empty" className="text-sm text-fg-muted">
-            {transitTableEmpty(locale)}
-          </p>
-        )}
-      </div>
-    </section>
+    <div data-testid="transit-table" data-chart-pick data-selected={selectedId ?? ""} className="min-w-0">
+      <TablePage
+        name="transits"
+        label={t("tableSections")}
+        parts={parts}
+        actions={<TableActions text={() => joinParts(text())} csv={() => transitTableCsv(sky, chart, locale)} fileName={`${name} transits`} />}
+      />
+    </div>
   );
 }
 
-function TransitAspectRow({
-  link,
-  pending,
-  moving,
-  natal,
-  selected,
-  locale,
+/** Where each moving body stands, how it moves, and the house of the birth chart it is crossing. */
+function SkyPart({
+  groups,
+  selectedId,
   onSelect,
-  previewId,
 }: {
-  link: AspectLink;
-  /** The sky is provisional (time moving): the exact time comes with the exact cast. */
-  pending?: boolean;
-  moving: Placement | undefined;
-  natal: Placement | undefined;
-  selected: boolean;
-  locale: "en" | "fr";
-  onSelect: () => void;
-  previewId?: string;
+  groups: { id: Parameters<typeof pointsGroupLabel>[1]; rows: SkyRow[] }[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
 }) {
-  const { t } = useI18n();
-  const flags = moving ? motionFlags(moving.id, moving.speed ?? 0) : null;
-  const motion = flags?.stationary ? t("motionSta") : flags?.fast ? t("motionSwift") : null;
-  const applying = link.applying === true;
-  const separating = link.applying === false;
-  const shownOrb =
-    moving && natal ? residualForType(moving.ecliptic, natal.ecliptic, link.type) : link.orb;
-  const aspectLabel = `${aspectName(link.type, locale)} ${formatArc(shownOrb)}`;
+  const { locale } = useI18n();
   return (
-    <tr
-      {...previewProps(previewId)}
-      data-testid={transitRowTestId(link)}
-      data-transit={link.a}
-      data-aspect={link.type}
-      data-natal={link.b}
-      data-selected={selected ? "1" : undefined}
-      className={selected ? "bg-bg-subtle" : undefined}
-    >
-      <td>
-        <button
-          type="button"
-          onClick={onSelect}
-          className="inline-flex h-11 min-w-0 items-center gap-2 text-left"
-        >
-          <span className="grid size-5 shrink-0 place-items-center text-fg">
-            <PlanetGlyph id={link.a} size={14} />
-          </span>
-          <span className="min-w-0">
-            <span className="block">{bodyTableLabel(link.a, locale)}</span>
-            {flags ? (
-              <span className="block font-sans text-xs font-normal normal-case tracking-normal text-fg-subtle">
-                {flags.retrograde ? t("dirRx") : t("dirDirect")}
-                {motion ? ` · ${motion}` : ""}
-              </span>
-            ) : null}
-          </span>
-        </button>
-      </td>
-      <td data-col="aspect" data-orb={String(shownOrb)} title={aspectLabel}>
-        <span className="inline-flex items-center gap-1.5">
-          <AspectGlyph id={link.type} size={12} />
-          {aspectName(link.type, locale)}
-        </span>
-      </td>
-      <td data-col="natal">
-        <span className="inline-flex items-center gap-2">
-          <span className="grid size-5 place-items-center text-fg">
-            <PlanetGlyph id={link.b} size={14} />
-          </span>
-          {bodyTableLabel(link.b, locale)}
-        </span>
-      </td>
-      <td data-col="a" data-applying={link.id} className="ulune-as-cell">
-        {applying ? (
-          <span title={transitApplyingTitle(locale)} aria-label={transitApplyingTitle(locale)}>
-            A
-          </span>
-        ) : (
-          <span className="text-fg-subtle">—</span>
-        )}
-      </td>
-      <td data-col="s" className="ulune-as-cell">
-        {separating ? (
-          <span title={transitSeparatingTitle(locale)} aria-label={transitSeparatingTitle(locale)}>
-            S
-          </span>
-        ) : (
-          <span className="text-fg-subtle">—</span>
-        )}
-      </td>
-      <td className="font-mono whitespace-nowrap" data-exact={link.id} aria-busy={pending ? true : undefined}>
-        {pending ? (
-          <span className="text-fg-subtle" title={t("exactPending")}>
-            …
-          </span>
-        ) : link.exactUtc ? (
-          formatExactUtc(link.exactUtc, locale)
-        ) : (
-          t("exactUnknown")
-        )}
-      </td>
-    </tr>
+    <DataTable className="ulune-points ulune-transit-sky" stickyFirst={false}>
+      <thead>
+        <tr>
+          <th data-col="body">{pointsText(locale, "body")}</th>
+          <th data-col="position">{pointsText(locale, "position")}</th>
+          <th data-col="motion">{pointsText(locale, "motion")}</th>
+          <th data-col="house">{modesWord(locale, "yourHouse")}</th>
+        </tr>
+      </thead>
+      {groups.map((g) => (
+        <tbody key={g.id} data-group={g.id}>
+          <tr className="ulune-group-row">
+            <th colSpan={4} scope="colgroup">
+              {pointsGroupLabel(locale, g.id)}
+            </th>
+          </tr>
+          {g.rows.map((r) => {
+            const p = r.point;
+            const id = `transit:${p.id}`;
+            const on = selectedId === id;
+            return (
+              <tr
+                key={p.id}
+                data-body={p.id}
+                data-selected={on ? "1" : undefined}
+                className={cn("cursor-pointer", on && "bg-bg-subtle")}
+                onClick={() => onSelect(id)}
+                {...previewProps(id)}
+              >
+                <td data-col="body">
+                  <button type="button" className="ulune-row-pick" aria-pressed={on}>
+                    <Body id={p.id} />
+                  </button>
+                </td>
+                <td data-col="position">
+                  <Position cell={{ text: formatDegreeSeconds(p.ecliptic), uncertain: false }} sign={p.sign} />
+                </td>
+                <td data-col="motion">
+                  {r.motion ? (
+                    <>
+                      <span className="font-mono">{r.motion.speed}</span>
+                      {r.motion.words.length ? <span className="ulune-cell-sub ulune-cell-words">{r.motion.words.join(" · ")}</span> : null}
+                    </>
+                  ) : null}
+                </td>
+                <td data-col="house" className="ulune-house-num tabular-nums">
+                  <Maybe cell={r.house} mono />
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      ))}
+    </DataTable>
   );
 }

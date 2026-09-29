@@ -147,7 +147,7 @@ export type Motion = {
 };
 
 /** How a body moves: its daily speed, its words, and its station's moment. */
-export function motionOf(p: Placement, flag: BodyFlags | undefined, locale: AppLocale): Motion | null {
+export function motionOf(p: Placement, flag: Pick<BodyFlags, "stationary" | "fast" | "slow"> | undefined, locale: AppLocale): Motion | null {
   if (!movesOnItsOwn(p) || p.speed == null) return null;
   const words: string[] = [];
   if (p.retrograde) words.push(pointsText(locale, "retrograde"));

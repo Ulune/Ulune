@@ -880,5 +880,307 @@
       "en": "Fomalhaut",
       "fr": "Fomalhaut"
     }
+  },
+  "modes": {
+    "partAspects": {
+      "en": "Aspects",
+      "fr": "Aspects"
+    },
+    "partSky": {
+      "en": "Sky",
+      "fr": "Ciel"
+    },
+    "partGrid": {
+      "en": "Grid",
+      "fr": "Grille"
+    },
+    "partPositions": {
+      "en": "Positions",
+      "fr": "Positions"
+    },
+    "partAngles": {
+      "en": "Angles",
+      "fr": "Angles"
+    },
+    "partMoon": {
+      "en": "Moon",
+      "fr": "Lune"
+    },
+    "partOverlays": {
+      "en": "Overlays",
+      "fr": "Superpositions"
+    },
+    "partBoth": {
+      "en": "Side by side",
+      "fr": "Côte à côte"
+    },
+    "partKeys": {
+      "en": "Keys",
+      "fr": "Clés"
+    },
+    "partActivations": {
+      "en": "Activations",
+      "fr": "Activations"
+    },
+    "partChannels": {
+      "en": "Channels",
+      "fr": "Canaux"
+    },
+    "partCentres": {
+      "en": "Centres",
+      "fr": "Centres"
+    },
+    "hintTransitAspects": {
+      "en": "The moving planets’ major aspects to your chart, tightest first: the orb now beside the orb allowed, applying or separating, and the moment of this pass when it is exact. An aspect to one end of an axis is shown once, with its mirror under it.",
+      "fr": "Les aspects majeurs des planètes en mouvement à votre thème, du plus serré au plus large : l’orbe du moment à côté de l’orbe permis, applicatif ou séparatif, et le moment où ce passage est exact. Un aspect à un bout d’un axe n’est indiqué qu’une fois, son miroir dessous."
+    },
+    "hintSky": {
+      "en": "Where each body stands at this moment, how it moves, and which house of your chart it is crossing.",
+      "fr": "Où se trouve chaque corps à ce moment, comment il avance, et quelle maison de votre thème il traverse."
+    },
+    "hintTransitGrid": {
+      "en": "Each transiting body (rows) against each body of your chart (columns), with the orb and A (applying) or S (separating). Tap a symbol to read that aspect.",
+      "fr": "Chaque corps en transit (lignes) face à chaque corps de votre thème (colonnes), avec l’orbe et A (applicatif) ou S (séparatif). Touchez un symbole pour lire l’aspect."
+    },
+    "hintProgAspects": {
+      "en": "The progressed bodies’ and angles’ major aspects to your chart, tightest first: the orb beside the orb allowed, applying or separating, and the day it is exact. An aspect to one end of an axis is shown once, with its mirror under it.",
+      "fr": "Les aspects majeurs des corps et des angles progressés à votre thème, du plus serré au plus large : l’orbe à côté de l’orbe permis, applicatif ou séparatif, et le jour où il est exact. Un aspect à un bout d’un axe n’est indiqué qu’une fois, son miroir dessous."
+    },
+    "hintPositions": {
+      "en": "Each progressed body beside its place at birth, how far it has gone since, how it moves in a year of life, and the house of your chart it is in.",
+      "fr": "Chaque corps progressé à côté de sa place à la naissance, le chemin parcouru depuis, son mouvement en une année de vie, et la maison de votre thème où il se trouve."
+    },
+    "hintAngles": {
+      "en": "The progressed Midheaven moves 0°59'08\" of right ascension a year of life (Naibod); the Ascendant and the Vertex follow from it at the place of birth. Beside them, the birth ones.",
+      "fr": "Le Milieu du Ciel progressé avance de 0°59'08\" d’ascension droite par année de vie (Naibod) ; l’Ascendant et le Vertex en découlent au lieu de naissance. À côté, ceux de la naissance."
+    },
+    "hintMoon": {
+      "en": "The progressed Moon against the progressed Sun: the progressed lunation, a cycle of about 29 and a half years in eight phases.",
+      "fr": "La Lune progressée face au Soleil progressé : la lunaison progressée, un cycle d’environ vingt-neuf ans et demi en huit phases."
+    },
+    "hintSynAspects": {
+      "en": "Each body of one chart in major aspect to a body of the other, tightest first: the orb beside the orb allowed, and applying or separating from each body’s speed at birth. An aspect to one end of an axis is shown once, with its mirror under it.",
+      "fr": "Chaque corps d’un thème en aspect majeur avec un corps de l’autre, du plus serré au plus large : l’orbe à côté de l’orbe permis, et applicatif ou séparatif selon la vitesse de chaque corps à la naissance. Un aspect à un bout d’un axe n’est indiqué qu’une fois, son miroir dessous."
+    },
+    "hintOverlays": {
+      "en": "Where each person’s bodies fall in the other’s houses: the parts of life one touches in the other.",
+      "fr": "Où tombent les corps de chacun dans les maisons de l’autre : les domaines de vie que l’un touche chez l’autre."
+    },
+    "hintBoth": {
+      "en": "The two charts side by side, body by body: the position and the house in each.",
+      "fr": "Les deux thèmes côte à côte, corps par corps : la position et la maison dans chacun."
+    },
+    "hintSynGrid": {
+      "en": "Each body of {a} (rows) against each body of {b} (columns), with the orb and A (applying) or S (separating). Tap a symbol to read that aspect.",
+      "fr": "Chaque corps de {a} (lignes) face à chaque corps de {b} (colonnes), avec l’orbe et A (applicatif) ou S (séparatif). Touchez un symbole pour lire l’aspect."
+    },
+    "hintKeys": {
+      "en": "The five keys of the bodygraph and its Incarnation Cross. Tap one to read it.",
+      "fr": "Les cinq clés du bodygraph et sa croix d’incarnation. Touchez-en une pour la lire."
+    },
+    "hintActivations": {
+      "en": "The activations the bodygraph is built from, thirteen for each layer: the Personality (the sky at birth), then the Design (about three months before).",
+      "fr": "Les activations dont le bodygraph est fait, treize par couche : la Personnalité (le ciel à la naissance), puis le Design (environ trois mois avant)."
+    },
+    "hintChannels": {
+      "en": "The channels defined by an activated gate at each end, with the two centres each one joins.",
+      "fr": "Les canaux définis par une porte activée à chaque bout, avec les deux centres que chacun relie."
+    },
+    "hintCentres": {
+      "en": "The nine centres, defined or open, with the gates activated in each.",
+      "fr": "Les neuf centres, définis ou ouverts, avec les portes activées dans chacun."
+    },
+    "transit": {
+      "en": "Transit",
+      "fr": "Transit"
+    },
+    "progressed": {
+      "en": "Progressed",
+      "fr": "Progressé"
+    },
+    "natal": {
+      "en": "Natal",
+      "fr": "Natal"
+    },
+    "exact": {
+      "en": "Exact",
+      "fr": "Exact"
+    },
+    "atBirth": {
+      "en": "At birth",
+      "fr": "À la naissance"
+    },
+    "moved": {
+      "en": "Moved",
+      "fr": "Parcouru"
+    },
+    "motionYear": {
+      "en": "Motion a year",
+      "fr": "Mouvement par an"
+    },
+    "perYear": {
+      "en": "{arc} a year",
+      "fr": "{arc} par an"
+    },
+    "yourHouse": {
+      "en": "Your house",
+      "fr": "Votre maison"
+    },
+    "gridAxes": {
+      "en": "Rows: {rows} · columns: {cols}",
+      "fr": "Lignes : {rows} · colonnes : {cols}"
+    },
+    "transits": {
+      "en": "the transits",
+      "fr": "les transits"
+    },
+    "yourChart": {
+      "en": "your chart",
+      "fr": "votre thème"
+    },
+    "phaseLine": {
+      "en": "{arc} past the progressed Sun · {trend}",
+      "fr": "{arc} après le Soleil progressé · {trend}"
+    },
+    "moonWhere": {
+      "en": "{where}, house {house} of your chart",
+      "fr": "{where}, maison {house} de votre thème"
+    },
+    "overlaysOf": {
+      "en": "{a}’s bodies in {b}’s houses",
+      "fr": "Les corps {ofA} dans les maisons {ofB}"
+    },
+    "noOverlays": {
+      "en": "{b}’s chart has no houses to place them in.",
+      "fr": "Le thème {ofB} n’a pas de maisons où les placer."
+    },
+    "houseN": {
+      "en": "house {n}",
+      "fr": "maison {n}"
+    },
+    "exactOn": {
+      "en": "exact {when}",
+      "fr": "exact {when}"
+    },
+    "pending": {
+      "en": "the exact moment follows once time stops moving",
+      "fr": "le moment exact suit dès que le temps s’arrête"
+    },
+    "notFound": {
+      "en": "not exact within the search",
+      "fr": "pas exact dans la recherche"
+    },
+    "movedBy": {
+      "en": "moved {arc}",
+      "fr": "parcouru {arc}"
+    },
+    "atBirthLine": {
+      "en": "at birth {pos}",
+      "fr": "à la naissance {pos}"
+    },
+    "transitSide": {
+      "en": "{body}",
+      "fr": "{body}"
+    },
+    "natalSide": {
+      "en": "natal {body}",
+      "fr": "{body} {natal}"
+    },
+    "progressedSide": {
+      "en": "progressed {body}",
+      "fr": "{body} {progressed}"
+    },
+    "personSide": {
+      "en": "{body} ({name})",
+      "fr": "{body} ({name})"
+    },
+    "unknownTransits": {
+      "en": "Without a birth time your chart is cast for 12:00. Marked ~: the aspects to your angles, those that may leave their orb or be exact at another hour of that day, the moments that would move with it, and the houses.",
+      "fr": "Sans heure de naissance, votre thème est calculé pour 12 h. Marqués ~ : les aspects à vos angles, ceux qui peuvent sortir de leur orbe ou être exacts à une autre heure de ce jour-là, les moments qui bougeraient avec elle, et les maisons."
+    },
+    "unknownProgressions": {
+      "en": "Without a birth time your chart and its progressions are cast for 12:00, and an hour earlier at birth is an hour earlier in the progressed sky. Marked ~: what may be different at another hour of that day; an exact date may move by up to half a year.",
+      "fr": "Sans heure de naissance, votre thème et ses progressions sont calculés pour 12 h, et une heure plus tôt à la naissance, c’est une heure plus tôt dans le ciel progressé. Marqué ~ : ce qui peut changer à une autre heure de ce jour-là ; une date exacte peut bouger jusqu’à six mois."
+    },
+    "unknownSynastry": {
+      "en": "Without a birth time for {names}, a chart is cast for 12:00. Marked ~: what may be different at another hour of that day.",
+      "fr": "Sans heure de naissance pour {names}, un thème est calculé pour 12 h. Marqué ~ : ce qui peut changer à une autre heure de ce jour-là."
+    },
+    "and": {
+      "en": " and ",
+      "fr": " et "
+    },
+    "transitsHead": {
+      "en": "Transits · {name} · {when}",
+      "fr": "Transits · {name} · {when}"
+    },
+    "progressionsHead": {
+      "en": "Progressions · {name} · {when} · {years} years of life",
+      "fr": "Progressions · {name} · {when} · {years} ans de vie"
+    },
+    "synastryHead": {
+      "en": "Synastry · {a} and {b}",
+      "fr": "Synastrie · {a} et {b}"
+    },
+    "designHead": {
+      "en": "Human Design · {name}",
+      "fr": "Human Design · {name}"
+    },
+    "gatesIn": {
+      "en": "gates {list}",
+      "fr": "portes {list}"
+    },
+    "noGates": {
+      "en": "no gate activated",
+      "fr": "aucune porte activée"
+    },
+    "channelOf": {
+      "en": "channel {list}",
+      "fr": "canal {list}"
+    },
+    "channelsOf": {
+      "en": "channels {list}",
+      "fr": "canaux {list}"
+    },
+    "keyWord": {
+      "en": "Key",
+      "fr": "Clé"
+    },
+    "valueWord": {
+      "en": "Value",
+      "fr": "Valeur"
+    },
+    "nextWord": {
+      "en": "Next",
+      "fr": "Ensuite"
+    },
+    "nextLine": {
+      "en": "Next: {next}",
+      "fr": "Ensuite : {next}"
+    },
+    "inMonths": {
+      "en": "{phase} in about {n} months",
+      "fr": "{phase} dans {n} mois environ"
+    },
+    "inAMonth": {
+      "en": "{phase} in about a month",
+      "fr": "{phase} dans un mois environ"
+    },
+    "atAge": {
+      "en": "{phase} at about age {age}",
+      "fr": "{phase} vers {age} ans"
+    },
+    "beforeBirth": {
+      "en": "before birth",
+      "fr": "avant la naissance"
+    },
+    "minorBodies": {
+      "en": "Asteroids, Vertex and lots",
+      "fr": "Astéroïdes, Vertex et parts"
+    },
+    "stateWord": {
+      "en": "State",
+      "fr": "État"
+    }
   }
 }

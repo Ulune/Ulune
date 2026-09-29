@@ -77,3 +77,7 @@ export function patternsWord(locale: AppLocale, key: keyof typeof source.pattern
 export function starsWord(locale: AppLocale, key: keyof typeof source.stars, vars?: Record<string, string>): string {
   return fill(pick(source.stars[key], locale), vars);
 }
+
+export function modesWord(locale: AppLocale, key: keyof typeof source.modes, vars?: Record<string, string>): string {
+  return fill(pick(source.modes[key], locale), vars);
+}

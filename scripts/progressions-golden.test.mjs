@@ -26,7 +26,6 @@ import {
   progressionMethodLabel,
   progressionNoNatal,
   progressionReadingEmpty,
-  progressionTableColumns,
   progressionTableEmpty,
 } from "../src/lib/i18n/progressions-ui.ts";
 
@@ -96,7 +95,6 @@ test("secondary day-for-a-year uses tropical year 365.24219", () => {
 
 test("progressions-ui.json is the source of Quill chrome copy", () => {
   const ui = JSON.parse(readFileSync(join(ROOT, "src/lib/i18n/progressions-ui.json"), "utf8"));
-  assert.deepEqual(ui.table.columns.en, ["Progressed", "Aspect", "Natal", "A", "S", "Exact"]);
   assert.equal(ui.table.empty.en, "No major aspect between your progressed and birth charts.");
   assert.equal(ui.noNatal.en, "Cast a birth chart first.");
   assert.equal(ui.readingEmpty.en, "Tap a body or an aspect in the wheel.");
@@ -106,7 +104,6 @@ test("progressions-ui.json is the source of Quill chrome copy", () => {
   assert.equal(progressionMethodLabel("en"), "Secondary · day for a year");
   assert.equal(progressionNoNatal("en"), "Cast a birth chart first.");
   assert.equal(progressionReadingEmpty("en"), "Tap a body or an aspect in the wheel.");
-  assert.deepEqual(progressionTableColumns("en"), ["Progressed", "Aspect", "Natal", "A", "S", "Exact"]);
   assert.equal(progressionTableEmpty("en"), "No major aspect between your progressed and birth charts.");
 });
 

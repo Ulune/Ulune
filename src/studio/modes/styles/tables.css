@@ -80,15 +80,6 @@
 .ulune-data-table tbody tr.bg-bg-subtle td {
   background: var(--color-bg-subtle);
 }
-.ulune-data-table th[data-col="a"]:not(:first-child),
-.ulune-data-table th[data-col="as-a"],
-.ulune-data-table th[data-col="as-s"],
-.ulune-data-table th[data-col="s"],
-.ulune-data-table .ulune-as-cell {
-  text-align: center;
-  width: 2.75rem;
-  padding-inline: 0.4rem;
-}
 /* ------------------------------------------------------------- Tables v2 */
 /* Each table is a size container: its rows fold into items by its own width
    (a phone, or a stage squeezed by the side panel), not the window's. */
@@ -433,18 +424,19 @@
     display: block;
   }
 }
-/* Seven columns need about 860 px: narrower, each body becomes an item. */
+/* Seven columns need about 860 px: narrower, each body becomes an item (the
+   other modes' aspects too: six columns with a date). */
 @container (max-width: 859.98px) {
-  .ulune-points,
-  .ulune-points tbody {
+  :is(.ulune-points, .ulune-cross),
+  :is(.ulune-points, .ulune-cross) tbody {
     display: block;
     width: 100%;
     min-width: 0;
   }
-  .ulune-points thead {
+  :is(.ulune-points, .ulune-cross) thead {
     display: none;
   }
-  .ulune-points tr {
+  :is(.ulune-points, .ulune-cross) tr {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -453,10 +445,10 @@
     padding: 9px 4px;
     border-bottom: 1px solid var(--color-border);
   }
-  .ulune-points tbody tr:last-child {
+  :is(.ulune-points, .ulune-cross) tbody tr:last-child {
     border-bottom: 0;
   }
-  .ulune-points td {
+  :is(.ulune-points, .ulune-cross) td {
     display: inline;
     padding: 0;
     border: 0;
@@ -465,60 +457,61 @@
     color: var(--color-fg-muted);
     background: transparent;
   }
-  .ulune-points tbody tr[data-selected="1"],
-  .ulune-points tbody tr.bg-bg-subtle,
-  .ulune-points tbody tr[data-selected="1"] td,
-  .ulune-points tbody tr.bg-bg-subtle td {
+  :is(.ulune-points, .ulune-cross) tbody tr[data-selected="1"],
+  :is(.ulune-points, .ulune-cross) tbody tr.bg-bg-subtle,
+  :is(.ulune-points, .ulune-cross) tbody tr[data-selected="1"] td,
+  :is(.ulune-points, .ulune-cross) tbody tr.bg-bg-subtle td {
     background: var(--color-bg-subtle);
   }
-  .ulune-points td:first-child {
+  :is(.ulune-points, .ulune-cross) td:first-child {
     flex: 1 0 100%;
     font-size: 0.9375rem;
     color: var(--color-fg);
   }
-  .ulune-points td:nth-child(2)::before {
+  :is(.ulune-points, .ulune-cross) td:nth-child(2)::before {
     content: var(--col-label-2, none);
   }
-  .ulune-points td:nth-child(3)::before {
+  :is(.ulune-points, .ulune-cross) td:nth-child(3)::before {
     content: var(--col-label-3, none);
   }
-  .ulune-points td:nth-child(4)::before {
+  :is(.ulune-points, .ulune-cross) td:nth-child(4)::before {
     content: var(--col-label-4, none);
   }
-  .ulune-points td:nth-child(5)::before {
+  :is(.ulune-points, .ulune-cross) td:nth-child(5)::before {
     content: var(--col-label-5, none);
   }
-  .ulune-points td:nth-child(6)::before {
+  :is(.ulune-points, .ulune-cross) td:nth-child(6)::before {
     content: var(--col-label-6, none);
   }
-  .ulune-points td:nth-child(7)::before {
+  :is(.ulune-points, .ulune-cross) td:nth-child(7)::before {
     content: var(--col-label-7, none);
   }
-  .ulune-points td:not(:first-child)::before {
+  :is(.ulune-points, .ulune-cross) td:not(:first-child)::before {
     margin-right: 5px;
     color: var(--color-fg-subtle);
     font: 500 10px/1 var(--font-ui);
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
-  .ulune-points td:empty {
+  :is(.ulune-points, .ulune-cross) td:empty {
     display: none;
   }
-  .ulune-points td[data-col="notes"] {
+  :is(.ulune-points, .ulune-cross) td[data-col="notes"] {
     flex: 1 0 100%;
     min-width: 0;
   }
-  .ulune-points td[data-col="notes"]::before {
+  :is(.ulune-points, .ulune-cross) td[data-col="notes"]::before {
     display: none;
   }
-  .ulune-points .ulune-cell-sub,
-  .ulune-points .ulune-lat-inline {
+  :is(.ulune-points, .ulune-cross) .ulune-cell-sub,
+  :is(.ulune-points, .ulune-cross) .ulune-lat-inline {
     display: inline;
     margin: 0 0 0 6px;
   }
 }
 /* Group rows of the points: a quiet heading across the table. */
-.ulune-points .ulune-group-row th {
+.ulune-points .ulune-group-row th,
+.ulune-grouped .ulune-group-row th {
   position: static;
   padding-top: 18px;
   padding-bottom: 6px;
@@ -529,7 +522,8 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-.ulune-points tbody:first-of-type .ulune-group-row th {
+.ulune-points tbody:first-of-type .ulune-group-row th,
+.ulune-grouped tbody:first-of-type .ulune-group-row th {
   padding-top: 10px;
 }
 @container (max-width: 859.98px) {
@@ -1011,4 +1005,72 @@ button.ulune-glyph-pick:hover {
   align-items: center;
   gap: 2px;
   white-space: nowrap;
+}
+/* --------------------------------------------------- Other modes (part 52) */
+@container (max-width: 639.98px) {
+  .ulune-grouped .ulune-group-row {
+    display: block;
+    min-height: 0;
+    padding: 16px 4px 4px;
+  }
+  .ulune-grouped .ulune-group-row th {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+}
+.ulune-cross td[data-col="exact"] {
+  font-variant-numeric: tabular-nums;
+}
+@container (max-width: 859.98px) {
+  /* The moving body and how it moves, on one line. */
+  .ulune-cross td:first-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+  }
+  .ulune-cross td:first-child .ulune-cell-sub {
+    margin: 0;
+  }
+}
+/* A rectangular grid: one chart's bodies down, the other's across. */
+.ob-agrid-cross .ob-agrid-corner {
+  border: 0;
+}
+.ob-agrid-cross thead th {
+  vertical-align: bottom;
+}
+/* Side by side: each chart's body is a button that opens its reading. */
+.ulune-both-pick {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 44px;
+  margin: -6px -8px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ulune-both-pick:hover,
+.ulune-both-pick.is-on {
+  background: var(--color-bg-subtle);
+}
+.ulune-hd-centre-dot {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--color-fg-muted);
+  border-radius: 2px;
+}
+.ulune-hd-centre-dot.is-defined {
+  border-color: var(--color-fg);
+  background: var(--color-fg);
 }

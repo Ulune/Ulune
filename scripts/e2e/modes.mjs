@@ -98,7 +98,7 @@ async function runViewport(width) {
     await clickDockTab(page, "reading");
     await clickDockTab(page, "data");
     await page.getByTestId("transit-table").waitFor({ timeout: 8000 });
-    for (const col of ["a", "s", "exact"]) {
+    for (const col of ["orb", "phase", "exact"]) {
       if (!(await page.getByTestId(`transit-col-${col}`).count())) {
         throw new Error(`missing transit-col-${col}`);
       }

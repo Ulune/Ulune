@@ -6,7 +6,7 @@
  */
 import type { LegalText } from "@/lib/legal/pages";
 
-export const CHANGES_UPDATED = "2026-09-28";
+export const CHANGES_UPDATED = "2026-09-29";
 
 export const CHANGES: Record<"en" | "fr", LegalText> = {
   en: {
@@ -18,6 +18,7 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
         p: "The first public version:",
         list: [
           "Your birth chart as a wheel or a table, flat or in 3D, with a reading for each planet, point, house, sign and aspect.",
+          "Each chart’s table on one page: positions to the second, houses and their rulers, aspects with the orb they are allowed, dignities, patterns, fixed stars and midpoints; the tables of transits, progressions, synastry, the composite and Human Design the same way; each to copy as text or as CSV.",
           "Transits with a time slider, the exact aspects of the day, month and year, and secondary progressions.",
           "Synastry and the composite chart of two people.",
           "Human Design and numerology, from the same birth details.",
@@ -37,6 +38,7 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
         p: "La première version publique :",
         list: [
           "Votre thème natal en roue ou en tableau, à plat ou en 3D, avec une lecture pour chaque planète, point, maison, signe et aspect.",
+          "Le tableau de chaque thème sur une seule page : les positions à la seconde, les maisons et leurs maîtres, les aspects avec l’orbe permis, les dignités, les figures, les étoiles fixes et les mi-points ; de même les tableaux des transits, des progressions, de la synastrie, du composite et du Human Design ; chacun à copier en texte ou en CSV.",
           "Les transits avec un curseur de temps, les aspects exacts du jour, du mois et de l’année, et les progressions secondaires.",
           "La synastrie et le thème composite de deux personnes.",
           "Le Human Design et la numérologie, à partir des mêmes données de naissance.",

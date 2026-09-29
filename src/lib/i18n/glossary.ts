@@ -18,6 +18,7 @@ export type GlossaryId =
   | "station"
   | "moonPhase"
   | "voidOfCourse"
+  | "exact"
   | "transit"
   | "progression"
   | "synastry"
@@ -143,6 +144,13 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     body: [
       "The hours between the Moon’s last major aspect in a sign and its entry into the next one, traditionally a poor time to start things. Counted here with the Sun and the planets out to Pluto.",
       "Les heures entre le dernier aspect majeur de la Lune dans un signe et son entrée dans le suivant, un moment traditionnellement peu favorable aux débuts. Calculée ici avec le Soleil et les planètes jusqu’à Pluton.",
+    ],
+  },
+  exact: {
+    term: ["Exact", "Exact"],
+    body: [
+      "The minute an aspect or a crossing is precise to the degree, minute and second: the peak of a transit, shown as the minute it happens in.",
+      "La minute où un aspect ou un passage est précis au degré, à la minute et à la seconde près : le sommet d’un transit, donné à la minute où il se produit.",
     ],
   },
   transit: {

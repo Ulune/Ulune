@@ -15,12 +15,6 @@
     "fr": "Calculez d’abord un thème natal."
   },
   "table": {
-    "columns": {
-      "en": ["Transit", "Aspect", "Natal", "A", "S", "Exact"],
-      "fr": ["Transit", "Aspect", "Natal", "A", "S", "Exact"]
-    },
-    "applying": { "en": "Applying", "fr": "Applicatif" },
-    "separating": { "en": "Separating", "fr": "Séparatif" },
     "empty": {
       "en": "No moving planet makes a major aspect to your chart at this moment.",
       "fr": "Aucune planète en mouvement ne forme d’aspect majeur avec votre thème à ce moment."

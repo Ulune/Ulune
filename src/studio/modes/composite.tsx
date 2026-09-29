@@ -2,7 +2,6 @@ import { Suspense, useMemo } from "react";
 import { ChartWheel } from "@/components/chart-wheel";
 import { CompositeHello } from "@/components/composite-hello";
 import { LoadingLines } from "@/components/loading-lines";
-import { compositeMajors } from "@/lib/chart/composite";
 import { HOUSE_SYSTEM_LABEL } from "@/lib/chart/constants";
 import { usePack } from "@/lib/content/packs";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
@@ -129,12 +128,7 @@ function CompositeData() {
     <>
       <MixedHousesNote />
       <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
-        <CompositeTable
-          chart={composite.composite}
-          majors={compositeMajors(composite.composite)}
-          selectedId={w.selectedId}
-          onSelect={w.pick}
-        />
+        <CompositeTable chart={composite.composite} selectedId={w.selectedId} onSelect={w.pick} />
       </Suspense>
     </>
   );

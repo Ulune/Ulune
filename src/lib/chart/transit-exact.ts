@@ -493,14 +493,19 @@ export function residualIsShrinking(
   target: number,
   pole: 1 | -1,
 ): boolean | null {
-  const r0 = Math.abs(lockedAspectResidual(lonAt(0).lon, natalLon, target, pole));
+  const s0 = lockedAspectResidual(lonAt(0).lon, natalLon, target, pole);
+  const r0 = Math.abs(s0);
   const speed = Math.abs(lonAt(0).speed);
   const toward = r0 / Math.max(speed, 1e-6);
   const cap = speed >= 0.1 ? 0.5 : speed >= 0.01 ? 4 : 12;
   const probe = Math.min(cap, Math.max(0.02, 0.35 * toward));
   const later = lonAt(probe);
   if (!Number.isFinite(later.lon)) return null;
-  const r1 = Math.abs(lockedAspectResidual(later.lon, natalLon, target, pole));
+  const s1 = lockedAspectResidual(later.lon, natalLon, target, pole);
+  // Exact within the probe (the Moon a few minutes short of it): it perfects
+  // ahead, though the residual at the probe's end is larger than now.
+  if (s0 !== 0 && Math.sign(s1) !== Math.sign(s0) && Math.abs(s1 - s0) < 90) return true;
+  const r1 = Math.abs(s1);
   if (r1 < r0 - 1e-6) return true;
   if (r1 > r0 + 1e-6) return false;
   return null;
@@ -606,7 +611,9 @@ function bracketExact(
       const crossed = prevR * r <= 0;
       return { days: dir * d, bracket: crossed ? [dir * prevD, dir * d] : undefined };
     }
-    if (prevR === 0 || r === 0 || prevR * r < 0) {
+    // A change of sign is a root, unless the residual jumped round the circle
+    // (from −180° to +180°: the other pole of the aspect, not an exact).
+    if ((prevR === 0 || r === 0 || prevR * r < 0) && Math.abs(r - prevR) < 180) {
       return { days: dir * bisectAbs(residualAt, dir, prevD, d, prevR, r), bracket: [dir * prevD, dir * d] };
     }
     prevD = d;

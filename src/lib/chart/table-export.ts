@@ -143,17 +143,61 @@ export function chartTextParts(chart: NatalChart, locale: AppLocale): ChartTextP
   return parts;
 }
 
-/** The whole table as text: every part, a blank line between them. */
-export function formatChartTableText(chart: NatalChart, locale: AppLocale): string {
+/**
+ * Which parts a table shows: all of them by default. The composite's table
+ * shows Points, Houses, Aspects, Grid and Balance: a composite has no
+ * moment or place of its own, so no Chart part.
+ */
+export type ChartTableScope = { parts?: readonly string[]; composite?: boolean };
+
+/** The whole table as text: every part it shows, a blank line between them. */
+export function formatChartTableText(chart: NatalChart, locale: AppLocale, scope: ChartTableScope = {}): string {
   return chartTextParts(chart, locale)
+    .filter((p) => !scope.parts || scope.parts.includes(p.id))
     .map((p) => p.lines.join("\n"))
     .join("\n\n");
+}
+
+/** The table part each CSV section belongs to. */
+const CSV_PART: Record<string, string> = {
+  identity: "identity",
+  point: "points",
+  house: "houses",
+  aspect: "aspects",
+  parallel: "aspects",
+  tightest: "aspects",
+  pattern: "patterns",
+  shape: "patterns",
+  moonCourse: "patterns",
+  balance: "balance",
+  ruler: "dignities",
+  dignity: "dignities",
+  dispositor: "dignities",
+  reception: "dignities",
+  star: "stars",
+  midpoint: "stars",
+};
+
+/** The CSV's rows of the parts a table shows, one blank row between sections. */
+function scopedRows(rows: string[][], scope: ChartTableScope, head: string[][]): string[][] {
+  if (!scope.parts) return rows;
+  const out: string[][] = [...head];
+  for (const row of rows.slice(1)) {
+    if (!row.length) {
+      if (out.length && out[out.length - 1]?.length) out.push(row);
+      continue;
+    }
+    const part = CSV_PART[row[0] ?? ""];
+    if (part && scope.parts.includes(part)) out.push(row);
+  }
+  while (out.length && !out[out.length - 1]?.length) out.pop();
+  return out;
 }
 
 const num = (x: number | null | undefined, digits = 6) => (x != null && Number.isFinite(x) ? x.toFixed(digits) : "");
 const bit = (x: boolean | null | undefined) => (x ? "1" : "0");
 
-export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): string {
+export function formatChartTableCsv(chart: NatalChart, locale: AppLocale, scope: ChartTableScope = {}): string {
   const patterns = hydratePatterns(chart);
   const unknown = chart.meta.timeUnknown === true;
   const rows: string[][] = [];
@@ -492,5 +536,18 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): strin
     add(["tightest", t.a, t.type, t.b, t.orb.toFixed(4), t.applying === true ? "applying" : t.applying === false ? "separating" : ""]);
   }
 
-  return rows.map((r) => r.join(",")).join("\n");
+  // A composite has no moment or place of its own: its name, how it is made, its houses.
+  const head = scope.composite
+    ? [
+        ["section", "field", "value"],
+        ["identity", "name", chart.meta.name],
+        ["identity", "method", "midpoint composite"],
+        ["identity", "houseSystem", chart.meta.houseSystem],
+        ["identity", "timeUnknown", bit(unknown)],
+        [],
+      ].map((r) => r.map(csvEscape))
+    : [rows[0] ?? []];
+  return scopedRows(rows, scope, head)
+    .map((r) => r.join(","))
+    .join("\n");
 }

@@ -140,13 +140,7 @@ function SynastryData() {
   if (!synastry?.inner || !synastry.chartB || !synastry.synastry) return null;
   return (
     <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
-      <SynastryTable
-        a={synastry.inner}
-        b={synastry.chartB}
-        majors={synastry.synastry.majors}
-        selectedId={w.selectedId}
-        onSelect={w.pick}
-      />
+      <SynastryTable a={synastry.inner} b={synastry.chartB} pair={synastry.synastry} selectedId={w.selectedId} onSelect={w.pick} />
     </Suspense>
   );
 }

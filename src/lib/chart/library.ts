@@ -160,6 +160,12 @@ export function chartDisplayName(input: BirthInput, untitled = "Untitled"): stri
   return untitled;
 }
 
+/** A cast chart's name as `chartDisplayName` gives it. */
+export function chartNameOf(chart: NatalChart, untitled = "Untitled"): string {
+  const m = chart.meta;
+  return chartDisplayName({ name: m.name, date: m.date, time: m.time, latitude: m.latitude, longitude: m.longitude, placeLabel: m.placeLabel }, untitled);
+}
+
 export function isBlankBirth(input: BirthInput): boolean {
   return !input.name.trim() && !input.date.trim() && !input.time.trim() && !input.placeLabel.trim();
 }

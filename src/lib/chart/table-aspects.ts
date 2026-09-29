@@ -70,6 +70,23 @@ export function twinKey(a: string, b: string, angle: number): string {
   return `${[AXIS[a]?.head ?? a, AXIS[b]?.head ?? b].sort().join("|")}|${turned}`;
 }
 
+/**
+ * The same between two charts (a transit to the birth chart, one person's
+ * chart to the other's): the moving or first chart's end named first, as
+ * Pluto (transit) trine the Ascendant is Pluto sextile the Descendant.
+ */
+export function crossTwinKey(a: string, b: string, type: AspectId): string {
+  const flips = tails(a) + tails(b);
+  const angle = ANGLE_OF[type];
+  const turned = flips % 2 ? 180 - angle : angle;
+  return `${AXIS[a]?.head ?? a}>${AXIS[b]?.head ?? b}|${turned}`;
+}
+
+/** How many axis tails (DSC, IC, South Node, Antivertex) a pair names: the twin with fewest leads its group. */
+export function twinRank(a: string, b: string): number {
+  return tails(a) + tails(b);
+}
+
 /** Signs apart, 0 to 6. */
 function signsApart(lonA: number, lonB: number): number {
   const d = Math.abs(Math.floor((((lonA % 360) + 360) % 360) / 30) - Math.floor((((lonB % 360) + 360) % 360) / 30));

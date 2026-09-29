@@ -1,45 +1,39 @@
 import { useMemo } from "react";
-import { DataTable } from "@/studio/tables/DataTable";
-import { AspectGlyph, PlanetGlyph } from "@/components/glyphs";
-import { motionFlags, residualForType } from "@/lib/chart/transit-exact";
-import { isProgressionTablePair, progressionRowTestId } from "@/lib/chart/progressions";
-import type { AngleId, AspectLink, NatalChart, Placement, ProgressedSky } from "@/lib/chart/types";
-import { aspectName, bodyTableLabel } from "@/lib/i18n/astro";
-import { useI18n } from "@/lib/i18n/locale";
+import { chartNameOf } from "@/lib/chart/library";
 import {
-  PROGRESSION_TABLE_COLUMN_KEYS,
-  progressionApplyingTitle,
-  progressionSeparatingTitle,
-  progressionTableColumns,
-  progressionTableEmpty,
-  progressionTableHint,
-  progressionTableTitle,
-} from "@/lib/i18n/progressions-ui";
+  progressedAngleRows,
+  progressedGroups,
+  progressedMoon,
+  progressionAspectRows,
+  type ProgressedRow,
+} from "@/lib/chart/cross-table";
+import {
+  joinParts,
+  natalSide,
+  nextPhaseText,
+  progressedMoonLines,
+  progressedSide,
+  progressionTableCsv,
+  progressionTextParts,
+} from "@/lib/chart/cross-export";
+import { progressionRowTestId } from "@/lib/chart/progressions";
+import type { NatalChart, ProgressedSky } from "@/lib/chart/types";
 import { previewProps } from "@/lib/depth/preview-bus";
-import { dateFormat } from "@/lib/intl-cache";
-import { formatArc } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n/locale";
+import { progressionTableEmpty } from "@/lib/i18n/progressions-ui";
+import { aspectsWord, modesWord, pointsGroupLabel, pointsText } from "@/lib/i18n/table-ui";
+import { cn } from "@/lib/utils";
+import { Body, CrossAspects, Maybe, Position, UnknownNote } from "@/studio/tables/cross-parts";
+import { DataTable } from "@/studio/tables/DataTable";
+import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
-function formatExactUtc(iso: string, locale: "en" | "fr"): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  const stamp = dateFormat(locale === "fr" ? "fr-FR" : "en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "UTC",
-  }).format(d);
-  return `${stamp} UTC`;
-}
-
-function natalOf(chart: NatalChart, id: AspectLink["b"]): Placement | undefined {
-  if (id in chart.angles) return chart.angles[id as AngleId];
-  return chart.planets.find((p) => p.id === id);
-}
-
-function progressedOf(sky: ProgressedSky, id: AspectLink["a"]): Placement | undefined {
-  if (id in sky.angles) return sky.angles[id as AngleId];
-  return sky.planets.find((p) => p.id === id);
-}
-
+/**
+ * The Progressions table (part 52 of the launch plan): the progressed
+ * bodies' and angles' aspects to the birth chart with their orbs and the
+ * day each is exact; each progressed body beside its birth place, how far it
+ * has gone and how it moves in a year of life; the progressed angles; the
+ * progressed Moon's phase.
+ */
 export function ProgressionsTable({
   sky,
   chart,
@@ -51,174 +45,201 @@ export function ProgressionsTable({
   selectedId: string | null;
   onSelect: (id: string) => void;
 }) {
-  const { locale } = useI18n();
-  const columns = progressionTableColumns(locale);
-  const majors = useMemo(
-    () =>
-      sky.aspects.filter((a) => {
-        const moving = progressedOf(sky, a.a);
-        const natal = natalOf(chart, a.b);
-        const pos =
-          moving && natal
-            ? { movingLon: moving.ecliptic, natalLon: natal.ecliptic }
-            : undefined;
-        return isProgressionTablePair(a, pos);
-      }),
-    [sky, chart],
-  );
+  const { locale, t } = useI18n();
+  const unknown = chart.meta.timeUnknown === true;
+  const name = chartNameOf(chart, t("untitled"));
+  const rows = useMemo(() => progressionAspectRows(sky, chart), [sky, chart]);
+  const groups = useMemo(() => progressedGroups(sky, chart, locale), [sky, chart, locale]);
+  const angles = useMemo(() => progressedAngleRows(sky, chart, locale), [sky, chart, locale]);
+  const text = () => progressionTextParts(sky, chart, name, locale);
+  const partText = (id: string) => () => text().find((p) => p.id === id)?.lines.join("\n") ?? "";
+  const byId = new Map([...sky.planets, ...Object.values(sky.angles)].map((p) => [p.id as string, p]));
+  const movingNote = (id: string) => {
+    const p = byId.get(id);
+    return p?.retrograde && p.kind !== "angle" ? pointsText(locale, "retrograde") : "";
+  };
+
+  const parts: TablePart[] = [
+    {
+      id: "aspects",
+      label: modesWord(locale, "partAspects"),
+      hint: modesWord(locale, "hintProgAspects"),
+      terms: ["progression", "aspect", "orb", "applying", "exact"],
+      copyText: partText("aspects"),
+      children: (
+        <>
+          {unknown ? <UnknownNote>{modesWord(locale, "unknownProgressions")}</UnknownNote> : null}
+          <CrossAspects
+            rows={rows}
+            columns={{ a: { key: "progressed", label: modesWord(locale, "progressed") }, b: { key: "natal", label: modesWord(locale, "natal") } }}
+            sides={{ a: progressedSide(locale), b: natalSide(locale) }}
+            exact={{ kind: "day", pending: Boolean(sky.meta.provisional), birthMs: Date.parse(sky.meta.natalUtc) }}
+            selectPrefix="paspect:"
+            rowTestId={progressionRowTestId}
+            rowData={(l) => ({ "data-progressed": l.a, "data-aspect": l.type, "data-natal": l.b })}
+            movingNote={(l) => movingNote(l.a)}
+            colTestPrefix="progression"
+            empty={progressionTableEmpty(locale)}
+            selectedId={selectedId}
+            onSelect={onSelect}
+          />
+        </>
+      ),
+    },
+    {
+      id: "positions",
+      label: modesWord(locale, "partPositions"),
+      hint: modesWord(locale, "hintPositions"),
+      terms: ["progression", "retrograde", "station"],
+      copyText: partText("positions"),
+      children: (
+        <ProgressedTable
+          groups={groups.map((g) => ({ id: g.id, label: pointsGroupLabel(locale, g.id), rows: g.rows }))}
+          motion
+          selectedId={selectedId}
+          onSelect={onSelect}
+        />
+      ),
+    },
+    {
+      id: "angles",
+      label: modesWord(locale, "partAngles"),
+      hint: modesWord(locale, "hintAngles"),
+      terms: ["ascendant", "midheaven"],
+      copyText: partText("angles"),
+      children: <ProgressedTable groups={[{ id: "angles", label: "", rows: angles }]} selectedId={selectedId} onSelect={onSelect} />,
+    },
+    {
+      id: "moon",
+      label: modesWord(locale, "partMoon"),
+      hint: modesWord(locale, "hintMoon"),
+      terms: ["moonPhase"],
+      copyText: partText("moon"),
+      children: <MoonPart sky={sky} chart={chart} />,
+    },
+  ];
 
   return (
-    <section data-testid="progressions-table" className="ulune-panel min-w-0 overflow-hidden">
-      <header className="flex flex-col gap-[var(--space-3)] border-b border-border px-[var(--space-4)] py-[var(--space-3)] md:px-[var(--space-5)]">
-        <div className="min-w-0">
-          <h2 className="font-display text-2xl leading-none text-fg">{progressionTableTitle(locale)}</h2>
-          <p className="mt-[var(--space-2)] max-w-[61.8ch] text-sm text-fg-muted">
-            {progressionTableHint(locale)}
-          </p>
-        </div>
-      </header>
-      <div className="min-w-0 px-[var(--space-4)] py-[var(--space-4)] md:px-[var(--space-5)]">
-        {majors.length ? (
-          <DataTable wide exportName="ulune-progressions">
-              <thead>
-                <tr data-testid="progressions-table-cols">
-                  {columns.map((label, i) => {
-                    const key = PROGRESSION_TABLE_COLUMN_KEYS[i] ?? label.toLowerCase();
-                    return (
-                      <th key={key} data-col={key} data-testid={`progression-col-${key}`}>
-                        {label}
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {majors.map((a) => (
-                  <ProgressionAspectRow
-                    key={a.id}
-                    link={a}
-                    pending={Boolean(sky.meta.provisional)}
-                    moving={progressedOf(sky, a.a)}
-                    natal={natalOf(chart, a.b)}
-                    selected={selectedId === `paspect:${a.id}`}
-                    locale={locale}
-                    onSelect={() => onSelect(`paspect:${a.id}`)}
-                    previewId={`paspect:${a.id}`}
-                  />
-                ))}
-              </tbody>
-            </DataTable>
-        ) : (
-          <p data-testid="progressions-table-empty" className="text-sm text-fg-muted">
-            {progressionTableEmpty(locale)}
-          </p>
-        )}
-      </div>
-    </section>
+    <div data-testid="progressions-table" data-chart-pick data-selected={selectedId ?? ""} className="min-w-0">
+      <TablePage
+        name="progressions"
+        label={t("tableSections")}
+        parts={parts}
+        actions={
+          <TableActions text={() => joinParts(text())} csv={() => progressionTableCsv(sky, chart, locale)} fileName={`${name} progressions`} />
+        }
+      />
+    </div>
   );
 }
 
-function ProgressionAspectRow({
-  link,
-  pending,
-  moving,
-  natal,
-  selected,
-  locale,
+/** Progressed bodies (or angles) beside their birth places. */
+function ProgressedTable({
+  groups,
+  motion = false,
+  selectedId,
   onSelect,
-  previewId,
 }: {
-  link: AspectLink;
-  /** The sky is provisional (the slider moving): the exact date comes with the exact cast. */
-  pending?: boolean;
-  moving: Placement | undefined;
-  natal: Placement | undefined;
-  selected: boolean;
-  locale: "en" | "fr";
-  onSelect: () => void;
-  previewId?: string;
+  groups: { id: string; label: string; rows: ProgressedRow[] }[];
+  motion?: boolean;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
 }) {
-  const { t } = useI18n();
-  const flags = moving ? motionFlags(moving.id, moving.speed ?? 0) : null;
-  const motion = flags?.stationary ? t("motionSta") : flags?.fast ? t("motionSwift") : null;
-  const applying = link.applying === true;
-  const separating = link.applying === false;
-  const shownOrb =
-    moving && natal ? residualForType(moving.ecliptic, natal.ecliptic, link.type) : link.orb;
-  const aspectLabel = `${aspectName(link.type, locale)} ${formatArc(shownOrb)}`;
+  const { locale } = useI18n();
+  const cols = motion ? 6 : 5;
   return (
-    <tr
-      {...previewProps(previewId)}
-      data-testid={progressionRowTestId(link)}
-      data-progressed={link.a}
-      data-aspect={link.type}
-      data-natal={link.b}
-      data-selected={selected ? "1" : undefined}
-      className={selected ? "bg-bg-subtle" : undefined}
-    >
-      <td>
-        <button
-          type="button"
-          onClick={onSelect}
-          className="inline-flex h-11 min-w-0 items-center gap-2 text-left"
-        >
-          <span className="grid size-5 shrink-0 place-items-center text-fg">
-            <PlanetGlyph id={link.a} size={14} />
-          </span>
-          <span className="min-w-0">
-            <span className="block">{bodyTableLabel(link.a, locale)}</span>
-            {flags ? (
-              <span className="block font-sans text-xs font-normal normal-case tracking-normal text-fg-subtle">
-                {flags.retrograde ? t("dirRx") : t("dirDirect")}
-                {motion ? ` · ${motion}` : ""}
-              </span>
-            ) : null}
-          </span>
-        </button>
-      </td>
-      <td data-col="aspect" data-orb={String(shownOrb)} title={aspectLabel}>
-        <span className="inline-flex items-center gap-1.5">
-          <AspectGlyph id={link.type} size={12} />
-          {aspectName(link.type, locale)}
-        </span>
-      </td>
-      <td data-col="natal">
-        <span className="inline-flex items-center gap-2">
-          <span className="grid size-5 place-items-center text-fg">
-            <PlanetGlyph id={link.b} size={14} />
-          </span>
-          {bodyTableLabel(link.b, locale)}
-        </span>
-      </td>
-      <td data-col="a" data-applying={link.id} className="ulune-as-cell">
-        {applying ? (
-          <span title={progressionApplyingTitle(locale)} aria-label={progressionApplyingTitle(locale)}>
-            A
-          </span>
-        ) : (
-          <span className="text-fg-subtle">—</span>
-        )}
-      </td>
-      <td data-col="s" className="ulune-as-cell">
-        {separating ? (
-          <span title={progressionSeparatingTitle(locale)} aria-label={progressionSeparatingTitle(locale)}>
-            S
-          </span>
-        ) : (
-          <span className="text-fg-subtle">—</span>
-        )}
-      </td>
-      <td className="font-mono whitespace-nowrap" data-exact={link.id} aria-busy={pending ? true : undefined}>
-        {pending ? (
-          <span className="text-fg-subtle" title={t("exactPending")}>
-            …
-          </span>
-        ) : link.exactUtc ? (
-          formatExactUtc(link.exactUtc, locale)
-        ) : (
-          t("exactUnknown")
-        )}
-      </td>
-    </tr>
+    <DataTable className="ulune-points ulune-progressed" stickyFirst={false}>
+      <thead>
+        <tr>
+          <th data-col="body">{pointsText(locale, "body")}</th>
+          <th data-col="position">{modesWord(locale, "progressed")}</th>
+          <th data-col="natal">{modesWord(locale, "atBirth")}</th>
+          <th data-col="moved">{modesWord(locale, "moved")}</th>
+          {motion ? <th data-col="motion">{modesWord(locale, "motionYear")}</th> : null}
+          <th data-col="house">{modesWord(locale, "yourHouse")}</th>
+        </tr>
+      </thead>
+      {groups.map((g) => (
+        <tbody key={g.id} data-group={g.id}>
+          {g.label ? (
+            <tr className="ulune-group-row">
+              <th colSpan={cols} scope="colgroup">
+                {g.label}
+              </th>
+            </tr>
+          ) : null}
+          {g.rows.map((r) => {
+            const p = r.point;
+            const id = `progressed:${p.id}`;
+            const on = selectedId === id;
+            return (
+              <tr
+                key={p.id}
+                data-body={p.id}
+                data-selected={on ? "1" : undefined}
+                data-uncertain={r.position.uncertain ? "1" : undefined}
+                className={cn("cursor-pointer", on && "bg-bg-subtle")}
+                onClick={() => onSelect(id)}
+                {...previewProps(id)}
+              >
+                <td data-col="body">
+                  <button type="button" className="ulune-row-pick" aria-pressed={on}>
+                    <Body id={p.id} />
+                  </button>
+                </td>
+                <td data-col="position">
+                  <Position cell={r.position} sign={p.sign} />
+                </td>
+                <td data-col="natal">{r.natal && r.natalPosition ? <Position cell={r.natalPosition} sign={r.natal.sign} /> : null}</td>
+                <td data-col="moved">{r.moved ? <Maybe cell={r.moved} mono /> : null}</td>
+                {motion ? (
+                  <td data-col="motion">
+                    {r.motion ? (
+                      <>
+                        <span className="font-mono">{r.motion.speed}</span>
+                        {r.motion.words.length ? <span className="ulune-cell-sub ulune-cell-words">{r.motion.words.join(" · ")}</span> : null}
+                      </>
+                    ) : null}
+                  </td>
+                ) : null}
+                <td data-col="house" className="ulune-house-num tabular-nums">
+                  <Maybe cell={r.house} mono />
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      ))}
+    </DataTable>
+  );
+}
+
+/** The progressed lunation: the phase, how far past the progressed Sun, where the progressed Moon is. */
+function MoonPart({ sky, chart }: { sky: ProgressedSky; chart: NatalChart }) {
+  const { locale } = useI18n();
+  const moon = progressedMoon(sky, chart);
+  if (!moon) return null;
+  const [phase, where] = progressedMoonLines(sky, chart, locale);
+  const next = nextPhaseText(moon, sky.meta.yearsOfLife, locale);
+  return (
+    <dl className="grid gap-x-[var(--space-5)] gap-y-[var(--space-3)] sm:grid-cols-2" data-testid="progressed-moon" data-phase={moon.phase}>
+      <div>
+        <dt className="ulune-kicker text-fg-muted">{aspectsWord(locale, "phase")}</dt>
+        <dd className={cn("mt-1 text-fg", moon.uncertain && "ulune-uncertain")}>{phase}</dd>
+      </div>
+      <div>
+        <dt className="ulune-kicker text-fg-muted">{pointsText(locale, "position")}</dt>
+        <dd className={cn("mt-1 text-fg", moon.uncertain && "ulune-uncertain")}>{where}</dd>
+      </div>
+      {next ? (
+        <div>
+          <dt className="ulune-kicker text-fg-muted">{modesWord(locale, "nextWord")}</dt>
+          <dd className={cn("mt-1 text-fg", moon.uncertain && "ulune-uncertain")} data-testid="progressed-moon-next">
+            {moon.uncertain ? "~" : ""}
+            {next}
+          </dd>
+        </div>
+      ) : null}
+    </dl>
   );
 }

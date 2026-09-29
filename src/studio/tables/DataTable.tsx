@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "@/lib/toast";
+import { downloadText } from "@/lib/download-text";
 import "@/studio/modes/styles/tables.css";
 
 function cellText(el: Element) {
@@ -34,16 +35,6 @@ function toCsv(rows: string[][]) {
 
 function toText(rows: string[][]) {
   return rows.map((r) => r.join("\t")).join("\n");
-}
-
-export function downloadText(name: string, text: string, type = "text/csv;charset=utf-8") {
-  const blob = new Blob([text], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  a.click();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /**

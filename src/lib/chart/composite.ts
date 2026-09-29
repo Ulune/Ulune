@@ -364,6 +364,7 @@ export function buildComposite(a: NatalChart, b: NatalChart): CompositeChart {
       ephemeris: "swiss",
       lilith: "true",
       ...(timeUnknown ? { timeUnknown: true as const } : {}),
+      ...(timeUnknown ? compositeDay(a, b, planets) : {}),
       ...(warnings.length ? { warnings } : {}),
     },
     angles,
@@ -376,14 +377,38 @@ export function buildComposite(a: NatalChart, b: NatalChart): CompositeChart {
   };
 }
 
+/**
+ * Without a birth time on one side or both, where each composite body goes
+ * over the unknown day: the midpoint of the two bodies at the day's start
+ * and at its end, a birth with a known time staying put (its declination the
+ * same way, as a mean). Exact with one time unknown; with both, the two days
+ * are read start with start and end with end. A body left out goes by its
+ * speed (unknown-time.ts).
+ */
+function compositeDay(a: NatalChart, b: NatalChart, planets: Placement[]): Pick<NatalChart["meta"], "dayRange" | "dayDecl"> {
+  const ends = (chart: NatalChart, p: Placement | undefined, key: "dayRange" | "dayDecl"): [number, number] | null => {
+    if (!p) return null;
+    const now = key === "dayRange" ? p.ecliptic : p.declination;
+    if (now == null) return null;
+    if (chart.meta.timeUnknown !== true) return [now, now];
+    return chart.meta[key]?.[p.id as PlanetId] ?? null;
+  };
+  const dayRange: NonNullable<NatalChart["meta"]["dayRange"]> = {};
+  const dayDecl: NonNullable<NatalChart["meta"]["dayDecl"]> = {};
+  for (const p of planets) {
+    if (p.uncertain) continue;
+    const pa = a.planets.find((x) => x.id === p.id);
+    const pb = b.planets.find((x) => x.id === p.id);
+    const ra = ends(a, pa, "dayRange");
+    const rb = ends(b, pb, "dayRange");
+    if (ra && rb) dayRange[p.id as PlanetId] = [midpointLon(ra[0], rb[0]), midpointLon(ra[1], rb[1])];
+    const da = ends(a, pa, "dayDecl");
+    const db = ends(b, pb, "dayDecl");
+    if (da && db) dayDecl[p.id as PlanetId] = [(da[0] + db[0]) / 2, (da[1] + db[1]) / 2];
+  }
+  return { dayRange, dayDecl };
+}
+
 export function compositeMajors(chart: CompositeChart): AspectLink[] {
   return chart.aspects.filter((row) => row.level === "major");
-}
-
-export function compositeRowTestId(link: AspectLink): string {
-  return `composite-row-${link.id}`;
-}
-
-export function compositeBodyOf(chart: NatalChart, id: BodyId): Placement | undefined {
-  return bodyOf(chart, id);
 }
