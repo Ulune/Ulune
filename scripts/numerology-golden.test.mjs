@@ -9,6 +9,8 @@ import {
   lettersOf,
   lifePathFromParts,
   nameNumbers,
+  numerologyNameFrom,
+  numerologyOptionsOf,
   personalYearFromParts,
   personalMonthFromParts,
   personalDayFromParts,
@@ -221,6 +223,43 @@ test("Display-name fallbacks are not treated as a birth name", async () => {
   assert.equal(withName.personality.number, 11);
   assert.equal(withName.maturity.number, reduceKeepMasters(4 + 8));
   assert.equal(withName.maturity.number, 3);
+});
+
+test("Numerology's names (part 64): the full name at birth first, the chart's name else, the name used now apart", async () => {
+  const natal = await calculateNatal({ ...PARIS, name: "Camille Laurent", date: "1990-06-15", time: "12:00" });
+  const now = new Date("2026-08-28T12:00:00");
+  const cast = (input) => castNumerology(natal, { now, ...numerologyOptionsOf(input, natal) });
+
+  // The chart's own name, while no full name at birth is typed (as before part 64).
+  const short = { name: "Camille Laurent" };
+  assert.deepEqual(numerologyOptionsOf(short, natal), { name: "Camille Laurent", yRoles: null, currentName: null });
+  assert.equal(numerologyNameFrom(short, natal), "chart");
+  assert.equal(cast(short).expression.number, 2);
+
+  // The full name at birth wins over the chart's name; blanks and fallbacks do not count.
+  const full = { name: "Camille Laurent", birthName: "  Camille Marie Laurent ", currentName: "Camille Durand" };
+  const opts = numerologyOptionsOf(full, natal);
+  assert.equal(opts.name, "Camille Marie Laurent");
+  assert.equal(opts.currentName, "Camille Durand");
+  assert.equal(numerologyNameFrom(full, natal), "birth");
+  const c = cast(full);
+  assert.deepEqual([c.expression.number, c.soulUrge.number, c.personality.number, c.maturity.number], [3, 3, 9, 7]);
+  assert.equal(c.name, "Camille Marie Laurent");
+  assert.equal(c.currentName, "Camille Durand");
+  assert.equal(c.names.current.text, "Camille Durand");
+  assert.equal(numerologyNameFrom({ name: "Camille Laurent", birthName: "   " }, natal), "chart");
+  assert.equal(numerologyNameFrom({ name: "Natal chart", birthName: "" }, natal), null);
+  assert.equal(numerologyOptionsOf({ name: "", birthName: "", currentName: "  " }, natal).currentName, null);
+  assert.equal(numerologyOptionsOf({ name: "", currentName: "1990" }, natal).currentName, null);
+
+  // A name used now with the birth name's very letters adds nothing.
+  assert.equal(cast({ name: "", birthName: "Camille Marie Laurent", currentName: "camille marie laurent" }).names.current, null);
+
+  // The Y's switched by hand belong to the name they were set for: the name read, whichever field it came from.
+  const y = { name: "Yolanda Mary Kyle", roles: "vvv" };
+  assert.deepEqual(numerologyOptionsOf({ name: "Yolanda", birthName: "Yolanda Mary Kyle", numerologyY: y }, natal).yRoles, ["v", "v", "v"]);
+  assert.deepEqual(numerologyOptionsOf({ name: "Yolanda Mary Kyle", numerologyY: y }, natal).yRoles, ["v", "v", "v"]);
+  assert.equal(numerologyOptionsOf({ name: "Yolanda Mary Kyle", birthName: "Yolanda Mary Kyle Smith", numerologyY: y }, natal).yRoles, null);
 });
 
 test("Committed copy: Pythagorean, no-natal, Hello sentences, the table's words", () => {

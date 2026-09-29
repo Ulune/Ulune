@@ -367,6 +367,14 @@ export type BirthInput = {
   /** For a local time the clocks showed twice: 0 the first occurrence, 1 the second (default: after the clocks went back). */
   fold?: 0 | 1;
   /**
+   * Numerology's names, kept on the device with the chart and never sent: the
+   * full name at birth (the core numbers come from it; left empty, from `name`
+   * when that is a typed name) and the name used now, when it differs (its
+   * minor numbers).
+   */
+  birthName?: string;
+  currentName?: string;
+  /**
    * Numerology, kept on the device with the chart and never sent: the Y's of
    * the birth name switched by hand ("v" a vowel, "c" a consonant, in order),
    * with the name they were set for (another name leaves them aside).

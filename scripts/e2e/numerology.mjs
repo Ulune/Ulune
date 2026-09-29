@@ -21,13 +21,16 @@
  *   - the readings (part 63): the first read by keyboard, each step lighting
  *     its part of the wheel, then the Life Path's reading with its place and
  *     its karmic debt; the year's chips and the Table view's rows open theirs;
- *   - without a name, only the birth date's numbers;
+ *   - without a name, only the birth date's numbers; then numerology's names
+ *     (part 64) typed in the birth form from the Table view's gate: the name
+ *     numbers come at once, the name used now's minor numbers too, with no
+ *     new cast, and the chart keeps them;
  *   - in French; on a phone the wheel takes the width, the tiles scroll
  *     sideways and nothing else does.
  */
 import { join } from "node:path";
 import { chromium } from "playwright";
-import { DEV, SHOTS, castFixture, ensureShotsDir, goStudioPage, gotoApp, setLang } from "./_lib.mjs";
+import { DEV, SHOTS, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, serverFnName, setLang } from "./_lib.mjs";
 
 const CAMILLE = { name: "Camille Marie Laurent", date: "15/06/1990", time: "12:00", place: "Paris, France" };
 const YOLANDA = { name: "Yolanda Mary Kyle", date: "29/11/1984", time: "12:00", place: "Paris, France" };
@@ -161,6 +164,11 @@ async function desktop() {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     page.setDefaultTimeout(20000);
     const errors = watch(page);
+    // The casts sent (numerology's names must not need one).
+    const castCalls = [];
+    page.on("request", (r) => {
+      if (serverFnName(r.url()).startsWith("castChart")) castCalls.push(r.url());
+    });
     await open(page, CAMILLE);
     const thisYear = new Date().getFullYear();
 
@@ -448,6 +456,78 @@ async function desktop() {
       throw new Error(`no name ${JSON.stringify(bare)}`);
     }
 
+    // Numerology's names (part 64): the Table view's gate opens the birth form on the full name at
+    // birth; typed there (Enter goes on to the name used now), the name numbers come at once, with the
+    // name used now's minor numbers, and the chart keeps them without a new cast.
+    const castsBefore = castCalls.length;
+    await page.getByTestId("view-table").click();
+    await page.getByTestId("numerology-add-birth-name").first().click();
+    await page.waitForFunction(() => document.activeElement?.id === "birth-full-name", null, { timeout: 10000 });
+    await page.keyboard.type("Camille Marie Laurent");
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() => document.activeElement?.id === "birth-current-name", null, { timeout: 5000 });
+    await page.keyboard.type("Camille Durand");
+    await page.keyboard.press("Tab");
+    await page.getByTestId("num-name-from").waitFor({ timeout: 10000 });
+    const namesNow = async () =>
+      page.evaluate(() => ({
+        from: document.querySelector('[data-testid="num-name-from"]')?.getAttribute("data-from"),
+        expression: document.querySelector('[data-testid="num-core-expression"]')?.innerText.replace(/\s+/g, " "),
+        current: Boolean(document.querySelector('[data-testid="num-current"]')),
+        summary: document.querySelector('[data-testid="birth-names-val"]')?.textContent,
+      }));
+    const named = await namesNow();
+    if (named.from !== "birth" || !/^Expression 3\b/.test(named.expression ?? "") || !named.current || named.summary !== "Camille Marie Laurent · Camille Durand") {
+      throw new Error(`the names typed ${JSON.stringify(named)}`);
+    }
+    if (castCalls.length !== castsBefore) throw new Error("the names asked for a new cast");
+    // Kept with the chart: another chart, then this one again.
+    for (const row of [
+      '[data-testid=chart-row][data-name="Yolanda Mary Kyle"]',
+      '[data-testid=chart-row]:not([data-name="Yolanda Mary Kyle"]):not([data-name="Camille Marie Laurent"])',
+    ]) {
+      await page.getByTestId("chart-chip").click();
+      await page.locator(row).first().getByRole("button").first().click();
+      await page.waitForTimeout(900);
+    }
+    await page.getByTestId("num-name-from").waitFor({ timeout: 10000 });
+    const kept = await namesNow();
+    if (kept.from !== "birth" || !/^Expression 3\b/.test(kept.expression ?? "") || !kept.current) throw new Error(`the names not kept ${JSON.stringify(kept)}`);
+
+    // A name changed while a cast runs ("Update", its answer held back here) is the one kept after it.
+    let hold = true;
+    await page.route("**/_serverFn/**", async (route) => {
+      if (hold && serverFnName(route.request().url()).startsWith("castChart")) {
+        hold = false;
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+      }
+      await route.continue();
+    });
+    await clickDockTab(page, "birth");
+    await page.getByTestId("cast-submit").click();
+    await page.locator("#birth-current-name").fill("Camille Rivière");
+    await page.locator("#birth-date").focus();
+    await page.locator('[data-testid="dock-tab-reading"][aria-selected="true"]').waitFor({ timeout: 20000 });
+    await page.unroute("**/_serverFn/**");
+    const currentHead = async () => {
+      await page.getByTestId("view-table").click();
+      await page.getByTestId("num-current").waitFor({ timeout: 10000 });
+      const head = await page.locator(".ulune-num-subhead").filter({ hasText: "Name used now" }).first().innerText();
+      await page.getByTestId("view-wheel").click();
+      return head;
+    };
+    if (!/Camille Rivière/.test(await currentHead())) throw new Error("the name typed during the cast was lost");
+    for (const row of [
+      '[data-testid=chart-row][data-name="Yolanda Mary Kyle"]',
+      '[data-testid=chart-row]:not([data-name="Yolanda Mary Kyle"]):not([data-name="Camille Marie Laurent"])',
+    ]) {
+      await page.getByTestId("chart-chip").click();
+      await page.locator(row).first().getByRole("button").first().click();
+      await page.waitForTimeout(900);
+    }
+    if (!/Camille Rivière/.test(await currentHead())) throw new Error("the name typed during the cast was not kept with the chart");
+    await page.getByTestId("numerology-ring").waitFor({ timeout: 10000 });
+
     // In French, the wheel and the Table view: no English left.
     await setLang(page, "fr");
     await page.waitForTimeout(800);
@@ -455,9 +535,10 @@ async function desktop() {
     await page.getByTestId("numerology-table").waitFor({ timeout: 10000 });
     await page.waitForTimeout(600);
     const frTable = await page.getByTestId("numerology-table").innerText();
-    const english = ["The core numbers", "Karmic", "Hidden passion", "Pinnacle", "Challenge", "Personal year", "Vowels", "Consonants", "Letters", "Keywords", "What it stands for", "Between", "Whole life", "Nine years", "Steps", "the birth date", "Add a birth name", "How the numbers"];
+    const english = ["The core numbers", "Karmic", "Hidden passion", "Pinnacle", "Challenge", "Personal year", "Vowels", "Consonants", "Letters", "Keywords", "What it stands for", "Between", "Whole life", "Nine years", "Steps", "the birth date", "Add the full name", "Read from", "Change the names", "Name used now", "How the numbers"];
     const left = english.filter((w) => frTable.includes(w));
     if (left.length) throw new Error(`English in the French table: ${left.join(", ")}`);
+    if (!/^Lu dans le nom complet de naissance, Camille Marie Laurent\./.test(await page.getByTestId("num-name-from").innerText())) throw new Error("the French name line");
     await page.getByTestId("view-wheel").click();
     await page.getByTestId("numerology-ring").waitFor({ timeout: 10000 });
     const fr = await page.evaluate(() => ({

@@ -35,6 +35,15 @@ export const birth = {
   ],
   placeChoose: ["Choose the right place from the list.", "Choisissez le bon lieu dans la liste."],
   birthOptions: ["Options", "Options"],
+  numNames: ["Names for numerology", "Noms pour la numérologie"],
+  numBirthName: ["Full name at birth", "Nom complet de naissance"],
+  numBirthNamePlaceholder: ["As on the birth certificate", "Comme sur l’acte de naissance"],
+  numCurrentName: ["Name used now", "Nom utilisé aujourd’hui"],
+  numCurrentNamePlaceholder: ["Only if it differs", "Seulement s’il diffère"],
+  numNamesNote: [
+    "The core numbers come from the full name at birth; left empty, from the name above. The name used now adds its minor numbers. Both stay on this device, with the chart.",
+    "Les nombres principaux viennent du nom complet de naissance ; laissé vide, du nom au-dessus. Le nom utilisé aujourd’hui ajoute ses nombres mineurs. Les deux restent sur cet appareil, avec le thème.",
+  ],
   sampleName: ["Sample", "Exemple"],
   houseNotePlacidus: [
     "The most common system; houses stretch with latitude.",

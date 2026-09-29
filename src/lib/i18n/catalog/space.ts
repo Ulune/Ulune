@@ -108,8 +108,8 @@ export const space = {
     "Gardé dans votre espace privé, sur cet appareil seulement, chiffré.",
   ],
   castNote: [
-    "To draw the chart, the date, time and coordinates go to Ulune’s server, which answers and keeps nothing. The name never leaves this device.",
-    "Pour tracer le thème, la date, l’heure et les coordonnées partent vers le serveur d’Ulune, qui répond et ne garde rien. Le nom ne quitte jamais cet appareil.",
+    "To draw the chart, the date, time and coordinates go to Ulune’s server, which answers and keeps nothing. The names never leave this device.",
+    "Pour tracer le thème, la date, l’heure et les coordonnées partent vers le serveur d’Ulune, qui répond et ne garde rien. Les noms ne quittent jamais cet appareil.",
   ],
   spaceSection: ["Private space", "Espace privé"],
   spaceStatusOpen: [

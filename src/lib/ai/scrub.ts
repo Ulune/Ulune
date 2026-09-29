@@ -17,10 +17,15 @@ function escape(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/** Each chart's name, and its birthplace's name, with what stands in for them. */
+/**
+ * Each chart's name, and its birthplace's name, with what stands in for them.
+ * `names[i]` adds the other names of chart i's person (numerology's full
+ * name at birth and name used now), each whole and word by word.
+ */
 export function personalWords(
   charts: readonly (NatalChart | null | undefined)[],
   locale: AppLocale,
+  names: readonly (readonly (string | null | undefined)[] | undefined)[] = [],
 ): Hidden[] {
   const fr = locale === "fr";
   const out: Hidden[] = [];
@@ -32,6 +37,12 @@ export function personalWords(
     // A composite is named "A · B": each part is a name of its own.
     for (const part of name.split(" · ")) {
       if (part.trim().length >= 2) out.push({ text: part.trim(), as: who });
+    }
+    for (const other of names[i] ?? []) {
+      const whole = (other ?? "").trim().replace(/\s+/g, " ");
+      if (whole.length < 2) continue;
+      out.push({ text: whole, as: who });
+      for (const word of whole.split(" ")) if (word.length >= 2 && word !== whole) out.push({ text: word, as: who });
     }
     const label = chart.meta.placeLabel.trim();
     if (label && !/^-?\d/.test(label)) {

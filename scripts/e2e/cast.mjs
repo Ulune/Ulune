@@ -170,7 +170,11 @@ async function assertKeyboard(page) {
   await page.waitForSelector("#native-name", { timeout: 20000 });
   await page.locator("#native-name").focus();
   await page.keyboard.press("Tab");
-  await waitFocus(page, "birth-date", "tab Name → Date");
+  // Numerology's names (part 64), folded under the name.
+  const names = await page.evaluate(() => document.activeElement?.closest("[data-testid=birth-names]") != null && document.activeElement?.tagName === "SUMMARY");
+  if (!names) throw new Error("tab Name → Names for numerology");
+  await page.keyboard.press("Tab");
+  await waitFocus(page, "birth-date", "tab Names for numerology → Date");
   await page.keyboard.press("Tab");
   const calendar = await page.evaluate(() => document.activeElement?.getAttribute("data-testid"));
   if (calendar !== "birth-date-calendar") throw new Error(`tab Date → Calendar (focus=${calendar})`);

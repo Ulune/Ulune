@@ -48,6 +48,7 @@ import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePa
 export function NumerologyTable({
   chart,
   name = "",
+  nameFrom = null,
   rows,
   activeId,
   selectedId,
@@ -57,6 +58,8 @@ export function NumerologyTable({
   chart: NumerologyChart;
   /** The chart's name, for the copied text and the file. */
   name?: string;
+  /** Where the name numbers' name comes from: the full name at birth, or the chart's name. */
+  nameFrom?: "birth" | "chart" | null;
   /** The library, for two people side by side. */
   rows: SavedChart[];
   activeId: string | null;
@@ -107,7 +110,7 @@ export function NumerologyTable({
       hint: p(locale, "hint_name"),
       terms: ["nameNumbers", "karmicLesson", "hiddenPassion", "finerNumbers", "planes", "stones", "chaldean"],
       copyText: partText("name"),
-      children: gate ?? <NamePart chart={chart} locale={locale} {...pick} />,
+      children: gate ?? <NamePart chart={chart} locale={locale} nameFrom={nameFrom} openBirth={openBirth} {...pick} />,
     },
     {
       id: "grid",
@@ -382,12 +385,27 @@ function detailRef(id: string, present: boolean): string | null {
 }
 
 /** The name letter by letter, the letters on each number, the finer numbers, the name used now. */
-function NamePart({ chart, locale, selectedId, onSelect }: { chart: NumerologyChart; locale: AppLocale } & Pick) {
+function NamePart({
+  chart,
+  locale,
+  nameFrom,
+  openBirth,
+  selectedId,
+  onSelect,
+}: { chart: NumerologyChart; locale: AppLocale; nameFrom: "birth" | "chart" | null; openBirth: () => void } & Pick) {
   const birth = chart.names.birth!;
   const counts = birth.detail.counts;
   const current = chart.names.current;
   return (
     <div className="ulune-num-part">
+      {nameFrom ? (
+        <p className="ulune-num-note" data-testid="num-name-from" data-from={nameFrom}>
+          {p(locale, nameFrom === "birth" ? "nameFromBirth" : "nameFromChart", { name: birth.text })}{" "}
+          <button type="button" className="ulune-num-gate-btn" data-testid="num-name-change" onClick={openBirth}>
+            {p(locale, nameFrom === "birth" ? "changeNames" : "addFullName")}
+          </button>
+        </p>
+      ) : null}
       <WordsTable chart={chart} name={birth} locale={locale} testId="num-words" />
       <DataTable stickyFirst={false} className="ulune-num-counts">
         <thead>

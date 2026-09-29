@@ -46,8 +46,8 @@ export const guide = {
     "Deux thèmes comparés contact par contact (synastrie), et le thème de la relation elle-même (composite).",
   ],
   guideDoSystems: [
-    "Your Human Design type, strategy and bodygraph, and the numbers drawn from your birth date and name.",
-    "Votre type, votre stratégie et votre bodygraph en Human Design, et les nombres tirés de votre date de naissance et de votre nom.",
+    "Your Human Design type, strategy and bodygraph. Your numerology: the numbers of your birth date and full name at birth, their cycles through life, and your personal year, month and day, in the calendar too.",
+    "Votre type, votre stratégie et votre bodygraph en Human Design. Votre numérologie : les nombres de votre date de naissance et de votre nom complet de naissance, leurs cycles au fil de la vie, et votre année, votre mois et votre jour personnels, dans le calendrier aussi.",
   ],
   guideBeginTitle: ["How to begin", "Pour commencer"],
   guideBegin1: [
@@ -79,8 +79,8 @@ export const guide = {
     "Pas de compte, pas de cookies, pas de mesure d’audience, pas de publicité.",
   ],
   guideData2: [
-    "To draw a chart, its date, time and coordinates go to Ulune’s server, which calculates, answers and keeps nothing. The name stays on this device.",
-    "Pour tracer un thème, sa date, son heure et ses coordonnées partent vers le serveur d’Ulune, qui calcule, répond et ne garde rien. Le nom reste sur cet appareil.",
+    "To draw a chart, its date, time and coordinates go to Ulune’s server, which calculates, answers and keeps nothing. The names stay on this device.",
+    "Pour tracer un thème, sa date, son heure et ses coordonnées partent vers le serveur d’Ulune, qui calcule, répond et ne garde rien. Les noms restent sur cet appareil.",
   ],
   guideData3: [
     "While you look, charts stay in the open tab and go when it closes.",
@@ -107,6 +107,10 @@ export const guide = {
   guidePreciseProgressions: [
     "Progressions: a day for a year, the angles advancing at the Naibod rate (0°59′08″ of right ascension a year).",
     "Progressions\u202f: un jour pour une année, les angles avançant au rythme de Naibod (0°59′08″ d’ascension droite par an).",
+  ],
+  guidePreciseNumerology: [
+    "Numerology follows Hans Decoz’s Pythagorean method: each name added on its own, a Y counted by its place, master numbers and karmic debts kept. The Chaldean number stands beside it, labelled, never mixed in.",
+    "La numérologie suit la méthode pythagoricienne de Hans Decoz : chaque nom additionné à part, un Y compté selon sa place, les nombres maîtres et les dettes karmiques gardés. Le nombre chaldéen se tient à côté, nommé, jamais mêlé.",
   ],
   guidePrecise4: ["Ulune’s code is public, under the GNU AGPL.", "Le code d’Ulune est public, sous licence GNU AGPL."],
   guideSource: ["Source code", "Code source"],
@@ -136,6 +140,11 @@ export const guide = {
   faqTrustA: [
     "They come from the Swiss Ephemeris, which follows NASA JPL’s DE441 to a fraction of an arc-second, and Ulune’s tests compare them with reference charts. If one looks wrong, use “Report a problem”.",
     "Elles viennent de la Swiss Ephemeris, qui suit DE441 (NASA JPL) à une fraction de seconde d’arc près, et les tests d’Ulune les comparent à des thèmes de référence. Si l’une vous semble fausse, utilisez « Signaler un problème ».",
+  ],
+  faqNameQ: ["Which name does numerology read?", "Quel nom la numérologie lit-elle ?"],
+  faqNameA: [
+    "The full name at birth, as on the birth certificate: every given name and the family name. Type it under “Names for numerology” in the form, with the name used now if it differs: a married or chosen name adds its minor numbers. Left empty, numerology reads the chart’s name. Both names stay on this device.",
+    "Le nom complet de naissance, comme sur l’acte de naissance : tous les prénoms et le nom de famille. Saisissez-le sous « Noms pour la numérologie » dans le formulaire, avec le nom utilisé aujourd’hui s’il diffère : un nom d’usage ou choisi ajoute ses nombres mineurs. Laissé vide, la numérologie lit le nom du thème. Les deux noms restent sur cet appareil.",
   ],
   faqAiQ: ["Does Ulune use AI?", "Ulune utilise-t-il l’IA ?"],
   faqAiA: [

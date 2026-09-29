@@ -2517,6 +2517,15 @@ html.light .ulune-wheel [data-cfg-type] {
   color: var(--color-fg-subtle);
   font-weight: 400;
 }
+/* Numerology's names under the name: the names typed, cut short on one line. */
+.ob-birth-names .ob-birth-options-val {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .ob-birth-options[open] {
   padding-bottom: 8px;
 }

@@ -731,12 +731,28 @@
       "fr": "Comparer demande une deuxième personne dans votre bibliothèque. Calculez son thème natal, puis revenez ici."
     },
     "addBirthName": {
-      "en": "Add a birth name",
-      "fr": "Ajouter un nom de naissance"
+      "en": "Add the full name at birth",
+      "fr": "Ajouter le nom complet de naissance"
     },
     "addBirthNameHint": {
       "en": "Expression, Soul Urge and Personality are calculated from the full birth name, so they need one.",
       "fr": "Expression, Élan de l’âme et Personnalité se calculent à partir du nom de naissance complet : il en faut un."
+    },
+    "nameFromBirth": {
+      "en": "Read from the full name at birth, {name}.",
+      "fr": "Lu dans le nom complet de naissance, {name}."
+    },
+    "nameFromChart": {
+      "en": "Read from the chart’s name, {name}. Numerology reads the full name at birth.",
+      "fr": "Lu dans le nom du thème, {name}. La numérologie lit le nom complet de naissance."
+    },
+    "changeNames": {
+      "en": "Change the names",
+      "fr": "Changer les noms"
+    },
+    "addFullName": {
+      "en": "Add the full name at birth",
+      "fr": "Ajouter le nom complet de naissance"
     },
     "personA": {
       "en": "Person A",

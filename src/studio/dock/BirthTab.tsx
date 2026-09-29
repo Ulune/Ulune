@@ -29,6 +29,8 @@ export function BirthTab({ onStage = false, modeLine = null }: { onStage?: boole
   const activeId = useStudioStore((s) => s.activeId);
   const addingPartnerFor = useStudioStore((s) => s.pair.addingPartnerFor);
   const setInput = useStudioStore((s) => s.setInput);
+  const setNumerologyNames = useStudioStore((s) => s.setNumerologyNames);
+  const onNumerology = useStudioStore((s) => s.page === "numerology");
   const cast = useStudioStore((s) => s.cast);
   const beginEdit = useStudioStore((s) => s.beginEdit);
   const discardDraft = useStudioStore((s) => s.discardDraft);
@@ -117,6 +119,8 @@ export function BirthTab({ onStage = false, modeLine = null }: { onStage?: boole
         onChange={setInput}
         onBeginEdit={beginEdit}
         onCast={(next) => void cast(next)}
+        namesOpen={onNumerology && mode !== "partner"}
+        onNames={mode === "edit" ? setNumerologyNames : undefined}
       />
       <p className="ob-cast-note" data-testid="cast-note">
         {t("castNote")}

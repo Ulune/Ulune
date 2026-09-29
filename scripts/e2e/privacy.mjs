@@ -2,7 +2,8 @@
  * What leaves the reader's browser. Casts two charts, visits every mode, asks
  * two AIs (one called from the page, one through Ulune's relay), and checks
  * every request the page made:
- *   - no name or place name typed by the reader appears in any request,
+ *   - no name or place name typed by the reader appears in any request
+ *     (numerology's full name at birth and name used now included),
  *     except the place search, which carries the place typed there, and the
  *     birth date only in the calculations, which need it;
  *   - a cast carries a date, a time and coordinates, and no name or place;
@@ -23,7 +24,9 @@ import {
   launch,
 } from "./_lib.mjs";
 
-const NAMES = [FIXTURE_A.name, FIXTURE_B.name, "Oslo", "Paris"];
+/** The first chart also gets numerology's two names (part 64): they stay on the device too. */
+const A = { ...FIXTURE_A, birthName: "Quintessa Marie Aurelia", currentName: "Quintessa Vale" };
+const NAMES = [A.name, A.birthName, A.currentName, "Quintessa", FIXTURE_B.name, "Oslo", "Paris"];
 const DATES = ["15/06/1990", "1990-06-15", "03/11/1987", "1987-11-03"];
 const PERSONAL = [...NAMES, ...DATES];
 /** The place search carries the place typed into it, and only that. */
@@ -86,11 +89,11 @@ async function run() {
   });
   try {
     await gotoApp(page);
-    await castFixture(page, FIXTURE_A);
+    await castFixture(page, A);
     await castFixture(page, FIXTURE_B);
     // Back to A, so B is the second person.
     await page.getByTestId("chart-chip").click();
-    await page.locator("[data-testid=chart-row]").filter({ hasText: FIXTURE_A.name }).getByRole("button").first().click();
+    await page.locator("[data-testid=chart-row]").filter({ hasText: A.name }).getByRole("button").first().click();
     for (const mode of MODES) {
       await goStudioPage(page, mode);
       await page.getByTestId(`studio-${mode === "design" ? "humandesign" : mode}`).waitFor({ timeout: 30000 });
@@ -157,7 +160,7 @@ async function run() {
   const casts = fnCalls.filter((r) => decodeFnName(r.url).startsWith("castChart"));
   if (casts.length < 2) failures.push(`expected 2 casts, saw ${casts.length}`);
   for (const c of casts) {
-    if (/"name"|"placeLabel"/.test(c.body)) failures.push(`a cast carries a name or place field: ${c.body.slice(0, 200)}`);
+    if (/"name"|"placeLabel"|"birthName"|"currentName"|"numerologyY"/.test(c.body)) failures.push(`a cast carries a name or place field: ${c.body.slice(0, 200)}`);
     if (!/"latitude"/.test(c.body) || !/"date"/.test(c.body)) failures.push("a cast lacks its date or coordinates");
   }
   if (!AI_ON) {

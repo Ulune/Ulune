@@ -6,6 +6,7 @@ import { valueOfCore } from "@/lib/chart/numerology";
 import { WHEEL_CORES } from "@/lib/chart/numerology-focus";
 import { wholeText } from "@/lib/chart/numerology-reduce";
 import { useDepthPrefs } from "@/lib/depth/prefs";
+import { focusField } from "@/lib/focus-field";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
@@ -98,11 +99,16 @@ function NumerologyData() {
       <NumerologyTable
         chart={numbers}
         name={w.chart ? chartNameOf(w.chart, t("untitled")) : ""}
+        nameFrom={numerology?.nameFrom ?? null}
         rows={rows}
         activeId={activeId}
         selectedId={w.selectedId}
         onSelect={w.pick}
-        openBirth={() => openDock("birth")}
+        openBirth={() => {
+          // The birth form's names for numerology, the full name at birth first.
+          openDock("birth");
+          focusField("birth-full-name");
+        }}
       />
     </Suspense>
   );

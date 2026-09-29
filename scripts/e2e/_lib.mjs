@@ -128,6 +128,13 @@ export async function castFixture(page, fixture) {
     await page.waitForSelector("#birth-date", { timeout: 8000 });
   }
   await page.locator("#native-name").fill(fixture.name);
+  // Numerology's names (part 64), when the fixture has them.
+  if (fixture.birthName || fixture.currentName) {
+    const names = page.getByTestId("birth-names");
+    if (!(await names.evaluate((el) => el.open))) await names.locator("summary").click();
+    if (fixture.birthName) await page.locator("#birth-full-name").fill(fixture.birthName);
+    if (fixture.currentName) await page.locator("#birth-current-name").fill(fixture.currentName);
+  }
   await page.locator("#birth-date").fill(fixture.date);
   await page.locator("#birth-time").fill(fixture.time);
   await pickPlace(page, fixture.place);

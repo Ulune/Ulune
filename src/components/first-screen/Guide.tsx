@@ -19,6 +19,7 @@ const MODES: { id: string; icon: Icon; label: MessageKey; body: MessageKey }[] =
 const QUESTIONS: { id: string; q: MessageKey; a: MessageKey }[] = [
   { id: "time", q: "faqTimeQ", a: "faqTimeA" },
   { id: "houses", q: "faqHousesQ", a: "faqHousesA" },
+  { id: "name", q: "faqNameQ", a: "faqNameA" },
   { id: "free", q: "faqFreeQ", a: "faqFreeA" },
   { id: "kept", q: "faqKeptQ", a: "faqKeptA" },
   { id: "trust", q: "faqTrustQ", a: "faqTrustA" },
@@ -114,6 +115,7 @@ export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () =
           <li>{t("guidePrecise2")}</li>
           <li>{t("guidePrecise3")}</li>
           <li>{t("guidePreciseProgressions")}</li>
+          <li>{t("guidePreciseNumerology")}</li>
           <li>{t("guidePrecise4")}</li>
         </ul>
         <p className="ob-guide-links">

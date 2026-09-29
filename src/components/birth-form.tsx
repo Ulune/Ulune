@@ -76,6 +76,8 @@ function tzSelectValue(tz: string | undefined): string {
 
 const NEXT_FIELD: Record<string, string> = {
   "native-name": "birth-date",
+  "birth-full-name": "birth-current-name",
+  "birth-current-name": "birth-date",
   "birth-date": "birth-time",
   "birth-time": "birth-place",
 };
@@ -149,17 +151,39 @@ type Props = {
   onChange: (next: BirthInput) => void;
   onCast: (next: BirthInput, meta: { placeConfirmed: boolean }) => void;
   onBeginEdit?: () => void;
+  /** Numerology's names shown from the start (the numerology page is open). */
+  namesOpen?: boolean;
+  /**
+   * For a chart already cast: numerology's names are kept at once when a
+   * field is left (they move no position, so they need no new cast).
+   */
+  onNames?: (names: Pick<BirthInput, "birthName" | "currentName">) => void;
 };
 
 function stamp(v: BirthInput) {
-  return `${v.name}|${v.date}|${v.time}|${v.placeLabel}|${v.latitude}|${v.longitude}|${v.houseSystem ?? "placidus"}|${v.tz ?? "auto"}|${v.fold ?? ""}`;
+  return `${v.name}|${v.birthName ?? ""}|${v.currentName ?? ""}|${v.date}|${v.time}|${v.placeLabel}|${v.latitude}|${v.longitude}|${v.houseSystem ?? "placidus"}|${v.tz ?? "auto"}|${v.fold ?? ""}`;
 }
 
-const FIELD_IDS = new Set(["native-name", "birth-date", "birth-time", "birth-place", "house-system", "birth-tz", "birth-fold"]);
+const FIELD_IDS = new Set([
+  "native-name",
+  "birth-full-name",
+  "birth-current-name",
+  "birth-date",
+  "birth-time",
+  "birth-place",
+  "house-system",
+  "birth-tz",
+  "birth-fold",
+]);
 
-export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, onCast, onBeginEdit }: Props) {
+export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, onCast, onBeginEdit, namesOpen, onNames }: Props) {
   const { locale, t } = useI18n();
   const [draft, setDraft] = useState(() => ({ ...value, date: dateForField(value.date) }));
+  const [namesShown, setNamesShown] = useState(() => Boolean(namesOpen));
+  // Opened by themselves when the numerology page is; after that the reader opens and closes them.
+  useEffect(() => {
+    if (namesOpen) setNamesShown(true);
+  }, [namesOpen]);
   const [query, setQuery] = useState(value.placeLabel);
   const [hits, setHits] = useState<PlaceHit[]>([]);
   const [open, setOpen] = useState(false);
@@ -352,6 +376,16 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
   }
 
   /**
+   * Leaving a name for numerology: the parent hears the form, and a cast
+   * chart keeps the names (the store writes only what changed).
+   */
+  function keepNames() {
+    pushParent();
+    const d = draftRef.current;
+    onNames?.({ birthName: (d.birthName ?? "").trim(), currentName: (d.currentName ?? "").trim() });
+  }
+
+  /**
    * One cast per intent: a second click (or Enter) while the first cast runs,
    * or right after it answered, sends nothing when the birth is the same.
    * The button greys out too, but only once the page has drawn it again.
@@ -502,7 +536,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           e.preventDefault();
           return;
         }
-        const next = NEXT_FIELD[el.id];
+        const next = el.id === "native-name" && namesShown ? "birth-full-name" : NEXT_FIELD[el.id];
         if (next) {
           e.preventDefault();
           focusControl(next);
@@ -529,6 +563,57 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           onBlur={pushParent}
         />
       </div>
+      <details
+        className="ob-birth-options ob-birth-names col-span-2"
+        data-testid="birth-names"
+        open={namesShown}
+        onToggle={(e) => setNamesShown(e.currentTarget.open)}
+      >
+        <summary>
+          {t("numNames")}
+          <span className="ob-birth-options-val" data-testid="birth-names-val">
+            {[draft.birthName, draft.currentName]
+              .map((s) => (s ?? "").trim())
+              .filter(Boolean)
+              .join(" · ") || t("optional")}
+          </span>
+        </summary>
+        <div className="min-w-0">
+          <Label htmlFor="birth-full-name">{t("numBirthName")}</Label>
+          <Input
+            id="birth-full-name"
+            name="ulune-birth-name"
+            value={draft.birthName ?? ""}
+            placeholder={t("numBirthNamePlaceholder")}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="words"
+            spellCheck={false}
+            enterKeyHint="next"
+            onChange={(e) => patch({ birthName: e.target.value })}
+            onBlur={keepNames}
+          />
+        </div>
+        <div className="mt-3 min-w-0">
+          <Label htmlFor="birth-current-name">{t("numCurrentName")}</Label>
+          <Input
+            id="birth-current-name"
+            name="ulune-current-name"
+            value={draft.currentName ?? ""}
+            placeholder={t("numCurrentNamePlaceholder")}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="words"
+            spellCheck={false}
+            enterKeyHint="next"
+            onChange={(e) => patch({ currentName: e.target.value })}
+            onBlur={keepNames}
+          />
+        </div>
+        <p className="mt-2 text-xs text-fg-muted" data-testid="birth-names-note">
+          {t("numNamesNote")}
+        </p>
+      </details>
       <div className="ulune-birth-when min-w-0">
         <Label htmlFor="birth-date">{t("date")}</Label>
         <BirthDateField

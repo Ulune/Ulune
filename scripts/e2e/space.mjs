@@ -6,8 +6,9 @@
  *      there is no database, and a reload finds nothing kept.
  *   2. Signing in: a chart cast while just looking joins the new space; a
  *      reload asks to unlock; a wrong passphrase is refused; the charts and
- *      the AI key come back; what is stored is sealed (no name, date or place
- *      anywhere in the database, as bytes).
+ *      the AI key come back, numerology's two names with their chart; what is
+ *      stored is sealed (no name, date or place anywhere in the database, as
+ *      bytes).
  *   3. Lock now empties the page; the recovery code opens the space and a new
  *      passphrase replaces the old one.
  *   4. Stay unlocked on this device: a reload opens the space by itself; back
@@ -44,6 +45,7 @@ import {
   SHOTS,
   VIEWPORTS,
   castFixture,
+  clickDockTab,
   createSpace,
   databases,
   ensureShotsDir,
@@ -59,7 +61,9 @@ import {
 import { join } from "node:path";
 import { readFile, writeFile } from "node:fs/promises";
 
-const PERSONAL = [FIXTURE_A.name, FIXTURE_B.name, "15/06/1990", "1990-06-15", "03/11/1987", "1987-11-03", "Paris", "Oslo"];
+/** The second chart of the space also gets numerology's two names (part 64), sealed with it. */
+const B_NAMED = { ...FIXTURE_B, birthName: "Quintessa Marie Aurelia", currentName: "Quintessa Vale" };
+const PERSONAL = [FIXTURE_A.name, FIXTURE_B.name, B_NAMED.birthName, B_NAMED.currentName, "15/06/1990", "1990-06-15", "03/11/1987", "1987-11-03", "Paris", "Oslo"];
 // Personal keys under either name: Ulune's, or those the prototype wrote (legacy names).
 const PERSONAL_KEYS = /^(orbis|ulune)\.(charts|firstview|synastry\.partner|composite\.partner|account|login)/;
 const MODES = ["natal", "transits", "timing", "progressions", "synastry", "composite", "design", "numerology"];
@@ -260,7 +264,7 @@ async function run() {
       await castFixture(page, FIXTURE_A);
       const code = await createSpace(page);
       if (!/^[0-9A-Z]{5}(-[0-9A-Z]{5}){4}$/.test(code)) throw new Error(`recovery code shape: ${code}`);
-      await castFixture(page, FIXTURE_B);
+      await castFixture(page, B_NAMED);
       await addKey(page);
       await page.waitForTimeout(600);
       const dump = await storageDump(page);
@@ -283,6 +287,12 @@ async function run() {
       const names = await libraryNames(page);
       if (!names.some((n) => n.includes(FIXTURE_A.name)) || !names.some((n) => n.includes(FIXTURE_B.name)))
         throw new Error(`charts after unlock: ${names.join(", ")}`);
+      // Numerology's names came back with their chart.
+      await page.getByTestId("chart-chip").click();
+      await page.locator(`[data-testid=chart-row][data-name="${FIXTURE_B.name}"]`).getByRole("button").first().click();
+      await clickDockTab(page, "birth");
+      const kept = (await page.getByTestId("birth-names-val").innerText()).trim();
+      if (kept !== `${B_NAMED.birthName} · ${B_NAMED.currentName}`) throw new Error(`numerology's names after unlock: "${kept}"`);
       if (AI_ON && !(await aiConnected(page))) throw new Error("the AI key did not come back with the space");
       console.log(AI_ON ? "unlocked: the charts and the AI key are back" : "unlocked: the charts are back");
 

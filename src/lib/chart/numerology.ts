@@ -142,18 +142,32 @@ export function givenBirthName(raw: string | null | undefined, chart: NatalChart
   return name;
 }
 
+type NumerologyNames = Pick<BirthInput, "name" | "birthName" | "currentName" | "numerologyY">;
+
 /**
- * The name options a chart's input gives: its typed birth name, and the Y's
- * switched by hand for that very name (another name leaves them aside).
+ * Where the core numbers' name comes from: the full name at birth typed for
+ * numerology, else the chart's own name when it is a typed one, else nowhere
+ * (the name numbers wait).
+ */
+export function numerologyNameFrom(input: NumerologyNames, chart: NatalChart): "birth" | "chart" | null {
+  if (givenBirthName(input.birthName, chart)) return "birth";
+  return givenBirthName(input.name, chart) ? "chart" : null;
+}
+
+/**
+ * The name options a chart's input gives: the full name at birth (or the
+ * chart's typed name), the Y's switched by hand for that very name (another
+ * name leaves them aside), and the name used now.
  */
 export function numerologyOptionsOf(
-  input: Pick<BirthInput, "name" | "numerologyY">,
+  input: NumerologyNames,
   chart: NatalChart,
-): { name: string | null; yRoles: YRole[] | null } {
-  const name = givenBirthName(input.name, chart);
+): { name: string | null; yRoles: YRole[] | null; currentName: string | null } {
+  const name = givenBirthName(input.birthName, chart) ?? givenBirthName(input.name, chart);
   const y = input.numerologyY;
   const yRoles = name && y && y.name === name && /^[vc]+$/.test(y.roles) ? (y.roles.split("") as YRole[]) : null;
-  return { name, yRoles };
+  const current = (input.currentName ?? "").trim();
+  return { name, yRoles, currentName: current && lettersOf(current).length ? current : null };
 }
 
 /** Life Path as a number alone (month, day and year reduced apart; masters kept). */

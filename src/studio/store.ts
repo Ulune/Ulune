@@ -126,7 +126,12 @@ export function aiHiddenWords(lang: AppLocale): Hidden[] {
   const charts = [s.chart, byId(s.pair.partnerId), byId(s.pair.compositePartnerId)];
   const seen = new Set(charts);
   for (const row of s.rows) if (!seen.has(row.chart)) charts.push(row.chart);
-  return personalWords(charts, lang);
+  // Numerology's names (part 64) stand for their person too.
+  const names = charts.map((chart) => {
+    const input = chart && chart === s.chart ? s.input : s.rows.find((r) => r.chart === chart)?.input;
+    return input ? [input.birthName, input.currentName] : undefined;
+  });
+  return personalWords(charts, lang, names);
 }
 
 type LibrarySlice = {
@@ -187,6 +192,11 @@ type StudioState = LibrarySlice &
     setInput: (next: BirthInput) => void;
     /** Numerology: the birth name's Y's switched by hand (none: as the rule says), kept with the chart. */
     setNumerologyY: (next: BirthInput["numerologyY"] | null) => void;
+    /**
+     * Numerology's names (the full name at birth, the name used now), kept
+     * with the chart at once: they change no position, so no new cast.
+     */
+    setNumerologyNames: (next: Pick<BirthInput, "birthName" | "currentName">) => void;
     setPage: (page: StudioPage) => void;
     setView: (view: StudioView) => void;
     openDock: (tab: DockTab) => void;
@@ -328,8 +338,14 @@ export const useStudioStore = create<StudioState>((set, get) => ({
       // an AI reading written for the old positions no longer describes it.
       const keepGrok = Boolean(opts?.keepGrok) && !(opts?.previous && chartMoved(opts.previous, result.chart));
       if (opts?.keepGrok && !keepGrok) set({ grok: null });
+      // Numerology's names and Y's are kept without a cast, so they may have
+      // changed while this one ran: the latest win, while this cast is still
+      // about the chart on screen (or the one being made).
+      const live = get();
+      const sameChart = replaceId ? live.activeId === replaceId && !live.creating : live.creating;
       const named: BirthInput = {
-        ...next,
+        ...withoutKept(next),
+        ...keptOf(sameChart ? live.input : next),
         name: next.name.trim() || result.chart.meta.name,
         placeLabel: result.chart.meta.placeLabel,
         latitude: result.chart.meta.latitude,
@@ -531,24 +547,18 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   clear: () => set({ selectedId: null }),
   setInput: (next) => set({ input: next }),
   setNumerologyY: (next) => {
-    const patch = (input: BirthInput): BirthInput => {
+    keepWithChart((input) => {
       const { numerologyY: _drop, ...rest } = input;
       return next ? { ...rest, numerologyY: next } : rest;
-    };
-    set({ input: patch(get().input) });
-    // A saved chart keeps it (on this device, in the private space when there is one).
-    const id = get().activeId;
-    const row = id ? get().rows.find((r) => r.id === id) : undefined;
-    if (row) {
-      void get().persistRow({
-        id: row.id,
-        input: patch(row.input),
-        chart: row.chart,
-        dossier: row.dossier,
-        grok: row.grok,
-        timeUnknown: row.timeUnknown,
-      });
-    }
+    });
+  },
+  setNumerologyNames: (next) => {
+    const birthName = (next.birthName ?? "").trim();
+    const currentName = (next.currentName ?? "").trim();
+    keepWithChart((input) => {
+      const { birthName: _b, currentName: _c, ...rest } = input;
+      return { ...rest, ...(birthName ? { birthName } : {}), ...(currentName ? { currentName } : {}) };
+    });
   },
   setPage: (page) => set({ page }),
   setView: (view) => set({ view }),
@@ -627,3 +637,54 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   },
   setProgressionTarget: (at) => set({ time: { ...get().time, progressionTarget: at } }),
 }));
+
+/** What a chart keeps beside its birth, changed without a cast: numerology's names and Y's (parts 60, 64). */
+type Kept = Pick<BirthInput, "birthName" | "currentName" | "numerologyY">;
+
+function keptOf(input: BirthInput): Kept {
+  const birthName = (input.birthName ?? "").trim();
+  const currentName = (input.currentName ?? "").trim();
+  return {
+    ...(birthName ? { birthName } : {}),
+    ...(currentName ? { currentName } : {}),
+    ...(input.numerologyY ? { numerologyY: input.numerologyY } : {}),
+  };
+}
+
+function withoutKept(input: BirthInput): BirthInput {
+  const { birthName: _b, currentName: _c, numerologyY: _y, ...rest } = input;
+  return rest;
+}
+
+/** The same birth moment and place: the chart on screen, whichever copy of it. */
+function sameBirth(a: NatalChart, b: NatalChart): boolean {
+  return (
+    a === b ||
+    (a.meta.date === b.meta.date && a.meta.time === b.meta.time && a.meta.latitude === b.meta.latitude && a.meta.longitude === b.meta.longitude)
+  );
+}
+
+/**
+ * Change what a chart keeps beside its birth (numerology's names and Y's):
+ * in the input now, and in the saved chart on screen (in this tab, or in the
+ * private space when one is open) without a new cast. A chart being created,
+ * or a second person being added, gets them with its cast instead; a saved
+ * chart that is not the one on screen is never written.
+ */
+function keepWithChart(patch: (input: BirthInput) => BirthInput) {
+  const s = useStudioStore.getState();
+  useStudioStore.setState({ input: patch(s.input) });
+  if (s.creating || s.pair.addingPartnerFor || !s.chart) return;
+  const row = s.activeId ? s.rows.find((r) => r.id === s.activeId) : undefined;
+  if (!row || !sameBirth(row.chart, s.chart)) return;
+  const input = patch(row.input);
+  if (JSON.stringify(keptOf(input)) === JSON.stringify(keptOf(row.input))) return;
+  void s.persistRow({
+    id: row.id,
+    input,
+    chart: row.chart,
+    dossier: row.dossier,
+    grok: row.grok,
+    timeUnknown: row.timeUnknown,
+  });
+}

@@ -8,7 +8,7 @@
 export type NoticeBlock = { h?: string; p?: string; list?: string[] };
 export type Notice = { title: string; updated: string; blocks: NoticeBlock[]; who: { h: string; p: string } };
 
-export const PRIVACY_UPDATED = "2026-09-27";
+export const PRIVACY_UPDATED = "2026-09-29";
 
 export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
   en: {
@@ -30,7 +30,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
       {
         h: "What leaves your device, and why",
         list: [
-          "Drawing a chart or a view (transits, progressions, Human Design): its date, time and coordinates go to Ulune’s server, which calculates and answers. The calendar asks the server only for the sky of the dates it shows, the same for everyone, and works out your transits on your device. The name you give a chart never leaves your device. Ulune’s code stores nothing from these requests and writes none of it to its logs.",
+          "Drawing a chart or a view (transits, progressions, Human Design): its date, time and coordinates go to Ulune’s server, which calculates and answers. The calendar asks the server only for the sky of the dates it shows, the same for everyone, and works out your transits on your device. The names you give a chart (its name and, for numerology, the full name at birth and the name used now) never leave your device, and numerology is worked out on it. Ulune’s code stores nothing from these requests and writes none of it to its logs.",
           "Searching for a place: what you type goes to Ulune’s server, which looks it up with Open-Meteo’s geocoding service. Open-Meteo doesn’t receive your IP address. To answer the same search faster, the server keeps Open-Meteo’s answer in its memory for up to a day, under the words searched and nothing else.",
           "When the page breaks: unless you turn it off in Settings, Your data, the page sends Ulune’s server a short report of what failed: the error with every number masked, where in Ulune’s code it happened, the page’s address without anything after it, the version and the browser’s engine (Blink, WebKit or Gecko). It holds no chart, date, place, name or address, and goes to the host’s technical logs (below) so the fault can be fixed.",
           "Hosting: Ulune runs on Vercel. Like any host, Vercel receives your IP address and the addresses of the pages you open, and keeps technical logs of them under its own privacy policy.",
@@ -47,7 +47,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
       },
       {
         h: "Other people’s charts",
-        p: "A partner’s, friend’s or relative’s birth date and place are their personal data. Keep their charts only with their agreement.",
+        p: "A partner’s, friend’s or relative’s birth date, birthplace and names are their personal data. Keep their charts only with their agreement.",
       },
     ],
     who: { h: "Who runs Ulune", p: "Ulune is published by {name}. Write to {contact} with any question about your data." },
@@ -71,7 +71,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
       {
         h: "Ce qui quitte votre appareil, et pourquoi",
         list: [
-          "Tracer un thème ou une vue (transits, progressions, Human Design) : sa date, son heure et ses coordonnées partent vers le serveur d’Ulune, qui calcule et répond. Le calendrier ne demande au serveur que le ciel des dates affichées, le même pour tous, et calcule vos transits sur votre appareil. Le nom que vous donnez à un thème ne quitte jamais votre appareil. Le code d’Ulune ne garde rien de ces requêtes et n’en écrit rien dans ses journaux.",
+          "Tracer un thème ou une vue (transits, progressions, Human Design) : sa date, son heure et ses coordonnées partent vers le serveur d’Ulune, qui calcule et répond. Le calendrier ne demande au serveur que le ciel des dates affichées, le même pour tous, et calcule vos transits sur votre appareil. Les noms que vous donnez à un thème (son nom et, pour la numérologie, le nom complet de naissance et le nom utilisé aujourd’hui) ne quittent jamais votre appareil, et la numérologie s’y calcule. Le code d’Ulune ne garde rien de ces requêtes et n’en écrit rien dans ses journaux.",
           "Chercher un lieu : ce que vous tapez part vers le serveur d’Ulune, qui le cherche avec le service de géocodage d’Open-Meteo. Open-Meteo ne reçoit pas votre adresse IP. Pour répondre plus vite à la même recherche, le serveur garde la réponse d’Open-Meteo dans sa mémoire jusqu’à un jour, sous les mots cherchés et rien d’autre.",
           "Quand la page plante : sauf si vous le désactivez dans Réglages, Vos données, la page envoie au serveur d’Ulune un court rapport de ce qui a échoué : l’erreur avec chaque chiffre masqué, l’endroit du code d’Ulune où elle s’est produite, l’adresse de la page sans ce qui la suit, la version et le moteur du navigateur (Blink, WebKit ou Gecko). Il ne contient ni thème, ni date, ni lieu, ni nom, ni adresse, et va dans les journaux techniques de l’hébergeur (ci-dessous) pour que la panne soit réparée.",
           "Hébergement : Ulune fonctionne sur Vercel. Comme tout hébergeur, Vercel reçoit votre adresse IP et l’adresse des pages que vous ouvrez, et en garde des journaux techniques selon sa propre politique de confidentialité.",
@@ -88,7 +88,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
       },
       {
         h: "Les thèmes des autres",
-        p: "La date et le lieu de naissance d’un partenaire, d’un ami ou d’un proche sont leurs données personnelles. Ne gardez leurs thèmes qu’avec leur accord.",
+        p: "La date, le lieu de naissance et les noms d’un partenaire, d’un ami ou d’un proche sont leurs données personnelles. Ne gardez leurs thèmes qu’avec leur accord.",
       },
     ],
     who: { h: "Qui publie Ulune", p: "Ulune est publié par {name}. Écrivez à {contact} pour toute question sur vos données." },
