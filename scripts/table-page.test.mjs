@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { calculateNatal } from "../src/lib/chart/calculate.server.ts";
 import { chartTextParts, formatChartTableText } from "../src/lib/chart/table-export.ts";
+import { aspectTableRows, parallelRows } from "../src/lib/chart/table-aspects.ts";
 import { activePartIndex, barScrollFor, isAtEnd, scrollTargetFor } from "../src/studio/tables/table-spy.ts";
 
 test("the part being read is the last one whose top reached the line under the bar", () => {
@@ -88,6 +89,7 @@ test("the text copy comes in the page's parts, each with its title, and joins in
     assert.equal(headings.length, 5, `groups: ${headings.join(" | ")}`);
     assert.equal(points.length - headings.length, chart.planets.length + Object.keys(chart.angles).length);
     assert.equal(count("houses"), 12);
-    assert.equal(count("aspects"), chart.aspects.length);
+    // One per aspect, its mirrors folded in; then the parallels under their heading.
+    assert.equal(count("aspects"), aspectTableRows(chart, locale).rows.length + 1 + parallelRows(chart).length);
   }
 });

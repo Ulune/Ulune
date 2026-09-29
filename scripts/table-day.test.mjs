@@ -169,8 +169,8 @@ test("the test chart without a birth time, by hand", async () => {
   assert.equal(hydratePatterns(noon).flags.sun.unaspected, true);
   assert.equal(hydratePatterns(ends[1]).flags.sun.unaspected, false);
   // Jupiter conjunct Chiron holds all day; the Moon sextile Neptune perfects in it.
-  assert.match(text, /\nJupiter conjunction Chiron · orb 0°11' · applying · major/);
-  assert.match(text, /\n~Moon sextile Neptune · orb 0°32' · separating · major/);
+  assert.match(text, /\nJupiter conjunction Chiron · orb 0°11' of 8° · applying\n/);
+  assert.match(text, /\n~Moon sextile Neptune · orb 0°32' of 6° · separating\n/);
   // The facts that need the time.
   assert.match(text, /\nBorn: 15\/06\/1990 · time unknown \(the chart is cast at 12:00 as a stand-in\)/);
   assert.match(text, /\nSect: ~needs the birth time/);

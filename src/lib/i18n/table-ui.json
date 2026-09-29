@@ -43,16 +43,16 @@
       "fr": "Chaque corps, point et angle : où il se trouve, comment il avance, dans quel état."
     },
     "houses": {
-      "en": "Cusps 1 to 12 in the chosen house system.",
-      "fr": "Cuspides 1 à 12 dans le système de maisons choisi."
+      "en": "Cusps 1 to 12 in the chosen house system: each house’s size, the ruler of its sign and where that ruler stands, and the bodies inside.",
+      "fr": "Cuspides 1 à 12 dans le système de maisons choisi : la taille de chaque maison, le maître de son signe et où il se trouve, et les corps qu’elle contient."
     },
     "aspects": {
-      "en": "Pair, aspect, orb, and whether it is applying or separating.",
-      "fr": "Paire, aspect, orbe, et s’il est appliquant ou séparant."
+      "en": "Every aspect, the majors first, each tightest first: its orb beside the orb it is allowed, and whether it is applying or separating. An aspect to one end of an axis (ASC–DSC, MC–IC, the nodes, the Vertex) mirrors one to the other end: the mirror is shown under it.",
+      "fr": "Tous les aspects, les majeurs d’abord, chacun du plus serré au plus large : l’orbe à côté de l’orbe permis, et s’il est applicatif ou séparatif. Un aspect à un bout d’un axe (ASC–DSC, MC–FC, les nœuds, le Vertex) en reflète un à l’autre bout : ce miroir est indiqué dessous."
     },
     "grid": {
-      "en": "Every pair at a glance. Tap a symbol to read that aspect.",
-      "fr": "Chaque paire d’un coup d’œil. Touchez un symbole pour lire l’aspect."
+      "en": "Every pair at a glance, with its orb and A (applying) or S (separating). Tap a symbol to read that aspect.",
+      "fr": "Chaque paire d’un coup d’œil, avec son orbe et A (applicatif) ou S (séparatif). Touchez un symbole pour lire l’aspect."
     },
     "patterns": {
       "en": "Configurations, mutual receptions, stelliums, unaspected planets and the Moon’s course.",
@@ -387,6 +387,204 @@
     "ranking": {
       "en": "Without a birth time, what here depends on the rising sign, the sect or the angles is unknown: marked ~.",
       "fr": "Sans heure de naissance, ce qui dépend ici du signe ascendant, de la secte ou des angles est inconnu : marqué ~."
+    }
+  },
+  "houses": {
+    "house": {
+      "en": "House",
+      "fr": "Maison"
+    },
+    "cusp": {
+      "en": "Cusp",
+      "fr": "Cuspide"
+    },
+    "size": {
+      "en": "Size",
+      "fr": "Taille"
+    },
+    "ruler": {
+      "en": "Ruler",
+      "fr": "Maître"
+    },
+    "inside": {
+      "en": "Inside",
+      "fr": "Occupants"
+    },
+    "traditional": {
+      "en": "traditional",
+      "fr": "traditionnel"
+    },
+    "twoCusps": {
+      "en": "{sign} on cusps {list}",
+      "fr": "{sign} sur les cuspides {list}"
+    },
+    "and": {
+      "en": " and ",
+      "fr": " et "
+    },
+    "intercepted": {
+      "en": "intercepted sign: {sign}",
+      "fr": "signe intercepté : {sign}"
+    },
+    "sizeLine": {
+      "en": "size {arc}",
+      "fr": "taille {arc}"
+    },
+    "rulerLine": {
+      "en": "ruled by {list}",
+      "fr": "gouvernée par {list}"
+    },
+    "traditionalLine": {
+      "en": "traditionally {text}",
+      "fr": "traditionnellement {text}"
+    },
+    "insideLine": {
+      "en": "inside: {list}",
+      "fr": "occupants : {list}"
+    },
+    "choose": {
+      "en": "Choose {name}",
+      "fr": "Choisir {name}"
+    }
+  },
+  "aspects": {
+    "pair": {
+      "en": "Pair",
+      "fr": "Paire"
+    },
+    "aspect": {
+      "en": "Aspect",
+      "fr": "Aspect"
+    },
+    "orb": {
+      "en": "Orb",
+      "fr": "Orbe"
+    },
+    "phase": {
+      "en": "Phase",
+      "fr": "Phase"
+    },
+    "declinations": {
+      "en": "Declinations",
+      "fr": "Déclinaisons"
+    },
+    "orbOf": {
+      "en": "{orb} of {allowed}",
+      "fr": "{orb} sur {allowed}"
+    },
+    "ofAllowed": {
+      "en": "of {allowed}",
+      "fr": "sur {allowed}"
+    },
+    "outOfSign": {
+      "en": "out of sign",
+      "fr": "hors signe"
+    },
+    "also": {
+      "en": "mirror: {list}",
+      "fr": "miroir : {list}"
+    },
+    "sort": {
+      "en": "Sort by",
+      "fr": "Trier par"
+    },
+    "sortOrb": {
+      "en": "Orb",
+      "fr": "Orbe"
+    },
+    "sortBody": {
+      "en": "Body",
+      "fr": "Corps"
+    },
+    "sortAspect": {
+      "en": "Aspect",
+      "fr": "Aspect"
+    },
+    "minors": {
+      "en": "Minor aspects",
+      "fr": "Aspects mineurs"
+    },
+    "angles": {
+      "en": "Angles and Vertex",
+      "fr": "Angles et Vertex"
+    },
+    "unfold": {
+      "en": "Mirrors on their own rows",
+      "fr": "Miroirs sur leur propre ligne"
+    },
+    "countAll": {
+      "en": "{total} aspects",
+      "fr": "{total} aspects"
+    },
+    "countSome": {
+      "en": "{shown} of {total} aspects",
+      "fr": "{shown} aspects sur {total}"
+    },
+    "folded": {
+      "en": "{n} mirrors shown under their aspect",
+      "fr": "{n} miroirs indiqués sous leur aspect"
+    },
+    "foldedOne": {
+      "en": "1 mirror shown under its aspect",
+      "fr": "1 miroir indiqué sous son aspect"
+    },
+    "none": {
+      "en": "No aspect with these filters.",
+      "fr": "Aucun aspect avec ces filtres."
+    },
+    "parallelsHead": {
+      "en": "In declination",
+      "fr": "En déclinaison"
+    },
+    "parallelsHint": {
+      "en": "Two bodies at the same distance from the celestial equator, within 1°: parallel on the same side, contra-parallel on either side.",
+      "fr": "Deux corps à la même distance de l’équateur céleste, à 1° près : parallèles du même côté, contre-parallèles de part et d’autre."
+    },
+    "parallel": {
+      "en": "parallel",
+      "fr": "parallèle"
+    },
+    "contra": {
+      "en": "contra-parallel",
+      "fr": "contre-parallèle"
+    },
+    "parallelTitle": {
+      "en": "Parallel",
+      "fr": "Parallèle"
+    },
+    "contraTitle": {
+      "en": "Contra-parallel",
+      "fr": "Contre-parallèle"
+    },
+    "noParallels": {
+      "en": "No parallel or contra-parallel within 1°.",
+      "fr": "Aucun parallèle ni contre-parallèle à 1° près."
+    },
+    "parallelsUnknown": {
+      "en": "Without a birth time these declinations are for 12:00. Marked ~: those to the angles and the Vertex, and those that may leave 1° or change kind at another hour (the Moon’s, mostly).",
+      "fr": "Sans heure de naissance, ces déclinaisons sont celles de 12 h. Marqués ~ : ceux aux angles et au Vertex, et ceux qui peuvent dépasser 1° ou changer de sorte à une autre heure (ceux de la Lune, surtout)."
+    }
+  },
+  "grid": {
+    "parallels": {
+      "en": "Parallels",
+      "fr": "Parallèles"
+    },
+    "applyingShort": {
+      "en": "A",
+      "fr": "A"
+    },
+    "separatingShort": {
+      "en": "S",
+      "fr": "S"
+    },
+    "legendPhase": {
+      "en": "A applying · S separating",
+      "fr": "A applicatif · S séparatif"
+    },
+    "legendParallels": {
+      "en": "∥ parallel · # contra-parallel, above the diagonal",
+      "fr": "∥ parallèle · # contre-parallèle, au-dessus de la diagonale"
     }
   }
 }

@@ -4,7 +4,7 @@
  * to the Sun, the excess over the Sun's greatest declination.
  */
 import { ANGULAR_ORB, OOB_DECLINATION } from "./constants";
-import type { AngleId, NatalChart } from "./types";
+import type { AngleId, NatalChart, Placement } from "./types";
 
 const RAD = Math.PI / 180;
 
@@ -86,6 +86,31 @@ export function nearestAngle(lon: number, angles: NatalChart["angles"]): { id: A
     if (d <= ANGULAR_ORB && (!best || d < best.distance)) best = { id, distance: d };
   }
   return best;
+}
+
+/** Points on the ecliptic by definition, whose declination follows from the longitude alone. */
+const ON_ECLIPTIC = new Set<string>(["ascendant", "midheaven", "descendant", "ic", "vertex", "antivertex"]);
+
+/**
+ * The declination of an ecliptic point (latitude 0) at a longitude, from the
+ * true obliquity of the date: sin δ = sin ε sin λ (the equatorial conversion
+ * with no latitude, as Swiss Ephemeris's swe_cotrans gives it).
+ */
+export function eclipticDeclination(lon: number, obliquity: number): number {
+  return Math.asin(Math.sin(obliquity * RAD) * Math.sin(lon * RAD)) / RAD;
+}
+
+/**
+ * A point's declination: the cast's own for a body (from Swiss Ephemeris),
+ * derived from the longitude for the angles and the Vertex, which lie on the
+ * ecliptic. None for the lots (a lot is an arc, not a place in the sky), nor
+ * without the obliquity.
+ */
+export function declinationOf(p: Placement, chart: NatalChart): number | null {
+  if (p.declination != null && Number.isFinite(p.declination)) return p.declination;
+  const eps = chart.meta.obliquity;
+  if (!ON_ECLIPTIC.has(p.id) || eps == null || !Number.isFinite(eps)) return null;
+  return eclipticDeclination(p.ecliptic, eps);
 }
 
 /** How far beyond the Sun's greatest declination (the true obliquity of the date) a body is. */

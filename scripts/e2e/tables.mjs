@@ -108,6 +108,74 @@ async function checkNoSideways(page, label) {
   await assertNoOverflow(page);
 }
 
+/*
+ * Houses and aspects (part 49): each house's size, ruler and bodies inside;
+ * the aspects' sort, filters and folded mirrors; the parallels; the grid's
+ * orbs and its parallels switch.
+ */
+async function checkHousesAspects(page, width) {
+  const label = `${width} houses and aspects`;
+  const house1 = await page.locator("[data-testid=table-houses] tr[data-house='1']").innerText();
+  if (!/21°24'/.test(house1) || !/Mercury in Gemini, house 10/.test(house1) || !/Virgo on cusps 1 and 2/.test(house1)) {
+    throw new Error(`${label}: the 1st house reads "${house1}"`);
+  }
+  const intercepted = await page.getByTestId("intercepted-4").innerText();
+  if (intercepted !== "intercepted sign: Sagittarius") throw new Error(`${label}: house 4 reads "${intercepted}"`);
+  const trad = await page.locator("[data-testid=table-houses] tr[data-house='4'] [data-ruler=mars]").innerText();
+  if (!/Mars in Aries, house 8/.test(trad) || !/traditional/.test(trad)) throw new Error(`${label}: Scorpio's traditional ruler reads "${trad}"`);
+  // A glyph inside a house chooses that body, not the house.
+  await page.locator("[data-testid=inside-10] [data-body=sun]").click();
+  const chosen = await page.locator("[data-testid=studio-table][data-chart-pick]").getAttribute("data-selected");
+  if (chosen !== "planet:sun") throw new Error(`${label}: the Sun's glyph in house 10 chose "${chosen}"`);
+
+  const rows = () => page.locator("[data-testid=table-aspects] table:not(.ulune-parallels) tbody tr").count();
+  const count = () => page.getByTestId("aspects-count").innerText();
+  if ((await rows()) !== 129) throw new Error(`${label}: ${await rows()} aspect rows, expected 129`);
+  if ((await count()) !== "159 aspects · 30 mirrors shown under their aspect") throw new Error(`${label}: count reads "${await count()}"`);
+  const first = await page.locator("[data-testid=table-aspects] tbody tr").first().getAttribute("data-aspect");
+  if (first !== "jupiter_conjunction_chiron") throw new Error(`${label}: the tightest major first, not ${first}`);
+  const uranus = await page.locator("[data-testid=table-aspects] tr[data-aspect=uranus_trine_ascendant]").innerText();
+  if (!/3°01'\s+of 6°/.test(uranus) || !/mirror: Uranus sextile Descendant/.test(uranus)) throw new Error(`${label}: Uranus trine ASC reads "${uranus}"`);
+  const oos = await page.locator("[data-testid=table-aspects] tr[data-out-of-sign='1']").count();
+  if (oos !== 3) throw new Error(`${label}: ${oos} rows out of sign, expected 3 (the others are mirrors)`);
+  await page.getByTestId("aspects-minors").uncheck();
+  if ((await rows()) >= 129) throw new Error(`${label}: minors off left ${await rows()} rows`);
+  if (await page.locator("[data-testid=table-aspects] tr[data-minor='1']").count()) throw new Error(`${label}: a minor aspect with minors off`);
+  await page.getByTestId("aspects-minors").check();
+  await page.getByTestId("aspects-angles").uncheck();
+  if ((await rows()) !== 101) throw new Error(`${label}: angles off, ${await rows()} rows`);
+  await page.getByTestId("aspects-angles").check();
+  await page.getByTestId("aspects-unfold").check();
+  if ((await rows()) !== 159) throw new Error(`${label}: mirrors unfolded, ${await rows()} rows`);
+  if (await page.getByTestId("aspect-mirror").count()) throw new Error(`${label}: mirror lines left when unfolded`);
+  await page.getByTestId("aspects-unfold").uncheck();
+  await page.getByTestId("aspects-sort-aspect").click();
+  const byAspect = await page.locator("[data-testid=table-aspects] tbody tr").first().getAttribute("data-aspect");
+  if (!/_conjunction_/.test(byAspect ?? "")) throw new Error(`${label}: by aspect, first is ${byAspect}`);
+  await page.getByTestId("aspects-sort-body").click();
+  const byBody = await page.locator("[data-testid=table-aspects] tbody tr").first().getAttribute("data-aspect");
+  if (!/^sun_/.test(byBody ?? "")) throw new Error(`${label}: by body, first is ${byBody}`);
+  await page.getByTestId("aspects-sort-orb").click();
+  // The parallels: 17 rows, the Sun contra-parallel Uranus among them.
+  const parallels = await page.locator("[data-testid=table-parallels] tbody tr").count();
+  if (parallels !== 17) throw new Error(`${label}: ${parallels} parallels, expected 17`);
+  const sunUranus = await page.locator("[data-testid=table-parallels] tr[data-parallel='sun|contra|uranus']").innerText();
+  if (!/Contra-parallel/.test(sunUranus) || !/0°12'/.test(sunUranus) || !/\+23°18'30" \/ −23°30'48"/.test(sunUranus)) {
+    throw new Error(`${label}: the Sun and Uranus read "${sunUranus}"`);
+  }
+  // The grid: orbs in the cells; A or S on a wide grid; the parallels above the diagonal.
+  const cell = page.locator("[data-testid=aspect-grid] button[aria-label^='Jupiter Conjunction Chiron']");
+  const cellText = (await cell.locator(".ob-agrid-orb").innerText()).replace(/\s+/g, "");
+  const wide = (await page.getByTestId("aspect-grid").evaluate((el) => el.clientWidth)) >= 600;
+  if (cellText !== (wide ? "0°11'A" : "0°11")) throw new Error(`${label}: the Jupiter–Chiron cell reads "${cellText}"`);
+  if (await page.locator("[data-testid=aspect-grid] td.ob-agrid-par").count()) throw new Error(`${label}: parallels before the switch`);
+  await page.getByTestId("grid-parallels").check();
+  const par = await page.locator("[data-testid=aspect-grid] td.ob-agrid-par[data-kind]").count();
+  if (par < 5) throw new Error(`${label}: ${par} parallels in the grid`);
+  await checkNoSideways(page, `${label} grid with parallels`);
+  await page.getByTestId("grid-parallels").uncheck();
+}
+
 async function runViewport(width) {
   const { browser, page } = await launch(width);
   try {
@@ -148,6 +216,7 @@ async function runViewport(width) {
 
     await checkNoSideways(page, `${width}`);
     await noDecimalDegree(page, `${width}`);
+    await checkHousesAspects(page, width);
     await checkLinks(page, `${width}`);
     await checkFollow(page, `${width}`);
 
@@ -311,6 +380,14 @@ async function runExact() {
     if (pluto.startsWith("~")) throw new Error(`no time: Pluto is marked though it barely moves: "${pluto}"`);
     const cusp = await page.locator("[data-testid=table-houses] tr[data-house='1']").getAttribute("data-uncertain");
     if (cusp !== "1") throw new Error("no time: the first cusp is not marked");
+    const size = await page.locator("[data-testid=table-houses] tr[data-house='1'] td[data-col=size]").innerText();
+    if (!size.startsWith("~")) throw new Error(`no time: the first house's size reads "${size}"`);
+    // The parallels say which may not hold all day: the Moon's, the angles'.
+    if (!(await page.locator("[data-testid=table-parallels] .ulune-unknown-note").count())) throw new Error("no time: no note over the parallels");
+    const moonPar = await page.locator("[data-testid=table-parallels] tr[data-parallel='moon|contra|mars']").getAttribute("data-uncertain");
+    if (moonPar !== "1") throw new Error("no time: the Moon's contra-parallel to Mars is not marked");
+    const slowPar = await page.locator("[data-testid=table-parallels] tr[data-parallel='saturn|parallel|neptune']").getAttribute("data-uncertain");
+    if (slowPar === "1") throw new Error("no time: Saturn parallel Neptune is marked though it holds all day");
     const balance = await page.locator("[data-testid=table-balance] .ob-bal[data-group=hemisphere]").getAttribute("data-uncertain");
     if (balance !== "1") throw new Error("no time: the hemispheres are not marked");
     await noDecimalDegree(page, "no time");

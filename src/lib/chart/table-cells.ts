@@ -35,7 +35,6 @@ import { CLASSIC_BODIES, HOUSE_SYSTEM_LABEL, MEAN_SPEED, SIGN_IDS, SIGN_META, si
 import {
   anareticHolds,
   ariesPointHolds,
-  aspectHolds,
   dignityHolds,
   isRough,
   membersHold,
@@ -48,8 +47,8 @@ import {
 import { essentialDignity, isTraditionalPlanet, type DebilityKind, type EssentialKind } from "./dignities";
 import { CONFIG_LABEL } from "./overlay-filter";
 import { formatEuropeanDate } from "./parse-birth";
-import { localSiderealHours, moonPhase, nearestAngle, outOfBoundsBy, separation } from "./table-facts";
-import { ANGLE_IDS, type AspectLink, type BodyFlags, type ChartPatterns, type HouseCusp, type NatalChart, type Placement } from "./types";
+import { declinationOf, localSiderealHours, moonPhase, nearestAngle, outOfBoundsBy, separation } from "./table-facts";
+import { ANGLE_IDS, type AspectLink, type BodyFlags, type ChartPatterns, type NatalChart, type Placement } from "./types";
 
 /** A value and whether it hangs on an unknown birth time. */
 export type Cell = { text: string; uncertain: boolean };
@@ -61,10 +60,6 @@ function mark(on: boolean): string {
 /** A cell as text: "~" before it when it hangs on the time. */
 export function cellText(c: Cell): string {
   return `${mark(c.uncertain)}${c.text}`;
-}
-
-function capitalize(s: string): string {
-  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
 /** A balance weight: whole, or with one decimal. */
@@ -278,6 +273,7 @@ export function pointRow(p: Placement, chart: NatalChart, patterns: ChartPattern
   const rough = isRough(chart, p);
   const arc = unknown ? formatSignedDms : formatSignedDmsSeconds;
   const oob = flag?.oob ? outOfBoundsBy(p.declination, chart.meta.obliquity) : null;
+  const decl = declinationOf(p, chart);
   return {
     point: p,
     name: bodyBare(p.id, locale),
@@ -288,7 +284,7 @@ export function pointRow(p: Placement, chart: NatalChart, patterns: ChartPattern
     house: { text: String(p.house), uncertain: unknown },
     motion: motionOf(p, flag, locale),
     latitude: hasLatitude(p) ? { text: arc(p.latitude), uncertain: rough } : null,
-    declination: p.declination != null ? { text: arc(p.declination), uncertain: rough } : null,
+    declination: decl != null ? { text: arc(decl), uncertain: rough } : null,
     oob: oob != null ? { text: pointsWord(locale, "oobBy", { arc: (unknown ? formatArc : formatArcSeconds)(oob) }), uncertain: rough } : null,
     dignity: dignityCell(p, patterns.isDay, chart, locale),
     notes: pointNotes(p, flag, chart, locale),
@@ -313,63 +309,16 @@ export function pointRowText(r: PointRow, locale: AppLocale): string {
   return bits.join(" · ");
 }
 
-/* ── Houses ─────────────────────────────────────────────────────────── */
-
-/** A cusp's position: to the second, or to the minute and ~ without a birth time. */
-export function cuspCell(h: HouseCusp, chart: NatalChart): Cell {
-  const unknown = chart.meta.timeUnknown === true;
-  return { text: unknown ? formatDegree(h.ecliptic) : formatDegreeSeconds(h.ecliptic), uncertain: unknown };
-}
-
-/** "House 7 · 12°30'05" Libra" (a cusp as a line of text). */
-export function houseLine(h: HouseCusp, chart: NatalChart, locale: AppLocale): string {
-  return `${capitalize(pointsWord(locale, "houseN", { n: String(h.id) }))} · ${cellText(cuspCell(h, chart))} ${signName(h.sign, locale)}`;
-}
-
 /* ── Aspects ────────────────────────────────────────────────────────── */
-
-export type AspectRow = {
-  aspect: AspectLink;
-  pair: string;
-  type: string;
-  level: string;
-  orb: string;
-  phase: string;
-  /** It may be out of orb, or perfect, at another hour of the birth day. */
-  uncertain: boolean;
-};
 
 /** An aspect's name inside a sentence: "trine", "carré". */
 export function aspectWord(type: AspectLink["type"], locale: AppLocale): string {
   return aspectName(type, locale).toLocaleLowerCase(locale === "fr" ? "fr-FR" : "en-GB");
 }
 
-function phaseWord(applying: boolean | null, locale: AppLocale): string {
+/** Applying, separating, or a dash when the orb stands still. */
+export function phaseWord(applying: boolean | null, locale: AppLocale): string {
   return applying === true ? translate(locale, "applying") : applying === false ? translate(locale, "separating") : translate(locale, "flagNo");
-}
-
-export function aspectRow(a: AspectLink, chart: NatalChart, locale: AppLocale): AspectRow {
-  return {
-    aspect: a,
-    pair: `${bodyBare(a.a, locale)} · ${bodyBare(a.b, locale)}`,
-    type: aspectName(a.type, locale),
-    level: translate(locale, a.level === "major" ? "tableAspectMajor" : "tableAspectMinor"),
-    orb: formatArc(a.orb),
-    phase: phaseWord(a.applying, locale),
-    uncertain: !aspectHolds(chart, a),
-  };
-}
-
-/** "Sun trine Moon · orb 1°12' · applying · major". */
-export function aspectRowText(r: AspectRow, locale: AppLocale): string {
-  const a = r.aspect;
-  const bits = [
-    `${mark(r.uncertain)}${bodyBare(a.a, locale)} ${aspectWord(a.type, locale)} ${bodyBare(a.b, locale)}`,
-    pointsWord(locale, "orb", { arc: r.orb }),
-  ];
-  if (a.applying != null) bits.push(r.phase);
-  bits.push(r.level);
-  return bits.join(" · ");
 }
 
 /* ── Patterns ───────────────────────────────────────────────────────── */

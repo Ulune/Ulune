@@ -295,6 +295,8 @@ export type NatalChart = {
      * the birth day (local noon ± 12 hours), from Swiss Ephemeris.
      */
     dayRange?: Partial<Record<PlanetId, [number, number]>>;
+    /** Without a birth time: each body's declination at the start and the end of the birth day. */
+    dayDecl?: Partial<Record<PlanetId, [number, number]>>;
   };
   angles: Record<AngleId, Placement>;
   planets: Placement[];

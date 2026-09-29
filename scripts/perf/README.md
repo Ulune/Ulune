@@ -522,7 +522,18 @@ plan's goals are in the plan. On 26 Sep 2026 all 31 were within budget:
 Since part 55 (28 Sep 2026) the style sheets are counted twice: those the
 first paint waits for (30.8 KB gz, limit 32) and all of them once the modes'
 own have loaded after it (42.8 KB, limit 44; the calendar's month, bar and
-Now panel added 0.9 KB there, none up front).
+Now panel added 0.9 KB there, none up front). Part 49 (28 Sep 2026) moved
+the aspect grid's rules from the first sheet into the table's own (30.6 KB up
+front) and gave the houses, the aspects, the parallels and the grid's orbs
+their styles there: 44.4 KB in all, the limit raised to 46 for the table's
+parts still to come (50 to 52). The table's sheet loads with its code, which
+the page fetches when idle after the first paint, never before it.
+
+The 3D garbage per frame is the heap's growth over an orbit of frames, and it
+moves from run to run with the garbage collector: on the part 58 code, three
+runs in a row measured the bi-wheel at 14.6, 14.8 and 14.6 KB and every body
+at 16.3, 0.6 and 5.2 KB. One run over its limit is noise; the same one over
+in every run is a regression.
 
 The `?perf` overlay (5.6): add `?perf` to the address (or set
 `localStorage["ulune.debug.perf"] = "1"`) and a panel in the bottom-right

@@ -1,13 +1,25 @@
 import { ChevronRight, Copy, Download } from "lucide-react";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { AspectGlyph, PlanetGlyph, SignGlyph } from "@/components/glyphs";
+import { SegmentedToggle } from "@/components/segmented-toggle";
 import { hydratePatterns } from "@/lib/chart/patterns";
 import { aspectHolds } from "@/lib/chart/day-checks";
 import {
-  aspectRow,
+  aspectPhrase,
+  aspectTableRows,
+  DEFAULT_ASPECT_OPTIONS,
+  parallelPhrase,
+  parallelRows,
+  parallelsOf,
+  PARALLEL_ORB,
+  allowedText,
+  type AspectOptions,
+  type AspectSort,
+} from "@/lib/chart/table-aspects";
+import {
   balanceGroups,
+  cellText,
   chartFacts,
-  cuspCell,
   groupedPoints,
   patternSections,
   pointRow,
@@ -18,10 +30,14 @@ import {
   type Cell,
 } from "@/lib/chart/table-cells";
 import { chartTextParts, formatChartTableCsv, formatChartTableText, type ChartTextPartId } from "@/lib/chart/table-export";
+import { houseRows, interceptedText, twoCuspsText } from "@/lib/chart/table-houses";
 import type { ChartPatterns, NatalChart } from "@/lib/chart/types";
-import { aspectName, bodyLabel, houseName, signName } from "@/lib/i18n/astro";
+import { aspectName, bodyBare, bodyLabel, houseName, signName } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
 import {
+  aspectsWord,
+  gridWord,
+  housesWord,
   pointsGroupLabel,
   pointsText,
   tablePartHint,
@@ -29,9 +45,10 @@ import {
   unknownTimeNote,
   type TablePartId,
 } from "@/lib/i18n/table-ui";
-import { cn, formatArc } from "@/lib/utils";
+import { cn, formatArc, formatSignedDms, formatSignedDmsSeconds } from "@/lib/utils";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TablePage, type TablePart } from "@/studio/tables/TablePage";
+import { ParallelGlyph } from "@/studio/tables/table-glyphs";
 import { toast } from "@/lib/toast";
 import { previewProps } from "@/lib/depth/preview-bus";
 
@@ -293,6 +310,37 @@ function PointsPart({
   );
 }
 
+/** A body's glyph as a button that chooses it (in a cell that belongs to a row of its own). */
+function GlyphPick({ id, onSelect, size = 14 }: { id: string; onSelect?: (id: string) => void; size?: number }) {
+  const { locale } = useI18n();
+  const pick = pointSelectId(id);
+  const name = bodyLabel(id, locale);
+  if (!onSelect) {
+    return (
+      <span className="ulune-glyph-pick" title={name} data-body={id}>
+        <PlanetGlyph id={id} size={size} />
+        <span className="sr-only">{name}</span>
+      </span>
+    );
+  }
+  return (
+    <button
+      type="button"
+      className="ulune-glyph-pick"
+      title={name}
+      aria-label={housesWord(locale, "choose", { name })}
+      data-body={id}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect(pick);
+      }}
+      {...previewProps(pick)}
+    >
+      <PlanetGlyph id={id} size={size} />
+    </button>
+  );
+}
+
 function HousesPart({
   chart,
   selectedId,
@@ -302,45 +350,83 @@ function HousesPart({
   selectedId: string | null;
   onSelect?: (id: string) => void;
 }) {
-  const { locale, t } = useI18n();
+  const { locale } = useI18n();
   const unknown = chart.meta.timeUnknown === true;
+  const rows = useMemo(() => houseRows(chart, locale), [chart, locale]);
   return (
     <>
       {unknown ? <UnknownNote>{unknownTimeNote(locale, "houses")}</UnknownNote> : null}
-      <DataTable stickyFirst={false}>
+      <DataTable className="ulune-houses" stickyFirst={false}>
         <thead>
           <tr>
-            <th>{t("colHouse")}</th>
-            <th>{t("colSign")}</th>
-            <th>{t("colDegree")}</th>
+            <th data-col="house">{housesWord(locale, "house")}</th>
+            <th data-col="cusp">{housesWord(locale, "cusp")}</th>
+            <th data-col="size">{housesWord(locale, "size")}</th>
+            <th data-col="ruler">{housesWord(locale, "ruler")}</th>
+            <th data-col="inside">{housesWord(locale, "inside")}</th>
           </tr>
         </thead>
         <tbody>
-          {chart.houses.map((h) => {
-            const on = selectedId === `house:${h.id}`;
+          {rows.map((r) => {
+            const h = r.cusp;
+            const id = `house:${h.id}`;
+            const on = selectedId === id;
             return (
               <tr
                 key={h.id}
                 data-house={h.id}
                 data-selected={on ? "1" : undefined}
-                data-uncertain={unknown ? "1" : undefined}
+                data-uncertain={r.uncertain ? "1" : undefined}
                 className={cn(onSelect && "cursor-pointer")}
-                onClick={() => onSelect?.(`house:${h.id}`)}
-                {...previewProps(`house:${h.id}`)}
+                onClick={() => onSelect?.(id)}
+                {...previewProps(id)}
               >
-                <td className="ulune-house-id" data-house={h.id}>
+                <td className="ulune-house-id" data-house={h.id} data-col="house">
                   <button type="button" className="ulune-row-pick" aria-pressed={on} aria-label={houseName(h.id, locale)}>
                     <span className="ulune-house-id-n">{h.id}</span>
                   </button>
                 </td>
-                <td>
-                  <span className="inline-flex items-center gap-1.5">
-                    <SignGlyph id={h.sign} size={12} />
-                    {signName(h.sign, locale)}
+                <td data-col="cusp">
+                  <span className="whitespace-nowrap">
+                    <Maybe cell={r.position} mono />{" "}
+                    <span className="inline-flex items-center gap-1.5 align-[-1px]">
+                      <SignGlyph id={r.sign} size={12} />
+                      {signName(r.sign, locale)}
+                    </span>
                   </span>
+                  {r.intercepted.map((sign) => (
+                    <span key={sign} className="ulune-cell-sub" data-testid={`intercepted-${h.id}`}>
+                      {interceptedText(sign, locale)}
+                    </span>
+                  ))}
+                  {r.twoCusps ? (
+                    <span className="ulune-cell-sub" data-testid={`two-cusps-${h.id}`}>
+                      {twoCuspsText(r, locale)}
+                    </span>
+                  ) : null}
                 </td>
-                <td>
-                  <Maybe cell={cuspCell(h, chart)} mono />
+                <td data-col="size">
+                  <Maybe cell={r.size} mono />
+                </td>
+                <td data-col="ruler">
+                  {r.rulers.map((x) => (
+                    <span key={x.id} className={cn("ulune-ruler", x.traditional && "is-trad")} data-ruler={x.id}>
+                      <GlyphPick id={x.id} onSelect={onSelect} size={13} />
+                      <span>
+                        {x.text}
+                        {x.traditional ? <span className="text-fg-muted"> · {housesWord(locale, "traditional")}</span> : null}
+                      </span>
+                    </span>
+                  ))}
+                </td>
+                <td data-col="inside">
+                  {r.inside.length ? (
+                    <span className="ulune-glyph-picks" data-testid={`inside-${h.id}`}>
+                      {r.inside.map((b) => (
+                        <GlyphPick key={b} id={b} onSelect={onSelect} size={16} />
+                      ))}
+                    </span>
+                  ) : null}
                 </td>
               </tr>
             );
@@ -350,6 +436,19 @@ function HousesPart({
     </>
   );
 }
+
+/** A check box with its words, in a part's tools. */
+function ToolCheck({ checked, onChange, testId, children }: { checked: boolean; onChange: (on: boolean) => void; testId: string; children: ReactNode }) {
+  return (
+    <label className="ulune-tool-check">
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} data-testid={testId} />
+      {children}
+    </label>
+  );
+}
+
+/** The aspects' filters and sort, kept for the visit only (in memory, never stored). */
+let aspectOptions: AspectOptions = DEFAULT_ASPECT_OPTIONS;
 
 function AspectsPart({
   chart,
@@ -362,54 +461,187 @@ function AspectsPart({
 }) {
   const { locale, t } = useI18n();
   const unknown = chart.meta.timeUnknown === true;
-  const rows = useMemo(() => chart.aspects.map((a) => aspectRow(a, chart, locale)), [chart, locale]);
+  const [opts, setOptsState] = useState<AspectOptions>(aspectOptions);
+  const setOpts = (next: AspectOptions) => {
+    aspectOptions = next;
+    setOptsState(next);
+  };
+  const { rows, total, shown, folded } = useMemo(() => aspectTableRows(chart, locale, opts), [chart, locale, opts]);
+  const parallels = useMemo(() => parallelRows(chart, opts), [chart, opts]);
+  const decl = unknown ? formatSignedDms : formatSignedDmsSeconds;
+  const count = [
+    shown === total ? aspectsWord(locale, "countAll", { total: String(total) }) : aspectsWord(locale, "countSome", { shown: String(shown), total: String(total) }),
+    folded === 1 ? aspectsWord(locale, "foldedOne") : folded > 1 ? aspectsWord(locale, "folded", { n: String(folded) }) : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const sorts: AspectSort[] = ["orb", "body", "aspect"];
+  const sortWord = { orb: "sortOrb", body: "sortBody", aspect: "sortAspect" } as const;
   return (
     <>
       {unknown ? <UnknownNote>{unknownTimeNote(locale, "aspects")}</UnknownNote> : null}
-      <DataTable stickyFirst={false}>
-        <thead>
-          <tr>
-            <th>{t("tablePair")}</th>
-            <th>{t("tableType")}</th>
-            <th>{t("tableLevel")}</th>
-            <th>{t("tableOrb")}</th>
-            <th>{t("tableAppSep")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => {
-            const a = r.aspect;
-            const on = selectedId === `aspect:${a.id}`;
-            return (
-              <tr
-                key={a.id}
-                data-aspect={a.id}
-                data-selected={on ? "1" : undefined}
-                data-uncertain={r.uncertain ? "1" : undefined}
-                className={cn(onSelect && "cursor-pointer")}
-                onClick={() => onSelect?.(`aspect:${a.id}`)}
-                {...previewProps(`aspect:${a.id}`)}
-              >
-                <td>
-                  <button type="button" className="ulune-row-pick" aria-pressed={on}>
-                    {r.uncertain ? "~" : ""}
-                    {r.pair}
-                  </button>
-                </td>
-                <td>
-                  <span className="inline-flex items-center gap-1.5">
-                    <AspectGlyph id={a.type} size={12} />
-                    {r.type}
-                  </span>
-                </td>
-                <td>{r.level}</td>
-                <td className="font-mono">{r.orb}</td>
-                <td>{r.phase}</td>
+      <div className="ulune-part-tools" data-testid="aspects-tools">
+        <span className="ulune-tool-sort">
+          <span className="ulune-tool-label" aria-hidden>
+            {aspectsWord(locale, "sort")}
+          </span>
+          <SegmentedToggle
+            ariaLabel={aspectsWord(locale, "sort")}
+            value={opts.sort}
+            onChange={(sort) => setOpts({ ...opts, sort })}
+            options={sorts.map((id) => ({ value: id, testId: `aspects-sort-${id}`, label: aspectsWord(locale, sortWord[id]) }))}
+          />
+        </span>
+        <ToolCheck checked={opts.minors} onChange={(minors) => setOpts({ ...opts, minors })} testId="aspects-minors">
+          {aspectsWord(locale, "minors")}
+        </ToolCheck>
+        <ToolCheck checked={opts.angles} onChange={(angles) => setOpts({ ...opts, angles })} testId="aspects-angles">
+          {aspectsWord(locale, "angles")}
+        </ToolCheck>
+        <ToolCheck checked={opts.unfold} onChange={(unfold) => setOpts({ ...opts, unfold })} testId="aspects-unfold">
+          {aspectsWord(locale, "unfold")}
+        </ToolCheck>
+      </div>
+      <p className="ulune-part-count" data-testid="aspects-count" aria-live="polite">
+        {count}
+      </p>
+      {rows.length ? (
+        <DataTable className="ulune-aspects" stickyFirst={false}>
+          <thead>
+            <tr>
+              <th data-col="pair">{aspectsWord(locale, "pair")}</th>
+              <th data-col="aspect">{aspectsWord(locale, "aspect")}</th>
+              <th data-col="orb">{aspectsWord(locale, "orb")}</th>
+              <th data-col="phase">{aspectsWord(locale, "phase")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => {
+              const a = r.aspect;
+              const id = `aspect:${a.id}`;
+              const on = selectedId === id;
+              const notes = [r.minor ? t("tableAspectMinor") : "", r.outOfSign ? cellText(r.outOfSign) : ""].filter(Boolean);
+              return (
+                <tr
+                  key={a.id}
+                  data-aspect={a.id}
+                  data-selected={on ? "1" : undefined}
+                  data-uncertain={r.uncertain ? "1" : undefined}
+                  data-minor={r.minor ? "1" : undefined}
+                  data-out-of-sign={r.outOfSign ? "1" : undefined}
+                  className={cn(onSelect && "cursor-pointer")}
+                  onClick={() => onSelect?.(id)}
+                  {...previewProps(id)}
+                >
+                  <td data-col="pair">
+                    <button type="button" className="ulune-row-pick" aria-pressed={on}>
+                      <span className={cn("ulune-pair", r.uncertain && "ulune-uncertain")}>
+                        {r.uncertain ? "~" : ""}
+                        <PlanetGlyph id={a.a} size={13} />
+                        {bodyBare(a.a, locale)}
+                        <span className="text-fg-subtle" aria-hidden>
+                          ·
+                        </span>
+                        <PlanetGlyph id={a.b} size={13} />
+                        {bodyBare(a.b, locale)}
+                      </span>
+                    </button>
+                    {r.twins.length ? (
+                      <span className="ulune-cell-sub" data-testid="aspect-mirror">
+                        {aspectsWord(locale, "also", { list: r.twins.map((x) => aspectPhrase(x, locale)).join(", ") })}
+                      </span>
+                    ) : null}
+                  </td>
+                  <td data-col="aspect">
+                    <span className="inline-flex items-center gap-1.5">
+                      <AspectGlyph id={a.type} size={15} />
+                      {r.type}
+                    </span>
+                    {notes.length ? <span className="ulune-cell-sub">{notes.join(" · ")}</span> : null}
+                  </td>
+                  <td data-col="orb">
+                    <span className="whitespace-nowrap">
+                      <span className="font-mono">{r.orb}</span>{" "}
+                      <span className="ulune-orb-of">{aspectsWord(locale, "ofAllowed", { allowed: r.allowed })}</span>
+                    </span>
+                    <span className="ulune-strength" aria-hidden>
+                      <span style={{ width: `${Math.round(r.strength * 100)}%` }} />
+                    </span>
+                  </td>
+                  <td data-col="phase">{r.phase}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </DataTable>
+      ) : (
+        <p className="text-sm text-fg-muted" data-testid="aspects-none">
+          {aspectsWord(locale, "none")}
+        </p>
+      )}
+
+      <div className="ulune-subpart" data-testid="table-parallels">
+        <h3 className="ulune-subpart-h">{aspectsWord(locale, "parallelsHead")}</h3>
+        <p className="ulune-tpart-hint">{aspectsWord(locale, "parallelsHint")}</p>
+        {unknown ? <UnknownNote>{aspectsWord(locale, "parallelsUnknown")}</UnknownNote> : null}
+        {parallels.length ? (
+          <DataTable className="ulune-aspects ulune-parallels" stickyFirst={false}>
+            <thead>
+              <tr>
+                <th data-col="pair">{aspectsWord(locale, "pair")}</th>
+                <th data-col="aspect">{aspectsWord(locale, "aspect")}</th>
+                <th data-col="orb">{aspectsWord(locale, "orb")}</th>
+                <th data-col="declinations">{aspectsWord(locale, "declinations")}</th>
               </tr>
-            );
-          })}
-        </tbody>
-      </DataTable>
+            </thead>
+            <tbody>
+              {parallels.map((p) => (
+                <tr key={p.id} data-parallel={p.id} data-kind={p.kind} data-uncertain={p.uncertain ? "1" : undefined}>
+                  <td data-col="pair">
+                    <span className={cn("ulune-pair", p.uncertain && "ulune-uncertain")}>
+                      {p.uncertain ? "~" : ""}
+                      <GlyphPick id={p.a} onSelect={onSelect} size={13} />
+                      {bodyBare(p.a, locale)}
+                      <span className="text-fg-subtle" aria-hidden>
+                        ·
+                      </span>
+                      <GlyphPick id={p.b} onSelect={onSelect} size={13} />
+                      {bodyBare(p.b, locale)}
+                    </span>
+                    {p.twins.length ? (
+                      <span className="ulune-cell-sub" data-testid="parallel-mirror">
+                        {aspectsWord(locale, "also", { list: p.twins.map((x) => parallelPhrase(x, locale)).join(", ") })}
+                      </span>
+                    ) : null}
+                  </td>
+                  <td data-col="aspect">
+                    <span className="inline-flex items-center gap-1.5">
+                      <ParallelGlyph kind={p.kind} size={13} />
+                      {aspectsWord(locale, p.kind === "parallel" ? "parallelTitle" : "contraTitle")}
+                    </span>
+                  </td>
+                  <td data-col="orb">
+                    <span className="whitespace-nowrap">
+                      <span className="font-mono">{formatArc(p.orb)}</span>{" "}
+                      <span className="ulune-orb-of">{aspectsWord(locale, "ofAllowed", { allowed: allowedText(PARALLEL_ORB) })}</span>
+                    </span>
+                    <span className="ulune-strength" aria-hidden>
+                      <span style={{ width: `${Math.round((1 - p.orb / PARALLEL_ORB) * 100)}%` }} />
+                    </span>
+                  </td>
+                  <td data-col="declinations" className="font-mono whitespace-nowrap">
+                    {decl(p.declA)} / {decl(p.declB)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        ) : (
+          <p className="text-sm text-fg-muted" data-testid="parallels-none">
+            {aspectsWord(locale, "noParallels")}
+          </p>
+        )}
+      </div>
     </>
   );
 }
@@ -563,7 +795,11 @@ function BarGroup({ group }: { group: BalanceGroup }) {
   );
 }
 
-/** The classic triangular aspectarian: one cell per pair, tap to read it. */
+/**
+ * The classic triangular aspectarian: one cell per pair with its orb and A
+ * (applying) or S (separating); tap to read it. The switch fills the other
+ * triangle with the parallels and contra-parallels.
+ */
 function AspectGrid({
   chart,
   selectedId,
@@ -574,6 +810,7 @@ function AspectGrid({
   onSelect?: (id: string) => void;
 }) {
   const { locale, t } = useI18n();
+  const [showParallels, setShowParallels] = useState(false);
   const CORE = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto", "chiron", "northnode"];
   const ids = [
     ...chart.planets.filter((p) => CORE.includes(p.id)).map((p) => p.id as string),
@@ -584,40 +821,100 @@ function AspectGrid({
     byPair.set(`${a.a}|${a.b}`, a);
     byPair.set(`${a.b}|${a.a}`, a);
   }
+  const parallels = useMemo(() => {
+    const m = new Map<string, ReturnType<typeof parallelsOf>[number]>();
+    if (!showParallels) return m;
+    for (const p of parallelsOf(chart)) {
+      m.set(`${p.a}|${p.b}`, p);
+      m.set(`${p.b}|${p.a}`, p);
+    }
+    return m;
+  }, [chart, showParallels]);
+  const phaseLetter = (applying: boolean | null) =>
+    applying === true ? gridWord(locale, "applyingShort") : applying === false ? gridWord(locale, "separatingShort") : "";
+  const orbParts = (orb: number) => {
+    const text = formatArc(orb);
+    return { main: text.replace(/'$/, ""), min: text.endsWith("'") ? "'" : "" };
+  };
   return (
-    <div className="ob-agrid-wrap" data-testid="aspect-grid">
-      <table className="ob-agrid" aria-label={t("tableGrid")}>
-        <tbody>
-          {ids.map((row, r) => (
-            <tr key={row}>
-              {ids.slice(0, r).map((col) => {
-                const a = byPair.get(`${row}|${col}`);
-                if (!a) return <td key={col} />;
-                const id = `aspect:${a.id}`;
-                const maybe = !aspectHolds(chart, a) ? "~" : "";
-                return (
-                  <td key={col} data-on={selectedId === id ? "1" : undefined} data-level={a.level} data-uncertain={maybe ? "1" : undefined}>
-                    <button
-                      type="button"
-                      onClick={() => onSelect?.(id)}
-                      {...previewProps(id)}
-                      aria-label={`${maybe}${bodyLabel(a.a, locale)} ${aspectName(a.type, locale)} ${bodyLabel(a.b, locale)}, ${formatArc(a.orb)}`}
-                      title={`${maybe}${aspectName(a.type, locale)} · ${formatArc(a.orb)}`}
-                    >
-                      <AspectGlyph id={a.type} size={12} />
-                    </button>
-                  </td>
-                );
-              })}
-              <th scope="row" className="ob-agrid-diag" title={bodyLabel(row, locale)}>
-                <PlanetGlyph id={row} size={13} />
-                <span className="sr-only">{bodyLabel(row, locale)}</span>
-              </th>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <div className="ulune-part-tools">
+        <ToolCheck checked={showParallels} onChange={setShowParallels} testId="grid-parallels">
+          {gridWord(locale, "parallels")}
+        </ToolCheck>
+      </div>
+      <div className="ob-agrid-wrap" data-testid="aspect-grid">
+        <table
+          className="ob-agrid"
+          aria-label={t("tableGrid")}
+          data-parallels={showParallels ? "1" : undefined}
+          style={{ "--agrid-n": ids.length } as CSSProperties}
+        >
+          <tbody>
+            {ids.map((row, r) => (
+              <tr key={row}>
+                {ids.slice(0, r).map((col) => {
+                  const a = byPair.get(`${row}|${col}`);
+                  if (!a) return <td key={col} />;
+                  const id = `aspect:${a.id}`;
+                  const maybe = !aspectHolds(chart, a) ? "~" : "";
+                  const orb = orbParts(a.orb);
+                  const letter = phaseLetter(a.applying);
+                  const phase = a.applying === true ? t("applying") : a.applying === false ? t("separating") : "";
+                  return (
+                    <td key={col} data-on={selectedId === id ? "1" : undefined} data-level={a.level} data-uncertain={maybe ? "1" : undefined}>
+                      <button
+                        type="button"
+                        onClick={() => onSelect?.(id)}
+                        {...previewProps(id)}
+                        aria-label={`${maybe}${bodyLabel(a.a, locale)} ${aspectName(a.type, locale)} ${bodyLabel(a.b, locale)}, ${formatArc(a.orb)}${phase ? `, ${phase}` : ""}`}
+                        title={`${maybe}${aspectName(a.type, locale)} · ${formatArc(a.orb)}${phase ? ` · ${phase}` : ""}`}
+                      >
+                        <AspectGlyph id={a.type} size={19} />
+                        <span className="ob-agrid-orb" aria-hidden>
+                          {maybe}
+                          {orb.main}
+                          <span className="ob-agrid-wide">{orb.min}</span>
+                          {letter ? <span className="ob-agrid-wide ob-agrid-as"> {letter}</span> : null}
+                        </span>
+                      </button>
+                    </td>
+                  );
+                })}
+                <th scope="row" className="ob-agrid-diag" title={bodyLabel(row, locale)}>
+                  <PlanetGlyph id={row} size={18} />
+                  <span className="sr-only">{bodyLabel(row, locale)}</span>
+                </th>
+                {showParallels
+                  ? ids.slice(r + 1).map((col) => {
+                      const p = parallels.get(`${row}|${col}`);
+                      if (!p) return <td key={col} className="ob-agrid-par" />;
+                      const orb = orbParts(p.orb);
+                      const words = `${p.uncertain ? "~" : ""}${parallelPhrase(p, locale)}, ${formatArc(p.orb)}`;
+                      return (
+                        <td key={col} className="ob-agrid-par" data-kind={p.kind} data-uncertain={p.uncertain ? "1" : undefined}>
+                          <span className="ob-agrid-cell" role="img" aria-label={words} title={words}>
+                            <ParallelGlyph kind={p.kind} size={14} />
+                            <span className="ob-agrid-orb" aria-hidden>
+                              {p.uncertain ? "~" : ""}
+                              {orb.main}
+                              <span className="ob-agrid-wide">{orb.min}</span>
+                            </span>
+                          </span>
+                        </td>
+                      );
+                    })
+                  : null}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="ob-agrid-legend" data-testid="grid-legend">
+        {gridWord(locale, "legendPhase")}
+        {showParallels ? ` · ${gridWord(locale, "legendParallels")}` : ""}
+      </p>
+    </>
   );
 }
 

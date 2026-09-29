@@ -193,6 +193,39 @@ export function membersHold(chart: NatalChart, members: readonly BodyId[]): bool
   return chart.aspects.every((a) => !(set.has(a.a) && set.has(a.b)) || aspectHolds(chart, a));
 }
 
+/** A point's declination over the birth day, from the cast's day ends (meta.dayDecl); null when it hangs on the time. */
+function declSpan(chart: NatalChart, p: Placement, noon: number): DaySpan | null {
+  if (p.uncertain) return null;
+  const ends = chart.meta.dayDecl?.[p.id as keyof NonNullable<NatalChart["meta"]["dayDecl"]>];
+  return ends ? { start: ends[0], noon, end: ends[1] } : null;
+}
+
+/**
+ * A parallel (or contra-parallel) within 1° holds all day: neither
+ * declination crosses the equator (which would turn one kind into the
+ * other), and the difference of their sizes stays within 1° from the day's
+ * start to its end. Declinations too follow a parabola through their three
+ * known values.
+ */
+export function parallelHolds(chart: NatalChart, a: Placement, b: Placement, declA: number, declB: number, orb = 1): boolean {
+  if (!timeUnknown(chart)) return true;
+  const sa = declSpan(chart, a, declA);
+  const sb = declSpan(chart, b, declB);
+  if (!sa || !sb) return false;
+  const [aLo, aHi] = extent(sa, strayOf(a.id).place);
+  const [bLo, bHi] = extent(sb, strayOf(b.id).place);
+  if ((aLo <= 0 && aHi >= 0) || (bLo <= 0 && bHi >= 0)) return false;
+  const ka = Math.sign(sa.noon);
+  const kb = Math.sign(sb.noon);
+  const d: DaySpan = {
+    start: ka * sa.start - kb * sb.start,
+    noon: ka * sa.noon - kb * sb.noon,
+    end: ka * sa.end - kb * sb.end,
+  };
+  const [lo, hi] = extent(d, strayOf(a.id).place + strayOf(b.id).place);
+  return lo >= -orb && hi <= orb;
+}
+
 /** Every body weighing in the elements, modes and polarity stays in its sign all day. */
 export function signsHold(chart: NatalChart, ids: readonly BodyId[]): boolean {
   if (!timeUnknown(chart)) return true;

@@ -5,11 +5,19 @@
  * CSV keeps full decimals for other programs.
  */
 import { hydratePatterns } from "./patterns";
-import { CLASSIC_BODIES } from "./constants";
+import { aspectOrb, CLASSIC_BODIES } from "./constants";
 import { isRough, signsHold } from "./day-checks";
 import {
-  aspectRow,
-  aspectRowText,
+  aspectTableRow,
+  aspectTableRows,
+  aspectTableRowText,
+  isOutOfSign,
+  parallelRows,
+  parallelRowText,
+  parallelsOf,
+  twinGroups,
+} from "./table-aspects";
+import {
   balanceGroups,
   balanceGroupText,
   cellText,
@@ -18,19 +26,19 @@ import {
   chartPoints,
   groupedPoints,
   hasLatitude,
-  houseLine,
   patternSections,
   pointRow,
   pointRowText,
   rankingFacts,
   type PointRow,
 } from "./table-cells";
-import { armcOf, localSiderealHours, moonPhase, nearestAngle, outOfBoundsBy, separation } from "./table-facts";
+import { armcOf, declinationOf, localSiderealHours, moonPhase, nearestAngle, outOfBoundsBy, separation } from "./table-facts";
+import { houseRows, houseRowText } from "./table-houses";
 import type { NatalChart } from "./types";
 import { bodyBare } from "@/lib/i18n/astro";
 import { translate, type AppLocale } from "@/lib/i18n/messages";
-import { pointsGroupLabel, pointsText, tablePartLabel, unknownTimeNote } from "@/lib/i18n/table-ui";
-import { formatDegreeSeconds, formatHms } from "@/lib/utils";
+import { aspectsWord, pointsGroupLabel, pointsText, tablePartLabel, unknownTimeNote } from "@/lib/i18n/table-ui";
+import { formatDegreeSeconds, formatHms, formatSignedDms, formatSignedDmsSeconds } from "@/lib/utils";
 
 function csvEscape(value: string): string {
   if (/[",\n]/.test(value)) return `"${value.replaceAll('"', '""')}"`;
@@ -70,11 +78,17 @@ export function chartTextParts(chart: NatalChart, locale: AppLocale): ChartTextP
 
   start("houses");
   if (unknown) push(unknownTimeNote(locale, "houses"));
-  for (const h of chart.houses) push(houseLine(h, chart, locale));
+  for (const r of houseRows(chart, locale)) push(houseRowText(r, locale));
 
   start("aspects");
   if (unknown) push(unknownTimeNote(locale, "aspects"));
-  for (const a of chart.aspects) push(aspectRowText(aspectRow(a, chart, locale), locale));
+  for (const r of aspectTableRows(chart, locale).rows) push(aspectTableRowText(r, locale));
+  push(aspectsWord(locale, "parallelsHead"));
+  if (unknown) push(aspectsWord(locale, "parallelsUnknown"));
+  const parallels = parallelRows(chart);
+  const decl = unknown ? formatSignedDms : formatSignedDmsSeconds;
+  if (parallels.length) for (const p of parallels) push(parallelRowText(p, locale, decl));
+  else push(aspectsWord(locale, "noParallels"));
 
   start("patterns");
   if (unknown) push(unknownTimeNote(locale, "patterns"));
@@ -225,7 +239,7 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): strin
       p.station ? (p.station.direct ? "direct" : "retrograde") : "",
       bit(p.retrograde),
       hasLatitude(p) ? num(p.latitude) : "",
-      num(p.declination),
+      num(declinationOf(p, chart)),
       bit(flag?.oob),
       flag?.oob ? num(outOfBoundsBy(p.declination, chart.meta.obliquity)) : "",
       flag?.dignity ?? "",
@@ -249,14 +263,37 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): strin
   }
 
   add([]);
-  add(["house", "id", "sign", "longitude", "formatted", "uncertain"]);
-  for (const h of chart.houses) {
-    add(["house", String(h.id), h.sign, h.ecliptic.toFixed(6), formatDegreeSeconds(h.ecliptic), bit(unknown)]);
+  add(["house", "id", "sign", "longitude", "formatted", "uncertain", "size", "ruler", "traditionalRuler", "inside", "intercepted", "signOnCusps"]);
+  const wrap = (x: number) => ((x % 360) + 360) % 360;
+  for (const [i, r] of houseRows(chart, locale).entries()) {
+    const h = r.cusp;
+    const next = chart.houses[(i + 1) % chart.houses.length];
+    add([
+      "house",
+      String(h.id),
+      h.sign,
+      h.ecliptic.toFixed(6),
+      formatDegreeSeconds(h.ecliptic),
+      bit(unknown),
+      next ? wrap(next.ecliptic - h.ecliptic).toFixed(6) : "",
+      r.rulers.find((x) => !x.traditional)?.id ?? "",
+      r.rulers.find((x) => x.traditional)?.id ?? "",
+      r.inside.join("|"),
+      r.intercepted.join("|"),
+      r.twoCusps ? r.twoCusps.join("|") : "",
+    ]);
   }
 
   add([]);
-  add(["aspect", "a", "b", "type", "level", "orb", "applying", "uncertain"]);
+  add(["aspect", "a", "b", "type", "level", "orb", "applying", "uncertain", "allowedOrb", "strength", "outOfSign", "mirrorOf"]);
+  const mirrorOf = new Map<string, string>();
+  for (const [head, ...rest] of twinGroups(chart.aspects)) for (const t of rest) if (head) mirrorOf.set(t.id, head.id);
+  const lonOf = new Map(chartPoints(chart).map((p) => [p.id as string, p.ecliptic]));
   for (const a of chart.aspects) {
+    const row = aspectTableRow(a, chart, locale);
+    const la = lonOf.get(a.a);
+    const lb = lonOf.get(a.b);
+    const out = la != null && lb != null ? isOutOfSign(a.type, la, lb) : null;
     add([
       "aspect",
       a.a,
@@ -265,8 +302,18 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): strin
       a.level,
       a.orb.toFixed(4),
       a.applying === true ? "applying" : a.applying === false ? "separating" : "",
-      bit(aspectRow(a, chart, locale).uncertain),
+      bit(row.uncertain),
+      String(aspectOrb(a.type, a.a, a.b)),
+      row.strength.toFixed(4),
+      out == null ? "" : bit(out),
+      mirrorOf.get(a.id) ?? "",
     ]);
+  }
+
+  add([]);
+  add(["parallel", "a", "b", "kind", "orb", "declinationA", "declinationB", "uncertain"]);
+  for (const p of parallelsOf(chart)) {
+    add(["parallel", p.a, p.b, p.kind === "parallel" ? "parallel" : "contra-parallel", p.orb.toFixed(4), num(p.declA), num(p.declB), bit(p.uncertain)]);
   }
 
   add([]);

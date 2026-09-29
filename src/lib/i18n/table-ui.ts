@@ -53,3 +53,15 @@ export function angleShort(locale: AppLocale, id: keyof typeof source.angleShort
 export function unknownTimeNote(locale: AppLocale, key: keyof typeof source.unknown): string {
   return pick(source.unknown[key], locale);
 }
+
+export function housesWord(locale: AppLocale, key: keyof typeof source.houses, vars?: Record<string, string>): string {
+  return fill(pick(source.houses[key], locale), vars);
+}
+
+export function aspectsWord(locale: AppLocale, key: keyof typeof source.aspects, vars?: Record<string, string>): string {
+  return fill(pick(source.aspects[key], locale), vars);
+}
+
+export function gridWord(locale: AppLocale, key: keyof typeof source.grid): string {
+  return pick(source.grid[key], locale);
+}

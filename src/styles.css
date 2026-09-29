@@ -2430,57 +2430,6 @@ html.light .ulune-wheel [data-cfg-type] {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px 32px;
 }
-.ob-agrid-wrap {
-  overflow: auto;
-  max-width: 100%;
-}
-.ob-agrid {
-  border-collapse: collapse;
-  margin: 0 auto;
-}
-.ob-agrid td,
-.ob-agrid th {
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  border: 1px solid var(--color-border);
-  text-align: center;
-  vertical-align: middle;
-}
-.ob-agrid .ob-agrid-diag {
-  border-color: transparent;
-  color: var(--color-fg-muted);
-  font-weight: 400;
-}
-.ob-agrid td button {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  min-height: 30px;
-  border: 0;
-  background: transparent;
-  color: var(--color-fg);
-  cursor: pointer;
-}
-.ob-agrid td[data-level="minor"] button {
-  color: var(--color-fg-subtle);
-}
-.ob-agrid td button:hover,
-.ob-agrid td[data-on="1"] button {
-  background: var(--color-bg-subtle);
-}
-@media (pointer: coarse) {
-  .ob-agrid td,
-  .ob-agrid th {
-    width: 26px;
-    height: 26px;
-  }
-  .ob-agrid td button {
-    min-height: 26px;
-  }
-}
-
 /* Phones: rows become two-line items; nothing scrolls sideways. */
 @media (max-width: 639.98px) {
   .ulune-table-wrap {

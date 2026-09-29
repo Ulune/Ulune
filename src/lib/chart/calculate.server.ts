@@ -760,10 +760,18 @@ export async function stationNearUtc(
 
 /**
  * Without a birth time: where each cast body stands at the start and at the
- * end of the birth day (the noon stand-in ± 12 hours).
+ * end of the birth day (the noon stand-in ± 12 hours), in longitude and in
+ * declination (for the parallels).
  */
-function dayRangeOf(swe: SwissEPH, ut: number, flag: number, planets: Placement[]): Partial<Record<PlanetId, [number, number]>> {
-  const out: Partial<Record<PlanetId, [number, number]>> = {};
+function dayRangeOf(
+  swe: SwissEPH,
+  ut: number,
+  flag: number,
+  eqFlag: number,
+  planets: Placement[],
+): { lon: Partial<Record<PlanetId, [number, number]>>; decl: Partial<Record<PlanetId, [number, number]>> } {
+  const lon: Partial<Record<PlanetId, [number, number]>> = {};
+  const decl: Partial<Record<PlanetId, [number, number]>> = {};
   const r7 = (x: number) => Math.round(x * 1e7) / 1e7;
   for (const p of planets) {
     const id = p.id as PlanetId;
@@ -772,15 +780,26 @@ function dayRangeOf(swe: SwissEPH, ut: number, flag: number, planets: Placement[
     if (ipl < 0) continue;
     try {
       const lonAt = (t: number) => {
-        const lon = wrap360(Number(calcUt(swe, t, ipl, flag).xx[0]));
-        return id === "southnode" ? wrap360(lon + 180) : lon;
+        const l = wrap360(Number(calcUt(swe, t, ipl, flag).xx[0]));
+        return id === "southnode" ? wrap360(l + 180) : l;
       };
-      out[id] = [r7(lonAt(ut - 0.5)), r7(lonAt(ut + 0.5))];
+      lon[id] = [r7(lonAt(ut - 0.5)), r7(lonAt(ut + 0.5))];
     } catch {
       // A body Swiss could not place at the day's edges is simply left out.
+      continue;
+    }
+    try {
+      const declAt = (t: number) => {
+        const d = Number(calcUt(swe, t, ipl, eqFlag).xx[1]);
+        if (!Number.isFinite(d)) throw new Error("no declination");
+        return id === "southnode" ? -d : d;
+      };
+      decl[id] = [r7(declAt(ut - 0.5)), r7(declAt(ut + 0.5))];
+    } catch {
+      // Without its declination at the edges, its parallels are marked ~.
     }
   }
-  return out;
+  return { lon, decl };
 }
 
 /**
@@ -911,7 +930,7 @@ export async function calculateNatal(input: BirthInput): Promise<NatalChart> {
     return station ? { ...p, station } : p;
   });
   const warnings = collected.warnings;
-  const dayRange = timeUnknown ? dayRangeOf(swe, ut, flag, planets) : undefined;
+  const edges = timeUnknown ? dayRangeOf(swe, ut, flag, eqFlag, planets) : undefined;
 
   const ascEcl = wrap360(Number(houseRaw.ascmc[0]));
   const mcEcl = wrap360(Number(houseRaw.ascmc[1]));
@@ -1004,7 +1023,7 @@ export async function calculateNatal(input: BirthInput): Promise<NatalChart> {
       deltaT: Number((swe.swe_deltat(ut) * 86400).toFixed(2)),
       ...(Number.isFinite(armc) ? { armc } : {}),
       ...(sunAlt != null && Number.isFinite(sunAlt) ? { sunAltitude: sunAlt } : {}),
-      ...(dayRange ? { dayRange } : {}),
+      ...(edges ? { dayRange: edges.lon, dayDecl: edges.decl } : {}),
     },
     angles,
     planets,
