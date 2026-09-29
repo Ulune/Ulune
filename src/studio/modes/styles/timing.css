@@ -1,6 +1,8 @@
 /* The calendar: these styles load with the code that uses them, not with the
    first page (performance plan 1.9). Moved as they were from styles.css. */
+/* No scroll anchoring: the calendar places itself (the phone's year on the current month). */
 .ulune-timing-hero {
+  overflow-anchor: none;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -973,4 +975,26 @@ button.ulune-cal-now-line:hover,
 }
 .ulune-cal-tableview > .ulune-cal-bar {
   padding: var(--space-2) var(--stage-pad) 0;
+}
+/* Colour never alone: the aspect's family in the ring's shape too (the legend shows the same). */
+.ulune-cal-you[data-family="hard"] {
+  border-radius: 4px;
+}
+.ulune-cal-you[data-family="conj"] {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--c) 70%, transparent),
+    0 0 0 1.5px var(--color-bg-elevated),
+    0 0 0 2.5px color-mix(in oklab, var(--c) 60%, transparent);
+}
+.ulune-cal-dot[data-family="hard"] {
+  border-radius: 2px;
+}
+.ulune-cal-dot[data-family="conj"] {
+  box-shadow: 0 0 0 1.5px var(--color-bg), 0 0 0 2.5px var(--aspect-conj);
+}
+/* Reduced motion: a new month appears at once, not cell by cell. */
+@media (prefers-reduced-motion: reduce) {
+  .ulune-cal-cell {
+    animation: none;
+  }
 }

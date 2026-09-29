@@ -93,6 +93,24 @@ for (const lang of ["en", "fr"]) {
     await page.waitForTimeout(200);
     if ((await focused()) !== "account-menu") fail(`the focus went to "${await focused()}" after Escape`);
 
+    // The calendar's month: one Tab stop, the arrows walk the days, Page Down the months.
+    await goStudioPage(page, "timing");
+    await page.getByTestId("calendar-month").waitFor({ timeout: 30000 });
+    const dayStops = await page.evaluate(() => [...document.querySelectorAll("[data-testid^=calendar-day-]")].filter((b) => b.tabIndex === 0).length);
+    if (dayStops !== 1) fail(`the month has ${dayStops} Tab stops, not 1`);
+    await page.locator("[data-testid^=calendar-day-][tabindex='0']").focus();
+    const from = await focused();
+    await page.keyboard.press("ArrowRight");
+    const to = await focused();
+    if (!/^calendar-day-/.test(to) || to === from) fail(`ArrowRight in the month went from ${from} to ${to}`);
+    const caption = await page.getByTestId("timing-caption").innerText();
+    await page.keyboard.press("PageDown");
+    await page.waitForTimeout(600);
+    if ((await page.getByTestId("timing-caption").innerText()) === caption) fail("Page Down did not open the next month");
+    if (!/^calendar-day-/.test(await focused())) fail(`after Page Down the focus is on "${await focused()}"`);
+    await goStudioPage(page, "natal");
+    await clickDockTab(page, "reading");
+
     await page.getByTestId("dock-tab-reading").focus();
     await page.keyboard.press("ArrowRight");
     const dock = await page.evaluate(() => ({

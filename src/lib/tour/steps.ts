@@ -89,8 +89,8 @@ export const TOUR_STEPS: readonly TourStep[] = [
     targets: ['[data-testid="studio-nav"]'],
     title: ["Time, Pair and Systems", "Temps, Duo et Systèmes"],
     body: [
-      "They use this chart too: today’s transits, a second person, Human Design and numerology.",
-      "Ils partent aussi de ce thème : les transits du jour, une deuxième personne, le Human Design et la numérologie.",
+      "They use this chart too: today’s transits and a calendar of the sky, a second person, Human Design and numerology.",
+      "Ils partent aussi de ce thème : les transits du jour et un calendrier du ciel, une deuxième personne, le Human Design et la numérologie.",
     ],
   },
   {

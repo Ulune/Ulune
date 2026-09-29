@@ -2,11 +2,14 @@
  * Ulune kept on this device (performance plan 1.14). Installed only when the
  * visitor says yes (src/lib/offline.ts); until then there is none.
  *
- * It keeps the app's own files and nothing else: server calls, sign-in and
- * every other request go to the network untouched, and nothing is sent
- * anywhere.
+ * It keeps the app's own files and the sky of the dates opened, nothing else:
+ * server calls, sign-in and every other request go to the network untouched,
+ * and nothing is sent anywhere.
  *   - /assets/*: the app's code, styles and fonts. Their names change with
  *     their content, so a copy never goes stale: from the device once fetched.
+ *   - The sky's files (/api/sky-window, /api/sky-year): the same for
+ *     everyone, asked for by date and version only, never changing for a
+ *     given address; kept so the calendar's months open offline.
  *   - The studio's page ("/"): from the network as always, and the last copy
  *     is kept, so saved charts still open without a connection. It is the same
  *     page for everyone; no other page (sign-in above all) is ever kept.
@@ -15,8 +18,10 @@
  */
 const FILES = "ulune-files-v1";
 const PAGES = "ulune-pages-v1";
+const SKY = "ulune-sky-v1";
 const MAX_FILES = 300;
 const MAX_PAGES = 12;
+const MAX_SKY = 120;
 
 self.addEventListener("install", () => {
   self.skipWaiting();
@@ -25,7 +30,7 @@ self.addEventListener("install", () => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
-      const keep = new Set([FILES, PAGES]);
+      const keep = new Set([FILES, PAGES, SKY]);
       for (const key of await caches.keys()) {
         // Legacy names: the caches from before the name Ulune went too.
         if ((key.startsWith("ulune-") || key.startsWith("orbis-")) && !keep.has(key)) await caches.delete(key);
@@ -44,18 +49,22 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(file(req, event));
     return;
   }
+  if (url.pathname === "/api/sky-window" || url.pathname === "/api/sky-year") {
+    event.respondWith(file(req, event, SKY, MAX_SKY));
+    return;
+  }
   // Only the studio's page; every other page (sign-in, callbacks) is left
   // to the browser, as if there were no worker.
   if (req.mode === "navigate" && url.pathname === "/") event.respondWith(page(req, event));
 });
 
-async function file(req, event) {
-  const cache = await caches.open(FILES);
+async function file(req, event, name = FILES, max = MAX_FILES) {
+  const cache = await caches.open(name);
   const hit = await cache.match(req);
   if (hit) return hit;
   const res = await fetch(req);
   if (res.ok && res.type === "basic") {
-    event.waitUntil(cache.put(req, res.clone()).then(() => trim(cache, MAX_FILES)));
+    event.waitUntil(cache.put(req, res.clone()).then(() => trim(cache, max)));
   }
   return res;
 }

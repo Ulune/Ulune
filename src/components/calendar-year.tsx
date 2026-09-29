@@ -242,8 +242,10 @@ function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelec
   const f = useFormats(tz);
   const { locale } = f;
   const shownTransits = headlineTransits(layout.transits, 99);
-  // On a phone the year opens on the current month (the stage scrolls, not the page).
+  // On a phone the year opens on the current month (the stage scrolls, not the page), and
+  // stays on it while the year's sky and your transits arrive, until the reader scrolls.
   const list = useRef<HTMLOListElement>(null);
+  const placed = useRef<{ year: number; top: number } | null>(null);
   useEffect(() => {
     const el = list.current;
     if (!el || getComputedStyle(el).display === "none") return;
@@ -251,8 +253,11 @@ function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelec
     let box: HTMLElement | null = el.parentElement;
     while (box && !/(auto|scroll)/.test(getComputedStyle(box).overflowY)) box = box.parentElement;
     if (!card || !box) return;
+    const last = placed.current;
+    if (last && last.year === layout.year && Math.abs(box.scrollTop - last.top) > 2) return;
     box.scrollTop += card.getBoundingClientRect().top - box.getBoundingClientRect().top - 8;
-  }, [layout.year]);
+    placed.current = { year: layout.year, top: box.scrollTop };
+  }, [layout.year, layout.transits.length, layout.phases.length, layout.stations.length]);
   return (
     <ol ref={list} className="ulune-cal-months" data-testid="calendar-year-months">
       {layout.months.slice(0, 12).map((m, i) => {

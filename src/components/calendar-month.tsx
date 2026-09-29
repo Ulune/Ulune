@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, type KeyboardEvent } from "react";
 import { SignMark, SkyEventIcon } from "@/components/calendar-icons";
 import { PlanetGlyph } from "@/components/glyphs";
 import { MoonGlyph } from "@/components/moon-glyph";
@@ -13,6 +13,9 @@ import { dateFormat } from "@/lib/intl-cache";
 import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
 import { cn } from "@/lib/utils";
+
+/** Colour never alone: a joining ring is doubled, a tense one squared, a flowing one round. */
+const FAMILY: Record<string, string> = { conjunction: "conj", trine: "soft", sextile: "soft", square: "hard", opposition: "hard" };
 
 const WEEKDAYS = {
   en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -37,6 +40,7 @@ export function CalendarMonth({
   selectedDay,
   todayKey,
   onPickDay,
+  onShiftMonth,
 }: {
   civil: CivilDate;
   tz: string;
@@ -48,6 +52,8 @@ export function CalendarMonth({
   selectedDay: string | null;
   todayKey: string;
   onPickDay: (day: CivilDate) => void;
+  /** Page Up / Page Down: the previous or next month. */
+  onShiftMonth?: (dir: 1 | -1) => void;
 }) {
   const { locale } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
@@ -84,6 +90,37 @@ export function CalendarMonth({
   while (cells.length % 7 !== 0) cells.push(null);
 
   const dayName = dateFormat(loc, { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" });
+  // One Tab stop for the month (the chosen day, else today, else the 1st); the arrows walk the days,
+  // Home and End the week, Page Up and Page Down the months.
+  const grid = useRef<HTMLDivElement>(null);
+  // After Page Up / Page Down the focus follows into the new month.
+  const refocus = useRef(false);
+  useEffect(() => {
+    if (!refocus.current) return;
+    refocus.current = false;
+    grid.current?.querySelector<HTMLElement>('[tabindex="0"]')?.focus();
+  }, [civil.year, civil.month]);
+  const inMonth = (key: string | null) => (key && key.startsWith(`${civil.year}-${String(civil.month).padStart(2, "0")}-`) ? key : null);
+  const stop = inMonth(selectedDay) ?? inMonth(todayKey) ?? civilKey(first);
+  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>("[data-day]");
+    if (!btn) return;
+    const day = Number(btn.dataset.day);
+    const step: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
+    let next = day;
+    if (e.key in step) next = day + step[e.key]!;
+    else if (e.key === "Home") next = day - ((pad + day - 1) % 7);
+    else if (e.key === "End") next = day + (6 - ((pad + day - 1) % 7));
+    else if ((e.key === "PageUp" || e.key === "PageDown") && onShiftMonth) {
+      e.preventDefault();
+      refocus.current = true;
+      onShiftMonth(e.key === "PageUp" ? -1 : 1);
+      return;
+    } else return;
+    e.preventDefault();
+    next = Math.min(count, Math.max(1, next));
+    grid.current?.querySelector<HTMLElement>(`[data-day="${next}"]`)?.focus();
+  };
   const time = (ms: number) => dateFormat(loc, { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(ms));
 
   return (
@@ -93,7 +130,7 @@ export function CalendarMonth({
           <span key={d}>{d}</span>
         ))}
       </div>
-      <div className="ulune-cal-grid" role="group">
+      <div ref={grid} className="ulune-cal-grid" role="group" aria-label={dateFormat(loc, { timeZone: "UTC", month: "long", year: "numeric" }).format(Date.UTC(civil.year, civil.month - 1, 1, 12))} onKeyDown={onKey}>
         {cells.map((date, i) => {
           if (!date) return <span key={`e-${i}`} className="ulune-cal-cell is-empty" aria-hidden />;
           const key = civilKey(date);
@@ -136,6 +173,8 @@ export function CalendarMonth({
               key={key}
               type="button"
               data-testid={`calendar-day-${key}`}
+              data-day={date.day}
+              tabIndex={key === stop ? 0 : -1}
               data-mine={mine.length}
               data-sky={heads.length}
               aria-label={label}
@@ -168,7 +207,7 @@ export function CalendarMonth({
               {mine.length ? (
                 <span className="ulune-cal-yours" aria-hidden>
                   {mine.slice(0, 4).map((h) => (
-                    <span key={h.id} className="ulune-cal-you" style={{ ["--c" as string]: ASPECT_COLOR[h.type] }}>
+                    <span key={h.id} className="ulune-cal-you" data-family={FAMILY[h.type] ?? "minor"} style={{ ["--c" as string]: ASPECT_COLOR[h.type] }}>
                       <PlanetGlyph id={h.moving} size={12} />
                     </span>
                   ))}
@@ -210,9 +249,9 @@ export function CalendarLegend() {
         {pick(l.station, locale)}
       </span>
       <span>
-        {pick(l.yours, locale)} <i className="ulune-cal-dot" style={{ background: "var(--aspect-conj)" }} /> {pick(l.conj, locale)}{" "}
-        <i className="ulune-cal-dot" style={{ background: "var(--aspect-soft)" }} /> {pick(l.soft, locale)}{" "}
-        <i className="ulune-cal-dot" style={{ background: "var(--aspect-hard)" }} /> {pick(l.hard, locale)}
+        {pick(l.yours, locale)} <i className="ulune-cal-dot" data-family="conj" style={{ background: "var(--aspect-conj)" }} /> {pick(l.conj, locale)}{" "}
+        <i className="ulune-cal-dot" data-family="soft" style={{ background: "var(--aspect-soft)" }} /> {pick(l.soft, locale)}{" "}
+        <i className="ulune-cal-dot" data-family="hard" style={{ background: "var(--aspect-hard)" }} /> {pick(l.hard, locale)}
       </span>
     </p>
   );

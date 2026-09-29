@@ -92,6 +92,7 @@ function TimingFigure() {
             selectedDay={selectedId?.startsWith("day:") ? selectedId.slice(4) : null}
             todayKey={timing.todayKey}
             onPickDay={timing.pickDay}
+            onShiftMonth={timing.shift}
           />
           <CalendarLegend />
         </>

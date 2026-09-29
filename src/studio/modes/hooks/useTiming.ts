@@ -233,11 +233,11 @@ export function useTiming() {
     [hits, needed, tz],
   );
 
-  // Readings come with the reading text (its own download).
-  const astro = usePack("astro", locale, enabled);
+  // Readings come with the calendar's reading text (its own download).
+  const texts = usePack("cal", locale, enabled);
   const reading = useMemo<ElementReading | null>(() => {
-    if (!chart || !astro || !selectedId) return null;
-    const { calendarDayReading, moonDayReading, skyEventReading, timingBodyReading, timingExactReading, windowReading } = astro;
+    if (!chart || !texts || !selectedId) return null;
+    const { calendarDayReading, moonDayReading, skyEventReading, timingBodyReading, timingExactReading, windowReading } = texts;
     const dayReading = (key: string) => {
       const parsed = parseCivilKey(key);
       return parsed ? calendarDayReading(overviewOf(parsed), civilKey(parsed), locale, tz, nowMs) : null;
@@ -271,7 +271,7 @@ export function useTiming() {
       );
     }
     return null;
-  }, [selectedId, chart, locale, nowMs, tz, scoped, astro, events, nowEvents, allEvents, allHits, allWindows, overviewOf]);
+  }, [selectedId, chart, locale, nowMs, tz, scoped, texts, events, nowEvents, allEvents, allHits, allWindows, overviewOf]);
 
   const pickHit = useCallback((hit: TimingHit) => pick(`timing:${hit.id}`), [pick]);
 

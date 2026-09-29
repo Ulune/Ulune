@@ -125,5 +125,6 @@ export function ReadingTab() {
 function packKindOf(page: StudioPage): PackKind {
   if (page === "design") return "hd";
   if (page === "numerology") return "num";
+  if (page === "timing") return "cal";
   return "astro";
 }

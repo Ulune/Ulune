@@ -12,7 +12,8 @@ import type { AppLocale } from "@/lib/i18n/messages";
 export type AstroPack = typeof import("./pack-astro");
 export type HdPack = typeof import("./pack-hd");
 export type NumPack = typeof import("./pack-num");
-type Packs = { astro: AstroPack; hd: HdPack; num: NumPack };
+export type CalPack = typeof import("./pack-cal");
+type Packs = { astro: AstroPack; hd: HdPack; num: NumPack; cal: CalPack };
 export type PackKind = keyof Packs;
 
 /** The language variants have no types of their own: they are the pack's. */
@@ -30,6 +31,10 @@ const LOADERS: { [K in PackKind]: Record<AppLocale, () => Promise<Packs[K]>> } =
   num: {
     en: () => as<NumPack>(import("@/lib/content/pack-num?lang=en")),
     fr: () => as<NumPack>(import("@/lib/content/pack-num?lang=fr")),
+  },
+  cal: {
+    en: () => as<CalPack>(import("@/lib/content/pack-cal?lang=en")),
+    fr: () => as<CalPack>(import("@/lib/content/pack-cal?lang=fr")),
   },
 };
 

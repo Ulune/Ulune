@@ -65,13 +65,13 @@ export const account = {
     "Garder Ulune sur cet appareil",
   ],
   dataOfflineHint: [
-    " — it opens without waiting, and saved charts open offline. Only the app’s own files are kept.",
-    " — il s’ouvre sans attendre, et les thèmes enregistrés s’ouvrent hors ligne. Seuls les fichiers de l’app sont gardés.",
+    " — it opens without waiting, and saved charts and the calendar’s months you opened work offline. Only the app’s own files and the sky of those dates (the same for everyone) are kept.",
+    " — il s’ouvre sans attendre, et les thèmes enregistrés et les mois du calendrier déjà ouverts marchent hors ligne. Seuls les fichiers de l’app et le ciel de ces dates (le même pour tous) sont gardés.",
   ],
   offlineOfferTitle: ["Keep Ulune on this device?", "Garder Ulune sur cet appareil ?"],
   offlineOfferBody: [
-    "It then opens without waiting, and your saved charts open even without a connection. Only the app’s own files are kept; nothing about you is sent anywhere.",
-    "Il s’ouvre alors sans attendre, et vos thèmes enregistrés s’ouvrent même sans connexion. Seuls les fichiers de l’app sont gardés ; rien de vous n’est envoyé nulle part.",
+    "It then opens without waiting, and your saved charts and the calendar’s months you opened work even without a connection. Only the app’s own files and the sky of those dates are kept; nothing about you is sent anywhere.",
+    "Il s’ouvre alors sans attendre, et vos thèmes enregistrés et les mois du calendrier déjà ouverts marchent même sans connexion. Seuls les fichiers de l’app et le ciel de ces dates sont gardés ; rien de vous n’est envoyé nulle part.",
   ],
   offlineOfferYes: ["Keep it", "Le garder"],
   offlineOfferNo: ["No thanks", "Non merci"],
