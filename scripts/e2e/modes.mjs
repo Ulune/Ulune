@@ -154,6 +154,27 @@ async function runViewport(width) {
       return note ? note.textContent : "";
     });
     if (!selectedDay?.trim()) throw new Error(`timing day ${dayId} did not open reading`);
+    // The day: its Moon, its agenda (the sky's and yours), a row's reading, the Moon's, and Transits at that minute.
+    await page.getByTestId("timing-scope-day").click();
+    await page.getByTestId("calendar-day").waitFor({ timeout: 8000 });
+    await page.locator("[data-testid=calendar-row-sky]").first().waitFor({ timeout: 20000 });
+    await page.locator("[data-testid=calendar-row-sky]").first().click();
+    await clickDockTab(page, "reading");
+    await page.getByTestId("reading-card").waitFor({ timeout: 8000 });
+    await page.getByTestId("calendar-moonbar").click();
+    await clickDockTab(page, "reading");
+    const toTransits = page.locator("[data-ref^='transits-at:']").first();
+    await toTransits.waitFor({ timeout: 8000 });
+    const at = Number((await toTransits.getAttribute("data-ref")).split(":")[1]);
+    await toTransits.click();
+    await page.getByTestId("studio-transits").waitFor({ timeout: 20000 });
+    const d = new Date(at);
+    const want = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+    const shown = await page.locator("#transit-time").inputValue().catch(() => "");
+    if (shown && shown !== want) throw new Error(`Transits opened at ${shown}, not ${want}`);
+    await goMode(page, "timing");
+    await page.getByTestId("studio-timing").waitFor({ timeout: 20000 });
+    await page.getByTestId("timing-scope-month").click();
     await clickDockTab(page, "birth");
     const nameField = page.locator("#native-name");
     await nameField.click();

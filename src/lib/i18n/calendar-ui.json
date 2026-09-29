@@ -90,6 +90,35 @@
     "count": { "en": "{n} of your transits", "fr": "{n} de vos transits" },
     "more": { "en": "+{n} more", "fr": "+{n} de plus" }
   },
+  "day": {
+    "moonAllDay": { "en": "Moon in {sign} all day", "fr": "Lune en {sign} toute la journée" },
+    "moonUntil": { "en": "Moon in {sign} until {time}, then {next}", "fr": "Lune en {sign} jusqu’à {time}, puis en {next}" },
+    "voidFromTo": { "en": "void of course from {from} to {to}", "fr": "vide de course de {from} à {to}" },
+    "voidUntil": { "en": "void of course until {to}", "fr": "vide de course jusqu’à {to}" },
+    "voidFrom": { "en": "void of course from {from}", "fr": "vide de course à partir de {from}" },
+    "voidAllDay": { "en": "void of course all day", "fr": "vide de course toute la journée" },
+    "phaseAt": { "en": "{phase} at {time}", "fr": "{phase} à {time}" },
+    "nextPhase": { "en": "Next phase: {phase}, {when} at {time}", "fr": "Prochaine phase : {phase}, {when} à {time}" },
+    "inEffect": { "en": "In effect for you", "fr": "En cours pour vous" },
+    "easing": { "en": "exact {when}, easing", "fr": "exact {when}, en recul" },
+    "closest": { "en": "comes within {orb}, no exact pass", "fr": "approche à {orb}, sans passage exact" },
+    "until": { "en": "until {when}", "fr": "jusqu’au {when}" },
+    "sky": { "en": "Sky", "fr": "Ciel" },
+    "you": { "en": "You", "fr": "Vous" },
+    "now": { "en": "now", "fr": "maintenant" },
+    "voidBand": { "en": "void", "fr": "vide" },
+    "empty": { "en": "Nothing exact this day.", "fr": "Rien d’exact ce jour-là." },
+    "lasts": {
+      "moon": { "en": "a few hours", "fr": "quelques heures" },
+      "fast": { "en": "a day or two", "fr": "un jour ou deux" },
+      "mars": { "en": "a few days", "fr": "quelques jours" },
+      "slow": { "en": "a few weeks", "fr": "quelques semaines" }
+    },
+    "count": {
+      "en": "{sky} in the sky, {yours} of yours",
+      "fr": "{sky} dans le ciel, {yours} pour vous"
+    }
+  },
   "when": {
     "today": { "en": "Today", "fr": "Aujourd’hui" },
     "tomorrow": { "en": "Tomorrow", "fr": "Demain" }

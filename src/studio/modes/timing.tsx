@@ -2,7 +2,8 @@ import { Suspense, useMemo } from "react";
 import { CalendarBar, CalendarScope } from "@/components/calendar-bar";
 import { CalendarLegend, CalendarMonth } from "@/components/calendar-month";
 import { CalendarNow } from "@/components/calendar-now";
-import { TimingDayStrip, TimingYearGrid } from "@/components/timing-calendar";
+import { CalendarDay } from "@/components/calendar-day";
+import { TimingYearGrid } from "@/components/timing-calendar";
 import { LoadingLines } from "@/components/loading-lines";
 import { localizeError } from "@/lib/i18n/errors";
 import { useI18n } from "@/lib/i18n/locale";
@@ -25,6 +26,7 @@ function TimingFigure() {
   const { locale } = useI18n();
   const timing = useModeData("timing");
   const selectedId = useStudioStore((s) => s.selectedId);
+  const pick = useStudioStore((s) => s.pick);
   if (!timing) return null;
   if (!timing.enabled && !timing.cast) {
     return (
@@ -55,12 +57,17 @@ function TimingFigure() {
         onSky={(sky) => timing.updatePrefs({ sky })}
         onYours={(yours) => timing.updatePrefs({ yours })}
       />
-      {timing.scope === "day" ? (
-        <TimingDayStrip
-          hits={timing.scoped}
+      {timing.scope === "day" && timing.dayView ? (
+        <CalendarDay
+          ov={timing.dayView}
+          civil={timing.civil}
           tz={timing.tz}
+          nowMs={timing.nowMs}
+          events={timing.allEvents}
+          showSky={timing.prefs.sky}
+          showYours={timing.prefs.yours}
           selectedId={selectedId}
-          onSelectHit={timing.pickHit}
+          onSelect={pick}
         />
       ) : null}
       {timing.scope === "month" ? (

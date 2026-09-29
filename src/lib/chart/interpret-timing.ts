@@ -71,48 +71,14 @@ export function timingExactReading(
           ref: `timing:body:${hit.moving}`,
           label: fr ? `${bodyLabel(hit.moving, locale)} en transit` : `Transiting ${bodyLabel(hit.moving, locale)}`,
         },
+        // The sky at that minute, in Transits (ReadingTab opens it).
+        { ref: `transits-at:${Date.parse(hit.exactUtc)}`, label: fr ? "Voir le ciel à ce moment" : "See the sky at that moment", detail: when },
       ],
     },
     about: {
       title: fr ? "À propos du calendrier" : "About the calendar",
       paragraphs: [pickBi(TIMING_ABOUT, locale), aspectInPractice(hit.type, locale)],
     },
-  };
-}
-
-export function timingDateReading(
-  label: string,
-  hits: TimingHit[],
-  locale: Locale,
-  tz: string,
-): ElementReading {
-  const fr = locale === "fr";
-  const lines = hits.slice(0, 12).map((h) => {
-    const when = timingWhen(h.exactUtc, tz, locale, "time");
-    return `${when} · ${aspectName(h.type, locale)} natal ${bodyLabel(h.natal, locale)} (${bodyLabel(h.moving, locale)})`;
-  });
-  const empty = fr ? "Aucun majeur exact sur cette date." : "No major exact on this date.";
-  const count = fr
-    ? `${hits.length} aspect${hits.length === 1 ? "" : "s"} majeur${hits.length === 1 ? "" : "s"} exact${hits.length === 1 ? "" : "s"} ce jour-là.`
-    : `${hits.length} major aspect${hits.length === 1 ? "" : "s"} perfect${hits.length === 1 ? "s" : ""} on this day.`;
-  return {
-    id: `timing:date:${label}`,
-    kind: "aspect",
-    title: label,
-    kicker: `${hits.length} exact${hits.length === 1 ? "" : "s"}`,
-    paragraphs: hits.length ? lines : [empty],
-    note: pickBi(TIMING_ABOUT, locale),
-    lead: hits.length ? count : empty,
-    links: hits.length
-      ? {
-          title: fr ? "Exacts" : "Exacts",
-          rows: hits.slice(0, 24).map((h) => ({
-            ref: `timing:${h.id}`,
-            label: `${bodyLabel(h.moving, locale)} · ${aspectName(h.type, locale)} · ${bodyLabel(h.natal, locale)}`,
-            detail: timingWhen(h.exactUtc, tz, locale, "time"),
-          })),
-        }
-      : undefined,
   };
 }
 

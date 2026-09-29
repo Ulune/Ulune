@@ -1,12 +1,13 @@
 import { useMemo } from "react";
-import { PlanetGlyph, SignGlyph } from "@/components/glyphs";
+import { SignMark, SkyEventIcon } from "@/components/calendar-icons";
+import { PlanetGlyph } from "@/components/glyphs";
 import { MoonGlyph } from "@/components/moon-glyph";
 import { headlineRank, isHeadline, moonAt } from "@/lib/chart/calendar-sky";
-import { ASPECT_COLOR, ELEMENT_COLOR, SIGN_META } from "@/lib/chart/constants";
-import { seasonOf, skyEventId, type PhaseIndex, type SkyEvent } from "@/lib/chart/sky-events";
+import { ASPECT_COLOR } from "@/lib/chart/constants";
+import { skyEventId, type PhaseIndex, type SkyEvent } from "@/lib/chart/sky-events";
 import type { SkyWindow } from "@/lib/chart/sky-window";
 import { civilKey, daysInMonth, mondayIndex, utcFromCivil, type CivilDate } from "@/lib/chart/timing-window";
-import { SIGN_IDS, type TimingHit } from "@/lib/chart/types";
+import type { TimingHit } from "@/lib/chart/types";
 import { CALENDAR_UI, dailyPhaseWord, fill, signWord, skyEventShort, skyEventTitle } from "@/lib/i18n/calendar-words";
 import { dateFormat } from "@/lib/intl-cache";
 import { useI18n } from "@/lib/i18n/locale";
@@ -17,7 +18,6 @@ const WEEKDAYS = {
   en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
   fr: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
 };
-const PHASE_ELONG: Record<PhaseIndex, number> = { 0: 0, 1: 90, 2: 180, 3: 270 };
 
 type Day = {
   headlines: SkyEvent[];
@@ -25,47 +25,6 @@ type Day = {
   phase: PhaseIndex | null;
   mine: TimingHit[];
 };
-
-function SignMark({ sign, size }: { sign: number; size: number }) {
-  const id = SIGN_IDS[((sign % 12) + 12) % 12]!;
-  return (
-    <span className="ulune-cal-sign" style={{ color: ELEMENT_COLOR[SIGN_META[id].element] }} aria-hidden>
-      <SignGlyph id={id} size={size} />
-    </span>
-  );
-}
-
-/** The glyphs of a headline event: the phase drawn, planet → sign, planet ℞, the Sun for a season, an eclipse disc. */
-export function SkyEventIcon({ ev, size = 13 }: { ev: SkyEvent; size?: number }) {
-  if (ev.k === "phase") return <MoonGlyph elong={PHASE_ELONG[ev.phase]} size={size} />;
-  if (ev.k === "eclipse") return <span className={cn("ulune-cal-eclipse", ev.kind === "lunar" && "is-lunar")} style={{ width: size, height: size }} aria-hidden />;
-  if (ev.k === "station") {
-    return (
-      <span className="ulune-cal-icon" aria-hidden>
-        <PlanetGlyph id={ev.body} size={size} />
-        <span className="ulune-cal-turn">{ev.turn === "rx" ? "℞" : "D"}</span>
-      </span>
-    );
-  }
-  if (ev.k === "ingress") {
-    if (seasonOf(ev) != null) {
-      return (
-        <span className="ulune-cal-icon" style={{ color: "var(--aspect-conj)" }} aria-hidden>
-          <PlanetGlyph id="sun" size={size} />
-        </span>
-      );
-    }
-    return (
-      <span className="ulune-cal-icon" aria-hidden>
-        <PlanetGlyph id={ev.body} size={size} />
-        {ev.rx ? <span className="ulune-cal-turn">℞</span> : null}
-        <span className="ulune-cal-arrow">→</span>
-        <SignMark sign={ev.sign} size={size - 1} />
-      </span>
-    );
-  }
-  return null;
-}
 
 export function CalendarMonth({
   civil,

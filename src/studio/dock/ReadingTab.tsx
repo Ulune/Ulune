@@ -11,6 +11,8 @@ import { useModeReading } from "@/studio/modes/data";
 import { useModeDef } from "@/studio/modes/registry";
 import type { StudioPage } from "@/studio/url";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import { rememberGroupPage } from "@/studio/shell/GroupBar";
+import { useStudioUrl } from "@/studio/use-studio-url";
 import { useStudioStore } from "@/studio/store";
 import { useEffect, useRef, useState } from "react";
 
@@ -24,6 +26,7 @@ export function ReadingTab() {
   const composing = useStudioStore((s) => s.composing);
   const composeError = useStudioStore((s) => s.composeError);
   const { readingDepth } = useWheelView();
+  const { setPage: setStudioPage } = useStudioUrl({ hydrate: false });
   const reading = useModeReading();
   const { def } = useModeDef(page);
   const selectedId0 = useStudioStore((s) => s.selectedId);
@@ -50,6 +53,16 @@ export function ReadingTab() {
   }, [selectedId, page]);
   const go = (ref: string) => {
     if (!reading || ref === reading.id) return;
+    // "See the sky at that moment": Transits, its clock pinned to that minute.
+    if (ref.startsWith("transits-at:")) {
+      const at = Number(ref.slice("transits-at:".length));
+      if (!Number.isFinite(at)) return;
+      useStudioStore.getState().pin(at);
+      rememberGroupPage("transits");
+      useStudioStore.setState({ selectedId: null });
+      setStudioPage("transits");
+      return;
+    }
     internal.current = true;
     setTrail((tr) => [...tr, { id: reading.id, title: reading.title }].slice(-12));
     useStudioStore.setState({ selectedId: ref, dock: "reading", dockOpen: true });

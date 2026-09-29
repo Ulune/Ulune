@@ -120,3 +120,166 @@ export const CALENDAR_ABOUT: Bi = {
   en: "The calendar shows the sky day by day (the Moon’s phase and sign, planets changing sign or direction, eclipses) and, with a chart open, the dates your transits are exact. The sky is the same for everyone and comes by date; your transits are worked out on this device.",
   fr: "Le calendrier montre le ciel jour après jour (la phase et le signe de la Lune, les planètes qui changent de signe ou de sens, les éclipses) et, avec un thème ouvert, les dates où vos transits sont exacts. Le ciel est le même pour tous et arrive par date ; vos transits sont calculés sur cet appareil.",
 };
+
+/** The Moon of a day between the exact phases: waxing crescent, waxing gibbous, waning gibbous, waning crescent. */
+export const CAL_DAILY_PHASE: [Bi, Bi, Bi, Bi] = [
+  {
+    en: "The Moon is less than half lit and growing, seen after sunset. Traditionally a time of gathering: what began at the New Moon takes shape and needs feeding.",
+    fr: "La Lune est éclairée à moins de moitié et croît, visible après le coucher du soleil. Traditionnellement, un temps d’élan : ce qui a commencé à la Nouvelle Lune prend forme et demande à être nourri.",
+  },
+  {
+    en: "More than half lit and still growing, the Moon rises in the afternoon and shines most of the night. A time for adjusting and refining before the Full Moon brings things to a head.",
+    fr: "Éclairée à plus de moitié et toujours croissante, la Lune se lève l’après-midi et brille presque toute la nuit. Un temps pour ajuster et affiner avant que la Pleine Lune ne fasse aboutir les choses.",
+  },
+  {
+    en: "Past full and shrinking, the Moon rises later each evening. Traditionally a time to share what has been learnt and to take stock of what the Full Moon showed.",
+    fr: "Passé la pleine lune, elle décroît et se lève chaque soir plus tard. Traditionnellement, un temps pour partager ce qui a été appris et faire le point sur ce que la Pleine Lune a montré.",
+  },
+  {
+    en: "A thin crescent before dawn, the Moon’s light is almost gone. The last days of the cycle, read as a time for rest, release and quiet preparation for the New Moon.",
+    fr: "Mince croissant avant l’aube, la lumière de la Lune est presque éteinte. Les derniers jours du cycle, lus comme un temps de repos, de lâcher-prise et de préparation tranquille avant la Nouvelle Lune.",
+  },
+];
+
+/** A line per type of eclipse, solar or lunar. */
+export const CAL_ECLIPSE_TYPE: Record<"total" | "annular" | "hybrid" | "partial" | "penumbral", Bi> = {
+  total: {
+    en: "Total: the Moon covers the whole Sun (solar) or passes wholly into the Earth’s shadow (lunar).",
+    fr: "Totale : la Lune couvre tout le Soleil (solaire) ou entre tout entière dans l’ombre de la Terre (lunaire).",
+  },
+  annular: {
+    en: "Annular: the Moon, too far from the Earth to cover the Sun, leaves a ring of sunlight around it.",
+    fr: "Annulaire : la Lune, trop loin de la Terre pour couvrir le Soleil, laisse un anneau de lumière autour d’elle.",
+  },
+  hybrid: {
+    en: "Hybrid: annular in some places along its path and total in others.",
+    fr: "Hybride : annulaire à certains endroits de son passage, totale à d’autres.",
+  },
+  partial: {
+    en: "Partial: the Moon covers only part of the Sun (solar), or only part of the Moon enters the Earth’s shadow (lunar).",
+    fr: "Partielle : la Lune ne couvre qu’une partie du Soleil (solaire), ou une partie seulement de la Lune entre dans l’ombre de la Terre (lunaire).",
+  },
+  penumbral: {
+    en: "Penumbral: the Moon passes only through the Earth’s faint outer shadow, a slight dimming that is easy to miss.",
+    fr: "Pénombrale : la Lune ne traverse que la pénombre de la Terre, un léger assombrissement facile à manquer.",
+  },
+};
+
+/** Each planet’s retrograde periods in the sky: how often, how long, how they are read. */
+export const CAL_RETRO: Record<"mercury" | "venus" | "mars" | "jupiter" | "saturn" | "uranus" | "neptune" | "pluto" | "chiron", Bi> = {
+  mercury: {
+    en: "Mercury turns retrograde three or four times a year, for about three weeks each time. The best-known retrograde: astrologers advise checking messages, plans and travel, and going back over things (re-reading, repairing, reconnecting) rather than signing and launching.",
+    fr: "Mercure rétrograde trois ou quatre fois par an, environ trois semaines à chaque fois. La rétrogradation la plus connue : on conseille de vérifier messages, projets et voyages, et de revenir sur les choses (relire, réparer, renouer) plutôt que de signer ou de lancer.",
+  },
+  venus: {
+    en: "Venus turns retrograde about every eighteen months, for about six weeks. Read as a time to reconsider relationships, money and what you value; old attachments may come back, and new commitments are best given time.",
+    fr: "Vénus rétrograde environ tous les dix-huit mois, pendant six semaines. On la lit comme un temps pour reconsidérer les relations, l’argent et ce qui compte ; d’anciens liens peuvent revenir, et mieux vaut laisser du temps aux nouveaux engagements.",
+  },
+  mars: {
+    en: "Mars turns retrograde about every two years, for two to two and a half months. Read as a time when drive turns inward: effort goes to unfinished fights and projects rather than new ones, and frustration is best spent revising the plan.",
+    fr: "Mars rétrograde environ tous les deux ans, pendant deux mois à deux mois et demi. On le lit comme un temps où l’élan se retourne vers l’intérieur : l’effort va aux combats et aux projets inachevés plutôt qu’aux nouveaux, et mieux vaut employer la frustration à revoir le plan.",
+  },
+  jupiter: {
+    en: "Jupiter turns retrograde once a year, for about four months. Read as a time to grow inward: revising beliefs, plans and the terms of an opportunity rather than expanding.",
+    fr: "Jupiter rétrograde une fois par an, pendant environ quatre mois. On le lit comme un temps pour grandir de l’intérieur : revoir ses convictions, ses projets et les conditions d’une occasion plutôt que s’étendre.",
+  },
+  saturn: {
+    en: "Saturn turns retrograde once a year, for about four and a half months. Read as a time to review structures and commitments: what holds, what needs repair, which rules are still yours.",
+    fr: "Saturne rétrograde une fois par an, pendant environ quatre mois et demi. On le lit comme un temps pour revoir les structures et les engagements : ce qui tient, ce qui demande réparation, quelles règles sont encore les vôtres.",
+  },
+  uranus: {
+    en: "Uranus turns retrograde once a year, for about five months. Read as a time when the need for change works inside before it shows: ideas of freedom are tested and reshaped.",
+    fr: "Uranus rétrograde une fois par an, pendant environ cinq mois. On le lit comme un temps où le besoin de changement travaille à l’intérieur avant de se montrer : les idées de liberté sont mises à l’épreuve et remodelées.",
+  },
+  neptune: {
+    en: "Neptune turns retrograde once a year, for about five months. Read as a time when illusions thin out and dreams and ideals are looked at more soberly.",
+    fr: "Neptune rétrograde une fois par an, pendant environ cinq mois. On le lit comme un temps où les illusions s’amincissent, et où rêves et idéaux sont regardés plus sobrement.",
+  },
+  pluto: {
+    en: "Pluto turns retrograde once a year, for about five months. Read as a time of inner reckoning with power and control, when deep change is digested before it is acted on.",
+    fr: "Pluton rétrograde une fois par an, pendant environ cinq mois. On le lit comme un temps d’examen intérieur du pouvoir et du contrôle, où les transformations profondes se digèrent avant de se vivre au-dehors.",
+  },
+  chiron: {
+    en: "Chiron turns retrograde once a year, for about five months. Read as a time to revisit old wounds with more patience, and to learn how to tend them.",
+    fr: "Chiron rétrograde une fois par an, pendant environ cinq mois. On le lit comme un temps pour revenir sur les blessures anciennes avec plus de patience, et apprendre à en prendre soin.",
+  },
+};
+
+/** The Moon’s sign for everyone, for the two and a half days it stays there. */
+export const CAL_MOON_SIGN: Record<"aries" | "taurus" | "gemini" | "cancer" | "leo" | "virgo" | "libra" | "scorpio" | "sagittarius" | "capricorn" | "aquarius" | "pisces", Bi> = {
+  aries: {
+    en: "Moods move fast and people act on impulse: good for starting, less so for patience.",
+    fr: "Les humeurs vont vite et l’on agit sur un coup de tête : propice aux débuts, moins à la patience.",
+  },
+  taurus: {
+    en: "A slower, steadier mood that favours comfort, food, the body and finishing what is under way.",
+    fr: "Une humeur plus lente et plus stable, qui favorise le confort, la table, le corps et ce qu’on achève.",
+  },
+  gemini: {
+    en: "Curious and talkative: good for messages, errands, reading and many small things at once.",
+    fr: "Curieuse et bavarde : propice aux messages, aux courses, à la lecture et à mille petites choses à la fois.",
+  },
+  cancer: {
+    en: "Feelings run close to the surface; home, family and care come first.",
+    fr: "Les émotions affleurent ; le foyer, la famille et le soin passent en premier.",
+  },
+  leo: {
+    en: "Warm and expressive: people want to be seen, to play and to create.",
+    fr: "Chaleureuse et expressive : on a envie d’être vu, de jouer et de créer.",
+  },
+  virgo: {
+    en: "Practical and precise: good for sorting, cleaning, health and details.",
+    fr: "Pratique et précise : propice au tri, au rangement, à la santé et aux détails.",
+  },
+  libra: {
+    en: "Sociable and conciliatory: good for talks, agreements and beauty, harder for decisions.",
+    fr: "Sociable et conciliante : propice aux échanges, aux accords et à la beauté, moins aux décisions.",
+  },
+  scorpio: {
+    en: "Intense and private: feelings go deep, and so does focus.",
+    fr: "Intense et secrète : les émotions vont en profondeur, la concentration aussi.",
+  },
+  sagittarius: {
+    en: "Restless and hopeful: good for plans, learning, travel and open air.",
+    fr: "Remuante et confiante : propice aux projets, à l’étude, aux voyages et au grand air.",
+  },
+  capricorn: {
+    en: "Sober and dutiful: good for work, structure and long plans.",
+    fr: "Sobre et tournée vers le devoir : propice au travail, à l’organisation et aux projets de longue haleine.",
+  },
+  aquarius: {
+    en: "Detached and inventive: good for friends, groups, ideas and doing things differently.",
+    fr: "Détachée et inventive : propice aux amis, aux groupes, aux idées et aux façons de faire nouvelles.",
+  },
+  pisces: {
+    en: "Dreamy and sensitive: good for rest, art, music and kindness, less for sharp plans.",
+    fr: "Rêveuse et sensible : propice au repos, à l’art, à la musique et à la bienveillance, moins aux plans précis.",
+  },
+};
+
+export const CAL_MOON_SIGN_ABOUT: Bi = {
+  en: "The Moon changes sign about every two and a half days. Its sign colours everyone’s mood for that time, more than it describes events.",
+  fr: "La Lune change de signe environ tous les deux jours et demi. Son signe colore l’humeur de chacun pendant ce temps, plus qu’il ne décrit des événements.",
+};
+
+/** Two planets of the sky in aspect, by family. {a} {b}: their names; {ka} {kb}: what they stand for. */
+export const CAL_SKY_FAMILY: Record<"blend" | "flow" | "tension", Bi> = {
+  blend: {
+    en: "{a} and {b} meet: {ka} and {kb} act as one, and a new cycle between them begins.",
+    fr: "{a} et {b} se rejoignent : {ka} et {kb} agissent d’un seul bloc, et un nouveau cycle commence entre eux.",
+  },
+  flow: {
+    en: "{a} and {b} support each other: {ka} and {kb} work together easily, a good moment to use them.",
+    fr: "{a} et {b} se soutiennent : {ka} et {kb} coopèrent facilement, un bon moment pour s’en servir.",
+  },
+  tension: {
+    en: "{a} and {b} pull against each other: {ka} and {kb} ask to be reconciled, and the friction tends to move things forward.",
+    fr: "{a} et {b} se contrarient : {ka} et {kb} demandent à être conciliés, et la friction tend à faire avancer les choses.",
+  },
+};
+
+/** A sign change, with the sign's own words. {body} {sign} {keywords}. */
+export const CAL_INGRESS_SIGN: Bi = {
+  en: "In {sign}, what {body} stands for tends to turn {keywords}.",
+  fr: "En {sign}, ce que {body} représente prend une couleur de {keywords}.",
+};

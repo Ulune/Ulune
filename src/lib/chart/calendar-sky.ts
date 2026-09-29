@@ -78,7 +78,47 @@ export function headlineRank(ev: SkyEvent): number {
 const SLOW_WEIGHT: Record<string, number> = { pluto: 6, neptune: 5, uranus: 5, saturn: 4, chiron: 3, jupiter: 2, northnode: 1 };
 const ASPECT_WEIGHT: Record<string, number> = { conjunction: 3, opposition: 2.5, square: 2, trine: 1, sextile: 0.5 };
 
+/** The selection id of a slow transit's window. */
+export function windowId(w: Pick<TransitWindow, "moving" | "type" | "natal" | "from">): string {
+  return `win:${w.moving}:${w.type}:${w.natal}:${w.from}`;
+}
+
 /** Heavier first, for the slow transits in effect: the slower body, the harder contact. */
 export function windowWeight(w: Pick<TransitWindow, "moving" | "type">): number {
   return (SLOW_WEIGHT[w.moving] ?? 0) + (ASPECT_WEIGHT[w.type] ?? 0);
+}
+
+/**
+ * Several event lists as one, in time order, each event once: the same event
+ * found in a chunk and in a year file (the two searches can land a
+ * millisecond apart) counts once.
+ */
+export function mergeEvents(...lists: ReadonlyArray<readonly SkyEvent[]>): SkyEvent[] {
+  const all = lists.flat().sort((a, b) => a.t - b.t);
+  const last = new Map<string, number>();
+  const out: SkyEvent[] = [];
+  for (const ev of all) {
+    const id = skyEventId(ev);
+    const key = ev.k === "void" ? id : id.slice(0, id.lastIndexOf("-"));
+    const seen = last.get(key);
+    if (seen != null && ev.t - seen < 60_000) continue;
+    last.set(key, ev.t);
+    out.push(ev);
+  }
+  return out;
+}
+
+/** The first event after `ms` that passes `test` (events in time order). */
+export function nextEvent<K extends SkyEvent["k"]>(
+  events: readonly SkyEvent[],
+  ms: number,
+  kind: K,
+  test: (ev: Extract<SkyEvent, { k: K }>) => boolean = () => true,
+): Extract<SkyEvent, { k: K }> | null {
+  for (const ev of events) {
+    if (ev.t <= ms || ev.k !== kind) continue;
+    const e = ev as Extract<SkyEvent, { k: K }>;
+    if (test(e)) return e;
+  }
+  return null;
 }

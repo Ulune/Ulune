@@ -43,6 +43,7 @@ export function ReadingMark({ reading, size = 26 }: { reading: ElementReading; s
   // A row of the Human Design columns (act:design:mars): its body's glyph.
   if (reading.id.startsWith("act:")) return <PlanetGlyph id={reading.id.split(":")[2] ?? ""} size={size} />;
   if (reading.id.startsWith("sky:")) return <SkyEventMark id={reading.id.slice(4)} size={size} />;
+  if (reading.id.startsWith("moon:")) return <PlanetGlyph id="moon" size={size} />;
   if (reading.mark) return <span className="ob-rc-mark-text">{reading.mark}</span>;
   if (reading.kind === "planet" || reading.kind === "angle") {
     return <PlanetGlyph id={raw} size={size} />;
@@ -134,8 +135,8 @@ function useMarkColor(reading: ElementReading, chart: NatalChart | null | undefi
     const type = aspectTypeFromReadingId(reading.id);
     return `var(--aspect-${type && ASPECT_FAMILY[type] ? ASPECT_FAMILY[type] : "minor"})`;
   }
-  // The sky's own events: in ink (their aspects above, in their family's colour).
-  if (reading.id.startsWith("sky:")) return "var(--color-fg)";
+  // The calendar's sky, days and Moon: in ink (the sky's aspects above, in their family's colour).
+  if (/^(sky|moon|day):/.test(reading.id)) return "var(--color-fg)";
   const sign = signOfReading(reading, chart);
   if (!sign || !SIGN_META[sign]) return "var(--color-fg-muted)";
   if (reading.kind === "planet") return planetPaint(reading.id.slice(7), sign, look.planets);

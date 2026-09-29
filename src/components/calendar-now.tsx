@@ -1,9 +1,7 @@
 import type { ReactNode } from "react";
-import { SkyEventIcon } from "@/components/calendar-month";
-import { AspectGlyph, PlanetGlyph } from "@/components/glyphs";
+import { PairIcon, SkyEventIcon } from "@/components/calendar-icons";
 import { MoonGlyph } from "@/components/moon-glyph";
-import { headlineRank, isHeadline, moonAt, nextMoonIngress, voidAt, windowWeight } from "@/lib/chart/calendar-sky";
-import { ASPECT_COLOR } from "@/lib/chart/constants";
+import { headlineRank, isHeadline, moonAt, nextMoonIngress, voidAt, windowId, windowWeight } from "@/lib/chart/calendar-sky";
 import type { TransitWindow } from "@/lib/chart/personal-transits";
 import { skyEventId, type SkyAspect, type SkyEvent } from "@/lib/chart/sky-events";
 import type { SkyWindow } from "@/lib/chart/sky-window";
@@ -64,18 +62,6 @@ function Line({
     <button type="button" data-testid={testId} className={cn("ulune-cal-now-line", selected && "is-on")} aria-pressed={selected} onClick={() => onSelect(id)}>
       {body}
     </button>
-  );
-}
-
-function PairIcon({ moving, type, natal }: { moving: string; type: SkyAspect; natal: string }) {
-  return (
-    <>
-      <PlanetGlyph id={moving} size={14} />
-      <span style={{ color: ASPECT_COLOR[type] }}>
-        <AspectGlyph id={type} size={11} />
-      </span>
-      <PlanetGlyph id={natal} size={14} />
-    </>
   );
 }
 
@@ -168,6 +154,9 @@ export function CalendarNow({
       {moon ? (
         <Line
           testId="calendar-now-moon"
+          id={`moon:${dayKey(nowMs)}`}
+          selected={selectedId === `moon:${dayKey(nowMs)}`}
+          onSelect={onSelect}
           icon={<MoonGlyph elong={moon.elong} size={24} />}
           title={`${dailyPhaseWord(moon.elong, locale)} · ${litWord(moon.lit, locale)}`}
           detail={moonDetail}
@@ -182,7 +171,7 @@ export function CalendarNow({
             const next = w.passes.find((t) => t > nowMs);
             const last = [...w.passes].reverse().find((t) => t <= nowMs);
             const exact = next ?? last!;
-            const id = `win:${w.moving}:${w.type}:${w.natal}:${w.from}`;
+            const id = windowId(w);
             return (
               <Line
                 key={id}
@@ -190,7 +179,7 @@ export function CalendarNow({
                 id={id}
                 selected={selectedId === id}
                 onSelect={onSelect}
-                icon={<PairIcon moving={w.moving} type={w.type as SkyAspect} natal={w.natal} />}
+                icon={<PairIcon a={w.moving} type={w.type as SkyAspect} b={w.natal} />}
                 title={yourAspectWords(w.moving, w.type as SkyAspect, w.natal, locale)}
                 detail={`${fill(CALENDAR_UI.yours.exactOn, locale, { when: whenIn(exact) })} · ${fill(CALENDAR_UI.yours.window, locale, { from: dayMonth(w.from), to: dayMonth(w.to) })}`}
               />
@@ -205,7 +194,7 @@ export function CalendarNow({
                 id={id}
                 selected={selectedId === id}
                 onSelect={onSelect}
-                icon={<PairIcon moving={h.moving} type={h.type as SkyAspect} natal={h.natal} />}
+                icon={<PairIcon a={h.moving} type={h.type as SkyAspect} b={h.natal} />}
                 title={yourAspectWords(h.moving, h.type as SkyAspect, h.natal, locale)}
                 detail={`${when(Date.parse(h.exactUtc))} · ${fill(CALENDAR_UI.yours.exactAt, locale, { time: time(Date.parse(h.exactUtc)) })}`}
               />

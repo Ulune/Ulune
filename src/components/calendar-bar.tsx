@@ -10,13 +10,15 @@ import { timingScopeLabel } from "@/lib/i18n/timing-ui";
 import { dateFormat } from "@/lib/intl-cache";
 import { cn } from "@/lib/utils";
 
-function caption(scope: TimingScope, civil: CivilDate, locale: "en" | "fr"): string {
+function caption(scope: TimingScope, civil: CivilDate, locale: "en" | "fr", short = false): string {
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
   const at = Date.UTC(civil.year, civil.month - 1, civil.day, 12);
   if (scope === "year") return String(civil.year);
+  // A day of another year says its year.
+  const year = civil.year !== new Date().getFullYear() ? { year: "numeric" as const } : {};
   const text =
     scope === "day"
-      ? dateFormat(loc, { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" }).format(at)
+      ? dateFormat(loc, { timeZone: "UTC", weekday: short ? "short" : "long", day: "numeric", month: short ? "short" : "long", ...year }).format(at)
       : dateFormat(loc, { timeZone: "UTC", month: "long", year: "numeric" }).format(at);
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
@@ -86,7 +88,8 @@ export function CalendarBar({
           <ChevronLeft className="size-4" />
         </button>
         <p data-testid="timing-caption" className="ulune-cal-title" aria-live="polite">
-          {caption(scope, civil, locale)}
+          <span className="ulune-cal-title-long">{caption(scope, civil, locale)}</span>
+          {scope === "day" ? <span className="ulune-cal-title-short">{caption(scope, civil, locale, true)}</span> : null}
         </p>
         <button type="button" data-testid="timing-next" aria-label={t("periodNext")} onClick={() => onShift(1)} className="ob-icon-btn ob-icon-btn--quiet">
           <ChevronRight className="size-4" />

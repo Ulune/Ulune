@@ -1,12 +1,14 @@
 import { browserZone } from "@/lib/chart/client-zone";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { eventsOf } from "@/lib/chart/calendar-sky";
+import { dayOverview } from "@/lib/chart/calendar-day";
+import { eventsOf, mergeEvents, windowId } from "@/lib/chart/calendar-sky";
 import { CALENDAR_DEFAULTS, deviceZone, loadCalendarPrefs, saveCalendarPrefs, type CalendarPrefs, type CalendarZone } from "@/lib/chart/calendar-prefs";
 import { slowWindowsFromYears, transitsInSlices, type TransitWindow } from "@/lib/chart/personal-transits";
 import { skyEventId, type SkyEvent } from "@/lib/chart/sky-events";
 import type { SkyWindow } from "@/lib/chart/sky-window";
 import { loadWindowsBetween } from "@/lib/chart/window-cache";
 import { loadYearsBetween } from "@/lib/chart/year-cache";
+import type { SkyYear } from "@/lib/chart/sky-year";
 import { usePack } from "@/lib/content/packs";
 import {
   civilFromUtc,
@@ -15,6 +17,7 @@ import {
   parseCivilKey,
   scopeBounds,
   shiftCivil,
+  utcFromCivil,
   yearBounds,
   type CivilDate,
 } from "@/lib/chart/timing-window";
@@ -159,8 +162,61 @@ export function useTiming() {
     return () => ctrl.abort();
   }, [enabled, chart, natalBodies, natalSig, nowDay, tick]);
 
+  // The year files around the span shown: the slow transits in effect on its days, and
+  // the events past the chunks' ends (until when a planet stays, the next phase).
+  const [spanYears, setSpanYears] = useState<SkyYear[]>([]);
+  useEffect(() => {
+    if (!enabled || !chart) return;
+    let live = true;
+    const from = needed.from.getTime();
+    const to = needed.to.getTime();
+    loadYearsBetween(from - YEARS_AROUND_MS, to + YEARS_AROUND_MS)
+      .then((years) => {
+        if (live && years) setSpanYears(years);
+      })
+      .catch(() => {
+        /* the day and the readings do without */
+      });
+    return () => {
+      live = false;
+    };
+  }, [enabled, chart, needed, tick]);
+  const spanWindows = useMemo(
+    () =>
+      spanYears.length && natalBodies.length
+        ? slowWindowsFromYears(spanYears, natalBodies, needed.from.getTime() - DAY_MS, needed.to.getTime() + DAY_MS)
+        : [],
+    [spanYears, natalBodies, needed],
+  );
+
   const events = useMemo<SkyEvent[]>(() => eventsOf(wins), [wins]);
   const nowEvents = useMemo<SkyEvent[]>(() => eventsOf(nowWins), [nowWins]);
+  const allEvents = useMemo(
+    () => mergeEvents(events, nowEvents, spanYears.flatMap((y) => y.events)),
+    [events, nowEvents, spanYears],
+  );
+  /** Your exacts of the span and of the coming days, each once. */
+  const allHits = useMemo(() => {
+    const seen = new Map<string, TimingHit>();
+    for (const h of [...(hits ?? []), ...nowHits]) if (!seen.has(h.id)) seen.set(h.id, h);
+    return [...seen.values()];
+  }, [hits, nowHits]);
+  const allWindows = useMemo(() => {
+    const seen = new Map<string, TransitWindow>();
+    for (const w of [...spanWindows, ...windows]) if (!seen.has(windowId(w))) seen.set(windowId(w), w);
+    return [...seen.values()];
+  }, [spanWindows, windows]);
+  const allWins = useMemo(() => [...wins, ...nowWins], [wins, nowWins]);
+  /** A day of the calendar, laid out (the day view, the day's and the Moon's readings). */
+  const overviewOf = useCallback(
+    (day: CivilDate) => {
+      const b = scopeBounds("day", day, tz);
+      const noon = utcFromCivil({ ...day, hour: 12, minute: 0 }, tz).getTime();
+      return dayOverview({ from: b.from.getTime(), to: b.to.getTime(), noon }, allEvents, allWins, allHits, allWindows, nowMs);
+    },
+    [tz, allEvents, allWins, allHits, allWindows, nowMs],
+  );
+  const dayView = useMemo(() => (scope === "day" ? overviewOf(civil) : null), [scope, civil, overviewOf]);
   const bounds = useMemo(() => scopeBounds(scope, civil, tz), [scope, civil, tz]);
   const scoped = useMemo(() => hitsInScope(hits ?? [], bounds.from.getTime(), bounds.to.getTime()), [hits, bounds]);
   const cast = useMemo<TimingCast | null>(
@@ -171,36 +227,31 @@ export function useTiming() {
   // Readings come with the reading text (its own download).
   const astro = usePack("astro", locale, enabled);
   const reading = useMemo<ElementReading | null>(() => {
-    if (!chart || !astro) return null;
-    const { skyEventReading, timingBodyReading, timingDateReading, timingExactReading, windowReading } = astro;
-    const allHits = [...(hits ?? []), ...nowHits];
-    if (selectedId?.startsWith("day:")) {
-      const parsed = parseCivilKey(selectedId.slice(4));
-      if (!parsed) return null;
-      const dayBounds = scopeBounds("day", parsed, tz);
-      const dayHits = hitsInScope(hits ?? [], dayBounds.from.getTime(), dayBounds.to.getTime());
-      return timingDateReading(civilKey(parsed), dayHits, locale, tz);
+    if (!chart || !astro || !selectedId) return null;
+    const { calendarDayReading, moonDayReading, skyEventReading, timingBodyReading, timingExactReading, windowReading } = astro;
+    const dayReading = (key: string) => {
+      const parsed = parseCivilKey(key);
+      return parsed ? calendarDayReading(overviewOf(parsed), civilKey(parsed), locale, tz, nowMs) : null;
+    };
+    if (selectedId.startsWith("day:")) return dayReading(selectedId.slice(4));
+    if (selectedId.startsWith("moon:")) {
+      const parsed = parseCivilKey(selectedId.slice(5));
+      return parsed ? moonDayReading(overviewOf(parsed), civilKey(parsed), locale, tz, nowMs) : null;
     }
-    if (selectedId?.startsWith("sky:")) {
+    if (selectedId.startsWith("sky:")) {
       const id = selectedId.slice(4);
-      const ev = [...events, ...nowEvents].find((e) => skyEventId(e) === id);
-      return ev ? skyEventReading(ev, locale, tz) : null;
+      const ev = allEvents.find((e) => skyEventId(e) === id) ?? [...events, ...nowEvents].find((e) => skyEventId(e) === id);
+      return ev ? skyEventReading(ev, locale, tz, { chart, events: allEvents }) : null;
     }
-    if (selectedId?.startsWith("win:")) {
-      const w = windows.find((x) => `win:${x.moving}:${x.type}:${x.natal}:${x.from}` === selectedId);
+    if (selectedId.startsWith("win:")) {
+      const w = allWindows.find((x) => windowId(x) === selectedId);
       return w ? windowReading(w, locale, tz, nowMs) : null;
     }
-    if (!selectedId?.startsWith("timing:")) return null;
+    if (!selectedId.startsWith("timing:")) return null;
     const raw = selectedId.slice("timing:".length);
     const hit = allHits.find((h) => h.id === raw);
     if (hit) return timingExactReading(hit, chart, locale, nowMs, tz);
-    if (raw.startsWith("date:")) {
-      const parsed = parseCivilKey(raw.slice(5));
-      if (!parsed) return null;
-      const dayBounds = scopeBounds("day", parsed, tz);
-      const dayHits = hitsInScope(hits ?? [], dayBounds.from.getTime(), dayBounds.to.getTime());
-      return timingDateReading(civilKey(parsed), dayHits, locale, tz);
-    }
+    if (raw.startsWith("date:")) return dayReading(raw.slice(5));
     if (raw.startsWith("body:")) {
       const moving = raw.slice(5) as TimingHit["moving"];
       return timingBodyReading(
@@ -211,7 +262,7 @@ export function useTiming() {
       );
     }
     return null;
-  }, [selectedId, hits, nowHits, chart, locale, nowMs, tz, scoped, astro, events, nowEvents, windows]);
+  }, [selectedId, chart, locale, nowMs, tz, scoped, astro, events, nowEvents, allEvents, allHits, allWindows, overviewOf]);
 
   const pickHit = useCallback((hit: TimingHit) => pick(`timing:${hit.id}`), [pick]);
 
@@ -266,6 +317,8 @@ export function useTiming() {
       events,
       nowWins,
       nowEvents,
+      allEvents,
+      dayView,
       hits: hits ?? [],
       nowHits,
       windows,
@@ -281,6 +334,6 @@ export function useTiming() {
       pickMonth,
       enabled,
     }),
-    [scope, civil, changeScope, shift, goToday, tz, zones, prefs, updatePrefs, cast, wins, events, nowWins, nowEvents, hits, nowHits, windows, scoped, busy, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled],
+    [scope, civil, changeScope, shift, goToday, tz, zones, prefs, updatePrefs, cast, wins, events, nowWins, nowEvents, allEvents, dayView, hits, nowHits, windows, scoped, busy, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled],
   );
 }

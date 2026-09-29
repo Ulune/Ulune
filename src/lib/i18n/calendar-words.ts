@@ -2,6 +2,7 @@
  * The calendar's words (part 55 of the launch plan): the sky's events, the
  * Moon's state and your transits as short phrases, in English and French.
  */
+import type { DayOverview } from "@/lib/chart/calendar-day";
 import type { PhaseIndex, SkyAspect, SkyEvent } from "@/lib/chart/sky-events";
 import { seasonOf } from "@/lib/chart/sky-events";
 import { SIGN_IDS } from "@/lib/chart/types";
@@ -128,4 +129,55 @@ export function skyEventShort(ev: SkyEvent, locale: AppLocale): string {
     default:
       return "";
   }
+}
+
+/** The Moon bar of a day: its title and its lines (sign, void of course, phase). */
+export function dayMoonWords(
+  ov: DayOverview,
+  locale: AppLocale,
+  time: (ms: number) => string,
+  shortDay: (ms: number) => string,
+): { title: string; sign: string; void: string; phase: string } {
+  const d = source.day;
+  const dayPhase = ov.phase && ov.phase.t < ov.to ? ov.phase : null;
+  const ingress = ov.ingresses[0] ?? null;
+  const sign =
+    ov.signAtStart == null
+      ? ""
+      : ingress
+        ? fill(d.moonUntil, locale, { sign: signWord(ov.signAtStart, locale), time: time(ingress.t), next: signWord(ingress.sign, locale) })
+        : fill(d.moonAllDay, locale, { sign: signWord(ov.signAtStart, locale) });
+  const voids = ov.voids
+    .map((v) => {
+      const starts = v.t >= ov.from;
+      const ends = v.end <= ov.to;
+      if (starts && ends) return fill(d.voidFromTo, locale, { from: time(v.t), to: time(v.end) });
+      if (ends) return fill(d.voidUntil, locale, { to: time(v.end) });
+      if (starts) return fill(d.voidFrom, locale, { from: time(v.t) });
+      return pick(d.voidAllDay, locale);
+    })
+    .join(", ");
+  const phase = dayPhase
+    ? fill(d.phaseAt, locale, { phase: phaseWord(dayPhase.phase, locale), time: time(dayPhase.t) })
+    : ov.phase
+      ? fill(d.nextPhase, locale, { phase: phaseWord(ov.phase.phase, locale), when: shortDay(ov.phase.t), time: time(ov.phase.t) })
+      : "";
+  const title = ov.moon ? `${dailyPhaseWord(ov.moon.elong, locale, dayPhase?.phase)} · ${litWord(ov.moon.lit, locale)}` : "";
+  return { title, sign, void: voids, phase };
+}
+
+const FAST_MOVERS = new Set(["sun", "mercury", "venus"]);
+
+/** How long one of your transits is felt: hours for the Moon, days for the quick planets, the 1° window for the slow. */
+export function lastsWords(
+  moving: string,
+  window: { from: number; to: number } | null,
+  locale: AppLocale,
+  dayMonth: (ms: number) => string,
+): string {
+  const l = source.day.lasts;
+  if (moving === "moon") return pick(l.moon, locale);
+  if (FAST_MOVERS.has(moving)) return pick(l.fast, locale);
+  if (moving === "mars") return pick(l.mars, locale);
+  return window ? fill(source.yours.window, locale, { from: dayMonth(window.from), to: dayMonth(window.to) }) : pick(l.slow, locale);
 }
