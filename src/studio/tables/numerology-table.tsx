@@ -34,6 +34,7 @@ import { numerologyCoreLabel, numerologyPageText as p, numerologySystemLabel } f
 import { cn } from "@/lib/utils";
 import { useSwitchY } from "@/studio/modes/hooks/useSwitchY";
 import { DataTable } from "@/studio/tables/DataTable";
+import { NumerologyLifeLine } from "@/studio/tables/numerology-life";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
 /**
@@ -488,6 +489,15 @@ const within = (span: AgeSpan, age: number) => age >= span.fromAge && (span.toAg
 
 /** Period cycles, pinnacles and challenges with their ages and years; the ones running now marked. */
 function CyclesPart({ chart, locale }: { chart: NumerologyChart; locale: AppLocale }) {
+  return (
+    <div className="ulune-num-part">
+      <NumerologyLifeLine chart={chart} locale={locale} />
+      <CyclesTable chart={chart} locale={locale} />
+    </div>
+  );
+}
+
+function CyclesTable({ chart, locale }: { chart: NumerologyChart; locale: AppLocale }) {
   return (
     <DataTable stickyFirst={false} className="ulune-num-cycles">
       <thead>

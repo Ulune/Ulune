@@ -62,6 +62,9 @@ export function CalendarBar({
   onYours,
   onExport,
   table = false,
+  num = null,
+  numOn = false,
+  onNum,
 }: {
   scope: TimingScope;
   civil: CivilDate;
@@ -80,6 +83,10 @@ export function CalendarBar({
   onExport: () => void;
   /** Over the table, which has its own filters and export: the period and the clock only. */
   table?: boolean;
+  /** Your numerology for the period shown, "Personal month 4" (with your transits on), and its reading's id. */
+  num?: { id: string; text: string } | null;
+  numOn?: boolean;
+  onNum?: (id: string) => void;
 }) {
   const { locale, t } = useI18n();
   const z = CALENDAR_UI.zone;
@@ -96,6 +103,17 @@ export function CalendarBar({
         <p data-testid="timing-caption" className="ulune-cal-title" aria-live="polite">
           <span className="ulune-cal-title-long">{caption(scope, civil, locale)}</span>
           {scope === "day" ? <span className="ulune-cal-title-short">{caption(scope, civil, locale, true)}</span> : null}
+          {num ? (
+            <button
+              type="button"
+              className={cn("ulune-cal-title-num", numOn && "is-on")}
+              data-testid="calendar-num"
+              aria-pressed={numOn}
+              onClick={() => onNum?.(num.id)}
+            >
+              {num.text}
+            </button>
+          ) : null}
         </p>
         <button type="button" data-testid="timing-next" aria-label={t("periodNext")} onClick={() => onShift(1)} className="ob-icon-btn ob-icon-btn--quiet">
           <ChevronRight className="size-4" />

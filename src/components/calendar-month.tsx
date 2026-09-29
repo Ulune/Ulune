@@ -3,12 +3,13 @@ import { SignMark, SkyEventIcon } from "@/components/calendar-icons";
 import { PlanetGlyph } from "@/components/glyphs";
 import { MoonGlyph } from "@/components/moon-glyph";
 import { headlineRank, isHeadline, moonAt } from "@/lib/chart/calendar-sky";
+import { changeId, changesByDay, dayKey, personalDayOn, type NumerologyCalendar } from "@/lib/chart/numerology-calendar";
 import { ASPECT_COLOR } from "@/lib/chart/constants";
 import { skyEventId, type PhaseIndex, type SkyEvent } from "@/lib/chart/sky-events";
 import type { SkyWindow } from "@/lib/chart/sky-window";
 import { civilKey, daysInMonth, mondayIndex, utcFromCivil, type CivilDate } from "@/lib/chart/timing-window";
 import type { TimingHit } from "@/lib/chart/types";
-import { CALENDAR_UI, dailyPhaseWord, fill, signWord, skyEventShort, skyEventTitle } from "@/lib/i18n/calendar-words";
+import { CALENDAR_UI, dailyPhaseWord, fill, numChangeShort, numChangeTitle, signWord, skyEventShort, skyEventTitle } from "@/lib/i18n/calendar-words";
 import { dateFormat } from "@/lib/intl-cache";
 import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
@@ -41,6 +42,7 @@ export function CalendarMonth({
   todayKey,
   onPickDay,
   onShiftMonth,
+  num = null,
 }: {
   civil: CivilDate;
   tz: string;
@@ -54,6 +56,8 @@ export function CalendarMonth({
   onPickDay: (day: CivilDate) => void;
   /** Page Up / Page Down: the previous or next month. */
   onShiftMonth?: (dir: 1 | -1) => void;
+  /** Your numerology (with your transits on): each day's personal day, a cycle's change on its birthday. */
+  num?: NumerologyCalendar | null;
 }) {
   const { locale } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
@@ -83,6 +87,10 @@ export function CalendarMonth({
   const first: CivilDate = { year: civil.year, month: civil.month, day: 1 };
   const pad = mondayIndex(first);
   const count = daysInMonth(civil.year, civil.month);
+  const changes = useMemo(
+    () => (num ? changesByDay(num, dayKey(civil.year, civil.month, 1), dayKey(civil.year, civil.month, count)) : null),
+    [num, civil.year, civil.month, count],
+  );
   const cells: Array<CivilDate | null> = [
     ...Array.from({ length: pad }, () => null),
     ...Array.from({ length: count }, (_, i) => ({ year: civil.year, month: civil.month, day: i + 1 })),
@@ -160,11 +168,15 @@ export function CalendarMonth({
                 .filter(Boolean)
                 .join(", ")
             : "";
+          const pd = num ? personalDayOn(num, date.year, date.month, date.day) : null;
+          const turns = changes?.get(key) ?? [];
           const label = [
             dayName.format(Date.UTC(date.year, date.month - 1, date.day, 12)),
             moonWords,
             ...heads.map((ev) => `${skyEventTitle(ev, locale, time)}, ${time(ev.t)}`),
             mine.length ? fill(CALENDAR_UI.yours.count, locale, { n: mine.length }) : "",
+            pd != null ? fill(CALENDAR_UI.num.cellDay, locale, { n: pd }) : "",
+            ...turns.map((c) => numChangeTitle(c, locale)),
           ]
             .filter(Boolean)
             .join("; ");
@@ -185,7 +197,10 @@ export function CalendarMonth({
               style={{ ["--enter" as string]: i }}
             >
               <span className="ulune-cal-top">
-                <span className="ulune-cal-n">{date.day}</span>
+                <span className="ulune-cal-n">
+                  {date.day}
+                  {pd != null ? <sup className="ulune-cal-pd">{pd}</sup> : null}
+                </span>
                 <span className="ulune-cal-moon">
                   <span className="ulune-cal-signs">{signs}</span>
                   {moon ? <MoonGlyph elong={moon.elong} size={17} /> : null}
@@ -202,6 +217,15 @@ export function CalendarMonth({
                   {heads.length > 3 ? (
                     <span className="ulune-cal-line ulune-cal-more">{fill(CALENDAR_UI.yours.more, locale, { n: heads.length - 3 })}</span>
                   ) : null}
+                </span>
+              ) : null}
+              {turns.length ? (
+                <span className="ulune-cal-turns" aria-hidden>
+                  {turns.map((c) => (
+                    <span key={changeId(c)} className="ulune-cal-turn-n" data-testid={`calendar-numchange-${c.kind}-${c.index}`}>
+                      {numChangeShort(c, locale)}
+                    </span>
+                  ))}
                 </span>
               ) : null}
               {mine.length ? (
@@ -222,7 +246,7 @@ export function CalendarMonth({
   );
 }
 
-export function CalendarLegend() {
+export function CalendarLegend({ num = false }: { num?: boolean }) {
   const { locale } = useI18n();
   const l = CALENDAR_UI.legend;
   return (
@@ -253,6 +277,19 @@ export function CalendarLegend() {
         <i className="ulune-cal-dot" data-family="soft" style={{ background: "var(--aspect-soft)" }} /> {pick(l.soft, locale)}{" "}
         <i className="ulune-cal-dot" data-family="hard" style={{ background: "var(--aspect-hard)" }} /> {pick(l.hard, locale)}
       </span>
+      {num ? (
+        <>
+          <span data-testid="calendar-legend-num">
+            <span className="ulune-cal-n" aria-hidden>
+              6<sup className="ulune-cal-pd">3</sup>
+            </span>{" "}
+            {pick(CALENDAR_UI.num.legend, locale)}
+          </span>
+          <span>
+            <i className="ulune-cal-dot" style={{ background: "var(--color-halo)" }} /> {pick(CALENDAR_UI.num.legendTurn, locale)}
+          </span>
+        </>
+      ) : null}
     </p>
   );
 }

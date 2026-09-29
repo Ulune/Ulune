@@ -178,7 +178,7 @@ async function runViewport(width) {
     await page.getByTestId("timing-scope-year").click();
     await page.getByTestId("calendar-year").waitFor({ timeout: 30000 });
     const wide = width >= 1024;
-    const bigTransit = wide ? page.locator("[data-testid^=calendar-year-transit-]").first() : page.locator("[data-testid=calendar-year-months] .ulune-cal-effect-line").first();
+    const bigTransit = wide ? page.locator("[data-testid^=calendar-year-transit-]").first() : page.locator("[data-testid=calendar-year-months] .ulune-cal-effect-line:not(.is-num)").first();
     await bigTransit.waitFor({ timeout: 40000 });
     await bigTransit.click();
     await clickDockTab(page, "reading");

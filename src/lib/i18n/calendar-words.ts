@@ -181,3 +181,19 @@ export function lastsWords(
   if (moving === "mars") return pick(l.mars, locale);
   return window ? fill(source.yours.window, locale, { from: dayMonth(window.from), to: dayMonth(window.to) }) : pick(l.slow, locale);
 }
+
+/** "Pinnacle 3 begins: 1": a long cycle's change on a birthday (numerology, part 62). */
+export function numChangeTitle(c: { kind: "period" | "pinnacle" | "challenge"; index: number; value: { number: number | null } }, locale: AppLocale): string {
+  const cycle = fill(source.num[`cycle_${c.kind}`], locale, { n: c.index });
+  return fill(source.num.begins, locale, { cycle, n: c.value.number ?? "" });
+}
+
+/** "Pinnacle 3 → 1": the same, short enough for a day of the month. */
+export function numChangeShort(c: { kind: "period" | "pinnacle" | "challenge"; index: number; value: { number: number | null } }, locale: AppLocale): string {
+  return `${fill(source.num[`cycle_${c.kind}`], locale, { n: c.index })} → ${c.value.number ?? ""}`;
+}
+
+/** "after 3, at 41". */
+export function numChangeDetail(c: { age: number; previous: { number: number | null } }, locale: AppLocale): string {
+  return fill(source.num.after, locale, { prev: c.previous.number ?? "", age: c.age });
+}

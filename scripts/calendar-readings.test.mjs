@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { calculateNatal, calculateSkyWindow, calculateSkyYear } from "../src/lib/chart/calculate.server.ts";
 import { dayOverview } from "../src/lib/chart/calendar-day.ts";
+import { yearLayout } from "../src/lib/chart/calendar-year.ts";
 import { eventsOf, mergeEvents } from "../src/lib/chart/calendar-sky.ts";
 import { calendarDayReading, moonDayReading, skyEventReading, windowReading } from "../src/lib/chart/interpret-calendar.ts";
 import { CALENDAR_MOVERS, foldTwins, slowWindowsFromYears, transitsFromWindows } from "../src/lib/chart/personal-transits.ts";
@@ -136,4 +137,15 @@ test("the day, the Moon and a slow transit read in both languages", { timeout: 1
     assertClean(r, `window ${locale}`);
     assert.ok(r.links.rows.some((row) => row.ref.startsWith("transits-at:")));
   }
+});
+
+test("a year whose sky file has not come yet draws no signs and no retrograde (part 62)", { timeout: 180_000 }, async () => {
+  const s = await sky();
+  // 2031 with only 2025–2027 at hand: the last stations and signs known must not stretch over it.
+  const early = yearLayout(2031, TZ, s.events, s.years, []);
+  for (const b of early.bodies) assert.deepEqual([b.body, b.segments.length, b.retro.length], [b.body, 0, 0]);
+  // 2026, whose file is here: every body has its signs, Mercury its three retrograde stretches.
+  const here = yearLayout(2026, TZ, s.events, s.years, []);
+  for (const b of here.bodies) assert.ok(b.segments.length >= 1, b.body);
+  assert.equal(here.bodies.find((b) => b.body === "mercury").retro.length, 3);
 });

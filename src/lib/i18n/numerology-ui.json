@@ -604,7 +604,7 @@
     },
     "cycle_period": {
       "en": "Period {n}",
-      "fr": "Cycle {n}"
+      "fr": "Cycle de vie {n}"
     },
     "cycle_pinnacle": {
       "en": "Pinnacle {n}",
@@ -613,6 +613,46 @@
     "cycle_challenge": {
       "en": "Challenge {n}",
       "fr": "Défi {n}"
+    },
+    "lane_period": {
+      "en": "Period cycles",
+      "fr": "Cycles de vie"
+    },
+    "lane_pinnacle": {
+      "en": "Pinnacles",
+      "fr": "Réalisations"
+    },
+    "lane_challenge": {
+      "en": "Challenges",
+      "fr": "Défis"
+    },
+    "lane_nine": {
+      "en": "New nine-year round",
+      "fr": "Nouveau cycle de neuf ans"
+    },
+    "axisAge": {
+      "en": "age",
+      "fr": "âge"
+    },
+    "axisYear": {
+      "en": "year",
+      "fr": "année"
+    },
+    "nineStart": {
+      "en": "{year}: personal year 1, a new nine-year round",
+      "fr": "{year} : année personnelle 1, un nouveau cycle de neuf ans"
+    },
+    "lifeNow": {
+      "en": "{year} · age {age} · personal year {py}",
+      "fr": "{year} · {age} ans · année personnelle {py}"
+    },
+    "lifeAria": {
+      "en": "The life line, from birth to {end}. In {year}, at {age}: {cycles}.",
+      "fr": "La ligne de vie, de la naissance à {end} ans. En {year}, à {age} ans : {cycles}."
+    },
+    "lifeSpan": {
+      "en": "{cycle}: {n}, ages {ages}, {years}",
+      "fr": "{cycle} : {n}, âges {ages}, {years}"
     },
     "main": {
       "en": "main",

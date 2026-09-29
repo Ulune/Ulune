@@ -554,6 +554,15 @@
 :is(.ulune-num-cycles, .ulune-num-years) tbody tr[data-now] td {
   background: color-mix(in oklab, var(--color-halo) 10%, transparent);
 }
+/* A phone's stacked rows: one band for the row running now, not a box per cell. */
+@container (max-width: 639.98px) {
+  :is(.ulune-num-cycles, .ulune-num-years) tbody tr[data-now] {
+    background: color-mix(in oklab, var(--color-halo) 10%, transparent);
+  }
+  :is(.ulune-num-cycles, .ulune-num-years) tbody tr[data-now] td {
+    background: transparent;
+  }
+}
 .ulune-num-gridrow {
   display: flex;
   flex-wrap: wrap;
@@ -659,4 +668,145 @@ button.ulune-num-card:hover {
 }
 .ulune-num-numbers td[data-col="keywords"] {
   min-width: 9rem;
+}
+
+/* The life line (part 62): the long cycles to scale from birth, each new
+   nine-year round, a line at the year shown; the ones running then in gold. */
+.ulune-num-life {
+  --label: 10.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+.ulune-num-life-row {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: var(--label) minmax(0, 1fr);
+  align-items: center;
+}
+.ulune-num-life-caption {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 11.5px/1.2 var(--font-ui);
+  color: var(--color-fg);
+}
+.ulune-num-life-caption i {
+  width: 14px;
+  border-top: 1.5px dashed var(--color-halo);
+}
+.ulune-num-life-label {
+  padding-right: 8px;
+  font: 400 12.5px/1.2 var(--font-ui);
+  color: var(--color-fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ulune-num-life-track {
+  position: relative;
+  height: 28px;
+}
+.ulune-num-life-span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 7px;
+  background: color-mix(in oklab, var(--color-fg) 8%, transparent);
+  box-shadow: 0 0 0 1.5px var(--color-bg);
+  font: 600 13px/1 var(--font-mono);
+  color: var(--color-fg);
+  overflow: hidden;
+}
+.ulune-num-life-span[data-now] {
+  background: color-mix(in oklab, var(--color-halo) 22%, transparent);
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-halo),
+    0 0 0 1.5px var(--color-bg);
+}
+/* The last of each runs for the rest of life: it fades out at the right. */
+.ulune-num-life-span[data-open] {
+  mask-image: linear-gradient(to right, #000 70%, transparent);
+}
+.ulune-num-life-span small {
+  font: 500 10px/1 var(--font-ui);
+  color: var(--color-fg-subtle);
+}
+.ulune-num-life-row[data-lane="nine"] .ulune-num-life-track {
+  height: 16px;
+  border-bottom: 1px solid var(--color-border-strong);
+}
+.ulune-num-life-start {
+  position: absolute;
+  top: 2px;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-radius: 1.5px;
+  background: var(--color-fg-muted);
+  transform: rotate(45deg);
+}
+.ulune-num-life-row.is-axis .ulune-num-life-track {
+  height: 30px;
+}
+.ulune-num-life-row.is-axis .ulune-num-life-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--color-fg-subtle);
+}
+.ulune-num-life-tick {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transform: translateX(-50%);
+}
+.ulune-num-life-tick:first-child {
+  align-items: flex-start;
+  transform: none;
+}
+.ulune-num-life-tick b {
+  font: 500 11px/1 var(--font-mono);
+  color: var(--color-fg-muted);
+}
+.ulune-num-life-tick small {
+  font: 400 10px/1 var(--font-mono);
+  color: var(--color-fg-subtle);
+}
+/* Behind the spans: their numbers stay readable where it crosses them. */
+.ulune-num-life-now {
+  position: absolute;
+  z-index: 0;
+  top: 18px;
+  bottom: 36px;
+  left: calc(var(--label) + (100% - var(--label)) * var(--x));
+  border-left: 1.5px dashed var(--color-halo);
+  pointer-events: none;
+}
+@media (max-width: 639.98px) {
+  .ulune-num-life {
+    --label: 5.75rem;
+  }
+  .ulune-num-life-label {
+    font-size: 11.5px;
+    white-space: normal;
+  }
+  .ulune-num-life-span small {
+    display: none;
+  }
+  /* Years every twenty on a phone: ten apart they touch. */
+  .ulune-num-life-tick:nth-child(even) small {
+    visibility: hidden;
+  }
 }

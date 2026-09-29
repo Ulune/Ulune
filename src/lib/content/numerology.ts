@@ -287,7 +287,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
   },
 };
 
-type CycleKey = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 11 | 22;
+export type CycleKey = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 11 | 22;
 
 /** Personal Year 1–9 (and 11, 22 when kept): the typical theme of the year in a nine-year cycle, with a concrete suggestion. */
 export const PERSONAL_YEAR_TEXT: Record<CycleKey, Bi> = {

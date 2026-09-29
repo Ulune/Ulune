@@ -5,6 +5,9 @@ import { CalendarNow } from "@/components/calendar-now";
 import { CalendarDay } from "@/components/calendar-day";
 import { CalendarYear, CalendarYearPanel } from "@/components/calendar-year";
 import { LoadingLines } from "@/components/loading-lines";
+import type { NumRow } from "@/lib/chart/calendar-rows";
+import { changesBetween, dayKey, personalDayOn, personalMonthOn, personalYearOn, type NumerologyCalendar } from "@/lib/chart/numerology-calendar";
+import type { CivilDate } from "@/lib/chart/timing-window";
 import { localizeError } from "@/lib/i18n/errors";
 import { useI18n } from "@/lib/i18n/locale";
 import { timingNoNatal } from "@/lib/i18n/timing-ui";
@@ -22,9 +25,24 @@ const CalendarTable = lazyNamed(loadTable, "CalendarTable");
 
 export type TimingState = ReturnType<typeof useTiming>;
 
+const NO_ROWS: readonly NumRow[] = [];
+
+/** A day's numerology for the day view: its personal day, month and year, and a long cycle changing that day. */
+function numDayOf(num: NumerologyCalendar, civil: CivilDate) {
+  const key = dayKey(civil.year, civil.month, civil.day);
+  return {
+    pd: personalDayOn(num, civil.year, civil.month, civil.day),
+    pm: personalMonthOn(num, civil.year, civil.month),
+    py: personalYearOn(num, civil.year),
+    changes: changesBetween(num, key, key),
+  };
+}
+
 /** The calendar's bar, over the figure and over the table. */
 function TimingBar({ table = false }: { table?: boolean }) {
   const timing = useModeData("timing");
+  const selectedId = useStudioStore((s) => s.selectedId);
+  const pick = useStudioStore((s) => s.pick);
   if (!timing) return null;
   return (
     <CalendarBar
@@ -42,6 +60,9 @@ function TimingBar({ table = false }: { table?: boolean }) {
       onYours={(yours) => timing.updatePrefs({ yours })}
       onExport={timing.exportIcs}
       table={table}
+      num={timing.numTitle}
+      numOn={!!timing.numTitle && selectedId === timing.numTitle.id}
+      onNum={pick}
     />
   );
 }
@@ -55,6 +76,8 @@ function TimingFigure() {
   if (!timing.enabled && !timing.cast) {
     return <p className="px-5 py-10 font-display text-2xl text-fg">{timingNoNatal(locale)}</p>;
   }
+  // Your numerology rides with your transits.
+  const num = timing.prefs.yours ? timing.numCal : null;
   return (
     <div
       className="ulune-timing-hero w-full min-w-0 overflow-auto px-[var(--stage-pad)] py-[var(--space-2)]"
@@ -77,6 +100,7 @@ function TimingFigure() {
           showYours={timing.prefs.yours}
           selectedId={selectedId}
           onSelect={pick}
+          num={num && timing.dayView ? numDayOf(num, timing.civil) : null}
         />
       ) : null}
       {timing.scope === "month" ? (
@@ -93,8 +117,9 @@ function TimingFigure() {
             todayKey={timing.todayKey}
             onPickDay={timing.pickDay}
             onShiftMonth={timing.shift}
+            num={num}
           />
-          <CalendarLegend />
+          <CalendarLegend num={!!num} />
         </>
       ) : null}
       {timing.scope === "year" && timing.yearView ? (
@@ -107,6 +132,7 @@ function TimingFigure() {
           selectedId={selectedId}
           onSelect={pick}
           onOpenMonth={(month) => timing.pickMonth({ year: timing.civil.year, month, day: 1 })}
+          num={num}
         />
       ) : null}
     </div>
@@ -132,6 +158,7 @@ function TimingHelloEmpty() {
         showYours={timing.prefs.yours}
         selectedId={w.selectedId}
         onSelect={w.pick}
+        num={timing.prefs.yours ? timing.numCal : null}
       />
     );
   }
@@ -147,6 +174,7 @@ function TimingHelloEmpty() {
       showYours={timing.prefs.yours}
       selectedId={w.selectedId}
       onSelect={w.pick}
+      num={timing.prefs.yours ? timing.numCal : null}
     />
   );
 }
@@ -172,6 +200,7 @@ function TimingData() {
           fileName={timing.fileName}
           selectedId={w.selectedId}
           onSelect={w.pick}
+          num={timing.prefs.yours ? timing.numRows : NO_ROWS}
         />
       </Suspense>
     </div>

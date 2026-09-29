@@ -4,11 +4,13 @@ import { PlanetGlyph } from "@/components/glyphs";
 import { MoonGlyph } from "@/components/moon-glyph";
 import { windowId } from "@/lib/chart/calendar-sky";
 import { headlineTransits, type YearLayout, type YearTransit } from "@/lib/chart/calendar-year";
+import { changeId, changesBetween, dayKey, personalMonthOn, personalYearOn, type NumerologyCalendar } from "@/lib/chart/numerology-calendar";
+import { utcFromCivil } from "@/lib/chart/timing-window";
 import { ASPECT_COLOR, ELEMENT_COLOR, SIGN_META } from "@/lib/chart/constants";
 import { skyEventId, type SkyAspect, type SkyEvent } from "@/lib/chart/sky-events";
 import { SIGN_IDS } from "@/lib/chart/types";
 import { bodyLabel } from "@/lib/i18n/astro";
-import { CALENDAR_UI, fill, phaseWord, signWord, skyEventTitle, yourAspectWords } from "@/lib/i18n/calendar-words";
+import { CALENDAR_UI, fill, numChangeDetail, numChangeTitle, phaseWord, signWord, skyEventTitle, yourAspectWords } from "@/lib/i18n/calendar-words";
 import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
 import { dateFormat } from "@/lib/intl-cache";
@@ -20,7 +22,8 @@ const Y = CALENDAR_UI.year;
  * The calendar's year (part 57 of the launch plan). Wide: a timeline to
  * scale (the Moon's new and full phases and the eclipses, the seasons, each
  * planet's signs with its retrograde stretches hatched, your big transits as
- * bars while within 1° with a tick per exact pass). Narrow: a card per
+ * bars while within 1° with a tick per exact pass) and, with your
+ * numerology, a band per personal month (part 62). Narrow: a card per
  * month. The container decides which shows (timing.css).
  */
 export function CalendarYear({
@@ -32,6 +35,7 @@ export function CalendarYear({
   selectedId,
   onSelect,
   onOpenMonth,
+  num = null,
 }: {
   layout: YearLayout;
   tz: string;
@@ -42,8 +46,10 @@ export function CalendarYear({
   onSelect: (id: string) => void;
   /** Open a month (1–12) of the year in the month view. */
   onOpenMonth: (month: number) => void;
+  /** Your numerology (with your transits on): the personal months, a long cycle changing on a birthday. */
+  num?: NumerologyCalendar | null;
 }) {
-  const props = { layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth };
+  const props = { layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth, num };
   return (
     <div className="ulune-cal-year" data-testid="calendar-year">
       <YearTimeline {...props} />
@@ -66,7 +72,16 @@ function useFormats(tz: string) {
   };
 }
 
-function YearTimeline({ layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth }: Props) {
+/** The long cycles changing in the year, each with the noon of its birthday in the calendar's clock. */
+function yearChanges(num: NumerologyCalendar | null | undefined, year: number, tz: string) {
+  if (!num) return [];
+  return changesBetween(num, dayKey(year, 1, 1), dayKey(year, 12, 31)).map((c) => {
+    const [y, m, d] = c.day.split("-").map(Number) as [number, number, number];
+    return { c, t: utcFromCivil({ year: y, month: m, day: d, hour: 12, minute: 0 }, tz).getTime() };
+  });
+}
+
+function YearTimeline({ layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth, num }: Props) {
   const f = useFormats(tz);
   const { locale } = f;
   const [all, setAll] = useState(false);
@@ -172,13 +187,14 @@ function YearTimeline({ layout, tz, nowMs, showSky, showYours, selectedId, onSel
           ))}
         </>
       ) : null}
+      {showYours && num ? <NumLane layout={layout} tz={tz} num={num} x={x} pct={pct} selectedId={selectedId} onSelect={onSelect} /> : null}
       {showYours ? (
         <>
           <p className="ulune-cal-tl-sect">{pick(Y.yoursHead, locale)}</p>
           {shown.length ? (
             shown.map((t) => <TransitRow key={t.key} t={t} x={x} pct={pct} selectedId={selectedId} onSelect={onSelect} dayMonth={f.dayMonth} />)
           ) : (
-            <p className="ulune-cal-empty">{pick(Y.none, locale)}</p>
+            <p className="ulune-cal-empty">{pick(layout.ready ? Y.none : CALENDAR_UI.panel.loading, locale)}</p>
           )}
           {more > 0 || all ? (
             <button type="button" className="ulune-cal-chip ulune-cal-tl-more" data-testid="calendar-year-all" aria-expanded={all} onClick={() => setAll(!all)}>
@@ -193,6 +209,99 @@ function YearTimeline({ layout, tz, nowMs, showSky, showYours, selectedId, onSel
         </span>
       ) : null}
     </div>
+  );
+}
+
+/** Numerology's lane: a band per personal month, a mark on a birthday where a long cycle changes, and those changes. */
+function NumLane({
+  layout,
+  tz,
+  num,
+  x,
+  pct,
+  selectedId,
+  onSelect,
+}: {
+  layout: YearLayout;
+  tz: string;
+  num: NumerologyCalendar;
+  x: (ms: number) => number;
+  pct: (v: number) => string;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}) {
+  const f = useFormats(tz);
+  const { locale } = f;
+  const year = layout.year;
+  const changes = yearChanges(num, year, tz);
+  const days = [...new Set(changes.map((r) => r.t))];
+  return (
+    <>
+      <p className="ulune-cal-tl-sect">{pick(CALENDAR_UI.num.yearHead, locale)}</p>
+      <div className="ulune-cal-tl-row is-num" data-testid="calendar-year-num">
+        <span className="ulune-cal-tl-label">
+          <span className="ulune-cal-numbadge" aria-hidden>
+            {personalYearOn(num, year)}
+          </span>
+          <span>{pick(CALENDAR_UI.num.lane, locale)}</span>
+        </span>
+        <span className="ulune-cal-tl-track">
+          <span className="ulune-cal-tl-numbands">
+            {layout.months.slice(0, 12).map((m, i) => {
+              const pm = personalMonthOn(num, year, i + 1);
+              const id = `nummonth:${year}-${String(i + 1).padStart(2, "0")}`;
+              const label = `${f.month(m + 43_200_000, "long")}: ${fill(CALENDAR_UI.num.personalMonth, locale, { n: pm }).toLowerCase()}`;
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  tabIndex={-1}
+                  className={cn("ulune-cal-tl-pm", selectedId === id && "is-on")}
+                  style={{ left: pct(x(m)), width: pct(x(layout.months[i + 1]!) - x(m)) }}
+                  title={label}
+                  aria-label={label}
+                  data-testid={`calendar-year-pm-${i + 1}`}
+                  onClick={() => onSelect(id)}
+                >
+                  {pm}
+                </button>
+              );
+            })}
+          </span>
+          {days.map((t) => (
+            <span key={t} className="ulune-cal-tl-numturn" style={{ left: pct(x(t)) }} aria-hidden />
+          ))}
+        </span>
+      </div>
+      {changes.length ? (
+        <div className="ulune-cal-tl-row is-numturns">
+          <span />
+          <span className="ulune-cal-tl-numchips">
+            {changes.map(({ c, t }) => {
+              const id = changeId(c);
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  className={cn("ulune-cal-chip ulune-cal-mchip", selectedId === id && "is-on")}
+                  aria-pressed={selectedId === id}
+                  data-testid={`calendar-year-numchange-${c.kind}-${c.index}`}
+                  title={numChangeDetail(c, locale)}
+                  onClick={() => onSelect(id)}
+                >
+                  <span className="ulune-cal-numbadge" aria-hidden>
+                    {c.value.number}
+                  </span>
+                  <span>
+                    {numChangeTitle(c, locale)} · {f.dayMonth(t)}
+                  </span>
+                </button>
+              );
+            })}
+          </span>
+        </div>
+      ) : null}
+    </>
   );
 }
 
@@ -238,10 +347,11 @@ function TransitRow({
 }
 
 /** A phone's year: a card per month with its sky and your big transits. */
-function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth }: Props) {
+function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth, num }: Props) {
   const f = useFormats(tz);
   const { locale } = f;
   const shownTransits = headlineTransits(layout.transits, 99);
+  const numChanges = showYours ? yearChanges(num, layout.year, tz) : [];
   // On a phone the year opens on the current month (the stage scrolls, not the page), and
   // stays on it while the year's sky and your transits arrive, until the reader scrolls.
   const list = useRef<HTMLOListElement>(null);
@@ -280,6 +390,9 @@ function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelec
               .filter((r) => r.days.length)
           : [];
         const current = nowMs >= m && nowMs < end;
+        const pm = showYours && num ? personalMonthOn(num, layout.year, i + 1) : null;
+        const pmId = `nummonth:${layout.year}-${String(i + 1).padStart(2, "0")}`;
+        const turns = numChanges.filter((r) => inMonth(r.t));
         return (
           <li key={m} className={cn("ulune-cal-monthcard", current && "is-now")} data-testid={`calendar-year-month-${i + 1}`}>
             <h3 className="ulune-cal-monthcard-h">
@@ -287,8 +400,21 @@ function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelec
                 {f.month(m + 43_200_000, "long").replace(/^./, (c) => c.toUpperCase())}
               </button>
             </h3>
-            {sky.length ? (
+            {sky.length || pm != null ? (
               <span className="ulune-cal-monthcard-chips">
+                {pm != null ? (
+                  <button
+                    type="button"
+                    className={cn("ulune-cal-chip ulune-cal-mchip ulune-cal-pmchip", selectedId === pmId && "is-on")}
+                    data-testid={`calendar-year-card-pm-${i + 1}`}
+                    onClick={() => onSelect(pmId)}
+                  >
+                    <span className="ulune-cal-numbadge" aria-hidden>
+                      {pm}
+                    </span>
+                    <span>{fill(CALENDAR_UI.num.personalMonth, locale, { n: pm })}</span>
+                  </button>
+                ) : null}
                 {sky.map((ev) => {
                   const id = `sky:${skyEventId(ev)}`;
                   return (
@@ -300,6 +426,19 @@ function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelec
                 })}
               </span>
             ) : null}
+            {turns.map(({ c, t }) => {
+              const id = changeId(c);
+              return (
+                <button key={id} type="button" className={cn("ulune-cal-effect-line is-num", selectedId === id && "is-on")} data-testid={`calendar-year-card-numchange-${c.kind}-${c.index}`} onClick={() => onSelect(id)}>
+                  <span className="ulune-cal-numbadge" aria-hidden>
+                    {c.value.number}
+                  </span>
+                  <span>
+                    <b>{numChangeTitle(c, locale)}</b> · {f.day(t)}
+                  </span>
+                </button>
+              );
+            })}
             {yours.map(({ t, days }) => {
               const id = windowId(t.windows[0]!);
               return (
@@ -368,6 +507,7 @@ export function CalendarYearPanel({
   showYours,
   selectedId,
   onSelect,
+  num = null,
 }: {
   layout: YearLayout;
   tz: string;
@@ -375,17 +515,16 @@ export function CalendarYearPanel({
   showYours: boolean;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  num?: NumerologyCalendar | null;
 }) {
   const f = useFormats(tz);
   const { locale } = f;
-  const link = (ev: SkyEvent, text: string) => {
-    const id = `sky:${skyEventId(ev)}`;
-    return (
-      <button key={id} type="button" className={cn("ulune-cal-inline", selectedId === id && "is-on")} onClick={() => onSelect(id)}>
-        {text}
-      </button>
-    );
-  };
+  const linkTo = (id: string, text: string) => (
+    <button key={id} type="button" className={cn("ulune-cal-inline", selectedId === id && "is-on")} onClick={() => onSelect(id)}>
+      {text}
+    </button>
+  );
+  const link = (ev: SkyEvent, text: string) => linkTo(`sky:${skyEventId(ev)}`, text);
   const join = (items: React.ReactNode[]) => items.flatMap((it, i) => (i ? [", ", it] : [it]));
   // Retrograde stretches of Mercury, Venus and Mars that start in the year.
   const retro = (["mercury", "venus", "mars"] as const)
@@ -438,6 +577,17 @@ export function CalendarYearPanel({
       {showYours ? (
         <>
           <h3 className="ulune-cal-now-kicker">{pick(Y.yourYear, locale)}</h3>
+          {num ? (
+            <p className="ulune-cal-yearline" data-testid="calendar-yearpanel-num">
+              {linkTo(`numyear:${layout.year}`, fill(CALENDAR_UI.num.personalYear, locale, { n: personalYearOn(num, layout.year) }))}
+              {yearChanges(num, layout.year, tz).map(({ c, t }) => (
+                <span key={changeId(c)}>
+                  {" · "}
+                  {linkTo(changeId(c), `${numChangeTitle(c, locale)}, ${f.dayMonth(t)}`)}
+                </span>
+              ))}
+            </p>
+          ) : null}
           {top.length ? (
             top.map((t) => {
               const id = windowId(t.windows[0]!);
@@ -451,7 +601,7 @@ export function CalendarYearPanel({
               );
             })
           ) : (
-            <p className="ulune-cal-now-detail">{pick(Y.none, locale)}</p>
+            <p className="ulune-cal-now-detail">{pick(layout.ready ? Y.none : CALENDAR_UI.panel.loading, locale)}</p>
           )}
           {rest > 0 ? <p className="ulune-cal-now-detail">{fill(Y.more, locale, { n: rest })}</p> : null}
         </>

@@ -1003,6 +1003,198 @@ button.ulune-cal-now-line:hover,
 .ulune-cal-dot[data-family="conj"] {
   box-shadow: 0 0 0 1.5px var(--color-bg), 0 0 0 2.5px var(--aspect-conj);
 }
+/* Numerology in the calendar (part 62): the personal day on each day, the
+   personal month or year beside the title, a long cycle changing on a
+   birthday; in the numerology's gold, with the number always written. */
+.ulune-cal-numbadge {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  font: 600 11px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg);
+  background: color-mix(in oklab, var(--color-halo) 16%, var(--color-bg));
+  box-shadow: inset 0 0 0 1px var(--color-halo);
+}
+.ulune-cal-now-icon .ulune-cal-numbadge {
+  min-width: 22px;
+  height: 22px;
+  font-size: 12px;
+}
+.ulune-cal-title-num {
+  margin-left: 0.75rem;
+  font: 500 13px/1.2 var(--font-ui);
+  color: var(--color-fg-muted);
+  vertical-align: 0.3em;
+  text-decoration: underline dotted color-mix(in oklab, var(--color-fg) 30%, transparent);
+  text-underline-offset: 3px;
+}
+.ulune-cal-title-num:hover,
+.ulune-cal-title-num.is-on {
+  color: var(--color-fg);
+}
+.ulune-cal-title-num.is-on {
+  text-decoration-style: solid;
+}
+.ulune-cal-pd {
+  margin-left: 2px;
+  font: 600 9.5px/1 var(--font-mono);
+  color: color-mix(in oklab, var(--color-halo) 75%, var(--color-fg));
+  vertical-align: 0.45em;
+}
+.ulune-cal-turns {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ulune-cal-turn-n {
+  min-width: 0;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font: 600 10.5px/1.25 var(--font-ui);
+  color: var(--color-fg);
+  background: color-mix(in oklab, var(--color-halo) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-halo) 60%, transparent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@container (max-width: 560px) {
+  .ulune-cal-pd {
+    font-size: 8.5px;
+  }
+  /* A narrow cell: a gold dot says a cycle changes that day; the day's reading names it. */
+  .ulune-cal-turn-n {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border-radius: 999px;
+    font-size: 0;
+    background: var(--color-halo);
+  }
+  .ulune-cal-turn-n:nth-child(n + 2) {
+    display: none;
+  }
+}
+.ulune-cal-numday {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ulune-cal-numbar {
+  display: flex;
+  flex: 1 1 16rem;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  text-align: left;
+  transition: border-color var(--dur-hover) var(--ease-out);
+}
+.ulune-cal-numbar:hover {
+  border-color: var(--color-border-strong);
+}
+.ulune-cal-numbar.is-on {
+  border-color: var(--color-fg);
+}
+.ulune-cal-numbar-n {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  font: 500 18px/1 var(--font-mono);
+  color: var(--color-fg);
+  background: color-mix(in oklab, var(--color-halo) 16%, var(--color-bg));
+  box-shadow: inset 0 0 0 1.5px var(--color-halo);
+}
+/* A change of cycle: a square, not a round (colour never alone). */
+.ulune-cal-numbar.is-change .ulune-cal-numbar-n {
+  border-radius: 10px;
+}
+.ulune-cal-numbar-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ulune-cal-numbar-title {
+  font: 600 14px/1.3 var(--font-ui);
+  color: var(--color-fg);
+}
+.ulune-cal-numbar-line {
+  font: 400 12.5px/1.4 var(--font-ui);
+  color: var(--color-fg-subtle);
+}
+.ulune-cal-tl-row.is-num .ulune-cal-tl-track {
+  height: 26px;
+}
+.ulune-cal-tl-numbands {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: var(--color-bg-elevated);
+  overflow: hidden;
+}
+.ulune-cal-tl-pm {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  border-right: 1px solid var(--color-bg);
+  font: 600 11px/1 var(--font-mono);
+  color: var(--color-fg-muted);
+  background: color-mix(in oklab, var(--color-halo) 9%, transparent);
+  transition: background-color var(--dur-hover) var(--ease-out);
+}
+.ulune-cal-tl-pm:nth-child(odd) {
+  background: color-mix(in oklab, var(--color-halo) 17%, transparent);
+}
+.ulune-cal-tl-pm:hover {
+  color: var(--color-fg);
+  background: color-mix(in oklab, var(--color-halo) 28%, transparent);
+}
+.ulune-cal-tl-pm.is-on {
+  color: var(--color-fg);
+  box-shadow: inset 0 0 0 2px var(--color-fg);
+}
+/* The birthday a long cycle changes on: a gold dot on the band's top edge, clear of its number. */
+.ulune-cal-tl-numturn {
+  position: absolute;
+  top: -5px;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-radius: 999px;
+  background: var(--color-halo);
+  box-shadow: 0 0 0 2px var(--color-bg);
+  pointer-events: none;
+}
+.ulune-cal-tl-numchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding-top: 4px;
+}
+@media (max-width: 639.98px) {
+  /* A phone: the personal month or year under the period, on a line of its own. */
+  .ulune-cal-title-num {
+    display: block;
+    margin: 3px 0 0;
+    font-size: 12.5px;
+    vertical-align: baseline;
+  }
+}
 /* Reduced motion: a new month appears at once, not cell by cell. */
 @media (prefers-reduced-motion: reduce) {
   .ulune-cal-cell {

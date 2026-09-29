@@ -9,7 +9,7 @@ import type { TransitWindow } from "@/lib/chart/personal-transits";
 import type { SkyAspect } from "@/lib/chart/sky-events";
 import { dateFormat } from "@/lib/intl-cache";
 import { formatDegree } from "@/lib/utils";
-import { CALENDAR_UI, fill, signWord, skyEventDetail, skyEventTitle, yourAspectWords } from "./calendar-words";
+import { CALENDAR_UI, fill, numChangeDetail, numChangeTitle, signWord, skyEventDetail, skyEventTitle, yourAspectWords } from "./calendar-words";
 import type { AppLocale } from "./messages";
 import { pick } from "./pick";
 
@@ -35,6 +35,19 @@ export function calendarIcs(
         end: ev.k === "void" ? ev.end : undefined,
         summary: skyEventTitle(ev, locale, time),
         description: [pick(CALENDAR_UI.day.sky, locale), detail].filter(Boolean).join(" · "),
+      };
+    }
+    if (r.kind === "num") {
+      // A cycle's change: the whole birthday.
+      const c = r.change;
+      const next = new Date(`${c.day}T12:00:00Z`);
+      next.setUTCDate(next.getUTCDate() + 1);
+      return {
+        uid: `num-${c.kind}-${c.index}-${c.day}@ulune.app`,
+        start: r.t,
+        days: { from: c.day, to: next.toISOString().slice(0, 10) },
+        summary: numChangeTitle(c, locale),
+        description: [pick(CALENDAR_UI.num.label, locale), numChangeDetail(c, locale)].join(" · "),
       };
     }
     const h = r.hit;

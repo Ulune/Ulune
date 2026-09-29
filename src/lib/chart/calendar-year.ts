@@ -47,6 +47,8 @@ export type YearLayout = {
   ingresses: Extract<SkyEvent, { k: "ingress" }>[];
   /** Your transits of the slow bodies within 1° during the year, weightiest first. */
   transits: YearTransit[];
+  /** The year's own sky file is here (until then its signs, stretches and transits wait). */
+  ready: boolean;
 };
 
 /** Your points that weigh more: the lights and the angles, then the quick planets. */
@@ -97,7 +99,11 @@ export function yearLayout(
     }
   }
 
+  // Until the year's own file is here, the events at hand end before the year: its signs and
+  // retrograde stretches wait for it rather than stretching the last ones known over the whole year.
+  const ready = years.some((file) => file.y === year);
   const bodies = YEAR_BODIES.map((body) => {
+    if (!ready) return { body, segments: [] as YearSegment[], retro: [] as YearSpan[] };
     const segments: YearSegment[] = [];
     let sign = signAt(body, from, events, years);
     let start = from;
@@ -144,7 +150,7 @@ export function yearLayout(
     .map((g) => ({ ...g, windows: g.windows.sort((a, b) => a.from - b.from), passes: g.passes.sort((a, b) => a - b) }))
     .sort((a, b) => b.weight - a.weight || (a.passes[0] ?? a.windows[0]!.from) - (b.passes[0] ?? b.windows[0]!.from));
 
-  return { year, from, to, months, phases, eclipses, seasons, bodies, stations, ingresses, transits };
+  return { year, from, to, months, phases, eclipses, seasons, bodies, stations, ingresses, transits, ready };
 }
 
 /** The weightiest dozen (not the North Node's), then in time order: the timeline's default. */

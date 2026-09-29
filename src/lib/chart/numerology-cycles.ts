@@ -24,6 +24,17 @@ import type { NameLetter, ParsedName } from "./numerology-name";
 /** A birth date as numerology reads it: the local date, not the UT one. */
 export type BirthDate = { year: number; month: number; day: number };
 
+/** A chart's date ("1990-06-15", the local date of birth) as numerology reads it. */
+export function parseChartDate(date: string): BirthDate | null {
+  const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(date.trim());
+  if (!m) return null;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  if (!year || month < 1 || month > 12 || day < 1 || day > 31) return null;
+  return { year, month, day };
+}
+
 /** The birth date's three parts, each reduced (11, 22, 33 kept). */
 export function dateTerms(b: BirthDate): [NumerologyTerm, NumerologyTerm, NumerologyTerm] {
   return [term("month", b.month), term("day", b.day), term("year", b.year)];

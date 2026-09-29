@@ -3,13 +3,13 @@ import { startTransition, useEffect, useMemo, useState } from "react";
 import { PairIcon, SkyEventIcon } from "@/components/calendar-icons";
 import { SegmentedToggle } from "@/components/segmented-toggle";
 import { periodOf, type Period } from "@/lib/chart/calendar-periods";
-import { calendarRows, type CalRow } from "@/lib/chart/calendar-rows";
+import { calendarRows, type CalRow, type NumRow } from "@/lib/chart/calendar-rows";
 import type { TransitWindow } from "@/lib/chart/personal-transits";
 import type { SkyAspect, SkyEvent } from "@/lib/chart/sky-events";
 import { bodyAt, type SkyWindow } from "@/lib/chart/sky-window";
 import type { TimingHit, TimingScope } from "@/lib/chart/transit-exact";
 import { calendarIcs } from "@/lib/i18n/calendar-export";
-import { signWord, skyEventDetail, skyEventTitle, yourAspectWords } from "@/lib/i18n/calendar-words";
+import { CALENDAR_UI, numChangeDetail, numChangeTitle, signWord, skyEventDetail, skyEventTitle, yourAspectWords } from "@/lib/i18n/calendar-words";
 import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
 import { TIMING_TABLE_COLUMN_KEYS, TIMING_UI, timingTableColumns, timingTableEmpty, timingTableHint, timingTableTitle } from "@/lib/i18n/timing-ui";
@@ -51,6 +51,7 @@ export function CalendarTable({
   fileName,
   selectedId,
   onSelect,
+  num = [],
 }: {
   events: readonly SkyEvent[];
   hits: readonly TimingHit[];
@@ -67,6 +68,8 @@ export function CalendarTable({
   fileName: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** Numerology's changes on your birthdays (with your transits). */
+  num?: readonly NumRow[];
 }) {
   const { locale, t } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
@@ -74,8 +77,8 @@ export function CalendarTable({
   const [moon, setMoon] = useState(scope === "day");
   useEffect(() => setMoon(scope === "day"), [scope]);
   const rows = useMemo(
-    () => calendarRows(events, hits, from, to, { sky: who !== "yours", yours: who !== "sky", moon }),
-    [events, hits, from, to, who, moon],
+    () => calendarRows(events, hits, from, to, { sky: who !== "yours", yours: who !== "sky", moon }, num),
+    [events, hits, from, to, who, moon, num],
   );
   const columns = timingTableColumns(locale);
   const time = (ms: number) => dateFormat(loc, { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(ms));
@@ -83,6 +86,7 @@ export function CalendarTable({
     scope === "day" ? time(ms) : `${dateFormat(loc, { timeZone: tz, weekday: "short", day: "numeric", month: "short" }).format(new Date(ms))} ${time(ms)}`;
   const degree = (lon: number) => `${formatDegree(lon)} ${signWord(Math.floor((((lon % 360) + 360) % 360) / 30), locale)}`;
   const where = (r: CalRow): string => {
+    if (r.kind === "num") return "";
     if (r.kind === "sky") {
       const ev = r.ev;
       if (ev.k === "phase" || ev.k === "eclipse" || ev.k === "station") return degree(ev.lon);
@@ -93,9 +97,20 @@ export function CalendarTable({
     const at = w ? bodyAt(w, r.hit.moving as Parameters<typeof bodyAt>[1], r.t) : null;
     return at ? degree(at.lon) : "";
   };
-  const title = (r: CalRow) => (r.kind === "sky" ? skyEventTitle(r.ev, locale, time) : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale));
-  const detail = (r: CalRow) => (r.kind === "sky" && r.ev.k === "void" ? skyEventDetail(r.ev, locale, degree) : "");
+  const title = (r: CalRow) =>
+    r.kind === "sky"
+      ? skyEventTitle(r.ev, locale, time)
+      : r.kind === "num"
+        ? numChangeTitle(r.change, locale)
+        : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale);
+  const detail = (r: CalRow) =>
+    r.kind === "sky" && r.ev.k === "void" ? skyEventDetail(r.ev, locale, degree) : r.kind === "num" ? numChangeDetail(r.change, locale) : "";
   const forWho = (r: CalRow) => pick(r.kind === "sky" ? T.everyone : T.you, locale);
+  /** A cycle's change has no hour: the whole birthday. */
+  const whenOf = (r: CalRow) =>
+    r.kind === "num"
+      ? `${scope === "day" ? "" : `${dateFormat(loc, { timeZone: tz, weekday: "short", day: "numeric", month: "short" }).format(new Date(r.t))} `}${pick(CALENDAR_UI.num.birthday, locale)}`
+      : when(r.t);
   const what = (r: CalRow) => {
     const extra = detail(r);
     return extra ? `${title(r)} (${extra})` : title(r);
@@ -122,8 +137,8 @@ export function CalendarTable({
     return out;
   }, [rows, scope, tz, locale, to]);
 
-  const line = (r: CalRow) => [when(r.t), what(r), where(r), forWho(r)].filter(Boolean).join(" · ");
-  const csv = () => [[...columns], ...rows.map((r) => [when(r.t), what(r), where(r), forWho(r), ut(r.t)])].map((r) => r.map(csvCell).join(",")).join("\n");
+  const line = (r: CalRow) => [whenOf(r), what(r), where(r), forWho(r)].filter(Boolean).join(" · ");
+  const csv = () => [[...columns], ...rows.map((r) => [whenOf(r), what(r), where(r), forWho(r), ut(r.t)])].map((r) => r.map(csvCell).join(",")).join("\n");
   const text = () => [timingTableTitle(locale), ...groups.map((g) => [g.heading, ...g.rows.map((x) => line(x.row))].join("\n"))].join("\n\n");
   const exportIcs = () => {
     const spans = who === "sky" ? [] : windows.filter((w) => w.from < to && w.to >= from);
@@ -150,13 +165,19 @@ export function CalendarTable({
             <tr key={r.id} data-testid={`calendar-table-row-${r.kind}`} data-selected={on ? "1" : undefined} className={cn(on && "bg-bg-subtle", r.t < nowMs && "ulune-row-past")}>
               <td data-col="when" className="font-mono whitespace-nowrap">
                 <button type="button" onClick={() => onSelect(r.id)} className="inline-flex h-11 min-w-0 items-center text-left">
-                  {when(r.t)}
+                  {whenOf(r)}
                 </button>
               </td>
               <td data-col="what">
                 <button type="button" onClick={() => onSelect(r.id)} className="inline-flex min-h-11 min-w-0 items-center gap-2 text-left">
                   <span className="inline-flex shrink-0 text-fg-muted" aria-hidden>
-                    {r.kind === "sky" ? <SkyEventIcon ev={r.ev} size={14} /> : <PairIcon a={r.hit.moving} type={r.hit.type as SkyAspect} b={r.hit.natal} size={14} />}
+                    {r.kind === "sky" ? (
+                      <SkyEventIcon ev={r.ev} size={14} />
+                    ) : r.kind === "num" ? (
+                      <span className="ulune-cal-numbadge">{r.change.value.number}</span>
+                    ) : (
+                      <PairIcon a={r.hit.moving} type={r.hit.type as SkyAspect} b={r.hit.natal} size={14} />
+                    )}
                   </span>
                   <span>
                     {title(r)}
@@ -168,7 +189,7 @@ export function CalendarTable({
                 {where(r)}
               </td>
               <td data-col="for">
-                <span className={cn("ulune-cal-tag", r.kind === "you" && "is-you")}>{forWho(r)}</span>
+                <span className={cn("ulune-cal-tag", r.kind !== "sky" && "is-you")}>{forWho(r)}</span>
               </td>
             </tr>
           );

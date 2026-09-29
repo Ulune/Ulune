@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { PairIcon, SkyEventIcon } from "@/components/calendar-icons";
 import { MoonGlyph } from "@/components/moon-glyph";
 import { headlineRank, isHeadline, moonAt, nextMoonIngress, voidAt, windowId, windowWeight } from "@/lib/chart/calendar-sky";
+import { changesBetween, personalDayOn, personalMonthOn, personalYearOn, type NumerologyCalendar } from "@/lib/chart/numerology-calendar";
 import type { TransitWindow } from "@/lib/chart/personal-transits";
 import { skyEventId, type SkyAspect, type SkyEvent } from "@/lib/chart/sky-events";
 import type { SkyWindow } from "@/lib/chart/sky-window";
@@ -11,6 +12,7 @@ import {
   dailyPhaseWord,
   fill,
   litWord,
+  numChangeTitle,
   signWord,
   skyEventDetail,
   skyEventTitle,
@@ -80,6 +82,7 @@ export function CalendarNow({
   showYours,
   selectedId,
   onSelect,
+  num = null,
 }: {
   nowMs: number;
   tz: string;
@@ -91,6 +94,8 @@ export function CalendarNow({
   showYours: boolean;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** Your numerology (with your transits on): today's personal day. */
+  num?: NumerologyCalendar | null;
 }) {
   const { locale } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
@@ -201,6 +206,7 @@ export function CalendarNow({
             );
           })}
           {!active.length && !quick.length ? <p className="ulune-cal-now-detail">{pick(p.quiet, locale)}</p> : null}
+          {num ? <NumToday num={num} today={dayKey(nowMs)} selectedId={selectedId} onSelect={onSelect} /> : null}
         </>
       ) : null}
       {sky.length ? (
@@ -225,5 +231,29 @@ export function CalendarNow({
         </>
       ) : null}
     </section>
+  );
+}
+
+/** Today's personal day, with the month's and the year's, and a long cycle changing today. */
+function NumToday({ num, today, selectedId, onSelect }: { num: NumerologyCalendar; today: string; selectedId: string | null; onSelect: (id: string) => void }) {
+  const { locale } = useI18n();
+  const [y, m, d] = today.split("-").map(Number) as [number, number, number];
+  const pd = personalDayOn(num, y, m, d);
+  const id = `numday:${today}`;
+  const turns = changesBetween(num, today, today);
+  return (
+    <Line
+      testId="calendar-now-num"
+      id={id}
+      selected={selectedId === id}
+      onSelect={onSelect}
+      icon={<span className="ulune-cal-numbadge">{pd}</span>}
+      title={fill(CALENDAR_UI.num.personalDay, locale, { n: pd })}
+      detail={[
+        fill(CALENDAR_UI.num.personalMonth, locale, { n: personalMonthOn(num, y, m) }),
+        fill(CALENDAR_UI.num.personalYear, locale, { n: personalYearOn(num, y) }),
+        ...turns.map((c) => numChangeTitle(c, locale)),
+      ].join(" · ")}
+    />
   );
 }

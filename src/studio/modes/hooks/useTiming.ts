@@ -2,7 +2,9 @@ import { browserZone } from "@/lib/chart/client-zone";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { dayOverview } from "@/lib/chart/calendar-day";
 import { yearLayout } from "@/lib/chart/calendar-year";
-import { calendarRows } from "@/lib/chart/calendar-rows";
+import { calendarRows, type NumRow } from "@/lib/chart/calendar-rows";
+import { changeId, numerologyCalendarOf, personalMonthOn, personalYearOn } from "@/lib/chart/numerology-calendar";
+import { CALENDAR_UI, fill } from "@/lib/i18n/calendar-words";
 import { calendarIcs } from "@/lib/i18n/calendar-export";
 import { downloadText } from "@/lib/download-text";
 import { eventsOf, mergeEvents, windowId } from "@/lib/chart/calendar-sky";
@@ -85,6 +87,18 @@ export function useTiming() {
     [chart?.meta.timezone],
   );
   const tz = zones[prefs.zone];
+  // Your numerology in the calendar: the personal day, month and year, and the long cycles' changes on birthdays.
+  const numCal = useMemo(() => numerologyCalendarOf(chart), [chart]);
+  const numRows = useMemo<NumRow[]>(
+    () =>
+      numCal
+        ? numCal.changes.map((c) => {
+            const [year, month, day] = c.day.split("-").map(Number) as [number, number, number];
+            return { kind: "num", t: utcFromCivil({ year, month, day, hour: 0, minute: 0 }, tz).getTime(), id: changeId(c), change: c };
+          })
+        : [],
+    [numCal, tz],
+  );
 
   const [scope, setScope] = useState<TimingScope>("month");
   const [civil, setCivil] = useState<CivilDate>(() => {
@@ -237,12 +251,28 @@ export function useTiming() {
   const texts = usePack("cal", locale, enabled);
   const reading = useMemo<ElementReading | null>(() => {
     if (!chart || !texts || !selectedId) return null;
-    const { calendarDayReading, moonDayReading, skyEventReading, timingBodyReading, timingExactReading, windowReading } = texts;
+    const {
+      calendarDayReading,
+      moonDayReading,
+      numerologyChangeReading,
+      numerologyDayReading,
+      numerologyMonthReading,
+      numerologyYearReading,
+      skyEventReading,
+      timingBodyReading,
+      timingExactReading,
+      windowReading,
+    } = texts;
+    const num = prefs.yours ? numCal : null;
     const dayReading = (key: string) => {
       const parsed = parseCivilKey(key);
-      return parsed ? calendarDayReading(overviewOf(parsed), civilKey(parsed), locale, tz, nowMs) : null;
+      return parsed ? calendarDayReading(overviewOf(parsed), civilKey(parsed), locale, tz, nowMs, num) : null;
     };
     if (selectedId.startsWith("day:")) return dayReading(selectedId.slice(4));
+    if (selectedId.startsWith("numday:")) return numCal ? numerologyDayReading(numCal, selectedId.slice(7), locale) : null;
+    if (selectedId.startsWith("numcycle:")) return numCal ? numerologyChangeReading(numCal, selectedId, locale) : null;
+    if (selectedId.startsWith("nummonth:")) return numCal ? numerologyMonthReading(numCal, selectedId.slice(9), locale) : null;
+    if (selectedId.startsWith("numyear:")) return numCal ? numerologyYearReading(numCal, Number(selectedId.slice(8)), locale) : null;
     if (selectedId.startsWith("moon:")) {
       const parsed = parseCivilKey(selectedId.slice(5));
       return parsed ? moonDayReading(overviewOf(parsed), civilKey(parsed), locale, tz, nowMs) : null;
@@ -271,7 +301,7 @@ export function useTiming() {
       );
     }
     return null;
-  }, [selectedId, chart, locale, nowMs, tz, scoped, texts, events, nowEvents, allEvents, allHits, allWindows, overviewOf]);
+  }, [selectedId, chart, locale, nowMs, tz, scoped, texts, events, nowEvents, allEvents, allHits, allWindows, overviewOf, prefs.yours, numCal]);
 
   const pickHit = useCallback((hit: TimingHit) => pick(`timing:${hit.id}`), [pick]);
 
@@ -310,11 +340,18 @@ export function useTiming() {
   const exportIcs = useCallback(() => {
     const from = bounds.from.getTime();
     const to = bounds.to.getTime();
-    const rows = calendarRows(allEvents, hits ?? [], from, to, { sky: prefs.sky, yours: prefs.yours, moon: scope === "day" });
+    const rows = calendarRows(allEvents, hits ?? [], from, to, { sky: prefs.sky, yours: prefs.yours, moon: scope === "day" }, numRows);
     const spans = prefs.yours ? allWindows.filter((w) => w.from < to && w.to >= from) : [];
     downloadText(`ulune-${fileName}.ics`, calendarIcs(rows, spans, locale, tz, `Ulune ${fileName}`), "text/calendar;charset=utf-8");
-  }, [bounds, allEvents, hits, prefs, scope, allWindows, fileName, locale, tz]);
+  }, [bounds, allEvents, hits, prefs, scope, allWindows, fileName, locale, tz, numRows]);
   const todayKey = useMemo(() => civilKey(civilFromUtc(new Date(nowMs), tz)), [nowMs, tz]);
+  // The bar's numerology (with your transits on): the personal month in a month's title, the personal year in a year's.
+  const numTitle = useMemo(() => {
+    if (!numCal || !prefs.yours || scope === "day") return null;
+    if (scope === "year") return { id: `numyear:${civil.year}`, text: fill(CALENDAR_UI.num.personalYear, locale, { n: personalYearOn(numCal, civil.year) }) };
+    const mm = String(civil.month).padStart(2, "0");
+    return { id: `nummonth:${civil.year}-${mm}`, text: fill(CALENDAR_UI.num.personalMonth, locale, { n: personalMonthOn(numCal, civil.year, civil.month) }) };
+  }, [numCal, prefs.yours, scope, civil.year, civil.month, locale]);
 
   return useMemo(
     () => ({
@@ -354,7 +391,10 @@ export function useTiming() {
       pickDay,
       pickMonth,
       enabled,
+      numCal,
+      numRows,
+      numTitle,
     }),
-    [scope, civil, changeScope, shift, goToday, tz, zones, prefs, updatePrefs, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled],
+    [scope, civil, changeScope, shift, goToday, tz, zones, prefs, updatePrefs, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled, numCal, numRows, numTitle],
   );
 }

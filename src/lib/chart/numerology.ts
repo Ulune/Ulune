@@ -33,6 +33,7 @@ import {
   letterCycleSources,
   lifeCyclesOf,
   lifePathOf,
+  parseChartDate,
   personalDayOf,
   personalMonthOf,
   personalYearOf,
@@ -57,6 +58,7 @@ import { birthGrid, type BirthGrid } from "./numerology-grid";
 
 export { digitSum, digitalRoot, reduceBirthday, reduceKeepMasters, type NumerologyValue } from "./numerology-reduce";
 export { PYTHAGOREAN_VALUE, foldLetter, lettersOf, nameNumbers, sumLetters, type YRole } from "./numerology-name";
+export { parseChartDate } from "./numerology-cycles";
 
 export const NUMEROLOGY_DASH = "—";
 
@@ -123,16 +125,6 @@ export type NumerologyChart = {
   cycles: CyclesAt | null;
   grid: BirthGrid;
 };
-
-export function parseChartDate(date: string): BirthDate | null {
-  const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(date.trim());
-  if (!m) return null;
-  const year = Number(m[1]);
-  const month = Number(m[2]);
-  const day = Number(m[3]);
-  if (!year || month < 1 || month > 12 || day < 1 || day > 31) return null;
-  return { year, month, day };
-}
 
 /**
  * Use only a typed birth name. Never invent one from place, date, or "Untitled".

@@ -14,6 +14,10 @@
  *   - the Table view (part 61): one scroll with its parts in order, the lit
  *     link following the scroll, every number with its steps, the CSV, a Y
  *     switched from the name's letters, no English left in French;
+ *   - the life line (part 62) and the Calendar: the personal month in a
+ *     month's title and each day's personal day, the personal year and its
+ *     months in the year, a long cycle changing on its birthday (2031), in
+ *     the day, the month, the year and the events table, for you alone;
  *   - without a name, only the birth date's numbers;
  *   - in French; on a phone the wheel takes the width, the tiles scroll
  *     sideways and nothing else does.
@@ -68,6 +72,85 @@ const drawing = (page) =>
       tiles: q('[data-testid^="numerology-tile-"]').map((b) => `${b.textContent}${b.disabled ? "!" : ""}`),
     };
   });
+
+/** Camille's age on a day. */
+function ageOn(d) {
+  const before = d.getMonth() + 1 < 6 || (d.getMonth() + 1 === 6 && d.getDate() < 15);
+  return d.getFullYear() - 1990 - (before ? 1 : 0);
+}
+
+async function calendar(page, thisYear) {
+  await goStudioPage(page, "timing");
+  await page.getByTestId("studio-timing").waitFor({ timeout: 20000 });
+  await page.getByTestId("timing-scope-month").click();
+  await page.getByTestId("calendar-month").waitFor({ timeout: 8000 });
+  const today = new Date();
+  const month = today.getMonth() + 1;
+  const pm = root(personalYear(thisYear) + month);
+  const key = `${thisYear}-${String(month).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  const monthView = await page.evaluate((k) => ({
+    title: document.querySelector('[data-testid="calendar-num"]')?.textContent ?? "",
+    pd: document.querySelector(`[data-testid="calendar-day-${k}"] .ulune-cal-pd`)?.textContent ?? "",
+    days: document.querySelectorAll("[data-testid^=calendar-day-] .ulune-cal-pd").length,
+    legend: Boolean(document.querySelector('[data-testid="calendar-legend-num"]')),
+  }), key);
+  const pd = String(root(pm + today.getDate()));
+  if (monthView.title !== `Personal month ${pm}` || monthView.pd !== pd || monthView.days < 28 || !monthView.legend) throw new Error(`the month's numerology ${JSON.stringify(monthView)}`);
+  await page.getByTestId("calendar-num").click();
+  await page.getByTestId("reading-card").waitFor({ timeout: 10000 });
+  if (!/Personal month/.test(await page.getByTestId("reading-card").innerText())) throw new Error("the personal month's reading");
+  // Your transits off: numerology goes with them, and comes back.
+  await page.getByTestId("calendar-switch-yours").click();
+  await page.waitForFunction(() => !document.querySelector(".ulune-cal-pd") && !document.querySelector('[data-testid="calendar-num"]'), null, { timeout: 4000 });
+  await page.getByTestId("calendar-switch-yours").click();
+  await page.waitForFunction(() => Boolean(document.querySelector(".ulune-cal-pd")), null, { timeout: 4000 });
+  // The year: its personal year in the title, a band per personal month.
+  await page.getByTestId("timing-scope-year").click();
+  await page.getByTestId("calendar-year").waitFor({ timeout: 30000 });
+  const yearView = await page.evaluate(() => ({
+    title: document.querySelector('[data-testid="calendar-num"]')?.textContent ?? "",
+    bands: [...document.querySelectorAll('[data-testid^="calendar-year-pm-"]')].map((b) => b.textContent).join(""),
+  }));
+  const bands = Array.from({ length: 12 }, (_, i) => root(personalYear(thisYear) + i + 1)).join("");
+  if (yearView.title !== `Personal year ${personalYear(thisYear)}` || yearView.bands !== bands) throw new Error(`the year's numerology ${JSON.stringify(yearView)}`);
+  // 2031, when the third pinnacle and the main challenge begin on 15 June, at 41: a year at a time, each
+  // year's sky come before the next (the dev server works out every chunk asked for, even one passed by).
+  for (let i = 0; i < 12; i++) {
+    const shown = Number((await page.getByTestId("timing-caption").innerText()).trim().slice(0, 4));
+    if (shown === 2031) break;
+    await page.getByTestId(shown < 2031 ? "timing-next" : "timing-prev").click();
+    const next = shown < 2031 ? shown + 1 : shown - 1;
+    await page.waitForFunction(
+      (y) => document.querySelector('[data-testid="timing-caption"]')?.textContent?.startsWith(String(y)) && document.querySelectorAll(".ulune-cal-tl-phase").length >= 12,
+      next,
+      { timeout: 45000 },
+    );
+  }
+  await page.getByTestId("calendar-year-numchange-pinnacle-3").click();
+  await page.getByTestId("reading-card").waitFor({ timeout: 10000 });
+  const change = (await page.getByTestId("reading-card").innerText()).replace(/\s+/g, " ");
+  if (!/Pinnacle 3 begins: 1/.test(change) || !/15 Jun 2031, at 41/.test(change) || !/15 Jun 2040, at 50/.test(change)) throw new Error(`the change's reading ${change.slice(0, 200)}`);
+  if (!(await page.getByTestId("calendar-year-numchange-challenge-3").count())) throw new Error("the main challenge's change");
+  // June 2031: the change on the 15th; that day's own numbers.
+  await page.locator(".ulune-cal-tl-axis button").nth(5).click();
+  await page.getByTestId("calendar-month").waitFor({ timeout: 8000 });
+  const cell = await page.getByTestId("calendar-day-2031-06-15").innerText();
+  if (!/Pinnacle 3 → 1/.test(cell) || !/Challenge 3 → 5/.test(cell)) throw new Error(`the 15th: ${cell}`);
+  if ((await page.getByTestId("calendar-num").innerText()) !== "Personal month 6") throw new Error("June 2031's personal month");
+  await page.getByTestId("calendar-day-2031-06-15").click();
+  await page.getByTestId("timing-scope-day").click();
+  await page.getByTestId("calendar-numday").waitFor({ timeout: 8000 });
+  const day = (await page.getByTestId("calendar-numday").innerText()).replace(/\s+/g, " ");
+  if (!/^3 Personal day 3 Personal month 6 · Personal year 9 1 Pinnacle 3 begins: 1 after 7, at 41 5 Challenge 3 begins: 5 after 5, at 41$/.test(day)) throw new Error(`the day's numerology: ${day}`);
+  // The events table of that month: the two changes, yours.
+  await page.getByTestId("timing-scope-month").click();
+  await page.getByTestId("view-table").click();
+  await page.locator('[data-testid="calendar-table-row-num"]').first().waitFor({ timeout: 15000 });
+  const rows = await page.locator('[data-testid="calendar-table-row-num"]').allInnerTexts();
+  if (rows.length !== 2 || !/birthday/.test(rows[0]) || !/Pinnacle 3 begins: 1/.test(rows[0])) throw new Error(`the table's changes ${JSON.stringify(rows)}`);
+  await page.getByTestId("view-wheel").click();
+  console.log("numerology in the calendar OK");
+}
 
 async function desktop() {
   const browser = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
@@ -233,8 +316,38 @@ async function desktop() {
     const yearRows = csv.split("\n").filter((l) => /^year,\d/.test(l)).length;
     if (!/\ncore,lifepath,4,4,6 \+ 6 \+ 1 = 13 → 4,13,0\n/.test(csv) || yearRows !== 91) throw new Error(`CSV rows: ${yearRows} years`);
     await page.getByTestId("num-years-nine").click();
+    // The life line (part 62): the cycles to scale, the ones running now in gold, each new round, the year shown.
+    const age = ageOn(new Date());
+    const life = await page.evaluate(() => {
+      const q = (s) => [...document.querySelectorAll(s)];
+      return {
+        spans: q('[data-testid^="num-life-"]').map((e) => `${e.getAttribute("data-testid").slice(9)}=${e.querySelector("b").textContent}${e.hasAttribute("data-now") ? "*" : ""}`),
+        starts: q(".ulune-num-life-start").length,
+        now: Boolean(document.querySelector(".ulune-num-life-now")),
+        caption: document.querySelector(".ulune-num-life-caption")?.textContent ?? "",
+      };
+    });
+    const ends = { period: [33, 60], pinnacle: [32, 41, 50], challenge: [32, 41, 50] };
+    const nums = { period: ["6", "6", "1"], pinnacle: ["3", "7", "1", "7"], challenge: ["0", "5", "5", "5"] };
+    const wantLife = [];
+    for (const kind of ["period", "pinnacle", "challenge"]) {
+      nums[kind].forEach((n, i) => {
+        const from = i === 0 ? 0 : ends[kind][i - 1];
+        const to = ends[kind][i];
+        wantLife.push(`${kind}-${i + 1}=${n}${age >= from && (to == null || age < to) ? "*" : ""}`);
+      });
+    }
+    if (life.spans.join(" ") !== wantLife.join(" ") || life.starts !== 8 || !life.now || life.caption !== `${thisYear} · age ${age} · personal year ${personalYear(thisYear)}`) {
+      throw new Error(`the life line ${JSON.stringify(life)} want ${wantLife.join(" ")}`);
+    }
     await page.getByTestId("view-wheel").click();
     await page.getByTestId("numerology-ring").waitFor({ timeout: 10000 });
+
+    // The Calendar (part 62): the personal month in a month's title and each day's personal day,
+    // the personal year and its months in the year; a long cycle changing on its birthday, for you alone.
+    await calendar(page, thisYear);
+    await goStudioPage(page, "numerology");
+    await page.getByTestId("numerology-ring").waitFor({ timeout: 30000 });
 
     // A Y switched by hand.
     await goStudioPage(page, "natal");

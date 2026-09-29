@@ -2,6 +2,7 @@ import { PairIcon, SkyEventIcon } from "@/components/calendar-icons";
 import { MoonGlyph } from "@/components/moon-glyph";
 import type { DayOverview, DayRow } from "@/lib/chart/calendar-day";
 import { nextEvent, windowId } from "@/lib/chart/calendar-sky";
+import { changeId, type NumerologyCalendar } from "@/lib/chart/numerology-calendar";
 import { ASPECT_COLOR } from "@/lib/chart/constants";
 import type { TransitWindow } from "@/lib/chart/personal-transits";
 import type { SkyAspect, SkyEvent } from "@/lib/chart/sky-events";
@@ -13,6 +14,8 @@ import {
   dayMoonWords,
   fill,
   lastsWords,
+  numChangeDetail,
+  numChangeTitle,
   signWord,
   skyEventDetail,
   skyEventTitle,
@@ -29,7 +32,8 @@ const D = CALENDAR_UI.day;
  * The calendar's day (part 56 of the launch plan): the Moon bar, a rail of
  * the day's hours with a tick per event and the void-of-course hours
  * hatched, the agenda (the sky's events and your exacts, the Moon's
- * included), and your slow transits in effect.
+ * included), and your slow transits in effect; with your numerology, the
+ * personal day under the Moon and a long cycle changing that day (part 62).
  */
 export function CalendarDay({
   ov,
@@ -41,6 +45,7 @@ export function CalendarDay({
   showYours,
   selectedId,
   onSelect,
+  num = null,
 }: {
   ov: DayOverview;
   civil: CivilDate;
@@ -52,6 +57,8 @@ export function CalendarDay({
   showYours: boolean;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** Your numerology that day (with your transits on): the personal day, month and year, a cycle's change. */
+  num?: { pd: number; pm: number; py: number; changes: NumerologyCalendar["changes"] } | null;
 }) {
   const { locale } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
@@ -113,6 +120,48 @@ export function CalendarDay({
           {mw.phase ? <span className="ulune-cal-moonbar-line">{mw.phase}</span> : null}
         </span>
       </button>
+
+      {num ? (
+        <div className="ulune-cal-numday" data-testid="calendar-numday">
+          <button
+            type="button"
+            className={cn("ulune-cal-numbar", selectedId === `numday:${key}` && "is-on")}
+            aria-pressed={selectedId === `numday:${key}`}
+            onClick={() => onSelect(`numday:${key}`)}
+          >
+            <span className="ulune-cal-numbar-n" aria-hidden>
+              {num.pd}
+            </span>
+            <span className="ulune-cal-numbar-text">
+              <span className="ulune-cal-numbar-title">{fill(CALENDAR_UI.num.personalDay, locale, { n: num.pd })}</span>
+              <span className="ulune-cal-numbar-line">
+                {fill(CALENDAR_UI.num.personalMonth, locale, { n: num.pm })} · {fill(CALENDAR_UI.num.personalYear, locale, { n: num.py })}
+              </span>
+            </span>
+          </button>
+          {num.changes.map((c) => {
+            const id = changeId(c);
+            return (
+              <button
+                key={id}
+                type="button"
+                className={cn("ulune-cal-numbar is-change", selectedId === id && "is-on")}
+                aria-pressed={selectedId === id}
+                data-testid={`calendar-numday-${c.kind}-${c.index}`}
+                onClick={() => onSelect(id)}
+              >
+                <span className="ulune-cal-numbar-n" aria-hidden>
+                  {c.value.number}
+                </span>
+                <span className="ulune-cal-numbar-text">
+                  <span className="ulune-cal-numbar-title">{numChangeTitle(c, locale)}</span>
+                  <span className="ulune-cal-numbar-line">{numChangeDetail(c, locale)}</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
 
       <div className="ulune-cal-rail" aria-hidden>
         <div className="ulune-cal-hours">

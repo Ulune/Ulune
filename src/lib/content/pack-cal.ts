@@ -7,5 +7,14 @@
  * pack (the bodies, signs and aspects) comes in a chunk the two share.
  * Import it only through packs.ts, never directly from studio code.
  */
-export { calendarDayReading, moonDayReading, skyEventReading, windowReading } from "@/lib/chart/interpret-calendar";
+export {
+  calendarDayReading,
+  moonDayReading,
+  numerologyChangeReading,
+  numerologyDayReading,
+  numerologyMonthReading,
+  numerologyYearReading,
+  skyEventReading,
+  windowReading,
+} from "@/lib/chart/interpret-calendar";
 export { timingBodyReading, timingExactReading } from "@/lib/chart/interpret-timing";

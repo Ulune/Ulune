@@ -27,6 +27,15 @@ import {
   CALENDAR_ABOUT,
 } from "@/lib/content/astro-calendar";
 import { SIGN_TEXT } from "@/lib/content/astro-signs-houses";
+import {
+  NUMBER_TEXT,
+  PERSONAL_DAY_TEXT,
+  PERSONAL_MONTH_TEXT,
+  PERSONAL_YEAR_TEXT,
+  UNIVERSAL_YEAR_TEXT,
+  type CycleKey,
+  type NumberKey,
+} from "@/lib/content/numerology";
 import { TRANSIT_FAMILY, TRANSIT_PACE } from "@/lib/content/astro-time";
 import { pickBi } from "@/lib/content/types";
 import { dateFormat } from "@/lib/intl-cache";
@@ -36,6 +45,8 @@ import {
   CALENDAR_UI,
   dayMoonWords,
   fill,
+  numChangeDetail,
+  numChangeTitle,
   signWord,
   skyEventDetail,
   skyEventTitle,
@@ -46,6 +57,9 @@ import { pick } from "../i18n/pick";
 import { houseFromCusps } from "./anatomy";
 import type { DayOverview } from "./calendar-day";
 import { nextEvent, windowId } from "./calendar-sky";
+import { changeId, personalDayOn, personalMonthOn, personalYearOn, type NumerologyCalendar } from "./numerology-calendar";
+import { personalDayOf, personalMonthOf, personalYearOf, universalYearOf } from "./numerology-cycles";
+import { stepsText, wholeText } from "./numerology-reduce";
 import { movingFamilyText } from "./interpret-transit";
 import type { TransitWindow } from "./personal-transits";
 import { aspectFamily, aspectInPractice, bodyKeywords, pairTheme } from "./plain";
@@ -363,7 +377,14 @@ export function moonDayReading(ov: DayOverview, key: string, locale: Locale, tz:
 }
 
 /** A whole day: its Moon, the sky's events and your exacts in time order, and what is in effect for you. */
-export function calendarDayReading(ov: DayOverview, key: string, locale: Locale, tz: string, nowMs: number): ElementReading {
+export function calendarDayReading(
+  ov: DayOverview,
+  key: string,
+  locale: Locale,
+  tz: string,
+  nowMs: number,
+  num: NumerologyCalendar | null = null,
+): ElementReading {
   const fr = locale === "fr";
   const f = formats(locale, tz);
   const words = dayMoonWords(ov, locale, f.time, f.shortDay);
@@ -371,6 +392,12 @@ export function calendarDayReading(ov: DayOverview, key: string, locale: Locale,
   const yours = ov.rows.length - sky;
   const rows: ReadingLink[] = [];
   if (ov.moon) rows.push({ ref: `moon:${key}`, label: words.title, detail: [words.sign, words.void].filter(Boolean).join(" · ") });
+  if (num) {
+    // Your numerology that day, beside its Moon: the personal day, and a long cycle changing on a birthday.
+    const [y, m, d] = key.split("-").map(Number) as [number, number, number];
+    rows.push({ ref: `numday:${key}`, label: fill(CALENDAR_UI.num.personalDay, locale, { n: personalDayOn(num, y, m, d) }), detail: pick(CALENDAR_UI.num.label, locale) });
+    for (const c of num.changes.filter((x) => x.day === key)) rows.push({ ref: changeId(c), label: numChangeTitle(c, locale), detail: numChangeDetail(c, locale) });
+  }
   for (const r of ov.rows) {
     const label = r.kind === "sky" ? skyEventTitle(r.ev, locale, f.time) : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale);
     rows.push({ ref: r.id, label, detail: `${f.time(r.t)} · ${pick(r.kind === "sky" ? CALENDAR_UI.day.sky : CALENDAR_UI.day.you, locale)}` });
@@ -396,5 +423,156 @@ export function calendarDayReading(ov: DayOverview, key: string, locale: Locale,
     lead: lead ? `${lead}.` : pick(CALENDAR_UI.day.empty, locale),
     links: rows.length ? { title: fr ? "La journée" : "The day", rows } : undefined,
     about: about(locale),
+  };
+}
+
+const numDate = (key: string, locale: Locale, withDay = true) => {
+  const [y, m, d] = key.split("-").map(Number) as [number, number, number];
+  const f = dateFormat(locale === "fr" ? "fr-FR" : "en-GB", { timeZone: "UTC", ...(withDay ? { weekday: "long" as const } : {}), day: "numeric", month: "long", year: "numeric" });
+  return cap(f.format(Date.UTC(y, m - 1, d, 12)));
+};
+/** "15 Jun 2031": a day in a reading's facts. */
+const numShortDate = (key: string, locale: Locale) => {
+  const [y, m, d] = key.split("-").map(Number) as [number, number, number];
+  return dateFormat(locale === "fr" ? "fr-FR" : "en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" }).format(Date.UTC(y, m - 1, d, 12));
+};
+const monthName = (y: number, m: number, locale: Locale) =>
+  cap(dateFormat(locale === "fr" ? "fr-FR" : "en-GB", { timeZone: "UTC", month: "long", year: "numeric" }).format(Date.UTC(y, m - 1, 15, 12)));
+const howTitle = (locale: Locale) => pick(CALENDAR_UI.num.howTitle, locale);
+const numLabel = (key: "personalDay" | "personalMonth" | "personalYear" | "universalYear", locale: Locale) =>
+  fill(CALENDAR_UI.num[key], locale, { n: "" }).trim();
+
+/** The long cycles changing in a span of days, as links to their readings. */
+function changeLinks(num: NumerologyCalendar, fromKey: string, toKey: string, locale: Locale): ReadingLink[] {
+  return num.changes
+    .filter((c) => c.day >= fromKey && c.day <= toKey)
+    .map((c) => ({ ref: changeId(c), label: numChangeTitle(c, locale), detail: `${numDate(c.day, locale, false)} · ${numChangeDetail(c, locale)}` }));
+}
+
+/** A day's personal day (numerology, part 62): its number and text, with the month's and the year's. */
+export function numerologyDayReading(num: NumerologyCalendar, key: string, locale: Locale): ElementReading | null {
+  const [y, m, d] = key.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  const py = personalYearOn(num, y);
+  const pm = personalMonthOn(num, y, m);
+  const value = personalDayOf(pm, d);
+  const pd = value.number ?? personalDayOn(num, y, m, d);
+  const text = pickBi(PERSONAL_DAY_TEXT[pd as CycleKey], locale);
+  const month = pickBi(PERSONAL_MONTH_TEXT[pm as CycleKey], locale);
+  const changes = changeLinks(num, key, key, locale);
+  return {
+    id: `numday:${key}`,
+    kind: "house",
+    mark: String(pd),
+    title: fill(CALENDAR_UI.num.personalDay, locale, { n: pd }),
+    kicker: numDate(key, locale),
+    lead: text,
+    paragraphs: [text, month],
+    facts: [
+      { label: pick(CALENDAR_UI.num.factDay, locale), value: numShortDate(key, locale) },
+      { label: pick(CALENDAR_UI.num.steps, locale), value: stepsText(value) },
+      { label: numLabel("personalMonth", locale), value: String(pm), ref: `nummonth:${key.slice(0, 7)}` },
+      { label: numLabel("personalYear", locale), value: String(py), ref: `numyear:${y}` },
+    ],
+    sections: [{ id: "month", title: fill(CALENDAR_UI.num.personalMonth, locale, { n: pm }), paragraphs: [month] }],
+    links: changes.length ? { title: pick(CALENDAR_UI.num.changesHead, locale), rows: changes } : undefined,
+    about: { title: howTitle(locale), paragraphs: [pick(CALENDAR_UI.num.dayAbout, locale)] },
+  };
+}
+
+/** A month's personal month: its number and text, the year's theme under it, the long cycles changing in it. */
+export function numerologyMonthReading(num: NumerologyCalendar, key: string, locale: Locale): ElementReading | null {
+  const [y, m] = key.split("-").map(Number);
+  if (!y || !m || m > 12) return null;
+  const py = personalYearOn(num, y);
+  const value = personalMonthOf(py, m);
+  const pm = value.number ?? personalMonthOn(num, y, m);
+  const text = pickBi(PERSONAL_MONTH_TEXT[pm as CycleKey], locale);
+  const year = pickBi(PERSONAL_YEAR_TEXT[py as CycleKey], locale);
+  const mm = String(m).padStart(2, "0");
+  const changes = changeLinks(num, `${y}-${mm}-01`, `${y}-${mm}-31`, locale);
+  return {
+    id: `nummonth:${y}-${mm}`,
+    kind: "house",
+    mark: String(pm),
+    title: fill(CALENDAR_UI.num.personalMonth, locale, { n: pm }),
+    kicker: monthName(y, m, locale),
+    lead: text,
+    paragraphs: [text, year],
+    facts: [
+      { label: pick(CALENDAR_UI.num.factMonth, locale), value: monthName(y, m, locale) },
+      { label: pick(CALENDAR_UI.num.steps, locale), value: stepsText(value) },
+      { label: numLabel("personalYear", locale), value: String(py), ref: `numyear:${y}` },
+    ],
+    sections: [{ id: "year", title: fill(CALENDAR_UI.num.personalYear, locale, { n: py }), paragraphs: [year] }],
+    links: changes.length ? { title: pick(CALENDAR_UI.num.changesHead, locale), rows: changes } : undefined,
+    about: { title: howTitle(locale), paragraphs: [pick(CALENDAR_UI.num.monthAbout, locale)] },
+  };
+}
+
+/** A year's personal year: its number and text, the universal year behind it, the long cycles changing in it. */
+export function numerologyYearReading(num: NumerologyCalendar, year: number, locale: Locale): ElementReading | null {
+  if (!Number.isInteger(year) || year < 1) return null;
+  const value = personalYearOf(num.birth, year);
+  const py = value.number ?? personalYearOn(num, year);
+  const uy = universalYearOf(year).number ?? 0;
+  const text = pickBi(PERSONAL_YEAR_TEXT[py as CycleKey], locale);
+  const universal = pickBi(UNIVERSAL_YEAR_TEXT[uy as 1], locale);
+  const lead = py === 1 ? `${pick(CALENDAR_UI.num.round, locale)}. ${text}` : text;
+  const changes = changeLinks(num, `${year}-01-01`, `${year}-12-31`, locale);
+  return {
+    id: `numyear:${year}`,
+    kind: "house",
+    mark: String(py),
+    title: fill(CALENDAR_UI.num.personalYear, locale, { n: py }),
+    kicker: `${year} · ${fill(CALENDAR_UI.num.universalYear, locale, { n: uy })}`,
+    lead,
+    paragraphs: [lead, universal],
+    facts: [
+      { label: pick(CALENDAR_UI.num.factYear, locale), value: String(year) },
+      { label: pick(CALENDAR_UI.num.steps, locale), value: stepsText(value) },
+      { label: numLabel("universalYear", locale), value: String(uy) },
+    ],
+    sections: [{ id: "universal", title: fill(CALENDAR_UI.num.universalYear, locale, { n: uy }), paragraphs: [universal] }],
+    links: changes.length ? { title: pick(CALENDAR_UI.num.changesHead, locale), rows: changes } : undefined,
+    about: { title: howTitle(locale), paragraphs: [pick(CALENDAR_UI.num.yearAbout, locale)] },
+  };
+}
+
+/** A long cycle changing on a birthday (numerology, part 62): which, from when, until when, and its number's themes. */
+export function numerologyChangeReading(num: NumerologyCalendar, id: string, locale: Locale): ElementReading | null {
+  const c = num.changes.find((x) => changeId(x) === id);
+  if (!c) return null;
+  const next = num.changes.find((x) => x.kind === c.kind && x.index === c.index + 1);
+  const when = [
+    fill(CALENDAR_UI.num.from, locale, { date: numDate(c.day, locale), age: c.age }),
+    next ? fill(CALENDAR_UI.num.until, locale, { date: numDate(next.day, locale) }) : pick(CALENDAR_UI.num.forLife, locale),
+  ].join(" · ");
+  const about = pick(CALENDAR_UI.num[`about_${c.kind}`], locale);
+  const n = c.value.number;
+  const text = n != null && n > 0 ? NUMBER_TEXT[n as NumberKey] : undefined;
+  // The other cycles changing on the same birthday.
+  const same = changeLinks(num, c.day, c.day, locale).filter((r) => r.ref !== id);
+  return {
+    id,
+    kind: "house",
+    mark: String(n ?? ""),
+    title: numChangeTitle(c, locale),
+    kicker: when,
+    lead: about,
+    paragraphs: [about, ...(text ? [pickBi(text.what, locale)] : [])],
+    facts: [
+      { label: pick(CALENDAR_UI.num.factFrom, locale), value: fill(CALENDAR_UI.num.atAge, locale, { date: numShortDate(c.day, locale), age: c.age }) },
+      {
+        label: pick(CALENDAR_UI.num.factUntil, locale),
+        value: next ? fill(CALENDAR_UI.num.atAge, locale, { date: numShortDate(next.day, locale), age: next.age }) : pick(CALENDAR_UI.num.forLifeShort, locale),
+      },
+      { label: pick(CALENDAR_UI.num.number, locale), value: wholeText(c.value) },
+      { label: pick(CALENDAR_UI.num.before, locale), value: wholeText(c.previous) },
+    ],
+    sections: text
+      ? [{ id: "theme", title: pick(CALENDAR_UI.num.theme, locale), paragraphs: [`${pickBi(text.keywords, locale)}.`.replace(/^./, (x) => x.toUpperCase()), pickBi(text.what, locale)] }]
+      : undefined,
+    links: same.length ? { title: pick(CALENDAR_UI.num.changesHead, locale), rows: same } : undefined,
   };
 }
