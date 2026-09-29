@@ -1,123 +1,378 @@
 /* Numerology: these styles load with the code that uses them, not with the
-   first page (performance plan 1.9). Moved as they were from styles.css. */
-/* The numerology ring: digits come in round the ring, the core last. */
-.ulune-num-digit {
-  animation: ulune-fade-plain 520ms var(--chart-ease) calc(120ms + var(--enter, 0) * 60ms) backwards;
-}
-.ulune-num-core {
-  animation: ulune-fade-plain 620ms var(--chart-ease) 700ms backwards;
-}
-.ulune-num-tile {
-  animation: ulune-fade-plain 520ms var(--chart-ease) 820ms backwards;
-}
+   first page (performance plan 1.9). The wheel of part 60: a band of nine
+   numbers, the name's letters on them, the core numbers as discs, the Life
+   Path in the centre and the year outside. */
 .ulune-num-stage {
   display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding-bottom: var(--space-1);
+}
+.ulune-num-graph {
+  display: flex;
+  flex: 1 1 0;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  min-width: 0;
+  min-height: 0;
 }
-.ulune-num-ring {
-  position: relative;
+/* The wheel is as big as the room left gives, square: sized from its box as
+   a container (WebKit does not size a stretched flex item from its aspect
+   ratio). */
+.ulune-num-wheelbox {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  max-width: min(100%, calc(100dvh - 22rem), 30rem);
-  aspect-ratio: 1;
-  color: var(--color-fg);
+  min-height: 12rem;
+  padding-inline: var(--stage-pad);
+  container-type: size;
+}
+.ulune-num-wheelbox > .ulune-figure-zoom {
+  --num-side: min(100cqw, 100cqh, 38rem);
+  flex: 0 0 auto;
+  width: var(--num-side);
+  height: var(--num-side);
 }
 .ulune-num-svg {
   display: block;
   width: 100%;
   height: 100%;
-}
-.ulune-num-digit {
-  position: absolute;
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  margin: 0;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--color-fg-muted);
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-  transform: translate(-50%, -50%);
-}
-.ulune-num-digit.is-life,
-.ulune-num-digit.is-core {
-  border-color: var(--color-fg);
+  overflow: visible;
   color: var(--color-fg);
-}
-/* Which core numbers fall on this digit: under it on the lower half of the
-   ring, above it on the upper half, so the words stay inside the ring. */
-.ulune-num-digit-cores {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 2px);
-  width: max-content;
-  max-width: 9.5rem;
-  transform: translateX(-50%);
   font-family: var(--font-ui);
-  font-size: 10.5px;
-  font-weight: 500;
-  line-height: 1.2;
-  text-align: center;
-  color: var(--color-fg-muted);
-  /* The rings run under the labels: a patch of the page's colour keeps them clear. */
-  padding: 0 4px;
-  border-radius: 4px;
-  background: var(--color-bg);
-  pointer-events: none;
+  -webkit-tap-highlight-color: transparent;
+  --num-gold: var(--color-halo);
+  --num-disc-fill: color-mix(in oklab, var(--num-gold) 16%, var(--color-bg));
 }
-.ulune-num-digit-cores[data-below] {
-  top: calc(100% + 2px);
-  bottom: auto;
+.ulune-num-svg [data-part] {
+  cursor: pointer;
+  transition: opacity 180ms var(--chart-ease);
 }
-.ulune-num-digit.is-active {
-  color: var(--color-fg);
-  border-color: var(--color-border-strong);
-  background: var(--color-bg-subtle);
+.ulune-num-svg .num-hit {
+  fill: transparent;
+  stroke: none;
 }
-.ulune-num-core {
-  position: absolute;
-  z-index: 2;
-  top: 50%;
-  left: 50%;
-  display: grid;
-  place-items: center;
-  width: 7.5rem;
-  height: 7.5rem;
-  margin: 0;
-  padding: 0;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-bg);
-  color: var(--color-fg);
+
+/* The band: darker where more letters fall, dashed where none (a karmic lesson). */
+.num-sector-band {
+  fill: var(--color-fg);
+  fill-opacity: calc(0.045 + var(--k, 0) * 0.043);
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+}
+.num-sector[data-lesson] .num-sector-band {
+  fill: none;
+  stroke: color-mix(in oklab, var(--color-fg) 42%, transparent);
+  stroke-dasharray: 4 3;
+}
+.num-sector-mark {
+  fill: var(--color-fg);
+}
+.num-sector-n {
+  fill: var(--color-fg);
   font-family: var(--font-display);
-  font-size: 4.25rem;
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.num-sector[data-lesson] .num-sector-n {
+  fill: var(--color-fg-subtle);
+  font-weight: 500;
+}
+.num-tracks circle {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+/* The letters: vowels on the inner track, consonants on the outer one; a Y
+   carries a dot (it can be switched). */
+.num-letter text {
+  fill: var(--color-fg-muted);
+  font-weight: 450;
+}
+.num-letter[data-vowel] text {
+  fill: var(--color-fg);
+  font-weight: 650;
+}
+.num-letter-y {
+  fill: var(--num-gold);
+}
+
+/* The core numbers: gold discs, a master or a karmic debt written whole and ringed. */
+.num-disc-face {
+  fill: var(--num-disc-fill);
+  stroke: var(--num-gold);
+  stroke-width: 1.5;
+}
+.num-disc-ring {
+  fill: none;
+  stroke: var(--num-gold);
+  stroke-width: 1;
+  stroke-dasharray: 2.2 2;
+}
+.num-disc text {
+  fill: var(--color-fg);
+  font-size: 12.5px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.num-disc text[data-long] {
+  font-size: 10px;
+}
+.num-centre-face {
+  fill: color-mix(in oklab, var(--num-gold) 12%, var(--color-bg));
+  stroke: var(--num-gold);
+  stroke-width: 1.75;
+}
+.num-centre-n {
+  fill: var(--color-fg);
+  font-family: var(--font-display);
+  font-size: 40px;
   font-weight: 600;
   letter-spacing: var(--tracking-display);
-  line-height: 1;
-  transform: translate(-50%, -50%);
 }
-.ulune-num-core.is-active {
-  border-color: var(--color-fg);
+.num-centre-whole {
+  fill: var(--color-fg-muted);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The year outside the band, dashed when it is not this year; the month and
+   the day as two ticks. */
+.num-year-face {
+  fill: var(--color-bg);
+  stroke: var(--color-fg);
+  stroke-width: 1.4;
+}
+.num-year:not([data-now]) .num-year-face {
+  stroke-dasharray: 3 2;
+}
+.num-year text {
+  fill: var(--color-fg);
+  font-size: 12.5px;
+  font-weight: 650;
+}
+.num-tick line {
+  stroke: var(--color-fg);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+.num-tick text {
+  fill: var(--color-fg-muted);
+  font-size: 9px;
+  font-weight: 650;
+}
+
+/* Pointing lights what makes a number; a chosen part keeps it lit. */
+.ulune-num-svg[data-focus] [data-part]:not([data-lit]) {
+  opacity: 0.3;
+}
+.ulune-num-svg[data-focus="hover"] [data-part]:not([data-lit]) {
+  opacity: 0.42;
+}
+.num-sector:is([data-hero], [data-chosen]) .num-sector-band {
+  stroke: var(--color-fg);
+  stroke-width: 1.6;
+}
+.num-disc:is([data-hero], [data-chosen]) .num-disc-face,
+.num-centre:is([data-hero], [data-chosen]) .num-centre-face {
+  stroke-width: 2.6;
+}
+.num-letter:is([data-hero], [data-chosen]) text {
+  fill: var(--color-fg);
+  font-weight: 750;
+}
+.num-year:is([data-hero], [data-chosen]) .num-year-face {
+  stroke-width: 2.4;
+}
+.num-tick:is([data-hero], [data-chosen]) line {
+  stroke-width: 2.6;
+}
+
+/* The wheel comes in round: the band, then the letters, the discs, the centre. */
+.num-sector {
+  animation: ulune-fade-plain 480ms var(--chart-ease) calc(80ms + var(--enter, 0) * 45ms) backwards;
+}
+.num-letters,
+.num-tracks {
+  animation: ulune-fade-plain 520ms var(--chart-ease) 460ms backwards;
+}
+.num-discs,
+.num-time {
+  animation: ulune-fade-plain 520ms var(--chart-ease) 620ms backwards;
+}
+.num-centre {
+  animation: ulune-fade-plain 560ms var(--chart-ease) 720ms backwards;
+}
+
+.ulune-num-say {
+  min-height: 1.4em;
+  max-width: 40rem;
+  margin: var(--space-1) 0 0;
+  padding-inline: var(--stage-pad);
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--color-fg-subtle);
+}
+.ulune-num-say[data-on] {
+  color: var(--color-fg);
+}
+/* The keyboard's list (figure-keys.tsx): read by screen readers, not drawn;
+   while it has the focus, the wheel shows the ring. */
+.ulune-num-graph:has(.ulune-figure-keys-list:focus-visible) .ulune-figure-zoom {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+/* A Y chosen on the wheel: a vowel or a consonant. */
+.ulune-num-yswitch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 10px;
+  padding-inline: var(--stage-pad);
+  font-size: 12.5px;
+  color: var(--color-fg-muted);
+}
+.ulune-num-yswitch-seg {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+}
+.ulune-num-yswitch-seg button {
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: var(--color-fg-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.ulune-num-yswitch-seg button[aria-pressed="true"] {
+  background: var(--color-bg-elevated);
+  color: var(--color-fg);
+  box-shadow: 0 0 0 1px var(--color-border-strong);
+}
+.ulune-num-yswitch-note {
+  color: var(--color-fg-subtle);
+}
+
+/* ‹ 2026 ›, that year's personal year and the long cycles it falls in. */
+.ulune-num-year {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding-inline: var(--stage-pad);
+}
+.ulune-num-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.ulune-num-step,
+.ulune-num-year-n {
+  display: inline-grid;
+  place-items: center;
+  height: 36px;
+  border-radius: 10px;
+  color: var(--color-fg-muted);
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out);
+}
+.ulune-num-step {
+  width: 36px;
+}
+.ulune-num-year-n {
+  min-width: 4.5rem;
+  padding: 0 8px;
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.ulune-num-year-n:not([data-now]) {
+  box-shadow: inset 0 -2px 0 var(--color-halo);
+}
+.ulune-num-step:hover:not(:disabled),
+.ulune-num-year-n:hover {
   background: var(--color-bg-subtle);
+  color: var(--color-fg);
 }
-/* Core numbers under the ring: one tile each, opening its own reading. */
+.ulune-num-step:disabled {
+  opacity: 0.4;
+}
+.ulune-num-year-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 6px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--color-fg-muted);
+}
+.ulune-num-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.ulune-num-chip b {
+  color: var(--color-fg);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.ulune-num-chip.is-year {
+  border-color: var(--color-border-strong);
+}
+.ulune-num-chip[data-new] {
+  border-color: var(--color-halo);
+}
+.ulune-num-chip-x {
+  color: var(--color-fg-subtle);
+}
+.ulune-num-age {
+  color: var(--color-fg-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The core numbers under the wheel, one tile each: they name the discs and
+   open their readings; on a phone they scroll sideways. */
 .ulune-num-tiles {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-auto-columns: minmax(5.4rem, 1fr);
+  grid-auto-flow: column;
   gap: 6px;
-  width: min(100%, 30rem);
-  margin-top: var(--space-4);
-  padding-inline: var(--stage-pad);
+  width: min(100%, 38rem);
+  padding: 2px var(--stage-pad);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  animation: ulune-fade-plain 520ms var(--chart-ease) 820ms backwards;
+}
+.ulune-num-tiles::-webkit-scrollbar {
+  display: none;
 }
 .ulune-num-tile {
   display: flex;
@@ -125,18 +380,25 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  min-height: 64px;
+  min-height: 60px;
   padding: 8px 4px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-fg);
+  scroll-snap-align: start;
   transition:
+    box-shadow 220ms var(--ease-out),
     background-color var(--dur-hover) var(--ease-out),
     border-color var(--dur-hover) var(--ease-out);
 }
 .ulune-num-tile:hover:not(:disabled) {
   background: var(--color-bg-subtle);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ulune-num-tile:hover:not(:disabled) {
+    box-shadow: var(--extrude), var(--extrude-soft);
+  }
 }
 .ulune-num-tile.is-on {
   border-color: var(--color-fg);
@@ -147,94 +409,67 @@
 }
 .ulune-num-tile-n {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
   line-height: 1;
+  white-space: nowrap;
 }
 .ulune-num-tile-k {
+  display: -webkit-box;
   max-width: 100%;
   overflow: hidden;
-  text-align: center;
-  line-height: 1.15;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow-wrap: anywhere;
   font-family: var(--font-ui);
   font-size: 11px;
+  line-height: 1.15;
+  text-align: center;
   color: var(--color-fg-muted);
+  overflow-wrap: anywhere;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 .ulune-num-system {
-  margin: var(--space-2) 0 0;
+  margin: 0;
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.08em;
   line-height: 1.2;
-  text-transform: none;
   color: var(--color-fg-subtle);
 }
-/* ─── Depth: the numerology ring ─────────────────────────────────────────
-   A digit you point at (or whose core tile you point at below) pops a little
-   in place, with a soft shadow; nothing leans or moves under the pointer. */
-.ulune-num-digit,
-.ulune-num-core {
-  --s: 1;
-  transform: translate(-50%, -50%) scale(var(--s));
-  transition:
-    transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 220ms var(--ease-out),
-    background-color 160ms var(--ease-out),
-    border-color 160ms var(--ease-out),
-    color 160ms var(--ease-out);
+
+/* Held upright with the sheet folded, the wheel takes the whole width and
+   the stage scrolls, like the other wheels (shell.css). */
+@media (max-width: 1023.98px) and (orientation: portrait) {
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-stage:has(.ulune-num-stage) {
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-figure:has(.ulune-num-stage) {
+    flex: 1 0 auto;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) :is(.ulune-num-stage, .ulune-num-graph) {
+    flex: 0 0 auto;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ulune-num-wheelbox {
+    flex: 0 0 auto;
+    container-type: normal;
+  }
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ulune-num-wheelbox > .ulune-figure-zoom {
+    width: min(100%, 36rem);
+    height: auto;
+    aspect-ratio: 1;
+  }
 }
-.ulune-num-core {
-  box-shadow: 0 12px 28px -20px color-mix(in oklab, var(--depth-shadow-color) 85%, transparent);
-}
-@media (hover: hover) and (pointer: fine) {
-  .ulune-num-digit:hover {
-      --s: 1.1;
-    }
-  .ulune-num-core:hover {
-      --s: 1.03;
-    }
-}
-.ulune-num-digit[data-hot="1"] {
-  --s: 1.1;
-  color: var(--color-fg);
-  border-color: var(--color-border-strong);
-}
-.ulune-num-digit.is-active {
-  --s: 1.14;
-}
-.ulune-num-core.is-active {
-  --s: 1.04;
-  box-shadow: var(--extrude), var(--extrude-soft);
-}
-.ulune-num-digit:is(:hover, .is-active, [data-hot="1"]) {
-  background: var(--color-bg-elevated);
-  box-shadow: var(--extrude), var(--extrude-soft);
-}
-.ulune-num-stage[data-depth="off"] .ulune-num-digit,
-.ulune-num-stage[data-depth="off"] .ulune-num-core {
-  --s: 1 !important;
-}
-.ulune-num-tile {
-  transition:
-    box-shadow 220ms var(--ease-out),
-    background-color var(--dur-hover) var(--ease-out),
-    border-color var(--dur-hover) var(--ease-out);
-}
-@media (hover: hover) and (pointer: fine) {
-  .ulune-num-tile:hover:not(:disabled) {
-      box-shadow: var(--extrude), var(--extrude-soft);
-    }
+/* With the sheet open, the wheel stays whole above it: the line under it, the
+   year stepper, the tiles and the method's name wait for the sheet to fold
+   (a Y's switch stays: its reading is the one open). */
+@media (max-width: 1023.98px) {
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) :is(.ulune-num-say, .ulune-num-year, .ulune-num-tiles, .ulune-num-system) {
+    display: none;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ulune-num-digit,
-    .ulune-num-core {
-      transition:
-        background-color 120ms linear,
-        border-color 120ms linear,
-        color 120ms linear;
-    }
+  .ulune-num-svg [data-part] {
+    transition: none;
+  }
 }

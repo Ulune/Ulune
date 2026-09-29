@@ -103,19 +103,47 @@ export type YRole = "v" | "c";
  *   it in the name (Ryan, Bryan), a consonant otherwise (Tanya).
  */
 export function yRoleByRule(word: readonly string[], i: number): YRole {
+  return Y_ROLE_OF[yRuleWhy(word, i)];
+}
+
+/** Why the rule makes a Y a vowel or a consonant (the reading says so). */
+export type YReason =
+  | "alone"
+  | "firstBeforeConsonant"
+  | "firstBeforeVowel"
+  | "lastAfterConsonant"
+  | "lastAfterVowel"
+  | "betweenConsonants"
+  | "afterVowel"
+  | "onlyVowel"
+  | "beforeVowel";
+
+const Y_ROLE_OF: Readonly<Record<YReason, YRole>> = {
+  alone: "v",
+  firstBeforeConsonant: "v",
+  firstBeforeVowel: "c",
+  lastAfterConsonant: "v",
+  lastAfterVowel: "c",
+  betweenConsonants: "v",
+  afterVowel: "c",
+  onlyVowel: "v",
+  beforeVowel: "c",
+};
+
+export function yRuleWhy(word: readonly string[], i: number): YReason {
   const vowelAt = (k: number) => PLAIN_VOWELS.has(word[k] ?? "");
   const hasPrev = i > 0;
   const hasNext = i < word.length - 1;
-  if (!hasPrev && !hasNext) return "v";
-  if (!hasPrev) return vowelAt(i + 1) ? "c" : "v";
-  if (!hasNext) return vowelAt(i - 1) ? "c" : "v";
+  if (!hasPrev && !hasNext) return "alone";
+  if (!hasPrev) return vowelAt(i + 1) ? "firstBeforeVowel" : "firstBeforeConsonant";
+  if (!hasNext) return vowelAt(i - 1) ? "lastAfterVowel" : "lastAfterConsonant";
   const before = vowelAt(i - 1);
   const after = vowelAt(i + 1);
-  if (!before && !after) return "v";
-  if (before) return "c";
+  if (!before && !after) return "betweenConsonants";
+  if (before) return "afterVowel";
   // A consonant before, a vowel after: the syllable's vowel when no vowel came earlier.
-  for (let k = 0; k < i; k += 1) if (vowelAt(k)) return "c";
-  return "v";
+  for (let k = 0; k < i; k += 1) if (vowelAt(k)) return "beforeVowel";
+  return "onlyVowel";
 }
 
 export type NameLetter = {
@@ -130,8 +158,9 @@ export type NameLetter = {
   index: number;
   /** For a Y: which one it is in the name (0 the first Y), to switch it by hand. */
   y?: number;
-  /** For a Y: the role the rule gives it (it may have been switched). */
+  /** For a Y: the role the rule gives it (it may have been switched), and why. */
   yRule?: YRole;
+  yWhy?: YReason;
 };
 
 export type NameWord = { text: string; letters: NameLetter[] };
@@ -158,12 +187,14 @@ export function parseName(name: string, yRoles?: readonly YRole[] | null): Parse
       let vowel = PLAIN_VOWELS.has(ch);
       const letter: NameLetter = { ch, value: letterValue(ch), vowel, word: words.length, index: letters.length };
       if (ch === "Y") {
-        const rule = yRoleByRule(folded, i);
+        const why = yRuleWhy(folded, i);
+        const rule = Y_ROLE_OF[why];
         const role = useRoles?.[yCount] ?? rule;
         vowel = role === "v";
         letter.vowel = vowel;
         letter.y = yCount;
         letter.yRule = rule;
+        letter.yWhy = why;
         yCount += 1;
       }
       word.letters.push(letter);

@@ -366,6 +366,12 @@ export type BirthInput = {
   tz?: string;
   /** For a local time the clocks showed twice: 0 the first occurrence, 1 the second (default: after the clocks went back). */
   fold?: 0 | 1;
+  /**
+   * Numerology, kept on the device with the chart and never sent: the Y's of
+   * the birth name switched by hand ("v" a vowel, "c" a consonant, in order),
+   * with the name they were set for (another name leaves them aside).
+   */
+  numerologyY?: { name: string; roles: string };
 };
 
 export type PlaceHit = {

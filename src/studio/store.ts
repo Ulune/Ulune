@@ -185,6 +185,8 @@ type StudioState = LibrarySlice &
     pick: (id: string) => void;
     clear: () => void;
     setInput: (next: BirthInput) => void;
+    /** Numerology: the birth name's Y's switched by hand (none: as the rule says), kept with the chart. */
+    setNumerologyY: (next: BirthInput["numerologyY"] | null) => void;
     setPage: (page: StudioPage) => void;
     setView: (view: StudioView) => void;
     openDock: (tab: DockTab) => void;
@@ -528,6 +530,26 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   },
   clear: () => set({ selectedId: null }),
   setInput: (next) => set({ input: next }),
+  setNumerologyY: (next) => {
+    const patch = (input: BirthInput): BirthInput => {
+      const { numerologyY: _drop, ...rest } = input;
+      return next ? { ...rest, numerologyY: next } : rest;
+    };
+    set({ input: patch(get().input) });
+    // A saved chart keeps it (on this device, in the private space when there is one).
+    const id = get().activeId;
+    const row = id ? get().rows.find((r) => r.id === id) : undefined;
+    if (row) {
+      void get().persistRow({
+        id: row.id,
+        input: patch(row.input),
+        chart: row.chart,
+        dossier: row.dossier,
+        grok: row.grok,
+        timeUnknown: row.timeUnknown,
+      });
+    }
+  },
   setPage: (page) => set({ page }),
   setView: (view) => set({ view }),
   openDock: (tab) => {

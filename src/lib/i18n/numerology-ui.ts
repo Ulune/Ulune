@@ -54,3 +54,16 @@ export type NumerologyCoreId =
 export function numerologyCoreLabel(locale: AppLocale, id: NumerologyCoreId): string {
   return pick(source.cores[id], locale);
 }
+
+export type NumerologyWheelKey = keyof typeof source.wheel;
+
+/** The numerology wheel's words (part 60), with {placeholders} filled. */
+export function numerologyWheelText(
+  locale: AppLocale,
+  key: NumerologyWheelKey,
+  vars?: Record<string, string | number>,
+): string {
+  let text = pick(source.wheel[key], locale);
+  for (const [k, v] of Object.entries(vars ?? {})) text = text.replaceAll(`{${k}}`, String(v));
+  return text;
+}

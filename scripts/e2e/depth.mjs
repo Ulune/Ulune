@@ -4,7 +4,7 @@
  * in place; its aspect lines stay flat lines, lit and drawn over the others),
  * the 3D view (strata,
  * sprites, stems, arcs, orbit), companions that preview in the chart, the
- * bodygraph and numerology ring, reduced motion, phones, and the Look
+ * bodygraph and the numerology wheel, reduced motion, phones, and the Look
  * switches. Stability is checked too: the flat chart never tilts or drifts,
  * and a 3D sprite held under the pointer keeps its hover.
  * See the 3D charts plan.
@@ -559,12 +559,12 @@ async function desktop() {
     const gAfter = await page.getByTestId("hd-center-g").boundingBox();
     if (Math.abs(gAfter.x - gBefore.x) > 0.5 || Math.abs(gAfter.y - gBefore.y) > 0.5) throw new Error("the pointed centre moved");
 
-    // Numerology: pointing at a core tile raises its digit on the ring.
+    // Numerology: pointing at a core tile lights its disc on the wheel, where it is drawn.
     await goStudioPage(page, "numerology");
     await page.getByTestId("numerology-ring").waitFor({ timeout: 30000 });
     await page.getByTestId("numerology-tile-lifepath").hover();
-    await page.waitForTimeout(300);
-    if ((await page.locator(".ulune-num-digit[data-hot='1']").count()) !== 1) throw new Error("tile did not raise its digit");
+    await page.waitForTimeout(400);
+    if ((await page.getByTestId("numerology-disc-lifepath").getAttribute("data-hero")) !== "1") throw new Error("the tile did not light its disc");
     const ring = await page.evaluate(() => getComputedStyle(document.querySelector("[data-testid=numerology-ring]")).transform);
     if (ring && ring !== "none") throw new Error(`numerology ring is transformed (${ring})`);
 

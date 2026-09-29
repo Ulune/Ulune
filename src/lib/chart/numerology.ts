@@ -1,4 +1,4 @@
-import type { NatalChart } from "./types";
+import type { BirthInput, NatalChart } from "./types";
 import {
   MASTERS,
   NO_MASTERS,
@@ -148,6 +148,20 @@ export function givenBirthName(raw: string | null | undefined, chart: NatalChart
   if (name === chart.meta.date) return null;
   if (!lettersOf(name).length) return null;
   return name;
+}
+
+/**
+ * The name options a chart's input gives: its typed birth name, and the Y's
+ * switched by hand for that very name (another name leaves them aside).
+ */
+export function numerologyOptionsOf(
+  input: Pick<BirthInput, "name" | "numerologyY">,
+  chart: NatalChart,
+): { name: string | null; yRoles: YRole[] | null } {
+  const name = givenBirthName(input.name, chart);
+  const y = input.numerologyY;
+  const yRoles = name && y && y.name === name && /^[vc]+$/.test(y.roles) ? (y.roles.split("") as YRole[]) : null;
+  return { name, yRoles };
 }
 
 /** Life Path as a number alone (month, day and year reduced apart; masters kept). */

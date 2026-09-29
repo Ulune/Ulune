@@ -231,5 +231,179 @@
       "en": "Digits found in both people’s core numbers. They point to common ground; they are not a compatibility score.",
       "fr": "Chiffres présents dans les nombres principaux des deux personnes. Ils indiquent un terrain commun ; ce n’est pas un score de compatibilité."
     }
+  },
+  "wheel": {
+    "aria": {
+      "en": "Numerology wheel: the nine numbers round a band, the letters of the name on their numbers, the core numbers inside and the year outside",
+      "fr": "Roue de numérologie : les neuf nombres sur une couronne, les lettres du nom sur leurs nombres, les nombres principaux à l’intérieur et l’année à l’extérieur"
+    },
+    "hint": {
+      "en": "Point at a number, a letter or a disc; click to read it.",
+      "fr": "Pointez un nombre, une lettre ou un disque ; cliquez pour le lire."
+    },
+    "hintTouch": {
+      "en": "Tap a number, a letter or a disc to read it.",
+      "fr": "Touchez un nombre, une lettre ou un disque pour le lire."
+    },
+    "keysLabel": {
+      "en": "Numbers, discs and letters of the wheel",
+      "fr": "Nombres, disques et lettres de la roue"
+    },
+    "keysHint": {
+      "en": "The arrows walk the wheel, Page Down goes to the next kind, Enter opens the reading.",
+      "fr": "Les flèches parcourent la roue, Page suivante passe au type suivant, Entrée ouvre la lecture."
+    },
+    "keysOpened": {
+      "en": "{name}: reading opened",
+      "fr": "{name} : lecture ouverte"
+    },
+    "keysClosed": {
+      "en": "{name}: reading closed",
+      "fr": "{name} : lecture fermée"
+    },
+    "numberLetters": {
+      "en": "{n}: {count} letters, {letters}",
+      "fr": "{n} : {count} lettres, {letters}"
+    },
+    "numberLetter": {
+      "en": "{n}: 1 letter, {letters}",
+      "fr": "{n} : 1 lettre, {letters}"
+    },
+    "numberLesson": {
+      "en": "{n}: no letter, a karmic lesson",
+      "fr": "{n} : aucune lettre, une leçon karmique"
+    },
+    "passion": {
+      "en": "the most, the hidden passion",
+      "fr": "le plus, la passion cachée"
+    },
+    "vowelOf": {
+      "en": "{letter} = {value}, a vowel of {word}",
+      "fr": "{letter} = {value}, une voyelle de {word}"
+    },
+    "consonantOf": {
+      "en": "{letter} = {value}, a consonant of {word}",
+      "fr": "{letter} = {value}, une consonne de {word}"
+    },
+    "byHand": {
+      "en": "switched by hand",
+      "fr": "changé à la main"
+    },
+    "cornerstone": {
+      "en": "the cornerstone",
+      "fr": "la pierre angulaire"
+    },
+    "capstone": {
+      "en": "the capstone",
+      "fr": "la pierre de faîte"
+    },
+    "firstVowel": {
+      "en": "the first vowel",
+      "fr": "la première voyelle"
+    },
+    "debt": {
+      "en": "karmic debt {debt}",
+      "fr": "dette karmique {debt}"
+    },
+    "master": {
+      "en": "a master number",
+      "fr": "un nombre maître"
+    },
+    "yearDisc": {
+      "en": "Personal year {n} in {year}",
+      "fr": "Année personnelle {n} en {year}"
+    },
+    "monthTick": {
+      "en": "Personal month {n}, {month}",
+      "fr": "Mois personnel {n}, {month}"
+    },
+    "dayTick": {
+      "en": "Personal day {n}, {date}",
+      "fr": "Jour personnel {n}, {date}"
+    },
+    "monthMark": {
+      "en": "M",
+      "fr": "M"
+    },
+    "dayMark": {
+      "en": "D",
+      "fr": "J"
+    },
+    "yearLabel": {
+      "en": "Year",
+      "fr": "Année"
+    },
+    "prevYear": {
+      "en": "Year before",
+      "fr": "Année précédente"
+    },
+    "nextYear": {
+      "en": "Year after",
+      "fr": "Année suivante"
+    },
+    "backToNow": {
+      "en": "{year}, back to this year",
+      "fr": "{year}, revenir à cette année"
+    },
+    "pinnacle": {
+      "en": "Pinnacle",
+      "fr": "Réalisation"
+    },
+    "challenge": {
+      "en": "Challenge",
+      "fr": "Défi"
+    },
+    "period": {
+      "en": "Period",
+      "fr": "Cycle"
+    },
+    "essence": {
+      "en": "Essence",
+      "fr": "Essence"
+    },
+    "main": {
+      "en": "main",
+      "fr": "principal"
+    },
+    "fromDate": {
+      "en": "from {date}",
+      "fr": "dès le {date}"
+    },
+    "age": {
+      "en": "age {age}",
+      "fr": "{age} ans"
+    },
+    "beforeBirth": {
+      "en": "before the birth",
+      "fr": "avant la naissance"
+    },
+    "yLabel": {
+      "en": "This Y counts as",
+      "fr": "Ce Y compte comme"
+    },
+    "yVowel": {
+      "en": "Vowel",
+      "fr": "Voyelle"
+    },
+    "yConsonant": {
+      "en": "Consonant",
+      "fr": "Consonne"
+    },
+    "yRuleSays": {
+      "en": "The rule says {role}.",
+      "fr": "La règle dit {role}."
+    },
+    "roleVowel": {
+      "en": "a vowel",
+      "fr": "une voyelle"
+    },
+    "roleConsonant": {
+      "en": "a consonant",
+      "fr": "une consonne"
+    },
+    "tiles": {
+      "en": "The core numbers",
+      "fr": "Les nombres principaux"
+    }
   }
 }

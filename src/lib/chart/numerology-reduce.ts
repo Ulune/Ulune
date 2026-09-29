@@ -142,3 +142,24 @@ export function term(key: string, raw: number, keep: readonly number[] = MASTERS
 export function chainText(chain: readonly number[] | undefined): string {
   return chain && chain.length ? chain.join(" → ") : "";
 }
+
+/**
+ * How a number was worked out, in numbers alone: "6 + 6 + 1 = 13 → 4",
+ * "15 → 6", "|6 − 1| = 5".
+ */
+export function stepsText(value: NumerologyValue): string {
+  if (value.number == null) return "";
+  if (value.gap) return `|${value.gap[0]} − ${value.gap[1]}| = ${value.number}`;
+  const terms = value.terms ?? [];
+  if (terms.length > 1) return `${terms.map((t) => t.value).join(" + ")} = ${chainText(value.chain)}`;
+  if (value.chain && value.chain.length > 1) return chainText(value.chain);
+  return String(value.number);
+}
+
+/** A number written whole: a karmic debt with its total (13/4), a master with its digit (11/2). */
+export function wholeText(value: NumerologyValue): string {
+  if (value.number == null) return "";
+  if (value.debt) return `${value.debt}/${value.number}`;
+  if (isMaster(value.number)) return `${value.number}/${value.digit}`;
+  return String(value.number);
+}

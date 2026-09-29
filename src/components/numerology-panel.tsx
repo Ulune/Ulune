@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { NumerologyHello } from "@/components/numerology-hello";
 import {
@@ -7,7 +7,7 @@ import {
   formatNumerologyDigit,
   formatNumerologyMaster,
   formatNumerologyNumber,
-  givenBirthName,
+  numerologyOptionsOf,
   valueOfCore,
   type NumerologyChart,
   type NumerologyCoreId,
@@ -29,6 +29,12 @@ import {
 } from "@/studio/numerology-pages";
 import { useModeData } from "@/studio/modes/data";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import {
+  NUMEROLOGY_FIRST_YEAR,
+  NUMEROLOGY_LAST_YEAR,
+  setNumerologyYear,
+  useNumerologyYear,
+} from "@/studio/numerology-year";
 import { useStudioStore } from "@/studio/store";
 import { studioSearch } from "@/studio/url";
 import { pickBi, type Bi } from "@/lib/content/types";
@@ -56,8 +62,6 @@ export function NumerologyPanel() {
   const { t, locale } = useI18n();
   const w = useWheelView();
   const numerology = useModeData("numerology");
-  const chart = useStudioStore((s) => s.chart);
-  const birthName = useStudioStore((s) => s.input.name);
   const rows = useStudioStore((s) => s.rows);
   const openDock = useStudioStore((s) => s.openDock);
   const studioPage = useStudioStore((s) => s.page);
@@ -68,7 +72,9 @@ export function NumerologyPanel() {
   const urlNum = coerceNumerologyPage(search.num);
 
   const [page, setPageState] = useState<NumerologyPage>(() => urlNum ?? loadNumerologyPage());
-  const [calendarYear, setCalendarYear] = useState(() => new Date().getFullYear());
+  // The year the wheel's stepper shows (one year for the wheel and these pages).
+  const calendarYear = useNumerologyYear() ?? new Date().getFullYear();
+  const setCalendarYear = setNumerologyYear;
   const [teachN, setTeachN] = useState(1);
 
   useLayoutEffect(() => {
@@ -115,16 +121,8 @@ export function NumerologyPanel() {
     [writeSearch, page],
   );
 
-  const modeNumbers = numerology?.numbers ?? null;
-  const numbers = useMemo(() => {
-    if (!chart) return modeNumbers;
-    return (
-      castNumerology(chart, {
-        name: givenBirthName(birthName, chart),
-        calendarYear,
-      }) ?? modeNumbers
-    );
-  }, [chart, birthName, calendarYear, modeNumbers]);
+  // Worked out once for the page, for the same year (useNumerology).
+  const numbers = numerology?.numbers ?? null;
 
   if (!numbers) return null;
   const named = Boolean(numbers.name);
@@ -342,6 +340,9 @@ function Timing({
   const { t } = useI18n();
   // The cycle texts come with the numerology pack (its own download).
   const pack = usePack("num", locale);
+  // What is typed, kept while it is not yet a year the wheel can show.
+  const [draft, setDraft] = useState(String(calendarYear));
+  useEffect(() => setDraft(String(calendarYear)), [calendarYear]);
   return (
     <div data-testid="numerology-timing" className="flex flex-col gap-[var(--space-3)]">
       <label className="flex max-w-[12rem] flex-col gap-1 text-sm">
@@ -350,10 +351,13 @@ function Timing({
           type="number"
           data-testid="numerology-year-picker"
           className="min-h-11 w-full rounded-md border border-border bg-bg px-3 text-fg"
-          value={calendarYear}
+          min={NUMEROLOGY_FIRST_YEAR}
+          max={NUMEROLOGY_LAST_YEAR}
+          value={draft}
           onChange={(e) => {
+            setDraft(e.target.value);
             const y = Number(e.target.value);
-            if (Number.isFinite(y) && y >= 1 && y <= 9999) setCalendarYear(Math.trunc(y));
+            if (Number.isInteger(y) && y >= NUMEROLOGY_FIRST_YEAR && y <= NUMEROLOGY_LAST_YEAR) setCalendarYear(y);
           }}
         />
       </label>
@@ -445,18 +449,8 @@ function Compare({
   const rowA = rows.find((r) => r.id === aId);
   const rowB = bId ? rows.find((r) => r.id === bId) : undefined;
 
-  const castA = rowA
-    ? castNumerology(rowA.chart, {
-        name: givenBirthName(rowA.input.name, rowA.chart),
-        calendarYear,
-      })
-    : null;
-  const castB = rowB
-    ? castNumerology(rowB.chart, {
-        name: givenBirthName(rowB.input.name, rowB.chart),
-        calendarYear,
-      })
-    : null;
+  const castA = rowA ? castNumerology(rowA.chart, { ...numerologyOptionsOf(rowA.input, rowA.chart), calendarYear }) : null;
+  const castB = rowB ? castNumerology(rowB.chart, { ...numerologyOptionsOf(rowB.input, rowB.chart), calendarYear }) : null;
 
   const bridge = new Set<number>();
   if (castA && castB) {
