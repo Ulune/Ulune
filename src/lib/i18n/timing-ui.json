@@ -2,9 +2,18 @@
   "id": "timing.ui",
   "kind": "chrome",
   "scope": {
-    "day": { "en": "Day", "fr": "Jour" },
-    "month": { "en": "Month", "fr": "Mois" },
-    "year": { "en": "Year", "fr": "An" }
+    "day": {
+      "en": "Day",
+      "fr": "Jour"
+    },
+    "month": {
+      "en": "Month",
+      "fr": "Mois"
+    },
+    "year": {
+      "en": "Year",
+      "fr": "An"
+    }
   },
   "readingEmpty": {
     "en": "Tap a date, a body, or an aspect.",
@@ -20,32 +29,80 @@
   },
   "table": {
     "title": {
-      "en": "Exact aspects",
-      "fr": "Aspects exacts"
+      "en": "Events",
+      "fr": "Événements"
     },
     "hint": {
-      "en": "The moments when a moving planet makes an exact major aspect (conjunction, sextile, square, trine, opposition) to your birth chart. Times follow the clock chosen in the calendar (this device’s, unless you pick another).",
-      "fr": "Les moments où une planète en mouvement forme un aspect majeur exact (conjonction, sextile, carré, trigone, opposition) avec votre thème natal. Les heures suivent l’horloge choisie dans le calendrier (celle de cet appareil, sauf si vous en choisissez une autre)."
+      "en": "The sky’s events and your exact transits in the period shown, in time order. Times follow the clock chosen in the calendar; Copy and CSV add them in universal time (UT).",
+      "fr": "Les événements du ciel et vos transits exacts de la période affichée, dans l’ordre du temps. Les heures suivent l’horloge choisie dans le calendrier ; la copie et le CSV les donnent aussi en temps universel (UT)."
     },
     "columns": {
-      "en": ["When", "Transit", "Aspect", "Natal", "A", "S"],
-      "fr": ["Quand", "Transit", "Aspect", "Natal", "A", "S"]
+      "en": [
+        "When",
+        "What",
+        "Where",
+        "For",
+        "UT"
+      ],
+      "fr": [
+        "Quand",
+        "Quoi",
+        "Où",
+        "Pour",
+        "UT"
+      ]
     },
-    "applying": { "en": "Applying", "fr": "Applicatif" },
-    "separating": { "en": "Separating", "fr": "Séparatif" },
     "empty": {
       "day": {
-        "en": "Nothing exact today.",
-        "fr": "Rien d’exact aujourd’hui."
+        "en": "Nothing to show on this day.",
+        "fr": "Rien à montrer ce jour-là."
       },
       "month": {
-        "en": "No exact major aspect this month.",
-        "fr": "Aucun aspect majeur exact ce mois-ci."
+        "en": "Nothing to show this month.",
+        "fr": "Rien à montrer ce mois-ci."
       },
       "year": {
-        "en": "No exact major aspect this year.",
-        "fr": "Aucun aspect majeur exact cette année."
+        "en": "Nothing to show this year.",
+        "fr": "Rien à montrer cette année."
       }
+    },
+    "filter": {
+      "all": {
+        "en": "All",
+        "fr": "Tout"
+      },
+      "sky": {
+        "en": "Sky",
+        "fr": "Ciel"
+      },
+      "yours": {
+        "en": "Yours",
+        "fr": "Les vôtres"
+      },
+      "label": {
+        "en": "Show",
+        "fr": "Afficher"
+      }
+    },
+    "moon": {
+      "en": "The Moon’s too",
+      "fr": "Avec la Lune"
+    },
+    "everyone": {
+      "en": "Everyone",
+      "fr": "Tous"
+    },
+    "you": {
+      "en": "You",
+      "fr": "Vous"
+    },
+    "ics": {
+      "en": "Calendar file",
+      "fr": "Fichier agenda"
+    },
+    "icsHint": {
+      "en": "An .ics file for your calendar app, made on this device",
+      "fr": "Un fichier .ics pour votre agenda, créé sur cet appareil"
     }
   }
 }

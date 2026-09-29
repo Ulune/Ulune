@@ -23,7 +23,7 @@ export function timingCasting(locale: AppLocale): string {
   return pick(source.casting, locale);
 }
 
-export const TIMING_TABLE_COLUMN_KEYS = ["when", "transit", "aspect", "natal", "a", "s"] as const;
+export const TIMING_TABLE_COLUMN_KEYS = ["when", "what", "where", "for", "ut"] as const;
 
 export function timingTableColumns(locale: AppLocale): readonly string[] {
   return localizedColumns(source.table.columns, locale, TIMING_TABLE_COLUMN_KEYS.length);
@@ -41,10 +41,3 @@ export function timingTableHint(locale: AppLocale): string {
   return pick(source.table.hint, locale);
 }
 
-export function timingApplyingTitle(locale: AppLocale): string {
-  return pick(source.table.applying, locale);
-}
-
-export function timingSeparatingTitle(locale: AppLocale): string {
-  return pick(source.table.separating, locale);
-}

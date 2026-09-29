@@ -1,6 +1,10 @@
 import { browserZone } from "@/lib/chart/client-zone";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { dayOverview } from "@/lib/chart/calendar-day";
+import { yearLayout } from "@/lib/chart/calendar-year";
+import { calendarRows } from "@/lib/chart/calendar-rows";
+import { calendarIcs } from "@/lib/i18n/calendar-export";
+import { downloadText } from "@/lib/download-text";
 import { eventsOf, mergeEvents, windowId } from "@/lib/chart/calendar-sky";
 import { CALENDAR_DEFAULTS, deviceZone, loadCalendarPrefs, saveCalendarPrefs, type CalendarPrefs, type CalendarZone } from "@/lib/chart/calendar-prefs";
 import { slowWindowsFromYears, transitsInSlices, type TransitWindow } from "@/lib/chart/personal-transits";
@@ -217,6 +221,11 @@ export function useTiming() {
     [tz, allEvents, allWins, allHits, allWindows, nowMs],
   );
   const dayView = useMemo(() => (scope === "day" ? overviewOf(civil) : null), [scope, civil, overviewOf]);
+  /** The year laid out (the year view and its panel). */
+  const yearView = useMemo(
+    () => (scope === "year" ? yearLayout(civil.year, tz, allEvents, spanYears, spanWindows) : null),
+    [scope, civil.year, tz, allEvents, spanYears, spanWindows],
+  );
   const bounds = useMemo(() => scopeBounds(scope, civil, tz), [scope, civil, tz]);
   const scoped = useMemo(() => hitsInScope(hits ?? [], bounds.from.getTime(), bounds.to.getTime()), [hits, bounds]);
   const cast = useMemo<TimingCast | null>(
@@ -275,14 +284,11 @@ export function useTiming() {
     [pick],
   );
 
-  const pickMonth = useCallback(
-    (next: CivilDate) => {
-      setCivil(next);
-      setScope("month");
-      pick(`day:${civilKey(next)}`);
-    },
-    [pick],
-  );
+  /** A month opened from the year. */
+  const pickMonth = useCallback((next: CivilDate) => {
+    setCivil(next);
+    setScope("month");
+  }, []);
 
   const changeScope = useCallback((next: TimingScope) => {
     setScope(next);
@@ -298,6 +304,16 @@ export function useTiming() {
     setCivil({ year: now.year, month: now.month, day: now.day });
   }, [tz]);
   const retry = useCallback(() => setTick((n) => n + 1), []);
+  /** The period's name in file names: "2026-09-28", "2026-09", "2026". */
+  const fileName = scope === "year" ? String(civil.year) : scope === "month" ? `${civil.year}-${String(civil.month).padStart(2, "0")}` : civilKey(civil);
+  /** The period shown as a calendar file: the switches' choice, the Moon's own on a day only. */
+  const exportIcs = useCallback(() => {
+    const from = bounds.from.getTime();
+    const to = bounds.to.getTime();
+    const rows = calendarRows(allEvents, hits ?? [], from, to, { sky: prefs.sky, yours: prefs.yours, moon: scope === "day" });
+    const spans = prefs.yours ? allWindows.filter((w) => w.from < to && w.to >= from) : [];
+    downloadText(`ulune-${fileName}.ics`, calendarIcs(rows, spans, locale, tz, `Ulune ${fileName}`), "text/calendar;charset=utf-8");
+  }, [bounds, allEvents, hits, prefs, scope, allWindows, fileName, locale, tz]);
   const todayKey = useMemo(() => civilKey(civilFromUtc(new Date(nowMs), tz)), [nowMs, tz]);
 
   return useMemo(
@@ -318,7 +334,12 @@ export function useTiming() {
       nowWins,
       nowEvents,
       allEvents,
+      allWindows,
+      bounds,
+      fileName,
+      exportIcs,
       dayView,
+      yearView,
       hits: hits ?? [],
       nowHits,
       windows,
@@ -334,6 +355,6 @@ export function useTiming() {
       pickMonth,
       enabled,
     }),
-    [scope, civil, changeScope, shift, goToday, tz, zones, prefs, updatePrefs, cast, wins, events, nowWins, nowEvents, allEvents, dayView, hits, nowHits, windows, scoped, busy, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled],
+    [scope, civil, changeScope, shift, goToday, tz, zones, prefs, updatePrefs, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled],
   );
 }

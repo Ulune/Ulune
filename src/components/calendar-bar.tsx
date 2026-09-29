@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { SegmentedToggle } from "@/components/segmented-toggle";
 import { zoneCity, zoneOffset, type CalendarZone } from "@/lib/chart/calendar-prefs";
 import type { CivilDate } from "@/lib/chart/timing-window";
@@ -60,6 +60,8 @@ export function CalendarBar({
   showYours,
   onSky,
   onYours,
+  onExport,
+  table = false,
 }: {
   scope: TimingScope;
   civil: CivilDate;
@@ -74,6 +76,10 @@ export function CalendarBar({
   showYours: boolean;
   onSky: (on: boolean) => void;
   onYours: (on: boolean) => void;
+  /** Save the period shown as a calendar file (.ics). */
+  onExport: () => void;
+  /** Over the table, which has its own filters and export: the period and the clock only. */
+  table?: boolean;
 }) {
   const { locale, t } = useI18n();
   const z = CALENDAR_UI.zone;
@@ -114,7 +120,7 @@ export function CalendarBar({
             <option value="utc">{pick(z.utc, locale)}</option>
           </select>
         </label>
-        <div className="ulune-cal-switches">
+        <div className="ulune-cal-switches" hidden={table}>
           <button type="button" data-testid="calendar-switch-sky" aria-pressed={showSky} onClick={() => onSky(!showSky)} className={cn("ulune-cal-chip", showSky && "is-on")}>
             <i className="ulune-cal-dot" style={{ background: "var(--color-fg-muted)" }} />
             {pick(CALENDAR_UI.switches.sky, locale)}
@@ -122,6 +128,10 @@ export function CalendarBar({
           <button type="button" data-testid="calendar-switch-yours" aria-pressed={showYours} onClick={() => onYours(!showYours)} className={cn("ulune-cal-chip", showYours && "is-on")}>
             <i className="ulune-cal-dot" style={{ background: "var(--aspect-soft)" }} />
             {pick(CALENDAR_UI.switches.yours, locale)}
+          </button>
+          <button type="button" data-testid="calendar-export" className="ulune-cal-chip" onClick={onExport} title={pick(CALENDAR_UI.switches.fileHint, locale)} aria-label={pick(CALENDAR_UI.switches.fileHint, locale)}>
+            <CalendarDays className="size-3.5" aria-hidden />
+            <span className="ulune-cal-file-word">.ics</span>
           </button>
         </div>
       </div>

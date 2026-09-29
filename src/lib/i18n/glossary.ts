@@ -16,9 +16,13 @@ export type GlossaryId =
   | "midheaven"
   | "retrograde"
   | "station"
+  | "ingress"
   | "moonPhase"
+  | "eclipse"
   | "voidOfCourse"
+  | "season"
   | "exact"
+  | "window"
   | "transit"
   | "progression"
   | "synastry"
@@ -132,11 +136,25 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
       "Le moment où une planète semble immobile dans le ciel avant de devenir rétrograde ou de repartir en direct. On lit les jours autour d’une station comme les plus forts du cycle de la planète.",
     ],
   },
+  ingress: {
+    term: ["Ingress (sign change)", "Ingrès (changement de signe)"],
+    body: [
+      "A planet crossing from one sign into the next. The Moon does it every two and a half days, Pluto every twelve to thirty years.",
+      "Le passage d’une planète d’un signe au suivant. La Lune le fait tous les deux jours et demi, Pluton tous les douze à trente ans.",
+    ],
+  },
   moonPhase: {
     term: ["Moon phase", "Phase de la Lune"],
     body: [
       "The Moon’s angle from the Sun, which sets how much of it is lit: new (0°), first quarter (90°), full (180°), last quarter (270°), crescent and gibbous in between. A whole cycle takes about 29½ days.",
       "L’angle entre la Lune et le Soleil, qui fixe la part éclairée de la Lune : nouvelle (0°), premier quartier (90°), pleine (180°), dernier quartier (270°), croissant et gibbeuse entre les deux. Un cycle complet dure environ 29 jours et demi.",
+    ],
+  },
+  eclipse: {
+    term: ["Eclipse", "Éclipse"],
+    body: [
+      "A New Moon (solar eclipse) or Full Moon (lunar eclipse) close enough to the lunar nodes for the Moon to hide the Sun or pass through the Earth’s shadow. Four to seven a year, in seasons about six months apart.",
+      "Une Nouvelle Lune (éclipse solaire) ou une Pleine Lune (éclipse lunaire) assez proche des nœuds lunaires pour que la Lune cache le Soleil ou traverse l’ombre de la Terre. Quatre à sept par an, par saisons espacées d’environ six mois.",
     ],
   },
   voidOfCourse: {
@@ -146,11 +164,25 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
       "Les heures entre le dernier aspect majeur de la Lune dans un signe et son entrée dans le suivant, un moment traditionnellement peu favorable aux débuts. Calculée ici avec le Soleil et les planètes jusqu’à Pluton.",
     ],
   },
+  season: {
+    term: ["Equinox, solstice", "Équinoxe, solstice"],
+    body: [
+      "The Sun entering Aries or Libra (equinoxes: day and night equal) and Cancer or Capricorn (solstices: the longest and shortest days). They open the seasons and the four quarters of the zodiac.",
+      "L’entrée du Soleil en Bélier ou en Balance (équinoxes : jour et nuit égaux) et en Cancer ou en Capricorne (solstices : les jours les plus longs et les plus courts). Ils ouvrent les saisons et les quatre quarts du zodiaque.",
+    ],
+  },
   exact: {
     term: ["Exact", "Exact"],
     body: [
       "The minute an aspect or a crossing is precise to the degree, minute and second: the peak of a transit, shown as the minute it happens in.",
       "La minute où un aspect ou un passage est précis au degré, à la minute et à la seconde près : le sommet d’un transit, donné à la minute où il se produit.",
+    ],
+  },
+  window: {
+    term: ["Within 1° (a slow transit’s period)", "À moins de 1° (la période d’un transit lent)"],
+    body: [
+      "The weeks or months a slow planet stays within 1° of an exact aspect to your chart. A retrograde can make it exact two or three times inside; a period with no exact pass is a near miss.",
+      "Les semaines ou les mois où une planète lente reste à moins de 1° d’un aspect exact à votre thème. Une rétrogradation peut le rendre exact deux ou trois fois pendant cette période ; une période sans passage exact est un aspect frôlé.",
     ],
   },
   transit: {
@@ -458,7 +490,21 @@ export function glossaryFor(page: string, selectedId: string | null): GlossaryId
     for (const id of ids) if (!out.includes(id)) out.push(id);
   };
   const prefix = selectedId?.split(":")[0] ?? "";
-  if (page === "transits" || page === "timing") add("transit");
+  if (page === "transits") add("transit");
+  // The calendar: the words of the event, the day or the Moon chosen.
+  if (page === "timing") {
+    const kind = selectedId?.startsWith("sky:") ? selectedId.slice(4).split("-")[0] : "";
+    if (kind === "phase") add("moonPhase");
+    if (kind === "eclipse") add("eclipse", "moonPhase");
+    if (kind === "station") add("station", "retrograde");
+    if (kind === "ingress") add(/^sky:ingress-sun-(0|3|6|9)-/.test(selectedId ?? "") ? "season" : "ingress");
+    if (kind === "aspect") add("aspect", "exact");
+    if (kind === "void") add("voidOfCourse");
+    if (prefix === "win") add("window", "exact", "retrograde");
+    if (prefix === "moon" || prefix === "day") add("moonPhase", "voidOfCourse", "exact");
+    if (prefix === "timing") add("exact", "aspect");
+    add("transit");
+  }
   if (page === "progressions") add("progression");
   if (page === "synastry") add("synastry");
   if (page === "composite") add("composite");

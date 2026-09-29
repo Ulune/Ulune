@@ -717,7 +717,7 @@ async function timeSuite({ step }: Ctx) {
       const t0 = performance.now();
       const rec0 = recordFrames();
       click(yearBtn, "year");
-      await until(() => document.querySelector('[data-testid="timing-year"] [data-count]:not([data-count="0"])'), 30000);
+      await until(() => document.querySelector('[data-testid="calendar-year"] [data-testid^="calendar-year-transit-"]'), 30000);
       const yearMs = Math.round(performance.now() - t0);
       const yearFrames = rec0.stop();
       await sleep(1500);

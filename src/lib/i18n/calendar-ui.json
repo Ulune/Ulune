@@ -4,7 +4,8 @@
   "switches": {
     "sky": { "en": "Sky", "fr": "Ciel" },
     "yours": { "en": "Your transits", "fr": "Vos transits" },
-    "today": { "en": "Today", "fr": "Aujourd’hui" }
+    "today": { "en": "Today", "fr": "Aujourd’hui" },
+    "fileHint": { "en": "Save as a calendar file (.ics), made on this device", "fr": "Enregistrer en fichier agenda (.ics), créé sur cet appareil" }
   },
   "zone": {
     "cityTime": { "en": "{city} time", "fr": "heure de {city}" },
@@ -117,6 +118,28 @@
     "count": {
       "en": "{sky} in the sky, {yours} of yours",
       "fr": "{sky} dans le ciel, {yours} pour vous"
+    }
+  },
+  "year": {
+    "moonRow": { "en": "Moon · eclipses", "fr": "Lune · éclipses" },
+    "seasons": { "en": "Seasons", "fr": "Saisons" },
+    "yoursHead": {
+      "en": "Your big transits · the bar spans the time within 1°, a tick marks each exact pass",
+      "fr": "Vos grands transits · la barre couvre la période à moins de 1°, un trait marque chaque passage exact"
+    },
+    "none": { "en": "No big transit this year.", "fr": "Aucun grand transit cette année." },
+    "all": { "en": "Show all {n}", "fr": "Voir les {n}" },
+    "fewer": { "en": "Show the main dozen", "fr": "Voir les douze principaux" },
+    "nearMiss": { "en": "no exact pass", "fr": "sans passage exact" },
+    "inSky": { "en": "{year} in the sky", "fr": "{year} dans le ciel" },
+    "eclipses": { "en": "{n} eclipses", "fr": "{n} éclipses" },
+    "retro": { "en": "{body} retrograde", "fr": "{body} rétrograde" },
+    "signs": { "en": "Changing signs", "fr": "Changements de signe" },
+    "into": { "en": "{body} into {sign} {when}", "fr": "{body} en {sign} le {when}" },
+    "yourYear": { "en": "Your year", "fr": "Votre année" },
+    "more": {
+      "en": "{n} more in the table · the Moon’s and the fast planets’ transits are in the month and day views.",
+      "fr": "{n} de plus dans le tableau · les transits de la Lune et des planètes rapides sont dans les vues mois et jour."
     }
   },
   "when": {

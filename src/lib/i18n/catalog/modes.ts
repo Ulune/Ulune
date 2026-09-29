@@ -71,8 +71,5 @@ export const modes = {
   transitLegendInner: ["Your chart", "Votre thème"],
   transitLegendOuter: ["Transits", "Transits"],
   transiting: ["Transiting {name}", "{name} en transit"],
-  timingExactNone: ["No exact aspect", "Aucun aspect exact"],
-  timingExactOne: ["1 exact aspect", "1 aspect exact"],
-  timingExactMany: ["{n} exact aspects", "{n} aspects exacts"],
   numerologyMethodTitle: ["How the numbers are worked out", "Comment les nombres sont calculés"],
 } as const satisfies Record<string, readonly [string, string]>;

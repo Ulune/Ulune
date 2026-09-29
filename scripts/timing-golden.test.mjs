@@ -48,16 +48,17 @@ function natalBodies(chart) {
   ];
 }
 
-test("timing-ui.json is the source of Quill chrome copy", () => {
+test("timing-ui.json is the source of the calendar table's words", () => {
   const ui = JSON.parse(readFileSync(join(ROOT, "src/lib/i18n/timing-ui.json"), "utf8"));
-  assert.deepEqual(ui.table.columns.en, ["When", "Transit", "Aspect", "Natal", "A", "S"]);
-  assert.equal(ui.table.columns.en.includes("Exact"), false);
-  assert.equal(ui.table.columns.en.includes("Type"), false);
+  // The calendar's events table (part 57): when, what, where, for whom, and UT for Copy and CSV.
+  assert.deepEqual(ui.table.columns.en, ["When", "What", "Where", "For", "UT"]);
+  assert.deepEqual(ui.table.columns.fr, ["Quand", "Quoi", "Où", "Pour", "UT"]);
+  assert.equal(ui.table.applying, undefined, "the A and S columns are gone");
   assert.equal(ui.noNatal.en, "Cast a birth chart first.");
   assert.equal(ui.readingEmpty.en, "Tap a date, a body, or an aspect.");
-  assert.equal(ui.table.empty.day.en, "Nothing exact today.");
-  assert.equal(ui.table.empty.month.en, "No exact major aspect this month.");
-  assert.equal(ui.table.empty.year.en, "No exact major aspect this year.");
+  assert.equal(ui.table.empty.day.en, "Nothing to show on this day.");
+  assert.equal(ui.table.empty.month.en, "Nothing to show this month.");
+  assert.equal(ui.table.empty.year.en, "Nothing to show this year.");
   assert.equal(ui.scope.day.en, "Day");
   assert.equal(ui.scope.month.en, "Month");
   assert.equal(ui.scope.year.en, "Year");

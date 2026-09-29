@@ -179,7 +179,7 @@ test("twenty new glossary words, each in English and French", () => {
       assert.doesNotMatch(e.body[i], /\d[.,]\d+ ?°/, `${id}: a decimal degree`);
     }
   }
-  assert.equal(Object.keys(GLOSSARY).length, 55);
+  assert.equal(Object.keys(GLOSSARY).length, 59);
 });
 
 test("the text copy and the CSV carry the stars, the midpoints and the Moon's course", async () => {

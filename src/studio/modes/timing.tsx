@@ -3,7 +3,7 @@ import { CalendarBar, CalendarScope } from "@/components/calendar-bar";
 import { CalendarLegend, CalendarMonth } from "@/components/calendar-month";
 import { CalendarNow } from "@/components/calendar-now";
 import { CalendarDay } from "@/components/calendar-day";
-import { TimingYearGrid } from "@/components/timing-calendar";
+import { CalendarYear, CalendarYearPanel } from "@/components/calendar-year";
 import { LoadingLines } from "@/components/loading-lines";
 import { localizeError } from "@/lib/i18n/errors";
 import { useI18n } from "@/lib/i18n/locale";
@@ -17,10 +17,34 @@ import { useWheelView } from "@/studio/modes/wheel-view";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/timing.css";
 
-const loadTable = () => import("@/studio/tables/timing-table");
-const TimingTable = lazyNamed(loadTable, "TimingTable");
+const loadTable = () => import("@/studio/tables/calendar-table");
+const CalendarTable = lazyNamed(loadTable, "CalendarTable");
 
 export type TimingState = ReturnType<typeof useTiming>;
+
+/** The calendar's bar, over the figure and over the table. */
+function TimingBar({ table = false }: { table?: boolean }) {
+  const timing = useModeData("timing");
+  if (!timing) return null;
+  return (
+    <CalendarBar
+      scope={timing.scope}
+      civil={timing.civil}
+      onShift={timing.shift}
+      onToday={timing.goToday}
+      zone={timing.prefs.zone}
+      zones={timing.zones}
+      onZone={(zone) => timing.updatePrefs({ zone })}
+      nowMs={timing.nowMs}
+      showSky={timing.prefs.sky}
+      showYours={timing.prefs.yours}
+      onSky={(sky) => timing.updatePrefs({ sky })}
+      onYours={(yours) => timing.updatePrefs({ yours })}
+      onExport={timing.exportIcs}
+      table={table}
+    />
+  );
+}
 
 function TimingFigure() {
   const { locale } = useI18n();
@@ -29,9 +53,7 @@ function TimingFigure() {
   const pick = useStudioStore((s) => s.pick);
   if (!timing) return null;
   if (!timing.enabled && !timing.cast) {
-    return (
-      <p className="px-5 py-10 font-display text-2xl text-fg">{timingNoNatal(locale)}</p>
-    );
+    return <p className="px-5 py-10 font-display text-2xl text-fg">{timingNoNatal(locale)}</p>;
   }
   return (
     <div
@@ -43,20 +65,7 @@ function TimingFigure() {
           {localizeError(timing.error, locale, "couldNotCastSky")}
         </p>
       ) : null}
-      <CalendarBar
-        scope={timing.scope}
-        civil={timing.civil}
-        onShift={timing.shift}
-        onToday={timing.goToday}
-        zone={timing.prefs.zone}
-        zones={timing.zones}
-        onZone={(zone) => timing.updatePrefs({ zone })}
-        nowMs={timing.nowMs}
-        showSky={timing.prefs.sky}
-        showYours={timing.prefs.yours}
-        onSky={(sky) => timing.updatePrefs({ sky })}
-        onYours={(yours) => timing.updatePrefs({ yours })}
-      />
+      <TimingBar />
       {timing.scope === "day" && timing.dayView ? (
         <CalendarDay
           ov={timing.dayView}
@@ -87,12 +96,16 @@ function TimingFigure() {
           <CalendarLegend />
         </>
       ) : null}
-      {timing.scope === "year" ? (
-        <TimingYearGrid
-          year={timing.civil.year}
-          hits={timing.scoped}
+      {timing.scope === "year" && timing.yearView ? (
+        <CalendarYear
+          layout={timing.yearView}
           tz={timing.tz}
-          onPickMonth={timing.pickMonth}
+          nowMs={timing.nowMs}
+          showSky={timing.prefs.sky}
+          showYours={timing.prefs.yours}
+          selectedId={selectedId}
+          onSelect={pick}
+          onOpenMonth={(month) => timing.pickMonth({ year: timing.civil.year, month, day: 1 })}
         />
       ) : null}
     </div>
@@ -109,6 +122,18 @@ function TimingHelloEmpty() {
   const w = useWheelView();
   const timing = useModeData("timing");
   if (!timing) return null;
+  if (timing.scope === "year" && timing.yearView) {
+    return (
+      <CalendarYearPanel
+        layout={timing.yearView}
+        tz={timing.tz}
+        showSky={timing.prefs.sky}
+        showYours={timing.prefs.yours}
+        selectedId={w.selectedId}
+        onSelect={w.pick}
+      />
+    );
+  }
   return (
     <CalendarNow
       nowMs={timing.nowMs}
@@ -130,16 +155,25 @@ function TimingData() {
   const timing = useModeData("timing");
   if (!timing?.cast) return null;
   return (
-    <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
-      <TimingTable
-        hits={timing.scoped}
-        scope={timing.scope}
-        tz={timing.tz}
-        selectedId={w.selectedId}
-        onSelect={w.pick}
-        nowMs={timing.nowMs}
-      />
-    </Suspense>
+    <div className="ulune-cal-tableview">
+      <TimingBar table />
+      <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
+        <CalendarTable
+          events={timing.allEvents}
+          hits={timing.hits}
+          windows={timing.allWindows}
+          wins={timing.wins}
+          from={timing.bounds.from.getTime()}
+          to={timing.bounds.to.getTime()}
+          scope={timing.scope}
+          tz={timing.tz}
+          nowMs={timing.nowMs}
+          fileName={timing.fileName}
+          selectedId={w.selectedId}
+          onSelect={w.pick}
+        />
+      </Suspense>
+    </div>
   );
 }
 

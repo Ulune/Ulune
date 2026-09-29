@@ -50,6 +50,17 @@ for (const lang of ["en", "fr"]) {
         await page.waitForTimeout(200);
         problems.push(...(await scan(page, `${lang}/${mode}/${tab}`, fr)));
       }
+      // The calendar's day and year too, with their panels.
+      if (mode === "timing") {
+        await clickDockTab(page, "reading").catch(() => {});
+        for (const scope of ["day", "year"]) {
+          await page.getByTestId(`timing-scope-${scope}`).click();
+          await page.getByTestId(`calendar-${scope}`).waitFor({ timeout: 30000 });
+          await page.waitForTimeout(1500);
+          problems.push(...(await scan(page, `${lang}/${mode}/${scope}`, fr)));
+        }
+        await page.getByTestId("timing-scope-month").click();
+      }
     }
   } finally {
     await browser.close();

@@ -174,6 +174,15 @@ async function runViewport(width) {
     if (shown && shown !== want) throw new Error(`Transits opened at ${shown}, not ${want}`);
     await goMode(page, "timing");
     await page.getByTestId("studio-timing").waitFor({ timeout: 20000 });
+    // The year: a timeline on a wide stage, a card per month on a narrow one; a big transit opens its reading.
+    await page.getByTestId("timing-scope-year").click();
+    await page.getByTestId("calendar-year").waitFor({ timeout: 30000 });
+    const wide = width >= 1024;
+    const bigTransit = wide ? page.locator("[data-testid^=calendar-year-transit-]").first() : page.locator("[data-testid=calendar-year-months] .ulune-cal-effect-line").first();
+    await bigTransit.waitFor({ timeout: 40000 });
+    await bigTransit.click();
+    await clickDockTab(page, "reading");
+    await page.getByTestId("reading-card").waitFor({ timeout: 8000 });
     await page.getByTestId("timing-scope-month").click();
     await clickDockTab(page, "birth");
     const nameField = page.locator("#native-name");

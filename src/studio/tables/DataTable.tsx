@@ -45,10 +45,13 @@ export function TableExport({
   name,
   target,
   beforeExport,
+  extra,
 }: {
   name: string;
   target: React.RefObject<HTMLElement | null>;
   beforeExport?: () => void;
+  /** More buttons after Copy and CSV (the calendar's .ics). */
+  extra?: ReactNode;
 }) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
@@ -87,6 +90,7 @@ export function TableExport({
         <Download className="size-3.5" aria-hidden />
         <span>{t("tableExportCsv")}</span>
       </button>
+      {extra}
     </div>
   );
 }
@@ -103,6 +107,7 @@ export function DataTable({
   className,
   exportName,
   beforeExport,
+  extra,
   children,
 }: {
   wide?: boolean;
@@ -112,6 +117,8 @@ export function DataTable({
   exportName?: string;
   /** Called before Copy / CSV read the rows (see TableExport). */
   beforeExport?: () => void;
+  /** More export buttons beside Copy and CSV. */
+  extra?: ReactNode;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -135,7 +142,7 @@ export function DataTable({
   });
   return (
     <div ref={ref} className="ob-table-block">
-      {exportName ? <TableExport name={exportName} target={ref} beforeExport={beforeExport} /> : null}
+      {exportName ? <TableExport name={exportName} target={ref} beforeExport={beforeExport} extra={extra} /> : null}
       <div className="ulune-table-wrap" data-testid="table-wrap">
         <table
           className={cn("ulune-data-table", className)}

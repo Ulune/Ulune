@@ -1,6 +1,6 @@
 // The calendar's client costs: the real month (with the sky's events and the
-// Moon of each day) and year grids rendered (render phase, production React),
-// the table's time labels, the scope filter.
+// Moon of each day) and year (its layout and its timeline) rendered (render
+// phase, production React), the table's time labels, the scope filter.
 // NODE_ENV=production node --experimental-strip-types --import ./scripts/perf/register.mjs scripts/perf/timing-bench.mjs
 import { performance } from "node:perf_hooks";
 import { createRequire } from "node:module";
@@ -11,11 +11,13 @@ const React = require("react");
 const { renderToString } = require("react-dom/server");
 const h = React.createElement;
 
-const { calculateNatal, calculateSkyWindow, calculateTiming } = await import("@/lib/chart/calculate.server");
+const { calculateNatal, calculateSkyWindow, calculateSkyYear, calculateTiming } = await import("@/lib/chart/calculate.server");
 const tw = await import("@/lib/chart/timing-window");
 const { chunkStart } = await import("@/lib/chart/sky-window");
-const { eventsOf } = await import("@/lib/chart/calendar-sky");
-const { TimingYearGrid } = await import("@/components/timing-calendar");
+const { eventsOf, mergeEvents } = await import("@/lib/chart/calendar-sky");
+const { yearLayout } = await import("@/lib/chart/calendar-year");
+const { slowWindowsFromYears } = await import("@/lib/chart/personal-transits");
+const { CalendarYear } = await import("@/components/calendar-year");
 const { CalendarMonth } = await import("@/components/calendar-month");
 
 const PARIS = { latitude: 48.8566, longitude: 2.3522, placeLabel: "Paris, France", houseSystem: "placidus" };
@@ -30,6 +32,9 @@ const month = await calculateTiming({ from: new Date("2026-09-01T00:00:00Z"), to
 const wins = [];
 for (let c = chunkStart(Date.parse("2026-08-29T00:00:00Z")); c <= Date.parse("2026-10-04T00:00:00Z"); c += 32 * 86_400_000) wins.push(await calculateSkyWindow(c));
 const events = eventsOf(wins);
+const years = [await calculateSkyYear(2025), await calculateSkyYear(2026), await calculateSkyYear(2027)];
+const yearEvents = mergeEvents(events, years.flatMap((y) => y.events));
+const windows = slowWindowsFromYears(years, natalBodies, Date.parse("2025-01-01"), Date.parse("2028-01-01"));
 
 function bench(label, fn, n = 20) {
   fn();
@@ -43,8 +48,10 @@ bench(`Month render (${month.hits.length} hits, ${events.length} sky events)`, (
     h(CalendarMonth, { civil: { year: 2026, month: 9, day: 1 }, tz, events, wins, hits: month.hits, showSky: true, showYours: true, selectedDay: null, todayKey: "2026-09-28", onPickDay: noop }),
   ),
 );
-bench(`Year grid render (${year.hits.length} hits)`, () =>
-  renderToString(h(TimingYearGrid, { year: 2026, hits: year.hits, tz, onPickMonth: noop })),
+const layout = yearLayout(2026, tz, yearEvents, years, windows);
+bench(`Year layout (${yearEvents.length} events, ${windows.length} windows)`, () => yearLayout(2026, tz, yearEvents, years, windows));
+bench(`Year render (${layout.transits.length} big transits)`, () =>
+  renderToString(h(CalendarYear, { layout, tz, nowMs: Date.parse("2026-09-28T10:00:00Z"), showSky: true, showYours: true, selectedId: null, onSelect: noop, onOpenMonth: noop })),
 );
 bench(`Table labels, timingWhen × ${month.hits.length}`, () => month.hits.map((x) => tw.timingWhen(x.exactUtc, tz, "en", "table")));
 bench(`hitsInScope(year hits)`, () => tw.hitsInScope(year.hits, Date.parse("2026-01-01"), Date.parse("2027-01-01")));
