@@ -65,11 +65,18 @@ async function checkLinks(page, label) {
     if (s.current !== id) throw new Error(`${label}: ${id} link: marked ${s.current}`);
     if (s.focus !== `table-part-${id}-h`) throw new Error(`${label}: ${id} link: focus on "${s.focus}"`);
     if (Math.abs(s.barTop - s.figTop) > 1) throw new Error(`${label}: bar not pinned (${s.barTop} vs ${s.figTop})`);
-    const top = await headTop(page, id);
-    // The part lands just under the bar, unless the page ends first.
-    const atEnd = s.scrollTop >= s.max - 2;
-    if (!atEnd && Math.abs(top - s.barBottom) > 2) {
-      throw new Error(`${label}: ${id} landed at ${top}, bar bottom ${s.barBottom}`);
+    // The part lands just under the bar, unless the page ends first. On a busy machine the glide can
+    // start late, after the scroll looked settled: allow it up to 3 s to arrive.
+    let top = await headTop(page, id);
+    let at = s;
+    for (let i = 0; i < 30 && !(at.scrollTop >= at.max - 2) && Math.abs(top - at.barBottom) > 2; i += 1) {
+      await page.waitForTimeout(100);
+      at = await pageState(page);
+      top = await headTop(page, id);
+    }
+    const atEnd = at.scrollTop >= at.max - 2;
+    if (!atEnd && Math.abs(top - at.barBottom) > 2) {
+      throw new Error(`${label}: ${id} landed at ${top}, bar bottom ${at.barBottom}`);
     }
   }
 }

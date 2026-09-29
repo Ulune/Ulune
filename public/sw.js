@@ -10,7 +10,8 @@
  *   - The sky's files (/api/sky-window, /api/sky-year): the same for
  *     everyone, asked for by date and version only, never changing for a
  *     given address; kept so the calendar's months open offline.
- *   - The studio's page ("/"): from the network as always, and the last copy
+ *   - The studio's page ("/"): from the network as always (checked with the
+ *     server, never an older copy from the browser's cache), and the last copy
  *     is kept, so saved charts still open without a connection. It is the same
  *     page for everyone; no other page (sign-in above all) is ever kept.
  * A new deploy needs nothing from here: its pages name new files, which are
@@ -72,7 +73,8 @@ async function file(req, event, name = FILES, max = MAX_FILES) {
 async function page(req, event) {
   const cache = await caches.open(PAGES);
   try {
-    const res = await fetch(req);
+    // Always asked of the server (a copy the browser's cache kept could be older than the code).
+    const res = await fetch(req.url, { cache: "no-cache", credentials: "same-origin", redirect: "manual" });
     const html = (res.headers.get("content-type") || "").includes("text/html");
     const keepable = !/no-store|private/.test(res.headers.get("cache-control") || "");
     if (res.ok && html && keepable && res.type === "basic") {

@@ -1,6 +1,6 @@
 /** errors: [English, French]. */
 export const errors = {
-  couldNotCast: ["Could not cast the chart.", "Impossible de calculer le thème."],
+  couldNotCast: ["Could not cast the chart. Try again in a moment.", "Impossible de calculer le thème. Réessayez dans un instant."],
   couldNotCastProgressions: ["Could not calculate this progression.", "Impossible de calculer cette progression."],
   couldNotCastSky: ["Could not calculate the current sky.", "Impossible de calculer le ciel du moment."],
   couldNotCompose: [
@@ -17,6 +17,11 @@ export const errors = {
   ],
   errorSlotRetry: ["Try again", "Réessayer"],
   errorSlotTitle: ["This page didn’t load.", "Cette page n’a pas chargé."],
+  staleVersionTitle: ["A new version of Ulune is out.", "Une nouvelle version d’Ulune est en ligne."],
+  staleVersionBody: [
+    "This view needs it: reload the page to open it. Charts not kept in a private space will need to be cast again.",
+    "Cette vue en a besoin\u202f: rechargez la page pour l’ouvrir. Les thèmes qui ne sont pas gardés dans un espace privé devront être calculés à nouveau.",
+  ],
   retryCompose: ["Try again", "Réessayer"],
   err_birth_date_missing: ["Add a birth date.", "Indiquez une date de naissance."],
   err_birth_month_unreadable: ["Couldn’t read the month in “{raw}”.", "Impossible de lire le mois dans « {raw} »."],
@@ -84,6 +89,10 @@ export const errors = {
   err_net_offline: [
     "You’re offline: calculating needs the internet. Check the connection and try again.",
     "Vous êtes hors ligne : le calcul a besoin d’internet. Vérifiez la connexion et réessayez.",
+  ],
+  err_net_unreachable: [
+    "Ulune’s server couldn’t be reached. Check the connection and try again.",
+    "Le serveur d’Ulune est injoignable. Vérifiez la connexion et réessayez.",
   ],
   err_net_timeout: [
     "Ulune’s server took too long to answer. Try again in a moment.",

@@ -8,7 +8,7 @@ const CODED = /(?:^|\s)E:([a-z]+(?:\.[a-z]+)+)(?:\|(.*))?$/;
  * language turns into a sentence (`E:…`, with what the reader typed after a
  * `|` when the sentence quotes it). Engine and framework messages ("Internal Server Error", "Invariant
  * failed", a validator's list of issues) never reach the screen: they become
- * "offline", "took too long", "out of range" or the surface's own fallback.
+ * "offline", "out of reach", "took too long", "out of range" or the surface's own fallback.
  */
 export function errorForState(err: unknown): string {
   const name = err instanceof Error ? err.name : "";
@@ -16,9 +16,10 @@ export function errorForState(err: unknown): string {
   const coded = CODED.exec(msg);
   if (coded) return `E:${coded[1]}${coded[2] !== undefined ? `|${coded[2]}` : ""}`;
   if (name === "TimeoutError" || /\btimed? ?out\b|timeout/i.test(msg)) return "E:net.timeout";
-  const offline = typeof navigator !== "undefined" && navigator.onLine === false;
-  if (offline || /failed to fetch|networkerror|network error|load failed|fetch failed|err_internet|err_network/i.test(msg)) {
-    return "E:net.offline";
+  // The browser knows when it is offline; online, a request that never got through means the server was out of reach.
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return "E:net.offline";
+  if (/failed to fetch|networkerror|network error|load failed|fetch failed|err_internet|err_network/i.test(msg)) {
+    return "E:net.unreachable";
   }
   if (name === "ZodError" || /^\s*\[\s*\{/.test(msg) || /invalid_type|too_big|too_small|invalid_string/.test(msg)) {
     return "E:input.range";

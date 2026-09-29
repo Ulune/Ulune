@@ -855,7 +855,7 @@ html.theme-switching * {
   font-variant-numeric: tabular-nums;
 }
 .ob-aspect-chip[data-on="0"] {
-  opacity: 0.45;
+  opacity: 0.5;
 }
 .ob-aspect-chip[data-on="0"] .ob-aspect-chip-n {
   text-decoration: line-through;

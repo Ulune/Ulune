@@ -83,8 +83,8 @@ export function BirthDateField({
           value={value}
           mask={maskEuropeanDate}
           className="min-w-0 flex-1"
-          aria-expanded={open}
-          aria-controls={`${id}-calendar-pop`}
+          // Only while the calendar is there to point at (the button says it opens).
+          aria-controls={open ? `${id}-calendar-pop` : undefined}
           aria-invalid={invalid || undefined}
           aria-describedby={describedBy}
           onTyped={onTyped}

@@ -40,7 +40,6 @@ import { motionFlags } from "./transit-exact";
 import { houseRing } from "./synastry";
 import { PLANET_IDS } from "./types";
 import type {
-  AngleId,
   AspectLink,
   BodyId,
   HouseCusp,
@@ -69,11 +68,6 @@ const QUADRANT_SYSTEMS = new Set<HouseSystemId>([
 const QUADRANT_STARTS = [0, 3, 6, 9] as const;
 
 export type CompositeChart = NatalChart;
-
-function bodyOf(chart: NatalChart, id: BodyId): Placement | undefined {
-  if (id in chart.angles) return chart.angles[id as AngleId];
-  return chart.planets.find((p) => p.id === id);
-}
 
 function mean(a: number | undefined, b: number | undefined): number | undefined {
   if (a == null && b == null) return undefined;

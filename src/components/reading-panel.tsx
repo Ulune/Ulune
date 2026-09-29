@@ -1,12 +1,9 @@
-import { AspectGlyph, PlanetGlyph, SignGlyph } from "./glyphs";
 import { AiAccountsPanel } from "./ai-accounts";
 import { AiReadingFocus } from "./ai-reading-focus";
 import { useAiAccount } from "@/lib/ai/use-ai-account";
 import { providerName } from "@/lib/ai/providers";
 import { AI_ENABLED } from "@/lib/features";
-import type { AspectId, ElementReading, GrokReading, NatalChart, SignId } from "@/lib/chart/types";
-import { ASPECT_IDS } from "@/lib/chart/types";
-import { SIGN_IDS, decanOf } from "@/lib/chart/constants";
+import type { ElementReading, GrokReading, NatalChart } from "@/lib/chart/types";
 import type { ReadingDepth } from "@/lib/chart/chart-view";
 import { useI18n } from "@/lib/i18n/locale";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";

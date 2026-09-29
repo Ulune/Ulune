@@ -15,8 +15,8 @@ const STATIC = join(BUILD, "static");
 const CWD = join(OUT, "load");
 mkdirSync(CWD, { recursive: true });
 // The chart engine finds its files from the working directory, as on Vercel
-// (/var/task holds ephe/ and swisseph.wasm): link them in.
-for (const name of ["ephe", "swisseph.wasm"]) {
+// (/var/task holds ephe/, swisseph.wasm and geo-tz/): link them in.
+for (const name of ["ephe", "swisseph.wasm", "geo-tz"]) {
   const from = join(BUILD, "functions/__server.func", name);
   const to = join(CWD, name);
   if (existsSync(from) && !existsSync(to)) symlinkSync(from, to);

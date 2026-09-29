@@ -133,7 +133,7 @@ export function StudioWorkspace() {
   } else if (!def) {
     // The mode is still downloading (or its download failed).
     body = modeError ? (
-      <LoadFailed onRetry={retryMode} testId="mode-load-failed" />
+      <LoadFailed onRetry={retryMode} testId="mode-load-failed" error={modeError} />
     ) : (
       <LoadingLines testId="mode-loading" lines={4} />
     );

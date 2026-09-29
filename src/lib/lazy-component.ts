@@ -13,7 +13,13 @@ export function lazyNamed<M extends Record<K, AnyComponent>, K extends keyof M>(
   load: () => Promise<M>,
   name: K,
 ): LazyExoticComponent<M[K]> {
-  return lazy(() => importWithRetry(load, { attempts: 2 }).then((m) => ({ default: m[name] })));
+  return lazy(() =>
+    importWithRetry(load, { attempts: 2 }).then((m) => {
+      // Vite answers nothing when a reload for a missing file is under way.
+      if (!m) throw new Error("Failed to fetch dynamically imported module");
+      return { default: m[name] };
+    }),
+  );
 }
 
 /**

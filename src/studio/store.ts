@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { importWithRetry } from "@/lib/lazy-retry";
+import { openVault } from "@/lib/space/state";
+import { setStaleReloadCheck } from "@/lib/stale-chunks";
 import { castChart, searchPlaces } from "@/lib/chart/functions";
 import { loadPack, packNow } from "@/lib/content/packs";
 import {
@@ -108,7 +110,7 @@ async function resolvePlace(
     hits = await searchPlaces({ data: { q: label, locale: lang } });
   } catch (err) {
     const code = errorForState(err);
-    throw new Error(code === "E:net.offline" || code === "E:net.timeout" ? code : "E:place.lookup");
+    throw new Error(code === "E:net.offline" || code === "E:net.unreachable" || code === "E:net.timeout" ? code : "E:place.lookup");
   }
   const hit = hits[0];
   if (!hit) throw new Error(`E:place.notfound|${label.replace(/\s+/g, " ").slice(0, 100)}`);
@@ -688,3 +690,7 @@ function keepWithChart(patch: (input: BirthInput) => BirthInput) {
     timeUnknown: row.timeUnknown,
   });
 }
+
+// A reload for a code file gone after a deploy would lose the charts kept only
+// in this tab (no private space open): the page then asks first (lib/stale-chunks.ts).
+setStaleReloadCheck(() => useStudioStore.getState().rows.length > 0 && !openVault());

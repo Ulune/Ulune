@@ -972,8 +972,10 @@ button.ulune-cal-now-line:hover,
   height: 16px;
   accent-color: var(--color-fg);
 }
+/* Past rows fade, their faintest grey one step up so small tags stay readable. */
 .ulune-data-table tr.ulune-row-past > td {
-  opacity: 0.55;
+  opacity: 0.7;
+  --color-fg-subtle: var(--color-fg-muted);
 }
 .ulune-cal-tableview {
   display: flex;

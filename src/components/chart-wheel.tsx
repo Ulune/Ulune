@@ -2685,6 +2685,8 @@ const ChartWheelView = memo(function ChartWheelView({
               // solid line in it drawing itself too; a solid yoke, alone in
               // its group, only draws itself.
               data-arrive={yoke && !visBase.dash ? undefined : ""}
+              // A named group (the wheel is one image; its parts are listed by WheelKeys).
+              role="group"
               aria-label={aspectTips.get(id)}
               className="focus:outline-none"
               style={{ ["--enter" as string]: Math.min(rank, 16) }}
@@ -3115,6 +3117,7 @@ const ChartWheelView = memo(function ChartWheelView({
               data-kind="angle"
               data-uncertain={uncertain ? "1" : undefined}
               data-dimmable
+              role="group"
               aria-label={`${bodyLabel(key, locale)} ${angle.formatted} ${signName(angle.sign, locale)}${uncertain ? ` · ${t("timeUnknown")}` : ""}`}
               {...hoverProps(id)}
             >

@@ -56,7 +56,7 @@ export function BodiesTab() {
         replace: true,
       });
     },
-    [navigate, studioPage, studioView],
+    [navigate, studioPage, studioView, search.look],
   );
 
   const onHouseSystem = useCallback(

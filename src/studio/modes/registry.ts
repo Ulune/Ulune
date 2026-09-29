@@ -50,22 +50,25 @@ export function loadMode(page: StudioPage): Promise<ModeDef> {
   if (have) return Promise.resolve(have);
   const pending = inflight.get(page);
   if (pending) return pending;
-  const job = importWithRetry(LOADERS[page as LazyPage], { attempts: 2 }).then(
-    (def) => {
-      inflight.delete(page);
-      failed.delete(page);
-      defs.set(page, def);
-      loaded = [...loaded, def];
-      notify();
-      return def;
-    },
-    (err: unknown) => {
-      inflight.delete(page);
-      failed.set(page, err);
-      notify();
-      throw err;
-    },
-  );
+  const job = importWithRetry(LOADERS[page as LazyPage], { attempts: 2 })
+    // Vite answers nothing when a reload for a missing file is under way.
+    .then((def) => def ?? Promise.reject(new Error(`Failed to fetch dynamically imported module (${page})`)))
+    .then(
+      (def) => {
+        inflight.delete(page);
+        failed.delete(page);
+        defs.set(page, def);
+        loaded = [...loaded, def];
+        notify();
+        return def;
+      },
+      (err: unknown) => {
+        inflight.delete(page);
+        failed.set(page, err);
+        notify();
+        throw err;
+      },
+    );
   inflight.set(page, job);
   return job;
 }

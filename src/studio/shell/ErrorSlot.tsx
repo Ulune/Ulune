@@ -2,7 +2,7 @@ import { Component, type ReactNode } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { reportError } from "@/lib/error-report";
 import { useI18n } from "@/lib/i18n/locale";
-import { recoverFromStaleChunk } from "@/lib/stale-chunks";
+import { isStaleVersion, recoverFromStaleChunk } from "@/lib/stale-chunks";
 import { studioSearch } from "@/studio/url";
 import { useStudioStore } from "@/studio/store";
 
@@ -17,6 +17,9 @@ class ErrorSlotBoundary extends Component<
     body: string;
     details: string;
     retryLabel: string;
+    staleTitle: string;
+    staleBody: string;
+    reloadLabel: string;
     armThrow: boolean;
     onRetry: () => void;
     children: ReactNode;
@@ -36,30 +39,45 @@ class ErrorSlotBoundary extends Component<
 
   render() {
     if (this.state.error) {
+      // A code file gone after a deploy, with charts a reload would lose: say so, and let the visitor reload.
+      const stale = isStaleVersion(this.state.error);
       return (
         <section
           data-testid="error-slot"
+          data-stale={stale ? "1" : undefined}
           className="ulune-panel min-w-0 overflow-hidden px-5 py-10 md:px-8 md:py-14"
         >
-          <p className="font-display text-2xl leading-none text-fg">{this.props.title}</p>
-          <p className="mt-[var(--space-2)] text-sm text-fg-muted">{this.props.body}</p>
+          <p className="font-display text-2xl leading-none text-fg">{stale ? this.props.staleTitle : this.props.title}</p>
+          <p className="mt-[var(--space-2)] text-sm text-fg-muted">{stale ? this.props.staleBody : this.props.body}</p>
           {this.state.error.message ? (
             <details className="mt-[var(--space-2)] text-xs text-fg-subtle">
               <summary className="cursor-pointer">{this.props.details}</summary>
               <p className="mt-1 font-mono break-words">{this.state.error.message}</p>
             </details>
           ) : null}
-          <button
-            type="button"
-            data-testid="error-slot-retry"
-            className="mt-[var(--space-4)] inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-fg hover:border-border-strong"
-            onClick={() => {
-              this.props.onRetry();
-              this.setState({ error: null, suppress: true });
-            }}
-          >
-            {this.props.retryLabel}
-          </button>
+          <div className="mt-[var(--space-4)] flex flex-wrap gap-2">
+            {stale ? (
+              <button
+                type="button"
+                data-testid="error-slot-reload"
+                className="inline-flex min-h-11 items-center rounded-md border border-border-strong px-3 text-sm text-fg hover:border-fg"
+                onClick={() => window.location.reload()}
+              >
+                {this.props.reloadLabel}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              data-testid="error-slot-retry"
+              className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-fg hover:border-border-strong"
+              onClick={() => {
+                this.props.onRetry();
+                this.setState({ error: null, suppress: true });
+              }}
+            >
+              {this.props.retryLabel}
+            </button>
+          </div>
         </section>
       );
     }
@@ -82,6 +100,9 @@ export function ErrorSlot({ children }: { children: ReactNode }) {
       body={t("errorSlotBody")}
       details={t("appErrorDetails")}
       retryLabel={t("errorSlotRetry")}
+      staleTitle={t("staleVersionTitle")}
+      staleBody={t("staleVersionBody")}
+      reloadLabel={t("appErrorReload")}
       armThrow={import.meta.env.DEV && search.__throw === "stage"}
       onRetry={() => {
         const page = useStudioStore.getState().page;
