@@ -109,16 +109,19 @@ export function CalendarBar({
           <span className="ulune-cal-zone-line" data-testid="calendar-zone-line">
             {zoneLine}
           </span>
-          <select
-            aria-label={pick(z.menu, locale)}
-            value={zone}
-            onChange={(e) => onZone(e.target.value as CalendarZone)}
-            data-testid="calendar-zone-select"
-          >
-            <option value="device">{fill(z.device, locale, { city: zoneCity(zones.device) })}</option>
-            <option value="birth">{fill(z.birth, locale, { city: zoneCity(zones.birth) })}</option>
-            <option value="utc">{pick(z.utc, locale)}</option>
-          </select>
+          {/* The menu's own width stays inside the words (Safari sizes it to its longest choice). */}
+          <span className="ulune-cal-zone-hit">
+            <select
+              aria-label={pick(z.menu, locale)}
+              value={zone}
+              onChange={(e) => onZone(e.target.value as CalendarZone)}
+              data-testid="calendar-zone-select"
+            >
+              <option value="device">{fill(z.device, locale, { city: zoneCity(zones.device) })}</option>
+              <option value="birth">{fill(z.birth, locale, { city: zoneCity(zones.birth) })}</option>
+              <option value="utc">{pick(z.utc, locale)}</option>
+            </select>
+          </span>
         </label>
         <div className="ulune-cal-switches" hidden={table}>
           <button type="button" data-testid="calendar-switch-sky" aria-pressed={showSky} onClick={() => onSky(!showSky)} className={cn("ulune-cal-chip", showSky && "is-on")}>

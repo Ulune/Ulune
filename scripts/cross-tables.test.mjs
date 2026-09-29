@@ -455,3 +455,25 @@ test("composite without a birth time: each body's day is the midpoints at the da
   }
   assert.ok(held > 20, `${held} composite aspects held`);
 });
+
+test("the events table's parts: a year by month, a month by week (Monday to Sunday), in the calendar's zone", async () => {
+  const { civilOf, periodOf, weekOfMonth } = await import("../src/lib/chart/calendar-periods.ts");
+  // September 2026 starts on a Tuesday and has 30 days.
+  assert.deepEqual(weekOfMonth(1, 1, 30), { index: 0, from: 1, to: 6 });
+  assert.deepEqual(weekOfMonth(6, 6, 30), { index: 0, from: 1, to: 6 });
+  assert.deepEqual(weekOfMonth(7, 0, 30), { index: 1, from: 7, to: 13 });
+  assert.deepEqual(weekOfMonth(30, 2, 30), { index: 4, from: 28, to: 30 });
+  // March 2026 starts on a Sunday: a first week of one day.
+  assert.deepEqual(weekOfMonth(1, 6, 31), { index: 0, from: 1, to: 1 });
+  assert.deepEqual(weekOfMonth(31, 1, 31), { index: 5, from: 30, to: 31 });
+  const end = Date.parse("2026-09-30T12:00:00Z");
+  const sep = (iso, tz = "Europe/Paris") => periodOf(Date.parse(iso), "month", tz, "en", end);
+  assert.deepEqual(sep("2026-09-29T10:00:00Z"), { id: "w4", label: "28–30 Sept", heading: "28–30 September 2026" });
+  assert.equal(sep("2026-09-06T21:30:00Z").id, "w0", "Sunday 23:30 in Paris is still the first week");
+  assert.equal(sep("2026-09-06T22:30:00Z").id, "w1", "Monday 00:30 in Paris is the second week");
+  assert.equal(sep("2026-09-06T22:30:00Z", "UTC").id, "w0", "in universal time it is still Sunday");
+  const year = periodOf(Date.parse("2026-01-01T00:30:00+01:00"), "year", "Europe/Paris", "fr", end);
+  assert.deepEqual(year, { id: "m01", label: "Janv", heading: "Janvier 2026" });
+  assert.match(periodOf(Date.parse("2026-09-29T10:00:00Z"), "day", "Europe/Paris", "en", end).heading, /^Tuesday,? 29 September 2026$/);
+  assert.deepEqual(civilOf(Date.parse("2026-09-29T23:30:00Z"), "Asia/Tokyo"), { y: 2026, m: 9, d: 30, wd: 2 });
+});

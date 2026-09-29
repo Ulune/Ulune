@@ -1,8 +1,8 @@
 import { CalendarDays } from "lucide-react";
 import { startTransition, useEffect, useMemo, useState } from "react";
-import { flushSync } from "react-dom";
 import { PairIcon, SkyEventIcon } from "@/components/calendar-icons";
 import { SegmentedToggle } from "@/components/segmented-toggle";
+import { periodOf, type Period } from "@/lib/chart/calendar-periods";
 import { calendarRows, type CalRow } from "@/lib/chart/calendar-rows";
 import type { TransitWindow } from "@/lib/chart/personal-transits";
 import type { SkyAspect, SkyEvent } from "@/lib/chart/sky-events";
@@ -17,6 +17,7 @@ import { dateFormat } from "@/lib/intl-cache";
 import { cn, formatDegree } from "@/lib/utils";
 import { downloadText } from "@/lib/download-text";
 import { DataTable } from "@/studio/tables/DataTable";
+import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
 const FIRST_ROWS = 250;
 const MORE_ROWS = 250;
@@ -26,11 +27,16 @@ type Who = "all" | "sky" | "yours";
 /** The UT column of Copy and CSV: 2026-09-28 02:48 (the minute it falls in). */
 const ut = (ms: number) => new Date(ms).toISOString().slice(0, 16).replace("T", " ");
 
+function csvCell(value: string): string {
+  return /[",\n;]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
 /**
- * The calendar's events table (part 57 of the launch plan): the sky's events
- * and your exacts of the period in time order, when, what, where and for
- * whom; filters; Copy and CSV (with a UT column) and a calendar file (.ics)
- * made on this device. Past rows are dimmed.
+ * The calendar's events table (parts 57 and 52 of the launch plan): the
+ * sky's events and your exacts of the period in time order, when, what,
+ * where and for whom, a year's by month and a month's by week, with a bar of
+ * links to each; filters; Copy and CSV (with a UT column) and a calendar
+ * file (.ics) made on this device. Past rows are dimmed.
  */
 export function CalendarTable({
   events,
@@ -62,7 +68,7 @@ export function CalendarTable({
   selectedId: string | null;
   onSelect: (id: string) => void;
 }) {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
   const [who, setWho] = useState<Who>("all");
   const [moon, setMoon] = useState(scope === "day");
@@ -87,6 +93,13 @@ export function CalendarTable({
     const at = w ? bodyAt(w, r.hit.moving as Parameters<typeof bodyAt>[1], r.t) : null;
     return at ? degree(at.lon) : "";
   };
+  const title = (r: CalRow) => (r.kind === "sky" ? skyEventTitle(r.ev, locale, time) : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale));
+  const detail = (r: CalRow) => (r.kind === "sky" && r.ev.k === "void" ? skyEventDetail(r.ev, locale, degree) : "");
+  const forWho = (r: CalRow) => pick(r.kind === "sky" ? T.everyone : T.you, locale);
+  const what = (r: CalRow) => {
+    const extra = detail(r);
+    return extra ? `${title(r)} (${extra})` : title(r);
+  };
 
   // A year holds hundreds of rows: the first show at once, the rest follow in slices between frames.
   const [shown, setShown] = useState(() => ({ rows, n: Math.min(FIRST_ROWS, rows.length) }));
@@ -96,104 +109,134 @@ export function CalendarTable({
     const id = window.setTimeout(() => startTransition(() => setShown({ rows, n: Math.min(rows.length, n + MORE_ROWS) })), 0);
     return () => window.clearTimeout(id);
   }, [rows, n]);
-  const visible = n >= rows.length ? rows : rows.slice(0, n);
-  const completeNow = () => {
-    if (n < rows.length) flushSync(() => setShown({ rows, n: rows.length }));
-  };
+
+  // The parts: a year's months, a month's weeks, the day; each with its rows (the ones shown so far).
+  const groups = useMemo(() => {
+    const out: (Period & { rows: { row: CalRow; index: number }[] })[] = [];
+    rows.forEach((row, index) => {
+      const p = periodOf(row.t, scope, tz, locale, to - 1);
+      const last = out[out.length - 1];
+      if (last && last.id === p.id) last.rows.push({ row, index });
+      else out.push({ ...p, rows: [{ row, index }] });
+    });
+    return out;
+  }, [rows, scope, tz, locale, to]);
+
+  const line = (r: CalRow) => [when(r.t), what(r), where(r), forWho(r)].filter(Boolean).join(" · ");
+  const csv = () => [[...columns], ...rows.map((r) => [when(r.t), what(r), where(r), forWho(r), ut(r.t)])].map((r) => r.map(csvCell).join(",")).join("\n");
+  const text = () => [timingTableTitle(locale), ...groups.map((g) => [g.heading, ...g.rows.map((x) => line(x.row))].join("\n"))].join("\n\n");
   const exportIcs = () => {
     const spans = who === "sky" ? [] : windows.filter((w) => w.from < to && w.to >= from);
     const name = `Ulune ${fileName}`;
     downloadText(`ulune-${fileName}.ics`, calendarIcs(rows, spans, locale, tz, name), "text/calendar;charset=utf-8");
   };
 
+  const table = (list: { row: CalRow; index: number }[]) => (
+    <DataTable stickyFirst={false}>
+      <thead>
+        <tr>
+          {columns.slice(0, TIMING_TABLE_COLUMN_KEYS.indexOf("ut")).map((label, i) => (
+            <th key={TIMING_TABLE_COLUMN_KEYS[i]} data-col={TIMING_TABLE_COLUMN_KEYS[i]}>
+              {label}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {list.map(({ row: r }) => {
+          const on = selectedId === r.id;
+          const extra = detail(r);
+          return (
+            <tr key={r.id} data-testid={`calendar-table-row-${r.kind}`} data-selected={on ? "1" : undefined} className={cn(on && "bg-bg-subtle", r.t < nowMs && "ulune-row-past")}>
+              <td data-col="when" className="font-mono whitespace-nowrap">
+                <button type="button" onClick={() => onSelect(r.id)} className="inline-flex h-11 min-w-0 items-center text-left">
+                  {when(r.t)}
+                </button>
+              </td>
+              <td data-col="what">
+                <button type="button" onClick={() => onSelect(r.id)} className="inline-flex min-h-11 min-w-0 items-center gap-2 text-left">
+                  <span className="inline-flex shrink-0 text-fg-muted" aria-hidden>
+                    {r.kind === "sky" ? <SkyEventIcon ev={r.ev} size={14} /> : <PairIcon a={r.hit.moving} type={r.hit.type as SkyAspect} b={r.hit.natal} size={14} />}
+                  </span>
+                  <span>
+                    {title(r)}
+                    {extra ? <span className="block text-xs text-fg-subtle">{extra}</span> : null}
+                  </span>
+                </button>
+              </td>
+              <td data-col="where" className="whitespace-nowrap">
+                {where(r)}
+              </td>
+              <td data-col="for">
+                <span className={cn("ulune-cal-tag", r.kind === "you" && "is-you")}>{forWho(r)}</span>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </DataTable>
+  );
+
+  const parts: TablePart[] = groups.length
+    ? groups.map((g) => ({
+        id: g.id,
+        label: g.label,
+        heading: g.heading,
+        copyText: () => [g.heading, ...g.rows.map((x) => line(x.row))].join("\n"),
+        children: table(g.rows.filter((x) => x.index < n)),
+      }))
+    : [
+        {
+          id: "none",
+          label: timingTableTitle(locale),
+          children: (
+            <p data-testid="timing-table-empty" className="text-sm text-fg-muted">
+              {timingTableEmpty(locale, scope)}
+            </p>
+          ),
+        },
+      ];
+
+  const intro = (
+    <div className="ulune-cal-table-intro">
+      <p className="ulune-tpart-hint">{timingTableHint(locale)}</p>
+      <div className="ulune-cal-table-filters">
+        <SegmentedToggle
+          ariaLabel={pick(T.filter.label, locale)}
+          value={who}
+          onChange={setWho}
+          options={(["all", "sky", "yours"] as const).map((id) => ({ value: id, testId: `calendar-table-${id}`, label: pick(T.filter[id], locale) }))}
+        />
+        <label className="ulune-cal-table-moon">
+          <input type="checkbox" checked={moon} onChange={(e) => setMoon(e.target.checked)} data-testid="calendar-table-moon" />
+          {pick(T.moon, locale)}
+        </label>
+      </div>
+    </div>
+  );
+
   return (
-    <section data-testid="timing-table" className="ulune-panel min-w-0 overflow-hidden">
-      <header className="flex flex-col gap-[var(--space-3)] border-b border-border px-[var(--space-4)] py-[var(--space-3)] md:px-[var(--space-5)]">
-        <div className="min-w-0">
-          <h2 className="font-display text-2xl leading-none text-fg">{timingTableTitle(locale)}</h2>
-          <p className="mt-[var(--space-2)] max-w-[61.8ch] text-sm text-fg-muted">{timingTableHint(locale)}</p>
-        </div>
-        <div className="ulune-cal-table-filters">
-          <SegmentedToggle
-            ariaLabel={pick(T.filter.label, locale)}
-            value={who}
-            onChange={setWho}
-            options={(["all", "sky", "yours"] as const).map((id) => ({ value: id, testId: `calendar-table-${id}`, label: pick(T.filter[id], locale) }))}
-          />
-          <label className="ulune-cal-table-moon">
-            <input type="checkbox" checked={moon} onChange={(e) => setMoon(e.target.checked)} data-testid="calendar-table-moon" />
-            {pick(T.moon, locale)}
-          </label>
-        </div>
-      </header>
-      <div className="min-w-0 px-[var(--space-4)] py-[var(--space-4)] md:px-[var(--space-5)]">
-        {rows.length ? (
-          <DataTable
-            wide
-            exportName={`ulune-${fileName}`}
-            beforeExport={completeNow}
+    <section data-testid="timing-table" data-scope={scope} className="min-w-0">
+      <TablePage
+        key={fileName}
+        name={`calendar-${fileName}`}
+        label={t("tableSections")}
+        parts={parts}
+        intro={intro}
+        actions={
+          <TableActions
+            text={text}
+            csv={csv}
+            fileName={`ulune-${fileName}`}
             extra={
               <button type="button" className="ob-table-export-btn" data-testid="calendar-ics" title={pick(T.icsHint, locale)} onClick={exportIcs}>
                 <CalendarDays className="size-3.5" aria-hidden />
-                <span>{pick(T.ics, locale)}</span>
+                <span className="ulune-tbar-act-label">{pick(T.ics, locale)}</span>
               </button>
             }
-          >
-            <thead>
-              <tr data-testid="timing-table-cols">
-                {columns.map((label, i) => {
-                  const key = TIMING_TABLE_COLUMN_KEYS[i] ?? label.toLowerCase();
-                  return (
-                    <th key={key} data-col={key} data-testid={`timing-col-${key}`} className={key === "ut" ? "ulune-col-export" : undefined}>
-                      {label}
-                    </th>
-                  );
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map((r) => {
-                const on = selectedId === r.id;
-                const title = r.kind === "sky" ? skyEventTitle(r.ev, locale, time) : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale);
-                const extra = r.kind === "sky" && r.ev.k === "void" ? skyEventDetail(r.ev, locale, degree) : "";
-                return (
-                  <tr key={r.id} data-testid={`calendar-table-row-${r.kind}`} data-selected={on ? "1" : undefined} className={cn(on && "bg-bg-subtle", r.t < nowMs && "ulune-row-past")}>
-                    <td data-col="when" className="font-mono whitespace-nowrap">
-                      <button type="button" onClick={() => onSelect(r.id)} className="inline-flex h-11 min-w-0 items-center text-left">
-                        {when(r.t)}
-                      </button>
-                    </td>
-                    <td data-col="what">
-                      <button type="button" onClick={() => onSelect(r.id)} className="inline-flex min-h-11 min-w-0 items-center gap-2 text-left">
-                        <span className="inline-flex shrink-0 text-fg-muted" aria-hidden>
-                          {r.kind === "sky" ? <SkyEventIcon ev={r.ev} size={14} /> : <PairIcon a={r.hit.moving} type={r.hit.type as SkyAspect} b={r.hit.natal} size={14} />}
-                        </span>
-                        <span>
-                          {title}
-                          {extra ? <span className="block text-xs text-fg-subtle">{extra}</span> : null}
-                        </span>
-                      </button>
-                    </td>
-                    <td data-col="where" className="whitespace-nowrap">
-                      {where(r)}
-                    </td>
-                    <td data-col="for">
-                      <span className={cn("ulune-cal-tag", r.kind === "you" && "is-you")}>{pick(r.kind === "sky" ? T.everyone : T.you, locale)}</span>
-                    </td>
-                    <td data-col="ut" className="ulune-col-export">
-                      {ut(r.t)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </DataTable>
-        ) : (
-          <p data-testid="timing-table-empty" className="text-sm text-fg-muted">
-            {timingTableEmpty(locale, scope)}
-          </p>
-        )}
-      </div>
+          />
+        }
+      />
     </section>
   );
 }
