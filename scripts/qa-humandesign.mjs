@@ -71,7 +71,7 @@ const caption = (await page.getByTestId("hd-caption").innerText()).trim();
 if (caption !== "2/4 · Single") fail.push(`caption: ${caption}`);
 
 const emptyRead = (await page.getByTestId("click-reading-empty").innerText()).trim();
-if (emptyRead !== "Click a channel, a gate, or a center.") fail.push(`empty reading: ${emptyRead}`);
+if (emptyRead !== "Tap a channel, a gate, or a centre.") fail.push(`empty reading: ${emptyRead}`);
 
 const typeLine = (await page.getByTestId("hd-hello-type").locator("[data-hello-copy]").innerText()).trim();
 const stratLine = (await page.getByTestId("hd-hello-strategy").locator("[data-hello-copy]").innerText()).trim();

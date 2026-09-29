@@ -56,7 +56,7 @@ test("Rave mandala: Gate 41 at 2° Aquarius, 64 unique gates, 6 lines", () => {
 
 test("Committed copy: no-natal, empty reading, the first read's steps, table columns", () => {
   assert.equal(hdNoNatal("en"), "Cast a birth chart first.");
-  assert.equal(hdReadingEmpty("en"), "Tap a channel, a gate, or a center.");
+  assert.equal(hdReadingEmpty("en"), "Tap a channel, a gate, or a centre.");
   assert.equal(HD_HELLO.id, "hd.hello");
   // The five keys in the order Human Design teaches them (the plan, part 45).
   const cells = hdHelloCells("en");

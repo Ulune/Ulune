@@ -8,7 +8,7 @@
 export type NoticeBlock = { h?: string; p?: string; list?: string[] };
 export type Notice = { title: string; updated: string; blocks: NoticeBlock[]; who: { h: string; p: string } };
 
-export const PRIVACY_UPDATED = "2026-09-29";
+export const PRIVACY_UPDATED = "2026-09-30";
 
 export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
   en: {
@@ -25,6 +25,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
           "If you sign in: your charts, the partners you pair them with and, if you choose to stay unlocked, a copy of the last chart for a quick start. They are sealed in your browser’s database with AES-256-GCM, under a key that only your passphrase, a passkey or your recovery code opens. Ulune never receives them.",
           "Backups you download are sealed the same way. A readable copy, if you ask for one, is not: keep it private.",
           "While you are just looking, charts stay in the open tab and go when it closes.",
+          "If you keep Ulune on this device to open it offline (asked once, off until you say yes): Ulune’s own files, its page and the sky of the dates you opened, the same for everyone. Nothing about you.",
         ],
       },
       {
@@ -66,6 +67,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
           "Si vous vous connectez\u202f: vos thèmes, les partenaires que vous leur associez et, si vous choisissez de rester déverrouillé, une copie du dernier thème pour un démarrage rapide. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
           "Les sauvegardes que vous téléchargez sont scellées de la même façon. Une copie lisible, si vous en demandez une, ne l’est pas\u202f: gardez-la pour vous.",
           "Tant que vous regardez sans vous connecter, les thèmes restent dans l’onglet ouvert et partent à sa fermeture.",
+          "Si vous gardez Ulune sur cet appareil pour l’ouvrir hors ligne (demandé une fois, désactivé tant que vous ne dites pas oui)\u202f: les fichiers d’Ulune, sa page et le ciel des dates ouvertes, les mêmes pour tous. Rien sur vous.",
         ],
       },
       {
