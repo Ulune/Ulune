@@ -100,7 +100,7 @@ test("the test chart's dispositors and receptions, by hand", async () => {
   const receptions = mutualReceptions(chart);
   assert.deepEqual(receptions.map((r) => `${r.a}|${r.b}|${r.kind}`), ["moon|venus|exaltation", "moon|jupiter|domicile"]);
   assert.equal(receptionDetail(receptions[1], chart, "en"), "The Moon in Pisces, Jupiter’s sign; Jupiter in Cancer, the Moon’s sign");
-  assert.equal(receptionDetail(receptions[0], chart, "fr"), "La Lune en Poissons, exaltation de Vénus ; Vénus en Taureau, exaltation de la Lune");
+  assert.equal(receptionDetail(receptions[0], chart, "fr"), "La Lune en Poissons, exaltation de Vénus\u202f; Vénus en Taureau, exaltation de la Lune");
 });
 
 const PLANETS = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"];

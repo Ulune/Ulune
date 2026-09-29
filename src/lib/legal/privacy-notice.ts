@@ -63,18 +63,18 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         h: "Gardé sur votre appareil",
         list: [
           "Les réglages d’affichage (thème, langue, looks, vues, les astuces et la visite que vous avez fermées), dans le stockage de votre navigateur, en clair.",
-          "Si vous vous connectez : vos thèmes, les partenaires que vous leur associez et, si vous choisissez de rester déverrouillé, une copie du dernier thème pour un démarrage rapide. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
-          "Les sauvegardes que vous téléchargez sont scellées de la même façon. Une copie lisible, si vous en demandez une, ne l’est pas : gardez-la pour vous.",
+          "Si vous vous connectez\u202f: vos thèmes, les partenaires que vous leur associez et, si vous choisissez de rester déverrouillé, une copie du dernier thème pour un démarrage rapide. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
+          "Les sauvegardes que vous téléchargez sont scellées de la même façon. Une copie lisible, si vous en demandez une, ne l’est pas\u202f: gardez-la pour vous.",
           "Tant que vous regardez sans vous connecter, les thèmes restent dans l’onglet ouvert et partent à sa fermeture.",
         ],
       },
       {
         h: "Ce qui quitte votre appareil, et pourquoi",
         list: [
-          "Tracer un thème ou une vue (transits, progressions, Human Design) : sa date, son heure et ses coordonnées partent vers le serveur d’Ulune, qui calcule et répond. Le calendrier ne demande au serveur que le ciel des dates affichées, le même pour tous, et calcule vos transits sur votre appareil. Les noms que vous donnez à un thème (son nom et, pour la numérologie, le nom complet de naissance et le nom utilisé aujourd’hui) ne quittent jamais votre appareil, et la numérologie s’y calcule. Le code d’Ulune ne garde rien de ces requêtes et n’en écrit rien dans ses journaux.",
-          "Chercher un lieu : ce que vous tapez part vers le serveur d’Ulune, qui le cherche avec le service de géocodage d’Open-Meteo. Open-Meteo ne reçoit pas votre adresse IP. Pour répondre plus vite à la même recherche, le serveur garde la réponse d’Open-Meteo dans sa mémoire jusqu’à un jour, sous les mots cherchés et rien d’autre.",
+          "Tracer un thème ou une vue (transits, progressions, Human Design)\u202f: sa date, son heure et ses coordonnées partent vers le serveur d’Ulune, qui calcule et répond. Le calendrier ne demande au serveur que le ciel des dates affichées, le même pour tous, et calcule vos transits sur votre appareil. Les noms que vous donnez à un thème (son nom et, pour la numérologie, le nom complet de naissance et le nom utilisé aujourd’hui) ne quittent jamais votre appareil, et la numérologie s’y calcule. Le code d’Ulune ne garde rien de ces requêtes et n’en écrit rien dans ses journaux.",
+          "Chercher un lieu\u202f: ce que vous tapez part vers le serveur d’Ulune, qui le cherche avec le service de géocodage d’Open-Meteo. Open-Meteo ne reçoit pas votre adresse IP. Pour répondre plus vite à la même recherche, le serveur garde la réponse d’Open-Meteo dans sa mémoire jusqu’à un jour, sous les mots cherchés et rien d’autre.",
           "Quand la page plante : sauf si vous le désactivez dans Réglages, Vos données, la page envoie au serveur d’Ulune un court rapport de ce qui a échoué : l’erreur avec chaque chiffre masqué, l’endroit du code d’Ulune où elle s’est produite, l’adresse de la page sans ce qui la suit, la version et le moteur du navigateur (Blink, WebKit ou Gecko). Il ne contient ni thème, ni date, ni lieu, ni nom, ni adresse, et va dans les journaux techniques de l’hébergeur (ci-dessous) pour que la panne soit réparée.",
-          "Hébergement : Ulune fonctionne sur Vercel. Comme tout hébergeur, Vercel reçoit votre adresse IP et l’adresse des pages que vous ouvrez, et en garde des journaux techniques selon sa propre politique de confidentialité.",
+          "Hébergement\u202f: Ulune fonctionne sur Vercel. Comme tout hébergeur, Vercel reçoit votre adresse IP et l’adresse des pages que vous ouvrez, et en garde des journaux techniques selon sa propre politique de confidentialité.",
         ],
       },
       {
@@ -83,7 +83,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
           "Regardez sans vous connecter, et rien n’est gardé.",
           "Téléchargez une copie lisible de vos données, ou une sauvegarde chiffrée, depuis les Réglages.",
           "Effacez tout ce qu’Ulune garde sur cet appareil depuis Réglages, Vos données. Il n’en existe aucune copie ailleurs.",
-          "Ulune ne détient aucune donnée sur vous de son côté : il n’y a donc rien à montrer, corriger ou effacer. Vous pouvez tout de même le demander, et saisir l’autorité de protection des données (en France, la CNIL).",
+          "Ulune ne détient aucune donnée sur vous de son côté\u202f: il n’y a donc rien à montrer, corriger ou effacer. Vous pouvez tout de même le demander, et saisir l’autorité de protection des données (en France, la CNIL).",
         ],
       },
       {

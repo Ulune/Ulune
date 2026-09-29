@@ -190,7 +190,7 @@ export function receptionDetail(r: MutualReception, chart: NatalChart, locale: A
       other: bodyThe(other, locale),
       ofOther: bodyPrep(other, "de"),
     });
-  return `${how(pa, r.b)}${locale === "fr" ? " ; " : "; "}${how(pb, r.a)}`;
+  return `${how(pa, r.b)}${locale === "fr" ? "\u202f; " : "; "}${how(pb, r.a)}`;
 }
 
 /* ── The chart ruler ───────────────────────────────────────────────── */

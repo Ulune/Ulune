@@ -13,7 +13,7 @@ export const space = {
   spaceTitle: ["Your private space", "Votre espace privé"],
   spaceBody: [
     "Everything you save stays in this browser, encrypted. Ulune has no accounts and keeps no copy: nobody can read it, share it or recover it for you.",
-    "Tout ce que vous enregistrez reste dans ce navigateur, chiffré. Ulune n’a pas de comptes et n’en garde aucune copie : personne ne peut le lire, le partager ni le récupérer à votre place.",
+    "Tout ce que vous enregistrez reste dans ce navigateur, chiffré. Ulune n’a pas de comptes et n’en garde aucune copie\u202f: personne ne peut le lire, le partager ni le récupérer à votre place.",
   ],
   spaceUsePassphrase: ["Use a passphrase", "Utiliser une phrase secrète"],
   spaceNotNow: ["Not now, keep nothing", "Pas maintenant, ne rien garder"],
@@ -35,7 +35,7 @@ export const space = {
   spaceCodeTitle: ["Your recovery code", "Votre code de récupération"],
   spaceCodeBody: [
     "This code is the only way back if you forget your passphrase. Write it down or keep it somewhere safe: Ulune can’t show it again.",
-    "Ce code est le seul moyen de revenir si vous oubliez votre phrase secrète. Notez-le ou gardez-le en lieu sûr : Ulune ne pourra pas vous le remontrer.",
+    "Ce code est le seul moyen de revenir si vous oubliez votre phrase secrète. Notez-le ou gardez-le en lieu sûr\u202f: Ulune ne pourra pas vous le remontrer.",
   ],
   spaceCodeCopy: ["Copy", "Copier"],
   spaceCodeCopied: ["Copied", "Copié"],
@@ -63,7 +63,7 @@ export const space = {
   spaceNewPassTitle: ["Choose a new passphrase", "Choisissez une nouvelle phrase secrète"],
   spaceNewPassBody: [
     "You opened your space with the recovery code. A new passphrase makes next time easier; the code keeps working.",
-    "Vous avez ouvert votre espace avec le code de récupération. Une nouvelle phrase secrète facilitera la prochaine fois ; le code reste valable.",
+    "Vous avez ouvert votre espace avec le code de récupération. Une nouvelle phrase secrète facilitera la prochaine fois\u202f; le code reste valable.",
   ],
   spaceSave: ["Save", "Enregistrer"],
   spaceLater: ["Later", "Plus tard"],
@@ -167,7 +167,7 @@ export const space = {
   spaceOr: ["or", "ou"],
   spaceCodeBodyKey: [
     "This code is the only way back if you lose your passkey. Write it down or keep it somewhere safe: Ulune can’t show it again.",
-    "Ce code est le seul moyen de revenir si vous perdez votre clé d’accès. Notez-le ou gardez-le en lieu sûr : Ulune ne pourra pas vous le remontrer.",
+    "Ce code est le seul moyen de revenir si vous perdez votre clé d’accès. Notez-le ou gardez-le en lieu sûr\u202f: Ulune ne pourra pas vous le remontrer.",
   ],
   spaceConfirmBody: [
     "To change what opens your space, confirm with one of the ways it opens now.",
@@ -188,12 +188,12 @@ export const space = {
     "A passphrase opens your space when no passkey is at hand. At least 12 characters.",
     "Une phrase secrète ouvre votre espace quand aucune clé d’accès n’est à portée de main. Au moins 12 caractères.",
   ],
-  spaceRemovePassphraseTitle: ["Remove the passphrase?", "Retirer la phrase secrète ?"],
+  spaceRemovePassphraseTitle: ["Remove the passphrase?", "Retirer la phrase secrète\u202f?"],
   spaceRemovePassphraseBody: [
     "It will no longer open your space; your passkeys and your recovery code still will.",
-    "Elle n’ouvrira plus votre espace ; vos clés d’accès et votre code de récupération, si.",
+    "Elle n’ouvrira plus votre espace\u202f; vos clés d’accès et votre code de récupération, si.",
   ],
-  spaceRemovePasskeyTitle: ["Remove this passkey?", "Retirer cette clé d’accès ?"],
+  spaceRemovePasskeyTitle: ["Remove this passkey?", "Retirer cette clé d’accès\u202f?"],
   spaceRemovePasskeyBody: [
     "The passkey added {date} will no longer open your space. It stays in your password manager until you delete it there.",
     "La clé d’accès ajoutée le {date} n’ouvrira plus votre espace. Elle reste dans votre gestionnaire de mots de passe jusqu’à ce que vous l’y supprimiez.",
@@ -206,7 +206,7 @@ export const space = {
   spaceNewCodeHead: ["Your new recovery code", "Votre nouveau code de récupération"],
   spaceNewCodeBody: [
     "The old one no longer works. Write this one down or keep it somewhere safe: Ulune can’t show it again.",
-    "L’ancien ne fonctionne plus. Notez celui-ci ou gardez-le en lieu sûr : Ulune ne pourra pas vous le remontrer.",
+    "L’ancien ne fonctionne plus. Notez celui-ci ou gardez-le en lieu sûr\u202f: Ulune ne pourra pas vous le remontrer.",
   ],
   spaceLastWay: [
     "Your space needs a passphrase or a passkey to open. Add another before removing this one.",
@@ -240,7 +240,7 @@ export const space = {
   ],
   spaceImportBody: [
     "Choose a backup file. The charts in it that your space doesn’t have yet are added to it; nothing else changes.",
-    "Choisissez un fichier de sauvegarde. Les thèmes qu’il contient et que votre espace n’a pas encore y sont ajoutés ; rien d’autre ne change.",
+    "Choisissez un fichier de sauvegarde. Les thèmes qu’il contient et que votre espace n’a pas encore y sont ajoutés\u202f; rien d’autre ne change.",
   ],
   spaceChooseFile: ["Choose the file", "Choisir le fichier"],
   spaceNotBackup: ["That file isn’t a backup from Ulune.", "Ce fichier n’est pas une sauvegarde d’Ulune."],

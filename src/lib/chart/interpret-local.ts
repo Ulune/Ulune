@@ -395,7 +395,7 @@ function signReading(chart: NatalChart, sign: SignId, locale: Locale): ElementRe
   if (chart.angles.midheaven.sign === sign) {
     inChart.push(`${fr ? "Il est sur votre Milieu du Ciel." : "It is on your Midheaven."} ${pickBi(text.midheaven, locale)}`);
   }
-  for (const n of cusps) inChart.push(`${houseName(n, locale)}${fr ? " : " : ": "}${signOnCusp(sign, n, locale)}`);
+  for (const n of cusps) inChart.push(`${houseName(n, locale)}${fr ? "\u202f: " : ": "}${signOnCusp(sign, n, locale)}`);
   const rows: Rows = [
     ...tenants.map((t) => ({
       ref: `planet:${t.id}`,
@@ -503,7 +503,7 @@ function aspectReading(chart: NatalChart, link: AspectLink, locale: Locale): Ele
       ref: refFor(id),
       label: bodyLabel(id, locale),
       detail: p ? `${p.formatted} ${signName(p.sign, locale)} · ${locale === "fr" ? "M" : "H"}${p.house}` : undefined,
-      text: `${bodyLabel(id, locale)}${locale === "fr" ? " : " : ": "}${bodyAs(id as BodyId, locale)}.`,
+      text: `${bodyLabel(id, locale)}${locale === "fr" ? "\u202f: " : ": "}${bodyAs(id as BodyId, locale)}.`,
     };
   };
   const structured = {

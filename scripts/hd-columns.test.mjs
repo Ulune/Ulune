@@ -151,7 +151,7 @@ test("readings start with this chart; what a gate is in general waits in About",
   assert.ok(type.sections.some((s) => s.id === "signposts"));
   assert.ok(type.facts.some((f) => f.ref === "hello:cross"));
   // French: the bodies and layers in French.
-  assert.match(hdReading(hd, "gate:34", "fr").lead, /^Dans votre schéma : Vénus \(Personnalité\), ligne 2/);
+  assert.match(hdReading(hd, "gate:34", "fr").lead, /^Dans votre schéma\u202f: Vénus \(Personnalité\), ligne 2/);
 });
 
 test("the glossary starts with the words the chosen piece uses", () => {

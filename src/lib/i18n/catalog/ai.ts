@@ -22,7 +22,7 @@ export const ai = {
   aiRemove: ["Remove", "Retirer"],
   aiSaving: ["Saving…", "Enregistrement…"],
   aiUseThis: ["Use", "Utiliser"],
-  aiUsing: ["Using {name}", "En cours : {name}"],
+  aiUsing: ["Using {name}", "En cours\u202f: {name}"],
   aiKeySaveFailed: [
     "Couldn’t save this key. Check it with your provider, then try again.",
     "Impossible d’enregistrer cette clé. Vérifiez-la chez votre fournisseur, puis réessayez.",
@@ -47,7 +47,7 @@ export const ai = {
   ],
   aiRelayed: [
     "{name} doesn’t answer web pages directly, so Ulune’s server passes your key and question on and keeps nothing.",
-    "{name} ne répond pas directement aux pages web : le serveur d’Ulune transmet votre clé et votre question, sans rien garder.",
+    "{name} ne répond pas directement aux pages web\u202f: le serveur d’Ulune transmet votre clé et votre question, sans rien garder.",
   ],
   aiErrKey: [
     "{name} didn’t accept this key. Check it in your {name} account, then save it again.",

@@ -9,7 +9,7 @@ export const errors = {
   ],
   couldNotFind: [
     "Could not find “{query}”. Try another city, or paste coordinates.",
-    "Impossible de trouver « {query} ». Essayez une autre ville, ou collez des coordonnées.",
+    "Impossible de trouver «\u202f{query}\u202f». Essayez une autre ville, ou collez des coordonnées.",
   ],
   couldNotSaveLocal: [
     "Could not save this chart in the browser. Storage may be full or blocked.",
@@ -24,7 +24,7 @@ export const errors = {
   ],
   retryCompose: ["Try again", "Réessayer"],
   err_birth_date_missing: ["Add a birth date.", "Indiquez une date de naissance."],
-  err_birth_month_unreadable: ["Couldn’t read the month in “{raw}”.", "Impossible de lire le mois dans « {raw} »."],
+  err_birth_month_unreadable: ["Couldn’t read the month in “{raw}”.", "Impossible de lire le mois dans «\u202f{raw}\u202f»."],
   err_birth_date_format: ["Use a date like 21/06/1995.", "Utilisez une date comme 21/06/1995."],
   err_birth_year_range: [
     "The birth year should be between 1 and 2399.",
@@ -33,7 +33,7 @@ export const errors = {
   err_birth_date_invalid: ["That date doesn’t exist on the calendar.", "Cette date n’existe pas dans le calendrier."],
   err_birth_time_format: [
     "Use a time like 14:30, or tick “I don’t know the time”.",
-    "Utilisez une heure comme 14:30, ou cochez « Je ne connais pas l’heure ».",
+    "Utilisez une heure comme 14:30, ou cochez «\u202fJe ne connais pas l’heure\u202f».",
   ],
   err_birth_time_invalid: ["That time isn’t valid.", "Cette heure n’est pas valide."],
   err_birth_place_missing: ["Choose a birth place from the list.", "Choisissez un lieu de naissance dans la liste."],
@@ -47,11 +47,11 @@ export const errors = {
   ],
   err_tz_invalid: [
     "That time zone (“{raw}”) isn’t recognised. Choose one in the birth options.",
-    "Ce fuseau horaire (« {raw} ») n’est pas reconnu. Choisissez-en un dans les options de naissance.",
+    "Ce fuseau horaire («\u202f{raw}\u202f») n’est pas reconnu. Choisissez-en un dans les options de naissance.",
   ],
   err_tz_unknown: [
     "The time zone “{raw}” isn’t in the time zone database.",
-    "Le fuseau « {raw} » n’existe pas dans la base des fuseaux horaires.",
+    "Le fuseau «\u202f{raw}\u202f» n’existe pas dans la base des fuseaux horaires.",
   ],
   err_timing_window_invalid: ["That period couldn’t be read.", "Cette période est illisible."],
   err_timing_window_long: ["Choose a period of a year or less.", "Choisissez une période d’un an au plus."],

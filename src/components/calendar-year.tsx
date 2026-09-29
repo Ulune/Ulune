@@ -552,7 +552,7 @@ export function CalendarYearPanel({
           {layout.eclipses.length ? (
             <p className="ulune-cal-yearline">
               <b>{fill(Y.eclipses, locale, { n: layout.eclipses.length })}</b>
-              {locale === "fr" ? " : " : ": "}
+              {locale === "fr" ? "\u202f: " : ": "}
               {join(layout.eclipses.map((ev) => link(ev, `${skyEventTitle(ev, locale, f.time).toLowerCase()} ${f.dayMonth(ev.t)}`)))}
             </p>
           ) : null}
@@ -564,7 +564,7 @@ export function CalendarYearPanel({
           {slow.length ? (
             <p className="ulune-cal-yearline">
               <b>{pick(Y.signs, locale)}</b>
-              {locale === "fr" ? " : " : ": "}
+              {locale === "fr" ? "\u202f: " : ": "}
               {join(
                 slow.map((ev) =>
                   ev.k === "ingress" ? link(ev, fill(Y.into, locale, { body: bodyLabel(ev.body, locale), sign: signWord(ev.sign, locale), when: f.dayMonth(ev.t) })) : null,

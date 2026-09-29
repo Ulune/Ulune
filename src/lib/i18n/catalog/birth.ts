@@ -47,11 +47,11 @@ export const birth = {
   sampleName: ["Sample", "Exemple"],
   houseNotePlacidus: [
     "The most common system; houses stretch with latitude.",
-    "Le système le plus courant ; les maisons s’étirent avec la latitude.",
+    "Le système le plus courant\u202f; les maisons s’étirent avec la latitude.",
   ],
   houseNoteKoch: [
     "Birthplace system; close to Placidus, with its own cusps.",
-    "Système du lieu de naissance ; proche de Placidus, avec ses propres cuspides.",
+    "Système du lieu de naissance\u202f; proche de Placidus, avec ses propres cuspides.",
   ],
   houseNoteEqual: [
     "Twelve houses of 30°, counted from the Ascendant.",
@@ -64,7 +64,7 @@ export const birth = {
   houseNotePorphyry: ["Each quadrant split into three equal parts.", "Chaque quadrant divisé en trois parts égales."],
   houseNoteRegiomontanus: [
     "Divides the celestial equator; a classic for horary.",
-    "Divise l’équateur céleste ; un classique de l’horaire.",
+    "Divise l’équateur céleste\u202f; un classique de l’horaire.",
   ],
   houseNoteCampanus: [
     "Divides the prime vertical into twelve equal parts.",
@@ -73,7 +73,7 @@ export const birth = {
   houseNoteAlcabitius: ["A medieval time-based system.", "Un système médiéval fondé sur le temps."],
   houseNoteMorinus: [
     "Measured along the equator; independent of the Ascendant.",
-    "Mesuré sur l’équateur ; indépendant de l’Ascendant.",
+    "Mesuré sur l’équateur\u202f; indépendant de l’Ascendant.",
   ],
   houseNoteTopocentric: ["A modern refinement of Placidus.", "Un raffinement moderne de Placidus."],
   timeZone: ["Time zone", "Fuseau horaire"],
@@ -87,7 +87,7 @@ export const birth = {
   ],
   tzNoteLmt: [
     "The clock of the birthplace’s meridian: 4 minutes of time per degree of longitude.",
-    "L’heure du méridien du lieu de naissance : 4 minutes par degré de longitude.",
+    "L’heure du méridien du lieu de naissance\u202f: 4 minutes par degré de longitude.",
   ],
   tzNoteOffset: [
     "The birth time is read at exactly this offset from UTC, whatever the place’s zone says.",
@@ -102,9 +102,9 @@ export const birth = {
   tzSummerTime: ["summer time", "heure d’été"],
   tzAmbiguous: [
     "{time} happened twice that night: the clocks were turned back.",
-    "{time} a eu lieu deux fois cette nuit-là : les horloges ont été reculées.",
+    "{time} a eu lieu deux fois cette nuit-là\u202f: les horloges ont été reculées.",
   ],
-  tzWhichOne: ["Which {time}?", "Quelle heure {time} ?"],
+  tzWhichOne: ["Which {time}?", "Quelle heure {time}\u202f?"],
   tzRepeatedFirst: ["repeated hour, first time", "heure répétée, première fois"],
   tzRepeatedSecond: ["repeated hour, second time", "heure répétée, seconde fois"],
   tzSkipped: ["skipped hour", "heure sautée"],
@@ -112,7 +112,7 @@ export const birth = {
   tzSecondTime: ["Second time — {abbr}, UTC{offset}", "Seconde fois — {abbr}, UTC{offset}"],
   tzNonexistent: [
     "{time} did not exist that night: the clocks were turned forward. It is read as {abbr}, UTC{offset}, the time before the change.",
-    "{time} n’a pas existé cette nuit-là : les horloges ont été avancées. Elle est lue comme {abbr}, UTC{offset}, l’heure d’avant le changement.",
+    "{time} n’a pas existé cette nuit-là\u202f: les horloges ont été avancées. Elle est lue comme {abbr}, UTC{offset}, l’heure d’avant le changement.",
   ],
   tzJulian: [
     "A date before 15 October 1582 is read in the Julian calendar.",
@@ -122,6 +122,6 @@ export const birth = {
   tzJulianShort: ["Julian calendar", "calendrier julien"],
   tzApproximate: [
     "The zone was found approximately; check it against the record.",
-    "Le fuseau a été trouvé approximativement ; vérifiez-le sur l’acte.",
+    "Le fuseau a été trouvé approximativement\u202f; vérifiez-le sur l’acte.",
   ],
 } as const satisfies Record<string, readonly [string, string]>;

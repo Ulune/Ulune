@@ -26,7 +26,7 @@ export const tables = {
   quad3: ["Q3 (houses 7–9)", "Q3 (maisons 7–9)"],
   quad4: ["Q4 (houses 10–12)", "Q4 (maisons 10–12)"],
   separating: ["separating", "séparatif"],
-  sectNeedsTime: ["sect needs the birth time", "secte : demande l’heure de naissance"],
+  sectNeedsTime: ["sect needs the birth time", "secte\u202f: demande l’heure de naissance"],
   tableAspectMinor: ["minor", "mineur"],
   tableAspects: ["Aspects", "Aspects"],
   tableCopied: ["Copied", "Copié"],

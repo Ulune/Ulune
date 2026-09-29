@@ -8,21 +8,21 @@
       "label": "Sun",
       "labelFr": "Soleil",
       "en": "Your core identity: what you are aiming to become and where you want to shine.",
-      "fr": "Votre identité profonde : ce que vous cherchez à devenir et là où vous voulez briller."
+      "fr": "Votre identité profonde : ce que vous cherchez à devenir et là où vous voulez briller."
     },
     {
       "id": "moon",
       "label": "Moon",
       "labelFr": "Lune",
       "en": "Your emotional needs: what makes you feel safe and how you react under stress.",
-      "fr": "Vos besoins émotionnels : ce qui vous rassure et comment vous réagissez sous pression."
+      "fr": "Vos besoins émotionnels : ce qui vous rassure et comment vous réagissez sous pression."
     },
     {
       "id": "ascendant",
       "label": "Ascendant",
       "labelFr": "Ascendant",
       "en": "Your rising sign: how you come across and how you approach anything new.",
-      "fr": "Votre signe ascendant : l’impression que vous donnez et votre façon d’aborder la nouveauté."
+      "fr": "Votre signe ascendant : l’impression que vous donnez et votre façon d’aborder la nouveauté."
     }
   ]
 }

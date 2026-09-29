@@ -44,15 +44,15 @@
     },
     "points": {
       "en": "Every body, point and angle: where it is, how it moves, how it stands.",
-      "fr": "Chaque corps, point et angle : où il se trouve, comment il avance, dans quel état."
+      "fr": "Chaque corps, point et angle : où il se trouve, comment il avance, dans quel état."
     },
     "houses": {
       "en": "Cusps 1 to 12 in the chosen house system: each house’s size, the ruler of its sign and where that ruler stands, and the bodies inside.",
-      "fr": "Cuspides 1 à 12 dans le système de maisons choisi : la taille de chaque maison, le maître de son signe et où il se trouve, et les corps qu’elle contient."
+      "fr": "Cuspides 1 à 12 dans le système de maisons choisi : la taille de chaque maison, le maître de son signe et où il se trouve, et les corps qu’elle contient."
     },
     "aspects": {
       "en": "Every aspect, the majors first, each tightest first: its orb beside the orb it is allowed, and whether it is applying or separating. An aspect to one end of an axis (ASC–DSC, MC–IC, the nodes, the Vertex) mirrors one to the other end: the mirror is shown under it.",
-      "fr": "Tous les aspects, les majeurs d’abord, chacun du plus serré au plus large : l’orbe à côté de l’orbe permis, et s’il est applicatif ou séparatif. Un aspect à un bout d’un axe (ASC–DSC, MC–FC, les nœuds, le Vertex) en reflète un à l’autre bout : ce miroir est indiqué dessous."
+      "fr": "Tous les aspects, les majeurs d’abord, chacun du plus serré au plus large : l’orbe à côté de l’orbe permis, et s’il est applicatif ou séparatif. Un aspect à un bout d’un axe (ASC–DSC, MC–FC, les nœuds, le Vertex) en reflète un à l’autre bout : ce miroir est indiqué dessous."
     },
     "grid": {
       "en": "Every pair at a glance, with its orb and A (applying) or S (separating). Tap a symbol to read that aspect.",
@@ -68,11 +68,11 @@
     },
     "balance": {
       "en": "Weighted toward the personal planets and the four angles; the glyphs are the bodies in each.",
-      "fr": "Pondéré vers les planètes personnelles et les quatre angles ; les symboles sont les corps de chacun."
+      "fr": "Pondéré vers les planètes personnelles et les quatre angles ; les symboles sont les corps de chacun."
     },
     "stars": {
       "en": "The six fixed stars charted and five midpoints, with the bodies on them: within 1° of a star, within 1°30' of a midpoint or of its opposite point.",
-      "fr": "Les six étoiles fixes du thème et cinq mi-points, avec les corps qui s’y trouvent : à moins de 1° d’une étoile, à moins de 1°30' d’un mi-point ou de son point opposé."
+      "fr": "Les six étoiles fixes du thème et cinq mi-points, avec les corps qui s’y trouvent : à moins de 1° d’une étoile, à moins de 1°30' d’un mi-point ou de son point opposé."
     }
   },
   "bar": {
@@ -258,7 +258,7 @@
     },
     "fallback": {
       "en": "{system}: {requested} is not defined this close to the pole",
-      "fr": "{system} : {requested} n’est pas défini si près du pôle"
+      "fr": "{system} : {requested} n’est pas défini si près du pôle"
     },
     "sect": {
       "en": "Sect",
@@ -386,23 +386,23 @@
     },
     "balance": {
       "en": "Without a birth time the angles are left out. Hemispheres, quadrants and angularity come from the houses, cast for 12:00: marked ~.",
-      "fr": "Sans heure de naissance, les angles sont laissés de côté. Hémisphères, quadrants et angularité viennent des maisons, calculées pour 12 h : marqués ~."
+      "fr": "Sans heure de naissance, les angles sont laissés de côté. Hémisphères, quadrants et angularité viennent des maisons, calculées pour 12 h : marqués ~."
     },
     "aspects": {
       "en": "Without a birth time these aspects are for 12:00. Marked ~: those to the angles, the Vertex and the lots, and those that may leave their orb or become exact at another hour of the day (the Moon’s, mostly).",
-      "fr": "Sans heure de naissance, ces aspects sont ceux de 12 h. Marqués ~ : ceux aux angles, au Vertex et aux parts, et ceux qui peuvent sortir de leur orbe ou devenir exacts à une autre heure du jour (ceux de la Lune, surtout)."
+      "fr": "Sans heure de naissance, ces aspects sont ceux de 12 h. Marqués ~ : ceux aux angles, au Vertex et aux parts, et ceux qui peuvent sortir de leur orbe ou devenir exacts à une autre heure du jour (ceux de la Lune, surtout)."
     },
     "patterns": {
       "en": "Without a birth time: marked ~, what may change at another hour of the day.",
-      "fr": "Sans heure de naissance : marqué ~, ce qui peut changer à une autre heure du jour."
+      "fr": "Sans heure de naissance : marqué ~, ce qui peut changer à une autre heure du jour."
     },
     "dignities": {
       "en": "Without a birth time, the chart ruler (the ruler of the rising sign), the sect and the scores that hang on it are unknown, and a planet may reach another term or face in the day: marked ~.",
-      "fr": "Sans heure de naissance, le maître du thème (celui du signe ascendant), la secte et les scores qui en dépendent sont inconnus, et une planète peut passer dans un autre terme ou une autre face dans la journée : marqué ~."
+      "fr": "Sans heure de naissance, le maître du thème (celui du signe ascendant), la secte et les scores qui en dépendent sont inconnus, et une planète peut passer dans un autre terme ou une autre face dans la journée : marqué ~."
     },
     "stars": {
       "en": "Without a birth time: marked ~, a contact that may not hold all day; the midpoints with the Ascendant hang on the time.",
-      "fr": "Sans heure de naissance : marqué ~, un contact qui peut ne pas tenir toute la journée ; les mi-points avec l’Ascendant dépendent de l’heure."
+      "fr": "Sans heure de naissance : marqué ~, un contact qui peut ne pas tenir toute la journée ; les mi-points avec l’Ascendant dépendent de l’heure."
     }
   },
   "houses": {
@@ -440,7 +440,7 @@
     },
     "intercepted": {
       "en": "intercepted sign: {sign}",
-      "fr": "signe intercepté : {sign}"
+      "fr": "signe intercepté : {sign}"
     },
     "sizeLine": {
       "en": "size {arc}",
@@ -456,7 +456,7 @@
     },
     "insideLine": {
       "en": "inside: {list}",
-      "fr": "occupants : {list}"
+      "fr": "occupants : {list}"
     },
     "choose": {
       "en": "Choose {name}",
@@ -498,7 +498,7 @@
     },
     "also": {
       "en": "mirror: {list}",
-      "fr": "miroir : {list}"
+      "fr": "miroir : {list}"
     },
     "sort": {
       "en": "Sort by",
@@ -554,7 +554,7 @@
     },
     "parallelsHint": {
       "en": "Two bodies at the same distance from the celestial equator, within 1°: parallel on the same side, contra-parallel on either side.",
-      "fr": "Deux corps à la même distance de l’équateur céleste, à 1° près : parallèles du même côté, contre-parallèles de part et d’autre."
+      "fr": "Deux corps à la même distance de l’équateur céleste, à 1° près : parallèles du même côté, contre-parallèles de part et d’autre."
     },
     "parallel": {
       "en": "parallel",
@@ -578,11 +578,11 @@
     },
     "parallelsUnknown": {
       "en": "Without a birth time these declinations are for 12:00. Marked ~: those to the angles and the Vertex, and those that may leave 1° or change kind at another hour (the Moon’s, mostly).",
-      "fr": "Sans heure de naissance, ces déclinaisons sont celles de 12 h. Marqués ~ : ceux aux angles et au Vertex, et ceux qui peuvent dépasser 1° ou changer de sorte à une autre heure (ceux de la Lune, surtout)."
+      "fr": "Sans heure de naissance, ces déclinaisons sont celles de 12 h. Marqués ~ : ceux aux angles et au Vertex, et ceux qui peuvent dépasser 1° ou changer de sorte à une autre heure (ceux de la Lune, surtout)."
     },
     "tightest": {
       "en": "tightest major: {aspect}, {orb}",
-      "fr": "le majeur le plus serré : {aspect}, {orb}"
+      "fr": "le majeur le plus serré : {aspect}, {orb}"
     }
   },
   "grid": {
@@ -642,7 +642,7 @@
     },
     "tableHint": {
       "en": "Who rules the degree each planet stands in, and which of those it is itself: domicile +5, exaltation +4, triplicity of the chart’s sect +3, term +2, face +1; detriment −5, fall −4; none at all, peregrine −5 (Lilly’s points; Dorothean triplicities, Egyptian terms, Chaldean faces).",
-      "fr": "Qui gouverne le degré de chaque planète, et lesquels de ces maîtres elle est elle-même : domicile +5, exaltation +4, triplicité de la secte du thème +3, terme +2, face +1 ; exil −5, chute −4 ; aucune, pérégrine −5 (points de Lilly ; triplicités de Dorothée, termes égyptiens, faces chaldéennes)."
+      "fr": "Qui gouverne le degré de chaque planète, et lesquels de ces maîtres elle est elle-même : domicile +5, exaltation +4, triplicité de la secte du thème +3, terme +2, face +1 ; exil −5, chute −4 ; aucune, pérégrine −5 (points de Lilly ; triplicités de Dorothée, termes égyptiens, faces chaldéennes)."
     },
     "planet": {
       "en": "Planet",
@@ -710,7 +710,7 @@
     },
     "rulersLine": {
       "en": "rulers of its degree: domicile {domicile}, exaltation {exaltation}, triplicity {day}/{night}/{part}, term {term}, face {face}; detriment {detriment}, fall {fall}",
-      "fr": "maîtres de son degré : domicile {domicile}, exaltation {exaltation}, triplicité {day}/{night}/{part}, terme {term}, face {face} ; exil {detriment}, chute {fall}"
+      "fr": "maîtres de son degré : domicile {domicile}, exaltation {exaltation}, triplicité {day}/{night}/{part}, terme {term}, face {face} ; exil {detriment}, chute {fall}"
     },
     "strongest": {
       "en": "Strongest by Lilly’s points",
@@ -722,7 +722,7 @@
     },
     "dispositorsHint": {
       "en": "Each planet is disposed of by the ruler of its sign; from ruler to ruler the chain ends at a planet in its own sign (a final dispositor) or turns in a loop.",
-      "fr": "Chaque planète a pour dispositeur le maître de son signe ; de maître en maître, la chaîne s’arrête à une planète dans son propre signe (un dispositeur final) ou tourne en boucle."
+      "fr": "Chaque planète a pour dispositeur le maître de son signe ; de maître en maître, la chaîne s’arrête à une planète dans son propre signe (un dispositeur final) ou tourne en boucle."
     },
     "finals": {
       "en": "Final dispositors",
@@ -738,11 +738,11 @@
     },
     "finalOneNote": {
       "en": "in its own sign: every chain ends there",
-      "fr": "dans son propre signe : toutes les chaînes y mènent"
+      "fr": "dans son propre signe : toutes les chaînes y mènent"
     },
     "noFinal": {
       "en": "None: no planet is in its own sign.",
-      "fr": "Aucun : aucune planète n’est dans son propre signe."
+      "fr": "Aucun : aucune planète n’est dans son propre signe."
     },
     "loop": {
       "en": "a loop",
@@ -754,7 +754,7 @@
     },
     "receptionsHint": {
       "en": "Two planets each in a sign of the other’s: by domicile, by exaltation, or one of each.",
-      "fr": "Deux planètes chacune dans un signe de l’autre : par domicile, par exaltation, ou l’un et l’autre."
+      "fr": "Deux planètes chacune dans un signe de l’autre : par domicile, par exaltation, ou l’un et l’autre."
     },
     "byDomicile": {
       "en": "by domicile",
@@ -804,7 +804,7 @@
     },
     "courseNext": {
       "en": "The Moon’s next aspect: {aspect} {body}, {when} ({after} after birth); it enters {sign} {enters}.",
-      "fr": "Prochain aspect de la Lune : {aspect} {body}, {when} ({after} après la naissance) ; elle entre en {sign} {enters}."
+      "fr": "Prochain aspect de la Lune : {aspect} {body}, {when} ({after} après la naissance) ; elle entre en {sign} {enters}."
     },
     "courseVoid": {
       "en": "No major aspect before the Moon enters {sign}, {enters} ({after} after birth).",
@@ -932,7 +932,7 @@
     },
     "hintTransitAspects": {
       "en": "The moving planets’ major aspects to your chart, tightest first: the orb now beside the orb allowed, applying or separating, and the moment of this pass when it is exact. An aspect to one end of an axis is shown once, with its mirror under it.",
-      "fr": "Les aspects majeurs des planètes en mouvement à votre thème, du plus serré au plus large : l’orbe du moment à côté de l’orbe permis, applicatif ou séparatif, et le moment où ce passage est exact. Un aspect à un bout d’un axe n’est indiqué qu’une fois, son miroir dessous."
+      "fr": "Les aspects majeurs des planètes en mouvement à votre thème, du plus serré au plus large : l’orbe du moment à côté de l’orbe permis, applicatif ou séparatif, et le moment où ce passage est exact. Un aspect à un bout d’un axe n’est indiqué qu’une fois, son miroir dessous."
     },
     "hintSky": {
       "en": "Where each body stands at this moment, how it moves, and which house of your chart it is crossing.",
@@ -944,7 +944,7 @@
     },
     "hintProgAspects": {
       "en": "The progressed bodies’ and angles’ major aspects to your chart, tightest first: the orb beside the orb allowed, applying or separating, and the day it is exact. An aspect to one end of an axis is shown once, with its mirror under it.",
-      "fr": "Les aspects majeurs des corps et des angles progressés à votre thème, du plus serré au plus large : l’orbe à côté de l’orbe permis, applicatif ou séparatif, et le jour où il est exact. Un aspect à un bout d’un axe n’est indiqué qu’une fois, son miroir dessous."
+      "fr": "Les aspects majeurs des corps et des angles progressés à votre thème, du plus serré au plus large : l’orbe à côté de l’orbe permis, applicatif ou séparatif, et le jour où il est exact. Un aspect à un bout d’un axe n’est indiqué qu’une fois, son miroir dessous."
     },
     "hintPositions": {
       "en": "Each progressed body beside its place at birth, how far it has gone since, how it moves in a year of life, and the house of your chart it is in.",
@@ -952,23 +952,23 @@
     },
     "hintAngles": {
       "en": "The progressed Midheaven moves 0°59'08\" of right ascension a year of life (Naibod); the Ascendant and the Vertex follow from it at the place of birth. Beside them, the birth ones.",
-      "fr": "Le Milieu du Ciel progressé avance de 0°59'08\" d’ascension droite par année de vie (Naibod) ; l’Ascendant et le Vertex en découlent au lieu de naissance. À côté, ceux de la naissance."
+      "fr": "Le Milieu du Ciel progressé avance de 0°59'08\" d’ascension droite par année de vie (Naibod) ; l’Ascendant et le Vertex en découlent au lieu de naissance. À côté, ceux de la naissance."
     },
     "hintMoon": {
       "en": "The progressed Moon against the progressed Sun: the progressed lunation, a cycle of about 29 and a half years in eight phases.",
-      "fr": "La Lune progressée face au Soleil progressé : la lunaison progressée, un cycle d’environ vingt-neuf ans et demi en huit phases."
+      "fr": "La Lune progressée face au Soleil progressé : la lunaison progressée, un cycle d’environ vingt-neuf ans et demi en huit phases."
     },
     "hintSynAspects": {
       "en": "Each body of one chart in major aspect to a body of the other, tightest first: the orb beside the orb allowed, and applying or separating from each body’s speed at birth. An aspect to one end of an axis is shown once, with its mirror under it.",
-      "fr": "Chaque corps d’un thème en aspect majeur avec un corps de l’autre, du plus serré au plus large : l’orbe à côté de l’orbe permis, et applicatif ou séparatif selon la vitesse de chaque corps à la naissance. Un aspect à un bout d’un axe n’est indiqué qu’une fois, son miroir dessous."
+      "fr": "Chaque corps d’un thème en aspect majeur avec un corps de l’autre, du plus serré au plus large : l’orbe à côté de l’orbe permis, et applicatif ou séparatif selon la vitesse de chaque corps à la naissance. Un aspect à un bout d’un axe n’est indiqué qu’une fois, son miroir dessous."
     },
     "hintOverlays": {
       "en": "Where each person’s bodies fall in the other’s houses: the parts of life one touches in the other.",
-      "fr": "Où tombent les corps de chacun dans les maisons de l’autre : les domaines de vie que l’un touche chez l’autre."
+      "fr": "Où tombent les corps de chacun dans les maisons de l’autre : les domaines de vie que l’un touche chez l’autre."
     },
     "hintBoth": {
       "en": "The two charts side by side, body by body: the position and the house in each.",
-      "fr": "Les deux thèmes côte à côte, corps par corps : la position et la maison dans chacun."
+      "fr": "Les deux thèmes côte à côte, corps par corps : la position et la maison dans chacun."
     },
     "hintSynGrid": {
       "en": "Each body of {a} (rows) against each body of {b} (columns), with the orb and A (applying) or S (separating). Tap a symbol to read that aspect.",
@@ -980,7 +980,7 @@
     },
     "hintActivations": {
       "en": "The activations the bodygraph is built from, thirteen for each layer: the Personality (the sky at birth), then the Design (about three months before).",
-      "fr": "Les activations dont le bodygraph est fait, treize par couche : la Personnalité (le ciel à la naissance), puis le Design (environ trois mois avant)."
+      "fr": "Les activations dont le bodygraph est fait, treize par couche : la Personnalité (le ciel à la naissance), puis le Design (environ trois mois avant)."
     },
     "hintChannels": {
       "en": "The channels defined by an activated gate at each end, with the two centres each one joins.",
@@ -1028,7 +1028,7 @@
     },
     "gridAxes": {
       "en": "Rows: {rows} · columns: {cols}",
-      "fr": "Lignes : {rows} · colonnes : {cols}"
+      "fr": "Lignes : {rows} · colonnes : {cols}"
     },
     "transits": {
       "en": "the transits",
@@ -1096,15 +1096,15 @@
     },
     "unknownTransits": {
       "en": "Without a birth time your chart is cast for 12:00. Marked ~: the aspects to your angles, those that may leave their orb or be exact at another hour of that day, the moments that would move with it, and the houses.",
-      "fr": "Sans heure de naissance, votre thème est calculé pour 12 h. Marqués ~ : les aspects à vos angles, ceux qui peuvent sortir de leur orbe ou être exacts à une autre heure de ce jour-là, les moments qui bougeraient avec elle, et les maisons."
+      "fr": "Sans heure de naissance, votre thème est calculé pour 12 h. Marqués ~ : les aspects à vos angles, ceux qui peuvent sortir de leur orbe ou être exacts à une autre heure de ce jour-là, les moments qui bougeraient avec elle, et les maisons."
     },
     "unknownProgressions": {
       "en": "Without a birth time your chart and its progressions are cast for 12:00, and an hour earlier at birth is an hour earlier in the progressed sky. Marked ~: what may be different at another hour of that day; an exact date may move by up to half a year.",
-      "fr": "Sans heure de naissance, votre thème et ses progressions sont calculés pour 12 h, et une heure plus tôt à la naissance, c’est une heure plus tôt dans le ciel progressé. Marqué ~ : ce qui peut changer à une autre heure de ce jour-là ; une date exacte peut bouger jusqu’à six mois."
+      "fr": "Sans heure de naissance, votre thème et ses progressions sont calculés pour 12 h, et une heure plus tôt à la naissance, c’est une heure plus tôt dans le ciel progressé. Marqué ~ : ce qui peut changer à une autre heure de ce jour-là ; une date exacte peut bouger jusqu’à six mois."
     },
     "unknownSynastry": {
       "en": "Without a birth time for {names}, a chart is cast for 12:00. Marked ~: what may be different at another hour of that day.",
-      "fr": "Sans heure de naissance pour {names}, un thème est calculé pour 12 h. Marqué ~ : ce qui peut changer à une autre heure de ce jour-là."
+      "fr": "Sans heure de naissance pour {names}, un thème est calculé pour 12 h. Marqué ~ : ce qui peut changer à une autre heure de ce jour-là."
     },
     "and": {
       "en": " and ",
@@ -1156,7 +1156,7 @@
     },
     "nextLine": {
       "en": "Next: {next}",
-      "fr": "Ensuite : {next}"
+      "fr": "Ensuite : {next}"
     },
     "inMonths": {
       "en": "{phase} in about {n} months",

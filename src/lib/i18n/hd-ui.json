@@ -111,13 +111,13 @@
   "graph": {
     "hint": { "en": "Point at any shape for its name · click to read it", "fr": "Pointez une forme pour voir son nom · cliquez pour la lire" },
     "hintTouch": { "en": "Tap any shape to read it", "fr": "Touchez une forme pour la lire" },
-    "keysLabel": { "en": "Bodygraph: centres, channels and gates", "fr": "Bodygraph : centres, canaux et portes" },
+    "keysLabel": { "en": "Bodygraph: centres, channels and gates", "fr": "Bodygraph : centres, canaux et portes" },
     "keysHint": {
       "en": "The arrows move through the centres, channels and gates, Page Up and Page Down by kind, a letter to a name; Enter opens its reading. The Table view lists the same as text.",
-      "fr": "Les flèches parcourent les centres, les canaux et les portes, Page précédente et Page suivante par sorte, une lettre jusqu’à un nom ; Entrée ouvre sa lecture. La vue Tableau donne la même chose en texte."
+      "fr": "Les flèches parcourent les centres, les canaux et les portes, Page précédente et Page suivante par sorte, une lettre jusqu’à un nom ; Entrée ouvre sa lecture. La vue Tableau donne la même chose en texte."
     },
-    "keysOpened": { "en": "Opened: {name}", "fr": "Ouvert : {name}" },
-    "keysClosed": { "en": "Closed: {name}", "fr": "Fermé : {name}" },
+    "keysOpened": { "en": "Opened: {name}", "fr": "Ouvert : {name}" },
+    "keysClosed": { "en": "Closed: {name}", "fr": "Fermé : {name}" },
     "defined": { "en": "defined", "fr": "défini" },
     "open": { "en": "open", "fr": "ouvert" },
     "gatesActive": { "en": "{n} of {m} gates active", "fr": "{n} portes actives sur {m}" },
@@ -130,12 +130,12 @@
     "close": { "en": "Close", "fr": "Fermer" },
     "colDesign": { "en": "Design", "fr": "Design" },
     "colPersonality": { "en": "Personality", "fr": "Personnalité" },
-    "colDesignLine": { "en": "The body, unconscious: the sky about three months before birth", "fr": "Le corps, inconscient : le ciel environ trois mois avant la naissance" },
-    "colPersonalityLine": { "en": "The mind, conscious: the sky at birth", "fr": "Le mental, conscient : le ciel à la naissance" },
-    "rowLabel": { "en": "{layer} {body}: gate {gate}, line {line}", "fr": "{body} ({layer}) : porte {gate}, ligne {line}" },
+    "colDesignLine": { "en": "The body, unconscious: the sky about three months before birth", "fr": "Le corps, inconscient : le ciel environ trois mois avant la naissance" },
+    "colPersonalityLine": { "en": "The mind, conscious: the sky at birth", "fr": "Le mental, conscient : le ciel à la naissance" },
+    "rowLabel": { "en": "{layer} {body}: gate {gate}, line {line}", "fr": "{body} ({layer}) : porte {gate}, ligne {line}" },
     "who": { "en": "{layer} {body}", "fr": "{body} ({layer})" },
     "onGate": { "en": "{who} on gate {gate}", "fr": "{who} sur la porte {gate}" },
-    "factOpen": { "en": "{label}: {value}. Open its reading.", "fr": "{label} : {value}. Ouvrir sa lecture." },
+    "factOpen": { "en": "{label}: {value}. Open its reading.", "fr": "{label} : {value}. Ouvrir sa lecture." },
     "firstTitle": { "en": "Your chart in five steps", "fr": "Votre schéma en cinq étapes" },
     "lineWord": { "en": "line", "fr": "ligne" },
     "lineWordCap": { "en": "Line", "fr": "Ligne" },
@@ -151,9 +151,9 @@
     "angleWord": { "en": "Angle", "fr": "Angle" },
     "activations": { "en": "Activations", "fr": "Activations" },
     "definedChannels": { "en": "Defined channels", "fr": "Canaux définis" },
-    "layerPersonality": { "en": "Personality, in ink: the mind, from the sky at birth.", "fr": "Personnalité, à l’encre : le mental, d’après le ciel à la naissance." },
-    "layerDesign": { "en": "Design, in red: the body, from the sky about three months before birth.", "fr": "Design, en rouge : le corps, d’après le ciel environ trois mois avant la naissance." },
-    "layerBoth": { "en": "Both: the whole chart, the Personality in ink and the Design in red.", "fr": "Les deux : le schéma entier, la Personnalité à l’encre et le Design en rouge." }
+    "layerPersonality": { "en": "Personality, in ink: the mind, from the sky at birth.", "fr": "Personnalité, à l’encre : le mental, d’après le ciel à la naissance." },
+    "layerDesign": { "en": "Design, in red: the body, from the sky about three months before birth.", "fr": "Design, en rouge : le corps, d’après le ciel environ trois mois avant la naissance." },
+    "layerBoth": { "en": "Both: the whole chart, the Personality in ink and the Design in red.", "fr": "Les deux : le schéma entier, la Personnalité à l’encre et le Design en rouge." }
   },
   "facts": {
     "type": { "en": "Type", "fr": "Type" },
@@ -193,14 +193,14 @@
     }
   },
   "variable": {
-    "title": { "en": "{arrow}: {name}, pointing {dir}", "fr": "{arrow} : {name}, flèche à {dir}" },
+    "title": { "en": "{arrow}: {name}, pointing {dir}", "fr": "{arrow} : {name}, flèche à {dir}" },
     "left": { "en": "left", "fr": "gauche" },
     "right": { "en": "right", "fr": "droite" },
-    "unsteady": { "en": "It could be different: it changes within half an hour of the birth time.", "fr": "Elle pourrait être différente : elle change à une demi-heure près de l’heure de naissance." },
+    "unsteady": { "en": "It could be different: it changes within half an hour of the birth time.", "fr": "Elle pourrait être différente : elle change à une demi-heure près de l’heure de naissance." },
     "word": { "en": "Variable", "fr": "Variable" }
   },
   "unknown": {
-    "line": { "en": "No birth time: the chart is cast at noon. What is marked ~ could differ at another hour of that day, and the arrows are left out.", "fr": "Pas d’heure de naissance : le schéma est calculé à midi. Ce qui est marqué ~ pourrait différer à une autre heure de ce jour-là, et les flèches sont laissées de côté." },
+    "line": { "en": "No birth time: the chart is cast at noon. What is marked ~ could differ at another hour of that day, and the arrows are left out.", "fr": "Pas d’heure de naissance : le schéma est calculé à midi. Ce qui est marqué ~ pourrait différer à une autre heure de ce jour-là, et les flèches sont laissées de côté." },
     "mark": { "en": "Could differ at another hour of that day", "fr": "Pourrait différer à une autre heure de ce jour-là" },
     "title": { "en": "No birth time", "fr": "Pas d’heure de naissance" }
   },

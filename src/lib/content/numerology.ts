@@ -146,7 +146,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     pitfalls: {
       en: "Can over-give and then feel unappreciated, or offer help nobody requested and call it care. Asking \"what do you need?\" before stepping in prevents much of this.",
-      fr: "Peut trop donner puis se sentir mal aimé, ou apporter une aide que personne n’a demandée en l’appelant sollicitude. Demander « De quoi avez-vous besoin\u202f? » avant d’intervenir évite une bonne partie de ces malentendus.",
+      fr: "Peut trop donner puis se sentir mal aimé, ou apporter une aide que personne n’a demandée en l’appelant sollicitude. Demander «\u202fDe quoi avez-vous besoin\u202f?\u202f» avant d’intervenir évite une bonne partie de ces malentendus.",
     },
     example: {
       en: "Among friends, the 6 remembers every birthday, brings soup when someone is ill, and quietly pays to repair the shared washing machine — then feels hurt when nobody mentions it.",

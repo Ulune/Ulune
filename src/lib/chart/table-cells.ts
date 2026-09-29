@@ -58,7 +58,7 @@ function mark(on: boolean): string {
 
 /** "Label: value", with the French space before the colon. */
 export function colon(locale: AppLocale): string {
-  return locale === "fr" ? " : " : ": ";
+  return locale === "fr" ? "\u202f: " : ": ";
 }
 
 /** A cell as text: "~" before it when it hangs on the time. */

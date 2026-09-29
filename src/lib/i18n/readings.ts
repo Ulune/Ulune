@@ -74,16 +74,16 @@ export const READING_COPY = {
     secTenants: "Planètes ici",
     secTime: "Heure de naissance inconnue",
     timeAngle:
-      "Sans heure de naissance, le thème est calculé pour 12 h, en attendant. {name} fait le tour des signes en une journée : celui-ci n’est peut-être pas le vôtre. Avec l’heure de naissance, il peut se lire.",
+      "Sans heure de naissance, le thème est calculé pour 12 h, en attendant. {name} fait le tour des signes en une journée\u202f: celui-ci n’est peut-être pas le vôtre. Avec l’heure de naissance, il peut se lire.",
     timeAspect:
-      "Sans heure de naissance, cet aspect est celui de 12 h, en attendant : à une autre heure de ce jour-là, il peut être plus large, plus serré, ou absent.",
+      "Sans heure de naissance, cet aspect est celui de 12 h, en attendant\u202f: à une autre heure de ce jour-là, il peut être plus large, plus serré, ou absent.",
     timeHouse:
-      "Sans heure de naissance, les maisons sont calculées pour 12 h, en attendant. Elles font un tour par jour : cette maison ne correspond peut-être pas à votre vie. Avec l’heure de naissance, elles peuvent se lire.",
+      "Sans heure de naissance, les maisons sont calculées pour 12 h, en attendant. Elles font un tour par jour\u202f: cette maison ne correspond peut-être pas à votre vie. Avec l’heure de naissance, elles peuvent se lire.",
     timeHouseOf: "Sans heure de naissance, sa maison ({house}) est celle de 12 h, en attendant.",
     timePoint:
-      "Sans heure de naissance, le thème est calculé pour 12 h, en attendant. {name} dépend de l’heure de naissance : celui-ci n’est peut-être pas le vôtre. Avec l’heure de naissance, il peut se lire.",
-    timeRough: "{name} avance de {arc} ce jour-là, de {from} à {to} : son degré n’est connu qu’à peu près.",
-    timeSigns: "{name} change de signe ce jour-là : {a} ou {b}, selon l’heure.",
+      "Sans heure de naissance, le thème est calculé pour 12 h, en attendant. {name} dépend de l’heure de naissance\u202f: celui-ci n’est peut-être pas le vôtre. Avec l’heure de naissance, il peut se lire.",
+    timeRough: "{name} avance de {arc} ce jour-là, de {from} à {to}\u202f: son degré n’est connu qu’à peu près.",
+    timeSigns: "{name} change de signe ce jour-là\u202f: {a} ou {b}, selon l’heure.",
   },
 } as const;
 

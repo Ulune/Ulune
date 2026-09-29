@@ -51,12 +51,12 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Éditeur",
-          p: "Ulune est édité par {name}, particulier, à titre non professionnel. Comme la loi le permet à ces éditeurs (loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique), son identité a été communiquée à l’hébergeur. Contact : {contact}.",
+          p: "Ulune est édité par {name}, particulier, à titre non professionnel. Comme la loi le permet à ces éditeurs (loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique), son identité a été communiquée à l’hébergeur. Contact\u202f: {contact}.",
         },
         { h: "Directeur de la publication", p: "{name}." },
         {
           h: "Hébergeur",
-          p: "Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis. Téléphone : +1 559 288 7060. [vercel.com](https://vercel.com)",
+          p: "Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis. Téléphone\u202f: +1 559 288 7060. [vercel.com](https://vercel.com)",
         },
         {
           h: "Vos données",
@@ -112,11 +112,11 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Ce qu’est Ulune",
-          p: "Un outil gratuit pour tracer et explorer des thèmes astrologiques, le Human Design et la numérologie. Il ne demande aucun compte : ce que vous choisissez de garder reste sur votre appareil, chiffré (voir la [politique de confidentialité](/privacy)).",
+          p: "Un outil gratuit pour tracer et explorer des thèmes astrologiques, le Human Design et la numérologie. Il ne demande aucun compte\u202f: ce que vous choisissez de garder reste sur votre appareil, chiffré (voir la [politique de confidentialité](/privacy)).",
         },
         {
           h: "Pour réfléchir, pas pour conseiller",
-          p: "Ulune est un outil de réflexion personnelle. L’astrologie, le Human Design et la numérologie ne sont pas validés scientifiquement, et rien dans Ulune n’est un avis médical, psychologique, juridique ou financier. N’arrêtez ni ne modifiez jamais un traitement à cause de ce que vous lisez ici : pour votre santé, parlez-en à un professionnel.",
+          p: "Ulune est un outil de réflexion personnelle. L’astrologie, le Human Design et la numérologie ne sont pas validés scientifiquement, et rien dans Ulune n’est un avis médical, psychologique, juridique ou financier. N’arrêtez ni ne modifiez jamais un traitement à cause de ce que vous lisez ici\u202f: pour votre santé, parlez-en à un professionnel.",
         },
         {
           h: "Calculs et lectures",
@@ -132,11 +132,11 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Évolutions",
-          p: "Ulune peut changer ou s’arrêter, et ces conditions peuvent être mises à jour : la date en haut indique leur dernière modification.",
+          p: "Ulune peut changer ou s’arrêter, et ces conditions peuvent être mises à jour\u202f: la date en haut indique leur dernière modification.",
         },
         {
           h: "Droit applicable et contact",
-          p: "Ces conditions relèvent du droit français. Pour toute question : {contact}.",
+          p: "Ces conditions relèvent du droit français. Pour toute question\u202f: {contact}.",
         },
       ],
     },
@@ -202,8 +202,8 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         {
           h: "Calculs",
           list: [
-            "[Swiss Ephemeris](https://www.astro.com/swisseph/), © Astrodienst AG, Zurich : les planètes, les maisons et les étoiles fixes, avec des fichiers d’éphémérides tirés de DE441 (NASA JPL).",
-            "[sweph-wasm](https://github.com/ptprashanttripathi/sweph-wasm) : la Swiss Ephemeris compilée en WebAssembly (GNU AGPL 3.0).",
+            "[Swiss Ephemeris](https://www.astro.com/swisseph/), © Astrodienst AG, Zurich\u202f: les planètes, les maisons et les étoiles fixes, avec des fichiers d’éphémérides tirés de DE441 (NASA JPL).",
+            "[sweph-wasm](https://github.com/ptprashanttripathi/sweph-wasm)\u202f: la Swiss Ephemeris compilée en WebAssembly (GNU AGPL 3.0).",
           ],
         },
         {
@@ -216,14 +216,14 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Polices",
-          p: "Sous la [licence SIL Open Font License 1.1](https://openfontlicense.org/), sauf mention contraire :",
+          p: "Sous la [licence SIL Open Font License 1.1](https://openfontlicense.org/), sauf mention contraire\u202f:",
           list: [
             "Fraunces, © The Fraunces Project Authors (Undercase Type)",
             "Familjen Grotesk, © The Familjen Grotesk Project Authors",
             "IBM Plex Sans, Serif et Mono, © IBM Corp.",
             "Source Serif 4 et Source Sans 3, © Adobe",
             "Noto Sans Symbols et Noto Sans Symbols 2, © The Noto Project Authors (un extrait)",
-            "Ulune Classic : un extrait d’Astronomicon, © Roberto Corona, renommé comme la licence le demande pour une version modifiée",
+            "Ulune Classic\u202f: un extrait d’Astronomicon, © Roberto Corona, renommé comme la licence le demande pour une version modifiée",
             "StarFont Sans et StarFont Serif, de Matthew Skala et Anthony I. P. Owen (domaine public)",
           ],
         },
@@ -233,7 +233,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Human Design",
-          p: "« Human Design » et « bodygraph » servent ici à désigner le système. Ulune est indépendant : il n’est ni affilié à Jovian Archive ni approuvé par lui. Son dessin du bodygraph et ses explications ont été écrits pour Ulune ; les noms des portes et des canaux suivent l’usage courant.",
+          p: "«\u202fHuman Design\u202f» et «\u202fbodygraph\u202f» servent ici à désigner le système. Ulune est indépendant\u202f: il n’est ni affilié à Jovian Archive ni approuvé par lui. Son dessin du bodygraph et ses explications ont été écrits pour Ulune\u202f; les noms des portes et des canaux suivent l’usage courant.",
         },
       ],
     },
@@ -279,7 +279,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
       updated: "Mis à jour le {date}",
       blocks: [
         {
-          p: "Ulune vise les règles pour l’accessibilité des contenus web (WCAG) 2.2, niveau AA. Il n’y est pas encore : cette page dit ce qui fonctionne et ce qui manque.",
+          p: "Ulune vise les règles pour l’accessibilité des contenus web (WCAG) 2.2, niveau AA. Il n’y est pas encore\u202f: cette page dit ce qui fonctionne et ce qui manque.",
         },
         {
           h: "Ce qui fonctionne",
@@ -293,15 +293,15 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         {
           h: "Ce qui manque",
           list: [
-            "La roue du thème est difficile à utiliser avec un lecteur d’écran : ses éléments ne sont pas tous nommés, et le choix de l’un d’eux n’est pas annoncé. Les tableaux restent le bon accès pour l’instant.",
+            "La roue du thème est difficile à utiliser avec un lecteur d’écran\u202f: ses éléments ne sont pas tous nommés, et le choix de l’un d’eux n’est pas annoncé. Les tableaux restent le bon accès pour l’instant.",
             "Certains menus ne prennent pas le focus du clavier à leur ouverture.",
             "Dans le thème clair, quelques petits textes gris et quelques marques du thème manquent de contraste.",
-            "La plupart des tailles de texte sont fixes : agrandir la police par défaut du navigateur change peu, mais le zoom de la page fonctionne.",
+            "La plupart des tailles de texte sont fixes\u202f: agrandir la police par défaut du navigateur change peu, mais le zoom de la page fonctionne.",
           ],
         },
         {
           h: "Nous le dire",
-          p: "Si quelque chose dans Ulune vous est difficile à utiliser, écrivez à {contact} : dites ce que vous avez essayé, et avec quoi (navigateur, lecteur d’écran). Chaque message est lu, et ce qui peut être corrigé le sera.",
+          p: "Si quelque chose dans Ulune vous est difficile à utiliser, écrivez à {contact}\u202f: dites ce que vous avez essayé, et avec quoi (navigateur, lecteur d’écran). Chaque message est lu, et ce qui peut être corrigé le sera.",
         },
         {
           p: "Cette déclaration vient des propres vérifications d’Ulune (tests WCAG automatiques, essais au clavier et de contraste), pas d’un audit extérieur.",

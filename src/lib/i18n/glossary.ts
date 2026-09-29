@@ -162,7 +162,7 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Moon phase", "Phase de la Lune"],
     body: [
       "The Moon’s angle from the Sun, which sets how much of it is lit: new (0°), first quarter (90°), full (180°), last quarter (270°), crescent and gibbous in between. A whole cycle takes about 29½ days.",
-      "L’angle entre la Lune et le Soleil, qui fixe la part éclairée de la Lune : nouvelle (0°), premier quartier (90°), pleine (180°), dernier quartier (270°), croissant et gibbeuse entre les deux. Un cycle complet dure environ 29 jours et demi.",
+      "L’angle entre la Lune et le Soleil, qui fixe la part éclairée de la Lune\u202f: nouvelle (0°), premier quartier (90°), pleine (180°), dernier quartier (270°), croissant et gibbeuse entre les deux. Un cycle complet dure environ 29 jours et demi.",
     ],
   },
   eclipse: {
@@ -183,21 +183,21 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Equinox, solstice", "Équinoxe, solstice"],
     body: [
       "The Sun entering Aries or Libra (equinoxes: day and night equal) and Cancer or Capricorn (solstices: the longest and shortest days). They open the seasons and the four quarters of the zodiac.",
-      "L’entrée du Soleil en Bélier ou en Balance (équinoxes : jour et nuit égaux) et en Cancer ou en Capricorne (solstices : les jours les plus longs et les plus courts). Ils ouvrent les saisons et les quatre quarts du zodiaque.",
+      "L’entrée du Soleil en Bélier ou en Balance (équinoxes\u202f: jour et nuit égaux) et en Cancer ou en Capricorne (solstices\u202f: les jours les plus longs et les plus courts). Ils ouvrent les saisons et les quatre quarts du zodiaque.",
     ],
   },
   exact: {
     term: ["Exact", "Exact"],
     body: [
       "The minute an aspect or a crossing is precise to the degree, minute and second: the peak of a transit, shown as the minute it happens in.",
-      "La minute où un aspect ou un passage est précis au degré, à la minute et à la seconde près : le sommet d’un transit, donné à la minute où il se produit.",
+      "La minute où un aspect ou un passage est précis au degré, à la minute et à la seconde près\u202f: le sommet d’un transit, donné à la minute où il se produit.",
     ],
   },
   window: {
     term: ["Within 1° (a slow transit’s period)", "À moins de 1° (la période d’un transit lent)"],
     body: [
       "The weeks or months a slow planet stays within 1° of an exact aspect to your chart. A retrograde can make it exact two or three times inside; a period with no exact pass is a near miss.",
-      "Les semaines ou les mois où une planète lente reste à moins de 1° d’un aspect exact à votre thème. Une rétrogradation peut le rendre exact deux ou trois fois pendant cette période ; une période sans passage exact est un aspect frôlé.",
+      "Les semaines ou les mois où une planète lente reste à moins de 1° d’un aspect exact à votre thème. Une rétrogradation peut le rendre exact deux ou trois fois pendant cette période\u202f; une période sans passage exact est un aspect frôlé.",
     ],
   },
   transit: {
@@ -274,14 +274,14 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Line", "Ligne"],
     body: [
       "Each gate has six lines, the finer shade of its theme, written after the gate: 34.2 is gate 34, line 2. The lines of the two Suns make the profile.",
-      "Chaque porte a six lignes, la nuance fine de son thème, notée après la porte : 34.2 est la porte 34, ligne 2. Les lignes des deux Soleils forment le profil.",
+      "Chaque porte a six lignes, la nuance fine de son thème, notée après la porte\u202f: 34.2 est la porte 34, ligne 2. Les lignes des deux Soleils forment le profil.",
     ],
   },
   hdHanging: {
     term: ["Hanging gate", "Porte suspendue"],
     body: [
       "A coloured gate whose partner across the channel is not: half a channel, a theme you carry that someone with the other gate can complete.",
-      "Une porte colorée dont la partenaire, de l’autre côté du canal, ne l’est pas : un demi-canal, un thème que vous portez et qu’une personne ayant l’autre porte peut compléter.",
+      "Une porte colorée dont la partenaire, de l’autre côté du canal, ne l’est pas\u202f: un demi-canal, un thème que vous portez et qu’une personne ayant l’autre porte peut compléter.",
     ],
   },
   hdLayers: {
@@ -295,21 +295,21 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Not-self theme, signature", "Thème du non-soi, signature"],
     body: [
       "Feelings Human Design uses as signposts for each type: the not-self theme when you are off track (anger, frustration, bitterness, disappointment), the signature when you are on it (peace, satisfaction, success, surprise).",
-      "Des ressentis que le Human Design utilise comme repères pour chaque type : le thème du non-soi quand vous vous écartez de votre voie (colère, frustration, amertume, déception), la signature quand vous la suivez (paix, satisfaction, succès, surprise).",
+      "Des ressentis que le Human Design utilise comme repères pour chaque type\u202f: le thème du non-soi quand vous vous écartez de votre voie (colère, frustration, amertume, déception), la signature quand vous la suivez (paix, satisfaction, succès, surprise).",
     ],
   },
   hdProfile: {
     term: ["Profile", "Profil"],
     body: [
       "Two numbers, the lines of the two Suns: the Personality Sun’s first, then the Design Sun’s. There are twelve, from 1/3 to 6/3.",
-      "Deux nombres, les lignes des deux Soleils : celle du Soleil de la Personnalité, puis celle du Soleil du Design. Il y en a douze, de 1/3 à 6/3.",
+      "Deux nombres, les lignes des deux Soleils\u202f: celle du Soleil de la Personnalité, puis celle du Soleil du Design. Il y en a douze, de 1/3 à 6/3.",
     ],
   },
   hdDefinition: {
     term: ["Definition", "Définition"],
     body: [
       "How the coloured centres connect: all in one group (single), in two, three or four separate groups (split), or not at all when none is coloured.",
-      "La façon dont les centres colorés sont reliés : en un seul groupe (simple), en deux, trois ou quatre groupes séparés (double, triple, quadruple), ou pas du tout quand aucun n’est coloré.",
+      "La façon dont les centres colorés sont reliés\u202f: en un seul groupe (simple), en deux, trois ou quatre groupes séparés (double, triple, quadruple), ou pas du tout quand aucun n’est coloré.",
     ],
   },
   hdCross: {
@@ -323,7 +323,7 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Variable (the arrows)", "Variable (les flèches)"],
     body: [
       "Four arrows read from the tones of the Suns and the Nodes: Determination and Environment from the Design, Motivation and Perspective from the Personality. Each points left (tones 1 to 3) or right (4 to 6); they need an exact birth time.",
-      "Quatre flèches lues sur les tons des Soleils et des Nœuds : Détermination et Environnement pour le Design, Motivation et Perspective pour la Personnalité. Chacune pointe à gauche (tons 1 à 3) ou à droite (4 à 6) ; il leur faut une heure de naissance exacte.",
+      "Quatre flèches lues sur les tons des Soleils et des Nœuds\u202f: Détermination et Environnement pour le Design, Motivation et Perspective pour la Personnalité. Chacune pointe à gauche (tons 1 à 3) ou à droite (4 à 6)\u202f; il leur faut une heure de naissance exacte.",
     ],
   },
   lifePath: {
@@ -463,28 +463,28 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Declination", "Déclinaison"],
     body: [
       "How far north or south of the celestial equator a body stands, in degrees: the sky’s latitude. The Sun’s never goes beyond about 23°26′.",
-      "La distance d’un corps au nord ou au sud de l’équateur céleste, en degrés : la latitude du ciel. Celle du Soleil ne dépasse jamais environ 23°26′.",
+      "La distance d’un corps au nord ou au sud de l’équateur céleste, en degrés\u202f: la latitude du ciel. Celle du Soleil ne dépasse jamais environ 23°26′.",
     ],
   },
   latitude: {
     term: ["Latitude (ecliptic)", "Latitude (écliptique)"],
     body: [
       "How far above or below the ecliptic, the Sun’s path, a body stands. The Moon strays up to about 5°, Pluto up to 17°; the zodiac positions leave it aside.",
-      "La distance d’un corps au-dessus ou au-dessous de l’écliptique, la route du Soleil. La Lune s’en écarte jusqu’à environ 5°, Pluton jusqu’à 17° ; les positions du zodiaque n’en tiennent pas compte.",
+      "La distance d’un corps au-dessus ou au-dessous de l’écliptique, la route du Soleil. La Lune s’en écarte jusqu’à environ 5°, Pluton jusqu’à 17°\u202f; les positions du zodiaque n’en tiennent pas compte.",
     ],
   },
   outOfBounds: {
     term: ["Out of bounds", "Hors limites"],
     body: [
       "A body whose declination goes beyond the Sun’s greatest (the obliquity of the ecliptic, about 23°26′): read as acting outside the usual rules.",
-      "Un corps dont la déclinaison dépasse la plus grande du Soleil (l’obliquité de l’écliptique, environ 23°26′) : on le lit comme agissant hors des règles habituelles.",
+      "Un corps dont la déclinaison dépasse la plus grande du Soleil (l’obliquité de l’écliptique, environ 23°26′)\u202f: on le lit comme agissant hors des règles habituelles.",
     ],
   },
   domicile: {
     term: ["Domicile, detriment", "Domicile, exil"],
     body: [
       "A planet is in its domicile in a sign it rules (Mars in Aries), its strongest place (+5 in Lilly’s points); in the opposite sign it is in detriment (−5).",
-      "Une planète est en domicile dans un signe qu’elle gouverne (Mars en Bélier), sa place la plus forte (+5 en points de Lilly) ; dans le signe opposé, elle est en exil (−5).",
+      "Une planète est en domicile dans un signe qu’elle gouverne (Mars en Bélier), sa place la plus forte (+5 en points de Lilly)\u202f; dans le signe opposé, elle est en exil (−5).",
     ],
   },
   exaltation: {
@@ -498,49 +498,49 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Triplicity", "Triplicité"],
     body: [
       "The planets ruling each element: one by day, one by night, one participating (Dorothean rulers). The ruler of the chart’s sect scores +3.",
-      "Les planètes qui gouvernent chaque élément : une de jour, une de nuit, une participante (maîtres de Dorothée). Celle de la secte du thème compte +3.",
+      "Les planètes qui gouvernent chaque élément\u202f: une de jour, une de nuit, une participante (maîtres de Dorothée). Celle de la secte du thème compte +3.",
     ],
   },
   term: {
     term: ["Term (bound)", "Terme"],
     body: [
       "Each sign is cut into five unequal spans, each ruled by one of the five planets (the Egyptian terms). A planet in its own term: +2.",
-      "Chaque signe est coupé en cinq parts inégales, chacune gouvernée par l’une des cinq planètes (les termes égyptiens). Une planète dans son propre terme : +2.",
+      "Chaque signe est coupé en cinq parts inégales, chacune gouvernée par l’une des cinq planètes (les termes égyptiens). Une planète dans son propre terme\u202f: +2.",
     ],
   },
   face: {
     term: ["Face", "Face"],
     body: [
       "Each sign’s three 10° thirds, ruled by the planets in the Chaldean order from Mars at 0° Aries. A planet in its own face: +1. Not the same as the decans of the readings.",
-      "Les trois tiers de 10° de chaque signe, gouvernés par les planètes dans l’ordre chaldéen à partir de Mars à 0° Bélier. Une planète dans sa propre face : +1. À ne pas confondre avec les décans des lectures.",
+      "Les trois tiers de 10° de chaque signe, gouvernés par les planètes dans l’ordre chaldéen à partir de Mars à 0° Bélier. Une planète dans sa propre face\u202f: +1. À ne pas confondre avec les décans des lectures.",
     ],
   },
   peregrine: {
     term: ["Peregrine", "Pérégrine"],
     body: [
       "A planet with none of the five dignities where it stands, not even a term or a face: a wanderer without a home there (−5).",
-      "Une planète sans aucune des cinq dignités là où elle se trouve, pas même un terme ou une face : une voyageuse sans foyer (−5).",
+      "Une planète sans aucune des cinq dignités là où elle se trouve, pas même un terme ou une face\u202f: une voyageuse sans foyer (−5).",
     ],
   },
   sect: {
     term: ["Sect", "Secte"],
     body: [
       "Whether the chart is by day (the Sun above the horizon) or by night. The Sun, Jupiter and Saturn belong to the day, the Moon, Venus and Mars to the night; Mercury to the day when it rises before the Sun, to the night when it sets after it.",
-      "Si le thème est de jour (le Soleil au-dessus de l’horizon) ou de nuit. Le Soleil, Jupiter et Saturne sont du jour, la Lune, Vénus et Mars de la nuit ; Mercure du jour quand il se lève avant le Soleil, de la nuit quand il se couche après lui.",
+      "Si le thème est de jour (le Soleil au-dessus de l’horizon) ou de nuit. Le Soleil, Jupiter et Saturne sont du jour, la Lune, Vénus et Mars de la nuit\u202f; Mercure du jour quand il se lève avant le Soleil, de la nuit quand il se couche après lui.",
     ],
   },
   combust: {
     term: ["Combust, cazimi", "Combuste, cazimi"],
     body: [
       "A planet within 8° of the Sun is combust, hidden in its glare and weakened; within 17′ it is cazimi, “in the heart of the Sun”, and strengthened.",
-      "Une planète à moins de 8° du Soleil est combuste, cachée dans son éclat et affaiblie ; à moins de 17′, elle est cazimi, « au cœur du Soleil », et renforcée.",
+      "Une planète à moins de 8° du Soleil est combuste, cachée dans son éclat et affaiblie\u202f; à moins de 17′, elle est cazimi, «\u202fau cœur du Soleil\u202f», et renforcée.",
     ],
   },
   dispositor: {
     term: ["Dispositor", "Dispositeur"],
     body: [
       "The ruler of the sign a planet is in: Mars disposes of a planet in Aries. From ruler to ruler the chain ends at a planet in its own sign, the final dispositor.",
-      "Le maître du signe où se trouve une planète : Mars est le dispositeur d’une planète en Bélier. De maître en maître, la chaîne s’arrête à une planète dans son propre signe, le dispositeur final.",
+      "Le maître du signe où se trouve une planète\u202f: Mars est le dispositeur d’une planète en Bélier. De maître en maître, la chaîne s’arrête à une planète dans son propre signe, le dispositeur final.",
     ],
   },
   reception: {
@@ -561,42 +561,42 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Parallel, contra-parallel", "Parallèle, contre-parallèle"],
     body: [
       "Two bodies at the same declination, within 1°: parallel on the same side of the equator (read like a conjunction), contra-parallel on either side (like an opposition).",
-      "Deux corps à la même déclinaison, à 1° près : parallèles du même côté de l’équateur (lus comme une conjonction), contre-parallèles de part et d’autre (comme une opposition).",
+      "Deux corps à la même déclinaison, à 1° près\u202f: parallèles du même côté de l’équateur (lus comme une conjonction), contre-parallèles de part et d’autre (comme une opposition).",
     ],
   },
   intercepted: {
     term: ["Intercepted sign", "Signe intercepté"],
     body: [
       "A sign that lies wholly inside a house, with no cusp in it; the sign opposite is intercepted too, and two other signs fall on two cusps each. It happens with unequal houses, far from the equator.",
-      "Un signe tout entier à l’intérieur d’une maison, sans cuspide en lui ; le signe opposé l’est aussi, et deux autres signes tombent chacun sur deux cuspides. Cela arrive avec des maisons inégales, loin de l’équateur.",
+      "Un signe tout entier à l’intérieur d’une maison, sans cuspide en lui\u202f; le signe opposé l’est aussi, et deux autres signes tombent chacun sur deux cuspides. Cela arrive avec des maisons inégales, loin de l’équateur.",
     ],
   },
   siderealTime: {
     term: ["Sidereal time", "Temps sidéral"],
     body: [
       "Time by the stars rather than the Sun: which part of the sky is on the meridian. With the latitude it sets the Ascendant, the MC and the houses.",
-      "Le temps d’après les étoiles plutôt que le Soleil : quelle part du ciel passe au méridien. Avec la latitude, il fixe l’Ascendant, le MC et les maisons.",
+      "Le temps d’après les étoiles plutôt que le Soleil\u202f: quelle part du ciel passe au méridien. Avec la latitude, il fixe l’Ascendant, le MC et les maisons.",
     ],
   },
   midpoint: {
     term: ["Midpoint", "Mi-point"],
     body: [
       "The point halfway between two bodies along the zodiac, and its opposite point: a body on it is read as joining the two.",
-      "Le point à mi-chemin de deux corps le long du zodiaque, et son point opposé : un corps qui s’y trouve est lu comme les reliant.",
+      "Le point à mi-chemin de deux corps le long du zodiaque, et son point opposé\u202f: un corps qui s’y trouve est lu comme les reliant.",
     ],
   },
   fixedStar: {
     term: ["Fixed star", "Étoile fixe"],
     body: [
       "A bright star projected onto the zodiac, such as Regulus or Spica; it moves about a degree in 72 years. A body within 1° of it is read as taking on its character.",
-      "Une étoile brillante projetée sur le zodiaque, comme Régulus ou l’Épi ; elle avance d’environ un degré en 72 ans. Un corps à moins de 1° est lu comme prenant son caractère.",
+      "Une étoile brillante projetée sur le zodiaque, comme Régulus ou l’Épi\u202f; elle avance d’environ un degré en 72 ans. Un corps à moins de 1° est lu comme prenant son caractère.",
     ],
   },
   lot: {
     term: ["Lot (Part of Fortune, Spirit)", "Part (de Fortune, de l’Esprit)"],
     body: [
       "A point found from the distance between two bodies laid off from the Ascendant: Fortune is the Moon’s distance from the Sun, Spirit the reverse (swapped in a night chart).",
-      "Un point obtenu en reportant depuis l’Ascendant la distance entre deux corps : Fortune est la distance de la Lune au Soleil, l’Esprit l’inverse (échangées dans un thème de nuit).",
+      "Un point obtenu en reportant depuis l’Ascendant la distance entre deux corps\u202f: Fortune est la distance de la Lune au Soleil, l’Esprit l’inverse (échangées dans un thème de nuit).",
     ],
   },
 };

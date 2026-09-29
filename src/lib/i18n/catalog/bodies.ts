@@ -70,7 +70,7 @@ export const bodies = {
   groupMidpointsTitle: ["Midpoints", "Mi-points"],
   groupOverlaysKicker: [
     "Extra markers on the wheel: dignity, applying aspects, patterns such as stelliums, and more.",
-    "Repères supplémentaires sur la roue : dignités, aspects applicatifs, configurations comme les stelliums, et plus.",
+    "Repères supplémentaires sur la roue\u202f: dignités, aspects applicatifs, configurations comme les stelliums, et plus.",
   ],
   groupOverlaysTitle: ["Overlays", "Surcouches"],
   groupPlanets: ["Planets", "Planètes"],

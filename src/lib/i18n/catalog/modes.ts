@@ -2,7 +2,7 @@
 export const modes = {
   hdAria: [
     "Human Design bodygraph: the nine centres, the channels between them and the 64 gates.",
-    "Bodygraph Human Design : les neuf centres, les canaux qui les relient et les 64 portes.",
+    "Bodygraph Human Design\u202f: les neuf centres, les canaux qui les relient et les 64 portes.",
   ],
   periodNext: ["Next", "Suivant"],
   periodPrev: ["Previous", "Précédent"],

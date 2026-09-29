@@ -10,7 +10,7 @@ export const account = {
   dataHereTitle: ["In this browser", "Dans ce navigateur"],
   dataHere: [
     "Display settings only, in the clear: theme, language, Looks and views ({n} kept now).",
-    "Des réglages d’affichage seulement, en clair : thème, langue, looks et vues ({n} gardés pour l’instant).",
+    "Des réglages d’affichage seulement, en clair\u202f: thème, langue, looks et vues ({n} gardés pour l’instant).",
   ],
   dataSpaceTitle: ["In your private space", "Dans votre espace privé"],
   dataSpaceOpen: [
@@ -23,11 +23,11 @@ export const account = {
   ],
   dataSpaceNone: [
     "Nothing: there is no private space here. Charts stay in the open tab and go when it closes.",
-    "Rien : il n’y a pas d’espace privé ici. Les thèmes restent dans l’onglet ouvert et partent à sa fermeture.",
+    "Rien\u202f: il n’y a pas d’espace privé ici. Les thèmes restent dans l’onglet ouvert et partent à sa fermeture.",
   ],
   dataSpaceUnavailable: [
     "Nothing: this browser can’t keep a private space. Charts stay in the open tab and go when it closes.",
-    "Rien : ce navigateur ne peut pas garder d’espace privé. Les thèmes restent dans l’onglet ouvert et partent à sa fermeture.",
+    "Rien\u202f: ce navigateur ne peut pas garder d’espace privé. Les thèmes restent dans l’onglet ouvert et partent à sa fermeture.",
   ],
   dataServerTitle: ["Sent to Ulune’s server", "Envoyé au serveur d’Ulune"],
   dataServer: [
@@ -37,7 +37,7 @@ export const account = {
   dataAiTitle: ["Sent to an AI", "Envoyé à une IA"],
   dataAi: [
     "Only if you add your own key: a chart’s positions, never a name, date or place, from this browser to the provider you chose (Grok through Ulune’s server, which keeps nothing).",
-    "Seulement si vous ajoutez votre propre clé : les positions d’un thème, jamais un nom, une date ou un lieu, depuis ce navigateur vers le fournisseur choisi (Grok via le serveur d’Ulune, qui ne garde rien).",
+    "Seulement si vous ajoutez votre propre clé\u202f: les positions d’un thème, jamais un nom, une date ou un lieu, depuis ce navigateur vers le fournisseur choisi (Grok via le serveur d’Ulune, qui ne garde rien).",
   ],
   dataNeverTitle: ["Never", "Jamais"],
   dataNever: [
@@ -47,13 +47,13 @@ export const account = {
   dataExport: ["Download a readable copy", "Télécharger une copie lisible"],
   dataExportHint: [
     "The readable copy holds your display settings, and your charts and partners while your space is open, in a file anyone can read: keep it private.",
-    "La copie lisible contient vos réglages d’affichage, et vos thèmes et partenaires quand votre espace est ouvert, dans un fichier que tout le monde peut lire : gardez-le pour vous.",
+    "La copie lisible contient vos réglages d’affichage, et vos thèmes et partenaires quand votre espace est ouvert, dans un fichier que tout le monde peut lire\u202f: gardez-le pour vous.",
   ],
   dataExported: ["Data downloaded", "Données téléchargées"],
   dataWipe: ["Erase everything on this device", "Tout effacer de cet appareil"],
   dataWipeConfirm: [
     "This erases your private space (charts and partners), your settings and the offline copy of Ulune from this browser. It can’t be undone; a backup you downloaded still opens.",
-    "Cela efface de ce navigateur votre espace privé (thèmes et partenaires), vos réglages et la copie hors ligne d’Ulune. C’est définitif ; une sauvegarde téléchargée s’ouvre toujours.",
+    "Cela efface de ce navigateur votre espace privé (thèmes et partenaires), vos réglages et la copie hors ligne d’Ulune. C’est définitif\u202f; une sauvegarde téléchargée s’ouvre toujours.",
   ],
   dataWipeGo: ["Erase everything", "Tout effacer"],
   dataErased: [
@@ -68,10 +68,10 @@ export const account = {
     " — it opens without waiting, and saved charts and the calendar’s months you opened work offline. Only the app’s own files and the sky of those dates (the same for everyone) are kept.",
     " — il s’ouvre sans attendre, et les thèmes enregistrés et les mois du calendrier déjà ouverts marchent hors ligne. Seuls les fichiers de l’app et le ciel de ces dates (le même pour tous) sont gardés.",
   ],
-  offlineOfferTitle: ["Keep Ulune on this device?", "Garder Ulune sur cet appareil ?"],
+  offlineOfferTitle: ["Keep Ulune on this device?", "Garder Ulune sur cet appareil\u202f?"],
   offlineOfferBody: [
     "It then opens without waiting, and your saved charts and the calendar’s months you opened work even without a connection. Only the app’s own files and the sky of those dates are kept; nothing about you is sent anywhere.",
-    "Il s’ouvre alors sans attendre, et vos thèmes enregistrés et les mois du calendrier déjà ouverts marchent même sans connexion. Seuls les fichiers de l’app et le ciel de ces dates sont gardés ; rien de vous n’est envoyé nulle part.",
+    "Il s’ouvre alors sans attendre, et vos thèmes enregistrés et les mois du calendrier déjà ouverts marchent même sans connexion. Seuls les fichiers de l’app et le ciel de ces dates sont gardés\u202f; rien de vous n’est envoyé nulle part.",
   ],
   offlineOfferYes: ["Keep it", "Le garder"],
   offlineOfferNo: ["No thanks", "Non merci"],

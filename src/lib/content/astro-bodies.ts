@@ -21,7 +21,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   sun: {
     what: {
       en: "The Sun is the star at the centre of the solar system; seen from Earth it crosses all twelve signs in a year, so a person’s Sun sign follows from their birthday. Astrologers read it as identity, vitality and purpose: what someone wants to become and be recognised for. It rules Leo, is exalted in Aries and leads the day sect, the planets that work best in daytime charts.",
-      fr: "Le Soleil est l’étoile au centre du système solaire ; vu de la Terre, il traverse les douze signes en un an, si bien que le signe solaire découle de la date de naissance. Il représente l’identité, la vitalité et le sens que l’on donne à sa vie : ce que l’on veut devenir et ce pour quoi l’on veut être reconnu. Il gouverne le Lion, est exalté en Bélier et mène la secte diurne, les planètes les plus à l’aise dans un thème de jour.",
+      fr: "Le Soleil est l’étoile au centre du système solaire\u202f; vu de la Terre, il traverse les douze signes en un an, si bien que le signe solaire découle de la date de naissance. Il représente l’identité, la vitalité et le sens que l’on donne à sa vie\u202f: ce que l’on veut devenir et ce pour quoi l’on veut être reconnu. Il gouverne le Lion, est exalté en Bélier et mène la secte diurne, les planètes les plus à l’aise dans un thème de jour.",
     },
     short: {
       en: "your sense of self and what gives your life direction",
@@ -33,7 +33,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "With the Sun on the Ascendant or in Leo, someone often takes the lead without being asked: organising the trip, speaking first in a meeting, and feeling flat when their effort goes unnoticed.",
-      fr: "Avec le Soleil sur l’Ascendant ou en Lion, une personne prend souvent les choses en main sans qu’on le lui demande : elle organise le voyage, parle la première en réunion, et perd son entrain quand ses efforts passent inaperçus.",
+      fr: "Avec le Soleil sur l’Ascendant ou en Lion, une personne prend souvent les choses en main sans qu’on le lui demande\u202f: elle organise le voyage, parle la première en réunion, et perd son entrain quand ses efforts passent inaperçus.",
     },
     cycle: {
       en: "The Sun takes a year to go round the zodiac, about 30 days per sign, at close to one degree a day. It never turns retrograde, and its sign-change dates shift by a day or so between years.",
@@ -43,7 +43,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   moon: {
     what: {
       en: "The Moon is Earth’s natural satellite; it moves faster than any planet, crossing a sign in a little over two days. It describes emotional needs, habits, the body’s rhythms and what makes someone feel safe, patterns often formed early in life. It rules Cancer, is exalted in Taurus and leads the night sect, the planets that work best in night-time charts.",
-      fr: "La Lune est le satellite naturel de la Terre ; elle va plus vite que toutes les planètes et traverse un signe en un peu plus de deux jours. Elle décrit les besoins affectifs, les habitudes, les rythmes du corps et ce qui donne un sentiment de sécurité, des schémas souvent formés tôt dans la vie. Elle gouverne le Cancer, est exaltée en Taureau et mène la secte nocturne, les planètes les plus à l’aise dans un thème de nuit.",
+      fr: "La Lune est le satellite naturel de la Terre\u202f; elle va plus vite que toutes les planètes et traverse un signe en un peu plus de deux jours. Elle décrit les besoins affectifs, les habitudes, les rythmes du corps et ce qui donne un sentiment de sécurité, des schémas souvent formés tôt dans la vie. Elle gouverne le Cancer, est exaltée en Taureau et mène la secte nocturne, les planètes les plus à l’aise dans un thème de nuit.",
     },
     short: {
       en: "your emotional needs and what makes you feel safe",
@@ -55,17 +55,17 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "A strong Moon, on an angle or in Cancer, tends to put moods on show: cooking for friends when anxious, remembering every birthday, needing a quiet evening at home after a crowded week.",
-      fr: "Une Lune forte, sur un angle ou en Cancer, rend les humeurs visibles : cuisiner pour ses amis quand on est inquiet, retenir tous les anniversaires, avoir besoin d’une soirée calme chez soi après une semaine chargée.",
+      fr: "Une Lune forte, sur un angle ou en Cancer, rend les humeurs visibles\u202f: cuisiner pour ses amis quand on est inquiet, retenir tous les anniversaires, avoir besoin d’une soirée calme chez soi après une semaine chargée.",
     },
     cycle: {
       en: "The Moon goes round the zodiac in about 27.3 days, spending two to two and a half days in each sign, and never turns retrograde. The phase cycle, new Moon to new Moon, takes about 29.5 days.",
-      fr: "La Lune fait le tour du zodiaque en 27,3 jours environ et reste de deux jours à deux jours et demi dans chaque signe ; elle n’est jamais rétrograde. Le cycle des phases, d’une nouvelle lune à la suivante, dure environ 29,5 jours.",
+      fr: "La Lune fait le tour du zodiaque en 27,3 jours environ et reste de deux jours à deux jours et demi dans chaque signe\u202f; elle n’est jamais rétrograde. Le cycle des phases, d’une nouvelle lune à la suivante, dure environ 29,5 jours.",
     },
   },
   mercury: {
     what: {
       en: "Mercury is the planet closest to the Sun and stays within 28° of it, so it always sits in the Sun’s sign or a neighbouring one. It stands for thinking, speech, learning and trade: how someone takes in information and passes it on. It rules Gemini and Virgo, is exalted in Virgo, and joins the day or night sect depending on whether it rises before or after the Sun.",
-      fr: "Mercure est la planète la plus proche du Soleil et ne s’en écarte jamais de plus de 28° : il se trouve donc toujours dans le signe du Soleil ou dans un signe voisin. Il représente la pensée, la parole, l’apprentissage et le commerce : la façon de recevoir l’information et de la transmettre. Il gouverne les Gémeaux et la Vierge, est exalté en Vierge, et rejoint la secte diurne ou nocturne selon qu’il se lève avant ou après le Soleil.",
+      fr: "Mercure est la planète la plus proche du Soleil et ne s’en écarte jamais de plus de 28°\u202f: il se trouve donc toujours dans le signe du Soleil ou dans un signe voisin. Il représente la pensée, la parole, l’apprentissage et le commerce\u202f: la façon de recevoir l’information et de la transmettre. Il gouverne les Gémeaux et la Vierge, est exalté en Vierge, et rejoint la secte diurne ou nocturne selon qu’il se lève avant ou après le Soleil.",
     },
     short: {
       en: "your way of thinking, learning and communicating",
@@ -77,7 +77,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "When Mercury is on an angle or in Gemini or Virgo, it often shows as someone who reads the manual, drafts the group email, or talks a problem through aloud until the answer appears; switching off at night can be harder.",
-      fr: "Quand Mercure est sur un angle ou en Gémeaux ou en Vierge, cela donne souvent quelqu’un qui lit le mode d’emploi, rédige le courriel collectif ou réfléchit à voix haute jusqu’à trouver la solution ; déconnecter le soir peut être plus difficile.",
+      fr: "Quand Mercure est sur un angle ou en Gémeaux ou en Vierge, cela donne souvent quelqu’un qui lit le mode d’emploi, rédige le courriel collectif ou réfléchit à voix haute jusqu’à trouver la solution\u202f; déconnecter le soir peut être plus difficile.",
     },
     cycle: {
       en: "Mercury takes about a year to go round the zodiac, staying roughly two weeks to two months in a sign. It turns retrograde three, sometimes four, times a year, for about three weeks each time.",
@@ -87,7 +87,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   venus: {
     what: {
       en: "Venus, second from the Sun and the brightest planet in our sky, stays within about 47° of the Sun as the morning or evening star. It describes attraction, affection, pleasure, taste and what someone values, money and beauty included. It rules Taurus and Libra, is exalted in Pisces and belongs to the night sect; tradition calls it the lesser benefic because it tends to ease and reconcile.",
-      fr: "Vénus, deuxième planète à partir du Soleil et la plus brillante de toutes dans notre ciel, ne s’éloigne jamais de plus de 47° environ du Soleil : c’est l’étoile du matin ou du soir. Elle décrit l’attirance, l’affection, le plaisir, le goût et ce à quoi l’on accorde de la valeur, argent et beauté compris. Elle gouverne le Taureau et la Balance, est exaltée en Poissons et appartient à la secte nocturne ; la tradition l’appelle la petite bénéfique, parce qu’elle tend à adoucir et à réconcilier.",
+      fr: "Vénus, deuxième planète à partir du Soleil et la plus brillante de toutes dans notre ciel, ne s’éloigne jamais de plus de 47° environ du Soleil\u202f: c’est l’étoile du matin ou du soir. Elle décrit l’attirance, l’affection, le plaisir, le goût et ce à quoi l’on accorde de la valeur, argent et beauté compris. Elle gouverne le Taureau et la Balance, est exaltée en Poissons et appartient à la secte nocturne\u202f; la tradition l’appelle la petite bénéfique, parce qu’elle tend à adoucir et à réconcilier.",
     },
     short: {
       en: "your way of loving, your tastes and what you value",
@@ -99,7 +99,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "Venus on an angle or in Taurus or Libra often belongs to the person who smooths tension in a group, notices what everyone is wearing and spends on beauty or comfort; a clear no comes less easily.",
-      fr: "Vénus sur un angle ou en Taureau ou en Balance se retrouve souvent chez la personne qui apaise les tensions d’un groupe, remarque la tenue de chacun et dépense pour la beauté ou le confort ; un non franc lui vient moins facilement.",
+      fr: "Vénus sur un angle ou en Taureau ou en Balance se retrouve souvent chez la personne qui apaise les tensions d’un groupe, remarque la tenue de chacun et dépense pour la beauté ou le confort\u202f; un non franc lui vient moins facilement.",
     },
     cycle: {
       en: "Venus takes about a year to go round the zodiac, usually three to five weeks per sign. About every 19 months it turns retrograde for around six weeks, and can then stay up to four months in one sign.",
@@ -109,7 +109,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   mars: {
     what: {
       en: "Mars, the red planet, is fourth from the Sun. It represents drive, desire, anger and courage: how someone goes after what they want and deals with conflict. It rules Aries and Scorpio, is exalted in Capricorn and belongs to the night sect; tradition calls it the lesser malefic because its heat and sharpness can hurt, though the same qualities protect and get things done.",
-      fr: "Mars, la planète rouge, est la quatrième à partir du Soleil. Il représente l’élan, le désir, la colère et le courage : la façon d’aller chercher ce que l’on veut et de faire face au conflit. Il gouverne le Bélier et le Scorpion, est exalté en Capricorne et appartient à la secte nocturne ; la tradition le nomme petit maléfique, car sa chaleur et son tranchant peuvent blesser, alors que ces mêmes qualités protègent et font avancer les choses.",
+      fr: "Mars, la planète rouge, est la quatrième à partir du Soleil. Il représente l’élan, le désir, la colère et le courage\u202f: la façon d’aller chercher ce que l’on veut et de faire face au conflit. Il gouverne le Bélier et le Scorpion, est exalté en Capricorne et appartient à la secte nocturne\u202f; la tradition le nomme petit maléfique, car sa chaleur et son tranchant peuvent blesser, alors que ces mêmes qualités protègent et font avancer les choses.",
     },
     short: {
       en: "your drive and the way you assert yourself",
@@ -121,7 +121,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "Mars on an angle or in Aries or Scorpio often shows as someone who trains hard, says what they think in meetings and starts projects fast; a daily physical outlet helps keep the temper in check.",
-      fr: "Mars sur un angle ou en Bélier ou en Scorpion se traduit souvent par quelqu’un qui s’entraîne dur, dit ce qu’il pense en réunion et lance vite ses projets ; une activité physique quotidienne aide à garder son calme.",
+      fr: "Mars sur un angle ou en Bélier ou en Scorpion se traduit souvent par quelqu’un qui s’entraîne dur, dit ce qu’il pense en réunion et lance vite ses projets\u202f; une activité physique quotidienne aide à garder son calme.",
     },
     cycle: {
       en: "Mars takes about two years to go round the zodiac, usually six to eight weeks per sign. Roughly every 26 months it turns retrograde for about ten weeks, and may then stay up to eight months in one sign.",
@@ -131,7 +131,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   jupiter: {
     what: {
       en: "Jupiter is the largest planet and takes about twelve years to circle the zodiac, spending roughly a year in each sign. Its themes are growth, confidence, generosity, belief and the search for meaning, along with a tendency to excess. It rules Sagittarius and Pisces, is exalted in Cancer and belongs to the day sect; tradition calls it the greater benefic, the planet that most readily brings help and opportunity.",
-      fr: "Jupiter, la plus grande planète du système solaire, fait le tour du zodiaque en douze ans environ et passe à peu près un an dans chaque signe. Ses thèmes sont la croissance, la confiance, la générosité, les convictions et la quête de sens, avec un penchant pour l’excès. Il gouverne le Sagittaire et les Poissons, est exalté en Cancer et appartient à la secte diurne ; la tradition le nomme grand bénéfique, la planète qui apporte le plus volontiers aide et occasions.",
+      fr: "Jupiter, la plus grande planète du système solaire, fait le tour du zodiaque en douze ans environ et passe à peu près un an dans chaque signe. Ses thèmes sont la croissance, la confiance, la générosité, les convictions et la quête de sens, avec un penchant pour l’excès. Il gouverne le Sagittaire et les Poissons, est exalté en Cancer et appartient à la secte diurne\u202f; la tradition le nomme grand bénéfique, la planète qui apporte le plus volontiers aide et occasions.",
     },
     short: {
       en: "your capacity for growth, trust and generosity",
@@ -143,7 +143,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "A prominent Jupiter, on an angle or in Sagittarius or Pisces, often gives an easy optimism: opportunities offered through friends, a quick yes to travel or study, and a habit of overcommitting worth keeping an eye on.",
-      fr: "Un Jupiter dominant, sur un angle ou en Sagittaire ou en Poissons, donne souvent un optimisme facile : des occasions qui arrivent par les amis, un oui rapide aux voyages ou aux études, et une tendance à trop s’engager qu’il vaut mieux surveiller.",
+      fr: "Un Jupiter dominant, sur un angle ou en Sagittaire ou en Poissons, donne souvent un optimisme facile\u202f: des occasions qui arrivent par les amis, un oui rapide aux voyages ou aux études, et une tendance à trop s’engager qu’il vaut mieux surveiller.",
     },
     cycle: {
       en: "Jupiter takes about 12 years to go round the zodiac, roughly one year per sign. It turns retrograde for about four months every 13 months.",
@@ -153,7 +153,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   saturn: {
     what: {
       en: "Saturn, the ringed planet, is the farthest of the seven planets known since antiquity. It describes structure, limits, time, responsibility and fear, and the competence built through sustained effort. It rules Capricorn and Aquarius, is exalted in Libra and belongs to the day sect; tradition calls it the greater malefic because it restricts and delays, yet the same limits give things shape and make them last.",
-      fr: "Saturne, la planète aux anneaux, est la plus lointaine des sept planètes connues depuis l’Antiquité. Il décrit la structure, les limites, le temps, la responsabilité et la peur, ainsi que la compétence acquise par un effort soutenu. Il gouverne le Capricorne et le Verseau, est exalté en Balance et appartient à la secte diurne ; la tradition le nomme grand maléfique parce qu’il restreint et retarde, mais ces mêmes limites donnent forme aux choses et les font durer.",
+      fr: "Saturne, la planète aux anneaux, est la plus lointaine des sept planètes connues depuis l’Antiquité. Il décrit la structure, les limites, le temps, la responsabilité et la peur, ainsi que la compétence acquise par un effort soutenu. Il gouverne le Capricorne et le Verseau, est exalté en Balance et appartient à la secte diurne\u202f; la tradition le nomme grand maléfique parce qu’il restreint et retarde, mais ces mêmes limites donnent forme aux choses et les font durer.",
     },
     short: {
       en: "your sense of responsibility, your limits and what you build over time",
@@ -175,7 +175,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   uranus: {
     what: {
       en: "Uranus was the first planet found with a telescope, by William Herschel in 1781. It stands for independence, originality, sudden change and the urge to break with what is expected; modern astrologers link it to Aquarius. Because it stays about seven years in a sign, a whole generation shares its sign; its house and its aspects to personal planets and angles are what make it personal.",
-      fr: "Uranus est la première planète découverte au télescope, par William Herschel en 1781. Il représente l’indépendance, l’originalité, les changements soudains et le besoin de rompre avec ce qui est attendu ; l’astrologie moderne l’associe au Verseau. Comme il reste environ sept ans dans un signe, toute une génération partage ce signe ; ce sont sa maison et ses aspects aux planètes personnelles et aux angles qui le rendent personnel.",
+      fr: "Uranus est la première planète découverte au télescope, par William Herschel en 1781. Il représente l’indépendance, l’originalité, les changements soudains et le besoin de rompre avec ce qui est attendu\u202f; l’astrologie moderne l’associe au Verseau. Comme il reste environ sept ans dans un signe, toute une génération partage ce signe\u202f; ce sont sa maison et ses aspects aux planètes personnelles et aux angles qui le rendent personnel.",
     },
     short: {
       en: "your need for freedom and your urge to break with routine",
@@ -197,7 +197,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   neptune: {
     what: {
       en: "Neptune was found in 1846 at a position predicted by calculations from irregularities in Uranus’s orbit. It describes imagination, ideals, compassion and the longing for something beyond everyday life, along with confusion and escapism; in modern astrology it rules Pisces alongside Jupiter. It spends about 14 years in each sign, so the sign describes a generation, while its house and close aspects carry the personal meaning.",
-      fr: "Neptune a été découvert en 1846, à l’endroit que des calculs fondés sur les irrégularités de l’orbite d’Uranus avaient prédit. Il décrit l’imagination, l’idéal, la compassion et l’aspiration à ce qui dépasse le quotidien, mais aussi la confusion et la fuite ; en astrologie moderne, il gouverne les Poissons aux côtés de Jupiter. Il passe environ quatorze ans dans chaque signe : le signe décrit donc une génération, tandis que sa maison et ses aspects serrés portent le sens personnel.",
+      fr: "Neptune a été découvert en 1846, à l’endroit que des calculs fondés sur les irrégularités de l’orbite d’Uranus avaient prédit. Il décrit l’imagination, l’idéal, la compassion et l’aspiration à ce qui dépasse le quotidien, mais aussi la confusion et la fuite\u202f; en astrologie moderne, il gouverne les Poissons aux côtés de Jupiter. Il passe environ quatorze ans dans chaque signe\u202f: le signe décrit donc une génération, tandis que sa maison et ses aspects serrés portent le sens personnel.",
     },
     short: {
       en: "your imagination, your ideals and your sensitivity to what goes unsaid",
@@ -219,7 +219,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   pluto: {
     what: {
       en: "Pluto, discovered in 1930, was reclassified as a dwarf planet in 2006. Its themes are power, intensity, crisis and deep change: what is hidden and what has to be let go; modern astrologers pair it with Scorpio. Spending 12 to about 32 years in a sign, it marks generations, and it becomes individual mainly through its house and its contacts with personal planets and angles.",
-      fr: "Pluton, découvert en 1930, a été reclassé planète naine en 2006. Ses thèmes sont le pouvoir, l’intensité, les crises et les transformations profondes : ce qui est caché et ce qu’il faut laisser partir ; l’astrologie moderne le rattache au Scorpion. Comme il reste de 12 à 32 ans environ dans un signe, il marque des générations, et ne prend un sens individuel que par sa maison et ses contacts avec les planètes personnelles et les angles.",
+      fr: "Pluton, découvert en 1930, a été reclassé planète naine en 2006. Ses thèmes sont le pouvoir, l’intensité, les crises et les transformations profondes\u202f: ce qui est caché et ce qu’il faut laisser partir\u202f; l’astrologie moderne le rattache au Scorpion. Comme il reste de 12 à 32 ans environ dans un signe, il marque des générations, et ne prend un sens individuel que par sa maison et ses contacts avec les planètes personnelles et les angles.",
     },
     short: {
       en: "your intensity and your capacity for deep change",
@@ -235,13 +235,13 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     cycle: {
       en: "Pluto takes about 248 years to go round the zodiac. Its orbit is so elongated that it stays about 12 years in Scorpio but over 30 in Taurus; it is retrograde for a little over five months each year.",
-      fr: "Pluton fait le tour du zodiaque en 248 ans environ. Son orbite est si allongée qu’il reste environ 12 ans en Scorpion mais plus de 30 ans en Taureau ; il est rétrograde un peu plus de cinq mois par an.",
+      fr: "Pluton fait le tour du zodiaque en 248 ans environ. Son orbite est si allongée qu’il reste environ 12 ans en Scorpion mais plus de 30 ans en Taureau\u202f; il est rétrograde un peu plus de cinq mois par an.",
     },
   },
   chiron: {
     what: {
       en: "Chiron is an icy body found in 1977, orbiting mostly between Saturn and Uranus and named after the centaur of Greek myth, a healer who could not cure his own wound. Astrologically it marks a lasting sore spot and the understanding, often useful to others, that grows from living with it. Its sign is shared by people born within a few years; house and aspects make it personal.",
-      fr: "Chiron est un petit corps glacé découvert en 1977, dont l’orbite passe surtout entre Saturne et Uranus ; il porte le nom du centaure de la mythologie grecque, guérisseur incapable de soigner sa propre blessure. En astrologie, il désigne un point sensible durable et la compréhension, souvent précieuse pour les autres, qui naît du fait de vivre avec. Son signe est commun aux personnes nées à quelques années d’intervalle ; sa maison et ses aspects le rendent personnel.",
+      fr: "Chiron est un petit corps glacé découvert en 1977, dont l’orbite passe surtout entre Saturne et Uranus\u202f; il porte le nom du centaure de la mythologie grecque, guérisseur incapable de soigner sa propre blessure. En astrologie, il désigne un point sensible durable et la compréhension, souvent précieuse pour les autres, qui naît du fait de vivre avec. Son signe est commun aux personnes nées à quelques années d’intervalle\u202f; sa maison et ses aspects le rendent personnel.",
     },
     short: {
       en: "your most lasting sore spot and what it teaches you",
@@ -257,13 +257,13 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     cycle: {
       en: "Chiron takes about 50 years to go round the zodiac, unevenly: roughly two years in Virgo or Libra, eight or nine in Pisces or Aries. It is retrograde about five months a year; its return comes around age 50.",
-      fr: "Chiron fait le tour du zodiaque en 50 ans environ, de façon très inégale : deux ans environ en Vierge ou en Balance, huit ou neuf ans en Poissons ou en Bélier. Il est rétrograde près de cinq mois par an ; son retour survient vers 50 ans.",
+      fr: "Chiron fait le tour du zodiaque en 50 ans environ, de façon très inégale\u202f: deux ans environ en Vierge ou en Balance, huit ou neuf ans en Poissons ou en Bélier. Il est rétrograde près de cinq mois par an\u202f; son retour survient vers 50 ans.",
     },
   },
   northnode: {
     what: {
       en: "The North Node is not a body but a point: where the Moon’s orbit crosses the ecliptic, the Sun’s apparent path, heading north. Eclipses happen when a new or full Moon falls near the nodes. Modern astrology reads it as a direction of growth, skills that feel unfamiliar but rewarding; tradition, which called it the Dragon’s Head, said it increases whatever it touches.",
-      fr: "Le Nœud Nord n’est pas un astre mais un point : l’endroit où l’orbite de la Lune croise l’écliptique, la trajectoire apparente du Soleil, en montant vers le nord. Les éclipses se produisent quand une nouvelle ou une pleine lune tombe près des nœuds. L’astrologie moderne y voit une direction de croissance, des aptitudes peu familières mais fécondes ; la tradition, qui l’appelait Tête du Dragon, lui prêtait le pouvoir d’augmenter ce qu’il touche.",
+      fr: "Le Nœud Nord n’est pas un astre mais un point\u202f: l’endroit où l’orbite de la Lune croise l’écliptique, la trajectoire apparente du Soleil, en montant vers le nord. Les éclipses se produisent quand une nouvelle ou une pleine lune tombe près des nœuds. L’astrologie moderne y voit une direction de croissance, des aptitudes peu familières mais fécondes\u202f; la tradition, qui l’appelait Tête du Dragon, lui prêtait le pouvoir d’augmenter ce qu’il touche.",
     },
     short: {
       en: "your direction of growth and the unfamiliar skills that draw you",
@@ -279,13 +279,13 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     cycle: {
       en: "The North Node moves backwards through the zodiac, taking about 18.6 years for a full cycle and roughly a year and a half per sign. The true node used here wobbles around that average and sometimes briefly moves forward.",
-      fr: "Le Nœud Nord recule dans le zodiaque : un cycle complet dure environ 18,6 ans, soit à peu près un an et demi par signe. Le nœud réel utilisé ici oscille autour de cette moyenne et avance parfois brièvement.",
+      fr: "Le Nœud Nord recule dans le zodiaque\u202f: un cycle complet dure environ 18,6 ans, soit à peu près un an et demi par signe. Le nœud réel utilisé ici oscille autour de cette moyenne et avance parfois brièvement.",
     },
   },
   southnode: {
     what: {
       en: "The South Node is the point exactly opposite the North Node, where the Moon’s orbit crosses the ecliptic heading south; the two always move together. Modern astrology reads it as what comes easily: habits, talents and ways of coping already in place, which can turn into a comfort zone. Tradition called it the Dragon’s Tail and said it diminishes whatever it touches.",
-      fr: "Le Nœud Sud est le point exactement opposé au Nœud Nord, là où l’orbite de la Lune croise l’écliptique en descendant vers le sud ; les deux se déplacent toujours ensemble. L’astrologie moderne y voit ce qui vient facilement : habitudes, talents et façons de faire déjà acquis, qui peuvent devenir une zone de confort. La tradition l’appelait Queue du Dragon et lui prêtait le pouvoir de diminuer ce qu’il touche.",
+      fr: "Le Nœud Sud est le point exactement opposé au Nœud Nord, là où l’orbite de la Lune croise l’écliptique en descendant vers le sud\u202f; les deux se déplacent toujours ensemble. L’astrologie moderne y voit ce qui vient facilement\u202f: habitudes, talents et façons de faire déjà acquis, qui peuvent devenir une zone de confort. La tradition l’appelait Queue du Dragon et lui prêtait le pouvoir de diminuer ce qu’il touche.",
     },
     short: {
       en: "your familiar habits and the skills you fall back on",
@@ -297,17 +297,17 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "When the South Node sits on the Midheaven, duty and status roles come easily, such as being the dependable one at work, while growth lies at the other end of the axis: home, family and inner life.",
-      fr: "Quand le Nœud Sud se trouve sur le Milieu du Ciel, les rôles de devoir et de statut viennent facilement, comme être la personne fiable au travail, alors que la progression se trouve à l’autre bout de l’axe : le foyer, la famille et la vie intérieure.",
+      fr: "Quand le Nœud Sud se trouve sur le Milieu du Ciel, les rôles de devoir et de statut viennent facilement, comme être la personne fiable au travail, alors que la progression se trouve à l’autre bout de l’axe\u202f: le foyer, la famille et la vie intérieure.",
     },
     cycle: {
       en: "The South Node is always exactly opposite the North Node, so it follows the same backward cycle of about 18.6 years, roughly a year and a half per sign. Nodal returns fall around ages 19, 37 and 56.",
-      fr: "Le Nœud Sud est toujours exactement opposé au Nœud Nord : il recule donc au même rythme, avec un cycle d’environ 18,6 ans et à peu près un an et demi par signe. Les retours nodaux tombent vers 19, 37 et 56 ans.",
+      fr: "Le Nœud Sud est toujours exactement opposé au Nœud Nord\u202f: il recule donc au même rythme, avec un cycle d’environ 18,6 ans et à peu près un an et demi par signe. Les retours nodaux tombent vers 19, 37 et 56 ans.",
     },
   },
   lilith: {
     what: {
       en: "Black Moon Lilith is not a body but a calculated point: the apogee, where the Moon is farthest from Earth in its orbit. The version used here is the true (osculating) point, calculated from the Moon’s actual orbit at birth. Named after a figure of Jewish folklore who refused to submit, it is read as raw desire, anger at being controlled, and what a person was taught to hide.",
-      fr: "Lilith, ou Lune noire, n’est pas un astre mais un point calculé : l’apogée, l’endroit de son orbite où la Lune est au plus loin de la Terre. La version utilisée ici est le point réel (osculateur), calculé à partir de l’orbite effective de la Lune au moment de la naissance. Elle porte le nom d’une figure du folklore juif qui refusait de se soumettre et évoque le désir brut, la colère face au contrôle et ce qu’on a appris à cacher.",
+      fr: "Lilith, ou Lune noire, n’est pas un astre mais un point calculé\u202f: l’apogée, l’endroit de son orbite où la Lune est au plus loin de la Terre. La version utilisée ici est le point réel (osculateur), calculé à partir de l’orbite effective de la Lune au moment de la naissance. Elle porte le nom d’une figure du folklore juif qui refusait de se soumettre et évoque le désir brut, la colère face au contrôle et ce qu’on a appris à cacher.",
     },
     short: {
       en: "your untamed side and what you refuse to hide",
@@ -329,7 +329,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   vertex: {
     what: {
       en: "The Vertex is a calculated point: where the prime vertical, the circle running through due east, overhead and due west, crosses the zodiac in the west. Like the angles, it depends on the exact birth time and place. Modern astrologers link it to encounters and events that seem to arrive by chance, often through other people, and feel significant afterwards.",
-      fr: "Le Vertex est un point calculé : l’endroit où le premier vertical, le grand cercle qui passe par l’est, le zénith et l’ouest, croise le zodiaque du côté ouest. Comme les angles, il dépend de l’heure et du lieu exacts de naissance. L’astrologie moderne l’associe aux rencontres et aux événements qui semblent arriver par hasard, souvent par l’intermédiaire d’autres personnes, et qui prennent du sens après coup.",
+      fr: "Le Vertex est un point calculé\u202f: l’endroit où le premier vertical, le grand cercle qui passe par l’est, le zénith et l’ouest, croise le zodiaque du côté ouest. Comme les angles, il dépend de l’heure et du lieu exacts de naissance. L’astrologie moderne l’associe aux rencontres et aux événements qui semblent arriver par hasard, souvent par l’intermédiaire d’autres personnes, et qui prennent du sens après coup.",
     },
     short: {
       en: "your chance encounters and the turning points they bring",
@@ -341,7 +341,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "When a planet sits within a degree or two of the Vertex, what it stands for can arrive through other people: with Venus, meeting a partner because of a missed train or a friend’s last-minute invitation.",
-      fr: "Quand une planète se trouve à un ou deux degrés du Vertex, ce qu’elle représente peut arriver par l’intermédiaire des autres : avec Vénus, rencontrer un partenaire à cause d’un train manqué ou d’une invitation de dernière minute.",
+      fr: "Quand une planète se trouve à un ou deux degrés du Vertex, ce qu’elle représente peut arriver par l’intermédiaire des autres\u202f: avec Vénus, rencontrer un partenaire à cause d’un train manqué ou d’une invitation de dernière minute.",
     },
     cycle: {
       en: "The Vertex circles the zodiac once a day as the Earth turns (unevenly near the equator), so it needs an accurate birth time. It always falls on the western side of the chart, usually in houses 5 to 8.",
@@ -351,7 +351,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   antivertex: {
     what: {
       en: "The Anti-Vertex is the point exactly opposite the Vertex, where the prime vertical crosses the zodiac in the east. Like the Vertex, it depends on the exact birth time and place. It is a minor point, rarely read alone; those who use it see it as the person’s own side of the Vertex axis: how they respond to what arrives unplanned and act on it.",
-      fr: "L’Anti-Vertex est le point exactement opposé au Vertex, là où le premier vertical croise le zodiaque à l’est. Comme le Vertex, il dépend de l’heure et du lieu exacts de naissance. C’est un point mineur, rarement interprété seul ; ceux qui l’utilisent y voient le versant personnel de l’axe du Vertex : la façon de répondre à ce qui arrive sans prévenir et d’en faire quelque chose.",
+      fr: "L’Anti-Vertex est le point exactement opposé au Vertex, là où le premier vertical croise le zodiaque à l’est. Comme le Vertex, il dépend de l’heure et du lieu exacts de naissance. C’est un point mineur, rarement interprété seul\u202f; ceux qui l’utilisent y voient le versant personnel de l’axe du Vertex\u202f: la façon de répondre à ce qui arrive sans prévenir et d’en faire quelque chose.",
     },
     short: {
       en: "your own response to what arrives unplanned",
@@ -363,17 +363,17 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "With a planet close to the Anti-Vertex, a person’s own reflexes shape how chance events unfold: with Mars there, someone might answer an unexpected job offer within the hour and make the change happen themselves.",
-      fr: "Avec une planète proche de l’Anti-Vertex, les réflexes propres à la personne orientent le cours des événements imprévus : avec Mars à cet endroit, on peut répondre dans l’heure à une offre d’emploi inattendue et provoquer soi-même le changement.",
+      fr: "Avec une planète proche de l’Anti-Vertex, les réflexes propres à la personne orientent le cours des événements imprévus\u202f: avec Mars à cet endroit, on peut répondre dans l’heure à une offre d’emploi inattendue et provoquer soi-même le changement.",
     },
     cycle: {
       en: "The Anti-Vertex is always exactly opposite the Vertex, so it also circles the zodiac once a day and needs an accurate birth time. It falls on the eastern side of the chart, usually in houses 11 to 2.",
-      fr: "L’Anti-Vertex est toujours exactement opposé au Vertex : il fait donc lui aussi le tour du zodiaque une fois par jour et demande une heure de naissance précise. Il se trouve du côté est du thème, le plus souvent dans les maisons XI à II.",
+      fr: "L’Anti-Vertex est toujours exactement opposé au Vertex\u202f: il fait donc lui aussi le tour du zodiaque une fois par jour et demande une heure de naissance précise. Il se trouve du côté est du thème, le plus souvent dans les maisons XI à II.",
     },
   },
   fortune: {
     what: {
       en: "The Lot of Fortune (or Part of Fortune) is a point from Hellenistic astrology built from the Ascendant, Sun and Moon. In a day chart it lies as far from the Ascendant, in zodiac order, as the Moon is from the Sun; by night the formula is reversed. It describes the body, well-being and material circumstances: what happens to a person, rather than what they choose.",
-      fr: "Le Lot de Fortune (ou Part de Fortune) est un point de l’astrologie hellénistique construit à partir de l’Ascendant, du Soleil et de la Lune. Dans un thème de jour, il se trouve aussi loin de l’Ascendant, dans l’ordre des signes, que la Lune l’est du Soleil ; la nuit, la formule s’inverse. Il décrit le corps, le bien-être et les conditions matérielles : ce qui arrive à la personne, plutôt que ce qu’elle choisit.",
+      fr: "Le Lot de Fortune (ou Part de Fortune) est un point de l’astrologie hellénistique construit à partir de l’Ascendant, du Soleil et de la Lune. Dans un thème de jour, il se trouve aussi loin de l’Ascendant, dans l’ordre des signes, que la Lune l’est du Soleil\u202f; la nuit, la formule s’inverse. Il décrit le corps, le bien-être et les conditions matérielles\u202f: ce qui arrive à la personne, plutôt que ce qu’elle choisit.",
     },
     short: {
       en: "your well-being, livelihood and material circumstances",
@@ -385,17 +385,17 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "If the Lot of Fortune falls in the 10th house or near the Midheaven, material stability often depends on a public role: income and well-being tend to follow how work and reputation are going.",
-      fr: "Si le Lot de Fortune tombe en Maison X ou près du Milieu du Ciel, la stabilité matérielle dépend souvent du rôle public : les revenus et le bien-être suivent la marche du travail et de la réputation.",
+      fr: "Si le Lot de Fortune tombe en Maison X ou près du Milieu du Ciel, la stabilité matérielle dépend souvent du rôle public\u202f: les revenus et le bien-être suivent la marche du travail et de la réputation.",
     },
     cycle: {
       en: "Worked out as Ascendant + Moon − Sun for a day birth (Sun above the horizon) and Ascendant + Sun − Moon for a night birth. It moves with the Ascendant, so it needs an accurate birth time.",
-      fr: "Calculé ainsi : Ascendant + Lune − Soleil pour une naissance de jour (Soleil au-dessus de l’horizon), Ascendant + Soleil − Lune pour une naissance de nuit. Il se déplace avec l’Ascendant et demande donc une heure de naissance précise.",
+      fr: "Calculé ainsi\u202f: Ascendant + Lune − Soleil pour une naissance de jour (Soleil au-dessus de l’horizon), Ascendant + Soleil − Lune pour une naissance de nuit. Il se déplace avec l’Ascendant et demande donc une heure de naissance précise.",
     },
   },
   spirit: {
     what: {
       en: "The Lot of Spirit is Fortune’s counterpart, built from the same three points with the formula reversed: by day it lies as far from the Ascendant as the Sun is from the Moon. The two lots always mirror each other across the Ascendant. Where Fortune describes what happens to a person, Spirit describes what they intend and do: choices, ambitions, work and a sense of purpose.",
-      fr: "Le Lot d’Esprit est le pendant de Fortune, construit à partir des mêmes trois points avec la formule inversée : de jour, il se trouve aussi loin de l’Ascendant que le Soleil l’est de la Lune. Les deux lots sont toujours symétriques par rapport à l’Ascendant. Si Fortune décrit ce qui arrive à la personne, Esprit décrit ce qu’elle vise et ce qu’elle fait : ses choix, ses ambitions, son travail, le sens qu’elle donne à ses actes.",
+      fr: "Le Lot d’Esprit est le pendant de Fortune, construit à partir des mêmes trois points avec la formule inversée\u202f: de jour, il se trouve aussi loin de l’Ascendant que le Soleil l’est de la Lune. Les deux lots sont toujours symétriques par rapport à l’Ascendant. Si Fortune décrit ce qui arrive à la personne, Esprit décrit ce qu’elle vise et ce qu’elle fait\u202f: ses choix, ses ambitions, son travail, le sens qu’elle donne à ses actes.",
     },
     short: {
       en: "your intentions, choices and sense of purpose",
@@ -411,13 +411,13 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     cycle: {
       en: "Worked out as Ascendant + Sun − Moon for a day birth and Ascendant + Moon − Sun for a night birth, the reverse of Fortune. Like Fortune, it moves with the Ascendant and needs an accurate birth time.",
-      fr: "Calculé ainsi : Ascendant + Soleil − Lune pour une naissance de jour, Ascendant + Lune − Soleil pour une naissance de nuit, soit l’inverse de Fortune. Comme Fortune, il suit l’Ascendant et demande une heure de naissance précise.",
+      fr: "Calculé ainsi\u202f: Ascendant + Soleil − Lune pour une naissance de jour, Ascendant + Lune − Soleil pour une naissance de nuit, soit l’inverse de Fortune. Comme Fortune, il suit l’Ascendant et demande une heure de naissance précise.",
     },
   },
   ceres: {
     what: {
       en: "Ceres is the largest body in the asteroid belt, discovered in 1801 and classed as a dwarf planet since 2006. Its name is that of the Roman goddess of grain, whose grief when her daughter was taken to the underworld was said to cause winter. Astrologers read it as nurturing: how someone feeds and cares for others and wants to be cared for, and how they handle loss.",
-      fr: "Découverte en 1801, Cérès est le plus gros objet de la ceinture d’astéroïdes et elle est classée planète naine depuis 2006. Elle porte le nom de la déesse romaine des moissons, dont le chagrin, quand sa fille fut emmenée aux Enfers, aurait provoqué l’hiver. Les astrologues y voient le soin : la façon de nourrir et d’entourer les autres, le besoin qu’on prenne soin de soi, et la manière de vivre la perte.",
+      fr: "Découverte en 1801, Cérès est le plus gros objet de la ceinture d’astéroïdes et elle est classée planète naine depuis 2006. Elle porte le nom de la déesse romaine des moissons, dont le chagrin, quand sa fille fut emmenée aux Enfers, aurait provoqué l’hiver. Les astrologues y voient le soin\u202f: la façon de nourrir et d’entourer les autres, le besoin qu’on prenne soin de soi, et la manière de vivre la perte.",
     },
     short: {
       en: "your way of caring for others and of being cared for",
@@ -439,7 +439,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   pallas: {
     what: {
       en: "Pallas is one of the largest asteroids, discovered in 1802, with an orbit steeply tilted to the plane of the planets. It takes its name from Pallas Athena, goddess of wisdom, strategy and crafts. In a chart it stands for practical intelligence: seeing patterns, planning, solving problems creatively, and a sense of fairness that suits negotiation or standing up for a cause.",
-      fr: "Découverte en 1802, Pallas compte parmi les plus gros astéroïdes et suit une orbite très inclinée par rapport au plan des planètes. Elle tient son nom de Pallas Athéna, déesse de la sagesse, de la stratégie et de l’artisanat. Dans un thème, elle représente l’intelligence pratique : repérer les schémas, planifier, résoudre les problèmes avec inventivité, et un sens de l’équité utile pour négocier ou défendre une cause.",
+      fr: "Découverte en 1802, Pallas compte parmi les plus gros astéroïdes et suit une orbite très inclinée par rapport au plan des planètes. Elle tient son nom de Pallas Athéna, déesse de la sagesse, de la stratégie et de l’artisanat. Dans un thème, elle représente l’intelligence pratique\u202f: repérer les schémas, planifier, résoudre les problèmes avec inventivité, et un sens de l’équité utile pour négocier ou défendre une cause.",
     },
     short: {
       en: "your strategic intelligence and eye for patterns",
@@ -461,7 +461,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   juno: {
     what: {
       en: "Juno is an asteroid discovered in 1804, the third one found. The Roman Juno was queen of the gods, wife of Jupiter and protector of marriage, known for her jealousy of his affairs. In astrology it describes committed partnership: what someone needs from a long-term partner, and how they handle loyalty, equality and jealousy.",
-      fr: "Découverte en 1804, Junon est le troisième astéroïde jamais repéré. La Junon romaine était la reine des dieux, épouse de Jupiter et protectrice du mariage, connue pour sa jalousie face aux infidélités de son époux. En astrologie, l’astéroïde décrit l’engagement à deux : ce que l’on attend d’un partenaire durable, et la façon de vivre la loyauté, l’égalité et la jalousie.",
+      fr: "Découverte en 1804, Junon est le troisième astéroïde jamais repéré. La Junon romaine était la reine des dieux, épouse de Jupiter et protectrice du mariage, connue pour sa jalousie face aux infidélités de son époux. En astrologie, l’astéroïde décrit l’engagement à deux\u202f: ce que l’on attend d’un partenaire durable, et la façon de vivre la loyauté, l’égalité et la jalousie.",
     },
     short: {
       en: "your expectations of a committed partnership",
@@ -477,13 +477,13 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     cycle: {
       en: "Juno takes about 4.4 years to circle the Sun; its stay in a sign ranges from under two months to about eleven. It turns retrograde for two and a half to nearly four months, about every 15 or 16 months.",
-      fr: "Junon fait le tour du Soleil en 4,4 ans environ ; son séjour dans un signe va de moins de deux mois à onze mois environ. Elle devient rétrograde pendant deux mois et demi à près de quatre mois, tous les 15 ou 16 mois environ.",
+      fr: "Junon fait le tour du Soleil en 4,4 ans environ\u202f; son séjour dans un signe va de moins de deux mois à onze mois environ. Elle devient rétrograde pendant deux mois et demi à près de quatre mois, tous les 15 ou 16 mois environ.",
     },
   },
   vesta: {
     what: {
       en: "Vesta, discovered in 1807, is the brightest asteroid and occasionally visible to the naked eye. It bears the name of the Roman goddess of the hearth, whose sacred fire was kept burning by the Vestal priestesses. Its themes are focus and devotion: what someone dedicates themselves to, how they protect their concentration, and where they need privacy to do their best work.",
-      fr: "Découverte en 1807, Vesta est l’astéroïde le plus brillant, parfois visible à l’œil nu. Elle porte le nom de la déesse romaine du foyer, dont le feu sacré était entretenu par les Vestales. Ses thèmes sont la concentration et le dévouement : ce à quoi l’on se consacre, la façon de protéger son attention, et le besoin de retrait pour donner le meilleur de soi.",
+      fr: "Découverte en 1807, Vesta est l’astéroïde le plus brillant, parfois visible à l’œil nu. Elle porte le nom de la déesse romaine du foyer, dont le feu sacré était entretenu par les Vestales. Ses thèmes sont la concentration et le dévouement\u202f: ce à quoi l’on se consacre, la façon de protéger son attention, et le besoin de retrait pour donner le meilleur de soi.",
     },
     short: {
       en: "your capacity for focus and devotion",
@@ -505,7 +505,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   eris: {
     what: {
       en: "Eris is a dwarf planet about the size of Pluto, found in 2005 far beyond Neptune. Its name is that of the Greek goddess of strife, whose golden apple set off the Trojan War, and astrologers are still testing its meaning: rivalry, exclusion and the fight to be counted. It has been in Aries since the 1920s, so its house and aspects say far more than its sign.",
-      fr: "Éris est une planète naine de la taille de Pluton environ, découverte en 2005 bien au-delà de Neptune. Son nom est celui de la déesse grecque de la discorde, dont la pomme d’or déclencha la guerre de Troie, et les astrologues en explorent encore le sens : la rivalité, l’exclusion, le combat pour la reconnaissance. Elle se trouve en Bélier depuis les années 1920 : sa maison et ses aspects en disent donc bien plus que son signe.",
+      fr: "Éris est une planète naine de la taille de Pluton environ, découverte en 2005 bien au-delà de Neptune. Son nom est celui de la déesse grecque de la discorde, dont la pomme d’or déclencha la guerre de Troie, et les astrologues en explorent encore le sens\u202f: la rivalité, l’exclusion, le combat pour la reconnaissance. Elle se trouve en Bélier depuis les années 1920\u202f: sa maison et ses aspects en disent donc bien plus que son signe.",
     },
     short: {
       en: "your fighting spirit in the face of exclusion and unfairness",
@@ -521,13 +521,13 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     cycle: {
       en: "Eris orbits the Sun in about 560 years: some 20 years in Libra, over a century in Aries, where it has been since the 1920s. It stays there until the 2040s and is retrograde over five months a year.",
-      fr: "Éris fait le tour du Soleil en 560 ans environ : une vingtaine d’années en Balance, plus d’un siècle en Bélier, où elle se trouve depuis les années 1920. Elle y restera jusqu’aux années 2040 et elle est rétrograde plus de cinq mois par an.",
+      fr: "Éris fait le tour du Soleil en 560 ans environ\u202f: une vingtaine d’années en Balance, plus d’un siècle en Bélier, où elle se trouve depuis les années 1920. Elle y restera jusqu’aux années 2040 et elle est rétrograde plus de cinq mois par an.",
     },
   },
   sedna: {
     what: {
       en: "Sedna is a remote body found in 2003, on an elongated orbit of about 11,400 years. The name comes from the Inuit sea goddess who, thrown into the ocean by her father, became ruler of its creatures. Its sign is shared by everyone born over several decades; astrologers who use it read it, through house and close aspects, as abandonment, survival and slow recovery.",
-      fr: "Découverte en 2003, Sedna est un corps lointain dont l’orbite très allongée dure environ 11 400 ans. Son nom vient de la déesse inuite de la mer qui, jetée à l’eau par son père, devint souveraine des créatures marines. Son signe est commun aux personnes nées sur plusieurs décennies ; les astrologues qui l’utilisent y lisent, à travers sa maison et ses aspects serrés, l’abandon, la survie et une lente reconstruction.",
+      fr: "Découverte en 2003, Sedna est un corps lointain dont l’orbite très allongée dure environ 11 400 ans. Son nom vient de la déesse inuite de la mer qui, jetée à l’eau par son père, devint souveraine des créatures marines. Son signe est commun aux personnes nées sur plusieurs décennies\u202f; les astrologues qui l’utilisent y lisent, à travers sa maison et ses aspects serrés, l’abandon, la survie et une lente reconstruction.",
     },
     short: {
       en: "your capacity to survive loss and rebuild slowly",
@@ -543,13 +543,13 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     cycle: {
       en: "Sedna’s orbit lasts roughly 11,400 years; nearing its closest point to the Sun (around 2076), it moves relatively fast: in Taurus from the 1960s, in Gemini since 2024. It is retrograde nearly six months a year.",
-      fr: "L’orbite de Sedna dure environ 11 400 ans ; à l’approche de son point le plus proche du Soleil (vers 2076), elle avance relativement vite : en Taureau à partir des années 1960, en Gémeaux depuis 2024. Elle est rétrograde près de six mois par an.",
+      fr: "L’orbite de Sedna dure environ 11 400 ans\u202f; à l’approche de son point le plus proche du Soleil (vers 2076), elle avance relativement vite\u202f: en Taureau à partir des années 1960, en Gémeaux depuis 2024. Elle est rétrograde près de six mois par an.",
     },
   },
   ascendant: {
     what: {
       en: "The Ascendant is the degree of the zodiac rising on the eastern horizon at the time and place of birth; the houses are counted from it. It describes how someone meets the world: manner, appearance, physical presence and first reactions. It moves about one degree every four minutes, so it needs an accurate birth time; the planet that rules its sign is called the chart ruler.",
-      fr: "L’Ascendant est le degré du zodiaque qui se lève à l’horizon oriental au moment et au lieu de la naissance ; c’est à partir de lui que l’on compte les maisons. Il décrit la façon d’aborder le monde : l’allure, l’apparence, la présence physique et les premières réactions. Il avance d’environ un degré toutes les quatre minutes et exige donc une heure de naissance précise ; la planète qui gouverne son signe est appelée maître du thème.",
+      fr: "L’Ascendant est le degré du zodiaque qui se lève à l’horizon oriental au moment et au lieu de la naissance\u202f; c’est à partir de lui que l’on compte les maisons. Il décrit la façon d’aborder le monde\u202f: l’allure, l’apparence, la présence physique et les premières réactions. Il avance d’environ un degré toutes les quatre minutes et exige donc une heure de naissance précise\u202f; la planète qui gouverne son signe est appelée maître du thème.",
     },
     short: {
       en: "your manner, your appearance and the way you approach the world",
@@ -561,7 +561,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "With Aries rising, someone often walks in quickly and speaks first; with Libra rising, they tend to read the room and put others at ease. A planet near the Ascendant adds its own note, such as Saturn’s reserve.",
-      fr: "Avec un Ascendant Bélier, on entre vite dans une pièce et l’on parle le premier ; avec un Ascendant Balance, on observe l’ambiance et l’on met les autres à l’aise. Une planète proche de l’Ascendant y ajoute sa note, comme la réserve de Saturne.",
+      fr: "Avec un Ascendant Bélier, on entre vite dans une pièce et l’on parle le premier\u202f; avec un Ascendant Balance, on observe l’ambiance et l’on met les autres à l’aise. Une planète proche de l’Ascendant y ajoute sa note, comme la réserve de Saturne.",
     },
     cycle: {
       en: "The Ascendant circles the whole zodiac once a day, moving about one degree every four minutes. It changes sign about every two hours on average, from under an hour to over three depending on sign and latitude.",
@@ -571,7 +571,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   midheaven: {
     what: {
       en: "The Midheaven (MC, from the Latin medium coeli) is the degree of the zodiac crossing the meridian above the birthplace, shown at the top of the chart. In most house systems it begins the 10th house. It describes career aims, reputation and public role: what someone wants to achieve and be known for in the wider world. Like the Ascendant, it needs an accurate birth time.",
-      fr: "Le Milieu du Ciel (MC, du latin medium coeli) est le degré du zodiaque qui passe au méridien au-dessus du lieu de naissance ; il se place en haut du thème. Dans la plupart des systèmes de maisons, il ouvre la Maison X. Il décrit les objectifs professionnels, la réputation et le rôle public : ce que l’on veut accomplir et ce pour quoi l’on veut être connu dans la société. Comme l’Ascendant, il demande une heure de naissance précise.",
+      fr: "Le Milieu du Ciel (MC, du latin medium coeli) est le degré du zodiaque qui passe au méridien au-dessus du lieu de naissance\u202f; il se place en haut du thème. Dans la plupart des systèmes de maisons, il ouvre la Maison X. Il décrit les objectifs professionnels, la réputation et le rôle public\u202f: ce que l’on veut accomplir et ce pour quoi l’on veut être connu dans la société. Comme l’Ascendant, il demande une heure de naissance précise.",
     },
     short: {
       en: "your career aims, your reputation and your place in society",
@@ -583,17 +583,17 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "A Midheaven in Capricorn often goes with a slow, deliberate climb toward a recognised position, while one in Pisces often suits careers in care, art or music; a planet on the MC tends to become what someone is known for.",
-      fr: "Un Milieu du Ciel en Capricorne va souvent de pair avec une ascension lente et réfléchie vers une position reconnue, tandis qu’un MC en Poissons convient souvent aux métiers du soin, de l’art ou de la musique ; une planète sur le MC devient souvent ce pour quoi on est connu.",
+      fr: "Un Milieu du Ciel en Capricorne va souvent de pair avec une ascension lente et réfléchie vers une position reconnue, tandis qu’un MC en Poissons convient souvent aux métiers du soin, de l’art ou de la musique\u202f; une planète sur le MC devient souvent ce pour quoi on est connu.",
     },
     cycle: {
       en: "The Midheaven circles the zodiac once a day, changing sign every 1 hour 50 minutes to 2 hours 10 minutes; unlike the Ascendant, this pace does not depend on latitude.",
-      fr: "Le Milieu du Ciel fait le tour du zodiaque une fois par jour et change de signe toutes les 1 h 50 à 2 h 10 environ ; contrairement à l’Ascendant, ce rythme ne dépend pas de la latitude.",
+      fr: "Le Milieu du Ciel fait le tour du zodiaque une fois par jour et change de signe toutes les 1 h 50 à 2 h 10 environ\u202f; contrairement à l’Ascendant, ce rythme ne dépend pas de la latitude.",
     },
   },
   descendant: {
     what: {
       en: "The Descendant is the degree of the zodiac setting on the western horizon at birth, exactly opposite the Ascendant, and in most house systems it begins the 7th house. It describes close one-to-one relationships: partners, business associates and open rivals, and the qualities someone looks for, or tends to notice, in other people. Like the Ascendant, it needs an accurate birth time.",
-      fr: "Le Descendant est le degré du zodiaque qui se couche à l’horizon occidental à la naissance, exactement à l’opposé de l’Ascendant ; dans la plupart des systèmes de maisons, il ouvre la Maison VII. Il décrit les relations en face à face : partenaires, associés et adversaires déclarés, ainsi que les qualités que l’on recherche, ou que l’on remarque d’emblée, chez les autres. Comme l’Ascendant, il demande une heure de naissance précise.",
+      fr: "Le Descendant est le degré du zodiaque qui se couche à l’horizon occidental à la naissance, exactement à l’opposé de l’Ascendant\u202f; dans la plupart des systèmes de maisons, il ouvre la Maison VII. Il décrit les relations en face à face\u202f: partenaires, associés et adversaires déclarés, ainsi que les qualités que l’on recherche, ou que l’on remarque d’emblée, chez les autres. Comme l’Ascendant, il demande une heure de naissance précise.",
     },
     short: {
       en: "your partners and what you look for in others",
@@ -605,17 +605,17 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "With Aries rising, the Descendant falls in Libra: someone who acts fast may be drawn to calm, diplomatic partners, and learn from them how to weigh another person’s view before deciding.",
-      fr: "Avec un Ascendant Bélier, le Descendant tombe en Balance : une personne qui agit vite peut être attirée par des partenaires calmes et diplomates, et apprendre à leur contact à peser le point de vue de l’autre avant de trancher.",
+      fr: "Avec un Ascendant Bélier, le Descendant tombe en Balance\u202f: une personne qui agit vite peut être attirée par des partenaires calmes et diplomates, et apprendre à leur contact à peser le point de vue de l’autre avant de trancher.",
     },
     cycle: {
       en: "The Descendant is always exactly opposite the Ascendant, so it keeps the same pace: once round the zodiac a day, a new sign about every two hours, one degree every four minutes.",
-      fr: "Le Descendant est toujours exactement opposé à l’Ascendant et suit donc le même rythme : un tour du zodiaque par jour, un nouveau signe toutes les deux heures environ, un degré toutes les quatre minutes.",
+      fr: "Le Descendant est toujours exactement opposé à l’Ascendant et suit donc le même rythme\u202f: un tour du zodiaque par jour, un nouveau signe toutes les deux heures environ, un degré toutes les quatre minutes.",
     },
   },
   ic: {
     what: {
       en: "The IC (Imum Coeli, 'bottom of the sky') is the degree of the zodiac crossing the meridian beneath the birthplace, exactly opposite the Midheaven, and sits at the lowest point of the chart. In most house systems it begins the 4th house. It describes roots and private life: home, family, origins and the inner base someone returns to. Like the other angles, it needs an accurate birth time.",
-      fr: "Le Fond du Ciel (FC, en latin imum coeli) est le degré du zodiaque qui passe au méridien sous le lieu de naissance, exactement à l’opposé du Milieu du Ciel, en bas du thème. Dans la plupart des systèmes de maisons, il ouvre la Maison IV. Il décrit les racines et la vie privée : le foyer, la famille, les origines et la base intime à laquelle on revient. Comme les autres angles, il demande une heure de naissance précise.",
+      fr: "Le Fond du Ciel (FC, en latin imum coeli) est le degré du zodiaque qui passe au méridien sous le lieu de naissance, exactement à l’opposé du Milieu du Ciel, en bas du thème. Dans la plupart des systèmes de maisons, il ouvre la Maison IV. Il décrit les racines et la vie privée\u202f: le foyer, la famille, les origines et la base intime à laquelle on revient. Comme les autres angles, il demande une heure de naissance précise.",
     },
     short: {
       en: "your roots, your home life and your private base",
@@ -627,11 +627,11 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "An IC in Cancer often goes with close family ties and a strong need for a home of one’s own; Saturn near the IC can describe an early home with a lot of duty, and a later wish to build something solid.",
-      fr: "Un Fond du Ciel en Cancer va souvent de pair avec des liens familiaux étroits et un fort besoin d’un foyer à soi ; Saturne près du FC peut décrire une enfance chargée de devoirs, puis le désir de bâtir quelque chose de solide.",
+      fr: "Un Fond du Ciel en Cancer va souvent de pair avec des liens familiaux étroits et un fort besoin d’un foyer à soi\u202f; Saturne près du FC peut décrire une enfance chargée de devoirs, puis le désir de bâtir quelque chose de solide.",
     },
     cycle: {
       en: "The IC is always exactly opposite the Midheaven, so it too circles the zodiac once a day, changing sign roughly every two hours whatever the latitude.",
-      fr: "Le Fond du Ciel est toujours exactement opposé au Milieu du Ciel : il fait donc lui aussi le tour du zodiaque une fois par jour et change de signe toutes les deux heures environ, quelle que soit la latitude.",
+      fr: "Le Fond du Ciel est toujours exactement opposé au Milieu du Ciel\u202f: il fait donc lui aussi le tour du zodiaque une fois par jour et change de signe toutes les deux heures environ, quelle que soit la latitude.",
     },
   },
 };

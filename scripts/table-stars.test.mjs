@@ -82,7 +82,7 @@ test("the Moon's course in words", async () => {
   );
   assert.equal(
     moonCourseText(chart, "fr"),
-    "Prochain aspect de la Lune : trigone Pluton, 15 juin 1990, 12:04 UT (2 h 04 min après la naissance) ; elle entre en Bélier 16 juin 1990, 13:54 UT.",
+    "Prochain aspect de la Lune\u202f: trigone Pluton, 15 juin 1990, 12:04 UT (2 h 04 min après la naissance)\u202f; elle entre en Bélier 16 juin 1990, 13:54 UT.",
   );
   const voidChart = await calculateNatal({ ...TRACE, date: "1979-08-02", time: "01:01", tz: "+00:00" });
   assert.equal(moonCourseText(voidChart, "en"), "No major aspect before the Moon enters Sagittarius, 2 Aug 1979, 22:05 UT (21 h 04 min after birth).");

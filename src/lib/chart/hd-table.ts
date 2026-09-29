@@ -54,7 +54,7 @@ export function hdTextParts(chart: HumanDesignChart, view: HdView, locale: AppLo
   const keys: string[] = [modesWord(locale, "partKeys")];
   if (who) keys.push(modesWord(locale, "designHead", { name: who }));
   if (chart.uncertain) keys.push(hdUnknownText(locale, "line"));
-  const colon = locale === "fr" ? " : " : ": ";
+  const colon = locale === "fr" ? "\u202f: " : ": ";
   for (const k of hdKeyRows(chart, locale)) keys.push(`${k.label}${colon}${mark(k.uncertain)}${k.sub ? `${k.sub} · ` : ""}${k.value}`);
 
   const graph = graphForView(chart, view);
