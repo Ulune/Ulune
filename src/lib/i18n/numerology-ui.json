@@ -762,5 +762,299 @@
       "en": "Personal day",
       "fr": "Jour personnel"
     }
+  },
+  "reading": {
+    "howTitle": {
+      "en": "How it’s worked out",
+      "fr": "Comment on le calcule"
+    },
+    "numberTitle": {
+      "en": "The number {n}",
+      "fr": "Le nombre {n}"
+    },
+    "debtTitle": {
+      "en": "Karmic debt {n}",
+      "fr": "Dette karmique {n}"
+    },
+    "masterTitle": {
+      "en": "Master number",
+      "fr": "Nombre maître"
+    },
+    "number": {
+      "en": "Number",
+      "fr": "Nombre"
+    },
+    "root": {
+      "en": "Root",
+      "fr": "Racine"
+    },
+    "steps": {
+      "en": "Steps",
+      "fr": "Calcul"
+    },
+    "value": {
+      "en": "Value",
+      "fr": "Valeur"
+    },
+    "name": {
+      "en": "Name",
+      "fr": "Nom"
+    },
+    "letters": {
+      "en": "Letters",
+      "fr": "Lettres"
+    },
+    "ages": {
+      "en": "Ages",
+      "fr": "Âges"
+    },
+    "years": {
+      "en": "Years",
+      "fr": "Années"
+    },
+    "gap": {
+      "en": "Gap",
+      "fr": "Écart"
+    },
+    "compound": {
+      "en": "Compound",
+      "fr": "Composé"
+    },
+    "keywords": {
+      "en": "Keywords",
+      "fr": "Mots-clés"
+    },
+    "inChart": {
+      "en": "In your chart",
+      "fr": "Dans votre carte"
+    },
+    "sameVibration": {
+      "en": "Same vibration",
+      "fr": "Même vibration"
+    },
+    "addsTo": {
+      "en": "It adds to",
+      "fr": "Elle ajoute à"
+    },
+    "itsPlace": {
+      "en": "Its place",
+      "fr": "Sa place"
+    },
+    "theLetter": {
+      "en": "The letter",
+      "fr": "La lettre"
+    },
+    "yLetter": {
+      "en": "The letter Y",
+      "fr": "La lettre Y"
+    },
+    "yByHand": {
+      "en": "Switched by hand: counted here as {role}.",
+      "fr": "Changé à la main : compté ici comme {role}."
+    },
+    "aVowel": {
+      "en": "a vowel",
+      "fr": "une voyelle"
+    },
+    "aConsonant": {
+      "en": "a consonant",
+      "fr": "une consonne"
+    },
+    "lessonTitle": {
+      "en": "A karmic lesson",
+      "fr": "Une leçon karmique"
+    },
+    "passionTitle": {
+      "en": "The hidden passion",
+      "fr": "La passion cachée"
+    },
+    "notCore": {
+      "en": "Not among your core numbers",
+      "fr": "Absent de vos nombres principaux"
+    },
+    "numbersNote": {
+      "en": "In numerology, each number from 1 to 9 has a traditional meaning, and 11, 22 and 33 are read as master numbers.",
+      "fr": "En numérologie, chaque nombre de 1 à 9 a une signification traditionnelle, et 11, 22 et 33 sont lus comme des nombres maîtres."
+    },
+    "strengthsTitle": {
+      "en": "Strengths, pitfalls, example",
+      "fr": "Forces, pièges, exemple"
+    },
+    "aboutNumerology": {
+      "en": "About numerology",
+      "fr": "À propos de la numérologie"
+    },
+    "letterCount": {
+      "en": "{n} letters",
+      "fr": "{n} lettres"
+    },
+    "noLesson": {
+      "en": "No karmic lesson: every number from 1 to 9 has a letter.",
+      "fr": "Aucune leçon karmique : chaque nombre de 1 à 9 a une lettre."
+    },
+    "placeInLife": {
+      "en": "Its place in life",
+      "fr": "Sa place dans la vie"
+    },
+    "runningNow": {
+      "en": "running now",
+      "fr": "en cours"
+    },
+    "runsFor": {
+      "en": "{ages} · {years}",
+      "fr": "{ages} · {years}"
+    },
+    "withPinnacle": {
+      "en": "Its pinnacle",
+      "fr": "Sa réalisation"
+    },
+    "withChallenge": {
+      "en": "Its challenge",
+      "fr": "Son défi"
+    },
+    "mainForLife": {
+      "en": "The main challenge: felt all life long, not only in its own years.",
+      "fr": "Le défi principal : il se fait sentir toute la vie, pas seulement pendant ses années."
+    },
+    "theCycles": {
+      "en": "The cycles",
+      "fr": "Les cycles"
+    },
+    "yearKicker": {
+      "en": "{year} · {age}",
+      "fr": "{year} · {age}"
+    },
+    "inEffect": {
+      "en": "In effect that year",
+      "fr": "En cours cette année-là"
+    },
+    "essenceTitle": {
+      "en": "Essence {n}",
+      "fr": "Essence {n}"
+    },
+    "letterCycles": {
+      "en": "The letter cycles",
+      "fr": "Les cycles de lettres"
+    },
+    "cycle_physical": {
+      "en": "Physical",
+      "fr": "Physique"
+    },
+    "cycle_mental": {
+      "en": "Mental",
+      "fr": "Mental"
+    },
+    "cycle_spiritual": {
+      "en": "Spiritual",
+      "fr": "Spirituel"
+    },
+    "letterSpan": {
+      "en": "{letter} = {value}, ages {from} to {to}",
+      "fr": "{letter} = {value}, de {from} à {to} ans"
+    },
+    "personalYearOf": {
+      "en": "Personal year {n}",
+      "fr": "Année personnelle {n}"
+    },
+    "universalOf": {
+      "en": "Universal year {n}",
+      "fr": "Année universelle {n}"
+    },
+    "beforeBirth": {
+      "en": "Before the birth: no cycle yet.",
+      "fr": "Avant la naissance : aucun cycle encore."
+    },
+    "bridgeBetween": {
+      "en": "Between {a} and {b}",
+      "fr": "Entre {a} et {b}"
+    },
+    "cheiroPlanet": {
+      "en": "Cheiro’s planet",
+      "fr": "La planète de Cheiro"
+    },
+    "planet_1": {
+      "en": "the Sun",
+      "fr": "le Soleil"
+    },
+    "planet_2": {
+      "en": "the Moon",
+      "fr": "la Lune"
+    },
+    "planet_3": {
+      "en": "Jupiter",
+      "fr": "Jupiter"
+    },
+    "planet_4": {
+      "en": "Uranus",
+      "fr": "Uranus"
+    },
+    "planet_5": {
+      "en": "Mercury",
+      "fr": "Mercure"
+    },
+    "planet_6": {
+      "en": "Venus",
+      "fr": "Vénus"
+    },
+    "planet_7": {
+      "en": "Neptune",
+      "fr": "Neptune"
+    },
+    "planet_8": {
+      "en": "Saturn",
+      "fr": "Saturne"
+    },
+    "planet_9": {
+      "en": "Mars",
+      "fr": "Mars"
+    },
+    "firstTitle": {
+      "en": "First read",
+      "fr": "Première lecture"
+    },
+    "firstIntro": {
+      "en": "Five numbers to start with; each lights its part of the wheel.",
+      "fr": "Cinq nombres pour commencer ; chacun allume sa part de la roue."
+    },
+    "stepOf": {
+      "en": "{n} of {total}",
+      "fr": "{n} sur {total}"
+    },
+    "next": {
+      "en": "Next",
+      "fr": "Suivant"
+    },
+    "back": {
+      "en": "Back",
+      "fr": "Précédent"
+    },
+    "skip": {
+      "en": "Skip",
+      "fr": "Passer"
+    },
+    "done": {
+      "en": "Done",
+      "fr": "Terminé"
+    },
+    "open": {
+      "en": "Its full reading",
+      "fr": "Sa lecture complète"
+    },
+    "thisYear": {
+      "en": "This year",
+      "fr": "Cette année"
+    },
+    "firstSkipHint": {
+      "en": "Skip the first read: the Life Path’s reading opens, as it will from now on.",
+      "fr": "Passer la première lecture : la lecture du Chemin de vie s’ouvre, comme elle le fera désormais."
+    },
+    "firstDoneHint": {
+      "en": "That’s the five. Tap any number, letter or disc on the wheel to read it.",
+      "fr": "Voilà les cinq. Touchez n’importe quel nombre, lettre ou disque de la roue pour le lire."
+    },
+    "otherPlanes": {
+      "en": "The other planes",
+      "fr": "Les autres plans"
+    }
   }
 }

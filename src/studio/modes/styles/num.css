@@ -331,12 +331,24 @@
 }
 .ulune-num-chip {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  min-height: 28px;
+  padding: 3px 9px;
   border: 1px solid var(--color-border);
   border-radius: 999px;
+  font: inherit;
+  color: inherit;
   white-space: nowrap;
+  transition: background-color var(--dur-hover) var(--ease-out);
+}
+/* Each chip opens its reading (part 63). */
+button.ulune-num-chip:hover,
+.ulune-num-chip.is-on {
+  background: var(--color-bg-subtle);
+}
+.ulune-num-chip.is-on {
+  border-color: var(--color-fg);
 }
 .ulune-num-chip b {
   color: var(--color-fg);
@@ -809,4 +821,125 @@ button.ulune-num-card:hover {
   .ulune-num-life-tick:nth-child(even) small {
     visibility: hidden;
   }
+}
+
+/* The first read (part 63): five steps in the side panel for a newcomer,
+   each lighting its part of the wheel; Skip on each. */
+.ulune-num-first {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ulune-num-first-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.ulune-num-first-title {
+  margin: 0;
+  color: var(--color-fg-subtle);
+}
+.ulune-num-first-skip,
+.ulune-num-first-open {
+  min-height: 32px;
+  font-size: 13px;
+  color: var(--color-fg-muted);
+  text-decoration: underline dotted color-mix(in oklab, var(--color-fg) 35%, transparent);
+  text-underline-offset: 3px;
+}
+.ulune-num-first-skip:hover,
+.ulune-num-first-open:hover {
+  color: var(--color-fg);
+}
+.ulune-num-first-intro {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-fg-muted);
+}
+.ulune-num-first-step {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.ulune-num-first-n {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  font: 500 15px/1 var(--font-mono);
+  color: var(--color-fg);
+  background: color-mix(in oklab, var(--color-halo) 16%, var(--color-bg));
+  box-shadow: inset 0 0 0 1.5px var(--color-halo);
+}
+.ulune-num-first-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+.ulune-num-first-k {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-fg);
+}
+.ulune-num-first-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-fg-muted);
+}
+/* Next and Back stay in reach at the foot of the panel while a long step scrolls. */
+.ulune-num-first-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 0;
+  background: var(--color-bg);
+}
+.ulune-num-first-dots {
+  display: flex;
+  gap: 6px;
+  margin: 0 auto 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-num-first-dots li {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--color-border-strong);
+}
+.ulune-num-first-dots li[data-on] {
+  background: var(--color-halo);
+}
+.ulune-num-first-btn {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--color-fg);
+}
+.ulune-num-first-btn:hover {
+  background: var(--color-bg-subtle);
+}
+.ulune-num-first-btn.is-main {
+  border-color: var(--color-fg);
+  background: var(--color-fg);
+  color: var(--color-bg);
+}
+.ulune-num-first-btn.is-main:hover {
+  background: color-mix(in oklab, var(--color-fg) 85%, var(--color-bg));
 }

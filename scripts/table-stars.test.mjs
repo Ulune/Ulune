@@ -179,7 +179,8 @@ test("twenty new glossary words, each in English and French", () => {
       assert.doesNotMatch(e.body[i], /\d[.,]\d+ ?°/, `${id}: a decimal degree`);
     }
   }
-  assert.equal(Object.keys(GLOSSARY).length, 59);
+  // 59, and the 15 numerology words of part 63 (numerology-texts.test.mjs).
+  assert.equal(Object.keys(GLOSSARY).length, 74);
 });
 
 test("the text copy and the CSV carry the stars, the midpoints and the Moon's course", async () => {

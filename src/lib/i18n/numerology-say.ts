@@ -5,9 +5,9 @@
  */
 import { valueOfCore, type NumerologyChart, type NumerologyCoreId } from "@/lib/chart/numerology";
 import { WHEEL_CORES } from "@/lib/chart/numerology-focus";
-import { isMaster, stepsText, wholeText } from "@/lib/chart/numerology-reduce";
+import { isMaster, stepsText, wholeText, type NumerologyValue } from "@/lib/chart/numerology-reduce";
 import type { AppLocale } from "./messages";
-import { numerologyCoreLabel, numerologyWheelText } from "./numerology-ui";
+import { numerologyCoreLabel, numerologyPageText, numerologyWheelText } from "./numerology-ui";
 
 function dateWords(locale: AppLocale, year: number, month: number, day?: number): string {
   return new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-GB", {
@@ -95,5 +95,56 @@ export function numerologySay(chart: NumerologyChart, id: string, locale: AppLoc
     });
   }
   if (id.startsWith("core:")) return coreLine(chart, id.slice(5) as NumerologyCoreId, locale);
+  return finerLine(chart, id, locale);
+}
+
+/** The name's finer numbers, the planes and the bridges (part 63): a label and its number. */
+function finerLine(chart: NumerologyChart, id: string, locale: AppLocale): string {
+  const colon = locale === "fr" ? "\u202f: " : ": ";
+  const detail = chart.names.birth?.detail;
+  const first = chart.names.birth?.parsed.words[0]?.letters ?? [];
+  const valued = (label: string, value: NumerologyValue) => {
+    if (value.number == null) return label;
+    const steps = stepsText(value);
+    const whole = wholeText(value);
+    return steps && steps !== whole ? `${label} ${whole}${colon}${steps}` : `${label} ${whole}`;
+  };
+  switch (id) {
+    case "detail:attitude":
+      return valued(numerologyPageText(locale, "attitude"), chart.attitude);
+    case "detail:rationalThought":
+      return valued(numerologyPageText(locale, "rationalThought"), chart.rationalThought);
+  }
+  if (!detail) return "";
+  const none = numerologyPageText(locale, "none");
+  switch (id) {
+    case "detail:lessons":
+      return `${numerologyPageText(locale, "lessons")}${colon}${detail.karmicLessons.join(", ") || none}`;
+    case "detail:passion":
+      return `${numerologyPageText(locale, "passion")}${colon}${detail.hiddenPassion.join(", ") || none}`;
+    case "detail:subconscious":
+      return `${numerologyPageText(locale, "subconscious")} ${detail.subconsciousSelf}`;
+    case "detail:balance":
+      return valued(numerologyPageText(locale, "balance"), detail.balance);
+    case "detail:cornerstone":
+    case "detail:capstone":
+    case "detail:firstVowel": {
+      const key = id.slice(7) as "cornerstone" | "capstone" | "firstVowel";
+      const letter = key === "cornerstone" ? first[0] : key === "capstone" ? first[first.length - 1] : first.find((l) => l.vowel);
+      return letter ? `${numerologyPageText(locale, key)}${colon}${letter.ch} = ${letter.value}` : "";
+    }
+    case "bridge:lifePathExpression":
+    case "bridge:soulUrgePersonality": {
+      const value = chart.bridges[id.slice(7) as "lifePathExpression" | "soulUrgePersonality"];
+      return valued(numerologyPageText(locale, id === "bridge:lifePathExpression" ? "bridgeLpEx" : "bridgeSuPe"), value);
+    }
+  }
+  if (id.startsWith("plane:")) {
+    const plane = detail.planes.find((x) => `plane:${x.id}` === id);
+    if (!plane) return "";
+    const label = numerologyPageText(locale, `plane_${plane.id}`);
+    const letters = plane.letters.map((l) => l.ch).join(" ");
+    return plane.value.number == null ? `${label}${colon}${none}` : `${valued(label, plane.value)}${letters ? ` (${letters})` : ""}`;
+  }
   return "";
 }

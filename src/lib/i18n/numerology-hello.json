@@ -8,21 +8,21 @@
       "label": "Life Path",
       "labelFr": "Chemin de vie",
       "en": "From your full birth date: the main theme and lessons of your life.",
-      "fr": "Tiré de votre date de naissance complète : le thème principal et les leçons de votre vie."
+      "fr": "Tiré de votre date de naissance complète : le thème principal et les leçons de votre vie."
     },
     {
       "id": "expression",
       "label": "Expression",
       "labelFr": "Expression",
       "en": "From your full birth name: your natural abilities and how you use them.",
-      "fr": "Tiré de votre nom de naissance complet : vos aptitudes naturelles et leur usage."
+      "fr": "Tiré de votre nom de naissance complet : vos aptitudes naturelles et leur usage."
     },
     {
       "id": "soulurge",
       "label": "Soul Urge",
       "labelFr": "Élan de l’âme",
       "en": "From the vowels of your name: what you want deep down.",
-      "fr": "Tiré des voyelles de votre nom : ce que vous désirez au fond."
+      "fr": "Tiré des voyelles de votre nom : ce que vous désirez au fond."
     }
   ]
 }

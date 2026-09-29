@@ -148,7 +148,7 @@ function useMarkColor(reading: ElementReading, chart: NatalChart | null | undefi
  * for "About": a birth chart's own elements, and the bodygraph's gates,
  * channels and centres (not the Human Design keys, numerology or timing).
  */
-const PERSONAL_FIRST = /^(planet|angle|house|sign|decan|aspect|gate|channel|center):/;
+const PERSONAL_FIRST = /^(planet|angle|house|sign|decan|aspect|gate|channel|center|core):/;
 
 /**
  * One reading, laid out for scanning: mark, title and the facts that locate

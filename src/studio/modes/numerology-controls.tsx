@@ -7,6 +7,7 @@ import { previewProps } from "@/lib/depth/preview-bus";
 import type { AppLocale } from "@/lib/i18n/messages";
 import { numerologyDay } from "@/lib/i18n/numerology-say";
 import { numerologyCoreLabel, numerologyWheelText } from "@/lib/i18n/numerology-ui";
+import { cn } from "@/lib/utils";
 import { useSwitchY } from "@/studio/modes/hooks/useSwitchY";
 import { NUMEROLOGY_FIRST_YEAR, NUMEROLOGY_LAST_YEAR, setNumerologyYear } from "@/studio/numerology-year";
 
@@ -41,7 +42,17 @@ export function NumerologyYSwitch({ numbers, selectedId, locale }: { numbers: Nu
 }
 
 /** ‹ 2026 ›: the year the wheel shows, its personal year and the long cycles it falls in. */
-export function NumerologyYearStepper({ numbers, locale }: { numbers: NumerologyChart; locale: AppLocale }) {
+export function NumerologyYearStepper({
+  numbers,
+  locale,
+  selectedId,
+  onSelect,
+}: {
+  numbers: NumerologyChart;
+  locale: AppLocale;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}) {
   const year = numbers.calendarYear;
   const thisYear = new Date().getFullYear();
   const row = useMemo(() => numerologyYear(numbers, year), [numbers, year]);
@@ -50,12 +61,23 @@ export function NumerologyYearStepper({ numbers, locale }: { numbers: Numerology
     c && fromAge === row.age && fromAge > 0
       ? numerologyWheelText(locale, "fromDate", { date: numerologyDay(locale, year, numbers.month, numbers.day) })
       : undefined;
-  const chip = (key: string, label: string, value: NumerologyValue, since?: string, extra?: string) =>
+  // Each chip opens its reading: the cycle's, or the year's for the essence (part 63).
+  const chip = (key: string, ref: string, label: string, value: NumerologyValue, since?: string, extra?: string) =>
     value.number == null ? null : (
-      <span key={key} className="ulune-num-chip" data-testid={`num-chip-${key}`} data-new={since ? "1" : undefined} title={since}>
+      <button
+        key={key}
+        type="button"
+        className={cn("ulune-num-chip", selectedId === ref && "is-on")}
+        data-testid={`num-chip-${key}`}
+        data-new={since ? "1" : undefined}
+        title={since}
+        aria-pressed={selectedId === ref}
+        onClick={() => onSelect(ref)}
+        {...previewProps(ref)}
+      >
         {label} <b>{wholeText(value)}</b>
         {extra ? <span className="ulune-num-chip-x"> {extra}</span> : null}
-      </span>
+      </button>
     );
   return (
     <div className="ulune-num-year" role="group" aria-label={numerologyWheelText(locale, "yearLabel")}>
@@ -93,21 +115,29 @@ export function NumerologyYearStepper({ numbers, locale }: { numbers: Numerology
         </button>
       </div>
       <p className="ulune-num-year-line" data-testid="num-year-line">
-        <span className="ulune-num-chip is-year" data-testid="num-chip-year" {...previewProps("core:personalYear")}>
+        <button
+          type="button"
+          className={cn("ulune-num-chip is-year", selectedId === "core:personalYear" && "is-on")}
+          data-testid="num-chip-year"
+          aria-pressed={selectedId === "core:personalYear"}
+          onClick={() => onSelect("core:personalYear")}
+          {...previewProps("core:personalYear")}
+        >
           {numerologyCoreLabel(locale, "personalYear")} <b>{row.personalYear.number}</b>
-        </span>
+        </button>
         {c ? (
           <>
-            {chip("pinnacle", numerologyWheelText(locale, "pinnacle"), c.pinnacle.value, changed(c.pinnacle.fromAge))}
+            {chip("pinnacle", `cycle:pinnacle:${c.pinnacle.index}`, numerologyWheelText(locale, "pinnacle"), c.pinnacle.value, changed(c.pinnacle.fromAge))}
             {chip(
               "challenge",
+              `cycle:challenge:${c.challenge.index}`,
               numerologyWheelText(locale, "challenge"),
               c.challenge.value,
               changed(c.challenge.fromAge),
               c.challenge.main ? numerologyWheelText(locale, "main") : undefined,
             )}
-            {chip("period", numerologyWheelText(locale, "period"), c.period.value, changed(c.period.fromAge))}
-            {c.letters ? chip("essence", numerologyWheelText(locale, "essence"), c.essence) : null}
+            {chip("period", `cycle:period:${c.period.index}`, numerologyWheelText(locale, "period"), c.period.value, changed(c.period.fromAge))}
+            {c.letters ? chip("essence", `year:${year}`, numerologyWheelText(locale, "essence"), c.essence) : null}
             <span className="ulune-num-age">{numerologyWheelText(locale, "age", { age: row.age })}</span>
           </>
         ) : (

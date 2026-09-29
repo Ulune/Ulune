@@ -50,3 +50,14 @@ export function numerologyPageText(
 ): string {
   return fill(pick(source.page[key], locale), vars);
 }
+
+export type NumerologyReadingKey = keyof typeof source.reading;
+
+/** The numerology readings' own words (part 63), with {placeholders} filled. */
+export function numerologyReadingText(
+  locale: AppLocale,
+  key: NumerologyReadingKey,
+  vars?: Record<string, string | number>,
+): string {
+  return fill(pick(source.reading[key], locale), vars);
+}

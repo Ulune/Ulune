@@ -45,6 +45,21 @@ export type GlossaryId =
   | "nameNumbers"
   | "birthday"
   | "masterNumbers"
+  | "maturity"
+  | "personalCycles"
+  | "karmicDebt"
+  | "karmicLesson"
+  | "hiddenPassion"
+  | "finerNumbers"
+  | "planes"
+  | "stones"
+  | "bridge"
+  | "pinnacle"
+  | "challenge"
+  | "periodCycle"
+  | "letterCycle"
+  | "chaldean"
+  | "birthGrid"
   | "declination"
   | "latitude"
   | "outOfBounds"
@@ -339,6 +354,111 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
       "11, 22 et 33, que la numérologie garde entiers au lieu de les réduire à un chiffre.",
     ],
   },
+  maturity: {
+    term: ["Maturity number", "Nombre de maturité"],
+    body: [
+      "The Life Path and the Expression added and reduced: a goal that grows clearer with age, usually from the late thirties or forties.",
+      "Le Chemin de vie et l’Expression additionnés et réduits\u202f: un objectif qui se précise avec l’âge, en général vers la fin de la trentaine ou la quarantaine.",
+    ],
+  },
+  personalCycles: {
+    term: ["Personal year, month and day", "Année, mois et jour personnels"],
+    body: [
+      "The birth month and day added to the calendar year, each reduced, give the personal year (from 1 January here); the month added to it gives the personal month, the day added to that the personal day. Each runs from 1 to 9.",
+      "Le mois et le jour de naissance ajoutés à l’année civile, chacun réduit, donnent l’année personnelle (dès le 1er janvier ici)\u202f; le mois ajouté donne le mois personnel, et le jour ajouté à celui-ci le jour personnel. Chacun va de 1 à 9.",
+    ],
+  },
+  karmicDebt: {
+    term: ["Karmic debt", "Dette karmique"],
+    body: [
+      "A 13, 14, 16 or 19 reached just before a core number’s last step, written whole (13/4): a lesson that comes back until it is learned, not a punishment.",
+      "Un 13, 14, 16 ou 19 atteint juste avant la dernière étape d’un nombre principal, écrit en entier (13/4)\u202f: une leçon qui revient jusqu’à ce qu’elle soit apprise, pas une punition.",
+    ],
+  },
+  karmicLesson: {
+    term: ["Karmic lesson", "Leçon karmique"],
+    body: [
+      "A number from 1 to 9 that no letter of the birth name falls on: a quality to learn on purpose. Most names have one to three.",
+      "Un nombre de 1 à 9 sur lequel ne tombe aucune lettre du nom de naissance\u202f: une qualité à apprendre exprès. La plupart des noms en ont une à trois.",
+    ],
+  },
+  hiddenPassion: {
+    term: ["Hidden passion", "Passion cachée"],
+    body: [
+      "The number the most letters of the birth name fall on: a drive or a talent you tend to reach for.",
+      "Le nombre sur lequel tombent le plus de lettres du nom de naissance\u202f: un élan ou un talent vers lequel vous allez volontiers.",
+    ],
+  },
+  finerNumbers: {
+    term: ["Balance, rational thought, attitude, subconscious self", "Équilibre, pensée rationnelle, attitude, moi subconscient"],
+    body: [
+      "Four smaller numbers: the initials of the birth name (balance), the first name and the day of birth (rational thought), the month and the day (attitude), and how many of the nine numbers the name holds (subconscious self).",
+      "Quatre nombres secondaires\u202f: les initiales du nom de naissance (équilibre), le prénom et le jour de naissance (pensée rationnelle), le mois et le jour (attitude), et combien des neuf nombres le nom contient (moi subconscient).",
+    ],
+  },
+  planes: {
+    term: ["Planes of expression", "Plans d’expression"],
+    body: [
+      "The birth name’s letters in four groups, physical, mental, emotional and intuitive, each added and reduced on its own.",
+      "Les lettres du nom de naissance réparties en quatre groupes, physique, mental, émotionnel et intuitif, chacun additionné et réduit à part.",
+    ],
+  },
+  stones: {
+    term: ["Cornerstone, capstone, first vowel", "Pierre angulaire, pierre de faîte, première voyelle"],
+    body: [
+      "The first letter, the last letter and the first vowel of the first name: how you approach things, how you finish them, and a glimpse of your inner self.",
+      "La première lettre, la dernière lettre et la première voyelle du prénom\u202f: votre façon d’aborder les choses, de les finir, et un aperçu de votre moi intérieur.",
+    ],
+  },
+  bridge: {
+    term: ["Bridge", "Pont"],
+    body: [
+      "The difference between two core numbers (the Life Path and the Expression, the Soul Urge and the Personality): the quality that helps them work together.",
+      "L’écart entre deux nombres principaux (le Chemin de vie et l’Expression, l’Élan de l’âme et la Personnalité)\u202f: la qualité qui les aide à travailler ensemble.",
+    ],
+  },
+  pinnacle: {
+    term: ["Pinnacle", "Réalisation"],
+    body: [
+      "One of four stages of life from the birth date, each with its number: the first ends at 36 minus the Life Path, the next two last nine years each, the last for the rest of life.",
+      "Une des quatre étapes de la vie tirées de la date de naissance, chacune avec son nombre\u202f: la première finit à 36 moins le Chemin de vie, les deux suivantes durent neuf ans chacune, la dernière le reste de la vie.",
+    ],
+  },
+  challenge: {
+    term: ["Challenge", "Défi"],
+    body: [
+      "The difference between two parts of the birth date: a difficulty to meet during a pinnacle’s years. The third, the main challenge, colours the whole of life.",
+      "L’écart entre deux parties de la date de naissance\u202f: une difficulté à affronter pendant les années d’une réalisation. Le troisième, le défi principal, colore toute la vie.",
+    ],
+  },
+  periodCycle: {
+    term: ["Period cycle", "Cycle de vie"],
+    body: [
+      "Three long periods from the birth month, day and year: the first ends with the first personal year 1 from the 27th birthday on; the second lasts 27 years; the third, the rest of life.",
+      "Trois longues périodes tirées du mois, du jour et de l’année de naissance\u202f: la première finit avec la première année personnelle 1 à partir du 27e anniversaire\u202f; la deuxième dure 27 ans\u202f; la troisième, le reste de la vie.",
+    ],
+  },
+  letterCycle: {
+    term: ["Letter cycles and essence", "Cycles de lettres et essence"],
+    body: [
+      "Each part of the name read letter by letter, each letter for as many years as its value: the first name (physical), the middle names (mental), the last name (spiritual). The essence adds the three letters in effect in a year. Decoz calls them transits.",
+      "Chaque partie du nom lue lettre par lettre, chaque lettre pendant autant d’années que sa valeur\u202f: le prénom (physique), les deuxièmes prénoms (mental), le nom de famille (spirituel). L’essence additionne les trois lettres en cours une année donnée. Decoz les appelle des transits.",
+    ],
+  },
+  chaldean: {
+    term: ["Chaldean number", "Nombre chaldéen"],
+    body: [
+      "The name added with Cheiro’s letter values (1 to 8), read as a compound number, then reduced: shown beside the Pythagorean numbers, never mixed with them.",
+      "Le nom additionné avec les valeurs de Cheiro (1 à 8), lu comme un nombre composé, puis réduit\u202f: montré à côté des nombres pythagoriciens, jamais mêlé à eux.",
+    ],
+  },
+  birthGrid: {
+    term: ["Birth grid", "Grille de naissance"],
+    body: [
+      "The digits of the birth date in a 3 × 3 square: Phillips’s layout with its lines, full or empty, or the Lo Shu square.",
+      "Les chiffres de la date de naissance dans un carré de 3 × 3\u202f: la disposition de Phillips avec ses lignes, pleines ou vides, ou le carré Lo Shu.",
+    ],
+  },
   declination: {
     term: ["Declination", "Déclinaison"],
     body: [
@@ -522,7 +642,23 @@ export function glossaryFor(page: string, selectedId: string | null): GlossaryId
     if (selectedId === "hello:layers") add("hdLayers");
     add("hdType", "hdStrategy", "hdAuthority", "hdProfile", "hdDefinition", "hdCentres", "hdLayers");
   }
-  if (page === "numerology") add("lifePath", "nameNumbers", "birthday", "masterNumbers");
+  if (page === "numerology") {
+    // The words the chosen reading uses first (part 63), then the four keys.
+    const sub = selectedId?.split(":")[1] ?? "";
+    if (selectedId === "core:maturity") add("maturity");
+    if (selectedId === "core:personalYear" || prefix === "time" || prefix === "year") add("personalCycles");
+    if (prefix === "year") add("letterCycle", "pinnacle", "challenge", "periodCycle");
+    if (prefix === "cycle") add(sub === "pinnacle" ? "pinnacle" : sub === "challenge" ? "challenge" : "periodCycle", "pinnacle", "challenge", "periodCycle");
+    if (prefix === "core" || prefix === "number") add("karmicDebt");
+    if (selectedId === "detail:lessons" || selectedId === "detail:subconscious" || prefix === "number") add("karmicLesson", "hiddenPassion");
+    if (selectedId === "detail:passion") add("hiddenPassion", "karmicLesson");
+    if (prefix === "detail" && ["balance", "rationalThought", "attitude", "subconscious"].includes(sub)) add("finerNumbers");
+    if (prefix === "detail" && ["cornerstone", "capstone", "firstVowel"].includes(sub)) add("stones");
+    if (selectedId === "detail:chaldean") add("chaldean");
+    if (prefix === "plane") add("planes");
+    if (prefix === "bridge") add("bridge");
+    add("lifePath", "nameNumbers", "birthday", "masterNumbers");
+  }
   if (/aspect$/.test(prefix)) add("aspect", "orb", "applying");
   if (prefix === "planet" || prefix === "transit" || prefix === "progressed" || prefix === "partner") {
     add("sign", "house", "retrograde", "aspect");

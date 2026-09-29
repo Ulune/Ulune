@@ -2,7 +2,7 @@
  * The numerology reading pack (one language at a time, through packs.ts).
  * Import it only through packs.ts.
  */
-export { numerologyReading } from "@/lib/chart/interpret-numerology";
+export { FIRST_READ_STEPS, numerologyFirstStep, numerologyReading } from "@/lib/chart/interpret-numerology";
 export { numerologyNumberParagraphs } from "@/lib/i18n/numerology-text";
 export {
   NUMBER_TEXT,

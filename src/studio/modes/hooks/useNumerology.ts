@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { castNumerology, numerologyOptionsOf } from "@/lib/chart/numerology";
 import { usePack } from "@/lib/content/packs";
 import { useI18n } from "@/lib/i18n/locale";
+import { useNumerologyFirstPending } from "@/studio/numerology-first";
 import { useNumerologyYear } from "@/studio/numerology-year";
 import { useStudioStore } from "@/studio/store";
 
@@ -29,10 +30,12 @@ export function useNumerology() {
   const named = Boolean(numbers?.name);
   // The readings come with the numerology text (its own download).
   const pack = usePack("num", locale, enabled);
-  // With nothing chosen, the Life Path's reading: the panel is never empty here.
+  // With nothing chosen: the first read for a newcomer (part 63), then the Life Path's reading.
+  const firstPending = useNumerologyFirstPending();
+  const first = Boolean(numbers) && firstPending && selectedId == null;
   const reading = useMemo(
-    () => (numbers && pack ? pack.numerologyReading(numbers, selectedId ?? "core:lifepath", locale) : null),
-    [numbers, pack, selectedId, locale],
+    () => (numbers && pack ? pack.numerologyReading(numbers, selectedId ?? (first ? null : "core:lifepath"), locale) : null),
+    [numbers, pack, selectedId, locale, first],
   );
-  return useMemo(() => ({ numbers, named, reading, enabled }), [numbers, named, reading, enabled]);
+  return useMemo(() => ({ numbers, named, reading, enabled, first }), [numbers, named, reading, enabled, first]);
 }

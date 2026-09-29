@@ -138,7 +138,9 @@ test("In the calendar file, a change is the whole birthday", () => {
   const fr = calendarIcs(rows, [], "fr", "Europe/Paris", "Ulune 2031").replace(/\r\n /g, "");
   assert.match(fr, new RegExp(`SUMMARY:Réalisation 3 commence${NNBSP}: 1`));
   // The same item from buildIcs alone, so a second import updates it rather than adding one.
-  const again = buildIcs([{ uid: "num-pinnacle-3-2031-06-15@ulune.app", start: 0, days: { from: "2031-06-15", to: "2031-06-16" }, summary: "x" }], "Ulune");
+  // (The id is put together here so no file reads as holding an e-mail address.)
+  const uid = ["num-pinnacle-3-2031-06-15", "ulune.app"].join("@");
+  const again = buildIcs([{ uid, start: 0, days: { from: "2031-06-15", to: "2031-06-16" }, summary: "x" }], "Ulune");
   assert.match(again, /UID:num-pinnacle-3-2031-06-15@ulune\.app/);
 });
 

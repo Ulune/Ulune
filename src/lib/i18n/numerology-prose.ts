@@ -8,7 +8,7 @@ const CORE: Record<NumerologyCoreId, { role: Pair; how: Pair }> = {
   lifepath: {
     role: {
       en: "The Life Path is the most important number in numerology. Worked out from your full birth date, it describes the main direction of your life: the kind of work, challenges and lessons you keep meeting, whatever you decide to do.",
-      fr: "Le Chemin de vie est le nombre le plus important en numérologie. Calculé à partir de la date de naissance complète, il décrit l’orientation principale de votre vie : le genre de travail, de défis et de leçons que vous rencontrez sans cesse, quoi que vous décidiez de faire.",
+      fr: "Le Chemin de vie est le nombre le plus important en numérologie. Calculé à partir de la date de naissance complète, il décrit l’orientation principale de votre vie\u202f: le genre de travail, de défis et de leçons que vous rencontrez sans cesse, quoi que vous décidiez de faire.",
     },
     how: {
       en: "The Life Path reduces the month, the day and the year of birth separately, then adds them and reduces the total, keeping the master numbers 11, 22 and 33.",
@@ -68,7 +68,7 @@ const CORE: Record<NumerologyCoreId, { role: Pair; how: Pair }> = {
   personalYear: {
     role: {
       en: "The Personal Year shows where you are in a nine-year cycle that starts again after 9. It changes every year and gives the main theme of the current one: starting (1), cooperating (2), expressing (3), building (4), and so on.",
-      fr: "L’Année personnelle indique où vous en êtes dans un cycle de neuf ans qui recommence après 9. Elle change chaque année et donne le thème principal de l’année en cours : commencer (1), coopérer (2), s’exprimer (3), construire (4), etc.",
+      fr: "L’Année personnelle indique où vous en êtes dans un cycle de neuf ans qui recommence après 9. Elle change chaque année et donne le thème principal de l’année en cours\u202f: commencer (1), coopérer (2), s’exprimer (3), construire (4), etc.",
     },
     how: {
       en: "The Personal Year adds your birth month and day to the current calendar year, then reduces the total to a single digit.",
@@ -87,6 +87,6 @@ export function numerologyMasterNote(locale: AppLocale, n: number) {
   if (n !== 11 && n !== 22 && n !== 33) return null;
   const root = n === 11 ? 2 : n === 22 ? 4 : 6;
   return locale === "fr"
-    ? `${n} est un nombre maître : on le garde entier au lieu de le réduire à ${root}, car on le lit comme une version plus intense et plus exigeante du ${root}. On le vit souvent d’abord comme un ${root}, avant de grandir vers le ${n}.`
+    ? `${n} est un nombre maître\u202f: on le garde entier au lieu de le réduire à ${root}, car on le lit comme une version plus intense et plus exigeante du ${root}. On le vit souvent d’abord comme un ${root}, avant de grandir vers le ${n}.`
     : `${n} is a master number: it is kept whole instead of being reduced to ${root}, because it is read as a more intense, more demanding version of ${root}. People often live it as a ${root} first and grow into the ${n} later.`;
 }

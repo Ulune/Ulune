@@ -40,7 +40,7 @@ const DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 /** A pointer that crosses the gap between two parts keeps the first lit this long (ms). */
 const HOVER_LINGER_MS = 90;
 /** What a panel may point at on the wheel (a tile, a row, a reading's link). */
-const PREVIEWABLE = /^(number|letter|core|time):/;
+const PREVIEWABLE = /^(number|letter|core|time|detail|plane|bridge):/;
 
 function partOf(target: EventTarget | null): string | null {
   const el = target instanceof Element ? target.closest("[data-part]") : null;

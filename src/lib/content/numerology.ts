@@ -28,7 +28,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "1 is the first number, the unit every other number is built from, so numerology links it to beginnings, will and the individual. It stands for acting on one’s own judgement: starting, deciding, standing apart when needed. A strong 1 points to someone who learns by doing things first and alone rather than waiting for permission.",
-      fr: "Le 1 est le premier nombre, l’unité dont tous les autres sont faits ; la numérologie l’associe donc au commencement, à la volonté et à l’individu. Il représente le fait d’agir selon son propre jugement : lancer, trancher, se démarquer quand il le faut. Un 1 marqué désigne une personne qui apprend en agissant la première, et seule, plutôt qu’en attendant qu’on l’y autorise.",
+      fr: "Le 1 est le premier nombre, l’unité dont tous les autres sont faits\u202f; la numérologie l’associe donc au commencement, à la volonté et à l’individu. Il représente le fait d’agir selon son propre jugement\u202f: lancer, trancher, se démarquer quand il le faut. Un 1 marqué désigne une personne qui apprend en agissant la première, et seule, plutôt qu’en attendant qu’on l’y autorise.",
     },
     strengths: {
       en: "Takes the initiative without being asked, decides quickly and holds a direction under pressure. Often good at starting the projects, businesses or habits that others only talk about.",
@@ -36,7 +36,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     pitfalls: {
       en: "Can confuse independence with doing everything alone, and hear advice as interference. Impatience with slower people is common. What helps: asking for input before the decision, not after it.",
-      fr: "Peut confondre indépendance et tout faire seul, et prendre un conseil pour une ingérence. L’impatience envers les plus lents est fréquente. Ce qui aide : demander l’avis des autres avant de décider, pas après.",
+      fr: "Peut confondre indépendance et tout faire seul, et prendre un conseil pour une ingérence. L’impatience envers les plus lents est fréquente. Ce qui aide\u202f: demander l’avis des autres avant de décider, pas après.",
     },
     example: {
       en: "At work, a 1 is often the person drafting a plan while the meeting is still debating whether a plan is needed. At home, the same trait looks like rearranging the whole flat without mentioning it first.",
@@ -50,7 +50,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "2 is the first pair, and it stands for relationship: two sides, two people and what happens between them. Numerology links it to cooperation, tact and receptiveness — noticing what others feel and adjusting to it. A 2 tends to work best in partnership, and its influence is often quiet: mediating, supporting and holding the details together rather than leading from the front.",
-      fr: "Le 2 est la première paire, et il représente la relation : deux côtés, deux personnes et ce qui se passe entre elles. La numérologie l’associe à la coopération, au tact et à la réceptivité — percevoir ce que ressentent les autres et s’y ajuster. Un 2 donne souvent le meilleur de lui-même à deux, et son influence est discrète : il arbitre, soutient et tient les détails ensemble plutôt que de mener de front.",
+      fr: "Le 2 est la première paire, et il représente la relation\u202f: deux côtés, deux personnes et ce qui se passe entre elles. La numérologie l’associe à la coopération, au tact et à la réceptivité — percevoir ce que ressentent les autres et s’y ajuster. Un 2 donne souvent le meilleur de lui-même à deux, et son influence est discrète\u202f: il arbitre, soutient et tient les détails ensemble plutôt que de mener de front.",
     },
     strengths: {
       en: "Reads moods and undercurrents accurately, listens well and finds the compromise both sides can accept. Patient with detail and reliable in a supporting role.",
@@ -72,11 +72,11 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "3 is the first number with a beginning, a middle and an end, which is why many traditions treat it as a small complete whole. In numerology it stands for self-expression: words, humour, art and social ease. A 3 tends to think out loud, and feels most like itself when making something or sharing an idea with an audience.",
-      fr: "Le 3 est le premier nombre qui ait un début, un milieu et une fin, et c’est pourquoi de nombreuses traditions y voient un petit tout achevé. En numérologie, il représente l’expression de soi : les mots, l’humour, l’art, l’aisance en société. Un 3 pense volontiers à voix haute, et se sent pleinement lui-même quand il crée quelque chose ou partage une idée devant un public.",
+      fr: "Le 3 est le premier nombre qui ait un début, un milieu et une fin, et c’est pourquoi de nombreuses traditions y voient un petit tout achevé. En numérologie, il représente l’expression de soi\u202f: les mots, l’humour, l’art, l’aisance en société. Un 3 pense volontiers à voix haute, et se sent pleinement lui-même quand il crée quelque chose ou partage une idée devant un public.",
     },
     strengths: {
       en: "Communicates easily, lightens a tense room, and turns ideas into something others can see or hear: a story, a design, a talk, a meal.",
-      fr: "Communique facilement, détend une atmosphère lourde et transforme les idées en quelque chose que les autres peuvent voir ou entendre : un récit, un dessin, une conférence, un repas.",
+      fr: "Communique facilement, détend une atmosphère lourde et transforme les idées en quelque chose que les autres peuvent voir ou entendre\u202f: un récit, un dessin, une conférence, un repas.",
     },
     pitfalls: {
       en: "Spreads attention across too many projects and finishes few of them. Can use charm or jokes to dodge a serious conversation. A short list of priorities and one finished piece at a time help.",
@@ -94,7 +94,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "4 is the number of the square: four sides, four seasons, four directions. Numerology links it to foundations, order and effort. It stands for building things that last through method and patience — budgets, routines, systems, craft. A 4 tends to trust what can be checked and measured, and prefers a slow, sure result to a fast, risky one.",
-      fr: "Le 4 est le nombre du carré : quatre côtés, quatre saisons, quatre points cardinaux. La numérologie l’associe aux fondations, à l’ordre et à l’effort. Il représente ce qui se construit pour durer, avec méthode et patience — budgets, routines, systèmes, savoir-faire. Un 4 fait confiance à ce qui se vérifie et se mesure, et préfère un résultat lent et sûr à un résultat rapide et risqué.",
+      fr: "Le 4 est le nombre du carré\u202f: quatre côtés, quatre saisons, quatre points cardinaux. La numérologie l’associe aux fondations, à l’ordre et à l’effort. Il représente ce qui se construit pour durer, avec méthode et patience — budgets, routines, systèmes, savoir-faire. Un 4 fait confiance à ce qui se vérifie et se mesure, et préfère un résultat lent et sûr à un résultat rapide et risqué.",
     },
     strengths: {
       en: "Dependable, organised and thorough. Finishes what it starts, keeps its promises, and is often the one who knows where the documents are and how the process actually works.",
@@ -106,7 +106,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     example: {
       en: "When a family moves house, the 4 is the one with the spreadsheet: boxes numbered by room, electricity transferred on the right date, and a spare set of keys already cut.",
-      fr: "Quand une famille déménage, le 4 est celui qui a le tableur : cartons numérotés par pièce, électricité transférée à la bonne date, et un double des clés déjà fait.",
+      fr: "Quand une famille déménage, le 4 est celui qui a le tableur\u202f: cartons numérotés par pièce, électricité transférée à la bonne date, et un double des clés déjà fait.",
     },
   },
   5: {
@@ -116,7 +116,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "5 sits in the middle of the digits 1 to 9 and is linked to the five senses, so numerology associates it with experience, movement and change. It stands for freedom: travel, variety, new people, learning by trying. A 5 tends to adapt quickly and grows restless when life becomes too predictable or too tightly controlled.",
-      fr: "Le 5 se trouve au milieu des chiffres de 1 à 9 et renvoie aux cinq sens ; la numérologie l’associe donc à l’expérience, au mouvement et au changement. Il représente la liberté : voyager, varier, rencontrer, apprendre en essayant. Un 5 s’adapte vite et devient impatient quand la vie devient trop prévisible ou trop encadrée.",
+      fr: "Le 5 se trouve au milieu des chiffres de 1 à 9 et renvoie aux cinq sens\u202f; la numérologie l’associe donc à l’expérience, au mouvement et au changement. Il représente la liberté\u202f: voyager, varier, rencontrer, apprendre en essayant. Un 5 s’adapte vite et devient impatient quand la vie devient trop prévisible ou trop encadrée.",
     },
     strengths: {
       en: "Adaptable, quick-witted and at ease with strangers. Handles sudden change better than most, and brings back ideas and contacts from outside the usual circle.",
@@ -138,7 +138,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "6 is the first perfect number — 1, 2 and 3 divide it and also add up to it — and numerology links it to balance and harmony. It stands for responsibility towards others: family, home, community and beauty in everyday surroundings. A 6 tends to feel accountable for the people nearby and is often the one others turn to when something needs fixing.",
-      fr: "Le 6 est le premier nombre parfait — 1, 2 et 3 le divisent et, additionnés, le redonnent — et la numérologie l’associe à l’équilibre et à l’harmonie. Il représente la responsabilité envers les autres : la famille, le foyer, la communauté, la beauté du cadre quotidien. Un 6 se sent responsable de son entourage, et c’est souvent vers lui qu’on se tourne quand quelque chose est à réparer.",
+      fr: "Le 6 est le premier nombre parfait — 1, 2 et 3 le divisent et, additionnés, le redonnent — et la numérologie l’associe à l’équilibre et à l’harmonie. Il représente la responsabilité envers les autres\u202f: la famille, le foyer, la communauté, la beauté du cadre quotidien. Un 6 se sent responsable de son entourage, et c’est souvent vers lui qu’on se tourne quand quelque chose est à réparer.",
     },
     strengths: {
       en: "Caring, loyal and steady in a crisis. Creates a welcoming home or team, notices who is being left out, and takes on responsibility without needing to be asked.",
@@ -146,7 +146,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     pitfalls: {
       en: "Can over-give and then feel unappreciated, or offer help nobody requested and call it care. Asking \"what do you need?\" before stepping in prevents much of this.",
-      fr: "Peut trop donner puis se sentir mal aimé, ou apporter une aide que personne n’a demandée en l’appelant sollicitude. Demander « De quoi avez-vous besoin ? » avant d’intervenir évite une bonne partie de ces malentendus.",
+      fr: "Peut trop donner puis se sentir mal aimé, ou apporter une aide que personne n’a demandée en l’appelant sollicitude. Demander « De quoi avez-vous besoin\u202f? » avant d’intervenir évite une bonne partie de ces malentendus.",
     },
     example: {
       en: "Among friends, the 6 remembers every birthday, brings soup when someone is ill, and quietly pays to repair the shared washing machine — then feels hurt when nobody mentions it.",
@@ -160,7 +160,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "7 carries weight in many traditions: seven days of the week, seven classical planets, seven notes of the scale. In numerology it stands for the search for understanding — study, analysis and spiritual questioning. A 7 tends to need time alone to think, trusts what it has examined for itself, and prefers depth to breadth in ideas and friendships alike.",
-      fr: "Le 7 occupe une place à part dans de nombreuses traditions : sept jours de la semaine, sept planètes classiques, sept notes de la gamme. En numérologie, il représente la quête de compréhension — l’étude, l’analyse, le questionnement spirituel. Un 7 a besoin de temps seul pour réfléchir, se fie à ce qu’il a examiné lui-même, et préfère la profondeur à l’étendue, dans les idées comme dans les amitiés.",
+      fr: "Le 7 occupe une place à part dans de nombreuses traditions\u202f: sept jours de la semaine, sept planètes classiques, sept notes de la gamme. En numérologie, il représente la quête de compréhension — l’étude, l’analyse, le questionnement spirituel. Un 7 a besoin de temps seul pour réfléchir, se fie à ce qu’il a examiné lui-même, et préfère la profondeur à l’étendue, dans les idées comme dans les amitiés.",
     },
     strengths: {
       en: "Observant, analytical and hard to fool. Asks the question beneath the question, researches thoroughly, and often builds real expertise or a well-considered inner life.",
@@ -182,7 +182,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "8 is the first cube (2 × 2 × 2), and its symmetrical shape is often read as a balance between the material world and the inner one. In numerology it stands for power used in practical life: career, money, management, results. An 8 tends to think in terms of goals and resources, and is at ease with responsibility and large decisions.",
-      fr: "Le 8 est le premier cube (2 × 2 × 2), et sa forme symétrique est souvent lue comme un équilibre entre le monde matériel et le monde intérieur. En numérologie, il représente le pouvoir exercé dans la vie concrète : carrière, argent, gestion, résultats. Un 8 raisonne en objectifs et en moyens, et se sent à l’aise avec les responsabilités et les grandes décisions.",
+      fr: "Le 8 est le premier cube (2 × 2 × 2), et sa forme symétrique est souvent lue comme un équilibre entre le monde matériel et le monde intérieur. En numérologie, il représente le pouvoir exercé dans la vie concrète\u202f: carrière, argent, gestion, résultats. Un 8 raisonne en objectifs et en moyens, et se sent à l’aise avec les responsabilités et les grandes décisions.",
     },
     strengths: {
       en: "Ambitious, organised and decisive. Sees how money, people and time can be combined to get something done, and handles authority without being intimidated by it.",
@@ -204,7 +204,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "9 is the last single digit, and any multiple of 9 reduces back to 9 (18, 27, 36…), so numerology links it to completion and to holding all the numbers before it. It stands for broad concern: humanitarian ideals, tolerance, art and letting go. A 9 tends to think beyond personal interest and is often drawn to causes larger than itself.",
-      fr: "Le 9 est le dernier chiffre, et tout multiple de 9 se réduit à nouveau en 9 (18, 27, 36…) ; la numérologie l’associe donc à l’achèvement et à ce qui contient tous les nombres précédents. Il représente une préoccupation large : idéal humanitaire, tolérance, art, lâcher-prise. Un 9 pense au-delà de son intérêt personnel et se sent souvent attiré par des causes qui le dépassent.",
+      fr: "Le 9 est le dernier chiffre, et tout multiple de 9 se réduit à nouveau en 9 (18, 27, 36…)\u202f; la numérologie l’associe donc à l’achèvement et à ce qui contient tous les nombres précédents. Il représente une préoccupation large\u202f: idéal humanitaire, tolérance, art, lâcher-prise. Un 9 pense au-delà de son intérêt personnel et se sent souvent attiré par des causes qui le dépassent.",
     },
     strengths: {
       en: "Generous, tolerant and able to see the wider picture. Often creative, and good at closing chapters — ending a project or a relationship with grace when its time has come.",
@@ -226,7 +226,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "11 is the first master number, kept whole instead of being reduced to 2 (1 + 1). It carries the receptive, cooperative qualities of 2 at a higher intensity: intuition, inspiration and a sense of purpose. An 11 is often described as someone whose ideas or example reach and move others. The same sensitivity can leave it tense and easily overwhelmed.",
-      fr: "Le 11 est le premier nombre maître, conservé tel quel au lieu d’être réduit en 2 (1 + 1). Il porte les qualités réceptives et coopératives du 2 avec plus d’intensité : intuition, inspiration, sentiment d’une mission. On décrit souvent le 11 comme quelqu’un dont les idées ou l’exemple touchent les autres. Cette même sensibilité peut le rendre tendu et vite débordé.",
+      fr: "Le 11 est le premier nombre maître, conservé tel quel au lieu d’être réduit en 2 (1 + 1). Il porte les qualités réceptives et coopératives du 2 avec plus d’intensité\u202f: intuition, inspiration, sentiment d’une mission. On décrit souvent le 11 comme quelqu’un dont les idées ou l’exemple touchent les autres. Cette même sensibilité peut le rendre tendu et vite débordé.",
     },
     strengths: {
       en: "Highly intuitive, idealistic and able to inspire people through ideas, teaching or art. Often senses what a group needs before anyone has put it into words.",
@@ -248,7 +248,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "22 is the master number usually called the master builder. It keeps the method and discipline of 4 (2 + 2) and adds the vision associated with 11: the capacity to turn a large idea into something real and lasting — an organisation, a building, a system that serves many people. A 22 tends to feel both the scale of what is possible and its pressure.",
-      fr: "Le 22 est le nombre maître qu’on appelle en général le maître bâtisseur. Il garde la méthode et la discipline du 4 (2 + 2) et y ajoute la vision associée au 11 : la capacité à transformer une grande idée en quelque chose de réel et de durable — une organisation, un bâtiment, un système utile à beaucoup. Un 22 ressent à la fois l’ampleur de ce qui est possible et le poids qui l’accompagne.",
+      fr: "Le 22 est le nombre maître qu’on appelle en général le maître bâtisseur. Il garde la méthode et la discipline du 4 (2 + 2) et y ajoute la vision associée au 11\u202f: la capacité à transformer une grande idée en quelque chose de réel et de durable — une organisation, un bâtiment, un système utile à beaucoup. Un 22 ressent à la fois l’ampleur de ce qui est possible et le poids qui l’accompagne.",
     },
     strengths: {
       en: "Combines big-picture thinking with patience for detail. Can plan over years, coordinate many people, and carry ambitious projects through where others stop at the idea.",
@@ -256,7 +256,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     pitfalls: {
       en: "The size of its own expectations can freeze it, or push it to control everything. Many 22s live as a 4 for years first; breaking a big aim into small, finished stages helps.",
-      fr: "L’ampleur de ses propres attentes peut le paralyser, ou le pousser à tout contrôler. Beaucoup de 22 vivent d’abord en 4 pendant des années ; découper un grand objectif en petites étapes menées à terme l’aide.",
+      fr: "L’ampleur de ses propres attentes peut le paralyser, ou le pousser à tout contrôler. Beaucoup de 22 vivent d’abord en 4 pendant des années\u202f; découper un grand objectif en petites étapes menées à terme l’aide.",
     },
     example: {
       en: "A 22 starts by fixing the booking system at a local clinic, then designs one that three clinics share, and ten years later runs the regional network built on it.",
@@ -270,7 +270,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "33 is the third master number, often called the master teacher. It carries the care and responsibility of 6 (3 + 3) on a larger scale: guidance, healing and service given out of love rather than duty. Some numerologists do not use it at all, and those who do usually read it as a 6 until the person has grown into its demands.",
-      fr: "Le 33 est le troisième nombre maître, souvent appelé le maître enseignant. Il porte le soin et la responsabilité du 6 (3 + 3) à plus grande échelle : guider, soigner, servir par amour plutôt que par devoir. Certains numérologues ne l’utilisent pas du tout, et ceux qui l’emploient le lisent en général comme un 6 tant que la personne n’a pas grandi dans ce qu’il exige.",
+      fr: "Le 33 est le troisième nombre maître, souvent appelé le maître enseignant. Il porte le soin et la responsabilité du 6 (3 + 3) à plus grande échelle\u202f: guider, soigner, servir par amour plutôt que par devoir. Certains numérologues ne l’utilisent pas du tout, et ceux qui l’emploient le lisent en général comme un 6 tant que la personne n’a pas grandi dans ce qu’il exige.",
     },
     strengths: {
       en: "Warm, patient and deeply supportive. Teaches by example, stays calm with people in difficulty, and can turn personal experience into practical help for others.",
@@ -287,53 +287,46 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
   },
 };
 
-export type CycleKey = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 11 | 22;
+/** The personal cycles reduce every term to one digit (Decoz): no master number. */
+export type CycleKey = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
-/** Personal Year 1–9 (and 11, 22 when kept): the typical theme of the year in a nine-year cycle, with a concrete suggestion. */
+/** Personal Year 1–9: the typical theme of the year in a nine-year cycle, with a concrete suggestion. */
 export const PERSONAL_YEAR_TEXT: Record<CycleKey, Bi> = {
   1: {
     en: "A Personal Year 1 opens a new nine-year cycle. It is typically a year for starting things: a job, a project, a habit, a new way of presenting yourself. Choices made now tend to set the tone for the years that follow. A concrete step: write down one thing you want to have begun by December, and take its first action this month.",
-    fr: "Une Année personnelle 1 ouvre un nouveau cycle de neuf ans. C’est en général une année pour commencer : un emploi, un projet, une habitude, une nouvelle façon de vous présenter. Les choix faits maintenant donnent souvent le ton des années suivantes. Un pas concret : notez une chose que vous voulez avoir lancée d’ici décembre, et faites-en la première démarche ce mois-ci.",
+    fr: "Une Année personnelle 1 ouvre un nouveau cycle de neuf ans. C’est en général une année pour commencer\u202f: un emploi, un projet, une habitude, une nouvelle façon de vous présenter. Les choix faits maintenant donnent souvent le ton des années suivantes. Un pas concret\u202f: notez une chose que vous voulez avoir lancée d’ici décembre, et faites-en la première démarche ce mois-ci.",
   },
   2: {
     en: "A Personal Year 2 is slower and more relational. What you started last year now needs patience, cooperation and small adjustments rather than force. Partnerships, negotiations and details tend to matter more than bold moves. A concrete step: identify the one relationship, at work or at home, that most affects your plans, and spend deliberate time strengthening it.",
-    fr: "Une Année personnelle 2 est plus lente et plus tournée vers les autres. Ce que vous avez lancé l’an dernier demande maintenant de la patience, de la coopération et de petits ajustements plutôt que de la force. Les associations, les négociations et les détails comptent davantage que les coups d’éclat. Un pas concret : repérez la relation, au travail ou à la maison, qui pèse le plus sur vos projets, et prenez délibérément le temps de la consolider.",
+    fr: "Une Année personnelle 2 est plus lente et plus tournée vers les autres. Ce que vous avez lancé l’an dernier demande maintenant de la patience, de la coopération et de petits ajustements plutôt que de la force. Les associations, les négociations et les détails comptent davantage que les coups d’éclat. Un pas concret\u202f: repérez la relation, au travail ou à la maison, qui pèse le plus sur vos projets, et prenez délibérément le temps de la consolider.",
   },
   3: {
     en: "A Personal Year 3 tends to bring more social contact, creativity and visibility. It is a good year to express yourself: write, perform, present your work, meet new people. The risk is scattering your attention across too many invitations and ideas. A concrete step: choose one creative or social project and give it a fixed slot in your week.",
-    fr: "Une Année personnelle 3 apporte souvent plus de vie sociale, de créativité et de visibilité. C’est une bonne année pour vous exprimer : écrire, vous produire, présenter votre travail, rencontrer du monde. Le risque est de disperser votre attention entre trop d’invitations et d’idées. Un pas concret : choisissez un projet créatif ou social et réservez-lui un créneau fixe dans votre semaine.",
+    fr: "Une Année personnelle 3 apporte souvent plus de vie sociale, de créativité et de visibilité. C’est une bonne année pour vous exprimer\u202f: écrire, vous produire, présenter votre travail, rencontrer du monde. Le risque est de disperser votre attention entre trop d’invitations et d’idées. Un pas concret\u202f: choisissez un projet créatif ou social et réservez-lui un créneau fixe dans votre semaine.",
   },
   4: {
     en: "A Personal Year 4 is about work and foundations. It often feels heavier: routines, paperwork, money plans and practical tasks ask for attention. Effort made now tends to pay off in the years that follow. A concrete step: pick one area — finances, home, health habits or skills — and set up a simple system you can keep all year.",
-    fr: "Une Année personnelle 4 est consacrée au travail et aux fondations. Elle paraît souvent plus lourde : routines, démarches administratives, budget et tâches pratiques réclament votre attention. Les efforts fournis maintenant portent en général leurs fruits les années suivantes. Un pas concret : choisissez un domaine — finances, logement, hygiène de vie ou compétences — et mettez en place un système simple que vous pourrez tenir toute l’année.",
+    fr: "Une Année personnelle 4 est consacrée au travail et aux fondations. Elle paraît souvent plus lourde\u202f: routines, démarches administratives, budget et tâches pratiques réclament votre attention. Les efforts fournis maintenant portent en général leurs fruits les années suivantes. Un pas concret\u202f: choisissez un domaine — finances, logement, hygiène de vie ou compétences — et mettez en place un système simple que vous pourrez tenir toute l’année.",
   },
   5: {
     en: "A Personal Year 5 brings movement and change: travel, new people, a shift at work or in where you live. After the discipline of the 4, there is room to experiment, and change you choose is easier than change forced on you. A concrete step: plan one real break from routine — a trip, a course, a new role — and keep one anchoring habit steady.",
-    fr: "Une Année personnelle 5 apporte du mouvement et du changement : voyages, nouvelles rencontres, évolution au travail ou dans votre lieu de vie. Après la discipline du 4, vous avez de la place pour expérimenter, et un changement choisi se vit mieux qu’un changement subi. Un pas concret : prévoyez une vraie rupture avec la routine — un voyage, une formation, un nouveau rôle — et gardez une habitude stable qui vous ancre.",
+    fr: "Une Année personnelle 5 apporte du mouvement et du changement\u202f: voyages, nouvelles rencontres, évolution au travail ou dans votre lieu de vie. Après la discipline du 4, vous avez de la place pour expérimenter, et un changement choisi se vit mieux qu’un changement subi. Un pas concret\u202f: prévoyez une vraie rupture avec la routine — un voyage, une formation, un nouveau rôle — et gardez une habitude stable qui vous ancre.",
   },
   6: {
     en: "A Personal Year 6 turns attention to home, family and responsibility. Relationships may deepen, commitments may be made, and people close to you may need more care. It is also a good year for making your surroundings more comfortable. A concrete step: have one honest conversation about how responsibilities are shared at home, and change what is not working.",
-    fr: "Une Année personnelle 6 tourne l’attention vers le foyer, la famille et les responsabilités. Des relations peuvent s’approfondir, des engagements se prendre, et vos proches avoir besoin de plus d’attention. C’est aussi une bonne année pour rendre votre cadre de vie plus agréable. Un pas concret : ayez une conversation franche sur le partage des responsabilités à la maison, et changez ce qui ne fonctionne pas.",
+    fr: "Une Année personnelle 6 tourne l’attention vers le foyer, la famille et les responsabilités. Des relations peuvent s’approfondir, des engagements se prendre, et vos proches avoir besoin de plus d’attention. C’est aussi une bonne année pour rendre votre cadre de vie plus agréable. Un pas concret\u202f: ayez une conversation franche sur le partage des responsabilités à la maison, et changez ce qui ne fonctionne pas.",
   },
   7: {
     en: "A Personal Year 7 is quieter and more inward. It suits study, reflection, research and questions of meaning more than expansion. Outer results can seem slower, and that is often the point. A concrete step: set aside regular time alone — a weekly walk, a course, a journal — to work out what you actually want from the next two years.",
-    fr: "Une Année personnelle 7 est plus calme et plus intérieure. Elle se prête à l’étude, à la réflexion, à la recherche et aux questions de sens plutôt qu’à l’expansion. Les résultats visibles peuvent sembler plus lents, et c’est souvent le but. Un pas concret : réservez-vous des moments seul — une marche hebdomadaire, une formation, un journal — pour clarifier ce que vous voulez vraiment pour les deux années à venir.",
+    fr: "Une Année personnelle 7 est plus calme et plus intérieure. Elle se prête à l’étude, à la réflexion, à la recherche et aux questions de sens plutôt qu’à l’expansion. Les résultats visibles peuvent sembler plus lents, et c’est souvent le but. Un pas concret\u202f: réservez-vous des moments seul — une marche hebdomadaire, une formation, un journal — pour clarifier ce que vous voulez vraiment pour les deux années à venir.",
   },
   8: {
     en: "A Personal Year 8 tends to focus on career, money and authority. Effort from earlier years can turn into recognition, promotion or important financial decisions. It is a year for asking what your work is worth and managing resources carefully. A concrete step: review your income, debts and goals, then make one clear request — a raise, a new price, a new role.",
-    fr: "Une Année personnelle 8 se concentre souvent sur la carrière, l’argent et l’autorité. Les efforts des années précédentes peuvent se traduire en reconnaissance, en promotion ou en décisions financières importantes. C’est une année pour faire valoir ce que vaut votre travail et gérer vos ressources avec soin. Un pas concret : faites le point sur vos revenus, vos dettes et vos objectifs, puis formulez une demande claire — une augmentation, un nouveau tarif, un nouveau poste.",
+    fr: "Une Année personnelle 8 se concentre souvent sur la carrière, l’argent et l’autorité. Les efforts des années précédentes peuvent se traduire en reconnaissance, en promotion ou en décisions financières importantes. C’est une année pour faire valoir ce que vaut votre travail et gérer vos ressources avec soin. Un pas concret\u202f: faites le point sur vos revenus, vos dettes et vos objectifs, puis formulez une demande claire — une augmentation, un nouveau tarif, un nouveau poste.",
   },
   9: {
     en: "A Personal Year 9 closes the nine-year cycle. It is typically a year of completion: finishing projects, clearing out, ending what no longer fits. Launching large new ventures often feels premature. A concrete step: list what you have outgrown — objects, commitments, habits — and deliberately let go of a few, to make room for the Personal Year 1 that follows.",
-    fr: "Une Année personnelle 9 referme le cycle de neuf ans. C’est en général une année d’achèvement : terminer des projets, faire le tri, mettre fin à ce qui ne vous correspond plus. Lancer de grandes entreprises paraît souvent prématuré. Un pas concret : dressez la liste de ce qui ne vous va plus — objets, engagements, habitudes — et séparez-vous volontairement de quelques-uns, pour faire de la place à l’Année personnelle 1 qui suit.",
-  },
-  11: {
-    en: "When the Personal Year is kept as 11, it is read as an intensified 2: a year of intuition, inspiration and heightened sensitivity, alongside the 2’s patience and cooperation. Ideas may arrive quickly, and so may nervous tension. A concrete step: keep a notebook for the insights that come, and give yourself more rest and fewer commitments than usual.",
-    fr: "Quand l’Année personnelle est conservée en 11, on la lit comme un 2 intensifié : une année d’intuition, d’inspiration et de sensibilité accrue, en plus de la patience et de la coopération du 2. Les idées peuvent venir vite, la tension nerveuse aussi. Un pas concret : tenez un carnet pour noter les intuitions qui surgissent, et accordez-vous plus de repos et moins d’engagements que d’habitude.",
-  },
-  22: {
-    en: "When the Personal Year is kept as 22, it is read as an intensified 4: a year for building something substantial and long-term, with more ambition behind the usual hard work. The workload can feel large. A concrete step: name the one project you want to lay foundations for, and break it into monthly stages you can actually complete.",
-    fr: "Quand l’Année personnelle est conservée en 22, on la lit comme un 4 intensifié : une année pour bâtir quelque chose de solide et de durable, avec plus d’ambition derrière le travail habituel. La charge peut sembler lourde. Un pas concret : nommez le projet dont vous voulez poser les fondations, et découpez-le en étapes mensuelles que vous pouvez réellement mener à bien.",
+    fr: "Une Année personnelle 9 referme le cycle de neuf ans. C’est en général une année d’achèvement\u202f: terminer des projets, faire le tri, mettre fin à ce qui ne vous correspond plus. Lancer de grandes entreprises paraît souvent prématuré. Un pas concret\u202f: dressez la liste de ce qui ne vous va plus — objets, engagements, habitudes — et séparez-vous volontairement de quelques-uns, pour faire de la place à l’Année personnelle 1 qui suit.",
   },
 };
 
@@ -341,47 +334,39 @@ export const PERSONAL_YEAR_TEXT: Record<CycleKey, Bi> = {
 export const PERSONAL_MONTH_TEXT: Record<CycleKey, Bi> = {
   1: {
     en: "A month to start something: make the call, send the application, or take the first real step on a plan.",
-    fr: "Un mois pour commencer : passez l’appel, envoyez la candidature ou faites le premier vrai pas d’un projet.",
+    fr: "Un mois pour commencer\u202f: passez l’appel, envoyez la candidature ou faites le premier vrai pas d’un projet.",
   },
   2: {
     en: "A month for patience and cooperation; listen more than usual, handle the details, and let things develop at their own pace.",
-    fr: "Un mois de patience et de coopération ; écoutez plus que d’habitude, occupez-vous des détails et laissez les choses mûrir à leur rythme.",
+    fr: "Un mois de patience et de coopération\u202f; écoutez plus que d’habitude, occupez-vous des détails et laissez les choses mûrir à leur rythme.",
   },
   3: {
     en: "A month for company and self-expression; accept an invitation and share an idea or piece of work you have been holding back.",
-    fr: "Un mois pour voir du monde et vous exprimer ; acceptez une invitation et montrez une idée ou un travail que vous gardiez pour vous.",
+    fr: "Un mois pour voir du monde et vous exprimer\u202f; acceptez une invitation et montrez une idée ou un travail que vous gardiez pour vous.",
   },
   4: {
     en: "A month for steady work: catch up on admin, fix what is broken, and keep to a routine even when it feels dull.",
-    fr: "Un mois de travail régulier : rattrapez les démarches en retard, réparez ce qui est cassé et tenez votre routine même quand elle vous ennuie.",
+    fr: "Un mois de travail régulier\u202f: rattrapez les démarches en retard, réparez ce qui est cassé et tenez votre routine même quand elle vous ennuie.",
   },
   5: {
     en: "A month of movement and change; expect plans to shift, and leave some room in your schedule for the unexpected.",
-    fr: "Un mois de mouvement et de changement ; attendez-vous à ce que les plans bougent, et laissez de la place à l’imprévu dans votre agenda.",
+    fr: "Un mois de mouvement et de changement\u202f; attendez-vous à ce que les plans bougent, et laissez de la place à l’imprévu dans votre agenda.",
   },
   6: {
     en: "A month centred on home, family and commitments; give time to the people who rely on you and to your surroundings.",
-    fr: "Un mois centré sur le foyer, la famille et les engagements ; consacrez du temps aux personnes qui comptent sur vous et à votre cadre de vie.",
+    fr: "Un mois centré sur le foyer, la famille et les engagements\u202f; consacrez du temps aux personnes qui comptent sur vous et à votre cadre de vie.",
   },
   7: {
     en: "A quieter month for thinking, reading and rest; step back from the noise before you make any important decision.",
-    fr: "Un mois plus calme, propice à la réflexion, à la lecture et au repos ; prenez du recul avant toute décision importante.",
+    fr: "Un mois plus calme, propice à la réflexion, à la lecture et au repos\u202f; prenez du recul avant toute décision importante.",
   },
   8: {
     en: "A month for practical results: deal with money, negotiate, and take charge of a decision you have been putting off.",
-    fr: "Un mois tourné vers les résultats concrets : occupez-vous de l’argent, négociez et prenez enfin la décision que vous repoussez.",
+    fr: "Un mois tourné vers les résultats concrets\u202f: occupez-vous de l’argent, négociez et prenez enfin la décision que vous repoussez.",
   },
   9: {
     en: "A month for finishing and clearing out; tie up loose ends and let go of something that has run its course.",
-    fr: "Un mois pour terminer et faire le tri ; bouclez ce qui traîne et laissez partir ce qui a fait son temps.",
-  },
-  11: {
-    en: "A month of sharper intuition and sensitivity; write down the ideas that come to you, and protect your rest.",
-    fr: "Un mois d’intuition et de sensibilité plus vives ; notez les idées qui vous viennent et préservez votre repos.",
-  },
-  22: {
-    en: "A month for concrete progress on a large goal; turn one big idea into a specific plan with dates attached.",
-    fr: "Un mois pour avancer concrètement vers un grand objectif ; transformez une grande idée en plan précis, avec des dates.",
+    fr: "Un mois pour terminer et faire le tri\u202f; bouclez ce qui traîne et laissez partir ce qui a fait son temps.",
   },
 };
 
@@ -393,11 +378,11 @@ export const PERSONAL_DAY_TEXT: Record<CycleKey, Bi> = {
   },
   2: {
     en: "A day for listening, cooperating and small gestures; results come more easily through other people than through pushing.",
-    fr: "Une journée d’écoute, de coopération et de petites attentions ; les résultats viennent plus facilement par les autres qu’en forçant.",
+    fr: "Une journée d’écoute, de coopération et de petites attentions\u202f; les résultats viennent plus facilement par les autres qu’en forçant.",
   },
   3: {
     en: "A day to talk, write, create or see friends; a light touch will get you further than a heavy one.",
-    fr: "Une journée pour parler, écrire, créer ou voir des amis ; la légèreté vous mènera plus loin que l’insistance.",
+    fr: "Une journée pour parler, écrire, créer ou voir des amis\u202f; la légèreté vous mènera plus loin que l’insistance.",
   },
   4: {
     en: "A day for focused, practical work — the list, the bills, the repairs — taken one task at a time.",
@@ -405,15 +390,15 @@ export const PERSONAL_DAY_TEXT: Record<CycleKey, Bi> = {
   },
   5: {
     en: "A day open to change: try a new route, a new idea, or a conversation with someone you don’t know yet.",
-    fr: "Une journée ouverte au changement : essayez un autre trajet, une nouvelle idée ou une conversation avec quelqu’un que vous ne connaissez pas encore.",
+    fr: "Une journée ouverte au changement\u202f: essayez un autre trajet, une nouvelle idée ou une conversation avec quelqu’un que vous ne connaissez pas encore.",
   },
   6: {
     en: "A day to look after your home and the people close to you; a small act of care goes further than usual.",
-    fr: "Une journée pour prendre soin de votre intérieur et de vos proches ; un petit geste d’attention porte plus loin que d’habitude.",
+    fr: "Une journée pour prendre soin de votre intérieur et de vos proches\u202f; un petit geste d’attention porte plus loin que d’habitude.",
   },
   7: {
     en: "A day for reflection, study or time alone; avoid rushing into commitments and give your second thoughts a hearing.",
-    fr: "Une journée de réflexion, d’étude ou de solitude ; évitez de vous engager dans la précipitation et écoutez vos seconds avis.",
+    fr: "Une journée de réflexion, d’étude ou de solitude\u202f; évitez de vous engager dans la précipitation et écoutez vos seconds avis.",
   },
   8: {
     en: "A day to handle money, work matters or a negotiation, and to speak with clear authority when it counts.",
@@ -421,15 +406,7 @@ export const PERSONAL_DAY_TEXT: Record<CycleKey, Bi> = {
   },
   9: {
     en: "A day to finish, tidy up and forgive; close something off rather than starting something new.",
-    fr: "Une journée pour finir, ranger et pardonner ; refermez quelque chose plutôt que d’en commencer une nouvelle.",
-  },
-  11: {
-    en: "A day when intuition runs high; pay attention to your hunches, and take breaks if you start to feel overstimulated.",
-    fr: "Une journée où l’intuition est forte ; soyez attentif à vos pressentiments, et faites des pauses si vous vous sentez surstimulé.",
-  },
-  22: {
-    en: "A day to make real progress on a long-term project by doing the one practical step that matters most.",
-    fr: "Une journée pour faire vraiment avancer un projet de long terme, en accomplissant l’étape concrète qui compte le plus.",
+    fr: "Une journée pour finir, ranger et pardonner\u202f; refermez quelque chose plutôt que d’en commencer une nouvelle.",
   },
 };
 
@@ -437,7 +414,7 @@ export const PERSONAL_DAY_TEXT: Record<CycleKey, Bi> = {
 export const UNIVERSAL_YEAR_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, Bi> = {
   1: {
     en: "A Universal Year 1 is read as a collective year of beginnings: new initiatives, new leaders and fresh starts in many areas at once. Its general theme is independence and setting a direction for the next nine years.",
-    fr: "Une Année universelle 1 se lit comme une année collective de commencements : nouvelles initiatives, nouveaux dirigeants, nouveaux départs dans de nombreux domaines à la fois. Son thème général est l’indépendance et le choix d’une direction pour les neuf années à venir.",
+    fr: "Une Année universelle 1 se lit comme une année collective de commencements\u202f: nouvelles initiatives, nouveaux dirigeants, nouveaux départs dans de nombreux domaines à la fois. Son thème général est l’indépendance et le choix d’une direction pour les neuf années à venir.",
   },
   2: {
     en: "A Universal Year 2 is associated with cooperation, negotiation and slower progress. Collectively, the emphasis tends to fall on alliances, agreements and the balance between opposing sides, with patience rewarded more than speed.",
@@ -481,7 +458,7 @@ export const NUMEROLOGY_ABOUT: { system: Bi; reduction: Bi; masters: Bi; cycle: 
   },
   reduction: {
     en: "Numbers are reduced by adding their digits until a single digit remains. For a birth date of 15 June 1990, the day gives 1 + 5 = 6, the month is 6, and the year gives 1 + 9 + 9 + 0 = 19, then 1 + 9 = 10, then 1 + 0 = 1; adding 6 + 6 + 1 = 13 and 1 + 3 = 4 gives a Life Path of 4. Names work the same way, with each letter given a value from A = 1 to I = 9, then J = 1 again.",
-    fr: "On réduit un nombre en additionnant ses chiffres jusqu’à n’en garder qu’un. Pour une naissance le 15 juin 1990, le jour donne 1 + 5 = 6, le mois vaut 6, et l’année donne 1 + 9 + 9 + 0 = 19, puis 1 + 9 = 10, puis 1 + 0 = 1 ; en additionnant 6 + 6 + 1 = 13, puis 1 + 3 = 4, on obtient un Chemin de vie 4. Les noms suivent le même principe, chaque lettre recevant une valeur de A = 1 à I = 9, puis J = 1 de nouveau.",
+    fr: "On réduit un nombre en additionnant ses chiffres jusqu’à n’en garder qu’un. Pour une naissance le 15 juin 1990, le jour donne 1 + 5 = 6, le mois vaut 6, et l’année donne 1 + 9 + 9 + 0 = 19, puis 1 + 9 = 10, puis 1 + 0 = 1\u202f; en additionnant 6 + 6 + 1 = 13, puis 1 + 3 = 4, on obtient un Chemin de vie 4. Les noms suivent le même principe, chaque lettre recevant une valeur de A = 1 à I = 9, puis J = 1 de nouveau.",
   },
   masters: {
     en: "11, 22 and 33 are called master numbers and are left unreduced when they appear, because the tradition reads them as a stronger, more demanding form of their root. They are also read as 2, 4 and 6 (1 + 1, 2 + 2, 3 + 3), which is why they are written 11/2, 22/4 and 33/6. Many people are said to live the root number first and grow into the master number over time.",
@@ -489,10 +466,10 @@ export const NUMEROLOGY_ABOUT: { system: Bi; reduction: Bi; masters: Bi; cycle: 
   },
   cycle: {
     en: "Personal Years run in a nine-year cycle, from 1 (beginnings) to 9 (completion), and then start again. The Personal Year adds your birth month and birth day to the current calendar year and reduces the total: for someone born on 15 June, 2026 gives 6 + 15 + 2026 = 2047, then 2 + 0 + 4 + 7 = 13, then 1 + 3 = 4. The next year, 2027, is a Personal Year 5.",
-    fr: "Les Années personnelles suivent un cycle de neuf ans, de 1 (commencement) à 9 (achèvement), puis recommencent. L’Année personnelle additionne votre mois et votre jour de naissance à l’année civile en cours, puis réduit le total : pour une personne née un 15 juin, 2026 donne 6 + 15 + 2026 = 2047, puis 2 + 0 + 4 + 7 = 13, puis 1 + 3 = 4. L’année suivante, 2027, est une Année personnelle 5.",
+    fr: "Les Années personnelles suivent un cycle de neuf ans, de 1 (commencement) à 9 (achèvement), puis recommencent. L’Année personnelle additionne votre mois et votre jour de naissance à l’année civile en cours, puis réduit le total\u202f: pour une personne née un 15 juin, 2026 donne 6 + 15 + 2026 = 2047, puis 2 + 0 + 4 + 7 = 13, puis 1 + 3 = 4. L’année suivante, 2027, est une Année personnelle 5.",
   },
   compare: {
     en: "Comparing two people’s numbers shows which themes they share and where they differ — for example, two 4s who both value routine, or a 5 who needs change sharing a home with a 6 who needs stability. It is not a compatibility score: no pair of numbers is good or bad, and the useful question is how each person’s needs can be understood and met.",
-    fr: "Comparer les nombres de deux personnes montre les thèmes qu’elles partagent et ceux qui les distinguent — par exemple deux 4 qui tiennent tous deux à la routine, ou un 5 en quête de changement qui vit avec un 6 en quête de stabilité. Ce n’est pas un score de compatibilité : aucune paire de nombres n’est bonne ou mauvaise, et la vraie question est de savoir comment comprendre et respecter les besoins de chacun.",
+    fr: "Comparer les nombres de deux personnes montre les thèmes qu’elles partagent et ceux qui les distinguent — par exemple deux 4 qui tiennent tous deux à la routine, ou un 5 en quête de changement qui vit avec un 6 en quête de stabilité. Ce n’est pas un score de compatibilité\u202f: aucune paire de nombres n’est bonne ou mauvaise, et la vraie question est de savoir comment comprendre et respecter les besoins de chacun.",
   },
 };

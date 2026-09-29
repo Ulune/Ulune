@@ -27,15 +27,16 @@ import {
   CALENDAR_ABOUT,
 } from "@/lib/content/astro-calendar";
 import { SIGN_TEXT } from "@/lib/content/astro-signs-houses";
+import { PERSONAL_DAY_TEXT, PERSONAL_MONTH_TEXT, PERSONAL_YEAR_TEXT, UNIVERSAL_YEAR_TEXT, type CycleKey } from "@/lib/content/numerology";
 import {
-  NUMBER_TEXT,
-  PERSONAL_DAY_TEXT,
-  PERSONAL_MONTH_TEXT,
-  PERSONAL_YEAR_TEXT,
-  UNIVERSAL_YEAR_TEXT,
-  type CycleKey,
-  type NumberKey,
-} from "@/lib/content/numerology";
+  CHALLENGE_TEXT,
+  CYCLE_ABOUT,
+  PERIOD_PLACE_TEXT,
+  PERIOD_TEXT,
+  PINNACLE_TEXT,
+  type CycleNumberKey,
+  type Gap,
+} from "@/lib/content/numerology-more";
 import { TRANSIT_FAMILY, TRANSIT_PACE } from "@/lib/content/astro-time";
 import { pickBi } from "@/lib/content/types";
 import { dateFormat } from "@/lib/intl-cache";
@@ -539,7 +540,14 @@ export function numerologyYearReading(num: NumerologyCalendar, year: number, loc
   };
 }
 
-/** A long cycle changing on a birthday (numerology, part 62): which, from when, until when, and its number's themes. */
+/** The text of a long cycle's number, in its kind (numerology, part 63). */
+function cycleText(kind: "period" | "pinnacle" | "challenge", n: number | null, locale: Locale): string {
+  if (n == null) return "";
+  const bi = kind === "challenge" ? CHALLENGE_TEXT[n as Gap] : kind === "pinnacle" ? PINNACLE_TEXT[n as CycleNumberKey] : PERIOD_TEXT[n as CycleNumberKey];
+  return bi ? pickBi(bi, locale) : "";
+}
+
+/** A long cycle changing on a birthday (numerology, part 62): which, from when, until when, and what its number brings. */
 export function numerologyChangeReading(num: NumerologyCalendar, id: string, locale: Locale): ElementReading | null {
   const c = num.changes.find((x) => changeId(x) === id);
   if (!c) return null;
@@ -548,9 +556,11 @@ export function numerologyChangeReading(num: NumerologyCalendar, id: string, loc
     fill(CALENDAR_UI.num.from, locale, { date: numDate(c.day, locale), age: c.age }),
     next ? fill(CALENDAR_UI.num.until, locale, { date: numDate(next.day, locale) }) : pick(CALENDAR_UI.num.forLife, locale),
   ].join(" · ");
-  const about = pick(CALENDAR_UI.num[`about_${c.kind}`], locale);
+  const about = pickBi(CYCLE_ABOUT[c.kind], locale);
   const n = c.value.number;
-  const text = n != null && n > 0 ? NUMBER_TEXT[n as NumberKey] : undefined;
+  const text = cycleText(c.kind, n, locale);
+  const before = cycleText(c.kind, c.previous.number, locale);
+  const place = c.kind === "period" ? pickBi(PERIOD_PLACE_TEXT[c.index as 1 | 2 | 3], locale) : "";
   // The other cycles changing on the same birthday.
   const same = changeLinks(num, c.day, c.day, locale).filter((r) => r.ref !== id);
   return {
@@ -559,8 +569,8 @@ export function numerologyChangeReading(num: NumerologyCalendar, id: string, loc
     mark: String(n ?? ""),
     title: numChangeTitle(c, locale),
     kicker: when,
-    lead: about,
-    paragraphs: [about, ...(text ? [pickBi(text.what, locale)] : [])],
+    lead: text || about,
+    paragraphs: [text, place, about].filter(Boolean),
     facts: [
       { label: pick(CALENDAR_UI.num.factFrom, locale), value: fill(CALENDAR_UI.num.atAge, locale, { date: numShortDate(c.day, locale), age: c.age }) },
       {
@@ -570,9 +580,11 @@ export function numerologyChangeReading(num: NumerologyCalendar, id: string, loc
       { label: pick(CALENDAR_UI.num.number, locale), value: wholeText(c.value) },
       { label: pick(CALENDAR_UI.num.before, locale), value: wholeText(c.previous) },
     ],
-    sections: text
-      ? [{ id: "theme", title: pick(CALENDAR_UI.num.theme, locale), paragraphs: [`${pickBi(text.keywords, locale)}.`.replace(/^./, (x) => x.toUpperCase()), pickBi(text.what, locale)] }]
-      : undefined,
+    sections: [
+      ...(place ? [{ id: "place", title: fill(CALENDAR_UI.num.cycle_period, locale, { n: c.index }), paragraphs: [place] }] : []),
+      ...(before ? [{ id: "before", title: `${pick(CALENDAR_UI.num.before, locale)} · ${wholeText(c.previous)}`, paragraphs: [before] }] : []),
+    ],
     links: same.length ? { title: pick(CALENDAR_UI.num.changesHead, locale), rows: same } : undefined,
+    about: { title: howTitle(locale), paragraphs: [about] },
   };
 }

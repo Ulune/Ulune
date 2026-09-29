@@ -18,6 +18,9 @@
  *     month's title and each day's personal day, the personal year and its
  *     months in the year, a long cycle changing on its birthday (2031), in
  *     the day, the month, the year and the events table, for you alone;
+ *   - the readings (part 63): the first read by keyboard, each step lighting
+ *     its part of the wheel, then the Life Path's reading with its place and
+ *     its karmic debt; the year's chips and the Table view's rows open theirs;
  *   - without a name, only the birth date's numbers;
  *   - in French; on a phone the wheel takes the width, the tiles scroll
  *     sideways and nothing else does.
@@ -193,6 +196,38 @@ async function desktop() {
     });
     if (touching) throw new Error(`${touching} discs overlap`);
 
+    // The first read (part 63): five steps by keyboard, each lighting its part of the wheel, then the Life Path's reading.
+    await page.getByTestId("numerology-first").waitFor({ timeout: 15000 });
+    const firstSteps = [];
+    await page.getByTestId("numerology-first-next").focus();
+    for (let i = 0; i < 5; i++) {
+      await page.waitForTimeout(250);
+      firstSteps.push(
+        await page.evaluate(() => ({
+          step: document.querySelector('[data-testid="numerology-first"]')?.getAttribute("data-step"),
+          count: document.querySelector('[data-testid="numerology-first-count"]')?.textContent,
+          text: document.querySelector(".ulune-num-first-text")?.textContent ?? "",
+          vowelsLit: [...document.querySelectorAll(".num-letter[data-vowel]")].every((g) => g.hasAttribute("data-lit")),
+          consonantsLit: [...document.querySelectorAll(".num-letter:not([data-vowel])")].some((g) => g.hasAttribute("data-lit")),
+          focused: document.activeElement?.getAttribute("data-testid"),
+        })),
+      );
+      await page.keyboard.press("Enter");
+    }
+    const wantSteps = ["lifepath", "expression", "soulurge", "personality", "personalYear"];
+    if (firstSteps.map((x) => x.step).join() !== wantSteps.join() || firstSteps[4].count !== "5 of 5" || firstSteps.some((x) => x.focused !== "numerology-first-next" || x.text.length < 40)) {
+      throw new Error(`the first read ${JSON.stringify(firstSteps)}`);
+    }
+    if (!firstSteps[2].vowelsLit || firstSteps[2].consonantsLit) throw new Error("the Soul Urge step does not light the vowels alone");
+    if (!/^A Soul Urge 3 wants to express itself/.test(firstSteps[2].text)) throw new Error(`the Soul Urge step: ${firstSteps[2].text}`);
+    await page.getByTestId("click-note").waitFor({ timeout: 8000 });
+    if (await page.getByTestId("numerology-first").count()) throw new Error("the first read stayed after Done");
+    if (!/^Life Path 13\/4/.test(await page.locator("[data-testid=click-note] h2").first().innerText())) throw new Error("Done did not open the Life Path");
+    if ((await page.evaluate(() => localStorage.getItem("ulune.hint.numfirst.v1"))) !== "1") throw new Error("the first read's hint not kept");
+    // The Life Path's reading leads with its place: a road of building, then its karmic debt.
+    const lpCard = (await page.getByTestId("click-note").innerText()).replace(/\s+/g, " ");
+    if (!/A Life Path 4 is a road of building/.test(lpCard) || !/Karmic debt 13/i.test(lpCard)) throw new Error(`the Life Path reading: ${lpCard.slice(0, 300)}`);
+
     // Pointing at the Soul Urge lights the vowels, and only them.
     await page.getByTestId("numerology-tile-soulurge").hover();
     await page.waitForFunction(() => document.querySelector('[data-testid="numerology-ring"]')?.getAttribute("data-focus") === "hover");
@@ -255,6 +290,10 @@ async function desktop() {
     await page.getByTestId("num-year").click();
     await page.waitForTimeout(300);
     if ((await page.getByTestId("num-year").innerText()) !== String(thisYear)) throw new Error("the year did not come back");
+    // Each chip under the stepper opens its reading (part 63).
+    await page.getByTestId("num-chip-challenge").click();
+    await page.waitForTimeout(400);
+    if (!/^Challenge \d · \d/.test(await page.locator("[data-testid=click-note] h2").first().innerText())) throw new Error("the challenge chip's reading");
     await page.screenshot({ path: join(SHOTS, "numerology-1280.png") });
 
     // The Table view: one scroll under the bar, the parts in order.
@@ -293,6 +332,22 @@ async function desktop() {
     for (const [k, re] of Object.entries(want61)) if (!re.test(table[k])) throw new Error(`table ${k}: ${table[k]}`);
     if (table.full.join() !== "num-line-1-5-9" || table.years !== 9 || table.sideways > 1) throw new Error(`table ${JSON.stringify({ ...table, words: "" })}`);
     if (/undefined|NaN|\{[a-z]+\}/.test(table.words)) throw new Error("unfilled words in the table");
+    // Its rows open their readings (part 63), and the Table view stays.
+    for (const [row, title] of [
+      ["num-detail-lessons", /^Karmic lessons 6, 7, 8$/],
+      ["num-detail-plane-emotional", /^Emotional plane 11\/2$/],
+      ["num-cycle-pinnacle-3", /^Pinnacle 3 · 1$/],
+      ["num-bridge-soulUrgePersonality", /^Soul Urge – Personality 6$/],
+      ["num-core-attitude", /^Attitude 3$/],
+      [`num-year-${thisYear}`, new RegExp(`^${thisYear} · Personal year ${personalYear(thisYear)}$`)],
+    ]) {
+      await page.getByTestId(row).scrollIntoViewIfNeeded();
+      await page.getByTestId(row).click();
+      await page.waitForTimeout(400);
+      const h = await page.locator("[data-testid=click-note] h2").first().innerText();
+      if (!title.test(h.replace(/\s+/g, " "))) throw new Error(`${row} opened «${h}»`);
+      if ((await page.getByTestId("view-table").getAttribute("aria-pressed")) !== "true") throw new Error(`${row} left the Table view`);
+    }
     // The link of the part being read is lit as the page scrolls.
     await page.evaluate(() => document.querySelector('[data-testid="table-cycles"]').scrollIntoView({ block: "start" }));
     await page.waitForTimeout(700);

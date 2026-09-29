@@ -91,7 +91,7 @@ export function NumerologyTable({
       label: p(locale, "part_core"),
       heading: p(locale, "headCore"),
       hint: p(locale, "hint_core"),
-      terms: ["lifePath", "nameNumbers", "birthday", "masterNumbers"],
+      terms: ["lifePath", "nameNumbers", "birthday", "maturity", "masterNumbers", "karmicDebt"],
       copyText: partText("core"),
       children: (
         <>
@@ -105,7 +105,7 @@ export function NumerologyTable({
       label: p(locale, "part_name"),
       heading: p(locale, "headName"),
       hint: p(locale, "hint_name"),
-      terms: ["nameNumbers"],
+      terms: ["nameNumbers", "karmicLesson", "hiddenPassion", "finerNumbers", "planes", "stones", "chaldean"],
       copyText: partText("name"),
       children: gate ?? <NamePart chart={chart} locale={locale} {...pick} />,
     },
@@ -114,6 +114,7 @@ export function NumerologyTable({
       label: p(locale, "part_grid"),
       heading: p(locale, "headGrid"),
       hint: p(locale, "hint_grid"),
+      terms: ["birthGrid"],
       copyText: partText("grid"),
       children: <GridPart chart={chart} locale={locale} layout={layout} setLayout={setLayout} />,
     },
@@ -122,14 +123,16 @@ export function NumerologyTable({
       label: p(locale, "part_cycles"),
       heading: p(locale, "headCycles"),
       hint: p(locale, "hint_cycles"),
+      terms: ["periodCycle", "pinnacle", "challenge"],
       copyText: partText("cycles"),
-      children: <CyclesPart chart={chart} locale={locale} />,
+      children: <CyclesPart chart={chart} locale={locale} {...pick} />,
     },
     {
       id: "years",
       label: p(locale, "part_years"),
       heading: p(locale, "headYears"),
       hint: p(locale, "hint_years"),
+      terms: ["personalCycles", "letterCycle"],
       copyText: partText("years"),
       children: <YearsPart chart={chart} locale={locale} wholeLife={wholeLife} setWholeLife={setWholeLife} {...pick} />,
     },
@@ -138,11 +141,13 @@ export function NumerologyTable({
       label: p(locale, "part_bridges"),
       heading: p(locale, "headBridges"),
       hint: p(locale, "hint_bridges"),
+      terms: ["bridge"],
       copyText: partText("bridges"),
       children: (
         <BridgesPart
           chart={chart}
           locale={locale}
+          {...pick}
           rows={rows}
           aId={aId}
           bId={bId}
@@ -201,6 +206,28 @@ function NameGate({ locale, openBirth }: { locale: AppLocale; openBirth: () => v
   );
 }
 
+/** A row that opens its reading (part 63): the whole row takes the click, its first cell the keyboard. */
+function pickRow(ref: string | null, { selectedId, onSelect }: Pick) {
+  if (!ref) return {};
+  const on = selectedId === ref;
+  return {
+    "data-selected": on ? "1" : undefined,
+    className: cn("cursor-pointer", on && "bg-bg-subtle"),
+    onClick: () => onSelect(ref),
+    ...previewProps(ref),
+  };
+}
+
+/** The first cell's words as the row's button (Tab, Enter). */
+function PickLabel({ refId, selectedId, children }: { refId: string | null; selectedId: string | null; children: React.ReactNode }) {
+  if (!refId) return <>{children}</>;
+  return (
+    <button type="button" className="ulune-row-pick" aria-pressed={selectedId === refId}>
+      {children}
+    </button>
+  );
+}
+
 /** "13/4" with "karmic debt 13" under it. */
 function ValueCell({ value, locale }: { value: NumerologyValue; locale: AppLocale }) {
   if (value.number == null) return <span className="ulune-num-none">—</span>;
@@ -215,7 +242,7 @@ function ValueCell({ value, locale }: { value: NumerologyValue; locale: AppLocal
 
 /** The six core numbers the wheel draws, then Attitude and Rational thought. */
 function CorePart({ chart, locale, selectedId, onSelect }: { chart: NumerologyChart; locale: AppLocale } & Pick) {
-  const opens = (id: TableCoreId) => id !== "attitude" && id !== "rationalThought";
+  const refOf = (id: TableCoreId) => (id === "attitude" || id === "rationalThought" ? `detail:${id}` : `core:${id}`);
   return (
     <DataTable stickyFirst={false} className="ulune-num-core">
       <thead>
@@ -229,8 +256,8 @@ function CorePart({ chart, locale, selectedId, onSelect }: { chart: NumerologyCh
       <tbody>
         {TABLE_CORES.map((id) => {
           const value = tableCoreValue(chart, id);
-          const ref = `core:${id}`;
-          const live = opens(id) && value.number != null;
+          const ref = refOf(id);
+          const live = value.number != null;
           const on = selectedId === ref;
           return (
             <tr
@@ -347,6 +374,13 @@ function WordsTable({ chart, name, locale, testId }: { chart: NumerologyChart; n
   );
 }
 
+/** The reading a finer number's row opens (part 63); none for an empty one. */
+function detailRef(id: string, present: boolean): string | null {
+  if (id.startsWith("plane-")) return `plane:${id.slice(6)}`;
+  if (id === "lessons" || id === "subconscious" || id === "balance" || id === "chaldean") return `detail:${id}`;
+  return present ? `detail:${id}` : null;
+}
+
 /** The name letter by letter, the letters on each number, the finer numbers, the name used now. */
 function NamePart({ chart, locale, selectedId, onSelect }: { chart: NumerologyChart; locale: AppLocale } & Pick) {
   const birth = chart.names.birth!;
@@ -398,15 +432,22 @@ function NamePart({ chart, locale, selectedId, onSelect }: { chart: NumerologyCh
           </tr>
         </thead>
         <tbody>
-          {detailRows(birth, locale).map((r) => (
-            <tr key={r.id} data-testid={`num-detail-${r.id}`}>
-              <td data-col="number">{r.label}</td>
-              <td data-col="value" className="font-mono tabular-nums">
-                {r.value}
-              </td>
-              <td data-col="how">{r.how}</td>
-            </tr>
-          ))}
+          {detailRows(birth, locale).map((r) => {
+            const ref = detailRef(r.id, r.value !== p(locale, "none"));
+            return (
+              <tr key={r.id} data-testid={`num-detail-${r.id}`} {...pickRow(ref, { selectedId, onSelect })}>
+                <td data-col="number">
+                  <PickLabel refId={ref} selectedId={selectedId}>
+                    {r.label}
+                  </PickLabel>
+                </td>
+                <td data-col="value" className="font-mono tabular-nums">
+                  {r.value}
+                </td>
+                <td data-col="how">{r.how}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </DataTable>
       <p className="ulune-num-note">{p(locale, "chaldeanNote")}</p>
@@ -488,16 +529,16 @@ function GridPart({
 const within = (span: AgeSpan, age: number) => age >= span.fromAge && (span.toAge == null || age < span.toAge);
 
 /** Period cycles, pinnacles and challenges with their ages and years; the ones running now marked. */
-function CyclesPart({ chart, locale }: { chart: NumerologyChart; locale: AppLocale }) {
+function CyclesPart({ chart, locale, ...pick }: { chart: NumerologyChart; locale: AppLocale } & Pick) {
   return (
     <div className="ulune-num-part">
       <NumerologyLifeLine chart={chart} locale={locale} />
-      <CyclesTable chart={chart} locale={locale} />
+      <CyclesTable chart={chart} locale={locale} {...pick} />
     </div>
   );
 }
 
-function CyclesTable({ chart, locale }: { chart: NumerologyChart; locale: AppLocale }) {
+function CyclesTable({ chart, locale, selectedId, onSelect }: { chart: NumerologyChart; locale: AppLocale } & Pick) {
   return (
     <DataTable stickyFirst={false} className="ulune-num-cycles">
       <thead>
@@ -511,10 +552,19 @@ function CyclesTable({ chart, locale }: { chart: NumerologyChart; locale: AppLoc
       <tbody>
         {cycleRows(chart).map((r) => {
           const now = within(r.span, chart.age);
+          const ref = r.value.number == null ? null : `cycle:${r.kind}:${r.index}`;
           return (
-            <tr key={`${r.kind}-${r.index}`} data-testid={`num-cycle-${r.kind}-${r.index}`} data-now={now ? "1" : undefined} data-kind={r.kind}>
+            <tr
+              key={`${r.kind}-${r.index}`}
+              data-testid={`num-cycle-${r.kind}-${r.index}`}
+              data-now={now ? "1" : undefined}
+              data-kind={r.kind}
+              {...pickRow(ref, { selectedId, onSelect })}
+            >
               <td data-col="cycle">
-                {p(locale, `cycle_${r.kind}`, { n: r.index })}
+                <PickLabel refId={ref} selectedId={selectedId}>
+                  {p(locale, `cycle_${r.kind}`, { n: r.index })}
+                </PickLabel>
                 {r.main ? <span className="ulune-cell-sub">{p(locale, "main")}</span> : null}
               </td>
               <td data-col="number">
@@ -566,7 +616,7 @@ function YearsPart({
       text: pack && chart.personalDay.digit ? pickBi(pack.PERSONAL_DAY_TEXT[chart.personalDay.digit as 1], locale) : "",
     },
     {
-      id: "",
+      id: `year:${chart.calendarYear}`,
       label: p(locale, "universalYear"),
       value: chart.universalYear,
       text: pack && chart.universalYear.digit ? pickBi(pack.UNIVERSAL_YEAR_TEXT[chart.universalYear.digit as 1], locale) : "",
@@ -630,9 +680,16 @@ function YearsPart({
           {years.map((r) => {
             const c = r.cycles;
             return (
-              <tr key={r.year} data-testid={`num-year-${r.year}`} data-now={r.year === chart.calendarYear ? "1" : undefined}>
+              <tr
+                key={r.year}
+                data-testid={`num-year-${r.year}`}
+                data-now={r.year === chart.calendarYear ? "1" : undefined}
+                {...pickRow(`year:${r.year}`, { selectedId, onSelect })}
+              >
                 <td data-col="year" className="font-mono tabular-nums">
-                  {r.year}
+                  <PickLabel refId={`year:${r.year}`} selectedId={selectedId}>
+                    {r.year}
+                  </PickLabel>
                 </td>
                 <td data-col="age" className="font-mono tabular-nums">
                   {c ? r.age : "—"}
@@ -675,7 +732,9 @@ function BridgesPart({
   castA,
   castB,
   setPair,
-}: {
+  selectedId,
+  onSelect,
+}: Pick & {
   chart: NumerologyChart;
   locale: AppLocale;
   rows: SavedChart[];
@@ -699,8 +758,12 @@ function BridgesPart({
         </thead>
         <tbody>
           {bridgeRows(chart, locale).map((b) => (
-            <tr key={b.id} data-testid={`num-bridge-${b.id}`}>
-              <td data-col="bridge">{b.label}</td>
+            <tr key={b.id} data-testid={`num-bridge-${b.id}`} {...pickRow(b.value.number == null ? null : `bridge:${b.id}`, { selectedId, onSelect })}>
+              <td data-col="bridge">
+                <PickLabel refId={b.value.number == null ? null : `bridge:${b.id}`} selectedId={selectedId}>
+                  {b.label}
+                </PickLabel>
+              </td>
               <td data-col="between" className="font-mono tabular-nums">
                 {b.value.gap ? `${b.value.gap[0]} · ${b.value.gap[1]}` : "—"}
               </td>

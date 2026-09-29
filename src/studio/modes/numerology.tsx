@@ -1,5 +1,6 @@
 import { Suspense, useMemo } from "react";
 import { LoadingLines } from "@/components/loading-lines";
+import { NumerologyFirstRead } from "@/components/numerology-first";
 import { chartNameOf } from "@/lib/chart/library";
 import { valueOfCore } from "@/lib/chart/numerology";
 import { WHEEL_CORES } from "@/lib/chart/numerology-focus";
@@ -43,7 +44,7 @@ function NumerologyFigure() {
     <div className="ulune-num-stage" data-depth={depth.lift ? "on" : "off"}>
       <NumerologyWheel chart={numbers} isNow={isNow} selectedId={w.selectedId} onSelect={w.pick} onClear={clear} />
       <NumerologyYSwitch numbers={numbers} selectedId={w.selectedId} locale={locale} />
-      <NumerologyYearStepper numbers={numbers} locale={locale} />
+      <NumerologyYearStepper numbers={numbers} locale={locale} selectedId={w.selectedId} onSelect={w.pick} />
       <div className="ulune-num-tiles" role="group" aria-label={numerologyWheelText(locale, "tiles")} data-testid="num-tiles">
         {WHEEL_CORES.map((id) => {
           const value = valueOfCore(numbers, id);
@@ -72,8 +73,14 @@ function NumerologyFigure() {
   );
 }
 
-/** The Life Path reading opens by default (useNumerology); until its text has come, a quiet stand-in. */
+/**
+ * With nothing chosen: the first read for a newcomer (part 63), otherwise the
+ * Life Path's reading (useNumerology); until its text has come, a quiet stand-in.
+ */
 function NumerologyHelloEmpty() {
+  const w = useWheelView();
+  const numerology = useModeData("numerology");
+  if (numerology?.first && numerology.numbers) return <NumerologyFirstRead chart={numerology.numbers} onSelect={w.pick} />;
   return <LoadingLines lines={4} />;
 }
 
