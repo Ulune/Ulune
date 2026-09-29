@@ -371,7 +371,7 @@ export function buildPatterns(
   houses: HouseCusp[],
   angles: NatalChart["angles"],
   aspects: AspectLink[],
-  opts?: { isDay?: boolean; obliquity?: number; timeUnknown?: boolean },
+  opts?: { isDay?: boolean; obliquity?: number; timeUnknown?: boolean; vocMoon?: boolean },
 ): ChartPatterns {
   const base = emptyPatterns(planets, houses, angles);
   // Out of bounds: declination beyond the Sun's own greatest reach — the true
@@ -418,7 +418,8 @@ export function buildPatterns(
   }
   base.flags = flags;
 
-  base.vocMoon = isMoonVoidOfCourse(moon, planets);
+  // The cast's own search on the ephemeris (meta.moonCourse) when it has one; else from the speeds.
+  base.vocMoon = opts?.vocMoon ?? isMoonVoidOfCourse(moon, planets);
 
   const receptions: ChartPatterns["receptions"] = [];
   const classical = planets.filter((p) => CLASSICAL.has(p.id));
@@ -487,5 +488,6 @@ export function hydratePatterns(chart: NatalChart): ChartPatterns {
     isDay: p.isDay,
     obliquity: chart.meta.obliquity,
     timeUnknown: chart.meta.timeUnknown === true,
+    vocMoon: chart.meta.moonCourse ? chart.meta.moonCourse.next == null : undefined,
   });
 }

@@ -529,6 +529,11 @@ their styles there: 44.4 KB in all, the limit raised to 46 for the table's
 parts still to come (50 to 52). The table's sheet loads with its code, which
 the page fetches when idle after the first paint, never before it.
 
+Part 51 (29 Sep 2026) makes the natal cast search the Moon's next aspect and
+its sign change on the ephemeris (a 12-hourly sampling polished by Newton's
+method, as the calendar's events): the warm cast went from about 3.7 to 5–7 ms
+(limit 50), the answer a few hundred bytes longer.
+
 The 3D garbage per frame is the heap's growth over an orbit of frames, and it
 moves from run to run with the garbage collector: on the part 58 code, three
 runs in a row measured the bi-wheel at 14.6, 14.8 and 14.6 KB and every body

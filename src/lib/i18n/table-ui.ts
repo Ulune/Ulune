@@ -73,3 +73,7 @@ export function dignitiesWord(locale: AppLocale, key: keyof typeof source.dignit
 export function patternsWord(locale: AppLocale, key: keyof typeof source.patterns, vars?: Record<string, string>): string {
   return fill(pick(source.patterns[key], locale), vars);
 }
+
+export function starsWord(locale: AppLocale, key: keyof typeof source.stars, vars?: Record<string, string>): string {
+  return fill(pick(source.stars[key], locale), vars);
+}

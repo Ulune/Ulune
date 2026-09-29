@@ -243,7 +243,7 @@ test("without a birth time, a dispositor chain said to hold is the same at 00:00
 test("the text copy and the CSV carry the dignities and the shapes", async () => {
   const chart = await calculateNatal(TRACE);
   const parts = chartTextParts(chart, "en");
-  assert.deepEqual(parts.map((p) => p.id), ["identity", "points", "houses", "aspects", "dignities", "patterns", "balance"]);
+  assert.deepEqual(parts.map((p) => p.id), ["identity", "points", "houses", "aspects", "dignities", "patterns", "balance", "stars"]);
   const lines = parts.find((p) => p.id === "dignities").lines;
   assert.equal(lines[0], "Dignities");
   assert.equal(

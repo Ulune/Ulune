@@ -40,7 +40,9 @@ import {
 } from "@/lib/chart/table-dignities";
 import { houseRows, interceptedText, twoCuspsText } from "@/lib/chart/table-houses";
 import { shapeText, type MergedShape } from "@/lib/chart/table-patterns";
-import type { ChartPatterns, NatalChart } from "@/lib/chart/types";
+import { midpointRows, starRows, type Contact } from "@/lib/chart/table-stars";
+import type { ChartPatterns, NatalChart, SignId } from "@/lib/chart/types";
+import type { GlossaryId } from "@/lib/i18n/glossary";
 import { aspectName, bodyBare, bodyLabel, houseName, signName } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
 import {
@@ -50,13 +52,14 @@ import {
   housesWord,
   patternsWord,
   pointsGroupLabel,
+  starsWord,
   pointsText,
   tablePartHint,
   tablePartLabel,
   unknownTimeNote,
   type TablePartId,
 } from "@/lib/i18n/table-ui";
-import { cn, formatArc, formatDegree, formatSignedDms, formatSignedDmsSeconds } from "@/lib/utils";
+import { cn, formatArc, formatDegree, formatDegreeSeconds, formatSignedDms, formatSignedDmsSeconds } from "@/lib/utils";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TablePage, type TablePart } from "@/studio/tables/TablePage";
 import { ParallelGlyph } from "@/studio/tables/table-glyphs";
@@ -64,7 +67,19 @@ import { toast } from "@/lib/toast";
 import { previewProps } from "@/lib/depth/preview-bus";
 
 /** The parts of the natal table, in reading order. */
-const PARTS: TablePartId[] = ["identity", "points", "houses", "aspects", "grid", "dignities", "patterns", "balance"];
+const PARTS: TablePartId[] = ["identity", "points", "houses", "aspects", "grid", "dignities", "patterns", "balance", "stars"];
+
+/** The glossary's words each part uses, folded under its hint. */
+const TERMS: Partial<Record<TablePartId, GlossaryId[]>> = {
+  identity: ["siderealTime", "sect", "moonPhase"],
+  points: ["declination", "latitude", "outOfBounds", "station", "combust", "sect", "lot"],
+  houses: ["house", "intercepted"],
+  aspects: ["aspect", "orb", "applying", "outOfSign", "parallel"],
+  grid: ["aspect", "orb", "applying", "parallel"],
+  dignities: ["domicile", "exaltation", "triplicity", "term", "face", "peregrine", "sect", "dispositor", "reception"],
+  patterns: ["voidOfCourse"],
+  stars: ["fixedStar", "midpoint"],
+};
 
 /** A value that hangs on an unknown birth time: ~ before it, dimmed. */
 function Maybe({ cell, mono = false, className }: { cell: Cell; mono?: boolean; className?: string }) {
@@ -145,12 +160,14 @@ export function NatalTable({
     patterns: <PatternsPart chart={chart} patterns={patterns} onSelect={onSelect} />,
     balance: <BalancePart chart={chart} patterns={patterns} />,
     dignities: <DignitiesPart chart={chart} patterns={patterns} selectedId={selectedId} onSelect={onSelect} />,
+    stars: <StarsPart chart={chart} onSelect={onSelect} />,
   };
 
   const parts: TablePart[] = PARTS.map((id) => ({
     id,
     label: tablePartLabel(locale, id),
     hint: tablePartHint(locale, id),
+    terms: TERMS[id],
     copyText: id === "grid" ? undefined : textOf(id),
     children: content[id],
   }));
@@ -1015,6 +1032,104 @@ function BalancePart({ chart, patterns }: { chart: NatalChart; patterns: ChartPa
   );
 }
 
+/** A contact on a star or a midpoint: the body's glyph and name, its orb. */
+function ContactList({ contacts, onSelect }: { contacts: Contact[]; onSelect?: (id: string) => void }) {
+  const { locale } = useI18n();
+  if (!contacts.length) return <span className="text-fg-subtle">{starsWord(locale, "noneOn")}</span>;
+  return (
+    <span className="ulune-contacts">
+      {contacts.map((c) => (
+        <span key={`${c.body}-${c.opposite ? "o" : "c"}`} className={cn("ulune-contact", c.uncertain && "ulune-uncertain")} data-body={c.body}>
+          {c.uncertain ? "~" : ""}
+          <GlyphPick id={c.body} onSelect={onSelect} size={13} />
+          {bodyBare(c.body, locale)} <span className="font-mono text-fg-muted">{formatArc(c.orb)}</span>
+          {c.opposite ? <span className="text-fg-muted"> · {starsWord(locale, "opposite")}</span> : null}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function StarsPart({ chart, onSelect }: { chart: NatalChart; onSelect?: (id: string) => void }) {
+  const { locale } = useI18n();
+  const unknown = chart.meta.timeUnknown === true;
+  const stars = useMemo(() => starRows(chart), [chart]);
+  const midpoints = useMemo(() => midpointRows(chart), [chart]);
+  const position = (lon: number, sign: SignId, uncertain = false) => (
+    <span className={cn("whitespace-nowrap", uncertain && "ulune-uncertain")}>
+      <span className="font-mono">
+        {uncertain ? "~" : ""}
+        {unknown ? formatDegree(lon) : formatDegreeSeconds(lon)}
+      </span>{" "}
+      <span className="inline-flex items-center gap-1.5 align-[-1px]">
+        <SignGlyph id={sign} size={12} />
+        {signName(sign, locale)}
+      </span>
+    </span>
+  );
+  return (
+    <>
+      {unknown ? <UnknownNote>{unknownTimeNote(locale, "stars")}</UnknownNote> : null}
+      <div className="ulune-subpart ulune-subpart-first" data-testid="stars-fixed">
+        <h3 className="ulune-subpart-h">{starsWord(locale, "starsHead")}</h3>
+        <DataTable className="ulune-stars" stickyFirst={false}>
+          <thead>
+            <tr>
+              <th data-col="star">{starsWord(locale, "star")}</th>
+              <th data-col="position">{starsWord(locale, "position")}</th>
+              <th data-col="on">{starsWord(locale, "on")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stars.map((r) => (
+              <tr key={r.id} data-star={r.id}>
+                <td data-col="star">{starsWord(locale, r.id)}</td>
+                <td data-col="position">{position(r.ecliptic, r.sign)}</td>
+                <td data-col="on">
+                  <ContactList contacts={r.contacts} onSelect={onSelect} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      </div>
+      <div className="ulune-subpart" data-testid="stars-midpoints">
+        <h3 className="ulune-subpart-h">{starsWord(locale, "midpointsHead")}</h3>
+        <DataTable className="ulune-stars" stickyFirst={false}>
+          <thead>
+            <tr>
+              <th data-col="midpoint">{starsWord(locale, "midpoint")}</th>
+              <th data-col="position">{starsWord(locale, "position")}</th>
+              <th data-col="on">{starsWord(locale, "on")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {midpoints.map((r) => (
+              <tr key={r.id} data-midpoint={r.id} data-uncertain={r.uncertain ? "1" : undefined}>
+                <td data-col="midpoint">
+                  <span className="ulune-pair">
+                    <PlanetGlyph id={r.a} size={13} />
+                    {bodyBare(r.a, locale)}
+                    <span className="text-fg-subtle" aria-hidden>
+                      /
+                    </span>
+                    <PlanetGlyph id={r.b} size={13} />
+                    {bodyBare(r.b, locale)}
+                  </span>
+                </td>
+                <td data-col="position">{position(r.ecliptic, r.sign, r.uncertain)}</td>
+                <td data-col="on">
+                  <ContactList contacts={r.contacts} onSelect={onSelect} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      </div>
+    </>
+  );
+}
+
 function PickRow({ onClick, children }: { onClick?: () => void; children: ReactNode }) {
   if (!onClick) return <span className="block py-1 text-sm text-fg">{children}</span>;
   return (
@@ -1026,6 +1141,7 @@ function PickRow({ onClick, children }: { onClick?: () => void; children: ReactN
 }
 
 function BarGroup({ group }: { group: BalanceGroup }) {
+  const { locale } = useI18n();
   const max = Math.max(1e-6, ...group.rows.map((r) => r.value));
   return (
     <div className="ob-bal" role="group" aria-label={group.title} data-group={group.id} data-uncertain={group.uncertain ? "1" : undefined}>
@@ -1035,7 +1151,7 @@ function BarGroup({ group }: { group: BalanceGroup }) {
       </p>
       <ul className="ob-bal-rows">
         {group.rows.map((r) => (
-          <li key={r.id} className="ob-bal-row" aria-label={`${r.label}: ${weightText(r.value)}`}>
+          <li key={r.id} className="ob-bal-row" data-row={r.id} aria-label={`${r.label}: ${weightText(r.value, locale)}${r.bodies.length ? ` (${r.bodies.map((id) => bodyLabel(id, locale)).join(", ")})` : ""}`}>
             <span className="ob-bal-label">{r.label}</span>
             <span className="ob-bal-track" aria-hidden>
               <span
@@ -1043,7 +1159,16 @@ function BarGroup({ group }: { group: BalanceGroup }) {
                 style={{ width: `${(r.value / max) * 100}%`, background: r.color ?? "var(--color-fg-muted)" }}
               />
             </span>
-            <span className="ob-bal-n">{weightText(r.value)}</span>
+            <span className="ob-bal-n">{weightText(r.value, locale)}</span>
+            {r.bodies.length ? (
+              <span className="ob-bal-bodies" aria-hidden>
+                {r.bodies.map((id) => (
+                  <span key={id} title={bodyLabel(id, locale)} data-body={id}>
+                    <PlanetGlyph id={id} size={13} />
+                  </span>
+                ))}
+              </span>
+            ) : null}
           </li>
         ))}
       </ul>

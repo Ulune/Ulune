@@ -285,3 +285,74 @@ const KIND_ORDER: Record<SkyEvent["k"], number> = { eclipse: 0, phase: 1, statio
 export function sortSkyEvents(events: SkyEvent[]): SkyEvent[] {
   return events.sort((x, y) => x.t - y.t || KIND_ORDER[x.k] - KIND_ORDER[y.k]);
 }
+
+export type MoonCourse = {
+  /** The Moon's next exact Ptolemaic aspect to the Sun … Pluto before it leaves its sign; null when void of course. */
+  next: { t: number; body: SkyBody; type: SkyAspect } | null;
+  /** When it leaves its sign, and the sign it enters (0 = Aries). */
+  leaves: { t: number; sign: number };
+};
+
+/**
+ * The Moon's course from a moment: its next exact aspect (conjunction,
+ * sextile, square, trine, opposition) to the Sun … Pluto after that moment,
+ * if it comes before the Moon leaves its sign, and when it leaves it. An
+ * aspect exact at the moment itself is not the next one. Null when the
+ * provider cannot place the Moon.
+ */
+export function moonCourse(provider: SkyProvider, from: number, step = SKY_STEP_MS): MoonCourse | null {
+  const memo = new Map<string, SkyPos>();
+  const at: SkyProvider = (body, ms) => {
+    const key = `${body}:${ms}`;
+    let hit = memo.get(key);
+    if (!hit) {
+      hit = provider(body, ms);
+      memo.set(key, hit);
+    }
+    return hit;
+  };
+  const moon = at("moon", from);
+  if (!Number.isFinite(moon.lon) || !(moon.speed > 0)) return null;
+  const sign = Math.floor(wrap360(moon.lon) / 30);
+  const edge = 30 * ((sign + 1) % 12);
+  const horizon = from + 3 * DAY_MS;
+  const leave = crossings(
+    (ms) => {
+      const p = at("moon", ms);
+      return { v: wrap180(p.lon - edge), dv: p.speed };
+    },
+    from,
+    horizon,
+    step,
+  ).find((t) => t > from);
+  if (leave == null) return null;
+  let next: MoonCourse["next"] = null;
+  for (const body of SKY_ASPECT_BODIES) {
+    if (body === "moon") continue;
+    try {
+      const p = at(body, from);
+      if (!Number.isFinite(p.lon)) continue;
+    } catch {
+      continue;
+    }
+    for (const [type, angle] of SKY_ASPECTS) {
+      for (const signed of angle === 0 || angle === 180 ? [angle] : [angle, -angle]) {
+        const hits = crossings(
+          (ms) => {
+            const m = at("moon", ms);
+            const b = at(body, ms);
+            return { v: wrap180(m.lon - b.lon - signed), dv: m.speed - b.speed };
+          },
+          from,
+          leave,
+          step,
+        );
+        for (const t of hits) {
+          if (t <= from + 1000) continue;
+          if (!next || t < next.t) next = { t: Math.round(t), body, type };
+        }
+      }
+    }
+  }
+  return { next, leaves: { t: Math.round(leave), sign: (sign + 1) % 12 } };
+}

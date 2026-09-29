@@ -17,7 +17,7 @@ import {
   signName,
 } from "@/lib/i18n/astro";
 import { translate, type AppLocale } from "@/lib/i18n/messages";
-import { angleShort, chartFactText, moonPhaseName, pointsText, pointsWord } from "@/lib/i18n/table-ui";
+import { angleShort, chartFactText, moonPhaseName, patternsWord, pointsText, pointsWord } from "@/lib/i18n/table-ui";
 import { dateFormat } from "@/lib/intl-cache";
 import {
   formatArc,
@@ -30,7 +30,7 @@ import {
   formatSignedDmsSeconds,
 } from "@/lib/utils";
 import { birthZoneLine, julianDayLine, universalTimeLine } from "./birth-time-label";
-import { CLASSIC_BODIES, HOUSE_SYSTEM_LABEL, MEAN_SPEED, SIGN_IDS, SIGN_META, signFromEcliptic } from "./constants";
+import { BALANCE_WEIGHT, CLASSIC_BODIES, HOUSE_SYSTEM_LABEL, MEAN_SPEED, SIGN_IDS, SIGN_META, signFromEcliptic } from "./constants";
 import {
   anareticHolds,
   ariesPointHolds,
@@ -46,7 +46,8 @@ import { essentialDignity, isTraditionalPlanet, type DebilityKind, type Essentia
 import { mergedShapes, shapeLine, type MergedShape } from "./table-patterns";
 import { formatEuropeanDate } from "./parse-birth";
 import { declinationOf, localSiderealHours, moonPhase, nearestAngle, outOfBoundsBy, separation } from "./table-facts";
-import { ANGLE_IDS, type AspectLink, type BodyFlags, type ChartPatterns, type NatalChart, type Placement } from "./types";
+import { ANGLE_IDS, type AspectLink, type BodyFlags, type BodyId, type ChartPatterns, type NatalChart, type Placement } from "./types";
+import { houseTempo } from "./patterns";
 
 /** A value and whether it hangs on an unknown birth time. */
 export type Cell = { text: string; uncertain: boolean };
@@ -66,8 +67,9 @@ export function cellText(c: Cell): string {
 }
 
 /** A balance weight: whole, or with one decimal. */
-export function weightText(n: number): string {
-  return Number.isInteger(n) ? String(n) : n.toFixed(1).replace(/\.0$/, "");
+export function weightText(n: number, locale: AppLocale = "en"): string {
+  const text = Number.isInteger(n) ? String(n) : n.toFixed(1).replace(/\.0$/, "");
+  return locale === "fr" ? text.replace(".", ",") : text;
 }
 
 /** The id the table and the wheel use to choose a point. */
@@ -396,7 +398,10 @@ export function patternSections(chart: NatalChart, patterns: ChartPatterns, loca
     {
       id: "voc",
       title: translate(locale, "patternVoc"),
-      items: [{ text: translate(locale, patterns.vocMoon ? "vocYes" : "vocNo"), uncertain: unknown }],
+      items: [
+        { text: translate(locale, patterns.vocMoon ? "vocYes" : "vocNo"), uncertain: unknown },
+        ...(moonCourseText(chart, locale) ? [{ text: moonCourseText(chart, locale) as string, uncertain: unknown, pick: pointSelectId("moon") }] : []),
+      ],
       none: "",
     },
     {
@@ -410,6 +415,38 @@ export function patternSections(chart: NatalChart, patterns: ChartPatterns, loca
   ];
 }
 
+/** "2 h 04 min": from one moment to another, each taken to the minute it falls in (as the times beside it). */
+function spanText(from: number, to: number, locale: AppLocale): string {
+  const total = Math.max(0, Math.floor(to / 60_000) - Math.floor(from / 60_000));
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  return h ? patternsWord(locale, "hoursMinutes", { h: String(h), m: String(m).padStart(2, "0") }) : patternsWord(locale, "minutes", { m: String(m) });
+}
+
+/**
+ * The Moon's course from the birth moment, from the cast's own search on the
+ * ephemeris: its next major aspect and when, and when it enters the next
+ * sign; or that it makes none before (void of course). Null on a chart cast
+ * before the search existed.
+ */
+export function moonCourseText(chart: NatalChart, locale: AppLocale): string | null {
+  const c = chart.meta.moonCourse;
+  if (!c) return null;
+  const born = Date.parse(chart.meta.utc);
+  const leaves = Date.parse(c.leaves.utc);
+  const enters = stationMoment(c.leaves.utc, locale);
+  const sign = signName(c.leaves.sign, locale);
+  if (!c.next) return patternsWord(locale, "courseVoid", { sign, enters, after: spanText(born, leaves, locale) });
+  return patternsWord(locale, "courseNext", {
+    aspect: aspectWord(c.next.type, locale),
+    body: bodyBare(c.next.body, locale),
+    when: stationMoment(c.next.utc, locale),
+    after: spanText(born, Date.parse(c.next.utc), locale),
+    sign,
+    enters,
+  });
+}
+
 /* ── Balance ────────────────────────────────────────────────────────── */
 
 export type BalanceGroupId = "elements" | "modalities" | "polarity" | "hemisphere" | "quadrants" | "angularity";
@@ -417,13 +454,26 @@ export type BalanceGroupId = "elements" | "modalities" | "polarity" | "hemispher
 export type BalanceGroup = {
   id: BalanceGroupId;
   title: string;
-  rows: { id: string; label: string; value: number; color?: string }[];
+  /** Each row's weighted score and the bodies that make it, heaviest first. */
+  rows: { id: string; label: string; value: number; color?: string; bodies: BodyId[] }[];
   uncertain: boolean;
 };
+
+/** The bodies weighed in the balance (patterns.ts buildPatterns): the angles too, unless the birth time is unknown. */
+function weighed(chart: NatalChart): Placement[] {
+  const pool = chart.meta.timeUnknown === true ? chart.planets : [...chart.planets, ...Object.values(chart.angles)];
+  return pool
+    .filter((p) => (BALANCE_WEIGHT[p.id] ?? 0) > 0)
+    .sort((a, b) => (BALANCE_WEIGHT[b.id] ?? 0) - (BALANCE_WEIGHT[a.id] ?? 0));
+}
 
 export function balanceGroups(chart: NatalChart, patterns: ChartPatterns, locale: AppLocale): BalanceGroup[] {
   const unknown = chart.meta.timeUnknown === true;
   const w = patterns.weights;
+  const bodies = weighed(chart);
+  const where = (test: (p: Placement) => boolean) => bodies.filter(test).map((p) => p.id);
+  const element = (p: Placement) => SIGN_META[p.sign].element;
+  const east = (p: Placement) => [10, 11, 12, 1, 2, 3].includes(p.house);
   const t = (key: Parameters<typeof translate>[1]) => translate(locale, key);
   // Without a birth time the balance is weighed on the bodies alone (anatomy.ts):
   // it holds unless one of them changes sign in the day.
@@ -437,21 +487,27 @@ export function balanceGroups(chart: NatalChart, patterns: ChartPatterns, locale
         label: elementName(e, locale),
         value: w.elements[e],
         color: `var(--el-${e})`,
+        bodies: where((p) => element(p) === e),
       })),
       uncertain: bySign,
     },
     {
       id: "modalities",
       title: t("tableModalities"),
-      rows: (["cardinal", "fixed", "mutable"] as const).map((m) => ({ id: m, label: modalityName(m, locale), value: w.modalities[m] })),
+      rows: (["cardinal", "fixed", "mutable"] as const).map((m) => ({
+        id: m,
+        label: modalityName(m, locale),
+        value: w.modalities[m],
+        bodies: where((p) => SIGN_META[p.sign].modality === m),
+      })),
       uncertain: bySign,
     },
     {
       id: "polarity",
       title: t("tablePolarity"),
       rows: [
-        { id: "pos", label: t("polarityPositive"), value: w.polarity.positive },
-        { id: "neg", label: t("polarityNegative"), value: w.polarity.negative },
+        { id: "pos", label: t("polarityPositive"), value: w.polarity.positive, bodies: where((p) => element(p) === "fire" || element(p) === "air") },
+        { id: "neg", label: t("polarityNegative"), value: w.polarity.negative, bodies: where((p) => element(p) === "earth" || element(p) === "water") },
       ],
       uncertain: bySign,
     },
@@ -459,26 +515,31 @@ export function balanceGroups(chart: NatalChart, patterns: ChartPatterns, locale
       id: "hemisphere",
       title: t("overlayHemisphere"),
       rows: [
-        { id: "e", label: t("hemiEast"), value: w.hemisphere.east },
-        { id: "w", label: t("hemiWest"), value: w.hemisphere.west },
-        { id: "n", label: t("hemiNorth"), value: w.hemisphere.north },
-        { id: "s", label: t("hemiSouth"), value: w.hemisphere.south },
+        { id: "e", label: t("hemiEast"), value: w.hemisphere.east, bodies: where(east) },
+        { id: "w", label: t("hemiWest"), value: w.hemisphere.west, bodies: where((p) => !east(p)) },
+        { id: "n", label: t("hemiNorth"), value: w.hemisphere.north, bodies: where((p) => p.house < 7) },
+        { id: "s", label: t("hemiSouth"), value: w.hemisphere.south, bodies: where((p) => p.house >= 7) },
       ],
       uncertain: unknown,
     },
     {
       id: "quadrants",
       title: t("overlayQuadrant"),
-      rows: [t("quad1"), t("quad2"), t("quad3"), t("quad4")].map((label, i) => ({ id: `q${i + 1}`, label, value: w.quadrants[i] ?? 0 })),
+      rows: [t("quad1"), t("quad2"), t("quad3"), t("quad4")].map((label, i) => ({
+        id: `q${i + 1}`,
+        label,
+        value: w.quadrants[i] ?? 0,
+        bodies: where((p) => Math.floor((p.house - 1) / 3) === i),
+      })),
       uncertain: unknown,
     },
     {
       id: "angularity",
       title: t("overlayAngularity"),
       rows: [
-        { id: "a", label: t("tempoAngular"), value: w.angularity.angular },
-        { id: "s", label: t("tempoSuccedent"), value: w.angularity.succedent },
-        { id: "c", label: t("tempoCadent"), value: w.angularity.cadent },
+        { id: "a", label: t("tempoAngular"), value: w.angularity.angular, bodies: where((p) => houseTempo(p.house) === "angular") },
+        { id: "s", label: t("tempoSuccedent"), value: w.angularity.succedent, bodies: where((p) => houseTempo(p.house) === "succedent") },
+        { id: "c", label: t("tempoCadent"), value: w.angularity.cadent, bodies: where((p) => houseTempo(p.house) === "cadent") },
       ],
       uncertain: unknown,
     },
@@ -487,7 +548,9 @@ export function balanceGroups(chart: NatalChart, patterns: ChartPatterns, locale
 
 /** "Elements: Fire 7 · Earth 3 · Air 5 · Water 2". */
 export function balanceGroupText(g: BalanceGroup, locale: AppLocale = "en"): string {
-  return `${mark(g.uncertain)}${g.title}${colon(locale)}${g.rows.map((r) => `${r.label} ${weightText(r.value)}`).join(" · ")}`;
+  const row = (r: BalanceGroup["rows"][number]) =>
+    `${r.label} ${weightText(r.value, locale)}${r.bodies.length ? ` (${r.bodies.map((id) => bodyBare(id, locale)).join(", ")})` : ""}`;
+  return `${mark(g.uncertain)}${g.title}${colon(locale)}${g.rows.map(row).join(" · ")}`;
 }
 
 /* ── Chart ──────────────────────────────────────────────────────────── */

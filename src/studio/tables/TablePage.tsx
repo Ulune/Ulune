@@ -1,6 +1,8 @@
 import { Check, Copy } from "lucide-react";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { prefersReducedMotion } from "@/lib/depth/env";
+import type { GlossaryId } from "@/lib/i18n/glossary";
+import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { useI18n } from "@/lib/i18n/locale";
 import { tableBarText } from "@/lib/i18n/table-ui";
 import { toast } from "@/lib/toast";
@@ -12,6 +14,8 @@ export type TablePart = {
   /** The link's words in the bar, and the part's heading. */
   label: string;
   hint?: string;
+  /** The glossary's words for this part, folded under its hint. */
+  terms?: GlossaryId[];
   /** The part's own text for its Copy button (no button without it). */
   copyText?: () => string;
   children: ReactNode;
@@ -228,6 +232,7 @@ export function TablePage({
                 {p.label}
               </h2>
               {p.hint ? <p className="ulune-tpart-hint">{p.hint}</p> : null}
+              {p.terms?.length ? <PartTerms ids={p.terms} testId={`table-terms-${p.id}`} /> : null}
             </div>
             {p.copyText ? <PartCopy label={p.label} text={p.copyText} testId={`table-copy-${p.id}`} /> : null}
           </header>
@@ -235,6 +240,27 @@ export function TablePage({
         </section>
       ))}
     </div>
+  );
+}
+
+const loadTerms = () => import("@/components/glossary-list");
+const GlossaryTerms = lazyNamed(loadTerms, "GlossaryTerms");
+
+/** "Words used here": the part's glossary words, downloaded when it opens. */
+function PartTerms({ ids, testId }: { ids: GlossaryId[]; testId: string }) {
+  const { locale } = useI18n();
+  const [open, setOpen] = useState(false);
+  return (
+    <details className="ob-rc-about ulune-tpart-terms" data-testid={testId} onToggle={(e) => setOpen(e.currentTarget.open)}>
+      <summary onPointerEnter={() => prefetch(loadTerms)} onFocus={() => prefetch(loadTerms)}>
+        {tableBarText(locale, "wordsHere")}
+      </summary>
+      {open ? (
+        <Suspense fallback={null}>
+          <GlossaryTerms ids={ids} />
+        </Suspense>
+      ) : null}
+    </details>
   );
 }
 

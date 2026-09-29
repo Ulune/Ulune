@@ -31,6 +31,10 @@
     "balance": {
       "en": "Balance",
       "fr": "Équilibre"
+    },
+    "stars": {
+      "en": "Stars",
+      "fr": "Étoiles"
     }
   },
   "hints": {
@@ -63,8 +67,12 @@
       "fr": "Configurations (la dominante d’abord, chacune avec les orbes qui la tiennent), stelliums, planètes sans aspect et course de la Lune."
     },
     "balance": {
-      "en": "Weighted toward the personal planets and the four angles.",
-      "fr": "Pondéré vers les planètes personnelles et les quatre angles."
+      "en": "Weighted toward the personal planets and the four angles; the glyphs are the bodies in each.",
+      "fr": "Pondéré vers les planètes personnelles et les quatre angles ; les symboles sont les corps de chacun."
+    },
+    "stars": {
+      "en": "The six fixed stars charted and five midpoints, with the bodies on them: within 1° of a star, within 1°30' of a midpoint or of its opposite point.",
+      "fr": "Les six étoiles fixes du thème et cinq mi-points, avec les corps qui s’y trouvent : à moins de 1° d’une étoile, à moins de 1°30' d’un mi-point ou de son point opposé."
     }
   },
   "bar": {
@@ -75,6 +83,10 @@
     "copyPartNamed": {
       "en": "Copy {part}",
       "fr": "Copier {part}"
+    },
+    "wordsHere": {
+      "en": "Words used here",
+      "fr": "Mots employés ici"
     }
   },
   "points": {
@@ -387,6 +399,10 @@
     "dignities": {
       "en": "Without a birth time, the chart ruler (the ruler of the rising sign), the sect and the scores that hang on it are unknown, and a planet may reach another term or face in the day: marked ~.",
       "fr": "Sans heure de naissance, le maître du thème (celui du signe ascendant), la secte et les scores qui en dépendent sont inconnus, et une planète peut passer dans un autre terme ou une autre face dans la journée : marqué ~."
+    },
+    "stars": {
+      "en": "Without a birth time: marked ~, a contact that may not hold all day; the midpoints with the Ascendant hang on the time.",
+      "fr": "Sans heure de naissance : marqué ~, un contact qui peut ne pas tenir toute la journée ; les mi-points avec l’Ascendant dépendent de l’heure."
     }
   },
   "houses": {
@@ -785,6 +801,84 @@
     "dominant": {
       "en": "dominant",
       "fr": "dominante"
+    },
+    "courseNext": {
+      "en": "The Moon’s next aspect: {aspect} {body}, {when} ({after} after birth); it enters {sign} {enters}.",
+      "fr": "Prochain aspect de la Lune : {aspect} {body}, {when} ({after} après la naissance) ; elle entre en {sign} {enters}."
+    },
+    "courseVoid": {
+      "en": "No major aspect before the Moon enters {sign}, {enters} ({after} after birth).",
+      "fr": "Aucun aspect majeur avant que la Lune entre en {sign}, {enters} ({after} après la naissance)."
+    },
+    "hoursMinutes": {
+      "en": "{h} h {m} min",
+      "fr": "{h} h {m} min"
+    },
+    "minutes": {
+      "en": "{m} min",
+      "fr": "{m} min"
+    }
+  },
+  "stars": {
+    "starsHead": {
+      "en": "Fixed stars",
+      "fr": "Étoiles fixes"
+    },
+    "midpointsHead": {
+      "en": "Midpoints",
+      "fr": "Mi-points"
+    },
+    "star": {
+      "en": "Star",
+      "fr": "Étoile"
+    },
+    "midpoint": {
+      "en": "Midpoint",
+      "fr": "Mi-point"
+    },
+    "position": {
+      "en": "Position",
+      "fr": "Position"
+    },
+    "on": {
+      "en": "On it",
+      "fr": "Dessus"
+    },
+    "opposite": {
+      "en": "opposite",
+      "fr": "opposé"
+    },
+    "contactLine": {
+      "en": "{body} {orb}",
+      "fr": "{body} {orb}"
+    },
+    "noneOn": {
+      "en": "none",
+      "fr": "aucun"
+    },
+    "algol": {
+      "en": "Algol",
+      "fr": "Algol"
+    },
+    "aldebaran": {
+      "en": "Aldebaran",
+      "fr": "Aldébaran"
+    },
+    "regulus": {
+      "en": "Regulus",
+      "fr": "Régulus"
+    },
+    "spica": {
+      "en": "Spica",
+      "fr": "Spica"
+    },
+    "antares": {
+      "en": "Antares",
+      "fr": "Antarès"
+    },
+    "fomalhaut": {
+      "en": "Fomalhaut",
+      "fr": "Fomalhaut"
     }
   }
 }

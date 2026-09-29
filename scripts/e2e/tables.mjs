@@ -22,7 +22,7 @@ import {
  * bar; nothing scrolls sideways.
  */
 
-const PARTS = ["identity", "points", "houses", "aspects", "grid", "dignities", "patterns", "balance"];
+const PARTS = ["identity", "points", "houses", "aspects", "grid", "dignities", "patterns", "balance", "stars"];
 
 /** The table's scroller, its bar and the marked link. */
 async function pageState(page) {
@@ -214,6 +214,28 @@ async function checkDignities(page, width) {
   if (tightest !== "Tightest major: Jupiter conjunction Chiron, 0°11'") throw new Error(`${label}: the tightest reads "${tightest}"`);
 }
 
+/*
+ * Stars and balance (part 51): the fixed stars and the midpoints with the
+ * bodies on them, the bodies in each balance row, the Moon's course, and a
+ * part's glossary words.
+ */
+async function checkStars(page, width) {
+  const label = `${width} stars`;
+  const stars = await page.locator("[data-testid=stars-fixed] tbody tr").count();
+  const midpoints = await page.locator("[data-testid=stars-midpoints] tbody tr").count();
+  if (stars !== 6 || midpoints !== 5) throw new Error(`${label}: ${stars} stars, ${midpoints} midpoints`);
+  const sunMoon = await page.locator("[data-testid=stars-midpoints] tr[data-midpoint=sun-moon]").innerText();
+  if (!/Vesta\s*0°38'/.test(sunMoon)) throw new Error(`${label}: the Sun/Moon midpoint reads "${sunMoon}"`);
+  const earth = await page.locator("[data-testid=table-balance] .ob-bal[data-group=elements] li[data-row=earth] .ob-bal-bodies [data-body]").count();
+  if (earth !== 6) throw new Error(`${label}: ${earth} bodies in earth, expected 6`);
+  const course = await page.locator("[data-testid=table-patterns] [data-pattern=voc]").innerText();
+  if (!/next aspect: trine Pluto, 15 Jun 1990, 12:04 UT/.test(course)) throw new Error(`${label}: the Moon's course reads "${course}"`);
+  // A part's words fold open under its hint.
+  await page.getByTestId("table-terms-stars").locator("summary").click();
+  await page.locator("[data-testid=table-terms-stars] [data-term=fixedStar]").waitFor({ timeout: 8000 });
+  await page.getByTestId("table-terms-stars").locator("summary").click();
+}
+
 async function runViewport(width) {
   const { browser, page } = await launch(width);
   try {
@@ -256,6 +278,7 @@ async function runViewport(width) {
     await noDecimalDegree(page, `${width}`);
     await checkHousesAspects(page, width);
     await checkDignities(page, width);
+    await checkStars(page, width);
     await checkLinks(page, `${width}`);
     await checkFollow(page, `${width}`);
 

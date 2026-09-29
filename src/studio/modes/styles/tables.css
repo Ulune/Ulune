@@ -973,3 +973,42 @@ button.ulune-glyph-pick:hover {
 .ulune-disp-chains .ulune-cell-sub {
   white-space: normal;
 }
+/* ------------------------------------------------- Stars and balance (part 51) */
+.ulune-tpart-terms {
+  max-width: 61.8ch;
+  margin-top: 2px;
+  padding-top: 0;
+  border-top: 0;
+}
+.ulune-tpart-terms > summary {
+  min-height: 36px;
+}
+.ulune-tpart-terms .ob-glossary-dl {
+  padding: 2px 0 8px;
+}
+.ob-bal-row .ob-bal-bodies {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  gap: 2px 6px;
+  margin-top: -2px;
+  color: var(--color-fg-muted);
+}
+.ulune-stars td {
+  vertical-align: top;
+}
+.ulune-stars td[data-col="on"] {
+  white-space: normal;
+}
+.ulune-contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  margin: -4px 0;
+}
+.ulune-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}

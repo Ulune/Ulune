@@ -1,6 +1,11 @@
 import { GLOSSARY_ORDER, glossaryBody, glossaryFor, glossaryTerm, type GlossaryId } from "@/lib/i18n/glossary";
 import { useI18n } from "@/lib/i18n/locale";
 
+/** Some of the glossary's words, each with its sentence or two (a table part's "Words used here"). */
+export function GlossaryTerms({ ids }: { ids: GlossaryId[] }) {
+  return <Terms ids={ids} />;
+}
+
 function Terms({ ids }: { ids: GlossaryId[] }) {
   const { locale } = useI18n();
   return (

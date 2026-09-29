@@ -65,13 +65,13 @@ test("the text copy comes in the page's parts, each with its title, and joins in
     houseSystem: "placidus",
   });
   for (const [locale, titles] of [
-    ["en", ["Chart", "Points", "Houses", "Aspects", "Dignities", "Patterns", "Balance"]],
-    ["fr", ["Thème", "Points", "Maisons", "Aspects", "Dignités", "Figures", "Équilibre"]],
+    ["en", ["Chart", "Points", "Houses", "Aspects", "Dignities", "Patterns", "Balance", "Stars"]],
+    ["fr", ["Thème", "Points", "Maisons", "Aspects", "Dignités", "Figures", "Équilibre", "Étoiles"]],
   ]) {
     const parts = chartTextParts(chart, locale);
     assert.deepEqual(
       parts.map((p) => p.id),
-      ["identity", "points", "houses", "aspects", "dignities", "patterns", "balance"],
+      ["identity", "points", "houses", "aspects", "dignities", "patterns", "balance", "stars"],
     );
     assert.deepEqual(
       parts.map((p) => p.lines[0]),

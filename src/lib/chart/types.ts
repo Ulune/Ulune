@@ -297,6 +297,15 @@ export type NatalChart = {
     dayRange?: Partial<Record<PlanetId, [number, number]>>;
     /** Without a birth time: each body's declination at the start and the end of the birth day. */
     dayDecl?: Partial<Record<PlanetId, [number, number]>>;
+    /**
+     * The Moon's course from the birth moment, from Swiss: its next exact
+     * Ptolemaic aspect to the Sun … Pluto before it leaves its sign (null:
+     * void of course), and when it leaves it.
+     */
+    moonCourse?: {
+      next: { utc: string; body: PlanetId; type: AspectId } | null;
+      leaves: { utc: string; sign: SignId };
+    };
   };
   angles: Record<AngleId, Placement>;
   planets: Placement[];

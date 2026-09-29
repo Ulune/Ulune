@@ -68,11 +68,11 @@ import type {
   TimingHit,
   TransitSky,
 } from "./types";
-import { ANGLE_IDS, HOUSE_SYSTEM_IDS, PLANET_IDS, STAR_IDS } from "./types";
+import { ANGLE_IDS, HOUSE_SYSTEM_IDS, PLANET_IDS, SIGN_IDS, STAR_IDS } from "./types";
 import { makePlacement } from "./placement";
 import { chunkStart, SKY_WINDOW_FORMAT, WINDOW_SAMPLES, WINDOW_STEP_HOURS, WINDOW_TIMES, type SkyWindow } from "./sky-window";
 import type { EclipseType, SkyEvent } from "./sky-events";
-import { findSkyEvents, sortSkyEvents, type SkyProvider } from "./sky-search";
+import { findSkyEvents, moonCourse, sortSkyEvents, type MoonCourse, type SkyProvider } from "./sky-search";
 import { SKY_SLOW_BODIES, SKY_YEAR_FORMAT, SKY_YEAR_MAX, SKY_YEAR_MIN, yearStart, type SkyYear, type SlowBody } from "./sky-year";
 import {
   activationOf,
@@ -931,6 +931,7 @@ export async function calculateNatal(input: BirthInput): Promise<NatalChart> {
   });
   const warnings = collected.warnings;
   const edges = timeUnknown ? dayRangeOf(swe, ut, flag, eqFlag, planets) : undefined;
+  const course = moonCourseAt(swe, flag, utc.getTime());
 
   const ascEcl = wrap360(Number(houseRaw.ascmc[0]));
   const mcEcl = wrap360(Number(houseRaw.ascmc[1]));
@@ -1024,12 +1025,20 @@ export async function calculateNatal(input: BirthInput): Promise<NatalChart> {
       ...(Number.isFinite(armc) ? { armc } : {}),
       ...(sunAlt != null && Number.isFinite(sunAlt) ? { sunAltitude: sunAlt } : {}),
       ...(edges ? { dayRange: edges.lon, dayDecl: edges.decl } : {}),
+      ...(course
+        ? {
+            moonCourse: {
+              next: course.next ? { utc: new Date(course.next.t).toISOString(), body: course.next.body, type: course.next.type } : null,
+              leaves: { utc: new Date(course.leaves.t).toISOString(), sign: SIGN_IDS[course.leaves.sign] ?? "aries" },
+            },
+          }
+        : {}),
     },
     angles,
     planets,
     houses,
     aspects,
-    patterns: buildPatterns(planets, houses, angles, aspects, { isDay, obliquity, timeUnknown }),
+    patterns: buildPatterns(planets, houses, angles, aspects, { isDay, obliquity, timeUnknown, vocMoon: course ? course.next == null : undefined }),
     stars: computeStars(stars, starBodies),
     midpoints: computeMidpoints(planets, angles),
   };
@@ -1200,6 +1209,24 @@ function swissClock(swe: SwissEPH, t0: number) {
     return guess - (jdOf(guess) - jd) * 86_400_000;
   };
   return { jdOf, msOf };
+}
+
+/**
+ * The Moon's course from a moment (sky-search.ts moonCourse), polished on
+ * Swiss: its next exact aspect before it leaves its sign, and when it
+ * leaves. Null if Swiss cannot place it.
+ */
+function moonCourseAt(swe: SwissEPH, flag: number, utcMs: number): MoonCourse | null {
+  try {
+    const { jdOf } = swissClock(swe, utcMs);
+    const provider: SkyProvider = (body, ms) => {
+      const xx = calcUt(swe, jdOf(ms), SWE_BODY[body](swe), flag).xx;
+      return { lon: wrap360(Number(xx[0])), speed: Number(xx[3]) };
+    };
+    return moonCourse(provider, utcMs);
+  } catch {
+    return null;
+  }
 }
 
 /** The sky's events in [from, to) from Swiss, eclipses included; `moon: false` for the year's file. */

@@ -36,12 +36,13 @@ import {
 import { armcOf, declinationOf, localSiderealHours, moonPhase, nearestAngle, outOfBoundsBy, separation } from "./table-facts";
 import { dispositorsOf, dignityRows, dignitiesText, mutualReceptions } from "./table-dignities";
 import { houseRows, houseRowText } from "./table-houses";
+import { midpointRows, starRows, type Contact } from "./table-stars";
 import { mergedShapes } from "./table-patterns";
 import type { NatalChart } from "./types";
-import { bodyBare } from "@/lib/i18n/astro";
+import { bodyBare, signName } from "@/lib/i18n/astro";
 import type { AppLocale } from "@/lib/i18n/messages";
-import { aspectsWord, pointsGroupLabel, pointsText, tablePartLabel, unknownTimeNote } from "@/lib/i18n/table-ui";
-import { formatDegreeSeconds, formatHms, formatSignedDms, formatSignedDmsSeconds } from "@/lib/utils";
+import { aspectsWord, pointsGroupLabel, pointsText, starsWord, tablePartLabel, unknownTimeNote } from "@/lib/i18n/table-ui";
+import { formatArc, formatDegreeSeconds, formatHms, formatSignedDms, formatSignedDmsSeconds } from "@/lib/utils";
 
 const capitalize = (x: string) => (x ? x.charAt(0).toUpperCase() + x.slice(1) : x);
 
@@ -53,7 +54,7 @@ function csvEscape(value: string): string {
 export { chartPoints };
 
 /** The parts of the text copy, in the table page's order (the grid has none). */
-export type ChartTextPartId = "identity" | "points" | "houses" | "aspects" | "dignities" | "patterns" | "balance";
+export type ChartTextPartId = "identity" | "points" | "houses" | "aspects" | "dignities" | "patterns" | "balance" | "stars";
 export type ChartTextPart = { id: ChartTextPartId; lines: string[] };
 
 /**
@@ -105,9 +106,10 @@ export function chartTextParts(chart: NatalChart, locale: AppLocale): ChartTextP
   if (unknown) push(unknownTimeNote(locale, "patterns"));
   for (const s of patternSections(chart, patterns, locale)) {
     if (s.id === "voc" || s.id === "unaspected" || s.id === "retrogrades") {
-      // One line each: "Title: what it says".
-      const item = s.items[0];
+      // One line each: "Title: what it says" (the Moon's course on a line of its own).
+      const [item, ...more] = s.items;
       push(`${s.title}${colon(locale)}${item ? cellText(item) : s.none}`);
+      for (const m of more) push(cellText(m));
       continue;
     }
     push(s.title);
@@ -118,6 +120,25 @@ export function chartTextParts(chart: NatalChart, locale: AppLocale): ChartTextP
   start("balance");
   if (unknown) push(unknownTimeNote(locale, "balance"));
   for (const g of balanceGroups(chart, patterns, locale)) push(balanceGroupText(g, locale));
+
+  start("stars");
+  if (unknown) push(unknownTimeNote(locale, "stars"));
+  push(starsWord(locale, "starsHead"));
+  const on = (contacts: readonly Contact[]) =>
+    contacts.length
+      ? contacts
+          .map((c) => `${c.uncertain ? "~" : ""}${bodyBare(c.body, locale)} ${formatArc(c.orb)}${c.opposite ? ` (${starsWord(locale, "opposite")})` : ""}`)
+          .join(", ")
+      : starsWord(locale, "noneOn");
+  for (const r of starRows(chart)) {
+    push(`${starsWord(locale, r.id)} · ${formatDegreeSeconds(r.ecliptic)} ${signName(r.sign, locale)} · ${starsWord(locale, "on")}${colon(locale)}${on(r.contacts)}`);
+  }
+  push(starsWord(locale, "midpointsHead"));
+  for (const r of midpointRows(chart)) {
+    push(
+      `${bodyBare(r.a, locale)}/${bodyBare(r.b, locale)} · ${r.uncertain ? "~" : ""}${formatDegreeSeconds(r.ecliptic)} ${signName(r.sign, locale)} · ${starsWord(locale, "on")}${colon(locale)}${on(r.contacts)}`,
+    );
+  }
 
   return parts;
 }
@@ -439,6 +460,30 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale): strin
   add([]);
   add(["reception", "a", "b", "kind", "uncertain"]);
   for (const r of mutualReceptions(chart)) add(["reception", r.a, r.b, r.kind, bit(r.uncertain)]);
+
+  add([]);
+  add(["star", "id", "longitude", "sign", "contacts"]);
+  for (const r of starRows(chart)) {
+    add(["star", r.id, r.ecliptic.toFixed(6), r.sign, r.contacts.map((c) => `${c.body}:${c.orb.toFixed(4)}${c.uncertain ? ":~" : ""}`).join("|")]);
+  }
+  add([]);
+  add(["midpoint", "id", "longitude", "sign", "contacts", "uncertain"]);
+  for (const r of midpointRows(chart)) {
+    add([
+      "midpoint",
+      r.id,
+      r.ecliptic.toFixed(6),
+      r.sign,
+      r.contacts.map((c) => `${c.body}:${c.orb.toFixed(4)}${c.opposite ? ":opposite" : ""}${c.uncertain ? ":~" : ""}`).join("|"),
+      bit(r.uncertain),
+    ]);
+  }
+  const course = chart.meta.moonCourse;
+  if (course) {
+    add([]);
+    add(["moonCourse", "nextBody", "nextType", "nextUtc", "entersSign", "entersUtc"]);
+    add(["moonCourse", course.next?.body ?? "", course.next?.type ?? "", course.next?.utc ?? "", course.leaves.sign, course.leaves.utc]);
+  }
 
   if (patterns.tightest) {
     const t = patterns.tightest;
