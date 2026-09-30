@@ -448,8 +448,12 @@ async function desktop() {
     lz = await lensSt();
     if (!(lz.zoom > 1.6) || Math.hypot(mz2.x - mz.x, mz2.y - mz.y) > 2) throw new Error(`the wheel should zoom around the pointer ${JSON.stringify({ lz, mz, mz2 })}`);
     await page.getByTestId("wheel-zoom-fit").click();
-    await page.waitForTimeout(1500);
-    lz = await lensSt();
+    // The lens eases home; a slow machine draws fewer frames, so wait for rest (up to 5 s).
+    for (let i = 0; i < 25; i += 1) {
+      await page.waitForTimeout(i ? 200 : 1500);
+      lz = await lensSt();
+      if (lz.zoom === 1 && !lz.panX && !lz.panY) break;
+    }
     if (lz.zoom !== 1 || lz.panX || lz.panY || Math.abs(lz.rz % 360) > 0.5) throw new Error(`Fit should reset the lens and the camera ${JSON.stringify(lz)}`);
 
     // Orbit by dragging the plate; let go while moving and it glides on.

@@ -807,6 +807,8 @@ export class WheelView3D {
   private rgbCache = new Map<string, RGB>();
   private builtDpr = 0;
   private draws = 0;
+  /** The live chart hides only once the canvas has drawn over it (render), so the stage is never empty in between. */
+  private revealOnDraw = false;
 
   constructor(depth: DepthController, base: SVGSVGElement, hooks: View3DHooks, reduced: () => boolean) {
     this.depth = depth;
@@ -1054,6 +1056,7 @@ export class WheelView3D {
     this.gl = null;
     this.canvas = null;
     this.ready = false;
+    this.revealOnDraw = false;
   }
 
   private onLost = (e: Event) => {
@@ -1165,7 +1168,7 @@ export class WheelView3D {
       const canvas = this.canvas as HTMLCanvasElement;
       if (!canvas.isConnected) this.depth.scene.appendChild(canvas);
       canvas.style.visibility = "";
-      this.base.setAttribute("data-view3d", "gl");
+      if (this.base.getAttribute("data-view3d") !== "gl") this.revealOnDraw = true;
       this.ready = true;
       this.dirty = true;
       if (first) {
@@ -2364,6 +2367,11 @@ export class WheelView3D {
     if (!I) unbindAttribs(gl, quad);
     gl.depthMask(true);
     this.frameNo += 1;
+    // The first picture is on the canvas: the live chart under it can go, in the same frame.
+    if (this.revealOnDraw) {
+      this.revealOnDraw = false;
+      this.base.setAttribute("data-view3d", "gl");
+    }
   }
 
   /** Where a tube's end is now (units), into `out`: its body's place as the tube rises to it. */
