@@ -11,7 +11,7 @@ export const guide = {
   ],
   firstLocked: [
     "Your private space is locked: unlock it to see your charts.",
-    "Votre espace privé est verrouillé : déverrouillez-le pour voir vos thèmes.",
+    "Votre espace privé est verrouillé\u202f: déverrouillez-le pour voir vos thèmes.",
   ],
   firstModeLine: ["To open {mode}, cast a birth chart first.", "Pour ouvrir {mode}, calculez d’abord un thème natal."],
   firstTableLine: [
@@ -29,8 +29,8 @@ export const guide = {
 
   guideWhatTitle: ["What Ulune is", "Ce qu’est Ulune"],
   guideWhatBody: [
-    "Ulune calculates your birth chart and explains it: where the Sun, the Moon and the planets stood when and where you were born, the houses they fell in and the angles between them. Human Design and numerology sit alongside, from the same birth details.",
-    "Ulune calcule votre thème natal et l’explique : où se trouvaient le Soleil, la Lune et les planètes au moment et au lieu de votre naissance, les maisons où ils tombaient et les angles qu’ils formaient entre eux. Le Human Design et la numérologie l’accompagnent, à partir des mêmes données de naissance.",
+    "Ulune casts your birth chart and explains it: where the Sun, the Moon and the planets stood when and where you were born, the houses they fell in and the angles between them. Human Design and numerology sit alongside, from the same birth data.",
+    "Ulune calcule votre thème natal et l’explique\u202f: où se trouvaient le Soleil, la Lune et les planètes au moment et au lieu de votre naissance, les maisons où ils tombaient et les angles qu’ils formaient entre eux. Le Human Design et la numérologie l’accompagnent, à partir des mêmes données de naissance.",
   ],
   guideDoTitle: ["What you can do", "Ce que vous pouvez faire"],
   guideDoChart: [
@@ -47,7 +47,7 @@ export const guide = {
   ],
   guideDoSystems: [
     "Your Human Design type, strategy and bodygraph. Your numerology: the numbers of your birth date and full name at birth, their cycles through life, and your personal year, month and day, in the calendar too.",
-    "Votre type, votre stratégie et votre bodygraph en Human Design. Votre numérologie : les nombres de votre date de naissance et de votre nom complet de naissance, leurs cycles au fil de la vie, et votre année, votre mois et votre jour personnels, dans le calendrier aussi.",
+    "Votre type, votre stratégie et votre bodygraph en Human Design. Votre numérologie\u202f: les nombres de votre date de naissance et de votre nom complet de naissance, leurs cycles au fil de la vie, et votre année, votre mois et votre jour personnels, dans le calendrier aussi.",
   ],
   guideBeginTitle: ["How to begin", "Pour commencer"],
   guideBegin1: [
@@ -64,9 +64,9 @@ export const guide = {
   ],
   guideBeginNoTime: [
     "No birth time? Tick “I don’t know the time”: Ulune uses noon and marks the houses as approximate.",
-    "Pas d’heure de naissance ? Cochez « Je ne connais pas l’heure » : Ulune prend midi et marque les maisons comme approximatives.",
+    "Pas d’heure de naissance\u202f? Cochez «\u202fJe ne connais pas l’heure\u202f»\u202f: Ulune prend midi et marque les maisons comme approximatives.",
   ],
-  guideNewTitle: ["New to charts?", "Vous découvrez les thèmes ?"],
+  guideNewTitle: ["New to charts?", "Vous découvrez les thèmes\u202f?"],
   guideNewBody: [
     "A one-minute tour shows what each part of the screen does, on the chart you have open or on a sample. Or open the sample chart (1 January 2000, noon, Greenwich) and look around.",
     "Une visite d’une minute montre à quoi sert chaque partie de l’écran, sur le thème ouvert ou sur un exemple. Ou ouvrez le thème d’exemple (1er janvier 2000, midi, Greenwich) et explorez.",
@@ -84,25 +84,25 @@ export const guide = {
   ],
   guideData3: [
     "While you look, charts stay in the open tab and go when it closes.",
-    "Tant que vous regardez, les thèmes restent dans l’onglet ouvert et partent à sa fermeture.",
+    "Tant que vous regardez, les thèmes restent dans l’onglet ouvert et sont effacés à sa fermeture.",
   ],
   guideData4: [
     "To keep them, “Sign in” opens a private space on this device, sealed with AES-256-GCM under your passphrase, a passkey or a recovery code. Ulune never receives it.",
-    "Pour les garder, « Connexion » ouvre un espace privé sur cet appareil, scellé avec AES-256-GCM sous votre phrase secrète, une clé d’accès ou un code de récupération. Ulune ne le reçoit jamais.",
+    "Pour les garder, «\u202fSe connecter\u202f» ouvre un espace privé sur cet appareil, scellé avec AES-256-GCM sous votre phrase secrète, une clé d’accès ou un code de récupération. Ulune ne le reçoit jamais.",
   ],
   guideDataLink: ["Read the privacy notice", "Lire la politique de confidentialité"],
   guidePreciseTitle: ["Precise, and open about it", "Précis, et transparent"],
   guidePrecise1: [
     "Positions come from the Swiss Ephemeris, built from NASA JPL’s DE441; the table shows them to the arc-second.",
-    "Les positions viennent de la Swiss Ephemeris, tirée de DE441 (NASA JPL) ; le tableau les donne à la seconde d’arc.",
+    "Les positions viennent de la Swiss Ephemeris, tirée de DE441 (NASA JPL)\u202f; le tableau les donne à la seconde d’arc.",
   ],
   guidePrecise2: [
     "A birth time is read with the birthplace’s full time-zone history, summer time included; before standard time, with its Local Mean Time; before 15 October 1582, in the Julian calendar.",
-    "Une heure de naissance est lue avec tout l’historique du fuseau du lieu, heure d’été comprise ; avant l’heure légale, avec son temps moyen local ; avant le 15 octobre 1582, dans le calendrier julien.",
+    "Une heure de naissance est lue avec tout l’historique du fuseau du lieu, heure d’été comprise\u202f; avant l’heure légale, avec son temps moyen local\u202f; avant le 15 octobre 1582, dans le calendrier julien.",
   ],
   guidePrecise3: [
     "Ten house systems, Placidus by default. When the method has to change, a note under the chart says so: Porphyry houses inside the polar circles, for example.",
-    "Dix systèmes de maisons, Placidus par défaut. Quand la méthode doit changer, une note sous le thème le dit : les maisons de Porphyre dans les cercles polaires, par exemple.",
+    "Dix systèmes de maisons, Placidus par défaut. Quand la méthode doit changer, une note sous le thème le dit\u202f: les maisons de Porphyre dans les cercles polaires, par exemple.",
   ],
   guidePreciseProgressions: [
     "Progressions: a day for a year, the angles advancing at the Naibod rate (0°59′08″ of right ascension a year).",
@@ -110,7 +110,7 @@ export const guide = {
   ],
   guidePreciseNumerology: [
     "Numerology follows Hans Decoz’s Pythagorean method: each name added on its own, a Y counted by its place, master numbers and karmic debts kept. The Chaldean number stands beside it, labelled, never mixed in.",
-    "La numérologie suit la méthode pythagoricienne de Hans Decoz : chaque nom additionné à part, un Y compté selon sa place, les nombres maîtres et les dettes karmiques gardés. Le nombre chaldéen se tient à côté, nommé, jamais mêlé.",
+    "La numérologie suit la méthode pythagoricienne de Hans Decoz\u202f: chaque nom additionné à part, un Y compté selon sa place, les nombres maîtres et les dettes karmiques gardés. Le nombre chaldéen se tient à côté, nommé, jamais mêlé.",
   ],
   guidePrecise4: ["Ulune’s code is public, under the GNU AGPL.", "Le code d’Ulune est public, sous licence GNU AGPL."],
   guideSource: ["Source code", "Code source"],
@@ -119,34 +119,34 @@ export const guide = {
   faqTimeQ: ["I don’t know my birth time.", "Je ne connais pas mon heure de naissance."],
   faqTimeA: [
     "Tick “I don’t know the time”. Ulune uses noon: the planets move little in half a day, except the Moon, which can be up to about 7½° off. The houses and the Ascendant depend on the exact time, so they are marked approximate.",
-    "Cochez « Je ne connais pas l’heure ». Ulune prend midi : les planètes bougent peu en une demi-journée, sauf la Lune, qui peut s’écarter jusqu’à 7,5° environ. Les maisons et l’Ascendant dépendent de l’heure exacte : ils sont marqués comme approximatifs.",
+    "Cochez «\u202fJe ne connais pas l’heure\u202f». Ulune prend midi\u202f: les planètes bougent peu en une demi-journée, sauf la Lune, qui peut s’écarter jusqu’à 7,5° environ. Les maisons et l’Ascendant dépendent de l’heure exacte\u202f: ils sont marqués comme approximatifs.",
   ],
-  faqHousesQ: ["Which house system should I choose?", "Quel système de maisons choisir ?"],
+  faqHousesQ: ["Which house system should I choose?", "Quel système de maisons choisir\u202f?"],
   faqHousesA: [
     "Placidus, the default, is the most common; whole sign is the oldest. Each has a line in the form’s options, and you can change it later by editing the chart.",
-    "Placidus, le système par défaut, est le plus courant ; les signes entiers sont le plus ancien. Chacun a sa ligne dans les options du formulaire, et vous pouvez en changer plus tard en modifiant le thème.",
+    "Placidus, le système par défaut, est le plus courant\u202f; celui des signes entiers est le plus ancien. Chacun a sa ligne dans les options du formulaire, et vous pouvez en changer plus tard en modifiant le thème.",
   ],
-  faqFreeQ: ["Is Ulune free?", "Ulune est-il gratuit ?"],
+  faqFreeQ: ["Is Ulune free?", "Ulune est-il gratuit\u202f?"],
   faqFreeA: [
     "Yes: every chart, mode and reading, with no account, subscription or advertising.",
-    "Oui : chaque thème, chaque mode et chaque lecture, sans compte, sans abonnement ni publicité.",
+    "Oui\u202f: chaque thème, chaque mode et chaque lecture, sans compte, sans abonnement ni publicité.",
   ],
-  faqKeptQ: ["Where are my charts kept?", "Où sont gardés mes thèmes ?"],
+  faqKeptQ: ["Where are my charts kept?", "Où sont gardés mes thèmes\u202f?"],
   faqKeptA: [
     "While you look, in the open tab only. In a private space, on this device, sealed; Ulune has no copy, so download a backup from the private space now and then.",
-    "Tant que vous regardez, dans l’onglet ouvert seulement. Dans un espace privé, sur cet appareil, scellés ; Ulune n’en a aucune copie, alors téléchargez de temps en temps une sauvegarde depuis l’espace privé.",
+    "Tant que vous regardez, dans l’onglet ouvert seulement. Dans un espace privé, sur cet appareil, scellés\u202f; Ulune n’en a aucune copie, alors téléchargez de temps en temps une sauvegarde depuis l’espace privé.",
   ],
-  faqTrustQ: ["Can I trust the positions?", "Puis-je me fier aux positions ?"],
+  faqTrustQ: ["Can I trust the positions?", "Puis-je me fier aux positions\u202f?"],
   faqTrustA: [
     "They come from the Swiss Ephemeris, which follows NASA JPL’s DE441 to a fraction of an arc-second, and Ulune’s tests compare them with reference charts. If one looks wrong, use “Report a problem”.",
-    "Elles viennent de la Swiss Ephemeris, qui suit DE441 (NASA JPL) à une fraction de seconde d’arc près, et les tests d’Ulune les comparent à des thèmes de référence. Si l’une vous semble fausse, utilisez « Signaler un problème ».",
+    "Elles viennent de la Swiss Ephemeris, qui suit DE441 (NASA JPL) à une fraction de seconde d’arc près, et les tests d’Ulune les comparent à des thèmes de référence. Si l’une vous semble fausse, utilisez «\u202fSignaler un problème\u202f».",
   ],
-  faqNameQ: ["Which name does numerology read?", "Quel nom la numérologie lit-elle ?"],
+  faqNameQ: ["Which name does numerology read?", "Quel nom la numérologie lit-elle\u202f?"],
   faqNameA: [
-    "The full name at birth, as on the birth certificate: every given name and the family name. Type it under “Names for numerology” in the form, with the name used now if it differs: a married or chosen name adds its minor numbers. Left empty, numerology reads the chart’s name. Both names stay on this device.",
-    "Le nom complet de naissance, comme sur l’acte de naissance : tous les prénoms et le nom de famille. Saisissez-le sous « Noms pour la numérologie » dans le formulaire, avec le nom utilisé aujourd’hui s’il diffère : un nom d’usage ou choisi ajoute ses nombres mineurs. Laissé vide, la numérologie lit le nom du thème. Les deux noms restent sur cet appareil.",
+    "The full name at birth, as on the birth certificate: every given name and the family name. Type it under “Names for numerology” in the form, with the name used now if it differs: a married or chosen name adds its minor numbers. If the full name at birth is left empty, numerology reads the chart’s name. Both names stay on this device.",
+    "Le nom complet de naissance, comme sur l’acte de naissance\u202f: tous les prénoms et le nom de famille. Saisissez-le sous «\u202fNoms pour la numérologie\u202f» dans le formulaire, avec le nom utilisé aujourd’hui s’il diffère\u202f: un nom d’usage ou choisi ajoute ses nombres mineurs. Si le nom complet de naissance est laissé vide, la numérologie lit le nom du thème. Les deux noms restent sur cet appareil.",
   ],
-  faqAiQ: ["Does Ulune use AI?", "Ulune utilise-t-il l’IA ?"],
+  faqAiQ: ["Does Ulune use AI?", "Ulune utilise-t-il l’IA\u202f?"],
   faqAiA: [
     "No. The readings that come with every chart are fixed texts, the same for everyone with that placement.",
     "Non. Les lectures qui accompagnent chaque thème sont des textes fixes, les mêmes pour tous ceux qui ont ce placement.",

@@ -52,22 +52,27 @@ export const CAL_MAGNITUDE: Record<"solar" | "lunar", Bi> = {
 export const CAL_STATION: Record<"rx" | "direct", Bi> = {
   rx: {
     en: "Seen from the Earth, {body} seems to stop, then to move backwards through the zodiac for a while (it does not really turn back: the Earth overtakes it, or it overtakes the Earth). Astrologers read a retrograde period as a time to review and rework what the planet stands for ({keywords}) rather than to launch it; the days around the station are the strongest.",
-    fr: "Vu de la Terre, {body} semble s’arrêter, puis reculer dans le zodiaque pendant un temps (sans vraiment faire demi-tour\u202f: la Terre le dépasse, ou il dépasse la Terre). On lit une rétrogradation comme un temps pour revoir et retravailler ce que la planète représente ({keywords}) plutôt que pour le lancer\u202f; les jours autour de la station sont les plus forts.",
+    fr: "Depuis la Terre, {body} semble s’arrêter, puis reculer dans le zodiaque pendant un temps (sans vraiment faire demi-tour\u202f: la Terre dépasse la planète, ou la planète dépasse la Terre). On lit une rétrogradation comme un temps pour revoir et retravailler ce que la planète représente ({keywords}) plutôt que pour le lancer\u202f; les jours autour de la station sont les plus forts.",
   },
   direct: {
-    en: "{body} seems to stop again, then moves forward. What was reviewed during the retrograde period can go ahead, though it takes a few weeks to pass the degree where the retrograde began.",
-    fr: "{body} semble s’arrêter de nouveau, puis repart vers l’avant. Ce qui a été revu pendant la rétrogradation peut avancer, même s’il faut quelques semaines pour repasser le degré où elle avait commencé.",
+    en: "{body} seems to stop again, then moves forward. What was reviewed during the retrograde period can go ahead, though the planet needs time to pass the degree where the retrograde began: from two or three weeks for Mercury to several months for the slow planets.",
+    fr: "{body} semble s’arrêter de nouveau, puis repart vers l’avant. Ce qui a été revu pendant la rétrogradation peut avancer, même s’il faut du temps à la planète pour repasser le degré où la rétrogradation avait commencé\u202f: de deux ou trois semaines pour Mercure à plusieurs mois pour les planètes lentes.",
   },
 };
 
-export const CAL_INGRESS: Record<"forward" | "back", Bi> = {
+export const CAL_INGRESS: Record<"forward" | "back" | "node", Bi> = {
   forward: {
-    en: "{body} leaves one sign for the next. The sign colours how everyone lives what the planet stands for: {keywords}. Slow planets stay years in a sign, so their changes mark a change of climate; fast ones move on every few weeks.",
-    fr: "{body} passe d’un signe au suivant. Le signe colore la façon dont chacun vit ce que la planète représente\u202f: {keywords}. Les planètes lentes restent des années dans un signe, leurs changements marquent un changement de climat\u202f; les rapides repartent toutes les quelques semaines.",
+    en: "{body} leaves one sign for the next. The sign colours how everyone experiences what the planet stands for: {keywords}. Slow planets stay years in a sign, so their changes mark a change of climate; fast ones move on every few weeks.",
+    fr: "{body} passe d’un signe au suivant. Le signe colore la façon dont chacun vit ce que la planète représente\u202f: {keywords}. Les planètes lentes restent des années dans un signe, leurs changements marquent un changement de climat\u202f; les rapides en repartent au bout de quelques semaines.",
   },
   back: {
     en: "{body}, moving retrograde, slips back into the sign it had left: that sign’s themes come back for a last review before it moves on again.",
     fr: "{body}, en rétrogradation, revient dans le signe précédent\u202f: ses thèmes reviennent pour une dernière révision avant de repartir.",
+  },
+  /** The North Node, whose usual course runs backwards through the signs. */
+  node: {
+    en: "{body} changes sign. The lunar nodes move backwards through the zodiac, about a year and a half in each sign; the true node also wobbles, so it can cross a sign’s edge more than once. Its sign is read as a shared direction of growth; the opposite sign, where the South Node stands, shows what is ready to be let go.",
+    fr: "{body} change de signe. Les nœuds lunaires reculent dans le zodiaque, environ un an et demi par signe\u202f; le nœud réel oscille aussi et peut franchir plusieurs fois la limite d’un signe. On lit son signe comme une direction de croissance collective\u202f; le signe opposé, où se trouve le Nœud Sud, montre ce qu’il est temps de lâcher.",
   },
 };
 
@@ -117,14 +122,14 @@ export const CAL_NEAR_MISS: Bi = {
 };
 
 export const CALENDAR_ABOUT: Bi = {
-  en: "The calendar shows the sky day by day (the Moon’s phase and sign, planets changing sign or direction, eclipses) and, with a chart open, the dates your transits are exact. The sky is the same for everyone and comes by date; your transits are worked out on this device.",
-  fr: "Le calendrier montre le ciel jour après jour (la phase et le signe de la Lune, les planètes qui changent de signe ou de sens, les éclipses) et, avec un thème ouvert, les dates où vos transits sont exacts. Le ciel est le même pour tous et arrive par date\u202f; vos transits sont calculés sur cet appareil.",
+  en: "The calendar shows the sky day by day (the Moon’s phase and sign, planets changing sign or direction, eclipses) and, with a chart open, the dates your transits are exact. The sky is the same for everyone, so it is downloaded date by date; your transits are worked out on this device.",
+  fr: "Le calendrier montre le ciel jour après jour (la phase et le signe de la Lune, les planètes qui changent de signe ou de sens, les éclipses) et, avec un thème ouvert, les dates où vos transits sont exacts. Le ciel étant le même pour tous, il est téléchargé date par date\u202f; vos transits sont calculés sur cet appareil.",
 };
 
 /** The Moon of a day between the exact phases: waxing crescent, waxing gibbous, waning gibbous, waning crescent. */
 export const CAL_DAILY_PHASE: [Bi, Bi, Bi, Bi] = [
   {
-    en: "The Moon is less than half lit and growing, seen after sunset. Traditionally a time of gathering: what began at the New Moon takes shape and needs feeding.",
+    en: "The Moon is less than half lit and growing, seen after sunset. Traditionally a time of building momentum: what began at the New Moon takes shape and needs feeding.",
     fr: "La Lune est éclairée à moins de moitié et croît, visible après le coucher du soleil. Traditionnellement, un temps d’élan\u202f: ce qui a commencé à la Nouvelle Lune prend forme et demande à être nourri.",
   },
   {
@@ -133,11 +138,11 @@ export const CAL_DAILY_PHASE: [Bi, Bi, Bi, Bi] = [
   },
   {
     en: "Past full and shrinking, the Moon rises later each evening. Traditionally a time to share what has been learnt and to take stock of what the Full Moon showed.",
-    fr: "Passé la pleine lune, elle décroît et se lève chaque soir plus tard. Traditionnellement, un temps pour partager ce qui a été appris et faire le point sur ce que la Pleine Lune a montré.",
+    fr: "Passé la Pleine Lune, l’astre décroît et se lève chaque soir plus tard. Traditionnellement, un temps pour partager ce qui a été appris et faire le point sur ce que la Pleine Lune a montré.",
   },
   {
-    en: "A thin crescent before dawn, the Moon’s light is almost gone. The last days of the cycle, read as a time for rest, release and quiet preparation for the New Moon.",
-    fr: "Mince croissant avant l’aube, la lumière de la Lune est presque éteinte. Les derniers jours du cycle, lus comme un temps de repos, de lâcher-prise et de préparation tranquille avant la Nouvelle Lune.",
+    en: "A thin crescent before dawn, the Moon has almost lost its light. The last days of the cycle, read as a time for rest, release and quiet preparation for the New Moon.",
+    fr: "Mince croissant avant l’aube, la Lune a presque perdu sa lumière. Les derniers jours du cycle, lus comme un temps de repos, de lâcher-prise et de préparation tranquille avant la Nouvelle Lune.",
   },
 ];
 
@@ -172,8 +177,8 @@ export const CAL_RETRO: Record<"mercury" | "venus" | "mars" | "jupiter" | "satur
     fr: "Mercure rétrograde trois ou quatre fois par an, environ trois semaines à chaque fois. La rétrogradation la plus connue\u202f: on conseille de vérifier messages, projets et voyages, et de revenir sur les choses (relire, réparer, renouer) plutôt que de signer ou de lancer.",
   },
   venus: {
-    en: "Venus turns retrograde about every eighteen months, for about six weeks. Read as a time to reconsider relationships, money and what you value; old attachments may come back, and new commitments are best given time.",
-    fr: "Vénus rétrograde environ tous les dix-huit mois, pendant six semaines. On la lit comme un temps pour reconsidérer les relations, l’argent et ce qui compte\u202f; d’anciens liens peuvent revenir, et mieux vaut laisser du temps aux nouveaux engagements.",
+    en: "Venus turns retrograde about every nineteen months, for about six weeks. Read as a time to reconsider relationships, money and what you value; old attachments may come back, and new commitments are best given time.",
+    fr: "Vénus rétrograde environ tous les dix-neuf mois, pendant environ six semaines. On la lit comme un temps pour reconsidérer les relations, l’argent et ce qui compte\u202f; d’anciens liens peuvent revenir, et mieux vaut laisser du temps aux nouveaux engagements.",
   },
   mars: {
     en: "Mars turns retrograde about every two years, for two to two and a half months. Read as a time when drive turns inward: effort goes to unfinished fights and projects rather than new ones, and frustration is best spent revising the plan.",
@@ -193,7 +198,7 @@ export const CAL_RETRO: Record<"mercury" | "venus" | "mars" | "jupiter" | "satur
   },
   neptune: {
     en: "Neptune turns retrograde once a year, for about five months. Read as a time when illusions thin out and dreams and ideals are looked at more soberly.",
-    fr: "Neptune rétrograde une fois par an, pendant environ cinq mois. On le lit comme un temps où les illusions s’amincissent, et où rêves et idéaux sont regardés plus sobrement.",
+    fr: "Neptune rétrograde une fois par an, pendant environ cinq mois. On le lit comme un temps où les illusions s’estompent, et où rêves et idéaux sont regardés plus sobrement.",
   },
   pluto: {
     en: "Pluto turns retrograde once a year, for about five months. Read as a time of inner reckoning with power and control, when deep change is digested before it is acted on.",
@@ -213,7 +218,7 @@ export const CAL_MOON_SIGN: Record<"aries" | "taurus" | "gemini" | "cancer" | "l
   },
   taurus: {
     en: "A slower, steadier mood that favours comfort, food, the body and finishing what is under way.",
-    fr: "Une humeur plus lente et plus stable, qui favorise le confort, la table, le corps et ce qu’on achève.",
+    fr: "Une humeur plus lente et plus stable, qui favorise le confort, la table, le corps et l’achèvement de ce qui est en cours.",
   },
   gemini: {
     en: "Curious and talkative: good for messages, errands, reading and many small things at once.",
@@ -265,21 +270,21 @@ export const CAL_MOON_SIGN_ABOUT: Bi = {
 /** Two planets of the sky in aspect, by family. {a} {b}: their names; {ka} {kb}: what they stand for. */
 export const CAL_SKY_FAMILY: Record<"blend" | "flow" | "tension", Bi> = {
   blend: {
-    en: "{a} and {b} meet: {ka} and {kb} act as one, and a new cycle between them begins.",
-    fr: "{a} et {b} se rejoignent\u202f: {ka} et {kb} agissent d’un seul bloc, et un nouveau cycle commence entre eux.",
+    en: "{a} ({ka}) and {b} ({kb}) meet and act as one: a new cycle between them begins.",
+    fr: "{a} ({ka}) et {b} ({kb}) se rejoignent et agissent d’un seul bloc\u202f: un nouveau cycle commence entre les deux.",
   },
   flow: {
-    en: "{a} and {b} support each other: {ka} and {kb} work together easily, a good moment to use them.",
-    fr: "{a} et {b} se soutiennent\u202f: {ka} et {kb} coopèrent facilement, un bon moment pour s’en servir.",
+    en: "{a} ({ka}) and {b} ({kb}) support each other and work together easily: a good moment to use them.",
+    fr: "{a} ({ka}) et {b} ({kb}) se soutiennent et coopèrent facilement\u202f: un bon moment pour s’en servir.",
   },
   tension: {
-    en: "{a} and {b} pull against each other: {ka} and {kb} ask to be reconciled, and the friction tends to move things forward.",
-    fr: "{a} et {b} se contrarient\u202f: {ka} et {kb} demandent à être conciliés, et la friction tend à faire avancer les choses.",
+    en: "{a} ({ka}) and {b} ({kb}) pull against each other and ask to be reconciled; the friction tends to move things forward.",
+    fr: "{a} ({ka}) et {b} ({kb}) se contrarient et demandent qu’on les concilie\u202f; la friction tend à faire avancer les choses.",
   },
 };
 
 /** A sign change, with the sign's own words. {body} {sign} {keywords}. */
 export const CAL_INGRESS_SIGN: Bi = {
   en: "In {sign}, what {body} stands for tends to turn {keywords}.",
-  fr: "En {sign}, ce que {body} représente prend une couleur de {keywords}.",
+  fr: "En {sign}, ce que {body} représente prend la couleur du signe\u202f: {keywords}.",
 };

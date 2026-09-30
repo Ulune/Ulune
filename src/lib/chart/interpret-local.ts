@@ -39,6 +39,7 @@ import {
   modalityName,
   planetName,
   signDe,
+  bodyBare,
   bodyPrep,
   bodyThe,
   joinList,
@@ -146,8 +147,8 @@ function decanLine(sign: SignId, ecliptic: number, locale: Locale): string {
       : `Il tombe dans le ${face} décan ${signDe(sign)}, le décan ${signDe(d.faceSign)}, sous-gouverné par ${bodyInline(d.ruler, locale)} : il ajoute au style du signe une touche ${signDe(d.faceSign)} (${signKeywords(d.faceSign, locale)}).`;
   }
   return own
-    ? `It falls in the ${face} decan of ${signName(sign, locale)}, the sign’s own decan, ruled by ${planetName(d.ruler, locale)}: the ${signName(sign, locale)} style in its purest form.`
-    : `It falls in the ${face} decan of ${signName(sign, locale)}, the ${signName(d.faceSign, locale)} decan, sub-ruled by ${planetName(d.ruler, locale)}: it adds a touch of ${signName(d.faceSign, locale)} (${signKeywords(d.faceSign, locale)}) to the sign’s style.`;
+    ? `It falls in the ${face} decan of ${signName(sign, locale)}, the sign’s own decan, ruled by ${bodyThe(d.ruler, locale)}: the ${signName(sign, locale)} style in its purest form.`
+    : `It falls in the ${face} decan of ${signName(sign, locale)}, the ${signName(d.faceSign, locale)} decan, sub-ruled by ${bodyThe(d.ruler, locale)}: it adds a touch of ${signName(d.faceSign, locale)} (${signKeywords(d.faceSign, locale)}) to the sign’s style.`;
 }
 
 function aboutTitle(locale: Locale, id: string) {
@@ -163,7 +164,7 @@ function planetReading(chart: NatalChart, p: Placement, locale: Locale): Element
     formatted: p.formatted,
     sign: signName(p.sign, locale),
     face: faceLabelLocale(decan.face, locale),
-    ruler: planetName(decan.ruler, locale),
+    ruler: bodyBare(decan.ruler, locale),
     house: houseName(p.house, locale),
     rx: p.retrograde ? c.rx : "",
   });
@@ -455,8 +456,8 @@ function decanReading(chart: NatalChart, sign: SignId, face: 0 | 1 | 2, locale: 
       ? `Le ${faceLabelLocale(decan.face, locale)} décan ${signDe(sign)} va de ${start}° à ${end}°. C’est le décan propre au signe, gouverné par ${bodyInline(decan.ruler, locale)} : on y trouve le style ${signDe(sign)} sous sa forme la plus nette (${signKeywords(sign, locale)}).`
       : `Le ${faceLabelLocale(decan.face, locale)} décan ${signDe(sign)} va de ${start}° à ${end}°. C’est le décan ${signDe(decan.faceSign)}, sous-gouverné par ${bodyInline(decan.ruler, locale)} : il ajoute au style du signe une touche ${signDe(decan.faceSign)} (${signKeywords(decan.faceSign, locale)}).`
     : own
-      ? `The ${faceLabelLocale(decan.face, locale)} decan of ${signName(sign, locale)} runs from ${start}° to ${end}°. It is the sign’s own decan, ruled by ${planetName(decan.ruler, locale)}: the ${signName(sign, locale)} style in its clearest form (${signKeywords(sign, locale)}).`
-      : `The ${faceLabelLocale(decan.face, locale)} decan of ${signName(sign, locale)} runs from ${start}° to ${end}°. It is the ${signName(decan.faceSign, locale)} decan, sub-ruled by ${planetName(decan.ruler, locale)}: it adds a touch of ${signName(decan.faceSign, locale)} (${signKeywords(decan.faceSign, locale)}) to the sign’s style.`;
+      ? `The ${faceLabelLocale(decan.face, locale)} decan of ${signName(sign, locale)} runs from ${start}° to ${end}°. It is the sign’s own decan, ruled by ${bodyThe(decan.ruler, locale)}: the ${signName(sign, locale)} style in its clearest form (${signKeywords(sign, locale)}).`
+      : `The ${faceLabelLocale(decan.face, locale)} decan of ${signName(sign, locale)} runs from ${start}° to ${end}°. It is the ${signName(decan.faceSign, locale)} decan, sub-ruled by ${bodyThe(decan.ruler, locale)}: it adds a touch of ${signName(decan.faceSign, locale)} (${signKeywords(decan.faceSign, locale)}) to the sign’s style.`;
   const inChart = tenants.length
     ? [
         fr
@@ -483,7 +484,7 @@ function decanReading(chart: NatalChart, sign: SignId, face: 0 | 1 | 2, locale: 
     id: `decan:${sign}-${face}`,
     kind: "decan",
     title: fill(c.decanTitle, { face: faceLabelLocale(decan.face, locale), sign: fr ? signDe(sign) : signName(sign, locale) }),
-    kicker: fill(c.decanKicker, { span, faceSign: signName(decan.faceSign, locale), ruler: planetName(decan.ruler, locale) }),
+    kicker: fill(c.decanKicker, { span, faceSign: signName(decan.faceSign, locale), ruler: bodyBare(decan.ruler, locale) }),
     paragraphs: flatten(structured),
     ...structured,
     facts,

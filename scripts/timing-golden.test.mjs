@@ -55,7 +55,7 @@ test("timing-ui.json is the source of the calendar table's words", () => {
   assert.deepEqual(ui.table.columns.fr, ["Quand", "Quoi", "Où", "Pour", "UT"]);
   assert.equal(ui.table.applying, undefined, "the A and S columns are gone");
   assert.equal(ui.noNatal.en, "Cast a birth chart first.");
-  assert.equal(ui.readingEmpty.en, "Tap a date, a body, or an aspect.");
+  assert.equal(ui.readingEmpty.en, "Tap a date, a body or an aspect.");
   assert.equal(ui.table.empty.day.en, "Nothing to show on this day.");
   assert.equal(ui.table.empty.month.en, "Nothing to show this month.");
   assert.equal(ui.table.empty.year.en, "Nothing to show this year.");

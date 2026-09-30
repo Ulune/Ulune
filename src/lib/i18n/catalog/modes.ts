@@ -6,7 +6,7 @@ export const modes = {
   ],
   periodNext: ["Next", "Suivant"],
   periodPrev: ["Previous", "Précédent"],
-  progressedBody: ["Progressed {name}", "{name} progressé"],
+  progressedBody: ["Progressed {name}", "{name} {progressed}"],
   progressedGlanceTitle: ["The progressed chart at {n} years", "Le thème progressé à {n}\u00a0ans"],
   progressionLegendOuter: ["Progressed", "Progressé"],
   progressionYearsOfLife: ["{n} years of life", "{n} années de vie"],

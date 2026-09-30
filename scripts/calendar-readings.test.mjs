@@ -149,3 +149,51 @@ test("a year whose sky file has not come yet draws no signs and no retrograde (p
   for (const b of here.bodies) assert.ok(b.segments.length >= 1, b.body);
   assert.equal(here.bodies.find((b) => b.body === "mercury").retro.length, 3);
 });
+
+test("sign changes, sky aspects, stations and near misses read right in both languages (proofreading)", { timeout: 180_000 }, async () => {
+  const s = await sky();
+  const ctx = { chart: s.chart, events: s.events };
+  const read = (ev, locale) => skyEventReading(ev, locale, TZ, ctx);
+  const all = (r) => [r.lead, ...(r.sections ?? []).flatMap((x) => x.paragraphs)].join("\n");
+  // The North Node goes backwards through the signs: its own line, not a planet backing into a sign it had left.
+  const node = s.events.find((e) => e.k === "ingress" && e.body === "northnode");
+  assert.ok(node, "a North Node sign change");
+  assert.match(read(node, "en").lead, /^The North Node changes sign\. The lunar nodes move backwards/);
+  assert.match(read(node, "fr").lead, /^Le Nœud Nord réel change de signe\. Les nœuds lunaires reculent/);
+  for (const locale of ["en", "fr"]) assert.doesNotMatch(all(read(node, locale)), /last review|dernière révision/);
+  // A body keeps its article ("the Sun", "le Soleil" mid-sentence); the French sign keywords take no "de".
+  const sun = s.events.find((e) => e.k === "ingress" && e.body === "sun" && seasonOf(e) == null);
+  assert.ok(sun, "a Sun sign change that opens no season");
+  assert.match(read(sun, "en").lead, /^The Sun leaves one sign for the next\./);
+  assert.match(all(read(sun, "en")), /, what the Sun stands for tends to turn /);
+  assert.match(all(read(sun, "fr")), /, ce que le Soleil représente prend la couleur du signe\u202f: /);
+  for (const ev of s.events.filter((e) => e.k === "ingress" && e.body !== "moon" && seasonOf(e) == null)) {
+    assert.doesNotMatch(all(read(ev, "fr")), /\bde [aeiouyéèêâîôû]/i, `no elision before a vowel: ${ev.body}`);
+  }
+  // Two planets in aspect: each with its own keywords, never two lists run together.
+  const moonAspect = s.events.find((e) => e.k === "aspect" && e.a === "moon");
+  assert.match(read(moonAspect, "en").lead, /^The Moon \(feelings, needs and habits\) and /);
+  assert.match(read(moonAspect, "fr").lead, /^La Lune \(les émotions, les besoins et les habitudes\) et /);
+  for (const ev of s.events.filter((e) => e.k === "aspect" || e.k === "ingress")) {
+    const fr = all(read(ev, "fr"));
+    assert.doesNotMatch(fr, /[a-zà-ÿ,)] (?:Le|La) (?:Soleil|Lune|Nœud)/, `a capital article mid-sentence: ${fr.slice(0, 160)}`);
+  }
+  // Venus is feminine in French; turning direct, the time to clear the retrograde's degree depends on the planet.
+  const venus = s.events.find((e) => e.k === "station" && e.turn === "rx" && e.body === "venus");
+  assert.match(read(venus, "fr").lead, /^Depuis la Terre, Vénus semble s’arrêter/);
+  assert.doesNotMatch(read(venus, "fr").lead, /\b(?:le|il) dépasse\b/);
+  const direct = s.events.find((e) => e.k === "station" && e.turn === "direct");
+  assert.match(read(direct, "en").lead, /from two or three weeks for Mercury to several months for the slow planets\.$/);
+  assert.match(read(direct, "fr").lead, /de deux ou trois semaines pour Mercure à plusieurs mois pour les planètes lentes\.$/);
+  // Orbs in degrees and minutes, never a bare decimal.
+  for (const ev of s.events.filter((e) => e.k === "phase" || e.k === "eclipse" || e.k === "station")) {
+    for (const locale of ["en", "fr"]) assert.doesNotMatch(all(read(ev, locale)), /\d[.,]\d+ (?:from your|de votre)/);
+  }
+  const miss = { moving: "saturn", natal: "sun", type: "square", from: Date.UTC(2026, 8, 1), to: Date.UTC(2026, 9, 1), passes: [], minOrb: 0.4, openStart: false, openEnd: false };
+  const en = windowReading(miss, "en", TZ, Date.UTC(2026, 8, 28, 10));
+  assert.equal(en.facts.find((f) => f.label === "Closest")?.value, "0°24'");
+  assert.ok(en.paragraphs.some((p) => p.startsWith("It comes within 0°24' of exact and turns back")), JSON.stringify(en.paragraphs));
+  const fr = windowReading(miss, "fr", TZ, Date.UTC(2026, 8, 28, 10));
+  assert.equal(fr.facts.find((f) => f.label === "Au plus près")?.value, "0°24'");
+  assert.ok(fr.paragraphs.some((p) => p.startsWith("Elle arrive à 0°24' de l’exactitude")), JSON.stringify(fr.paragraphs));
+});

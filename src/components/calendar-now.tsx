@@ -127,7 +127,7 @@ export function CalendarNow({
         nextIngress
           ? dayKey(nextIngress.t) === dayKey(nowMs)
             ? fill(CALENDAR_UI.moon.entersAt, locale, { sign: signWord(nextIngress.sign, locale), time: time(nextIngress.t) })
-            : fill(CALENDAR_UI.moon.entersOn, locale, { sign: signWord(nextIngress.sign, locale), when: `${whenIn(nextIngress.t)} ${time(nextIngress.t)}` })
+            : fill(CALENDAR_UI.moon.entersOn, locale, { sign: signWord(nextIngress.sign, locale), when: dayKey(nextIngress.t) === dayKey(nowMs + DAY_MS) ? whenIn(nextIngress.t) : `${locale === "fr" ? "le" : "on"} ${shortDay(nextIngress.t)}`, time: time(nextIngress.t) })
           : "",
       ]
         .filter(Boolean)

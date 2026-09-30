@@ -128,8 +128,8 @@ const PLANET_FR_NOM: Record<PlanetId, FrNom> = {
   lilith: { article: "", name: "Lilith réelle" },
   vertex: { article: "le", name: "Vertex" },
   antivertex: { article: "l'", name: "Anti-Vertex" },
-  fortune: { article: "le", name: "Lot de Fortune" },
-  spirit: { article: "le", name: "Lot d’Esprit" },
+  fortune: { article: "la", name: "Part de Fortune" },
+  spirit: { article: "la", name: "Part d’Esprit" },
   ceres: { article: "", name: "Cérès" },
   pallas: { article: "", name: "Pallas" },
   juno: { article: "", name: "Junon" },
@@ -182,8 +182,8 @@ const PLANET_ABBR_FR: Record<PlanetId, string> = {
   lilith: "Lil",
   vertex: "Vx",
   antivertex: "Avx",
-  fortune: "LF",
-  spirit: "LS",
+  fortune: "PF",
+  spirit: "PE",
   ceres: "Cér",
   pallas: "Pal",
   juno: "Jun",
@@ -546,7 +546,7 @@ export function bodyThe(id: string, locale: Locale, capital = false): string {
 
 /** "A, B and C" / « A, B et C ». */
 /** French bodies whose name is feminine (Vénus, Cérès…): "natale", "progressée". */
-const FEMININE_FR = new Set(["moon", "venus", "lilith", "ceres", "pallas", "juno", "vesta", "eris", "sedna"]);
+const FEMININE_FR = new Set(["moon", "venus", "lilith", "ceres", "pallas", "juno", "vesta", "eris", "sedna", "fortune", "spirit"]);
 
 /** French adjective agreement with a body: bodyAgree("venus", "natal", "natale") → "natale". */
 export function bodyAgree(id: string, masc: string, fem: string): string {

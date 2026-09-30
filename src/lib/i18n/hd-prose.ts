@@ -40,8 +40,8 @@ const CENTER: Record<HdCenterId, { role: Pair; defined: Pair; open: Pair }> = {
   },
   throat: {
     role: {
-      en: "The Throat is the centre of communication and action: everything that is said or done passes through it. It is the only centre that turns energy into something others can see or hear, which is why the channels of the bodygraph lead towards it.",
-      fr: "La Gorge est le centre de la communication et de l’action\u202f: tout ce qui se dit ou se fait passe par elle. C’est le seul centre qui transforme l’énergie en quelque chose que les autres peuvent voir ou entendre\u202f; c’est pourquoi les canaux du bodygraph convergent vers elle.",
+      en: "The Throat is the centre of communication and action: everything that is said or done passes through it. It is the only centre that turns energy into something others can see or hear, which is why more channels lead to it than to any other centre.",
+      fr: "La Gorge est le centre de la communication et de l’action\u202f: tout ce qui se dit ou se fait passe par elle. C’est le seul centre qui transforme l’énergie en quelque chose que les autres peuvent voir ou entendre\u202f; c’est pourquoi plus de canaux y aboutissent qu’à tout autre centre.",
     },
     defined: {
       en: "Defined, it gives you a consistent way of expressing yourself: your voice and style stay recognisable in any company. The centres linked to it show what your voice carries — feelings if it connects to the Solar Plexus, ideas if it connects to the Ajna, and so on.",
@@ -82,12 +82,12 @@ const CENTER: Record<HdCenterId, { role: Pair; defined: Pair; open: Pair }> = {
   },
   sacral: {
     role: {
-      en: "The Sacral is the most powerful motor in the bodygraph: the life force behind sustained work, sexuality and fertility. Only Generators and Manifesting Generators have it defined. It speaks through gut responses — an immediate inner yes or no — rather than through thought.",
-      fr: "Le Sacral est le moteur le plus puissant du bodygraph\u202f: la force vitale derrière le travail soutenu, la sexualité et la fertilité. Seuls les Générateurs et les Générateurs manifesteurs l’ont défini. Il s’exprime par des réponses du ventre — un oui ou un non intérieur immédiat — plutôt que par la pensée.",
+      en: "The Sacral is the most powerful motor in the bodygraph: the life force that Human Design links to sustained work, sexuality and fertility. Only Generators and Manifesting Generators have it defined. It speaks through gut responses — an immediate inner yes or no — rather than through thought.",
+      fr: "Le Sacral est le moteur le plus puissant du bodygraph\u202f: la force vitale que le Human Design associe au travail soutenu, à la sexualité et à la fertilité. Seuls les Générateurs et les Générateurs manifesteurs l’ont défini. Il s’exprime par des réponses du ventre — un oui ou un non intérieur immédiat — plutôt que par la pensée.",
     },
     defined: {
-      en: "Defined, it gives you renewable energy for work you respond to, and your gut gives clear answers, often as a sound (“uh-huh” or “uhn-uhn”). The energy runs down when it goes into things you did not really want. Example: a yes-or-no question gets an instant reaction before your mind has an opinion.",
-      fr: "Défini, ce centre vous donne une énergie renouvelable pour le travail auquel vous répondez, et votre ventre donne des réponses nettes, souvent sous forme de son («\u202fhm-hm\u202f» ou «\u202fhm-mm\u202f»). Cette énergie s’épuise quand elle sert des choses que vous ne vouliez pas vraiment. Exemple\u202f: une question fermée provoque une réaction immédiate avant même que votre tête ait un avis.",
+      en: "Defined, it gives you renewable energy for work you respond to, and your gut gives clear answers, often as a sound (“uh-huh” for yes, “uhn-uhn” for no). The energy runs down when it goes into things you did not really want. Example: a yes-or-no question gets an instant reaction before your mind has an opinion.",
+      fr: "Défini, ce centre vous donne une énergie renouvelable pour le travail auquel vous répondez, et votre ventre donne des réponses nettes, souvent sous forme de son («\u202fhm-hm\u202f» pour oui, «\u202fhm-mm\u202f» pour non). Cette énergie s’épuise quand elle sert des choses que vous ne vouliez pas vraiment. Exemple\u202f: une question fermée provoque une réaction immédiate avant même que votre tête ait un avis.",
     },
     open: {
       en: "Open, it gives you no consistent work energy of your own: around people with a defined Sacral you can work hard, then crash. The key skill is knowing when enough is enough — stopping before exhaustion, and resting away from others so the borrowed energy can drain off.",
@@ -110,16 +110,16 @@ const CENTER: Record<HdCenterId, { role: Pair; defined: Pair; open: Pair }> = {
   },
   spleen: {
     role: {
-      en: "The Spleen is the oldest awareness centre: instinct, intuition, health and the immune system. It speaks quietly and only once, in the present moment, about what is safe or unsafe for you. It is also where fears linked to survival sit.",
-      fr: "La Rate est le plus ancien centre de conscience\u202f: instinct, intuition, santé et système immunitaire. Elle parle doucement et une seule fois, dans l’instant, de ce qui est sûr ou non pour vous. C’est aussi là que se trouvent les peurs liées à la survie.",
+      en: "The Spleen is the oldest awareness centre: instinct, intuition and what Human Design links to health and the immune system. It speaks quietly and only once, in the present moment, about what is safe or unsafe for you. It is also where fears linked to survival sit.",
+      fr: "La Rate est le plus ancien centre de conscience\u202f: instinct, intuition et ce que le Human Design associe à la santé et au système immunitaire. Elle parle doucement et une seule fois, dans l’instant, de ce qui est sûr ou non pour vous. C’est aussi là que se trouvent les peurs liées à la survie.",
     },
     defined: {
-      en: "Defined, it gives you a consistent instinct and, usually, a steady sense of health and well-being. Its signals are quiet and do not repeat: a sudden feeling that you should leave a place, or not trust someone, is worth acting on straight away.",
-      fr: "Défini, ce centre vous donne un instinct constant et, en général, un sentiment stable de santé et de bien-être. Ses signaux sont discrets et ne se répètent pas\u202f: l’impression soudaine qu’il faut quitter un lieu, ou ne pas faire confiance à quelqu’un, mérite d’être suivie tout de suite.",
+      en: "Defined, it gives you a consistent instinct and, as Human Design describes it, a steady sense of well-being. Its signals are quiet and do not repeat: a sudden feeling that you should leave a place, or not trust someone, is worth acting on straight away.",
+      fr: "Défini, ce centre vous donne un instinct constant et, selon le Human Design, un sentiment stable de bien-être. Ses signaux sont discrets et ne se répètent pas\u202f: l’impression soudaine qu’il faut quitter un lieu, ou ne pas faire confiance à quelqu’un, mérite d’être suivie tout de suite.",
     },
     open: {
-      en: "Open, it makes you very sensitive to health and atmosphere, and you may hold on to people, jobs or habits because they feel familiar rather than because they are good for you. You often feel better around people with a defined Spleen. The main lesson is letting go of what no longer serves you.",
-      fr: "Ouvert, ce centre vous rend très sensible à la santé et à l’atmosphère, et vous pouvez rester attaché à des personnes, à un emploi ou à des habitudes parce qu’ils sont familiers plutôt que bons pour vous. Vous vous sentez souvent mieux auprès de personnes à la Rate définie. La principale leçon\u202f: lâcher ce qui ne vous sert plus.",
+      en: "Open, it makes you very sensitive to health and atmosphere, and you may hold on to people, jobs or habits because they feel familiar rather than because they are good for you. Human Design says you often feel more at ease around people with a defined Spleen. The main lesson is letting go of what no longer serves you.",
+      fr: "Ouvert, ce centre vous rend très sensible à la santé et à l’atmosphère, et vous pouvez rester attaché à des personnes, à un emploi ou à des habitudes parce qu’ils sont familiers plutôt que bons pour vous. Selon le Human Design, vous vous sentez souvent plus à l’aise auprès de personnes à la Rate définie. La principale leçon\u202f: lâcher ce qui ne vous sert plus.",
     },
   },
   root: {

@@ -40,8 +40,8 @@ import {
 import { TRANSIT_FAMILY, TRANSIT_PACE } from "@/lib/content/astro-time";
 import { pickBi } from "@/lib/content/types";
 import { dateFormat } from "@/lib/intl-cache";
-import { formatDegree } from "@/lib/utils";
-import { bodyBare, bodyLabel, formatOrb, houseInline, houseName, joinList, signThe } from "../i18n/astro";
+import { formatArc, formatDegree } from "@/lib/utils";
+import { bodyBare, bodyLabel, bodyThe, houseInline, houseName, joinList, signThe } from "../i18n/astro";
 import {
   CALENDAR_UI,
   dayMoonWords,
@@ -149,7 +149,8 @@ function degreeInChart(lon: number, chart: NatalChart | null | undefined, locale
     .filter((p) => p.gap <= orb)
     .sort((a, b) => a.gap - b.gap)
     .slice(0, 2);
-  const near = points.map((p) => (fr ? `à ${formatOrb(p.gap, locale)} de ${yourPoint(p.id, locale)}` : `${formatOrb(p.gap, locale)} from ${yourPoint(p.id, locale)}`));
+  // Orbs in degrees and minutes, as everywhere in the readings.
+  const near = points.map((p) => (fr ? `à ${formatArc(p.gap)} de ${yourPoint(p.id, locale)}` : `${formatArc(p.gap)} from ${yourPoint(p.id, locale)}`));
   if (house == null && !near.length) return "";
   const where = house != null ? (fr ? `dans votre ${houseInline(house, locale)}` : `in your ${houseInline(house, locale)}`) : "";
   return fr
@@ -240,8 +241,9 @@ export function skyEventReading(ev: SkyEvent, locale: Locale, tz: string, ctx: C
     } else if (season != null) {
       lead = pickBi(CAL_SEASON[season], locale);
     } else {
-      const vars = { body: bodyLabel(ev.body, locale), keywords: bodyKeywords(ev.body as BodyId, locale), sign: signWord(ev.sign, locale) };
-      lead = put(pickBi(CAL_INGRESS[ev.rx ? "back" : "forward"], locale), vars);
+      // "the Sun" / "le Soleil" inside a sentence; the node, which goes backwards through the signs, has its own line.
+      const vars = { body: bodyThe(ev.body, locale), keywords: bodyKeywords(ev.body as BodyId, locale), sign: signWord(ev.sign, locale) };
+      lead = cap(put(pickBi(CAL_INGRESS[ev.body === "northnode" ? "node" : ev.rx ? "back" : "forward"], locale), vars));
       more.push(put(pickBi(CAL_INGRESS_SIGN, locale), { ...vars, keywords: signKeys(ev.sign, locale) }));
     }
     const houses = signInChart(ev.sign, ctx.chart, locale);
@@ -260,8 +262,8 @@ export function skyEventReading(ev: SkyEvent, locale: Locale, tz: string, ctx: C
 
   if (ev.k === "aspect") {
     const vars = {
-      a: bodyLabel(ev.a, locale),
-      b: bodyLabel(ev.b, locale),
+      a: bodyThe(ev.a, locale),
+      b: bodyThe(ev.b, locale),
       ka: bodyKeywords(ev.a as BodyId, locale),
       kb: bodyKeywords(ev.b as BodyId, locale),
     };
@@ -301,7 +303,7 @@ export function windowReading(w: TransitWindow, locale: Locale, tz: string, nowM
   ];
   const paragraphs = [lead, pickBi(CAL_WINDOW, locale)];
   if (!w.passes.length) {
-    const orb = formatOrb(w.minOrb, locale);
+    const orb = formatArc(w.minOrb);
     facts.push({ label: fr ? "Au plus près" : "Closest", value: orb });
     paragraphs.push(pickBi(CAL_NEAR_MISS, locale).replace("{orb}", orb));
   }

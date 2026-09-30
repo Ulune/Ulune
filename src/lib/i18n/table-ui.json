@@ -51,23 +51,23 @@
       "fr": "Cuspides 1 à 12 dans le système de maisons choisi : la taille de chaque maison, le maître de son signe et où il se trouve, et les corps qu’elle contient."
     },
     "aspects": {
-      "en": "Every aspect, the majors first, each tightest first: its orb beside the orb it is allowed, and whether it is applying or separating. An aspect to one end of an axis (ASC–DSC, MC–IC, the nodes, the Vertex) mirrors one to the other end: the mirror is shown under it.",
-      "fr": "Tous les aspects, les majeurs d’abord, chacun du plus serré au plus large : l’orbe à côté de l’orbe permis, et s’il est applicatif ou séparatif. Un aspect à un bout d’un axe (ASC–DSC, MC–FC, les nœuds, le Vertex) en reflète un à l’autre bout : ce miroir est indiqué dessous."
+      "en": "Every aspect, majors first, each group from tightest to widest: its orb beside the orb it is allowed, and whether it is applying or separating. An aspect to one end of an axis (ASC–DSC, MC–IC, the nodes, the Vertex) mirrors one to the other end: the mirror is shown under it.",
+      "fr": "Tous les aspects, les majeurs d’abord, chaque groupe du plus serré au plus large : l’orbe à côté de l’orbe permis, et s’il est applicatif ou séparatif. Un aspect à un bout d’un axe (ASC–DSC, MC–FC, les nœuds, le Vertex) en reflète un à l’autre bout : ce miroir est indiqué dessous."
     },
     "grid": {
       "en": "Every pair at a glance, with its orb and A (applying) or S (separating). Tap a symbol to read that aspect.",
       "fr": "Chaque paire d’un coup d’œil, avec son orbe et A (applicatif) ou S (séparatif). Touchez un symbole pour lire l’aspect."
     },
     "dignities": {
-      "en": "The chart ruler, who rules the degree each planet stands in and which of those it is itself, the dispositors and the mutual receptions.",
-      "fr": "Le maître du thème, qui gouverne le degré de chaque planète et lesquels de ces maîtres elle est elle-même, les dispositeurs et les réceptions mutuelles."
+      "en": "The chart ruler; the rulers of each planet’s degree, and which of those roles the planet holds itself; the dispositors; the mutual receptions.",
+      "fr": "Le maître du thème ; les maîtres du degré de chaque planète, et lesquels de ces rôles elle tient elle-même ; les dispositeurs ; les réceptions mutuelles."
     },
     "patterns": {
       "en": "Configurations (the dominant first, each with the orbs that hold it), stelliums, unaspected planets and the Moon’s course.",
       "fr": "Configurations (la dominante d’abord, chacune avec les orbes qui la tiennent), stelliums, planètes sans aspect et course de la Lune."
     },
     "balance": {
-      "en": "Weighted toward the personal planets and the four angles; the glyphs are the bodies in each.",
+      "en": "Weighted towards the personal planets and the four angles; the glyphs are the bodies in each.",
       "fr": "Pondéré vers les planètes personnelles et les quatre angles ; les symboles sont les corps de chacun."
     },
     "stars": {
@@ -103,7 +103,7 @@
       "fr": "Maison"
     },
     "motion": {
-      "en": "Motion a day",
+      "en": "Daily motion",
       "fr": "Mouvement par jour"
     },
     "latitude": {
@@ -298,7 +298,7 @@
     },
     "settingsLine": {
       "en": "Tropical zodiac · Swiss Ephemeris · true node · true Lilith",
-      "fr": "Zodiaque tropical · Swiss Ephemeris · nœud vrai · Lilith vraie"
+      "fr": "Zodiaque tropical · Swiss Ephemeris · nœud réel · Lilith réelle"
     },
     "name": {
       "en": "Name",
@@ -721,7 +721,7 @@
       "fr": "Dispositeurs"
     },
     "dispositorsHint": {
-      "en": "Each planet is disposed of by the ruler of its sign; from ruler to ruler the chain ends at a planet in its own sign (a final dispositor) or turns in a loop.",
+      "en": "Each planet’s dispositor is the ruler of its sign; from ruler to ruler the chain ends at a planet in its own sign (a final dispositor) or turns in a loop.",
       "fr": "Chaque planète a pour dispositeur le maître de son signe ; de maître en maître, la chaîne s’arrête à une planète dans son propre signe (un dispositeur final) ou tourne en boucle."
     },
     "finals": {
@@ -951,8 +951,8 @@
       "fr": "Chaque corps progressé à côté de sa place à la naissance, le chemin parcouru depuis, son mouvement en une année de vie, et la maison de votre thème où il se trouve."
     },
     "hintAngles": {
-      "en": "The progressed Midheaven moves 0°59'08\" of right ascension a year of life (Naibod); the Ascendant and the Vertex follow from it at the place of birth. Beside them, the birth ones.",
-      "fr": "Le Milieu du Ciel progressé avance de 0°59'08\" d’ascension droite par année de vie (Naibod) ; l’Ascendant et le Vertex en découlent au lieu de naissance. À côté, ceux de la naissance."
+      "en": "The progressed Midheaven moves 0°59'08\" of right ascension a year of life (Naibod); the Ascendant and the Vertex follow from it at the place of birth. Beside them, the natal angles.",
+      "fr": "Le Milieu du Ciel progressé avance de 0°59'08\" d’ascension droite par année de vie (Naibod) ; l’Ascendant et le Vertex en découlent au lieu de naissance. À côté, les angles natals."
     },
     "hintMoon": {
       "en": "The progressed Moon against the progressed Sun: the progressed lunation, a cycle of about 29 and a half years in eight phases.",
@@ -1015,7 +1015,7 @@
       "fr": "Parcouru"
     },
     "motionYear": {
-      "en": "Motion a year",
+      "en": "Yearly motion",
       "fr": "Mouvement par an"
     },
     "perYear": {

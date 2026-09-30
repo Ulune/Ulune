@@ -85,7 +85,7 @@ export const HD_TYPE_STEP: Record<HdType, Bi> = {
   },
   Reflector: {
     en: "You take in and reflect the people and places around you, so where you are and who you are with shape how you feel.",
-    fr: "Vous captez et reflétez les gens et les lieux qui vous entourent\u202f: où vous êtes et avec qui façonnent ce que vous ressentez.",
+    fr: "Vous captez et reflétez les gens et les lieux qui vous entourent\u202f: le lieu où vous êtes et les personnes qui vous accompagnent façonnent ce que vous ressentez.",
   },
 };
 
@@ -130,7 +130,7 @@ export const HD_STRATEGY_STEP: Record<HdStrategy, Bi> = {
 export const HD_AUTHORITY_STEP: Record<HdAuthority, Bi> = {
   Emotional: {
     en: "Your clarity comes with time, not in the moment: let the wave of feelings rise and fall before you decide, and sleep on it.",
-    fr: "Votre clarté vient avec le temps, pas dans l’instant\u202f: laissez la vague des émotions monter et redescendre avant de décider, et dormez dessus.",
+    fr: "Votre clarté vient avec le temps, pas dans l’instant\u202f: laissez la vague des émotions monter et redescendre avant de décider\u202f; la nuit porte conseil.",
   },
   Sacral: {
     en: "Trust your gut’s immediate yes or no, in the moment, before your mind argues.",
@@ -255,8 +255,8 @@ export const HD_VARIABLE_TEXT: {
 } = {
   arrow: {
     determination: {
-      en: "The Design Sun’s arrow, Determination, is about how your body is best nourished: {name}, colour {color}.",
-      fr: "La flèche du Soleil du Design, la Détermination, parle de la façon dont votre corps se nourrit le mieux\u202f: {name}, couleur {color}.",
+      en: "The Design Sun’s arrow, Determination, is about the way of eating that Human Design associates with your body: {name}, colour {color}.",
+      fr: "La flèche du Soleil du Design, la Détermination, parle de la façon de se nourrir que le Human Design associe à votre corps\u202f: {name}, couleur {color}.",
     },
     environment: {
       en: "The Design Node’s arrow, Environment, is about the kind of place where you do well: {name}, colour {color}.",
@@ -281,7 +281,7 @@ export const HD_VARIABLE_TEXT: {
   },
   unsteady: {
     en: "Half an hour either side of your birth time this arrow changes: it could point the other way or take another colour.",
-    fr: "À une demi-heure près de votre heure de naissance, cette flèche change\u202f: elle pourrait pointer de l’autre côté ou prendre une autre couleur.",
+    fr: "Dans la demi-heure qui précède ou suit votre heure de naissance, cette flèche change\u202f: elle pourrait pointer de l’autre côté ou prendre une autre couleur.",
   },
   about: {
     en: "Variable is the finest layer of a bodygraph, read from four arrows: the tones of the Sun and of the Nodes, in the Design and in the Personality. Each arrow points left (tones 1 to 3) or right (tones 4 to 6). Teachers suggest living by type, strategy and authority for a long while before working with it.",
@@ -300,7 +300,7 @@ export const HD_UNKNOWN_TEXT: { row: Bi; key: Bi; channel: Bi } = {
     fr: "Sans heure de naissance, ce pourrait être différent\u202f: à une autre heure de ce jour-là, le schéma donne une autre réponse.",
   },
   channel: {
-    en: "Without a birth time this channel could be different: at another hour of that day it is defined or not.",
-    fr: "Sans heure de naissance, ce canal pourrait être différent\u202f: à une autre heure de ce jour-là, il est défini ou non.",
+    en: "Without a birth time this channel could be different: at another hour of that day it could switch between defined and not defined.",
+    fr: "Sans heure de naissance, ce canal pourrait être différent\u202f: à une autre heure de ce jour-là, il pourrait passer de défini à non défini, ou l’inverse.",
   },
 };

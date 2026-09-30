@@ -126,7 +126,7 @@ test("transits-ui.json is the source of Quill chrome copy", () => {
   const ui = JSON.parse(readFileSync(join(ROOT, "src/lib/i18n/transits-ui.json"), "utf8"));
   assert.equal(ui.table.empty.en, "No moving planet makes a major aspect to your chart at this moment.");
   assert.equal(ui.noNatal.en, "Cast a birth chart first.");
-  assert.equal(ui.readingEmpty.en, "Tap a transit, a natal body, or an aspect in the wheel.");
+  assert.equal(ui.readingEmpty.en, "Tap a transit, a natal body or an aspect in the wheel.");
   assert.equal(ui.clock.now.en, "Now");
   assert.equal(ui.clock.date.en, "Date");
   assert.equal(ui.clock.time.en, "Time");

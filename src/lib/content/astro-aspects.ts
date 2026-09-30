@@ -16,8 +16,8 @@ export const ASPECT_TEXT: Record<AspectId, AspectText> = {
     angle: "0°",
     family: "blend",
     what: {
-      en: "A conjunction means two planets sit at roughly the same degree of the zodiac, usually in the same sign, within about 8° (up to 10° when the Sun or Moon is involved). Their functions fuse: neither acts alone, so each colours the other. It feels less like a relationship between two parts and more like one strong trait.",
-      fr: "Une conjonction signifie que deux planètes occupent à peu près le même degré du zodiaque, en général dans le même signe, avec un orbe d’environ 8° (jusqu’à 10° avec le Soleil ou la Lune). Leurs fonctions fusionnent\u202f: aucune n’agit seule et chacune teinte l’autre. On la vit moins comme un dialogue entre deux parties que comme un trait unique et marqué.",
+      en: "A conjunction means two planets sit at roughly the same degree of the zodiac, usually in the same sign, within about 8° (some astrologers allow up to 10° when the Sun or Moon is involved). Their functions fuse: neither acts alone, so each colours the other. It feels less like a relationship between two parts and more like one strong trait.",
+      fr: "Une conjonction signifie que deux planètes occupent à peu près le même degré du zodiaque, en général dans le même signe, avec un orbe d’environ 8° (certains astrologues vont jusqu’à 10° avec le Soleil ou la Lune). Leurs fonctions fusionnent\u202f: aucune n’agit seule et chacune teinte l’autre. On la vit moins comme un dialogue entre deux parties que comme un trait unique et marqué.",
     },
     inPractice: {
       en: "Conjunctions are often the most visible feature of a chart, and people close to you notice them quickly. The work is to learn the two functions separately, so you can tell when one is driving the other.",
@@ -29,14 +29,14 @@ export const ASPECT_TEXT: Record<AspectId, AspectText> = {
     angle: "180°",
     family: "tension",
     what: {
-      en: "An opposition links two planets on opposite sides of the zodiac, six signs apart, usually within 7–8° (a little more with the Sun or Moon). The signs are complementary: same modality, and elements that pair naturally (fire with air, earth with water). The two functions pull in opposite directions, which often feels like a see-saw, or like meeting one side of yourself in other people.",
-      fr: "Une opposition relie deux planètes situées de part et d’autre du zodiaque, à six signes d’écart, en général avec un orbe de 7 à 8° (un peu plus avec le Soleil ou la Lune). Les signes sont complémentaires\u202f: même modalité, et des éléments qui se répondent (feu et air, terre et eau). Les deux fonctions tirent en sens inverse, comme une balançoire, ou comme si l’on rencontrait une part de soi chez les autres.",
+      en: "An opposition links two planets on opposite sides of the zodiac, six signs apart, usually within 7–8° (some allow a little more with the Sun or Moon). The signs are complementary: same modality, and elements that pair naturally (fire with air, earth with water). The two functions pull in opposite directions, which often feels like a see-saw, or like meeting one side of yourself in other people.",
+      fr: "Une opposition relie deux planètes situées de part et d’autre du zodiaque, à six signes d’écart, en général avec un orbe de 7 à 8° (certains en accordent un peu plus avec le Soleil ou la Lune). Les signes sont complémentaires\u202f: même modalité, et des éléments qui se répondent (feu et air, terre et eau). Les deux fonctions tirent en sens inverse, comme un jeu de bascule, ou comme si l’on rencontrait une part de soi chez les autres.",
     },
     inPractice: {
       en: "Oppositions often play out through relationships: you notice the other end in a partner, colleague or rival. What helps is holding both instead of alternating — deciding consciously how much room each side gets, rather than swinging from one extreme to the other.",
       fr: "L’opposition se joue souvent dans les relations\u202f: l’autre pôle apparaît chez un partenaire, un collègue, un rival. Ce qui aide, c’est de tenir les deux au lieu d’alterner\u202f: décider consciemment de la place de chacun plutôt que de passer d’un extrême à l’autre.",
     },
-    link: { en: "opposes", fr: "s’oppose à" },
+    link: { en: "opposes", fr: "est en opposition avec" },
   },
   trine: {
     angle: "120°",
@@ -56,13 +56,13 @@ export const ASPECT_TEXT: Record<AspectId, AspectText> = {
     family: "tension",
     what: {
       en: "A square joins two planets 90° apart, three signs away, usually within 6–8°. The signs normally share a modality (both cardinal, fixed or mutable) but have elements that don’t mix easily. The two functions block or interrupt each other, which feels like inner friction, impatience or a recurring problem that demands action.",
-      fr: "Un carré relie deux planètes à 90° l’une de l’autre, à trois signes d’écart, en général avec un orbe de 6 à 8°. Les signes partagent normalement la même modalité (cardinal, fixe ou mutable) mais ont des éléments qui se mélangent mal. Les deux fonctions se bloquent ou s’interrompent, ce qui se vit comme une friction intérieure, de l’impatience ou un problème récurrent qui oblige à agir.",
+      fr: "Un carré relie deux planètes à 90° l’une de l’autre, à trois signes d’écart, en général avec un orbe de 6 à 8°. Les signes partagent normalement la même modalité (cardinale, fixe ou mutable) mais ont des éléments qui se mélangent mal. Les deux fonctions se bloquent ou s’interrompent, ce qui se vit comme une friction intérieure, de l’impatience ou un problème récurrent qui oblige à agir.",
     },
     inPractice: {
       en: "Squares are uncomfortable but productive: many people’s strongest skills grow out of one. What helps is naming the conflict, then finding concrete arrangements — schedules, rules, compromises — so both needs get met in turn instead of fighting for the same moment.",
       fr: "Le carré est inconfortable mais productif\u202f: bien des talents solides en sont issus. Ce qui aide, c’est de nommer le conflit, puis de trouver des arrangements concrets, horaires, règles, compromis, pour que chaque besoin soit servi à son tour au lieu de se disputer le même moment.",
     },
-    link: { en: "clashes with", fr: "se heurte à" },
+    link: { en: "clashes with", fr: "entre en conflit avec" },
   },
   sextile: {
     angle: "60°",
@@ -94,12 +94,12 @@ export const ASPECT_TEXT: Record<AspectId, AspectText> = {
     angle: "30°",
     family: "flow",
     what: {
-      en: "A semisextile joins two planets 30° apart, typically in neighbouring signs, and is used with a tight orb of about 1–2°. Neighbouring signs share neither element nor modality, yet each builds on the one before. The link is mild: two functions that can learn from each other, though the connection is easy to overlook.",
-      fr: "Un semi-sextile relie deux planètes à 30° l’une de l’autre, en général dans des signes voisins, avec un orbe serré de 1 à 2°. Deux signes voisins n’ont en commun ni l’élément ni la modalité, mais chacun prolonge le précédent. Le lien est léger\u202f: deux fonctions qui peuvent apprendre l’une de l’autre, même si la connexion passe facilement inaperçue.",
+      en: "A semisextile joins two planets 30° apart, typically in neighbouring signs, and is used with a tight orb, usually 1–2° (Ulune counts up to 2°30'). Neighbouring signs share neither element nor modality, yet each builds on the one before. The link is mild: two functions that can learn from each other, though the connection is easy to overlook.",
+      fr: "Un semi-sextile relie deux planètes à 30° l’une de l’autre, en général dans des signes voisins, avec un orbe serré, le plus souvent de 1 à 2° (Ulune compte jusqu’à 2°30'). Deux signes voisins n’ont en commun ni l’élément ni la modalité, mais chacun prolonge le précédent. Le lien est léger\u202f: deux fonctions qui peuvent apprendre l’une de l’autre, même si la connexion passe facilement inaperçue.",
     },
     inPractice: {
       en: "Semisextiles are minor and quiet. They tend to show as a gradual skill that improves when you look for ways the two functions could help each other, like adding one practical step to a decision made on feeling.",
-      fr: "Le semi-sextile est un aspect mineur et discret. Il se traduit plutôt par un savoir-faire progressif, qui s’affine quand on cherche comment les deux fonctions pourraient s’entraider, comme ajouter une étape concrète à une décision prise sous le coup de l’émotion.",
+      fr: "Le semi-sextile est un aspect mineur et discret. Il se traduit plutôt par un savoir-faire progressif, qui s’affine quand on cherche comment les deux fonctions pourraient s’entraider, comme ajouter une étape concrète à une décision prise sur un ressenti.",
     },
     link: { en: "has a quiet link with", fr: "forme un lien discret avec" },
   },
@@ -107,8 +107,8 @@ export const ASPECT_TEXT: Record<AspectId, AspectText> = {
     angle: "45°",
     family: "tension",
     what: {
-      en: "A semisquare joins two planets 45° apart — half a square, about a sign and a half — and is used with an orb of about 1–2°. It carries the friction of a square in a milder, more irritating form. It feels less like a crisis and more like a nagging tension that keeps you slightly on edge.",
-      fr: "Un semi-carré relie deux planètes à 45° l’une de l’autre, soit la moitié d’un carré, environ un signe et demi, avec un orbe de 1 à 2°. Il porte la friction du carré sous une forme plus légère et plus agaçante. On le vit moins comme une crise que comme une tension sourde qui maintient légèrement sur le qui-vive.",
+      en: "A semisquare joins two planets 45° apart — half a square, about a sign and a half — and is generally given an orb of 1–2° (Ulune counts up to 2°30'). It carries the friction of a square in a milder, more irritating form. It feels less like a crisis and more like a nagging tension that keeps you slightly on edge.",
+      fr: "Un semi-carré relie deux planètes à 45° l’une de l’autre, soit la moitié d’un carré, environ un signe et demi, avec un orbe de 1 à 2° en général (Ulune compte jusqu’à 2°30'). Il porte la friction du carré sous une forme plus légère et plus agaçante. On le vit moins comme une crise que comme une tension sourde qui maintient légèrement sur le qui-vive.",
     },
     inPractice: {
       en: "Semisquares often push you into action through small irritations. What helps is noticing the pattern — the same kind of annoyance in similar situations — and treating it as a signal to adjust something rather than something to put up with.",
@@ -125,7 +125,7 @@ export const ASPECT_TEXT: Record<AspectId, AspectText> = {
     },
     inPractice: {
       en: "A quintile tends to show as something you do with an unusual touch — a way of speaking, arranging or solving that others recognise as yours. It usually grows with practice and deliberate craft rather than appearing fully formed.",
-      fr: "Le quintile se manifeste souvent par quelque chose que l’on fait avec une touche inhabituelle\u202f: une façon de parler, d’arranger ou de résoudre que les autres reconnaissent comme la vôtre. Il se développe en général par la pratique et le travail du geste plutôt qu’il n’apparaît tout fait.",
+      fr: "Le quintile se manifeste souvent par quelque chose que vous faites avec une touche inhabituelle\u202f: une façon de parler, d’agencer les choses ou de résoudre les problèmes que les autres reconnaissent comme la vôtre. Il se développe en général par la pratique et le travail du geste plutôt qu’il n’apparaît tout fait.",
     },
     link: { en: "is creatively linked to", fr: "forme un lien créatif avec" },
   },
@@ -160,7 +160,7 @@ export const PAIR_TEXT: Record<string, PairText> = {
     },
     blend: {
       en: "You think in broad strokes and tend to talk with conviction. Ideas connect quickly to larger questions for you — a news story becomes a theory about society. This suits teaching, writing and selling. The pitfall is skipping details: promising more than you checked, or overlooking the fine print.",
-      fr: "Vous pensez à grands traits et parlez volontiers avec conviction. Une idée se relie vite chez vous à une question plus vaste\u202f: une actualité devient une théorie sur la société. Cela sert l’enseignement, l’écriture, la vente. L’écueil\u202f: sauter les détails, promettre plus que ce que vous avez vérifié, négliger les petites lignes.",
+      fr: "Vous pensez à grands traits et parlez volontiers avec conviction. Une idée se relie vite chez vous à une question plus vaste\u202f: une actualité devient une théorie sur la société. Cela sert l’enseignement, l’écriture, la vente. L’écueil\u202f: sauter les détails, promettre plus que ce que vous avez vérifié, négliger les petits caractères.",
     },
     flow: {
       en: "Learning and explaining come naturally to you, and you can link small facts to wider patterns without losing either. You might be the colleague who makes a complicated plan sound simple and sensible. A bit of structure keeps this from staying at the level of pleasant talk.",
@@ -177,8 +177,8 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "La rencontre des émotions et de la générosité\u202f: l’ouverture affective, le besoin de confort et d’abondance, et la confiance dans le fait que tout ira bien.",
     },
     blend: {
-      en: "Your emotional life is expansive. You tend to feel generously, reassure others easily and create a warm, welcoming home. When you’re low, hope usually returns quickly. The shadow side is excess — too much comfort, food or shopping when upset, or taking on others' problems because you can’t say no.",
-      fr: "Votre vie émotionnelle est généreuse. Vous avez tendance à ressentir largement, à rassurer facilement et à créer un foyer chaleureux où l’on se sent bienvenu. Quand le moral baisse, l’espoir revient vite. Le revers, c’est l’excès\u202f: trop de réconfort, nourriture ou achats, quand ça ne va pas, ou porter les soucis des autres faute de savoir dire non.",
+      en: "Your emotional life is expansive. You tend to feel generously, reassure others easily and create a warm, welcoming home. When you’re low, hope usually returns quickly. The shadow side is excess — too much comfort, food or shopping when upset, or taking on others’ problems because you can’t say no.",
+      fr: "Votre vie émotionnelle est généreuse. Vous avez tendance à ressentir largement, à rassurer facilement et à créer un foyer chaleureux où l’on se sent bienvenu. Quand le moral baisse, l’espoir revient vite. Le revers, c’est l’excès\u202f: trop de réconfort, de nourriture ou d’achats quand ça ne va pas, ou porter les soucis des autres faute de savoir dire non.",
     },
     flow: {
       en: "Feeling and trust support each other in you. You tend to recover from setbacks with a basic sense that life will provide, and people feel safe around you. A friend in crisis might call you first. Your mood is resilient, though you can underestimate genuine problems.",
@@ -195,7 +195,7 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "La rencontre de la foi et de l’imaginaire\u202f: idéaux, spiritualité, compassion, et la limite entre espoir inspiré et pensée magique.",
     },
     blend: {
-      en: "Jupiter and Neptune join about every 13 years, so everyone born over a period of months shares this; it matters personally mainly when it touches your Sun, Moon, personal planets or an angle. Then it gives a strong pull toward ideals, spirituality or art, and a tendency to trust too readily.",
+      en: "Jupiter and Neptune join about every 13 years, so everyone born over a period of months shares this; it matters personally mainly when it touches your Sun, Moon, personal planets or an angle. Then it gives a strong pull towards ideals, spirituality or art, and a tendency to trust too readily.",
       fr: "Jupiter et Neptune se rejoignent environ tous les 13 ans\u202f: cette conjonction est commune à tous les natifs d’une période de quelques mois, et elle ne devient personnelle que si elle touche votre Soleil, votre Lune, une planète personnelle ou un angle. Elle donne alors un fort attrait pour l’idéal, la spiritualité ou l’art, et une confiance parfois trop prompte.",
     },
     flow: {
@@ -203,8 +203,8 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "Cet aspect est partagé par beaucoup de personnes nées à la même époque\u202f; il compte surtout s’il touche des planètes personnelles ou un angle. Il se traduit alors par une foi et une imagination faciles\u202f: un talent pour inspirer, pour l’engagement caritatif ou la musique, avec un léger risque d’oublier les limites pratiques.",
     },
     tension: {
-      en: "Shared by many people born around the same time, this matters personally mainly if it touches personal planets or angles. Then idealism and reality tend to clash: backing a vision without checking the numbers, or feeling let down by people you idealised. Grounding hope in concrete steps helps.",
-      fr: "Partagé par beaucoup de personnes nées à la même époque, cet aspect compte surtout s’il touche des planètes personnelles ou un angle. L’idéal et le réel ont alors tendance à se heurter\u202f: soutenir un projet sans vérifier les chiffres, ou tomber de haut face à des personnes idéalisées. Ancrer l’espoir dans des étapes concrètes aide.",
+      en: "Shared by many people born around the same time, this matters personally mainly if it touches personal planets or angles. Then idealism and reality tend to clash: backing a vision without checking the numbers, or feeling let down by people you idealised. It helps to ground hope in concrete steps.",
+      fr: "Partagé par beaucoup de personnes nées à la même époque, cet aspect compte surtout s’il touche des planètes personnelles ou un angle. L’idéal et le réel ont alors tendance à se heurter\u202f: soutenir un projet sans vérifier les chiffres, ou tomber de haut face à des personnes idéalisées. Il est utile d’ancrer l’espoir dans des étapes concrètes.",
     },
   },
   "jupiter|pluto": {
@@ -254,7 +254,7 @@ export const PAIR_TEXT: Record<string, PairText> = {
     },
     flow: {
       en: "Self-confidence comes fairly easily to you and is usually well received. You tend to find mentors, get second chances and give others the benefit of the doubt. A job interview may simply go well because you believe in what you offer. Use this; don’t just rely on it.",
-      fr: "La confiance en vous vient assez facilement et elle est généralement bien accueillie. Vous trouvez des mentors, obtenez des secondes chances et accordez volontiers le bénéfice du doute. Un entretien d’embauche peut tout simplement bien se passer parce que vous croyez en ce que vous proposez. Servez-vous-en, sans vous reposer dessus.",
+      fr: "La confiance en soi vous vient assez facilement et elle est généralement bien accueillie. Vous trouvez des mentors, obtenez des secondes chances et accordez volontiers le bénéfice du doute. Un entretien d’embauche peut tout simplement bien se passer parce que vous croyez en ce que vous proposez. Servez-vous-en, sans vous reposer dessus.",
     },
     tension: {
       en: "Your ambitions tend to outgrow your means or your time. You might promise big results, overspend on a hobby, or feel restless when life seems too small. What helps is choosing one meaningful goal and letting your confidence serve it, rather than scattering it everywhere.",
@@ -318,15 +318,15 @@ export const PAIR_TEXT: Record<string, PairText> = {
   "mars|moon": {
     theme: {
       en: "How feelings meet drive: emotional reactions, protectiveness and temper, and how quickly needs turn into action.",
-      fr: "La rencontre des émotions et de l’élan\u202f: réactions affectives, instinct de protection, tempérament, et la vitesse à laquelle un besoin devient action.",
+      fr: "La rencontre des émotions et de l’élan\u202f: réactions affectives, instinct de protection, emportements, et la vitesse à laquelle un besoin devient action.",
     },
     blend: {
-      en: "Your feelings go straight into action. When something matters emotionally, you react at once — defending someone, leaving the room, fixing the problem. This gives courage and protectiveness, especially toward family. It can also mean quick flare-ups of anger that pass as fast as they come.",
+      en: "Your feelings go straight into action. When something matters emotionally, you react at once — defending someone, leaving the room, fixing the problem. This gives courage and protectiveness, especially towards family. It can also mean quick flare-ups of anger that pass as fast as they come.",
       fr: "Vos émotions passent directement dans l’action. Quand quelque chose vous touche, vous réagissez aussitôt\u202f: défendre quelqu’un, quitter la pièce, régler le problème. Cela donne du courage et un fort instinct de protection, surtout envers les proches. Cela peut aussi donner des colères vives qui retombent aussi vite qu’elles sont montées.",
     },
     flow: {
       en: "You act on your feelings in a healthy, direct way. When you need something, you tend to say it or do something about it, and you protect the people you care for without fuss. Emotional energy often goes into sport, cooking or practical care.",
-      fr: "Vous agissez sur vos émotions de façon saine et directe. Quand vous avez besoin de quelque chose, vous le dites ou vous faites le nécessaire, et vous protégez ceux que vous aimez sans en faire une affaire. L’énergie affective passe souvent dans le sport, la cuisine ou le soin concret.",
+      fr: "Vous traduisez vos émotions en actes, de façon saine et directe. Quand vous avez besoin de quelque chose, vous le dites ou vous faites le nécessaire, et vous protégez ceux que vous aimez sans en faire une affaire. L’énergie affective passe souvent dans le sport, la cuisine ou le soin concret.",
     },
     tension: {
       en: "Your needs and your drive tend to collide. You may get irritable when tired or hungry, react defensively to mild criticism, or start a fight at home when the real problem is elsewhere. What helps: regular physical outlets, and naming the need before it turns into anger.",
@@ -348,7 +348,7 @@ export const PAIR_TEXT: Record<string, PairText> = {
     },
     tension: {
       en: "Your drive and your ideals tend to blur each other. You might start strong and lose energy without knowing why, avoid direct conflict and resent it later, or chase a goal that turns out to be a mirage. What helps: clear, modest goals, and saying plainly what you want.",
-      fr: "Votre élan et vos idéaux ont tendance à se brouiller mutuellement. Vous pouvez démarrer fort puis perdre votre énergie sans savoir pourquoi, éviter un conflit direct pour en garder de la rancœur, ou poursuivre un but qui se révèle un mirage. Ce qui aide\u202f: des objectifs clairs et modestes, et dire simplement ce que vous voulez.",
+      fr: "Votre élan et vos idéaux ont tendance à se brouiller mutuellement. Vous pouvez démarrer fort puis perdre votre énergie sans savoir pourquoi, éviter un conflit direct et en garder ensuite de la rancœur, ou poursuivre un but qui se révèle un mirage. Ce qui aide\u202f: des objectifs clairs et modestes, et dire simplement ce que vous voulez.",
     },
   },
   "mars|pluto": {
@@ -379,7 +379,7 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "Votre élan est muni d’un frein intégré. Vous agissez avec prudence, travaillez dur et endurez ce que d’autres abandonneraient, mais vous pouvez aussi hésiter, douter de votre droit à vous affirmer, ou garder votre colère pour vous. Avec le temps, cela devient souvent une endurance et un savoir-faire remarquables.",
     },
     flow: {
-      en: "Energy and discipline cooperate for you. You can work steadily for years toward a goal, build something with your hands, or train methodically. You tend to know your limits and respect them, which makes you reliable when a job simply has to get done.",
+      en: "Energy and discipline cooperate for you. You can work steadily for years towards a goal, build something with your hands, or train methodically. You tend to know your limits and respect them, which makes you reliable when a job simply has to get done.",
       fr: "Énergie et discipline coopèrent chez vous. Vous pouvez travailler des années vers un but, construire de vos mains ou vous entraîner avec méthode. Vous connaissez en général vos limites et les respectez, ce qui fait de vous une personne fiable quand un travail doit simplement être fait.",
     },
     tension: {
@@ -411,8 +411,8 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "La rencontre de l’élan et du changement\u202f: action soudaine, indépendance, rébellion, et une énergie qui vient par à-coups plutôt que de façon régulière.",
     },
     blend: {
-      en: "Your drive is sudden and independent. You tend to act on impulse, break routines and resist being told what to do, which can make you brave and inventive in a crisis. You might quit a job overnight when it feels confining. Accidents of haste are worth watching.",
-      fr: "Votre élan est soudain et indépendant. Vous agissez volontiers sur un coup de tête, cassez les routines et supportez mal qu’on vous dicte quoi faire, ce qui donne de l’audace et de l’inventivité en situation de crise. Vous pouvez quitter un emploi du jour au lendemain s’il vous étouffe. Attention aux maladresses dues à la précipitation.",
+      en: "Your drive is sudden and independent. You tend to act on impulse, break routines and resist being told what to do, which can make you brave and inventive in a crisis. You might quit a job overnight when it feels confining. Watch out for accidents caused by haste.",
+      fr: "Votre élan est soudain et indépendant. Vous agissez volontiers sur un coup de tête, cassez les routines et supportez mal qu’on vous dicte quoi faire, ce qui donne de l’audace et de l’inventivité en situation de crise. Vous pouvez quitter un emploi du jour au lendemain s’il vous étouffe. Attention aux accidents dus à la précipitation.",
     },
     flow: {
       en: "You act quickly and originally. When something needs changing, you tend to find a new method and apply it without hesitation, and you cope well with surprises. Technology, emergency work or anything fast-moving can suit you.",
@@ -465,7 +465,7 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "La rencontre de la pensée et de l’imaginaire\u202f: intuition, pensée poétique ou visuelle, et la frontière entre inspiration, flou et tromperie.",
     },
     blend: {
-      en: "Your mind works through images and impressions more than straight lines. You may be intuitive and poetic, and good at picking up what isn’t said. Facts and dates can slip, and you may absorb others' views without noticing. Fiction, music and photography often suit this way of thinking.",
+      en: "Your mind works through images and impressions more than straight lines. You may be intuitive and poetic, and good at picking up what isn’t said. Facts and dates can slip, and you may absorb others’ views without noticing. Fiction, music and photography often suit this way of thinking.",
       fr: "Votre esprit fonctionne par images et impressions plus qu’en ligne droite. Vous avez peut-être de l’intuition, un sens poétique, et captez ce qui n’est pas dit. Les faits et les dates peuvent vous échapper, et vous adoptez parfois l’avis des autres sans vous en rendre compte. La fiction, la musique ou la photographie conviennent souvent à cette pensée.",
     },
     flow: {
@@ -573,7 +573,7 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "La rencontre des émotions et de l’imaginaire\u202f: empathie, sensibilité aux ambiances, rêves et nostalgie, et la difficulté de savoir à qui appartiennent les émotions.",
     },
     blend: {
-      en: "Your emotions are porous. You tend to absorb the moods of people and places, feel deeply moved by music or by suffering, and have a vivid inner life and dreams. Caring roles may attract you. Knowing where your feelings end and others' begin is a lifelong task.",
+      en: "Your emotions are porous. You tend to absorb the moods of people and places, feel deeply moved by music or by suffering, and have a vivid inner life and dreams. Caring roles may attract you. Knowing where your feelings end and others’ begin is a lifelong task.",
       fr: "Vos émotions sont poreuses. Vous absorbez l’humeur des personnes et des lieux, la musique ou la souffrance d’autrui vous touchent profondément, et votre vie intérieure comme vos rêves sont intenses. Les métiers du soin peuvent vous attirer. Savoir où s’arrêtent vos émotions et où commencent celles des autres est un travail de toute une vie.",
     },
     flow: {
@@ -581,7 +581,7 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "Empathie et imagination se soutiennent chez vous. Vous sentez ce dont quelqu’un a besoin sans qu’il le dise, et vous trouvez réconfort et expression dans l’art, l’eau, la musique ou le calme. Votre simple présence apaise souvent les autres.",
     },
     tension: {
-      en: "Your needs and your ideals tend to blur. You may feel overwhelmed by others' emotions, rescue people at your own expense, or escape into screens or fantasy when life is hard. What helps: clear boundaries, rest, and naming your own needs in plain terms.",
+      en: "Your needs and your ideals tend to blur. You may feel overwhelmed by others’ emotions, rescue people at your own expense, or escape into screens or fantasy when life is hard. What helps: clear boundaries, rest, and naming your own needs in plain terms.",
       fr: "Vos besoins et vos idéaux ont tendance à se confondre. Les émotions des autres peuvent vous submerger, vous pouvez voler au secours de chacun à vos dépens, ou fuir dans les écrans ou l’imaginaire quand la vie est dure. Ce qui aide\u202f: des limites claires, du repos, et formuler vos propres besoins en termes simples.",
     },
   },
@@ -623,7 +623,7 @@ export const PAIR_TEXT: Record<string, PairText> = {
   },
   "moon|sun": {
     theme: {
-      en: "How will meets needs: conscious goals and emotional instincts, the balance between what you want and what you need, often echoing your parents' relationship.",
+      en: "How will meets needs: conscious goals and emotional instincts, the balance between what you want and what you need, often echoing your parents’ relationship.",
       fr: "La rencontre de la volonté et des besoins\u202f: buts conscients et instincts affectifs, l’équilibre entre ce que vous voulez et ce dont vous avez besoin, souvent en écho au couple parental.",
     },
     blend: {
@@ -905,7 +905,7 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "L’individualité vous vient facilement et elle est plutôt bien accueillie. Vous savez vous distinguer sans vous couper des autres, et vous vous adaptez vite au changement. Vous êtes peut-être la personne qui apporte des idées neuves à un groupe et les fait adopter.",
     },
     tension: {
-      en: "Your will and your need for freedom tend to collide with circumstances. You may rebel against expectations, change direction abruptly or feel restless in any stable role. What helps: building freedom into your commitments, and asking whether you’re moving toward something or only away.",
+      en: "Your will and your need for freedom tend to collide with circumstances. You may rebel against expectations, change direction abruptly or feel restless in any stable role. What helps: building freedom into your commitments, and asking whether you’re moving towards something or only away.",
       fr: "Votre volonté et votre besoin de liberté ont tendance à se heurter aux circonstances. Vous pouvez vous rebeller contre les attentes, changer brusquement de cap ou tourner en rond dans tout rôle stable. Ce qui aide\u202f: prévoir de la liberté dans vos engagements, et vous demander si vous allez vers quelque chose ou si vous fuyez seulement.",
     },
   },
@@ -933,7 +933,7 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "La rencontre de l’affection et de la liberté\u202f: relations atypiques, attirances soudaines, goûts originaux, et l’équilibre entre proximité et indépendance en amour.",
     },
     blend: {
-      en: "Love and freedom are fused for you. Attraction tends to strike suddenly, often toward unusual people or arrangements, and you need space even in close relationships. Your taste may be distinctive — in clothing, music, design. Relationships that allow independence tend to last longer than those built on routine.",
+      en: "Love and freedom are fused for you. Attraction tends to strike suddenly, often towards unusual people or arrangements, and you need space even in close relationships. Your taste may be distinctive — in clothing, music, design. Relationships that allow independence tend to last longer than those built on routine.",
       fr: "Chez vous, l’amour et la liberté se confondent. L’attirance naît soudainement, souvent pour des personnes ou des arrangements inhabituels, et vous avez besoin d’espace même dans une relation proche. Vos goûts sont peut-être très personnels\u202f: vêtements, musique, design. Les relations qui laissent de l’indépendance durent souvent plus que celles fondées sur la routine.",
     },
     flow: {
@@ -964,7 +964,7 @@ export const ANGLE_PAIR_TEXT: Record<string, { theme: Bi }> = {
   "ascendant|mercury": {
     theme: {
       en: "Mercury linked to the Ascendant makes you come across as talkative, curious and quick; people often first notice how you speak, move or ask questions.",
-      fr: "Mercure relié à l’Ascendant donne une allure bavarde, curieuse et vive\u202f; on remarque d’abord votre façon de parler, de bouger ou de poser des questions.",
+      fr: "Mercure relié à l’Ascendant vous donne un abord vif, une curiosité en éveil et la parole facile\u202f; on remarque souvent en premier votre façon de parler, de bouger ou de poser des questions.",
     },
   },
   "ascendant|venus": {
@@ -982,7 +982,7 @@ export const ANGLE_PAIR_TEXT: Record<string, { theme: Bi }> = {
   "ascendant|jupiter": {
     theme: {
       en: "Jupiter linked to the Ascendant gives an open, generous and confident manner; people tend to find you optimistic and approachable, sometimes larger than life.",
-      fr: "Jupiter relié à l’Ascendant donne des manières ouvertes, généreuses et assurées\u202f; on vous trouve optimiste et abordable, parfois plus grand que nature.",
+      fr: "Jupiter relié à l’Ascendant donne des manières ouvertes, généreuses et assurées\u202f; on vous trouve optimiste et abordable, parfois haut en couleur.",
     },
   },
   "ascendant|saturn": {

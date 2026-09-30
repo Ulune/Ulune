@@ -188,7 +188,7 @@ export function numerologyTextParts(
   locale: AppLocale,
   opts: { who?: string; layout?: GridLayoutId; wholeLife?: boolean; other?: { name: string; chart: NumerologyChart } | null } = {},
 ): TextPart[] {
-  const colon = locale === "fr" ? " : " : ": ";
+  const colon = locale === "fr" ? "\u202f: " : ": ";
   const dash = "—";
   const birth = chart.names.birth;
 

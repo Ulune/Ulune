@@ -1,22 +1,25 @@
 /** errors: [English, French]. */
 export const errors = {
-  couldNotCast: ["Could not cast the chart. Try again in a moment.", "Impossible de calculer le thème. Réessayez dans un instant."],
-  couldNotCastProgressions: ["Could not calculate this progression.", "Impossible de calculer cette progression."],
-  couldNotCastSky: ["Could not calculate the current sky.", "Impossible de calculer le ciel du moment."],
+  couldNotCast: ["Couldn’t cast the chart. Try again in a moment.", "Impossible de calculer le thème. Réessayez dans un instant."],
+  couldNotCastProgressions: [
+    "Couldn’t calculate this progression. Try again in a moment.",
+    "Impossible de calculer cette progression. Réessayez dans un instant.",
+  ],
+  couldNotCastSky: ["Couldn’t calculate the sky. Try again in a moment.", "Impossible de calculer le ciel. Réessayez dans un instant."],
   couldNotCompose: [
     "Couldn’t write the reading. Try again in a moment.",
     "La lecture n’a pas pu être rédigée. Réessayez dans un instant.",
   ],
   couldNotFind: [
-    "Could not find “{query}”. Try another city, or paste coordinates.",
+    "Couldn’t find “{query}”. Try another city, or paste coordinates.",
     "Impossible de trouver «\u202f{query}\u202f». Essayez une autre ville, ou collez des coordonnées.",
   ],
   couldNotSaveLocal: [
-    "Could not save this chart in the browser. Storage may be full or blocked.",
-    "Impossible d’enregistrer ce thème dans le navigateur. Le stockage est peut-être plein ou bloqué.",
+    "Couldn’t save this chart in the browser. Storage may be full or blocked: free some space or allow storage for this site, then try again.",
+    "Impossible d’enregistrer ce thème dans le navigateur. Le stockage est peut-être plein ou bloqué\u202f: libérez de la place ou autorisez le stockage pour ce site, puis réessayez.",
   ],
   errorSlotRetry: ["Try again", "Réessayer"],
-  errorSlotTitle: ["This page didn’t load.", "Cette page n’a pas chargé."],
+  errorSlotTitle: ["This page didn’t load.", "Cette page ne s’est pas chargée."],
   staleVersionTitle: ["A new version of Ulune is out.", "Une nouvelle version d’Ulune est en ligne."],
   staleVersionBody: [
     "This view needs it: reload the page to open it. Charts not kept in a private space will need to be cast again.",
@@ -36,24 +39,27 @@ export const errors = {
     "Utilisez une heure comme 14:30, ou cochez «\u202fJe ne connais pas l’heure\u202f».",
   ],
   err_birth_time_invalid: ["That time isn’t valid.", "Cette heure n’est pas valide."],
-  err_birth_place_missing: ["Choose a birth place from the list.", "Choisissez un lieu de naissance dans la liste."],
+  err_birth_place_missing: ["Choose a birthplace from the list.", "Choisissez un lieu de naissance dans la liste."],
   err_chart_houses_failed: [
     "Houses couldn’t be calculated for this moment. Try another house system.",
     "Les maisons n’ont pas pu être calculées pour ce moment. Essayez un autre système.",
   ],
   err_chart_moment_invalid: [
     "That moment couldn’t be read. Check the date and time.",
-    "Ce moment est illisible. Vérifiez la date et l’heure.",
+    "Ce moment n’a pas pu être interprété. Vérifiez la date et l’heure.",
   ],
   err_tz_invalid: [
     "That time zone (“{raw}”) isn’t recognised. Choose one in the birth options.",
     "Ce fuseau horaire («\u202f{raw}\u202f») n’est pas reconnu. Choisissez-en un dans les options de naissance.",
   ],
   err_tz_unknown: [
-    "The time zone “{raw}” isn’t in the time zone database.",
-    "Le fuseau «\u202f{raw}\u202f» n’existe pas dans la base des fuseaux horaires.",
+    "The time zone “{raw}” isn’t in the time zone database. Choose one in the birth options.",
+    "Le fuseau «\u202f{raw}\u202f» n’existe pas dans la base des fuseaux horaires. Choisissez-en un dans les options de naissance.",
   ],
-  err_timing_window_invalid: ["That period couldn’t be read.", "Cette période est illisible."],
+  err_timing_window_invalid: [
+    "That period couldn’t be read. Choose another date.",
+    "Cette période n’a pas pu être lue. Choisissez une autre date.",
+  ],
   err_timing_window_long: ["Choose a period of a year or less.", "Choisissez une période d’un an au plus."],
   err_auth_credentials: [
     "That email and password don’t match.",
@@ -88,7 +94,7 @@ export const errors = {
   ],
   err_net_offline: [
     "You’re offline: calculating needs the internet. Check the connection and try again.",
-    "Vous êtes hors ligne : le calcul a besoin d’internet. Vérifiez la connexion et réessayez.",
+    "Vous êtes hors ligne\u202f: le calcul a besoin d’internet. Vérifiez la connexion et réessayez.",
   ],
   err_net_unreachable: [
     "Ulune’s server couldn’t be reached. Check the connection and try again.",
@@ -105,7 +111,7 @@ export const errors = {
   appErrorTitle: ["Something went wrong", "Une erreur est survenue"],
   appErrorBody: [
     "Ulune ran into an error it didn’t expect. Reloading the page usually fixes it; your saved charts are safe on this device.",
-    "Ulune a rencontré une erreur imprévue. Recharger la page suffit en général ; vos thèmes enregistrés restent à l’abri sur cet appareil.",
+    "Ulune a rencontré une erreur imprévue. Recharger la page suffit en général\u202f; vos thèmes enregistrés restent à l’abri sur cet appareil.",
   ],
   appErrorReload: ["Reload the page", "Recharger la page"],
   appErrorDetails: ["Technical details", "Détails techniques"],
@@ -116,23 +122,23 @@ export const errors = {
   reportProblem: ["Report a problem", "Signaler un problème"],
   reportProblemLead: [
     "A wrong position, a bug, a word out of place?",
-    "Une position fausse, un bug, un mot de travers ?",
+    "Une position fausse, un bug, un mot de travers\u202f?",
   ],
-  reportMailSubject: ["Ulune {version}: a problem", "Ulune {version} : un problème"],
+  reportMailSubject: ["Ulune {version}: a problem", "Ulune {version}\u202f: un problème"],
   reportMailBody: [
     "What happened, on which page, and what you expected:",
-    "Ce qui s’est passé, sur quelle page, et ce que vous attendiez :",
+    "Ce qui s’est passé, sur quelle page, et ce que vous attendiez\u202f:",
   ],
   err_place_missing: [
-    "Add a birth place — a city name is enough.",
+    "Add a birthplace — a city name is enough.",
     "Indiquez un lieu de naissance — un nom de ville suffit.",
   ],
   err_place_lookup: [
-    "Place lookup failed. Try again, or paste coordinates.",
-    "Lieu introuvable. Réessayez, ou collez des coordonnées.",
+    "Couldn’t look up the place. Try again, or paste coordinates.",
+    "La recherche du lieu a échoué. Réessayez, ou collez des coordonnées.",
   ],
   err_place_notfound: [
-    "Could not find “{raw}”. Try another city, or paste coordinates.",
-    "Impossible de trouver « {raw} ». Essayez une autre ville, ou collez des coordonnées.",
+    "Couldn’t find “{raw}”. Try another city, or paste coordinates.",
+    "Impossible de trouver «\u202f{raw}\u202f». Essayez une autre ville, ou collez des coordonnées.",
   ],
 } as const satisfies Record<string, readonly [string, string]>;

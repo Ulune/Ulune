@@ -8,11 +8,11 @@
     "fileHint": { "en": "Save as a calendar file (.ics), made on this device", "fr": "Enregistrer en fichier agenda (.ics), créé sur cet appareil" }
   },
   "zone": {
-    "cityTime": { "en": "{city} time", "fr": "heure de {city}" },
-    "ut": { "en": "Universal time (UT)", "fr": "temps universel (UT)" },
+    "cityTime": { "en": "{city} time", "fr": "Heure locale ({city})" },
+    "ut": { "en": "Universal time (UT)", "fr": "Temps universel (UT)" },
     "menu": { "en": "Times shown in", "fr": "Heures affichées en" },
     "device": { "en": "This device’s time ({city})", "fr": "Heure de cet appareil ({city})" },
-    "birth": { "en": "The birth place’s time ({city})", "fr": "Heure du lieu de naissance ({city})" },
+    "birth": { "en": "The birthplace’s time ({city})", "fr": "Heure du lieu de naissance ({city})" },
     "utc": { "en": "Universal time (UT)", "fr": "Temps universel (UT)" }
   },
   "legend": {
@@ -29,7 +29,7 @@
     "now": { "en": "Now", "fr": "Maintenant" },
     "forYou": { "en": "For you", "fr": "Pour vous" },
     "inSky": { "en": "In the sky", "fr": "Dans le ciel" },
-    "quiet": { "en": "Nothing of yours is exact in the coming days.", "fr": "Rien de vôtre n’est exact dans les jours qui viennent." },
+    "quiet": { "en": "None of your transits is exact in the coming days.", "fr": "Aucun de vos transits n’est exact dans les jours qui viennent." },
     "loading": { "en": "Reading the sky…", "fr": "Lecture du ciel…" }
   },
   "moon": {
@@ -46,7 +46,7 @@
     "inSignThen": { "en": "Moon in {sign}, then {next} from {time}", "fr": "Lune en {sign}, puis en {next} dès {time}" },
     "voidSince": { "en": "void of course since {time}", "fr": "vide de course depuis {time}" },
     "entersAt": { "en": "enters {sign} at {time}", "fr": "entre en {sign} à {time}" },
-    "entersOn": { "en": "enters {sign} {when}", "fr": "entre en {sign} {when}" }
+    "entersOn": { "en": "enters {sign} {when} at {time}", "fr": "entre en {sign} {when} à {time}" }
   },
   "sky": {
     "enters": { "en": "{body} enters {sign}", "fr": "{body} entre en {sign}" },
@@ -160,19 +160,19 @@
     "birthday": { "en": "birthday", "fr": "anniversaire" },
     "lane": { "en": "Personal months", "fr": "Mois personnels" },
     "until": { "en": "until {date}", "fr": "jusqu’au {date}" },
-    "forLife": { "en": "for the rest of life", "fr": "pour le reste de la vie" },
+    "forLife": { "en": "for the rest of your life", "fr": "pour le reste de votre vie" },
     "from": { "en": "From {date}, at {age}", "fr": "Dès le {date}, à {age} ans" },
     "steps": { "en": "Steps", "fr": "Calcul" },
-    "dayAbout": { "en": "The personal day adds the day of the month to the personal month, reduced to 1–9; the personal month adds the month to the personal year; the personal year adds your birth month and day to the year, from 1 January. Worked out from the birth date alone, on this device.", "fr": "Le jour personnel ajoute le jour du mois au mois personnel, réduit de 1 à 9 ; le mois personnel ajoute le mois à l’année personnelle ; l’année personnelle ajoute votre mois et votre jour de naissance à l’année, dès le 1er janvier. Calculé à partir de la seule date de naissance, sur cet appareil." },
-    "yearHead": { "en": "Your numerology · a band per personal month, a mark on each birthday a long cycle changes", "fr": "Votre numérologie · une case par mois personnel, une marque à chaque anniversaire où un long cycle change" },
+    "dayAbout": { "en": "The personal day adds the day of the month to the personal month, reduced to 1–9; the personal month adds the month to the personal year; the personal year adds your birth month and day to the year, from 1 January. Worked out from the birth date alone, on this device.", "fr": "Le jour personnel ajoute le jour du mois au mois personnel, ramené entre 1 et 9 ; le mois personnel ajoute le mois à l’année personnelle ; l’année personnelle ajoute votre mois et votre jour de naissance à l’année, dès le 1er janvier. Calculé à partir de la seule date de naissance, sur cet appareil." },
+    "yearHead": { "en": "Your numerology · a band per personal month, a mark on each birthday when a long cycle changes", "fr": "Votre numérologie · une case par mois personnel, une marque à chaque anniversaire où un long cycle change" },
     "universalYear": { "en": "Universal year {n}", "fr": "Année universelle {n}" },
     "round": { "en": "A new nine-year round begins", "fr": "Un nouveau cycle de neuf ans commence" },
     "changesHead": { "en": "Long cycles changing", "fr": "Longs cycles qui changent" },
     "howTitle": { "en": "How it’s worked out", "fr": "Comment on le calcule" },
     "number": { "en": "Number", "fr": "Nombre" },
     "before": { "en": "Before", "fr": "Avant" },
-    "yearAbout": { "en": "The personal year adds your birth month and day to the year, each reduced to a single digit, then reduced again to 1–9. It runs from 1 January to 31 December, as Decoz counts it, and is often felt from the autumn before; some numerologists start it on the birthday instead, like a solar return. Nine personal years make a round: a 1 opens it, a 9 closes it.", "fr": "L’année personnelle ajoute votre mois et votre jour de naissance à l’année, chacun réduit à un chiffre, puis réduit encore de 1 à 9. Elle court du 1er janvier au 31 décembre, comme la compte Decoz, et se fait souvent sentir dès l’automne d’avant ; d’autres numérologues la font commencer à l’anniversaire, comme un retour solaire. Neuf années personnelles font un cycle : un 1 l’ouvre, un 9 le ferme." },
-    "monthAbout": { "en": "The personal month adds the month to the personal year, reduced to 1–9: the year’s theme, lived one month at a time. Worked out from the birth date alone, on this device.", "fr": "Le mois personnel ajoute le mois à l’année personnelle, réduit de 1 à 9 : le thème de l’année, vécu un mois à la fois. Calculé à partir de la seule date de naissance, sur cet appareil." },
+    "yearAbout": { "en": "The personal year adds your birth month and day to the year, each reduced to a single digit, then reduces the total to 1–9. It runs from 1 January to 31 December, as Decoz counts it, and is often felt from the autumn before; some numerologists start it on the birthday instead, like a solar return. Nine personal years make a round: a 1 opens it, a 9 closes it.", "fr": "L’année personnelle ajoute votre mois et votre jour de naissance à l’année, chacun réduit à un chiffre, puis ramène le total entre 1 et 9. Elle court du 1er janvier au 31 décembre, comme la compte Decoz, et se fait souvent sentir dès l’automne d’avant ; d’autres numérologues la font commencer à l’anniversaire, comme un retour solaire. Neuf années personnelles font un cycle : un 1 l’ouvre, un 9 le ferme." },
+    "monthAbout": { "en": "The personal month adds the month to the personal year, reduced to 1–9: the year’s theme, lived one month at a time. Worked out from the birth date alone, on this device.", "fr": "Le mois personnel ajoute le mois à l’année personnelle, ramené entre 1 et 9 : le thème de l’année, vécu un mois à la fois. Calculé à partir de la seule date de naissance, sur cet appareil." },
     "factDay": { "en": "Day", "fr": "Jour" },
     "factMonth": { "en": "Month", "fr": "Mois" },
     "factYear": { "en": "Year", "fr": "Année" },

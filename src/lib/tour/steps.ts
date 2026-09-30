@@ -37,11 +37,11 @@ export const TOUR_STEPS: readonly TourStep[] = [
     title: ["The planets", "Les planètes"],
     body: [
       "Each glyph is a planet or a point, in one of the twelve signs around the rim. Point at one to see its aspects; click to pin it.",
-      "Chaque glyphe est une planète ou un point, dans l’un des douze signes du pourtour. Survolez-en un pour voir ses aspects ; cliquez pour l’épingler.",
+      "Chaque glyphe est une planète ou un point, dans l’un des douze signes du pourtour. Survolez-en un pour voir ses aspects\u202f; cliquez pour l’épingler.",
     ],
     compact: [
       "Each glyph is a planet or a point, in one of the twelve signs around the rim. Tap one to see its aspects; tap again to let go.",
-      "Chaque glyphe est une planète ou un point, dans l’un des douze signes du pourtour. Touchez-en un pour voir ses aspects ; touchez encore pour le relâcher.",
+      "Chaque glyphe est une planète ou un point, dans l’un des douze signes du pourtour. Touchez-en un pour voir ses aspects\u202f; touchez encore pour le relâcher.",
     ],
   },
   {
@@ -59,11 +59,11 @@ export const TOUR_STEPS: readonly TourStep[] = [
     title: ["Aspects", "Aspects"],
     body: [
       "The lines across the middle are aspects: planets at set angles to each other, such as 90° or 120°. The strip counts them by kind; point at a kind to light it, click to hide it.",
-      "Les lignes qui traversent le centre sont des aspects : des planètes à des angles précis l’une de l’autre, comme 90° ou 120°. La bande les compte par sorte ; survolez une sorte pour l’éclairer, cliquez pour la masquer.",
+      "Les lignes qui traversent le centre sont des aspects\u202f: des planètes à des angles précis les unes des autres, comme 90° ou 120°. La bande les compte par type\u202f; survolez un type pour le mettre en évidence, cliquez pour le masquer.",
     ],
     compact: [
       "The lines across the middle are aspects: planets at set angles to each other, such as 90° or 120°. The strip counts them by kind; tap a kind to hide it or bring it back.",
-      "Les lignes qui traversent le centre sont des aspects : des planètes à des angles précis l’une de l’autre, comme 90° ou 120°. La bande les compte par sorte ; touchez une sorte pour la masquer ou la remettre.",
+      "Les lignes qui traversent le centre sont des aspects\u202f: des planètes à des angles précis les unes des autres, comme 90° ou 120°. La bande les compte par type\u202f; touchez un type pour le masquer ou le réafficher.",
     ],
   },
   {
@@ -81,7 +81,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
     title: ["Wheel or table", "Roue ou tableau"],
     body: [
       "Prefer numbers? Table shows the same chart as positions to the arc-second.",
-      "Vous préférez les chiffres ? Le tableau montre le même thème, positions à la seconde d’arc.",
+      "Vous préférez les chiffres\u202f? Le tableau montre le même thème, positions à la seconde d’arc.",
     ],
   },
   {
@@ -90,7 +90,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
     title: ["Time, Pair and Systems", "Temps, Duo et Systèmes"],
     body: [
       "They use this chart too: today’s transits and a calendar of the sky, a second person, and Human Design and numerology, which each open with a short guided read.",
-      "Ils partent aussi de ce thème : les transits du jour et un calendrier du ciel, une deuxième personne, et le Human Design et la numérologie, qui s’ouvrent chacun sur une courte lecture guidée.",
+      "Ils partent aussi de ce thème\u202f: les transits du jour et un calendrier du ciel, une deuxième personne, et le Human Design et la numérologie, qui s’ouvrent chacun sur une courte lecture guidée.",
     ],
   },
   {
@@ -99,7 +99,7 @@ export const TOUR_STEPS: readonly TourStep[] = [
     title: ["Your charts", "Vos thèmes"],
     body: [
       "Charts, at the top, switches between the charts you’ve cast. They go when this tab closes, unless you sign in: then they’re kept on this device, encrypted.",
-      "Thèmes, en haut, passe d’un thème calculé à l’autre. Ils partent à la fermeture de l’onglet, sauf si vous vous connectez : ils sont alors gardés sur cet appareil, chiffrés.",
+      "Thèmes, en haut, passe d’un thème calculé à l’autre. Ils disparaissent à la fermeture de l’onglet, sauf si vous vous connectez\u202f: ils sont alors gardés sur cet appareil, chiffrés.",
     ],
   },
 ];
@@ -116,7 +116,7 @@ export const TOUR_WORDS = {
   preparing: ["Opening the sample chart…", "Ouverture du thème d’exemple…"],
   whoSample: [
     "This one is 1 January 2000, noon, at Greenwich: a moment and a place, nobody’s birth.",
-    "Celui-ci est le 1er janvier 2000, midi, à Greenwich : un instant et un lieu, la naissance de personne.",
+    "Celui-ci est le 1er janvier 2000, midi, à Greenwich\u202f: un instant et un lieu, qui ne correspondent à aucune naissance.",
   ],
   whoNamed: ["This one is {name}’s.", "Celui-ci est celui de {name}."],
   whoOwn: ["This one is the chart you cast.", "Celui-ci est le thème que vous avez calculé."],

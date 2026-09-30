@@ -8,7 +8,7 @@
       "label": "Type",
       "labelFr": "Type",
       "en": "Your energy type: how you are built to use energy and meet other people.",
-      "fr": "Votre type énergétique : comment vous êtes fait pour utiliser votre énergie et aller vers les autres."
+      "fr": "Votre type énergétique : comment vous êtes fait pour utiliser votre énergie et entrer en relation avec les autres."
     },
     {
       "id": "strategy",
@@ -21,8 +21,8 @@
       "id": "authority",
       "label": "Authority",
       "labelFr": "Autorité",
-      "en": "The inner signal Human Design says you can trust when deciding.",
-      "fr": "Le signal intérieur auquel, selon le Human Design, vous pouvez vous fier pour décider."
+      "en": "What Human Design says you can trust when deciding.",
+      "fr": "Ce à quoi, selon le Human Design, vous pouvez vous fier pour décider."
     },
     {
       "id": "profile",

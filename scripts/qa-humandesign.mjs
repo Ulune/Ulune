@@ -78,7 +78,7 @@ const stratLine = (await page.getByTestId("hd-hello-strategy").locator("[data-he
 const authLine = (await page.getByTestId("hd-hello-authority").locator("[data-hello-copy]").innerText()).trim();
 if (typeLine !== "Your energy type: how you are built to use energy and meet other people.") fail.push(`hello type: ${typeLine}`);
 if (stratLine !== "The way of engaging with opportunities that works best for your type.") fail.push(`hello strategy: ${stratLine}`);
-if (authLine !== "The inner signal Human Design says you can trust when deciding.") fail.push(`hello authority: ${authLine}`);
+if (authLine !== "What Human Design says you can trust when deciding.") fail.push(`hello authority: ${authLine}`);
 
 const typeTitle = (await page.getByTestId("hd-hello-type").locator("[data-hello-title]").innerText()).trim();
 const stratTitle = (await page.getByTestId("hd-hello-strategy").locator("[data-hello-title]").innerText()).trim();

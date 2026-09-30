@@ -1,6 +1,6 @@
 /** space (the private space: signing in, unlocking, what is kept): [English, French]. */
 export const space = {
-  spaceSignIn: ["Sign in", "Connexion"],
+  spaceSignIn: ["Sign in", "Se connecter"],
   spaceUnlock: ["Unlock", "Déverrouiller"],
   spacePrivate: ["Private", "Privé"],
   spacePrivateHere: ["Private · this device", "Privé · cet appareil"],
@@ -23,7 +23,7 @@ export const space = {
     "Au moins 12 caractères. Quelques mots que vous seul associeriez font très bien l’affaire.",
   ],
   spacePassphrase: ["Passphrase", "Phrase secrète"],
-  spacePassphraseAgain: ["The same again", "La même, une seconde fois"],
+  spacePassphraseAgain: ["Repeat the passphrase", "Répétez la phrase secrète"],
   spacePassphraseShort: ["At least 12 characters, please.", "Au moins 12 caractères, s’il vous plaît."],
   spacePassphraseMismatch: ["The two don’t match.", "Les deux ne correspondent pas."],
   spaceShow: ["Show", "Afficher"],
@@ -39,7 +39,7 @@ export const space = {
   ],
   spaceCodeCopy: ["Copy", "Copier"],
   spaceCodeCopied: ["Copied", "Copié"],
-  spaceCodeKept: ["I kept this code somewhere safe", "J’ai gardé ce code en lieu sûr"],
+  spaceCodeKept: ["I’ve kept this code somewhere safe", "J’ai gardé ce code en lieu sûr"],
   spaceDone: ["Done", "Terminé"],
   spaceLocksWhen: [
     "It locks when you close Ulune. You can change that in Settings, under Private space.",
@@ -93,7 +93,7 @@ export const space = {
     "This browser can’t keep a private space (private browsing, or site storage turned off). Charts stay in this tab only.",
     "Ce navigateur ne peut pas garder d’espace privé (navigation privée, ou stockage des sites désactivé). Les thèmes restent dans cet onglet seulement.",
   ],
-  keepNotKept: ["Not kept.", "Rien n’est gardé."],
+  keepNotKept: ["This chart isn’t kept.", "Ce thème n’est pas gardé."],
   keepSignIn: [
     "Sign in to keep it on this device, encrypted.",
     "Connectez-vous pour le garder sur cet appareil, chiffré.",
@@ -258,7 +258,7 @@ export const space = {
   spaceBackupTitle: ["Backup", "Sauvegarde"],
   spaceBackupNever: ["No backup yet.", "Pas encore de sauvegarde."],
   spaceBackupLast: ["Last backup {date}.", "Dernière sauvegarde le {date}."],
-  spaceBackupChanged: ["Your charts changed since.", "Vos thèmes ont changé depuis."],
+  spaceBackupChanged: ["Your charts have changed since.", "Vos thèmes ont changé depuis."],
   spaceBackupDownload: ["Download a backup", "Télécharger une sauvegarde"],
   spaceBackupSaved: ["Backup downloaded", "Sauvegarde téléchargée"],
   spaceBackupHint: [
@@ -274,8 +274,8 @@ export const space = {
     "Ce navigateur peut effacer votre espace s’il manque de place. Gardez une sauvegarde.",
   ],
   spaceSafariHint: [
-    "Safari may clear a site’s data after seven days of use without a visit. Ulune added to the Dock (File › Add to Dock) or to the Home Screen (Share › Add to Home Screen) is kept.",
-    "Safari peut effacer les données d’un site après sept jours d’utilisation sans visite. Ulune ajouté au Dock (Fichier › Ajouter au Dock) ou à l’écran d’accueil (Partager › Sur l’écran d’accueil) est gardé.",
+    "Safari may clear a site’s data after seven days of browsing without a visit to that site. Ulune added to the Dock (File › Add to Dock) or to the Home Screen (Share › Add to Home Screen) is kept.",
+    "Safari peut effacer les données d’un site après sept jours de navigation sans visite de ce site. Ulune ajouté au Dock (Fichier › Ajouter au Dock) ou à l’écran d’accueil (Partager › Sur l’écran d’accueil) est gardé.",
   ],
   spaceBackupDue: ["Changed since the last backup", "Modifié depuis la dernière sauvegarde"],
   spaceBackupNone: ["No backup yet", "Pas encore de sauvegarde"],

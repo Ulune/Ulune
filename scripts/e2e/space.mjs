@@ -235,7 +235,7 @@ async function run() {
       await castFixture(page, FIXTURE_A);
       await castFixture(page, FIXTURE_B);
       const offer = await page.getByTestId("keep-offer").innerText();
-      if (!/Not kept/.test(offer)) throw new Error(`no quiet offer under the chart: "${offer}"`);
+      if (!/This chart isn’t kept/.test(offer)) throw new Error(`no quiet offer under the chart: "${offer}"`);
       for (const mode of MODES) {
         await goStudioPage(page, mode);
         await page.getByTestId(`studio-${mode === "design" ? "humandesign" : mode}`).waitFor({ timeout: 30000 });
@@ -558,7 +558,7 @@ async function run() {
         await page.getByTestId("space-your-data").click();
         await page.getByTestId("space-backup").waitFor({ timeout: 20000 });
         const line = (await page.getByTestId("space-backup-line").innerText()).trim();
-        if (!/^Last backup .+\. Your charts changed since\.$/.test(line)) throw new Error(`the backup line: "${line}"`);
+        if (!/^Last backup .+\. Your charts have changed since\.$/.test(line)) throw new Error(`the backup line: "${line}"`);
         await page.getByTestId("settings-space").screenshot({ path: join(SHOTS, "settings-backup-1280.png") });
         if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
         await context.close();
@@ -671,7 +671,7 @@ async function run() {
       await page.screenshot({ path: join(SHOTS, "privacy-1280.png"), fullPage: true });
       await setLang(page, "fr");
       if (!/pas de cookies/.test(await page.getByTestId("privacy-page").innerText())) throw new Error("the privacy notice in French");
-      if (!/publié par \S+/.test(await page.getByTestId("privacy-who").innerText())) throw new Error("the publisher, in French");
+      if (!/édité par \S+/.test(await page.getByTestId("privacy-who").innerText())) throw new Error("the publisher, in French");
       await page.goBack();
       await page.getByTestId("settings-data").waitFor({ timeout: 20000 });
       // Erase everything on this device (in French, with a setting of our own: both must go).

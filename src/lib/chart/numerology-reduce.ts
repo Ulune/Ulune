@@ -10,7 +10,7 @@
 export const MASTERS = [11, 22, 33] as const;
 /** The Birthday keeps 11 and 22 only (the 11th, the 22nd, the 29th). */
 export const DAY_MASTERS = [11, 22] as const;
-/** Nothing kept: challenges, balance and the yearly cycles reduce to 1–9. */
+/** Nothing kept: the balance and the yearly cycles reduce to 1–9 (the challenges, differences, run 0–8). */
 export const NO_MASTERS = [] as const;
 
 export const KARMIC_DEBTS = [13, 14, 16, 19] as const;

@@ -63,7 +63,7 @@ test("Committed copy: no-natal, empty reading, the first read's steps, table col
   assert.equal(cells.map((c) => c.id).join(","), "type,strategy,authority,profile,definition");
   assert.equal(cells[0].sentence, "Your energy type: how you are built to use energy and meet other people.");
   assert.equal(cells[1].sentence, "The way of engaging with opportunities that works best for your type.");
-  assert.equal(cells[2].sentence, "The inner signal Human Design says you can trust when deciding.");
+  assert.equal(cells[2].sentence, "What Human Design says you can trust when deciding.");
   assert.equal(cells[3].sentence, "Two numbers from the lines of your two Suns: the role you tend to play.");
   assert.equal(cells[4].sentence, "How your coloured centres connect to each other.");
   assert.equal(hdHelloCells("fr")[3].label, "Profil");

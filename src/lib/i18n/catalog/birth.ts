@@ -9,7 +9,7 @@ export const birth = {
   datePlaceholder: ["15/06/1990", "15/06/1990"],
   houseAlcabitius: ["Alcabitius", "Alcabitius"],
   houseCampanus: ["Campanus", "Campanus"],
-  houseEqual: ["Equal", "Égales"],
+  houseEqual: ["Equal", "Maisons égales"],
   houseKoch: ["Koch", "Koch"],
   houseMorinus: ["Morinus", "Morinus"],
   housePlacidus: ["Placidus", "Placidus"],
@@ -21,8 +21,8 @@ export const birth = {
   name: ["Name", "Nom"],
   place: ["Place", "Lieu"],
   placeLookupFailed: [
-    "Place lookup failed. Try again, or paste coordinates.",
-    "Lieu introuvable. Réessayez, ou collez des coordonnées.",
+    "Couldn’t look up the place. Try again, or paste coordinates.",
+    "La recherche du lieu a échoué. Réessayez, ou collez des coordonnées.",
   ],
   placePlaceholder: ["City, or lat, lng", "Ville, ou lat., long."],
   time: ["Time", "Heure"],
@@ -41,8 +41,8 @@ export const birth = {
   numCurrentName: ["Name used now", "Nom utilisé aujourd’hui"],
   numCurrentNamePlaceholder: ["Only if it differs", "Seulement s’il diffère"],
   numNamesNote: [
-    "The core numbers come from the full name at birth; left empty, from the name above. The name used now adds its minor numbers. Both stay on this device, with the chart.",
-    "Les nombres principaux viennent du nom complet de naissance ; laissé vide, du nom au-dessus. Le nom utilisé aujourd’hui ajoute ses nombres mineurs. Les deux restent sur cet appareil, avec le thème.",
+    "The core numbers come from the full name at birth; if it’s left empty, from the name above. The name used now adds its minor numbers. Both stay on this device, with the chart.",
+    "Les nombres principaux viennent du nom complet de naissance\u202f; s’il est laissé vide, du nom ci-dessus. Le nom utilisé aujourd’hui ajoute ses nombres mineurs. Les deux restent sur cet appareil, avec le thème.",
   ],
   sampleName: ["Sample", "Exemple"],
   houseNotePlacidus: [
@@ -64,7 +64,7 @@ export const birth = {
   houseNotePorphyry: ["Each quadrant split into three equal parts.", "Chaque quadrant divisé en trois parts égales."],
   houseNoteRegiomontanus: [
     "Divides the celestial equator; a classic for horary.",
-    "Divise l’équateur céleste\u202f; un classique de l’horaire.",
+    "Divise l’équateur céleste\u202f; un classique de l’astrologie horaire.",
   ],
   houseNoteCampanus: [
     "Divides the prime vertical into twelve equal parts.",

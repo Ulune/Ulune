@@ -8,12 +8,28 @@ import { movingFamilyText } from "./interpret-transit";
 import type { Locale } from "@/lib/i18n/locale";
 import { aspectLinkPhrase, bodyAgree, bodyInline, bodyLabel, houseInline, inSign, lowerLead, signName } from "@/lib/i18n/astro";
 import { pickBi } from "@/lib/content/types";
-import { ORB_ABOUT, PROGRESSED_FAMILY, PROGRESSED_PACE, PROGRESSION_ABOUT } from "@/lib/content/astro-time";
+import {
+  ORB_ABOUT,
+  PROGRESSED_ACTIVE,
+  PROGRESSED_DEGREE,
+  PROGRESSED_FAMILY,
+  PROGRESSED_PACE,
+  PROGRESSION_ABOUT,
+  type ProgressedPace,
+} from "@/lib/content/astro-time";
 import type { AngleId, AspectLink, BodyId, ElementReading, LocalDossier, NatalChart, Placement, ProgressedSky } from "./types";
 import { formatArc } from "@/lib/utils";
 
 function cap(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+
+/** The Sun, Mercury, Venus and the angles progress about 1° a year, the Moon about 1° a month, Mars half that, the rest barely. */
+const YEAR_PACE = new Set(["sun", "mercury", "venus", "ascendant", "midheaven", "descendant", "ic"]);
+function paceOf(id: string): ProgressedPace {
+  if (id === "moon") return "moon";
+  if (id === "mars") return "mars";
+  return YEAR_PACE.has(id) ? "year" : "slow";
 }
 
 function natalBody(chart: NatalChart, id: BodyId): Placement | undefined {
@@ -39,7 +55,7 @@ export function progressedReading(
   const area = houseArea(placement.house, locale);
   const moved = natalP && natalP.sign !== placement.sign;
   const lead = fr
-    ? `${cap(bodyInline(id, locale))} ${bodyAgree(id, "progressé", "progressée")} est à ${placement.formatted} ${inSign(placement.sign, locale)}, dans votre ${houseInline(placement.house, locale)} (${area}).${moved ? ` À la naissance, ce point était ${inSign(natalP!.sign, locale)} : avec ce changement de signe, ${bodyKeywords(id, locale)} se colorent désormais de ${signKeywords(placement.sign, locale)}.` : " Ce point n’a pas changé de signe depuis la naissance."}`
+    ? `${cap(bodyInline(id, locale))} ${bodyAgree(id, "progressé", "progressée")} est à ${placement.formatted} ${inSign(placement.sign, locale)}, dans votre ${houseInline(placement.house, locale)} (${area}).${moved ? ` À la naissance, ce point était ${inSign(natalP!.sign, locale)} : avec ce changement de signe, ${bodyKeywords(id, locale)} se colorent désormais des traits du nouveau signe (${signKeywords(placement.sign, locale)}).` : " Ce point n’a pas changé de signe depuis la naissance."}`
     : `Your progressed ${name} is at ${placement.formatted} ${signName(placement.sign, locale)}, in your ${houseInline(placement.house, locale)} (${area}).${moved ? ` At birth it was in ${signName(natalP!.sign, locale)}: this change of sign is read as ${bodyKeywords(id, locale)} developing a more ${signKeywords(placement.sign, locale)} style.` : " It is still in the sign it had at birth."}`;
   const inChart: string[] = [];
   if (placement.retrograde) {
@@ -53,8 +69,8 @@ export function progressedReading(
   if (tight) {
     inChart.push(
       fr
-        ? `Son contact le plus serré : ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))} ${bodyAgree(tight.b, "natal", "natale")}, à ${formatArc(tight.orb)}. Les progressions bougent lentement : un tel aspect reste actif environ un an de part et d’autre de l’exactitude.`
-        : `Its tightest contact is ${aspectLinkPhrase(tight.a, tight.type, tight.b, locale)} (natal), at ${formatArc(tight.orb)}. Progressions move slowly: an aspect like this stays active for about a year either side of exact.`,
+        ? `Son contact le plus serré : ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))} ${bodyAgree(tight.b, "natal", "natale")}, à ${formatArc(tight.orb)}. ${pickBi(PROGRESSED_ACTIVE[paceOf(id)], locale)}`
+        : `Its tightest contact is ${aspectLinkPhrase(tight.a, tight.type, tight.b, locale)} (natal), at ${formatArc(tight.orb)}. ${pickBi(PROGRESSED_ACTIVE[paceOf(id)], locale)}`,
     );
   } else if (!hits.length) {
     inChart.push(
@@ -120,8 +136,8 @@ export function progressedAspectReading(
   if (theme) inChart.push(theme);
   inChart.push(
     fr
-      ? `Orbe ${orb}${app ? `, ${app}` : ""}. Une progression d’un degré correspond à peu près à une année.`
-      : `Orb ${orb}${app ? `, ${app}` : ""}. One degree of progressed movement corresponds to roughly one year.`,
+      ? `Orbe ${orb}${app ? `, ${app}` : ""}. ${pickBi(PROGRESSED_DEGREE[paceOf(link.a)], locale)}`
+      : `Orb ${orb}${app ? `, ${app}` : ""}. ${pickBi(PROGRESSED_DEGREE[paceOf(link.a)], locale)}`,
   );
   const note = aspectIs(link.type, locale);
   return {

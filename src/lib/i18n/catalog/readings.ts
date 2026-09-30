@@ -45,7 +45,7 @@ export const readings = {
   grokIncomplete: ["The reading came back incomplete. Try again.", "La lecture est revenue incomplète. Réessayez."],
   grokTimeout: ["The AI took too long. Try again.", "L’IA a mis trop de temps. Réessayez."],
   natal: ["Natal", "Thème natal"],
-  readingAsk: ["Ask {name} about this", "Demander à {name}"],
+  readingAsk: ["Ask {name} about this", "Interroger {name} à ce sujet"],
   readingAskClose: ["Hide the question box", "Masquer la question"],
   readingBack: ["Back to {name}", "Retour\u202f: {name}"],
   readingComposed: ["Composed reading", "Lecture composée"],

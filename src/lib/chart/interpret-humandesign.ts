@@ -203,7 +203,7 @@ function hdReadingOf(
   if (!pickId) return null;
   const hello = hdHelloCells(locale);
   const fr = locale === "fr";
-  const inDesign = fr ? "Dans votre carte" : "In your design";
+  const inDesign = fr ? "Dans votre schéma" : "In your chart";
   const aboutTitle = fr ? "À propos du Human Design" : "About Human Design";
   const cross = hdCrossOf(chart);
   const crossFact = cross
@@ -447,7 +447,7 @@ function hdReadingOf(
           : hdLayerLabel(locale, "design");
     const state = live
       ? fr
-        ? `Ce canal est défini dans votre carte : ses deux portes sont activées, donc ${hdCenterLabel(locale, ch.centers[0])} et ${hdCenterLabel(locale, ch.centers[1])} sont reliés en permanence. C’est un trait constant, présent quelle que soit la personne avec qui vous êtes.`
+        ? `Ce canal est défini dans votre schéma : ses deux portes sont activées, donc ${hdCenterLabel(locale, ch.centers[0])} et ${hdCenterLabel(locale, ch.centers[1])} sont reliés en permanence. C’est un trait constant, présent quelle que soit la personne avec qui vous êtes.`
         : `This channel is defined in your chart: both gates are activated, so ${hdCenterLabel(locale, ch.centers[0])} and ${hdCenterLabel(locale, ch.centers[1])} are permanently linked. It is a consistent trait, present whoever you are with.`
       : fr
         ? `Ce canal n’est pas défini dans cette vue${aBodies.length || bBodies.length ? " : une seule de ses portes est activée, et l’autre moitié peut être apportée par une autre personne ou un transit" : ""}.`
@@ -498,7 +498,7 @@ function hdReadingOf(
           ? "Cette porte est activée, sans canal complet : son thème est présent chez vous, et se renforce quand quelqu’un active la porte opposée."
           : "This gate is activated but not part of a complete channel: its theme is present in you, and grows stronger when someone else activates the opposite gate."
       : fr
-        ? "Cette porte n’est pas activée dans votre carte ; vous pouvez en vivre le thème à travers d’autres personnes ou des transits."
+        ? "Cette porte n’est pas activée dans votre schéma ; vous pouvez en vivre le thème à travers d’autres personnes ou des transits."
         : "This gate is not activated in your chart; you can experience its theme through other people or transits.";
     const inChart = rows.length
       ? fillBi(HD_IN_CHART.gateBy, locale, { acts: joinList(rows.map((r) => whoOnLine(locale, r)), locale) })

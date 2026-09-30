@@ -3,7 +3,7 @@
   "kind": "chrome",
   "method": {
     "en": "Midpoint composite",
-    "fr": "Composite milieu"
+    "fr": "Composite des mi-points"
   },
   "addSecond": {
     "en": "Add a second person.",

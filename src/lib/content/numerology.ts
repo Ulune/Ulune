@@ -50,7 +50,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "2 is the first pair, and it stands for relationship: two sides, two people and what happens between them. Numerology links it to cooperation, tact and receptiveness — noticing what others feel and adjusting to it. A 2 tends to work best in partnership, and its influence is often quiet: mediating, supporting and holding the details together rather than leading from the front.",
-      fr: "Le 2 est la première paire, et il représente la relation\u202f: deux côtés, deux personnes et ce qui se passe entre elles. La numérologie l’associe à la coopération, au tact et à la réceptivité — percevoir ce que ressentent les autres et s’y ajuster. Un 2 donne souvent le meilleur de lui-même à deux, et son influence est discrète\u202f: il arbitre, soutient et tient les détails ensemble plutôt que de mener de front.",
+      fr: "Le 2 est la première paire, et il représente la relation\u202f: deux côtés, deux personnes et ce qui se passe entre elles. La numérologie l’associe à la coopération, au tact et à la réceptivité — percevoir ce que ressentent les autres et s’y ajuster. Un 2 donne souvent le meilleur de lui-même à deux, et son influence est discrète\u202f: il fait le lien, soutient et veille aux détails plutôt que de diriger en première ligne.",
     },
     strengths: {
       en: "Reads moods and undercurrents accurately, listens well and finds the compromise both sides can accept. Patient with detail and reliable in a supporting role.",
@@ -58,7 +58,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     pitfalls: {
       en: "Can avoid conflict for so long that resentment builds, or take criticism more personally than it was meant. Saying what it wants, early and plainly, usually works better than hinting.",
-      fr: "Peut éviter le conflit si longtemps que la rancœur s’installe, ou prendre une critique plus personnellement qu’elle n’était voulue. Dire ce qu’il veut, tôt et clairement, marche en général mieux que les allusions.",
+      fr: "Peut éviter le conflit si longtemps que la rancœur s’installe, ou prendre une critique plus à cœur qu’on ne l’entendait. Dire ce qu’il veut, tôt et clairement, marche en général mieux que les allusions.",
     },
     example: {
       en: "Two colleagues are arguing over a deadline. The 2 in the room notices that one of them is really worried about quality, not time, says so gently, and the argument is settled in ten minutes.",
@@ -146,7 +146,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     pitfalls: {
       en: "Can over-give and then feel unappreciated, or offer help nobody requested and call it care. Asking \"what do you need?\" before stepping in prevents much of this.",
-      fr: "Peut trop donner puis se sentir mal aimé, ou apporter une aide que personne n’a demandée en l’appelant sollicitude. Demander «\u202fDe quoi avez-vous besoin\u202f?\u202f» avant d’intervenir évite une bonne partie de ces malentendus.",
+      fr: "Peut trop donner puis se sentir peu reconnu, ou apporter une aide que personne n’a demandée en l’appelant sollicitude. Demander «\u202fDe quoi avez-vous besoin\u202f?\u202f» avant d’intervenir évite une bonne partie de ces malentendus.",
     },
     example: {
       en: "Among friends, the 6 remembers every birthday, brings soup when someone is ill, and quietly pays to repair the shared washing machine — then feels hurt when nobody mentions it.",
@@ -160,7 +160,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "7 carries weight in many traditions: seven days of the week, seven classical planets, seven notes of the scale. In numerology it stands for the search for understanding — study, analysis and spiritual questioning. A 7 tends to need time alone to think, trusts what it has examined for itself, and prefers depth to breadth in ideas and friendships alike.",
-      fr: "Le 7 occupe une place à part dans de nombreuses traditions\u202f: sept jours de la semaine, sept planètes classiques, sept notes de la gamme. En numérologie, il représente la quête de compréhension — l’étude, l’analyse, le questionnement spirituel. Un 7 a besoin de temps seul pour réfléchir, se fie à ce qu’il a examiné lui-même, et préfère la profondeur à l’étendue, dans les idées comme dans les amitiés.",
+      fr: "Le 7 occupe une place à part dans de nombreuses traditions\u202f: sept jours de la semaine, sept planètes classiques, sept notes de la gamme. En numérologie, il représente la quête de compréhension — l’étude, l’analyse, le questionnement spirituel. Un 7 a besoin de solitude pour réfléchir, se fie à ce qu’il a examiné lui-même, et préfère la profondeur à l’étendue, dans les idées comme dans les amitiés.",
     },
     strengths: {
       en: "Observant, analytical and hard to fool. Asks the question beneath the question, researches thoroughly, and often builds real expertise or a well-considered inner life.",
@@ -270,7 +270,7 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
     },
     what: {
       en: "33 is the third master number, often called the master teacher. It carries the care and responsibility of 6 (3 + 3) on a larger scale: guidance, healing and service given out of love rather than duty. Some numerologists do not use it at all, and those who do usually read it as a 6 until the person has grown into its demands.",
-      fr: "Le 33 est le troisième nombre maître, souvent appelé le maître enseignant. Il porte le soin et la responsabilité du 6 (3 + 3) à plus grande échelle\u202f: guider, soigner, servir par amour plutôt que par devoir. Certains numérologues ne l’utilisent pas du tout, et ceux qui l’emploient le lisent en général comme un 6 tant que la personne n’a pas grandi dans ce qu’il exige.",
+      fr: "Le 33 est le troisième nombre maître, souvent appelé le maître enseignant. Il porte le soin et la responsabilité du 6 (3 + 3) à plus grande échelle\u202f: guider, soigner, servir par amour plutôt que par devoir. Certains numérologues ne l’utilisent pas du tout, et ceux qui l’emploient le lisent en général comme un 6 tant que la personne n’est pas prête à en assumer les exigences.",
     },
     strengths: {
       en: "Warm, patient and deeply supportive. Teaches by example, stays calm with people in difficulty, and can turn personal experience into practical help for others.",
@@ -318,7 +318,7 @@ export const PERSONAL_YEAR_TEXT: Record<CycleKey, Bi> = {
   },
   7: {
     en: "A Personal Year 7 is quieter and more inward. It suits study, reflection, research and questions of meaning more than expansion. Outer results can seem slower, and that is often the point. A concrete step: set aside regular time alone — a weekly walk, a course, a journal — to work out what you actually want from the next two years.",
-    fr: "Une Année personnelle 7 est plus calme et plus intérieure. Elle se prête à l’étude, à la réflexion, à la recherche et aux questions de sens plutôt qu’à l’expansion. Les résultats visibles peuvent sembler plus lents, et c’est souvent le but. Un pas concret\u202f: réservez-vous des moments seul — une marche hebdomadaire, une formation, un journal — pour clarifier ce que vous voulez vraiment pour les deux années à venir.",
+    fr: "Une Année personnelle 7 est plus calme et plus intérieure. Elle se prête à l’étude, à la réflexion, à la recherche et aux questions de sens plutôt qu’à l’expansion. Les résultats visibles peuvent sembler plus lents, et c’est souvent le but. Un pas concret\u202f: réservez-vous des moments de solitude — une marche hebdomadaire, une formation, un journal — pour clarifier ce que vous voulez vraiment pour les deux années à venir.",
   },
   8: {
     en: "A Personal Year 8 tends to focus on career, money and authority. Effort from earlier years can turn into recognition, promotion or important financial decisions. It is a year for asking what your work is worth and managing resources carefully. A concrete step: review your income, debts and goals, then make one clear request — a raise, a new price, a new role.",
@@ -398,7 +398,7 @@ export const PERSONAL_DAY_TEXT: Record<CycleKey, Bi> = {
   },
   7: {
     en: "A day for reflection, study or time alone; avoid rushing into commitments and give your second thoughts a hearing.",
-    fr: "Une journée de réflexion, d’étude ou de solitude\u202f; évitez de vous engager dans la précipitation et écoutez vos seconds avis.",
+    fr: "Une journée de réflexion, d’étude ou de solitude\u202f; évitez de vous engager dans la précipitation et prenez le temps d’écouter vos doutes.",
   },
   8: {
     en: "A day to handle money, work matters or a negotiation, and to speak with clear authority when it counts.",
@@ -406,7 +406,7 @@ export const PERSONAL_DAY_TEXT: Record<CycleKey, Bi> = {
   },
   9: {
     en: "A day to finish, tidy up and forgive; close something off rather than starting something new.",
-    fr: "Une journée pour finir, ranger et pardonner\u202f; refermez quelque chose plutôt que d’en commencer une nouvelle.",
+    fr: "Une journée pour finir, ranger et pardonner\u202f; refermez un chapitre plutôt que d’en ouvrir un nouveau.",
   },
 };
 
@@ -462,7 +462,7 @@ export const NUMEROLOGY_ABOUT: { system: Bi; reduction: Bi; masters: Bi; cycle: 
   },
   masters: {
     en: "11, 22 and 33 are called master numbers and are left unreduced when they appear, because the tradition reads them as a stronger, more demanding form of their root. They are also read as 2, 4 and 6 (1 + 1, 2 + 2, 3 + 3), which is why they are written 11/2, 22/4 and 33/6. Many people are said to live the root number first and grow into the master number over time.",
-    fr: "11, 22 et 33 sont appelés nombres maîtres et ne sont pas réduits quand ils apparaissent, car la tradition y voit une forme plus intense et plus exigeante de leur racine. On les lit aussi comme 2, 4 et 6 (1 + 1, 2 + 2, 3 + 3), d’où l’écriture 11/2, 22/4 et 33/6. On dit souvent qu’une personne vit d’abord le nombre racine, puis grandit peu à peu dans le nombre maître.",
+    fr: "11, 22 et 33 sont appelés nombres maîtres et ne sont pas réduits quand ils apparaissent, car la tradition y voit une forme plus intense et plus exigeante de leur racine. On les lit aussi comme 2, 4 et 6 (1 + 1, 2 + 2, 3 + 3), d’où l’écriture 11/2, 22/4 et 33/6. On dit souvent qu’une personne vit d’abord le nombre racine, puis s’approprie peu à peu le nombre maître.",
   },
   cycle: {
     en: "Personal Years run in a nine-year cycle, from 1 (beginnings) to 9 (completion), and then start again. The Personal Year adds your birth month and birth day to the current calendar year and reduces the total: for someone born on 15 June, 2026 gives 6 + 15 + 2026 = 2047, then 2 + 0 + 4 + 7 = 13, then 1 + 3 = 4. The next year, 2027, is a Personal Year 5.",

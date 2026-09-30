@@ -65,7 +65,7 @@ if (JSON.stringify(colKeys) !== JSON.stringify(["when", "transit", "aspect", "na
 const emptyRead = desktop.getByTestId("click-reading-empty");
 if (await emptyRead.count()) {
   const copy = (await emptyRead.innerText()).trim();
-  if (copy !== "Click a date, a body, or an aspect.") fail.push(`reading empty: ${copy}`);
+  if (copy !== "Tap a date, a body or an aspect.") fail.push(`reading empty: ${copy}`);
 }
 
 const layout = await desktop.evaluate(() => {

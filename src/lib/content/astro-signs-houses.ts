@@ -18,7 +18,7 @@ export const SIGN_TEXT: Record<SignId, SignText> = {
   aries: {
     what: {
       en: "Aries is the first sign of the zodiac, cardinal fire, ruled by Mars; the Sun passes through it from about 21 March to 19 April, and its first degree marks the March equinox. It describes a direct, quick and independent way of acting: going first, testing things by doing them and meeting challenges head-on. In practice it favours starting over maintaining, and speed over caution.",
-      fr: "Le Bélier est le premier signe du zodiaque, un signe de feu cardinal gouverné par Mars\u202f; le Soleil le traverse du 21 mars au 19 avril environ, et son premier degré correspond à l’équinoxe de mars. Il décrit une manière d’agir directe, rapide et indépendante\u202f: passer en premier, tester les choses en les faisant, répondre de front aux défis. Concrètement, il préfère lancer plutôt qu’entretenir, et la vitesse plutôt que la prudence.",
+      fr: "Le Bélier est le premier signe du zodiaque, un signe de feu cardinal gouverné par Mars\u202f; le Soleil le traverse du 21 mars au 19 avril environ, et son premier degré correspond à l’équinoxe de mars. Il décrit une manière d’agir directe, rapide et indépendante\u202f: passer en premier, tester les choses en les faisant, répondre de front aux défis. Concrètement, il préfère lancer plutôt qu’entretenir, et la vitesse à la prudence.",
     },
     keywords: {
       en: "direct, quick, independent, competitive, courageous, impatient",
@@ -38,7 +38,7 @@ export const SIGN_TEXT: Record<SignId, SignText> = {
     },
     onCusp: {
       en: "You tackle {area} head-on, acting first and adjusting later, with more drive for starting things than patience for keeping them going.",
-      fr: "Vous abordez de front {area}\u202f: vous agissez d’abord, vous ajustez ensuite, avec plus d’élan pour lancer les choses que de patience pour les faire durer.",
+      fr: "Vous abordez de front {area}\u202f: vous agissez d’abord, vous rectifiez le tir ensuite, avec plus d’élan pour lancer les choses que de patience pour les faire durer.",
     },
     rising: {
       en: "With Aries rising, you tend to come across as direct, energetic and ready to act, sometimes more abrupt than you intend. You meet new situations by jumping in and learning as you go. On the first day in a new job, you might be asking questions and suggesting changes before lunch.",
@@ -59,7 +59,7 @@ export const SIGN_TEXT: Record<SignId, SignText> = {
       fr: "stabilité, patience, sensualité, sens pratique, fidélité, entêtement",
     },
     strengths: {
-      en: "Taurus is reliable, calm under pressure and has a sound sense of value and quality. It finishes what it starts, handles money sensibly, and knows how to make a home or a meal comfortable.",
+      en: "Taurus is reliable and calm under pressure, and has a sound sense of value and quality. It finishes what it starts, handles money sensibly, and knows how to make a home or a meal comfortable.",
       fr: "Le Taureau est fiable, calme sous la pression, et il a un sens sûr de la valeur et de la qualité. Il termine ce qu’il commence, gère l’argent avec bon sens et sait rendre un intérieur ou un repas vraiment agréable.",
     },
     pitfalls: {
@@ -101,7 +101,7 @@ export const SIGN_TEXT: Record<SignId, SignText> = {
       fr: "La dispersion et l’agitation\u202f: beaucoup de choses commencées, peu terminées, et l’habitude de survoler. Choisir chaque saison un projet à mener au bout, et noter ses engagements avant d’en prendre de nouveaux, rend la curiosité féconde.",
     },
     example: {
-      en: "In a meeting, the Gemini style is the person who has read three articles on the topic, connects the marketing problem to something the IT team said last week, and has a new question before the answer arrives.",
+      en: "In a meeting, the Gemini style shows in the person who has read three articles on the topic, connects the marketing problem to something the IT team said last week, and has a new question before the answer arrives.",
       fr: "En réunion, le style Gémeaux, c’est la personne qui a lu trois articles sur le sujet, relie le problème du marketing à une remarque du service informatique la semaine précédente et a déjà une nouvelle question avant d’avoir reçu la réponse.",
     },
     onCusp: {
@@ -203,7 +203,7 @@ export const SIGN_TEXT: Record<SignId, SignText> = {
       fr: "Le perfectionnisme et l’inquiétude\u202f: une exigence qui ne cesse de monter, une critique tournée contre soi ou contre les autres, du mal à déléguer. Fixer une ligne d’arrivée pour chaque tâche, et remercier avant de corriger, allège la pression.",
     },
     example: {
-      en: "At work, Virgo’s style is the colleague who reads the contract down to the last clause, finds the error in the invoice, and quietly builds a spreadsheet that saves the team an hour every week.",
+      en: "At work, Virgo’s style shows in the colleague who reads the contract down to the last clause, finds the error in the invoice, and quietly builds a spreadsheet that saves the team an hour every week.",
       fr: "Au travail, le style Vierge, c’est la collègue qui lit le contrat jusqu’à la dernière clause, trouve l’erreur dans la facture et met discrètement au point un tableau qui fait gagner une heure par semaine à l’équipe.",
     },
     onCusp: {
@@ -237,7 +237,7 @@ export const SIGN_TEXT: Record<SignId, SignText> = {
       fr: "L’indécision et le besoin de plaire\u202f: repousser les choix pour contenter tout le monde, ou approuver à voix haute en pensant le contraire. Fixer une échéance aux décisions, et exprimer tôt les petits désaccords, garde les relations sincères.",
     },
     example: {
-      en: "Planning a group holiday, Libra’s way is to collect everyone’s preferences, find the destination that suits most people, and make sure the rented flat has good light and a table big enough for shared dinners.",
+      en: "When planning a group holiday, Libra collects everyone’s preferences, finds the destination that suits most people, and makes sure the rented flat has good light and a table big enough for shared dinners.",
       fr: "Pour organiser des vacances entre amis, la Balance recueille les envies de chacun, trouve la destination qui convient au plus grand nombre et veille à ce que la location soit lumineuse, avec une table assez grande pour dîner tous ensemble.",
     },
     onCusp: {
@@ -271,7 +271,7 @@ export const SIGN_TEXT: Record<SignId, SignText> = {
       fr: "La méfiance, la jalousie et le besoin de contrôle peuvent se durcir en mises à l’épreuve ou en rancunes tenaces. Dire franchement ce que l’on craint ou ce que l’on veut, au lieu d’observer en silence, fait baisser la tension de part et d’autre.",
     },
     example: {
-      en: "When a company is in trouble, the Scorpio style is the manager who reads every report, asks the uncomfortable question in the first meeting and has quietly reworked the budget before anyone else admits there is a problem.",
+      en: "When a company is in trouble, the Scorpio style shows in the manager who reads every report, asks the uncomfortable question in the first meeting and has quietly reworked the budget before anyone else admits there is a problem.",
       fr: "Quand une entreprise traverse une mauvaise passe, le style Scorpion, c’est la responsable qui lit chaque rapport, pose la question qui dérange dès la première réunion et a déjà revu le budget en silence avant que quiconque admette qu’il y a un problème.",
     },
     onCusp: {
@@ -301,8 +301,8 @@ export const SIGN_TEXT: Record<SignId, SignText> = {
       fr: "Le Sagittaire est enthousiaste, honnête et ouvert d’esprit. Il donne aux autres le sentiment que tout est possible, apprend avec appétit et vit bien l’incertitude, voyant souvent une occasion là où d’autres ne voient qu’un risque.",
     },
     pitfalls: {
-      en: "Overpromising, bluntness and restlessness: committing to more than time allows, or leaving before the difficult part. Putting plans on paper with dates and costs, and asking how a frank remark will land, helps.",
-      fr: "Promettre trop, manquer de tact, ne pas tenir en place\u202f: s’engager au-delà du temps disponible, ou partir avant le passage difficile. Mettre ses projets sur papier avec des dates et des coûts, et se demander comment une remarque franche sera reçue, aide.",
+      en: "Overpromising, bluntness and restlessness: committing to more than time allows, or leaving before the difficult part. It helps to put plans on paper with dates and costs, and to ask how a frank remark will land.",
+      fr: "Promettre trop, manquer de tact, ne pas tenir en place\u202f: s’engager au-delà du temps disponible, ou partir avant le passage difficile. Il est utile de mettre ses projets sur papier avec des dates et des coûts, et de se demander comment une remarque franche sera reçue.",
     },
     example: {
       en: "The Sagittarius style shows in the student who signs up for a semester abroad almost on a whim, learns the language by talking to everyone, and comes back with a new idea of what to study.",
@@ -339,8 +339,8 @@ export const SIGN_TEXT: Record<SignId, SignText> = {
       fr: "L’excès de travail et la rigidité\u202f: ne mesurer sa valeur qu’à ses réussites, ou remettre le plaisir au jour où tout sera assuré. Considérer le repos comme une partie du plan et non comme une récompense, et demander de l’aide plus tôt, allège la charge.",
     },
     example: {
-      en: "A Capricorn approach is the person who opens a pension plan at twenty-five, takes the evening course that leads to a promotion three years later, and keeps a five-year plan pinned above the desk.",
-      fr: "L’approche Capricorne, c’est la personne qui ouvre une épargne retraite à vingt-cinq ans, suit les cours du soir qui lui vaudront une promotion trois ans plus tard et garde un plan à cinq ans épinglé au-dessus de son bureau.",
+      en: "The Capricorn approach shows in the person who opens a pension plan at twenty-five, takes the evening course that leads to a promotion three years later, and keeps a five-year plan pinned above the desk.",
+      fr: "L’approche Capricorne, c’est la personne qui ouvre un plan d’épargne retraite à vingt-cinq ans, suit les cours du soir qui lui vaudront une promotion trois ans plus tard et garde un plan à cinq ans épinglé au-dessus de son bureau.",
     },
     onCusp: {
       en: "You take {area} seriously and plan for the long term, accepting responsibility, working within limits and expecting results to come from sustained effort.",
@@ -369,11 +369,11 @@ export const SIGN_TEXT: Record<SignId, SignText> = {
       fr: "Le Verseau est original, juste et fidèle à ses amis comme à ses causes. Il voit comment un système pourrait mieux fonctionner, traite chacun d’égal à égal quel que soit son statut, et se laisse difficilement influencer par la mode ou la pression.",
     },
     pitfalls: {
-      en: "Detachment and contrariness: arguing on principle when someone needs warmth, or resisting a good idea because it is popular. Naming feelings as well as opinions, and asking whether a rule really needs breaking, helps.",
-      fr: "Le détachement et l’esprit de contradiction\u202f: argumenter sur les principes quand quelqu’un a besoin de chaleur, ou rejeter une bonne idée parce qu’elle est populaire. Nommer ses émotions et pas seulement ses opinions, et se demander si une règle mérite vraiment d’être enfreinte, aide.",
+      en: "Detachment and contrariness: arguing on principle when someone needs warmth, or resisting a good idea because it is popular. It helps to name feelings as well as opinions, and to ask whether a rule really needs breaking.",
+      fr: "Le détachement et l’esprit de contradiction\u202f: argumenter sur les principes quand quelqu’un a besoin de chaleur, ou rejeter une bonne idée parce qu’elle est populaire. Il est utile de nommer ses émotions et pas seulement ses opinions, et de se demander si une règle mérite vraiment d’être enfreinte.",
     },
     example: {
-      en: "In a residents’ association, Aquarius style is the neighbour who sets up the shared group chat, proposes a tool-lending library, and calmly argues at the meeting for a rule change everyone else thought impossible.",
+      en: "In a residents’ association, the Aquarius style shows in the neighbour who sets up the shared group chat, proposes a tool-lending library, and calmly argues at the meeting for a rule change everyone else thought impossible.",
       fr: "Dans une association de quartier, le style Verseau, c’est la voisine qui crée la messagerie commune, propose une bibliothèque d’outils partagés et défend calmement en assemblée un changement de règlement que tous jugeaient impossible.",
     },
     onCusp: {
@@ -445,7 +445,7 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "Mars in the 1st often shows someone who walks fast, speaks plainly and is quick to take the lead; with the Moon here instead, moods tend to show on the face, and others read them easily.",
-      fr: "Mars en Maison I se traduit souvent par une démarche rapide, un parler franc et une tendance à prendre les devants\u202f; avec la Lune à cette place, les humeurs se lisent plutôt sur le visage, et l’entourage les perçoit facilement.",
+      fr: "Mars en Maison I se traduit souvent par une démarche rapide, un franc-parler et une tendance à prendre les devants\u202f; avec la Lune à cette place, les humeurs se lisent plutôt sur le visage, et l’entourage les perçoit facilement.",
     },
     empty: {
       en: "An empty 1st house is common and does not mean a faint personality. The rising sign, and the house and sign of its ruler, the chart ruler, describe how someone comes across.",
@@ -562,7 +562,7 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
   },
   8: {
     what: {
-      en: "The 8th house covers shared resources, debt, inheritance, taxes and other people’s money, along with intimacy, crises and deep change. Traditionally it was the house of death, which modern astrology reads more broadly as endings and transformation. As a succedent house, it deals with what is held jointly and what is exchanged. Its opposite, the 2nd, completes the axis of own and shared resources.",
+      en: "The 8th house covers shared resources, debt, inheritance, taxes and other people’s money, along with intimacy, crises and deep change. Traditionally it was the house of death, which modern astrology reads more broadly as endings and transformation. As a succedent house, it deals with what is held jointly and what is exchanged. Its opposite, the 2nd, completes the axis of one’s own and shared resources.",
       fr: "La Maison VIII concerne les ressources partagées, les dettes, les héritages, les impôts et l’argent des autres, ainsi que l’intimité, les crises et les changements profonds. On l’appelait traditionnellement la maison de la mort, que l’astrologie moderne lit plus largement comme celle des fins et des transformations. En tant que maison succédente, elle concerne ce que l’on détient en commun et ce que l’on échange. La Maison II, en face, complète l’axe des ressources propres et des ressources partagées.",
     },
     area: {
@@ -655,7 +655,7 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
 export const ELEMENT_TEXT: Record<"fire" | "earth" | "air" | "water", Bi> = {
   fire: {
     en: "Fire describes action driven by enthusiasm, confidence and the need to express oneself. The fire signs are Aries, Leo and Sagittarius. A chart strong in fire often belongs to someone who acts on inspiration, saying yes to a new project before checking the calendar.",
-    fr: "Le feu décrit une action portée par l’enthousiasme, la confiance et le besoin de s’exprimer. Les signes de feu sont le Bélier, le Lion et le Sagittaire. Un thème riche en feu appartient souvent à quelqu’un qui agit sur l’inspiration du moment et accepte un nouveau projet avant d’avoir consulté son agenda.",
+    fr: "Le feu décrit une action portée par l’enthousiasme, la confiance et le besoin de s’exprimer. Les signes de feu sont le Bélier, le Lion et le Sagittaire. Un thème riche en feu appartient souvent à quelqu’un qui agit sous le coup de l’inspiration et accepte un nouveau projet avant d’avoir consulté son agenda.",
   },
   earth: {
     en: "Earth describes a practical, concrete approach centred on results, the body, money and material security. The earth signs are Taurus, Virgo and Capricorn. With plenty of earth, people tend to trust what can be tested, for example getting three quotes before any repair to the house.",

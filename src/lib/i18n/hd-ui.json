@@ -1,6 +1,5 @@
 {
   "id": "hd.ui",
-  "kind": "chrome",
   "readingEmpty": {
     "en": "Tap a channel, a gate, or a centre.",
     "fr": "Touchez un canal, une porte ou un centre."
@@ -80,7 +79,7 @@
     },
     "gateBodies": {
       "en": "{layer} {body}, line {line}.",
-      "fr": "{layer} {body}, ligne {line}."
+      "fr": "{body} ({layer}), ligne {line}."
     },
     "centerDefined": {
       "en": "Defined — at least one channel lands here.",
@@ -113,14 +112,14 @@
     "hintTouch": { "en": "Tap any shape to read it", "fr": "Touchez une forme pour la lire" },
     "keysLabel": { "en": "Bodygraph: centres, channels and gates", "fr": "Bodygraph : centres, canaux et portes" },
     "keysHint": {
-      "en": "The arrows move through the centres, channels and gates, Page Up and Page Down by kind, a letter to a name; Enter opens its reading. The Table view lists the same as text.",
-      "fr": "Les flèches parcourent les centres, les canaux et les portes, Page précédente et Page suivante par sorte, une lettre jusqu’à un nom ; Entrée ouvre sa lecture. La vue Tableau donne la même chose en texte."
+      "en": "Arrow keys move through the centres, channels and gates; Page Up and Page Down jump from one kind to the next; typing a letter jumps to a name; Enter opens its reading. The Table view lists the same as text.",
+      "fr": "Les touches fléchées parcourent les centres, les canaux et les portes ; Page précédente et Page suivante passent d’une catégorie à l’autre ; une lettre mène au nom qui commence par elle ; Entrée ouvre sa lecture. La vue Tableau donne la même chose en texte."
     },
-    "keysOpened": { "en": "Opened: {name}", "fr": "Ouvert : {name}" },
-    "keysClosed": { "en": "Closed: {name}", "fr": "Fermé : {name}" },
+    "keysOpened": { "en": "Opened: {name}", "fr": "Lecture ouverte : {name}" },
+    "keysClosed": { "en": "Closed: {name}", "fr": "Lecture fermée : {name}" },
     "defined": { "en": "defined", "fr": "défini" },
     "open": { "en": "open", "fr": "ouvert" },
-    "gatesActive": { "en": "{n} of {m} gates active", "fr": "{n} portes actives sur {m}" },
+    "gatesActive": { "en": "{n} of {m} gates active", "fr": "portes actives : {n} sur {m}" },
     "notActivated": { "en": "not activated", "fr": "non activée" },
     "channelDefined": { "en": "defined", "fr": "défini" },
     "channelOpen": { "en": "not defined", "fr": "non défini" },
@@ -196,7 +195,7 @@
     "title": { "en": "{arrow}: {name}, pointing {dir}", "fr": "{arrow} : {name}, flèche à {dir}" },
     "left": { "en": "left", "fr": "gauche" },
     "right": { "en": "right", "fr": "droite" },
-    "unsteady": { "en": "It could be different: it changes within half an hour of the birth time.", "fr": "Elle pourrait être différente : elle change à une demi-heure près de l’heure de naissance." },
+    "unsteady": { "en": "It could be different: it changes within half an hour of the birth time.", "fr": "Elle pourrait être différente : elle change dans la demi-heure qui précède ou suit l’heure de naissance." },
     "word": { "en": "Variable", "fr": "Variable" }
   },
   "unknown": {

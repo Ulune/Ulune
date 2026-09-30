@@ -88,14 +88,14 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Aspect", "Aspect"],
     body: [
       "An angle between two points of the chart, measured along the zodiac, that astrology reads as a relationship between them. The major ones: conjunction (0°), sextile (60°), square (90°), trine (120°) and opposition (180°).",
-      "Un angle entre deux points du thème, mesuré le long du zodiaque, que l’astrologie lit comme une relation entre eux. Les aspects majeurs : conjonction (0°), sextile (60°), carré (90°), trigone (120°) et opposition (180°).",
+      "Un angle entre deux points du thème, mesuré le long du zodiaque, que l’astrologie lit comme une relation entre eux. Les aspects majeurs\u202f: conjonction (0°), sextile (60°), carré (90°), trigone (120°) et opposition (180°).",
     ],
   },
   orb: {
     term: ["Orb", "Orbe"],
     body: [
       "How far an aspect is from exact, in degrees. The smaller the orb, the stronger the aspect is read; beyond a set limit it no longer counts.",
-      "L’écart d’un aspect à l’exactitude, en degrés. Plus l’orbe est petit, plus l’aspect est lu comme fort ; au-delà d’une limite, il ne compte plus.",
+      "L’écart d’un aspect à l’exactitude, en degrés. Plus l’orbe est petit, plus l’aspect est lu comme fort\u202f; au-delà d’une limite, il ne compte plus.",
     ],
   },
   applying: {
@@ -127,28 +127,28 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Ascendant", "Ascendant"],
     body: [
       "The degree of the zodiac rising on the eastern horizon at birth, where the 1st house begins. It moves about a degree every four minutes, so it needs the birth time.",
-      "Le degré du zodiaque qui se levait à l’horizon est à la naissance, là où commence la maison I. Il avance d’environ un degré toutes les quatre minutes : il lui faut l’heure de naissance.",
+      "Le degré du zodiaque qui se levait à l’horizon est à la naissance, là où commence la maison I. Il avance d’environ un degré toutes les quatre minutes\u202f: il lui faut l’heure de naissance.",
     ],
   },
   midheaven: {
     term: ["Midheaven (MC)", "Milieu du Ciel (MC)"],
     body: [
       "The degree of the zodiac crossing the meridian at birth, due south in the northern hemisphere; in most house systems, where the 10th house begins.",
-      "Le degré du zodiaque qui passait au méridien à la naissance, plein sud dans l’hémisphère nord ; dans la plupart des systèmes de maisons, là où commence la maison X.",
+      "Le degré du zodiaque qui passait au méridien à la naissance, plein sud dans l’hémisphère nord\u202f; dans la plupart des systèmes de maisons, là où commence la maison X.",
     ],
   },
   retrograde: {
     term: ["Retrograde (℞)", "Rétrograde (℞)"],
     body: [
-      "A planet that seems, seen from the Earth, to move backwards through the zodiac for a while, because of the Earth’s own motion.",
-      "Une planète qui semble, vue de la Terre, reculer dans le zodiaque pendant un temps, à cause du mouvement de la Terre elle-même.",
+      "A planet that, seen from the Earth, seems to move backwards through the zodiac for a while, because of the relative motion of the Earth and the planet.",
+      "Une planète qui semble, vue de la Terre, reculer dans le zodiaque pendant un temps, à cause du mouvement relatif de la Terre et de la planète.",
     ],
   },
   station: {
     term: ["Station", "Station"],
     body: [
       "The moment a planet seems to stand still in the sky before it turns retrograde or direct again. Astrologers read the days around a station as the strongest of that planet’s cycle.",
-      "Le moment où une planète semble immobile dans le ciel avant de devenir rétrograde ou de repartir en direct. On lit les jours autour d’une station comme les plus forts du cycle de la planète.",
+      "Le moment où une planète semble immobile dans le ciel avant de devenir rétrograde ou de redevenir directe. On lit les jours autour d’une station comme les plus forts du cycle de la planète.",
     ],
   },
   ingress: {
@@ -204,56 +204,56 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Transit", "Transit"],
     body: [
       "Where a planet is in the sky at a given moment, read against the birth chart: its aspects to the planets and angles you were born with.",
-      "La position d’une planète dans le ciel à un moment donné, lue sur le thème natal : ses aspects aux planètes et aux angles de la naissance.",
+      "La position d’une planète dans le ciel à un moment donné, lue sur le thème natal\u202f: ses aspects aux planètes et aux angles de la naissance.",
     ],
   },
   progression: {
     term: ["Secondary progression", "Progression secondaire"],
     body: [
-      "The chart moved on one day for each year of life: the sky 30 days after birth describes the 30th year. Its angles advance at the Naibod rate, about 1° a year.",
-      "Le thème avancé d’un jour pour chaque année de vie : le ciel du 30e jour après la naissance décrit la 30e année. Ses angles avancent au rythme de Naibod, environ 1° par an.",
+      "The chart moved on one day for each year of life: the sky 30 days after birth describes the year from the 30th birthday. Its angles advance at the Naibod rate, about 1° a year.",
+      "Le thème avancé d’un jour pour chaque année de vie\u202f: le ciel 30 jours après la naissance décrit l’année qui suit le 30e anniversaire. Ses angles avancent au rythme de Naibod, environ 1° par an.",
     ],
   },
   synastry: {
     term: ["Synastry", "Synastrie"],
     body: [
       "Two charts compared: the aspects between one person’s planets and the other’s, and the houses of one where the other’s planets fall.",
-      "Deux thèmes comparés : les aspects entre les planètes de l’un et celles de l’autre, et les maisons de l’un où tombent les planètes de l’autre.",
+      "Deux thèmes comparés\u202f: les aspects entre les planètes de l’un et celles de l’autre, et les maisons de l’un où tombent les planètes de l’autre.",
     ],
   },
   composite: {
     term: ["Composite", "Composite"],
     body: [
-      "One chart made from two: for each pair of planets, the midpoint between them, read as the chart of the relationship itself.",
-      "Un thème fait de deux : pour chaque paire de planètes, leur point milieu, lu comme le thème de la relation elle-même.",
+      "One chart made from two: for each planet, the midpoint between its positions in the two charts, read as the chart of the relationship itself.",
+      "Un thème fait de deux\u202f: pour chaque planète, le point milieu entre ses positions dans les deux thèmes, lu comme le thème de la relation elle-même.",
     ],
   },
   hdType: {
     term: ["Type (Human Design)", "Type (Human Design)"],
     body: [
-      "The first key of a bodygraph: Manifestor, Generator, Manifesting Generator, Projector or Reflector, from which centres are defined and how they connect.",
-      "La première clé d’un bodygraph : Manifesteur, Générateur, Générateur manifesteur, Projecteur ou Réflecteur, selon les centres définis et leurs liaisons.",
+      "The first key of a bodygraph: Manifestor, Generator, Manifesting Generator, Projector or Reflector, set by which centres are defined and how they connect.",
+      "La première clé d’un bodygraph\u202f: Manifesteur, Générateur, Générateur manifesteur, Projecteur ou Réflecteur, selon les centres définis et leurs liaisons.",
     ],
   },
   hdStrategy: {
     term: ["Strategy", "Stratégie"],
     body: [
       "How each type is advised to engage with life: to inform (Manifestors), to wait to respond (Generators), to wait for the invitation (Projectors), to wait a lunar cycle (Reflectors).",
-      "La façon dont chaque type est invité à s’engager dans la vie : informer (Manifesteurs), attendre pour répondre (Générateurs), attendre l’invitation (Projecteurs), attendre un cycle lunaire (Réflecteurs).",
+      "La façon dont chaque type est invité à s’engager dans la vie\u202f: informer (Manifesteurs), attendre pour répondre (Générateurs), attendre l’invitation (Projecteurs), attendre un cycle lunaire (Réflecteurs).",
     ],
   },
   hdAuthority: {
     term: ["Authority", "Autorité"],
     body: [
-      "The inner signal Human Design says to trust when deciding (emotional, sacral, splenic and others), set by the defined centres.",
-      "Le signal intérieur auquel le Human Design dit de se fier pour décider (émotionnelle, sacrale, splénique et d’autres), selon les centres définis.",
+      "What Human Design says to trust when deciding (emotional, sacral, splenic and others), set by the defined centres.",
+      "Ce à quoi le Human Design dit de se fier pour décider (autorité émotionnelle, sacrale, splénique, entre autres), selon les centres définis.",
     ],
   },
   hdCentres: {
     term: ["Centres, gates, channels", "Centres, portes, canaux"],
     body: [
-      "The bodygraph’s nine centres hold 64 gates, one for each hexagram of the I Ching, lit by the planets. A channel joins two gates; with both lit, it defines the two centres it joins.",
-      "Les neuf centres du bodygraph portent 64 portes, une par hexagramme du Yi King, allumées par les planètes. Un canal relie deux portes ; quand les deux sont allumées, il définit les deux centres qu’il relie.",
+      "The bodygraph’s nine centres hold 64 gates, one for each hexagram of the I Ching, coloured by the planets. A channel joins two gates; with both coloured, it defines the two centres it joins.",
+      "Les neuf centres du bodygraph portent 64 portes, une par hexagramme du Yi King, colorées par les planètes. Un canal relie deux portes\u202f; quand les deux sont colorées, il définit les deux centres qu’il relie.",
     ],
   },
   hdGate: {
@@ -288,7 +288,7 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Personality, Design", "Personnalité, Design"],
     body: [
       "Personality: the planets at birth. Design: the planets when the Sun stood 88° further back, about three months before birth.",
-      "Personnalité : les planètes à la naissance. Design : les planètes quand le Soleil était 88° plus tôt, environ trois mois avant la naissance.",
+      "Personnalité\u202f: les planètes à la naissance. Design\u202f: les planètes quand le Soleil se trouvait 88° en arrière, environ trois mois avant la naissance.",
     ],
   },
   hdNotSelf: {
@@ -308,7 +308,7 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
   hdDefinition: {
     term: ["Definition", "Définition"],
     body: [
-      "How the coloured centres connect: all in one group (single), in two, three or four separate groups (split), or not at all when none is coloured.",
+      "How the coloured centres connect: all in one group (single), in two, three or four separate groups (split, triple split, quadruple split), or not at all when none is coloured.",
       "La façon dont les centres colorés sont reliés\u202f: en un seul groupe (simple), en deux, trois ou quatre groupes séparés (double, triple, quadruple), ou pas du tout quand aucun n’est coloré.",
     ],
   },
@@ -330,21 +330,21 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Life Path", "Chemin de vie"],
     body: [
       "The birth date as one number: the month, the day and the year each reduced, then added and reduced again (11, 22 and 33 are kept).",
-      "La date de naissance en un nombre : le mois, le jour et l’année réduits chacun, puis additionnés et réduits à nouveau (11, 22 et 33 sont gardés).",
+      "La date de naissance en un nombre\u202f: le mois, le jour et l’année réduits chacun, puis additionnés et réduits à nouveau (11, 22 et 33 sont gardés).",
     ],
   },
   nameNumbers: {
     term: ["Expression, Soul Urge, Personality", "Expression, Élan de l’âme, Personnalité"],
     body: [
       "The name’s letters as numbers (A=1 to I=9, then again from J=1): all of them for Expression, the vowels for Soul Urge, the consonants for Personality.",
-      "Les lettres du nom en nombres (A=1 à I=9, puis de nouveau à partir de J=1) : toutes pour l’Expression, les voyelles pour l’Élan de l’âme, les consonnes pour la Personnalité.",
+      "Les lettres du nom en nombres (A=1 à I=9, puis de nouveau à partir de J=1)\u202f: toutes pour l’Expression, les voyelles pour l’Élan de l’âme, les consonnes pour la Personnalité.",
     ],
   },
   birthday: {
-    term: ["Birthday number", "Nombre d’anniversaire"],
+    term: ["Birthday number", "Jour de naissance"],
     body: [
-      "The day of the month of birth, reduced to one digit (the 11th and the 22nd are kept).",
-      "Le jour du mois de naissance, réduit à un chiffre (le 11 et le 22 sont gardés).",
+      "The day of the month of birth, reduced to one digit; 11 and 22 are kept (the 11th, the 22nd and the 29th).",
+      "Le jour du mois de naissance, réduit à un chiffre\u202f; 11 et 22 sont gardés (le 11, le 22 et le 29).",
     ],
   },
   masterNumbers: {
@@ -379,7 +379,7 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Karmic lesson", "Leçon karmique"],
     body: [
       "A number from 1 to 9 that no letter of the birth name falls on: a quality to learn on purpose. Most names have one to three.",
-      "Un nombre de 1 à 9 sur lequel ne tombe aucune lettre du nom de naissance\u202f: une qualité à apprendre exprès. La plupart des noms en ont une à trois.",
+      "Un nombre de 1 à 9 sur lequel ne tombe aucune lettre du nom de naissance\u202f: une qualité à acquérir consciemment. La plupart des noms en ont une à trois.",
     ],
   },
   hiddenPassion: {
@@ -420,8 +420,8 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
   pinnacle: {
     term: ["Pinnacle", "Réalisation"],
     body: [
-      "One of four stages of life from the birth date, each with its number: the first ends at 36 minus the Life Path, the next two last nine years each, the last for the rest of life.",
-      "Une des quatre étapes de la vie tirées de la date de naissance, chacune avec son nombre\u202f: la première finit à 36 moins le Chemin de vie, les deux suivantes durent neuf ans chacune, la dernière le reste de la vie.",
+      "One of four stages of life from the birth date, each with its number: the first ends at 36 minus the Life Path (a master number counts as its root, 11 as 2, 22 as 4, 33 as 6), the next two last nine years each, the last for the rest of life.",
+      "Une des quatre étapes de la vie tirées de la date de naissance, chacune avec son nombre\u202f: la première finit à 36 moins le Chemin de vie (un nombre maître compte pour sa racine, 11 pour 2, 22 pour 4, 33 pour 6), les deux suivantes durent neuf ans chacune, la dernière le reste de la vie.",
     ],
   },
   challenge: {
@@ -434,8 +434,8 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
   periodCycle: {
     term: ["Period cycle", "Cycle de vie"],
     body: [
-      "Three long periods from the birth month, day and year: the first ends with the first personal year 1 from the 27th birthday on; the second lasts 27 years; the third, the rest of life.",
-      "Trois longues périodes tirées du mois, du jour et de l’année de naissance\u202f: la première finit avec la première année personnelle 1 à partir du 27e anniversaire\u202f; la deuxième dure 27 ans\u202f; la troisième, le reste de la vie.",
+      "Three long periods from the birth month, day and year: the first ends on the birthday that falls in the first personal year 1 from age 27 on, between 27 and 35; the second lasts 27 years; the third, the rest of life.",
+      "Trois longues périodes tirées du mois, du jour et de l’année de naissance\u202f: la première s’achève à l’anniversaire qui tombe dans la première année personnelle 1 à partir de 27 ans, entre 27 et 35 ans\u202f; la deuxième dure 27 ans\u202f; la troisième, le reste de la vie.",
     ],
   },
   letterCycle: {
@@ -547,7 +547,7 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Mutual reception", "Réception mutuelle"],
     body: [
       "Two planets each in a sign of the other’s (by domicile, by exaltation, or one of each), read as helping each other.",
-      "Deux planètes chacune dans un signe de l’autre (par domicile, par exaltation, ou l’un et l’autre), lues comme s’aidant mutuellement.",
+      "Deux planètes chacune dans un signe de l’autre (par domicile, par exaltation, ou l’une par domicile et l’autre par exaltation), lues comme s’aidant mutuellement.",
     ],
   },
   outOfSign: {
@@ -567,8 +567,8 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
   intercepted: {
     term: ["Intercepted sign", "Signe intercepté"],
     body: [
-      "A sign that lies wholly inside a house, with no cusp in it; the sign opposite is intercepted too, and two other signs fall on two cusps each. It happens with unequal houses, far from the equator.",
-      "Un signe tout entier à l’intérieur d’une maison, sans cuspide en lui\u202f; le signe opposé l’est aussi, et deux autres signes tombent chacun sur deux cuspides. Cela arrive avec des maisons inégales, loin de l’équateur.",
+      "A sign that lies wholly inside a house, with no cusp in it; the sign opposite is intercepted too, and two other signs fall on two cusps each. It happens with unequal houses, more often the further from the equator.",
+      "Un signe tout entier à l’intérieur d’une maison, sans cuspide en lui\u202f; le signe opposé l’est aussi, et deux autres signes tombent chacun sur deux cuspides. Cela arrive avec des maisons inégales, d’autant plus souvent qu’on naît loin de l’équateur.",
     ],
   },
   siderealTime: {
@@ -589,14 +589,14 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     term: ["Fixed star", "Étoile fixe"],
     body: [
       "A bright star projected onto the zodiac, such as Regulus or Spica; it moves about a degree in 72 years. A body within 1° of it is read as taking on its character.",
-      "Une étoile brillante projetée sur le zodiaque, comme Régulus ou l’Épi\u202f; elle avance d’environ un degré en 72 ans. Un corps à moins de 1° est lu comme prenant son caractère.",
+      "Une étoile brillante projetée sur le zodiaque, comme Régulus ou l’Épi\u202f; elle avance d’environ un degré en 72 ans. Un corps à moins de 1° de l’étoile est lu comme prenant son caractère.",
     ],
   },
   lot: {
-    term: ["Lot (Part of Fortune, Spirit)", "Part (de Fortune, de l’Esprit)"],
+    term: ["Lot (Part of Fortune, Spirit)", "Part (de Fortune, d’Esprit)"],
     body: [
       "A point found from the distance between two bodies laid off from the Ascendant: Fortune is the Moon’s distance from the Sun, Spirit the reverse (swapped in a night chart).",
-      "Un point obtenu en reportant depuis l’Ascendant la distance entre deux corps\u202f: Fortune est la distance de la Lune au Soleil, l’Esprit l’inverse (échangées dans un thème de nuit).",
+      "Un point obtenu en reportant depuis l’Ascendant la distance entre deux corps\u202f: Fortune est la distance de la Lune au Soleil, Esprit l’inverse (échangées dans un thème de nuit).",
     ],
   },
 };

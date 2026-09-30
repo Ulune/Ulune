@@ -94,7 +94,8 @@ export function LegalPage({
 }) {
   const { locale } = useI18n();
   const [y, m, d] = iso.split("-").map(Number);
-  const date = dateFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(new Date(Date.UTC(y, m - 1, d)));
+  // British English, as the rest of Ulune: 30 September 2026.
+  const date = dateFormat(locale === "en" ? "en-GB" : locale, { dateStyle: "long", timeZone: "UTC" }).format(new Date(Date.UTC(y, m - 1, d)));
   return (
     <div className="min-w-0" data-testid={`${id}-page`}>
       <PageTopBar />

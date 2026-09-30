@@ -39,7 +39,7 @@ export const BODY_KEYWORDS: Record<BodyId, Bi> = {
 
 export const TRANSIT_ABOUT: Bi = {
   en: "A transit is where a planet is today compared with your birth chart. When a moving planet reaches an exact angle to one of your natal planets or angles, astrologers read it as a period when that part of your chart is activated. Slow planets make long, noticeable periods; fast ones pass in hours or days.",
-  fr: "Un transit, c’est la position actuelle d’une planète comparée à votre thème de naissance. Quand une planète en mouvement forme un angle exact avec une de vos planètes ou un de vos angles natals, on lit une période où cette partie du thème est activée. Les planètes lentes font des périodes longues et marquées\u202f; les rapides passent en quelques heures ou jours.",
+  fr: "Un transit, c’est la position actuelle d’une planète comparée à votre thème de naissance. Quand une planète en mouvement forme un angle exact avec une de vos planètes ou un de vos angles natals, on y voit une période où cette partie de votre thème est activée. Les planètes lentes font des périodes longues et marquées\u202f; les rapides passent en quelques heures ou jours.",
 };
 
 /** How long a transit of each body lasts, and what kind of period it tends to mark. */
@@ -110,7 +110,7 @@ export const TRANSIT_FAMILY: Record<AspectFamily, Bi> = {
   },
   tension: {
     en: "This is a challenging angle: {moving} puts pressure on {natal}. It often shows as a decision, a conflict or a demand that cannot be avoided, and tends to leave a lasting change once it is dealt with.",
-    fr: "C’est un angle exigeant\u202f: {moving} met {natal} sous pression. Cela se voit souvent comme une décision, un conflit ou une exigence impossible à éviter, et laisse en général un changement durable une fois traité.",
+    fr: "C’est un angle exigeant\u202f: {moving} met {natal} sous pression. Cela se traduit souvent par une décision, un conflit ou une exigence impossible à éviter, et laisse en général un changement durable une fois traité.",
   },
 };
 
@@ -119,10 +119,53 @@ export const PROGRESSION_ABOUT: Bi = {
   fr: "Les progressions secondaires comptent chaque jour après la naissance comme une année de vie\u202f: le ciel 30 jours après votre naissance vous décrit à 30 ans. Elles avancent lentement et décrivent une évolution intérieure — la façon dont le caractère mûrit — plus que des événements extérieurs.",
 };
 
+/** How fast a body moves by progression, which sets how long its progressed aspects last. */
+export type ProgressedPace = "moon" | "year" | "mars" | "slow";
+
+/** How long an aspect of this progressed body stays active around exact. */
+export const PROGRESSED_ACTIVE: Record<ProgressedPace, Bi> = {
+  moon: {
+    en: "The progressed Moon moves about 1° a month: an aspect like this stays active for about a month either side of exact.",
+    fr: "La Lune progressée avance d’environ 1° par mois\u202f: un tel aspect reste actif environ un mois de part et d’autre de l’exactitude.",
+  },
+  year: {
+    en: "Progressions move slowly: an aspect like this stays active for about a year either side of exact.",
+    fr: "Les progressions avancent lentement\u202f: un tel aspect reste actif environ un an de part et d’autre de l’exactitude.",
+  },
+  mars: {
+    en: "Progressed Mars moves about half a degree a year: an aspect like this stays active for about two years either side of exact.",
+    fr: "Mars progressé avance d’environ un demi-degré par an\u202f: un tel aspect reste actif environ deux ans de part et d’autre de l’exactitude.",
+  },
+  slow: {
+    en: "This body barely moves by progression: an aspect like this can stay active for many years, often decades.",
+    fr: "Ce corps ne bouge presque pas en progression\u202f: un tel aspect peut rester actif de nombreuses années, souvent des décennies.",
+  },
+};
+
+/** What one degree of progressed movement means in time for this body. */
+export const PROGRESSED_DEGREE: Record<ProgressedPace, Bi> = {
+  moon: {
+    en: "The progressed Moon moves about one degree a month.",
+    fr: "La Lune progressée avance d’environ un degré par mois.",
+  },
+  year: {
+    en: "One degree of progressed movement corresponds to roughly one year.",
+    fr: "Une progression d’un degré correspond à peu près à une année.",
+  },
+  mars: {
+    en: "Progressed Mars moves about half a degree a year, so one degree takes roughly two years.",
+    fr: "Mars progressé avance d’environ un demi-degré par an\u202f: un degré prend donc environ deux ans.",
+  },
+  slow: {
+    en: "This body barely moves by progression: one degree can take many years, often decades.",
+    fr: "Ce corps ne bouge presque pas en progression\u202f: un degré peut prendre de nombreuses années, souvent des décennies.",
+  },
+};
+
 export const PROGRESSED_PACE: Partial<Record<BodyId, Bi>> = {
   sun: {
     en: "The progressed Sun moves about 1° a year and changes sign roughly every 30 years. Each change of sign is read as a shift in what you identify with and aim for.",
-    fr: "Le Soleil progressé avance d’environ 1° par an et change de signe environ tous les 30 ans. Chaque changement de signe se lit comme un déplacement de ce à quoi vous vous identifiez.",
+    fr: "Le Soleil progressé avance d’environ 1° par an et change de signe environ tous les 30 ans. Chaque changement de signe se lit comme un déplacement de ce à quoi vous vous identifiez et de ce que vous visez.",
   },
   moon: {
     en: "The progressed Moon moves about 1° a month and changes sign every two and a half years. It is the most noticeable progression: it describes the emotional climate of each chapter, and returns to its natal place around ages 27 and 55.",
@@ -175,7 +218,7 @@ export const SYNASTRY_ABOUT: Bi = {
 export const SYNASTRY_FAMILY: Record<AspectFamily, Bi> = {
   blend: {
     en: "{a}’s {aBody} and {b}’s {bBody} meet at the same point, so each strongly feels the other in this area. Conjunctions are among the most noticeable contacts between two charts.",
-    fr: "Chez {a}, {aBody} et chez {b}, {bBody} se rejoignent au même point\u202f: chacun ressent fortement l’autre dans ce domaine. Les conjonctions sont parmi les contacts les plus sensibles entre deux thèmes.",
+    fr: "Chez {a}, {aBody} et chez {b}, {bBody} se rejoignent au même point\u202f: chacun ressent fortement l’autre dans ce domaine. Les conjonctions comptent parmi les contacts les plus marquants entre deux thèmes.",
   },
   flow: {
     en: "{a}’s {aBody} and {b}’s {bBody} support each other: this is an area where you understand each other without much effort and can build something together.",

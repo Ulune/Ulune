@@ -13,8 +13,8 @@ export const ai = {
   aiHintGemini: ["Google AI Studio → Get API key", "Google AI Studio → clés API"],
   aiHintGrok: ["xAI console → API keys", "Console xAI → clés API"],
   aiInvalidKey: [
-    "That key looks too short. Paste the full secret.",
-    "Cette clé est trop courte. Collez le secret entier.",
+    "That key looks too short. Paste the whole key.",
+    "Cette clé semble trop courte. Collez la clé entière.",
   ],
   aiKeyPlaceholder: ["Paste your API key", "Collez votre clé API"],
   aiNeedKey: ["Connect one of your AI accounts first.", "Connectez d’abord l’un de vos comptes IA."],
@@ -22,7 +22,7 @@ export const ai = {
   aiRemove: ["Remove", "Retirer"],
   aiSaving: ["Saving…", "Enregistrement…"],
   aiUseThis: ["Use", "Utiliser"],
-  aiUsing: ["Using {name}", "En cours\u202f: {name}"],
+  aiUsing: ["Using {name}", "IA utilisée\u202f: {name}"],
   aiKeySaveFailed: [
     "Couldn’t save this key. Check it with your provider, then try again.",
     "Impossible d’enregistrer cette clé. Vérifiez-la chez votre fournisseur, puis réessayez.",
@@ -31,7 +31,7 @@ export const ai = {
   aiRemoveFailed: ["Couldn’t remove this key. Try again.", "Impossible de retirer cette clé. Réessayez."],
   aiKeptTab: [
     "Keys stay in this tab only and go when it closes. Sign in to keep them on this device, encrypted.",
-    "Les clés restent dans cet onglet seulement et partent à sa fermeture. Connectez-vous pour les garder sur cet appareil, chiffrées.",
+    "Les clés restent dans cet onglet seulement et sont effacées à sa fermeture. Connectez-vous pour les garder sur cet appareil, chiffrées.",
   ],
   aiKeptSpace: [
     "Keys are kept in your private space, encrypted, on this device only.",

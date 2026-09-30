@@ -43,7 +43,7 @@ test("The name's finer numbers, each with how it comes", () => {
   const rows = Object.fromEntries(detailRows(camille.names.birth, "en").map((r) => [r.id, [r.value, r.how]]));
   assert.deepEqual(rows.lessons, ["6, 7, 8", "numbers no letter gives"]);
   assert.deepEqual(rows.passion, ["3", "5 letters, the most"]);
-  assert.deepEqual(rows.subconscious, ["6", "9 − 3 karmic lessons"]);
+  assert.deepEqual(rows.subconscious, ["6", "9 − 3, 3 being the number of karmic lessons"]);
   assert.deepEqual(rows.balance, ["1", "C 3 + M 4 + L 3 = 10 → 1"]);
   assert.deepEqual(rows["plane-physical"], ["5", "M E M E E · 23 → 5"]);
   assert.deepEqual(rows["plane-emotional"], ["11/2", "I R I R T · 38 → 11"]);

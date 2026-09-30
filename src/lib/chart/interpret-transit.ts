@@ -59,7 +59,7 @@ export function transitReading(
     : `Transiting ${name} is at ${placement.formatted} ${signName(placement.sign, locale)}, passing through your ${houseInline(placement.house, locale)} (${area}). While it is there, ${bodyKeywords(id, locale)} tend to show up mostly in this area.`;
   const inChart: string[] = [
     fr
-      ? `En ${signName(placement.sign, locale)}, le transit se colore de ${signKeywords(placement.sign, locale)}.`
+      ? `En ${signName(placement.sign, locale)}, le transit se colore des traits du signe (${signKeywords(placement.sign, locale)}).`
       : `In ${signName(placement.sign, locale)}, it works in a ${signKeywords(placement.sign, locale)} way.`,
   ];
   if (placement.retrograde) {

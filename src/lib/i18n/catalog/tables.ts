@@ -32,7 +32,7 @@ export const tables = {
   tableCopied: ["Copied", "Copié"],
   tableCopy: ["Copy as text", "Copier en texte"],
   tableDay: ["Day chart", "Thème diurne"],
-  tableExportCsv: ["Download CSV", "Télécharger CSV"],
+  tableExportCsv: ["Download CSV", "Télécharger en CSV"],
   tableGrid: ["Aspect grid", "Grille d’aspects"],
   tableModalities: ["Modalities", "Modalités"],
   tableNight: ["Night chart", "Thème nocturne"],

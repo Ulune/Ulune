@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { calculateNatal } from "../src/lib/chart/calculate.server.ts";
 import { buildCompositeDossier, buildDossier } from "../src/lib/chart/interpret-local.ts";
+import { aspectPractice } from "../src/lib/chart/plain.ts";
 import { chartSummaryText } from "../src/lib/export/chart-summary.ts";
 
 const TRACE = {
@@ -80,4 +81,16 @@ test("without a birth time, the readings that hang on the hour say so first and 
   // A composite keeps its own wording.
   const composite = buildCompositeDossier(chart, "en");
   assert.ok(Object.values(composite.byId).every((r) => !(r.sections ?? []).some((s) => s.id === "time")));
+});
+
+test("French aspect lines never read \"à le\", and the note on a lot reads whatever its gender (proofreading)", async () => {
+  // Pairs without their own text join the two bodies with the aspect's link: "est en opposition avec le Soleil".
+  assert.match(aspectPractice("chiron", "sun", "opposition", "fr"), /^Chiron \(les blessures anciennes et l’art de les soigner\) est en opposition avec le Soleil \(/);
+  assert.match(aspectPractice("northnode", "midheaven", "square", "fr"), / entre en conflit avec le Milieu du Ciel \(/);
+  for (const type of ["conjunction", "opposition", "trine", "square", "sextile", "quincunx", "semisextile", "semisquare", "quintile"]) {
+    assert.doesNotMatch(aspectPractice("chiron", "sun", type, "fr"), / à (?:le|les) /, type);
+  }
+  const fr = buildDossier(await calculateNatal({ ...TRACE, timeUnknown: true }), "fr");
+  const note = (fr.byId["planet:fortune"].sections ?? []).find((s) => s.id === "time");
+  assert.match(note.paragraphs[0], /dépend de l’heure de naissance\u202f: cette position n’est peut-être pas la vôtre/);
 });

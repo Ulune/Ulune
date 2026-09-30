@@ -7,7 +7,7 @@
     "time": { "en": "Time", "fr": "Heure" }
   },
   "readingEmpty": {
-    "en": "Tap a transit, a natal body, or an aspect in the wheel.",
+    "en": "Tap a transit, a natal body or an aspect in the wheel.",
     "fr": "Touchez un transit, un astre natal ou un aspect dans la roue."
   },
   "noNatal": {

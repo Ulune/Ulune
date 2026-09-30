@@ -94,7 +94,7 @@ try {
 }
 
 const emptyRead = (await page.getByTestId("click-reading-empty").innerText()).trim();
-if (emptyRead !== "Click a transit, a natal body, or an aspect in the wheel.") {
+if (emptyRead !== "Tap a transit, a natal body or an aspect in the wheel.") {
   fail.push(`empty reading: ${emptyRead}`);
 }
 

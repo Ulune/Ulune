@@ -25,7 +25,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         { p: "Ulune (ulune.app) is a free website for exploring astrology charts, Human Design and numerology." },
         {
           h: "Publisher",
-          p: "Ulune is published by {name}, a private individual, on a non-professional basis. As French law allows such publishers (loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique), their identity has been given to the host. Contact: {contact}.",
+          p: "Ulune is published by {name}, a private individual, on a non-professional basis. As French law allows (loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique), the full identity of this non-professional publisher is not published here; it has been given to the host. Contact: {contact}.",
         },
         { h: "Publication director", p: "{name}." },
         {
@@ -51,7 +51,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Éditeur",
-          p: "Ulune est édité par {name}, particulier, à titre non professionnel. Comme la loi le permet à ces éditeurs (loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique), son identité a été communiquée à l’hébergeur. Contact\u202f: {contact}.",
+          p: "Ulune est édité par {name}, particulier, à titre non professionnel. Comme la loi le permet à un éditeur non professionnel (loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique), son identité complète n’est pas publiée ici\u202f; elle a été communiquée à l’hébergeur. Contact\u202f: {contact}.",
         },
         { h: "Directeur de la publication", p: "{name}." },
         {
@@ -60,7 +60,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Vos données",
-          p: "Ulune ne garde rien de vous sur son serveur. Ce qui reste sur votre appareil, et ce qui le quitte, est décrit dans la [politique de confidentialité](/privacy).",
+          p: "Ulune ne conserve aucune donnée vous concernant sur son serveur. Ce qui reste sur votre appareil, et ce qui le quitte, est décrit dans la [politique de confidentialité](/privacy).",
         },
         {
           h: "Contenus",
@@ -86,14 +86,14 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Calculations and readings",
-          p: "The positions are calculated with the Swiss Ephemeris and checked with care, but Ulune is provided as it is, as far as the law allows, without any guarantee that it is complete, exact or always available. Readings are interpretations and can be wrong.",
+          p: "The positions are calculated with the Swiss Ephemeris and checked with care, but Ulune is provided “as is”, as far as the law allows, without any guarantee that it is complete, accurate or always available. Readings are interpretations and can be wrong.",
         },
         {
           h: "Other people’s charts",
           p: "A birth date and place are personal data. Keep someone else’s chart only with their agreement.",
         },
         {
-          h: "Fair use",
+          h: "Acceptable use",
           p: "Don’t use Ulune to harm anyone, and don’t try to overload or break it, for example with automated requests.",
         },
         {
@@ -182,7 +182,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Software",
-          p: "Ulune runs on open-source software, among it [React](https://react.dev), [TanStack Start](https://tanstack.com/start), [Vite](https://vite.dev), [Zustand](https://zustand.docs.pmnd.rs), [Zod](https://zod.dev), [date-fns](https://date-fns.org), [React DayPicker](https://daypicker.dev), the [Lucide](https://lucide.dev) icons and [noble-hashes](https://github.com/paulmillr/noble-hashes) (MIT and ISC licences).",
+          p: "Ulune runs on open-source software, including [React](https://react.dev), [TanStack Start](https://tanstack.com/start), [Vite](https://vite.dev), [Zustand](https://zustand.docs.pmnd.rs), [Zod](https://zod.dev), [date-fns](https://date-fns.org), [React DayPicker](https://daypicker.dev), the [Lucide](https://lucide.dev) icons and [noble-hashes](https://github.com/paulmillr/noble-hashes) (MIT and ISC licences).",
         },
         {
           h: "Human Design",
@@ -211,7 +211,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
           list: [
             "Recherche de lieux par [Open-Meteo.com](https://open-meteo.com/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.fr)), avec des données de lieux de [GeoNames](https://www.geonames.org/) (CC BY 4.0).",
             "Limites des fuseaux horaires tirées de [timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder), © [les contributeurs d’OpenStreetMap](https://www.openstreetmap.org/copyright) ([ODbL](https://opendatacommons.org/licenses/odbl/1-0/)), via geo-tz (MIT) et tz-lookup (CC0).",
-            "Histoire des fuseaux horaires tirée de la [base de données des fuseaux horaires de l’IANA](https://www.iana.org/time-zones) (domaine public).",
+            "Historique des fuseaux horaires tiré de la [base de données des fuseaux horaires de l’IANA](https://www.iana.org/time-zones) (domaine public).",
           ],
         },
         {
@@ -280,15 +280,15 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
       updated: "Mis à jour le {date}",
       blocks: [
         {
-          p: "Ulune vise les règles pour l’accessibilité des contenus web (WCAG) 2.2, niveau AA. Il n’y est pas encore\u202f: cette page dit ce qui fonctionne et ce qui manque.",
+          p: "Ulune vise la conformité aux règles pour l’accessibilité des contenus web (WCAG) 2.2, niveau AA. Il ne l’atteint pas encore\u202f: cette page dit ce qui fonctionne et ce qui manque.",
         },
         {
           h: "Ce qui fonctionne",
           list: [
-            "Presque tout Ulune s’utilise au clavier, et les tableaux de chaque thème donnent les informations de la roue sous forme de texte.",
+            "La plus grande partie d’Ulune s’utilise au clavier, et les tableaux de chaque thème donnent les informations de la roue sous forme de texte.",
             "La réduction des animations, réglage de votre système, arrête les animations.",
             "Les pages peuvent être agrandies à 200 % dans le navigateur sans perte de contenu.",
-            "Des thèmes clair et sombre, en français et en anglais.",
+            "Une apparence claire et une apparence sombre, en français et en anglais.",
           ],
         },
         {
@@ -296,7 +296,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
           list: [
             "La roue du thème est difficile à utiliser avec un lecteur d’écran\u202f: ses éléments ne sont pas tous nommés, et le choix de l’un d’eux n’est pas annoncé. Les tableaux restent le bon accès pour l’instant.",
             "Certains menus ne prennent pas le focus du clavier à leur ouverture.",
-            "Certaines marques du thème, comme les lignes d’aspect les plus fines, ont moins de contraste que les règles ne le demandent\u202f; les textes passent les vérifications automatiques de contraste dans les deux thèmes.",
+            "Certaines marques du thème, comme les lignes d’aspect les plus pâles, ont moins de contraste que les règles ne le demandent\u202f; les textes passent les vérifications automatiques de contraste en apparence claire comme sombre.",
             "Quelques pages sautent un niveau de titre, ce qui les rend moins faciles à parcourir avec un lecteur d’écran.",
             "La plupart des tailles de texte sont fixes\u202f: agrandir la police par défaut du navigateur change peu, mais le zoom de la page fonctionne.",
           ],

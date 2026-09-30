@@ -28,7 +28,7 @@
     },
     "birthday": {
       "en": "Birthday",
-      "fr": "Anniversaire"
+      "fr": "Jour de naissance"
     },
     "maturity": {
       "en": "Maturity",
@@ -198,7 +198,7 @@
     },
     "yRuleSays": {
       "en": "The rule says {role}.",
-      "fr": "La règle dit {role}."
+      "fr": "Selon la règle : {role}."
     },
     "roleVowel": {
       "en": "a vowel",
@@ -280,7 +280,7 @@
     },
     "hint_grid": {
       "en": "The birth date’s digits on a square of nine, zeros aside. A full line of three is an arrow; an empty one points to what is missing (David A. Phillips). The Lo Shu square lays the same digits out another way.",
-      "fr": "Les chiffres de la date de naissance sur un carré de neuf, zéros mis à part. Une ligne pleine de trois est une flèche ; une ligne vide montre ce qui manque (David A. Phillips). Le carré Lo Shu dispose les mêmes chiffres autrement."
+      "fr": "Les chiffres de la date de naissance sur un carré de neuf, zéros mis à part. Une ligne de trois cases toutes remplies forme une flèche ; une ligne vide montre ce qui manque (David A. Phillips). Le carré Lo Shu dispose les mêmes chiffres autrement."
     },
     "hint_cycles": {
       "en": "Three period cycles from the birth date’s month, day and year; four pinnacles and four challenges. They change on birthdays; the main challenge colours the whole of life.",
@@ -291,8 +291,8 @@
       "fr": "L’année personnelle de chaque année (dès le 1er janvier) et les cycles à partir de l’anniversaire de cette année-là. Les cycles des lettres parcourent les lettres du nom, chacune pendant autant d’années que sa valeur."
     },
     "hint_bridges": {
-      "en": "The gap between two numbers, from 0 to 8: the smaller it is, the more easily the two work together. Below, two people from your library side by side.",
-      "fr": "L’écart entre deux nombres, de 0 à 8 : plus il est petit, plus les deux s’accordent facilement. Dessous, deux personnes de votre bibliothèque côte à côte."
+      "en": "The gap between two numbers, from 0 to 8, names the quality that helps them work together. Below, two people from your library side by side.",
+      "fr": "L’écart entre deux nombres, de 0 à 8, désigne la qualité qui les aide à s’accorder. Ci-dessous, deux personnes de votre bibliothèque côte à côte."
     },
     "hint_numbers": {
       "en": "What 1 to 9 and the master numbers 11, 22 and 33 stand for. Tap one to read it.",
@@ -483,8 +483,8 @@
       "fr": "Moi subconscient"
     },
     "subconsciousHow": {
-      "en": "9 − {n} karmic lessons",
-      "fr": "9 − {n} leçons karmiques"
+      "en": "9 − {n}, {n} being the number of karmic lessons",
+      "fr": "9 − {n}, {n} étant le nombre de leçons karmiques"
     },
     "balance": {
       "en": "Balance",
@@ -767,8 +767,8 @@
       "fr": "Comment les nombres sont calculés"
     },
     "method": {
-      "en": "Ulune uses the Pythagorean letter values (A to I = 1 to 9, then J = 1 again) and Hans Decoz’s rules (World Numerology). Each name is added and reduced on its own, then the names are added. Y is a vowel where it sounds like one, by its place in the name, and each Y can be switched by hand; W is always a consonant. For the Life Path, the month, the day and the year are each reduced, then added: 15 June 1990 gives 6 + 6 + 1 = 13 → 4, and the 13 is kept as a karmic debt. 11, 22 and 33 are kept as master numbers in the core numbers, the pinnacles and the periods; the challenges, the balance and the yearly cycles reduce to 1–9. The personal year runs from 1 January. Everything is worked out on this device.",
-      "fr": "Ulune utilise les valeurs pythagoriciennes des lettres (de A à I = de 1 à 9, puis J = 1 à nouveau) et les règles de Hans Decoz (World Numerology). Chaque nom est additionné et réduit à part, puis les noms sont additionnés. Le Y est une voyelle là où il en a le son, selon sa place dans le nom, et chaque Y peut être changé à la main ; le W est toujours une consonne. Pour le Chemin de vie, le mois, le jour et l’année sont réduits séparément, puis additionnés : le 15 juin 1990 donne 6 + 6 + 1 = 13 → 4, et le 13 est gardé comme dette karmique. 11, 22 et 33 sont gardés comme nombres maîtres dans les nombres principaux, les réalisations et les cycles de vie ; les défis, l’équilibre et les cycles annuels se réduisent de 1 à 9. L’année personnelle commence le 1er janvier. Tout est calculé sur cet appareil."
+      "en": "Ulune uses the Pythagorean letter values (A to I = 1 to 9, then J = 1 again) and Hans Decoz’s rules (World Numerology). Each name is added and reduced on its own, then the names are added. Y is a vowel where it sounds like one, by its place in the name, and each Y can be switched by hand; W is always a consonant. For the Life Path, the month, the day and the year are each reduced, then added: 15 June 1990 gives 6 + 6 + 1 = 13 → 4, and the 13 is kept as a karmic debt. 11, 22 and 33 are kept as master numbers in the core numbers, the pinnacles and the periods; the balance, the rational thought number and the yearly cycles reduce to 1–9, and the challenges, which are differences, run from 0 to 8. The personal year runs from 1 January. Everything is worked out on this device.",
+      "fr": "Ulune utilise les valeurs pythagoriciennes des lettres (de A à I = de 1 à 9, puis J = 1 à nouveau) et les règles de Hans Decoz (World Numerology). Chaque nom est additionné et réduit à part, puis les noms sont additionnés. Le Y est une voyelle là où il en a le son, selon sa place dans le nom, et chaque Y peut être changé à la main ; le W est toujours une consonne. Pour le Chemin de vie, le mois, le jour et l’année sont réduits séparément, puis additionnés : le 15 juin 1990 donne 6 + 6 + 1 = 13 → 4, et le 13 est gardé comme dette karmique. 11, 22 et 33 sont gardés comme nombres maîtres dans les nombres principaux, les réalisations et les cycles de vie ; l’équilibre, la pensée rationnelle et les cycles annuels se réduisent à un chiffre de 1 à 9, et les défis, qui sont des écarts, vont de 0 à 8. L’année personnelle commence le 1er janvier. Tout est calculé sur cet appareil."
     },
     "personalMonth": {
       "en": "Personal month",
@@ -842,7 +842,7 @@
     },
     "inChart": {
       "en": "In your chart",
-      "fr": "Dans votre carte"
+      "fr": "Dans votre thème"
     },
     "sameVibration": {
       "en": "Same vibration",

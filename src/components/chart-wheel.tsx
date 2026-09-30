@@ -43,9 +43,10 @@ import type {
 } from "@/lib/chart/types";
 import {
   aspectLinkPhrase,
+  bodyAgree,
+  bodyBare,
   bodyLabel,
   faceLabelLocale,
-  planetName,
   signDe,
   signName,
 } from "@/lib/i18n/astro";
@@ -605,7 +606,7 @@ const PinwheelLayer = memo(function PinwheelLayer({
                       {t("decanTooltip", {
                         face: faceLabelLocale(decan.face, locale),
                         sign: locale === "fr" ? signDe(sign) : signName(sign, locale),
-                        ruler: planetName(decan.ruler, locale),
+                        ruler: bodyBare(decan.ruler, locale),
                       })}
                     </title>
                   </path>
@@ -3602,7 +3603,7 @@ const ChartWheelView = memo(function ChartWheelView({
                     {synastryMode
                       ? `${bodyLabel(p.id, locale)} ${p.formatted} ${signName(p.sign, locale)}${p.retrograde ? " Rx" : ""}`
                       : progressedMode
-                        ? `${t("progressedBody", { name: bodyLabel(p.id, locale) })} ${p.formatted} ${signName(p.sign, locale)}${p.retrograde ? " Rx" : ""}`
+                        ? `${t("progressedBody", { name: bodyLabel(p.id, locale), progressed: bodyAgree(p.id, "progressé", "progressée") })} ${p.formatted} ${signName(p.sign, locale)}${p.retrograde ? " Rx" : ""}`
                         : `${t("transiting", { name: bodyLabel(p.id, locale) })} ${p.formatted} ${signName(p.sign, locale)}${p.retrograde ? " Rx" : ""}`}
                   </title>
                   <circle cx={p.x} cy={p.y} r={TRANSIT_DISK} fill="transparent" />

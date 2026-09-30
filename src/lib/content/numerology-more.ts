@@ -26,8 +26,8 @@ export type StoneId = "cornerstone" | "capstone" | "firstVowel";
 
 /** What a karmic debt is, as Hans Decoz frames it. */
 export const KARMIC_DEBT_ABOUT: Bi = {
-  en: "A karmic debt is a 13, 14, 16 or 19 reached just before the last step of a core number. Hans Decoz reads it as a lesson that keeps coming back until it is learned, not as a punishment: the number keeps its root’s meaning, with this lesson woven in.",
-  fr: "Une dette karmique est un 13, 14, 16 ou 19 atteint juste avant la dernière étape d’un nombre principal. Hans Decoz y lit une leçon qui revient jusqu’à ce qu’elle soit apprise, pas une punition\u202f: le nombre garde le sens de sa racine, avec cette leçon mêlée à lui.",
+  en: "A karmic debt is a 13, 14, 16 or 19 reached on the way to a core number, before it is reduced to a single digit (13/4, 14/5, 16/7, 19/1). Hans Decoz reads it as a lesson that keeps coming back until it is learned, not as a punishment: the number keeps its root’s meaning, with this lesson woven in.",
+  fr: "Une dette karmique est un 13, 14, 16 ou 19 atteint en chemin, avant qu’un nombre principal soit réduit à un seul chiffre (13/4, 14/5, 16/7, 19/1). Hans Decoz y lit une leçon qui revient jusqu’à ce qu’elle soit apprise, pas une punition\u202f: le nombre garde le sens de sa racine, auquel s’ajoute cette leçon.",
 };
 
 export const KARMIC_DEBT_TEXT: Record<KarmicDebtKey, Bi> = {
@@ -45,7 +45,7 @@ export const KARMIC_DEBT_TEXT: Record<KarmicDebtKey, Bi> = {
   },
   19: {
     en: "A karmic debt 19 sits behind a 1. It is read as a lesson about independence: learning to accept help, and to use your strength for more than yourself. Standing on your own while staying connected is its answer.",
-    fr: "Une dette karmique 19 se tient derrière un 1. On la lit comme une leçon sur l’indépendance\u202f: apprendre à accepter de l’aide, et à mettre votre force au service de plus que vous. Tenir debout seul en restant relié aux autres en est la réponse.",
+    fr: "Une dette karmique 19 se tient derrière un 1. On la lit comme une leçon sur l’indépendance\u202f: apprendre à accepter de l’aide, et à mettre votre force au service d’autre chose que vous-même. Être autonome tout en restant relié aux autres en est la réponse.",
   },
 };
 
@@ -53,13 +53,13 @@ export const KARMIC_DEBT_TEXT: Record<KarmicDebtKey, Bi> = {
 
 export const KARMIC_LESSON_ABOUT: Bi = {
   en: "A karmic lesson is a number from 1 to 9 that no letter of the birth name falls on: a quality you may have to learn on purpose rather than by nature. Most names miss one to three numbers; none of them is a flaw.",
-  fr: "Une leçon karmique est un nombre de 1 à 9 sur lequel ne tombe aucune lettre du nom de naissance\u202f: une qualité que vous aurez peut-être à apprendre exprès plutôt que par nature. La plupart des noms en laissent de côté un à trois\u202f; aucun n’est un défaut.",
+  fr: "Une leçon karmique est un nombre de 1 à 9 sur lequel ne tombe aucune lettre du nom de naissance\u202f: une qualité que vous aurez peut-être à acquérir consciemment plutôt que d’instinct. La plupart des noms en laissent de côté un à trois\u202f; aucun n’est un défaut.",
 };
 
 export const KARMIC_LESSON_TEXT: Record<Digit, Bi> = {
   1: {
     en: "No letter of the name falls on 1. The lesson: standing up for yourself, taking the initiative, making a decision and owning it. It grows with practice, one decision at a time.",
-    fr: "Aucune lettre du nom ne tombe sur le 1. La leçon\u202f: vous affirmer, prendre l’initiative, trancher et l’assumer. Elle grandit avec la pratique, une décision après l’autre.",
+    fr: "Aucune lettre du nom ne tombe sur le 1. La leçon\u202f: vous affirmer, prendre l’initiative, faire un choix et l’assumer. Elle grandit avec la pratique, une décision après l’autre.",
   },
   2: {
     en: "No letter falls on 2. The lesson: patience, tact and cooperation; noticing what others feel and working at their pace. Listening before answering is a good place to start.",
@@ -78,7 +78,7 @@ export const KARMIC_LESSON_TEXT: Record<Digit, Bi> = {
     fr: "Aucune lettre ne tombe sur le 5. La leçon\u202f: l’ouverture au changement\u202f; essayer l’inconnu, voyager, vous adapter quand les plans bougent. Commencer par de petits changements rend les grands moins intimidants.",
   },
   6: {
-    en: "No letter falls on 6. The lesson: responsibility toward home, family and community; commitment when it is asked of you. Showing up reliably for one or two people is where it begins.",
+    en: "No letter falls on 6. The lesson: responsibility towards home, family and community; commitment when it is asked of you. Showing up reliably for one or two people is where it begins.",
     fr: "Aucune lettre ne tombe sur le 6. La leçon\u202f: la responsabilité envers le foyer, la famille et la communauté\u202f; l’engagement quand on vous le demande. Être présent de façon fiable pour une ou deux personnes en est le commencement.",
   },
   7: {
@@ -90,8 +90,8 @@ export const KARMIC_LESSON_TEXT: Record<Digit, Bi> = {
     fr: "Aucune lettre ne tombe sur le 8. La leçon\u202f: manier l’argent, l’autorité et le pouvoir concret avec assurance. Apprendre les bases d’un budget et prendre en main de petites choses la construit.",
   },
   9: {
-    en: "No letter falls on 9. The lesson: compassion and a wider view; caring about people beyond your own circle, and letting go of what has ended. Giving a little of your time to others opens it.",
-    fr: "Aucune lettre ne tombe sur le 9. La leçon\u202f: la compassion et une vision plus large\u202f; vous soucier des gens au-delà de votre cercle, et laisser partir ce qui est fini. Donner un peu de votre temps aux autres l’ouvre.",
+    en: "No letter falls on 9. The lesson: compassion and a wider view; caring about people beyond your own circle, and letting go of what has ended. Giving a little of your time to others is a way in.",
+    fr: "Aucune lettre ne tombe sur le 9. La leçon\u202f: la compassion et une vision plus large\u202f; vous soucier des gens au-delà de votre cercle, et laisser partir ce qui est fini. Donner un peu de votre temps aux autres en ouvre la porte.",
   },
 };
 
@@ -103,47 +103,47 @@ export const HIDDEN_PASSION_ABOUT: Bi = {
 export const HIDDEN_PASSION_TEXT: Record<Digit, Bi> = {
   1: {
     en: "Most letters fall on 1: a hidden passion for leading and being your own person. Drive and independence come easily; so can impatience.",
-    fr: "Le plus de lettres tombent sur le 1\u202f: une passion cachée pour mener et être vous-même. L’élan et l’indépendance viennent facilement\u202f; l’impatience aussi.",
+    fr: "C’est sur le 1 que tombent le plus de lettres\u202f: une passion cachée pour diriger et être vous-même. L’élan et l’indépendance viennent facilement\u202f; l’impatience aussi.",
   },
   2: {
     en: "Most letters fall on 2: a hidden passion for harmony and partnership. Tact and cooperation come naturally; so can taking things to heart.",
-    fr: "Le plus de lettres tombent sur le 2\u202f: une passion cachée pour l’harmonie et le partage. Le tact et la coopération viennent naturellement\u202f; tout prendre à cœur aussi.",
+    fr: "C’est sur le 2 que tombent le plus de lettres\u202f: une passion cachée pour l’harmonie et le partage. Le tact et la coopération viennent naturellement\u202f; tout prendre à cœur aussi.",
   },
   3: {
     en: "Most letters fall on 3: a hidden passion for expression. Words, creativity and good company come easily; so can scattering your energy.",
-    fr: "Le plus de lettres tombent sur le 3\u202f: une passion cachée pour l’expression. Les mots, la créativité et la bonne compagnie viennent facilement\u202f; la dispersion aussi.",
+    fr: "C’est sur le 3 que tombent le plus de lettres\u202f: une passion cachée pour l’expression. Les mots, la créativité et la bonne compagnie viennent facilement\u202f; la dispersion aussi.",
   },
   4: {
     en: "Most letters fall on 4: a hidden passion for order and work well done. Discipline comes naturally; so can rigidity.",
-    fr: "Le plus de lettres tombent sur le 4\u202f: une passion cachée pour l’ordre et le travail bien fait. La discipline vient naturellement\u202f; la rigidité aussi.",
+    fr: "C’est sur le 4 que tombent le plus de lettres\u202f: une passion cachée pour l’ordre et le travail bien fait. La discipline vient naturellement\u202f; la rigidité aussi.",
   },
   5: {
     en: "Most letters fall on 5: a hidden passion for freedom and experience. Curiosity and adaptability come easily; so can restlessness.",
-    fr: "Le plus de lettres tombent sur le 5\u202f: une passion cachée pour la liberté et l’expérience. La curiosité et la souplesse viennent facilement\u202f; l’agitation aussi.",
+    fr: "C’est sur le 5 que tombent le plus de lettres\u202f: une passion cachée pour la liberté et l’expérience. La curiosité et la souplesse viennent facilement\u202f; l’agitation aussi.",
   },
   6: {
     en: "Most letters fall on 6: a hidden passion for care, home and family. Responsibility comes naturally; so can taking on too much.",
-    fr: "Le plus de lettres tombent sur le 6\u202f: une passion cachée pour le soin, le foyer et la famille. La responsabilité vient naturellement\u202f; en prendre trop aussi.",
+    fr: "C’est sur le 6 que tombent le plus de lettres\u202f: une passion cachée pour le soin, le foyer et la famille. La responsabilité vient naturellement\u202f; en prendre trop aussi.",
   },
   7: {
     en: "Most letters fall on 7: a hidden passion for knowledge and understanding. Analysis and reflection come easily; so can withdrawing.",
-    fr: "Le plus de lettres tombent sur le 7\u202f: une passion cachée pour le savoir et la compréhension. L’analyse et la réflexion viennent facilement\u202f; le repli aussi.",
+    fr: "C’est sur le 7 que tombent le plus de lettres\u202f: une passion cachée pour le savoir et la compréhension. L’analyse et la réflexion viennent facilement\u202f; le repli aussi.",
   },
   8: {
     en: "Most letters fall on 8: a hidden passion for achievement and authority. Ambition and organisation come naturally; so can the wish to control.",
-    fr: "Le plus de lettres tombent sur le 8\u202f: une passion cachée pour la réussite et l’autorité. L’ambition et l’organisation viennent naturellement\u202f; l’envie de contrôler aussi.",
+    fr: "C’est sur le 8 que tombent le plus de lettres\u202f: une passion cachée pour la réussite et l’autorité. L’ambition et l’organisation viennent naturellement\u202f; l’envie de contrôler aussi.",
   },
   9: {
     en: "Most letters fall on 9: a hidden passion for ideals and for people everywhere. Generosity comes naturally; so can forgetting your own needs.",
-    fr: "Le plus de lettres tombent sur le 9\u202f: une passion cachée pour les idéaux et pour les gens, partout. La générosité vient naturellement\u202f; l’oubli de vos propres besoins aussi.",
+    fr: "C’est sur le 9 que tombent le plus de lettres\u202f: une passion cachée pour les idéaux et pour les gens, partout. La générosité vient naturellement\u202f; l’oubli de vos propres besoins aussi.",
   },
 };
 
 // ------------------------------- Balance, rational thought, subconscious, attitude
 
 export const BALANCE_ABOUT: Bi = {
-  en: "The balance number adds the first letters of each name of the birth name and reduces them: how you tend to meet a difficult situation, and what steadies you.",
-  fr: "Le nombre d’équilibre additionne les premières lettres de chaque nom du nom de naissance et les réduit\u202f: votre façon d’aborder une situation difficile, et ce qui vous stabilise.",
+  en: "The balance number adds the initials of the full birth name (the first letter of each name) and reduces the total: how you tend to meet a difficult situation, and what steadies you.",
+  fr: "Le nombre d’équilibre additionne les initiales du nom de naissance complet (la première lettre de chaque nom) et réduit le total\u202f: votre façon d’aborder une situation difficile, et ce qui vous stabilise.",
 };
 
 export const BALANCE_TEXT: Record<Digit, Bi> = {
@@ -181,7 +181,7 @@ export const BALANCE_TEXT: Record<Digit, Bi> = {
   },
   9: {
     en: "In a hard moment, your strength is compassion and a wide view. What helps: keeping your own needs in the picture too.",
-    fr: "Dans un moment difficile, votre force est la compassion et une vision large. Ce qui aide\u202f: garder aussi vos propres besoins dans le tableau.",
+    fr: "Dans un moment difficile, votre force est la compassion et une vision large. Ce qui aide\u202f: ne pas oublier non plus vos propres besoins.",
   },
 };
 
@@ -265,7 +265,7 @@ export const SUBCONSCIOUS_TEXT: Record<Digit, Bi> = {
   },
   2: {
     en: "Seven numbers missing: the unexpected can feel unsettling, and you may look to others to lead. What helps: support arranged in advance.",
-    fr: "Sept nombres manquent\u202f: l’imprévu peut vous déstabiliser, et vous pouvez attendre des autres qu’ils mènent. Ce qui aide\u202f: un soutien prévu à l’avance.",
+    fr: "Sept nombres manquent\u202f: l’imprévu peut vous déstabiliser, et vous pouvez attendre des autres qu’ils prennent les choses en main. Ce qui aide\u202f: un soutien prévu à l’avance.",
   },
   1: {
     en: "Eight numbers missing, which is rare: your reaction to the unexpected is very much your own. What helps: noticing it, and pausing before you act.",
@@ -274,7 +274,7 @@ export const SUBCONSCIOUS_TEXT: Record<Digit, Bi> = {
 };
 
 export const ATTITUDE_ABOUT: Bi = {
-  en: "The attitude number adds the month and the day of birth: the stance you tend to take toward life, often the first thing people pick up about you.",
+  en: "The attitude number adds the month and the day of birth: the stance you tend to take towards life, often the first thing people pick up about you.",
   fr: "Le nombre d’attitude additionne le mois et le jour de naissance\u202f: la position que vous prenez volontiers face à la vie, souvent la première chose que les gens perçoivent de vous.",
 };
 
@@ -485,12 +485,12 @@ export const BRIDGE_TEXT: Record<Gap, Bi> = {
 /** What each kind of long cycle is (the calendar's change readings and the numerology page's). */
 export const CYCLE_ABOUT: Record<"period" | "pinnacle" | "challenge", Bi> = {
   period: {
-    en: "The three period cycles come from the birth month, day and year. The first is the ground you grow up on, the second the productive middle of life, the third its harvest. The first ends with the first personal year 1 from the 27th birthday on; the second lasts 27 years.",
-    fr: "Les trois cycles de vie viennent du mois, du jour et de l’année de naissance. Le premier est le terrain sur lequel on grandit, le deuxième le cœur productif de la vie, le troisième sa moisson. Le premier finit avec la première année personnelle 1 à partir du 27e anniversaire\u202f; le deuxième dure 27 ans.",
+    en: "The three period cycles come from the birth month, day and year. The first is the ground you grow up on, the second the productive middle of life, the third its harvest. The first ends on the birthday that falls in the first Personal Year 1 from age 27 on, between 27 and 35; the second lasts 27 years.",
+    fr: "Les trois cycles de vie viennent du mois, du jour et de l’année de naissance. Le premier est le terrain sur lequel on grandit, le deuxième le cœur productif de la vie, le troisième sa moisson. Le premier s’achève à l’anniversaire qui tombe dans la première Année personnelle 1 à partir de 27 ans, entre 27 et 35 ans\u202f; le deuxième dure 27 ans.",
   },
   pinnacle: {
-    en: "The four pinnacles are the stages of a life: each brings a theme to grow into and a kind of success within reach. The first lasts until 36 minus the Life Path, the next two nine years each, the last for the rest of life.",
-    fr: "Les quatre réalisations sont les étapes d’une vie\u202f: chacune apporte un thème à vivre et une forme de réussite à portée de main. La première dure jusqu’à 36 moins le Chemin de vie, les deux suivantes neuf ans chacune, la dernière le reste de la vie.",
+    en: "The four pinnacles are the stages of a life: each brings a theme to grow into and a kind of success within reach. The first lasts until 36 minus the Life Path, a master number counting as its root (11 as 2, 22 as 4, 33 as 6); the next two last nine years each, the last for the rest of life.",
+    fr: "Les quatre réalisations sont les étapes d’une vie\u202f: chacune apporte un thème à vivre et une forme de réussite à portée de main. La première dure jusqu’à 36 moins le Chemin de vie, un nombre maître comptant pour sa racine (11 pour 2, 22 pour 4, 33 pour 6)\u202f; les deux suivantes durent neuf ans chacune, la dernière le reste de la vie.",
   },
   challenge: {
     en: "The four challenges run with the pinnacles: each is a difficulty to meet and turn into a strength. The third, the main challenge, is felt all life long; a 0 asks you to choose your own.",
@@ -501,23 +501,23 @@ export const CYCLE_ABOUT: Record<"period" | "pinnacle" | "challenge", Bi> = {
 /** What each of the three period cycles is, by its place in life. */
 export const PERIOD_PLACE_TEXT: Record<1 | 2 | 3, Bi> = {
   1: {
-    en: "The first period cycle, from birth to your late twenties or early thirties, is the ground you grow up on: family, school and the influences that shape you before you choose for yourself.",
-    fr: "Le premier cycle de vie, de la naissance à la fin de la vingtaine ou au début de la trentaine, est le terrain sur lequel vous grandissez\u202f: la famille, l’école et les influences qui vous façonnent avant que vous choisissiez vous-même.",
+    en: "The first period cycle, from birth to an age between 27 and 35, is the ground you grow up on: family, school and the influences that shape you before you choose for yourself.",
+    fr: "Le premier cycle de vie, de la naissance à un âge compris entre 27 et 35 ans, est le terrain sur lequel vous grandissez\u202f: la famille, l’école et les influences qui vous façonnent avant que vous choisissiez vous-même.",
   },
   2: {
     en: "The second period cycle, the 27 years after it, is the productive middle of life: work, creativity and the place you make for yourself.",
     fr: "Le deuxième cycle de vie, les 27 années qui suivent, est le cœur productif de la vie\u202f: le travail, la création et la place que vous vous faites.",
   },
   3: {
-    en: "The third period cycle, from your mid-fifties or early sixties on, is the harvest: the inner life, what matters in the later years, what you pass on.",
-    fr: "Le troisième cycle de vie, à partir du milieu de la cinquantaine ou du début de la soixantaine, est la moisson\u202f: la vie intérieure, ce qui compte dans les dernières années, ce que vous transmettez.",
+    en: "The third period cycle, from an age between 54 and 62 on, is the harvest: the inner life, what matters in the later years, what you pass on.",
+    fr: "Le troisième cycle de vie, à partir d’un âge compris entre 54 et 62 ans, est la moisson\u202f: la vie intérieure, ce qui compte dans les dernières années, ce que vous transmettez.",
   },
 };
 
 export const PERIOD_TEXT: Record<CycleNumberKey, Bi> = {
   1: {
     en: "A 1 period asks for independence: circumstances push you to stand on your own, decide for yourself and find your own way of doing things.",
-    fr: "Un cycle 1 demande de l’indépendance\u202f: les circonstances vous poussent à tenir debout seul, à décider par vous-même et à trouver votre propre manière de faire.",
+    fr: "Un cycle 1 demande de l’indépendance\u202f: les circonstances vous poussent à voler de vos propres ailes, à décider par vous-même et à trouver votre propre manière de faire.",
   },
   2: {
     en: "A 2 period is a time of cooperation and sensitivity: relationships, partnerships and patience are its themes, and progress comes through others.",
@@ -568,11 +568,11 @@ export const PERIOD_TEXT: Record<CycleNumberKey, Bi> = {
 export const PINNACLE_TEXT: Record<CycleNumberKey, Bi> = {
   1: {
     en: "A 1 pinnacle is a stage of independence and initiative: you are asked to lead, to start things and to rely on yourself. Confidence grows by acting.",
-    fr: "Une réalisation 1 est une étape d’indépendance et d’initiative\u202f: on vous demande de mener, de lancer, de compter sur vous-même. La confiance grandit en agissant.",
+    fr: "Une réalisation 1 est une étape d’indépendance et d’initiative\u202f: on vous demande de diriger, de lancer des projets, de compter sur vous-même. La confiance grandit en agissant.",
   },
   2: {
     en: "A 2 pinnacle is a stage of cooperation: partnerships, patience, diplomacy and care with detail bring the results. Success comes with others rather than alone.",
-    fr: "Une réalisation 2 est une étape de coopération\u202f: les associations, la patience, la diplomatie et le soin du détail apportent les résultats. La réussite vient avec les autres plutôt que seul.",
+    fr: "Une réalisation 2 est une étape de coopération\u202f: les associations, la patience, la diplomatie et le soin du détail apportent les résultats. La réussite vient avec les autres plutôt qu’en solitaire.",
   },
   3: {
     en: "A 3 pinnacle is a stage of self-expression: creativity, communication and a lively social life are within reach. What you share can open doors.",
@@ -583,8 +583,8 @@ export const PINNACLE_TEXT: Record<CycleNumberKey, Bi> = {
     fr: "Une réalisation 4 est une étape de travail et de fondations\u202f: l’effort, la méthode et la discipline construisent quelque chose de durable. Les résultats viennent pas à pas.",
   },
   5: {
-    en: "A 5 pinnacle is a stage of change and freedom: travel, new directions and variety are likely. Adaptability is the key, with a few commitments as an anchor.",
-    fr: "Une réalisation 5 est une étape de changement et de liberté\u202f: les voyages, de nouvelles directions et la variété sont probables. La souplesse est la clé, avec quelques engagements comme ancre.",
+    en: "A 5 pinnacle is a stage of change and freedom: travel, new directions and variety are its themes. Adaptability is the key, with a few commitments as an anchor.",
+    fr: "Une réalisation 5 est une étape de changement et de liberté\u202f: les voyages, les nouvelles directions et la variété en sont les thèmes. La souplesse est la clé, avec quelques engagements comme ancre.",
   },
   6: {
     en: "A 6 pinnacle is a stage of responsibility: home, family, community and service ask for your care. The reward is the love and trust you build.",
@@ -596,15 +596,15 @@ export const PINNACLE_TEXT: Record<CycleNumberKey, Bi> = {
   },
   8: {
     en: "An 8 pinnacle is a stage of achievement and authority: career, finances and recognition are within reach through effort and good judgement.",
-    fr: "Une réalisation 8 est une étape de réussite et d’autorité\u202f: la carrière, les finances et la reconnaissance sont à portée par l’effort et le bon jugement.",
+    fr: "Une réalisation 8 est une étape de réussite et d’autorité\u202f: la carrière, les finances et la reconnaissance sont à votre portée, grâce à l’effort et au bon jugement.",
   },
   9: {
     en: "A 9 pinnacle is a stage of completion and generosity: broad interests, service to others, and letting go of what has run its course.",
     fr: "Une réalisation 9 est une étape d’achèvement et de générosité\u202f: des intérêts larges, le service aux autres, et laisser partir ce qui a fait son temps.",
   },
   11: {
-    en: "An 11 pinnacle is a stage of inspiration and visibility: intuition, ideals, perhaps a public role. It can be intense; grounding habits keep it usable.",
-    fr: "Une réalisation 11 est une étape d’inspiration et de visibilité\u202f: l’intuition, les idéaux, peut-être un rôle public. Elle peut être intense\u202f; des habitudes qui ancrent la gardent utilisable.",
+    en: "An 11 pinnacle is a stage of inspiration and visibility: intuition, ideals, perhaps a public role. It can be intense; grounding habits keep it manageable.",
+    fr: "Une réalisation 11 est une étape d’inspiration et de visibilité\u202f: l’intuition, les idéaux, peut-être un rôle public. Elle peut être intense\u202f; des habitudes qui vous ancrent la rendent plus vivable.",
   },
   22: {
     en: "A 22 pinnacle is a stage of building on a large scale: turning a practical vision into something that serves many. Method matters as much as ambition.",
@@ -643,7 +643,7 @@ export const CHALLENGE_TEXT: Record<Gap, Bi> = {
   },
   6: {
     en: "A 6 challenge is about responsibility: caring without controlling, and accepting that people, you included, don’t have to be perfect.",
-    fr: "Un défi 6 porte sur la responsabilité\u202f: prendre soin sans contrôler, et accepter que les gens, vous compris, n’ont pas à être parfaits.",
+    fr: "Un défi 6 porte sur la responsabilité\u202f: prendre soin sans contrôler, et accepter que les gens, vous compris, n’aient pas à être parfaits.",
   },
   7: {
     en: "A 7 challenge is about trust: not withdrawing behind reserve or doubt, and letting people, and faith, in.",
@@ -717,7 +717,7 @@ export const LETTER_CYCLE_ABOUT: Record<"physical" | "mental" | "spiritual", Bi>
   },
   mental: {
     en: "The mental letter cycle walks through the middle names (or the last name when there is none): the side of the years that concerns your thinking and your plans.",
-    fr: "Le cycle de lettres mental parcourt les deuxièmes prénoms (ou le nom de famille quand il n’y en a pas)\u202f: le côté des années qui touche votre pensée et vos projets.",
+    fr: "Le cycle de lettres mental parcourt les autres prénoms (ou le nom de famille quand il n’y en a pas)\u202f: le côté des années qui touche votre pensée et vos projets.",
   },
   spiritual: {
     en: "The spiritual letter cycle walks through the last name: the inner side of the years, what they ask of you deep down.",
@@ -729,7 +729,7 @@ export const LETTER_CYCLE_ABOUT: Record<"physical" | "mental" | "spiritual", Bi>
 export const LETTER_CYCLE_TEXT: Record<LetterKey, Bi> = {
   A: { en: "A fresh start: a time to take the initiative and act on your own.", fr: "Un nouveau départ\u202f: un temps pour prendre l’initiative et agir par vous-même." },
   B: { en: "A time of emotional sensitivity and relationships: patience and closeness count.", fr: "Un temps de sensibilité et de relations\u202f: la patience et la proximité comptent." },
-  C: { en: "A time of expression and social life: creativity flows, and so can scattered energy.", fr: "Un temps d’expression et de vie sociale\u202f: la créativité coule, la dispersion aussi." },
+  C: { en: "A time of expression and social life: creativity flows, and so can scattered energy.", fr: "Un temps d’expression et de vie sociale\u202f: la créativité jaillit, la dispersion guette aussi." },
   D: { en: "A time of work and structure: the effort made now builds something lasting.", fr: "Un temps de travail et de structure\u202f: l’effort fourni maintenant construit quelque chose de durable." },
   E: { en: "A time of change and movement: travel, new people, more freedom.", fr: "Un temps de changement et de mouvement\u202f: des voyages, de nouvelles rencontres, plus de liberté." },
   F: { en: "A time of responsibility: home, family and commitments ask for your care.", fr: "Un temps de responsabilité\u202f: le foyer, la famille et les engagements demandent votre attention." },
@@ -748,7 +748,7 @@ export const LETTER_CYCLE_TEXT: Record<LetterKey, Bi> = {
   S: { en: "A time of sudden change and fresh starts, often strongly felt.", fr: "Un temps de changements soudains et de nouveaux départs, souvent vécus intensément." },
   T: { en: "A time of sensitivity and partnership: cooperation carries you.", fr: "Un temps de sensibilité et d’association\u202f: la coopération vous porte." },
   U: { en: "A creative, expressive time, with choices that may be hard to make.", fr: "Un temps créatif et expressif, avec des choix parfois difficiles à faire." },
-  V: { en: "A time for building with vision: practical work toward a larger goal.", fr: "Un temps pour bâtir avec vision\u202f: un travail concret vers un but plus grand." },
+  V: { en: "A time for building with vision: practical work towards a larger goal.", fr: "Un temps pour bâtir avec vision\u202f: un travail concret vers un but plus grand." },
   W: { en: "A time of change, travel and self-expression.", fr: "Un temps de changement, de voyages et d’expression de soi." },
   X: { en: "A time of responsibility and strong emotions, often around home and love.", fr: "Un temps de responsabilité et d’émotions fortes, souvent autour du foyer et de l’amour." },
   Y: { en: "A time of searching and independence: inner questions come forward.", fr: "Un temps de recherche et d’indépendance\u202f: les questions intérieures passent au premier plan." },
@@ -765,7 +765,7 @@ export const CHALDEAN_ABOUT: Bi = {
 export const CHALDEAN_TEXT: Record<Digit, Bi> = {
   1: {
     en: "In Cheiro’s system, 1 belongs to the Sun: individuality, creative drive, the wish to stand out and to lead.",
-    fr: "Dans le système de Cheiro, le 1 appartient au Soleil\u202f: l’individualité, l’élan créateur, le désir de vous distinguer et de mener.",
+    fr: "Dans le système de Cheiro, le 1 appartient au Soleil\u202f: l’individualité, l’élan créateur, le désir de vous distinguer et de diriger.",
   },
   2: {
     en: "In Cheiro’s system, 2 belongs to the Moon: imagination, gentleness and feeling; its changeability can make decisions harder.",

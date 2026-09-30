@@ -72,7 +72,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
       fr: "votre façon de penser, d’apprendre et de communiquer",
     },
     inHouse: {
-      en: "turns your curiosity, thinking and talk toward",
+      en: "turns your curiosity, thinking and talk towards",
       fr: "exerce votre curiosité, votre réflexion et votre parole dans",
     },
     example: {
@@ -186,7 +186,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
       fr: "introduit du changement, de l’indépendance et des revirements soudains dans",
     },
     example: {
-      en: "When Uranus sits on an angle or close to the Sun or Moon, jobs and cities may change abruptly, house rules get questioned, and restlessness sets in as soon as a routine becomes predictable.",
+      en: "When Uranus sits on an angle or close to the Sun or Moon, jobs and cities may change abruptly, rules at home get questioned, and restlessness sets in as soon as a routine becomes predictable.",
       fr: "Quand Uranus se trouve sur un angle ou près du Soleil ou de la Lune, on change parfois brusquement d’emploi ou de ville, on conteste les règles établies, et l’agitation monte dès qu’une routine devient prévisible.",
     },
     cycle: {
@@ -197,7 +197,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   neptune: {
     what: {
       en: "Neptune was found in 1846 at a position predicted by calculations from irregularities in Uranus’s orbit. It describes imagination, ideals, compassion and the longing for something beyond everyday life, along with confusion and escapism; in modern astrology it rules Pisces alongside Jupiter. It spends about 14 years in each sign, so the sign describes a generation, while its house and close aspects carry the personal meaning.",
-      fr: "Neptune a été découvert en 1846, à l’endroit que des calculs fondés sur les irrégularités de l’orbite d’Uranus avaient prédit. Il décrit l’imagination, l’idéal, la compassion et l’aspiration à ce qui dépasse le quotidien, mais aussi la confusion et la fuite\u202f; en astrologie moderne, il gouverne les Poissons aux côtés de Jupiter. Il passe environ quatorze ans dans chaque signe\u202f: le signe décrit donc une génération, tandis que sa maison et ses aspects serrés portent le sens personnel.",
+      fr: "Neptune a été découvert en 1846, à l’endroit que des calculs fondés sur les irrégularités de l’orbite d’Uranus avaient prédit. Il décrit l’imagination, l’idéal, la compassion et l’aspiration à ce qui dépasse le quotidien, mais aussi la confusion et la fuite hors du réel\u202f; en astrologie moderne, il gouverne les Poissons aux côtés de Jupiter. Il passe environ quatorze ans dans chaque signe\u202f: le signe décrit donc une génération, tandis que sa maison et ses aspects serrés portent le sens personnel.",
     },
     short: {
       en: "your imagination, your ideals and your sensitivity to what goes unsaid",
@@ -219,7 +219,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   pluto: {
     what: {
       en: "Pluto, discovered in 1930, was reclassified as a dwarf planet in 2006. Its themes are power, intensity, crisis and deep change: what is hidden and what has to be let go; modern astrologers pair it with Scorpio. Spending 12 to about 32 years in a sign, it marks generations, and it becomes individual mainly through its house and its contacts with personal planets and angles.",
-      fr: "Pluton, découvert en 1930, a été reclassé planète naine en 2006. Ses thèmes sont le pouvoir, l’intensité, les crises et les transformations profondes\u202f: ce qui est caché et ce qu’il faut laisser partir\u202f; l’astrologie moderne le rattache au Scorpion. Comme il reste de 12 à 32 ans environ dans un signe, il marque des générations, et ne prend un sens individuel que par sa maison et ses contacts avec les planètes personnelles et les angles.",
+      fr: "Pluton, découvert en 1930, a été reclassé planète naine en 2006. Ses thèmes sont le pouvoir, l’intensité, les crises et les transformations profondes\u202f: ce qui est caché et ce qu’il faut laisser partir\u202f; l’astrologie moderne le rattache au Scorpion. Comme il reste de 12 à 32 ans environ dans un signe, il marque des générations, et prend surtout un sens individuel par sa maison et ses contacts avec les planètes personnelles et les angles.",
     },
     short: {
       en: "your intensity and your capacity for deep change",
@@ -249,7 +249,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     inHouse: {
       en: "marks a lasting sore spot, and a skill learned through it, in",
-      fr: "signale une sensibilité durable, et un savoir-faire né de cette blessure, dans",
+      fr: "signale une blessure durable, et un savoir-faire qui en est né, dans",
     },
     example: {
       en: "Someone with Chiron on an angle or tied to the Sun or Moon may feel unsure in one area for years, such as speaking up or feeling they belong, and later become the person others come to for exactly that.",
@@ -270,7 +270,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
       fr: "votre axe de progression et les compétences nouvelles qui vous attirent",
     },
     inHouse: {
-      en: "points your growth toward",
+      en: "points your growth towards",
       fr: "situe ce que vous avez à apprendre dans",
     },
     example: {
@@ -373,7 +373,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   fortune: {
     what: {
       en: "The Lot of Fortune (or Part of Fortune) is a point from Hellenistic astrology built from the Ascendant, Sun and Moon. In a day chart it lies as far from the Ascendant, in zodiac order, as the Moon is from the Sun; by night the formula is reversed. It describes the body, well-being and material circumstances: what happens to a person, rather than what they choose.",
-      fr: "Le Lot de Fortune (ou Part de Fortune) est un point de l’astrologie hellénistique construit à partir de l’Ascendant, du Soleil et de la Lune. Dans un thème de jour, il se trouve aussi loin de l’Ascendant, dans l’ordre des signes, que la Lune l’est du Soleil\u202f; la nuit, la formule s’inverse. Il décrit le corps, le bien-être et les conditions matérielles\u202f: ce qui arrive à la personne, plutôt que ce qu’elle choisit.",
+      fr: "La Part de Fortune (ou Lot de Fortune) est un point de l’astrologie hellénistique construit à partir de l’Ascendant, du Soleil et de la Lune. Dans un thème de jour, elle se trouve aussi loin de l’Ascendant, dans l’ordre des signes, que la Lune l’est du Soleil\u202f; la nuit, la formule s’inverse. Elle décrit le corps, le bien-être et les conditions matérielles\u202f: ce qui arrive à la personne, plutôt que ce qu’elle choisit.",
     },
     short: {
       en: "your well-being, livelihood and material circumstances",
@@ -385,33 +385,33 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "If the Lot of Fortune falls in the 10th house or near the Midheaven, material stability often depends on a public role: income and well-being tend to follow how work and reputation are going.",
-      fr: "Si le Lot de Fortune tombe en Maison X ou près du Milieu du Ciel, la stabilité matérielle dépend souvent du rôle public\u202f: les revenus et le bien-être suivent la marche du travail et de la réputation.",
+      fr: "Si la Part de Fortune tombe en Maison X ou près du Milieu du Ciel, la stabilité matérielle dépend souvent du rôle public\u202f: les revenus et le bien-être tendent à suivre la marche du travail et de la réputation.",
     },
     cycle: {
       en: "Worked out as Ascendant + Moon − Sun for a day birth (Sun above the horizon) and Ascendant + Sun − Moon for a night birth. It moves with the Ascendant, so it needs an accurate birth time.",
-      fr: "Calculé ainsi\u202f: Ascendant + Lune − Soleil pour une naissance de jour (Soleil au-dessus de l’horizon), Ascendant + Soleil − Lune pour une naissance de nuit. Il se déplace avec l’Ascendant et demande donc une heure de naissance précise.",
+      fr: "Calculée ainsi\u202f: Ascendant + Lune − Soleil pour une naissance de jour (Soleil au-dessus de l’horizon), Ascendant + Soleil − Lune pour une naissance de nuit. Elle se déplace avec l’Ascendant et demande donc une heure de naissance précise.",
     },
   },
   spirit: {
     what: {
       en: "The Lot of Spirit is Fortune’s counterpart, built from the same three points with the formula reversed: by day it lies as far from the Ascendant as the Sun is from the Moon. The two lots always mirror each other across the Ascendant. Where Fortune describes what happens to a person, Spirit describes what they intend and do: choices, ambitions, work and a sense of purpose.",
-      fr: "Le Lot d’Esprit est le pendant de Fortune, construit à partir des mêmes trois points avec la formule inversée\u202f: de jour, il se trouve aussi loin de l’Ascendant que le Soleil l’est de la Lune. Les deux lots sont toujours symétriques par rapport à l’Ascendant. Si Fortune décrit ce qui arrive à la personne, Esprit décrit ce qu’elle vise et ce qu’elle fait\u202f: ses choix, ses ambitions, son travail, le sens qu’elle donne à ses actes.",
+      fr: "La Part d’Esprit est le pendant de Fortune, construite à partir des trois mêmes points avec la formule inversée\u202f: de jour, elle se trouve aussi loin de l’Ascendant que le Soleil l’est de la Lune. Les deux parts sont toujours symétriques par rapport à l’Ascendant. Si Fortune décrit ce qui arrive à la personne, Esprit décrit ce qu’elle vise et ce qu’elle fait\u202f: ses choix, ses ambitions, son travail, le sens qu’elle donne à ses actes.",
     },
     short: {
       en: "your intentions, choices and sense of purpose",
       fr: "vos intentions, vos choix et ce que vous visez",
     },
     inHouse: {
-      en: "directs your intentions, choices and sense of purpose toward",
+      en: "directs your intentions, choices and sense of purpose towards",
       fr: "engage votre volonté, vos choix et ce que vous visez dans",
     },
     example: {
       en: "With the Lot of Spirit on the Ascendant or near the Midheaven, someone tends to feel most alive when acting on a plan they chose, such as starting a business, rather than waiting for circumstances to decide for them.",
-      fr: "Avec le Lot d’Esprit sur l’Ascendant ou près du Milieu du Ciel, on se sent le plus vivant en suivant un plan que l’on a choisi, comme lancer une entreprise, plutôt qu’en attendant que les circonstances décident à sa place.",
+      fr: "Avec la Part d’Esprit sur l’Ascendant ou près du Milieu du Ciel, on se sent le plus vivant en suivant un plan que l’on a choisi, comme lancer une entreprise, plutôt qu’en attendant que les circonstances décident à sa place.",
     },
     cycle: {
       en: "Worked out as Ascendant + Sun − Moon for a day birth and Ascendant + Moon − Sun for a night birth, the reverse of Fortune. Like Fortune, it moves with the Ascendant and needs an accurate birth time.",
-      fr: "Calculé ainsi\u202f: Ascendant + Soleil − Lune pour une naissance de jour, Ascendant + Lune − Soleil pour une naissance de nuit, soit l’inverse de Fortune. Comme Fortune, il suit l’Ascendant et demande une heure de naissance précise.",
+      fr: "Calculée ainsi\u202f: Ascendant + Soleil − Lune pour une naissance de jour, Ascendant + Lune − Soleil pour une naissance de nuit, soit l’inverse de Fortune. Comme Fortune, elle suit l’Ascendant et demande une heure de naissance précise.",
     },
   },
   ceres: {
@@ -473,7 +473,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "With Juno on the Descendant or tied to Venus, someone may care more about loyalty and fairness than romance, and may end a relationship over a broken promise that another person would shrug off.",
-      fr: "Avec Junon sur le Descendant ou reliée à Vénus, on tient parfois davantage à la loyauté et à l’équité qu’à la romance, au point de rompre pour une promesse non tenue qu’un autre aurait laissé passer.",
+      fr: "Avec Junon sur le Descendant ou reliée à Vénus, on tient parfois davantage à la loyauté et à l’équité qu’au romantisme, au point de rompre pour une promesse non tenue qu’un autre aurait laissé passer.",
     },
     cycle: {
       en: "Juno takes about 4.4 years to circle the Sun; its stay in a sign ranges from under two months to about eleven. It turns retrograde for two and a half to nearly four months, about every 15 or 16 months.",
@@ -526,8 +526,8 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   },
   sedna: {
     what: {
-      en: "Sedna is a remote body found in 2003, on an elongated orbit of about 11,400 years. The name comes from the Inuit sea goddess who, thrown into the ocean by her father, became ruler of its creatures. Its sign is shared by everyone born over several decades; astrologers who use it read it, through house and close aspects, as abandonment, survival and slow recovery.",
-      fr: "Découverte en 2003, Sedna est un corps lointain dont l’orbite très allongée dure environ 11 400 ans. Son nom vient de la déesse inuite de la mer qui, jetée à l’eau par son père, devint souveraine des créatures marines. Son signe est commun aux personnes nées sur plusieurs décennies\u202f; les astrologues qui l’utilisent y lisent, à travers sa maison et ses aspects serrés, l’abandon, la survie et une lente reconstruction.",
+      en: "Sedna is a remote body found in 2003, on an elongated orbit that takes about 11,400 years to complete. The name comes from the Inuit sea goddess who, thrown into the ocean by her father, became ruler of its creatures. Its sign is shared by everyone born over several decades; astrologers who use it read it, through house and close aspects, as abandonment, survival and slow recovery.",
+      fr: "Découverte en 2003, Sedna est un corps lointain qui parcourt en quelque 11 400 ans une orbite très allongée. Son nom vient de la déesse inuite de la mer qui, jetée à l’eau par son père, devint souveraine des créatures marines. Son signe est commun aux personnes nées sur plusieurs décennies\u202f; les astrologues qui l’utilisent y lisent, à travers sa maison et ses aspects serrés, l’abandon, la survie et une lente reconstruction.",
     },
     short: {
       en: "your capacity to survive loss and rebuild slowly",
@@ -538,12 +538,12 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
       fr: "soulève des thèmes d’isolement, de survie et de lente reconstruction dans",
     },
     example: {
-      en: "When Sedna is close to the Sun, Moon or an angle, someone may know long stretches of feeling on the outside, or a hard break with family, and slowly build a life that stands on its own.",
+      en: "When Sedna is close to the Sun, Moon or an angle, someone may go through long stretches of feeling like an outsider, or a hard break with family, and slowly build a life that stands on its own.",
       fr: "Quand Sedna est proche du Soleil, de la Lune ou d’un angle, on peut connaître de longues périodes à l’écart, ou une rupture difficile avec sa famille, puis construire lentement une vie qui tient debout par elle-même.",
     },
     cycle: {
-      en: "Sedna’s orbit lasts roughly 11,400 years; nearing its closest point to the Sun (around 2076), it moves relatively fast: in Taurus from the 1960s, in Gemini since 2024. It is retrograde nearly six months a year.",
-      fr: "L’orbite de Sedna dure environ 11 400 ans\u202f; à l’approche de son point le plus proche du Soleil (vers 2076), elle avance relativement vite\u202f: en Taureau à partir des années 1960, en Gémeaux depuis 2024. Elle est rétrograde près de six mois par an.",
+      en: "Sedna takes roughly 11,400 years to complete one orbit; nearing its closest point to the Sun (around 2076), it moves relatively fast: in Taurus from the 1960s, in Gemini since 2024. It is retrograde nearly six months a year.",
+      fr: "Sedna parcourt son orbite en quelque 11 400 ans\u202f; à l’approche de son point le plus proche du Soleil (vers 2076), elle avance relativement vite\u202f: en Taureau à partir des années 1960, en Gémeaux depuis 2024. Elle est rétrograde près de six mois par an.",
     },
   },
   ascendant: {
@@ -578,11 +578,11 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
       fr: "vos objectifs professionnels, votre réputation et votre place dans la société",
     },
     inHouse: {
-      en: "steers your ambitions and public image toward",
+      en: "steers your ambitions and public image towards",
       fr: "inscrit vos ambitions et votre image publique dans",
     },
     example: {
-      en: "A Midheaven in Capricorn often goes with a slow, deliberate climb toward a recognised position, while one in Pisces often suits careers in care, art or music; a planet on the MC tends to become what someone is known for.",
+      en: "A Midheaven in Capricorn often goes with a slow, deliberate climb towards a recognised position, while one in Pisces often suits careers in care, art or music; a planet on the MC tends to become what someone is known for.",
       fr: "Un Milieu du Ciel en Capricorne va souvent de pair avec une ascension lente et réfléchie vers une position reconnue, tandis qu’un MC en Poissons convient souvent aux métiers du soin, de l’art ou de la musique\u202f; une planète sur le MC devient souvent ce pour quoi on est connu.",
     },
     cycle: {
@@ -614,7 +614,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   },
   ic: {
     what: {
-      en: "The IC (Imum Coeli, 'bottom of the sky') is the degree of the zodiac crossing the meridian beneath the birthplace, exactly opposite the Midheaven, and sits at the lowest point of the chart. In most house systems it begins the 4th house. It describes roots and private life: home, family, origins and the inner base someone returns to. Like the other angles, it needs an accurate birth time.",
+      en: "The IC (imum coeli, ‘bottom of the sky’) is the degree of the zodiac crossing the meridian beneath the birthplace, exactly opposite the Midheaven, and sits at the lowest point of the chart. In most house systems it begins the 4th house. It describes roots and private life: home, family, origins and the inner base someone returns to. Like the other angles, it needs an accurate birth time.",
       fr: "Le Fond du Ciel (FC, en latin imum coeli) est le degré du zodiaque qui passe au méridien sous le lieu de naissance, exactement à l’opposé du Milieu du Ciel, en bas du thème. Dans la plupart des systèmes de maisons, il ouvre la Maison IV. Il décrit les racines et la vie privée\u202f: le foyer, la famille, les origines et la base intime à laquelle on revient. Comme les autres angles, il demande une heure de naissance précise.",
     },
     short: {

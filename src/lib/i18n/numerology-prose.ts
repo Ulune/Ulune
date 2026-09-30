@@ -48,11 +48,11 @@ const CORE: Record<NumerologyCoreId, { role: Pair; how: Pair }> = {
   birthday: {
     role: {
       en: "The Birthday number comes from the day of the month you were born. It is a secondary number that points to one specific talent, often visible early in life.",
-      fr: "Le nombre d’Anniversaire vient du jour du mois de votre naissance. C’est un nombre secondaire qui indique un talent précis, souvent visible tôt dans la vie.",
+      fr: "Le nombre du Jour de naissance vient du jour du mois de votre naissance. C’est un nombre secondaire qui indique un talent précis, souvent visible tôt dans la vie.",
     },
     how: {
       en: "The Birthday number reduces the day of the month you were born, keeping 11 and 22 (for the 11th, the 22nd and the 29th).",
-      fr: "Le nombre d’Anniversaire réduit le jour du mois de naissance, en gardant 11 et 22 (pour le 11, le 22 et le 29).",
+      fr: "Le nombre du Jour de naissance réduit le jour du mois de naissance, en gardant 11 et 22 (pour le 11, le 22 et le 29).",
     },
   },
   maturity: {

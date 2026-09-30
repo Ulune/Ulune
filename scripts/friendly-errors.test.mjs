@@ -34,16 +34,16 @@ test("on screen: the reader's language, or the surface's fallback", () => {
   assert.match(localizeError("E:net.offline", "fr"), /^Vous êtes hors ligne/);
   assert.match(localizeError("E:net.timeout", "en"), /took too long/);
   assert.match(localizeError("E:input.range", "en"), /can’t calculate this entry/);
-  assert.equal(localizeError("E:place.notfound|Atlantis", "en"), "Could not find “Atlantis”. Try another city, or paste coordinates.");
+  assert.equal(localizeError("E:place.notfound|Atlantis", "en"), "Couldn’t find “Atlantis”. Try another city, or paste coordinates.");
   assert.match(localizeError("E:place.notfound|Atlantis", "fr"), /Atlantis/);
-  assert.equal(localizeError("E:place.missing", "en"), "Add a birth place — a city name is enough.");
+  assert.equal(localizeError("E:place.missing", "en"), "Add a birthplace — a city name is enough.");
   // No sentence for this code: the surface says what failed.
-  assert.equal(localizeError("E:server.failed", "en"), "Could not cast the chart. Try again in a moment.");
+  assert.equal(localizeError("E:server.failed", "en"), "Couldn’t cast the chart. Try again in a moment.");
   assert.equal(localizeError("E:net.unreachable", "en"), "Ulune’s server couldn’t be reached. Check the connection and try again.");
   assert.match(localizeError("E:net.unreachable", "fr"), /^Le serveur d’Ulune est injoignable/);
-  assert.equal(localizeError("E:server.failed", "en", "couldNotCastSky"), "Could not calculate the current sky.");
+  assert.equal(localizeError("E:server.failed", "en", "couldNotCastSky"), "Couldn’t calculate the sky. Try again in a moment.");
   // Engine words that slipped through still never show.
-  assert.equal(localizeError("Invariant failed", "en"), "Could not cast the chart. Try again in a moment.");
+  assert.equal(localizeError("Invariant failed", "en"), "Couldn’t cast the chart. Try again in a moment.");
   assert.equal(localizeError("Internal Server Error", "fr"), "Impossible de calculer le thème. Réessayez dans un instant.");
-  assert.equal(localizeError(null, "en"), "Could not cast the chart. Try again in a moment.");
+  assert.equal(localizeError(null, "en"), "Couldn’t cast the chart. Try again in a moment.");
 });

@@ -33,7 +33,7 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
     },
   },
   4: {
-    name: { en: "Formulization", fr: "Formulation" },
+    name: { en: "Formulisation", fr: "Formulation" },
     what: {
       en: "Gate 4 is in the Ajna (hexagram 4, Youthful Folly). It produces answers: logical formulas that explain why something happens. The answers are not automatically right and are meant to be tested. Someone with it defined usually has an explanation ready within seconds of hearing a problem, and does best when they check it against the facts before defending it.",
       fr: "La porte 4 est dans l’Ajna et correspond à l’hexagramme 4, La Folie juvénile. Elle produit des réponses\u202f: des formules logiques qui expliquent pourquoi une chose arrive. Ces réponses ne sont pas justes d’office, elles sont faites pour être vérifiées. Une personne qui l’a définie a souvent une explication prête en quelques secondes, et gagne à la confronter aux faits avant de la défendre.",
@@ -56,7 +56,7 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
   7: {
     name: { en: "The Role of the Self", fr: "Le rôle du soi" },
     what: {
-      en: "Gate 7, fully called the Role of the Self in Interaction, sits in the G centre (hexagram 7, The Army). It is about guiding a group towards a future direction, often from just behind the visible leader. Defined, it can show as the advisor or deputy whose suggestions quietly end up setting the team’s course.",
+      en: "Gate 7, fully called the Role of the Self in Interaction, sits in the G centre (hexagram 7, The Army). It is about guiding a group towards a future direction, often from just behind the visible leader. Defined, it can show as the adviser or deputy whose suggestions quietly end up setting the team’s course.",
       fr: "La porte 7, le Rôle du soi dans l’interaction, se trouve dans le centre G et correspond à l’hexagramme 7, L’Armée. Elle parle de guider un groupe vers une direction future, souvent depuis la place juste derrière le chef visible. Définie, elle peut se voir chez le conseiller ou l’adjoint dont les suggestions finissent, sans bruit, par fixer le cap de l’équipe.",
     },
   },
@@ -75,9 +75,9 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
     },
   },
   10: {
-    name: { en: "Behavior of the Self", fr: "Comportement du soi" },
+    name: { en: "Behaviour of the Self", fr: "Comportement du soi" },
     what: {
-      en: "Gate 10 is in the G centre (hexagram 10, Treading). Its theme is self-love in a practical sense: behaving as oneself and accepting that. Defined, it often shows as someone who acts the same way whoever is watching, and who would rather lose approval than put on a manner that isn’t theirs. Its challenge is not turning that into self-criticism.",
+      en: "Gate 10 is in the G centre (hexagram 10, Treading). Its theme is self-love in a practical sense: behaving as oneself and accepting that. Defined, it often shows as someone who acts the same way whoever is watching, and who would rather lose approval than put on a manner that isn’t theirs. Its challenge is to keep that from turning into self-criticism.",
       fr: "La porte 10 est dans le centre G et correspond à l’hexagramme 10, La Marche. Elle parle d’amour de soi au sens concret\u202f: se comporter comme on est, et l’accepter. Définie, elle se voit souvent chez quelqu’un qui agit de la même façon quel que soit le public, et qui préfère perdre l’approbation que d’adopter une attitude qui ne lui ressemble pas. L’écueil est de retourner cette exigence contre soi.",
     },
   },
@@ -92,7 +92,7 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
     name: { en: "Caution", fr: "Prudence" },
     what: {
       en: "Gate 12 is in the Throat centre (hexagram 12, Standstill). It gives voice to feeling, and its timing depends on mood. Defined, it often shows as someone who can move a room when they feel like speaking, and who sounds flat or stays silent when they don’t. Waiting for the right mood before an important conversation usually serves them well.",
-      fr: "La porte 12 est dans le centre de la Gorge et correspond à l’hexagramme 12, La Stagnation. Elle donne une voix au ressenti, et son timing dépend de l’humeur. Définie, elle se voit souvent chez quelqu’un qui peut toucher toute une salle quand il a envie de parler, et qui paraît terne ou se tait quand ce n’est pas le cas. Attendre la bonne humeur avant une conversation importante lui réussit en général.",
+      fr: "La porte 12 est dans le centre de la Gorge et correspond à l’hexagramme 12, La Stagnation. Elle donne une voix au ressenti, et son timing dépend de l’humeur. Définie, elle se voit souvent chez quelqu’un qui peut toucher toute une salle quand il a envie de parler, et qui paraît terne ou se tait quand ce n’est pas le cas. Attendre que l’humeur s’y prête avant une conversation importante lui réussit en général.",
     },
   },
   13: {
@@ -140,7 +140,7 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
   19: {
     name: { en: "Wanting", fr: "Le besoin" },
     what: {
-      en: "Gate 19 sits in the Root centre (hexagram 19, Approach). It is a pressure-driven sensitivity to basic needs — food, shelter, closeness, belonging. Defined, it often shows as someone who notices at once who is hungry or left out at a gathering and needs to belong; that sensitivity can also make them give up too much to stay included.",
+      en: "Gate 19 sits in the Root centre (hexagram 19, Approach). It is a pressure-driven sensitivity to basic needs — food, shelter, closeness, belonging. Defined, it often shows as someone who notices at once who is hungry or left out at a gathering, and who needs to belong themselves; that sensitivity can also make them give up too much to stay included.",
       fr: "La porte 19 se trouve dans le centre Racine et correspond à l’hexagramme 19, L’Approche. C’est une sensibilité, sous pression, aux besoins de base\u202f: nourriture, abri, proximité, appartenance. Définie, elle se voit souvent chez quelqu’un qui remarque tout de suite qui a faim ou qui est mis à l’écart lors d’une réunion, et qui a besoin de faire partie d’un groupe\u202f; cette sensibilité peut aussi le pousser à trop céder pour rester inclus.",
     },
   },
@@ -169,11 +169,11 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
     name: { en: "Assimilation", fr: "Assimilation" },
     what: {
       en: "Gate 23 sits in the Throat centre (hexagram 23, Splitting Apart). It is about putting an individual insight into simple words others can take in. Defined, it often shows as someone who says unusual things; explained clearly, the point sounds original; blurted out too fast or too abstractly, it sounds odd.",
-      fr: "La porte 23 se trouve dans le centre de la Gorge et correspond à l’hexagramme 23, L’Éclatement. Elle parle de traduire une intuition personnelle en mots simples que les autres peuvent intégrer. Définie, elle se voit souvent chez quelqu’un qui dit des choses inhabituelles\u202f; bien expliquées, elles le font passer pour original, lâchées trop vite ou trop abstraites, pour bizarre.",
+      fr: "La porte 23 se trouve dans le centre de la Gorge et correspond à l’hexagramme 23, L’Éclatement. Elle parle de traduire une intuition personnelle en mots simples que les autres peuvent intégrer. Définie, elle se voit souvent chez quelqu’un qui dit des choses inhabituelles. Bien expliquées, elles le font passer pour original\u202f; lâchées trop vite ou de façon trop abstraite, pour bizarre.",
     },
   },
   24: {
-    name: { en: "Rationalization", fr: "Rationalisation" },
+    name: { en: "Rationalisation", fr: "Rationalisation" },
     what: {
       en: "Gate 24 is in the Ajna (hexagram 24, Return). Its theme is the mind returning again and again to a thought until it makes sense. Defined, it can show as someone who replays a conversation for days until they understand it. That circling eventually produces real insight, though it can also become a loop that justifies an old habit.",
       fr: "La porte 24 est dans l’Ajna et correspond à l’hexagramme 24, Le Retour. Elle décrit un mental qui revient sans cesse sur une pensée jusqu’à ce qu’elle prenne sens. Définie, elle peut se voir chez quelqu’un qui repasse une conversation dans sa tête pendant des jours jusqu’à la comprendre. Ce va-et-vient finit par produire une vraie compréhension, mais peut aussi tourner en boucle pour justifier une vieille habitude.",
@@ -183,7 +183,7 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
     name: { en: "The Spirit of the Self", fr: "L’esprit du soi" },
     what: {
       en: "Gate 25 sits in the G centre (hexagram 25, Innocence). It carries an unconditional love that extends to all living things, and an innocence that gets tested by hard experiences. Defined, it often shows as a deep bond with animals or nature, and as someone who keeps trusting people after being let down.",
-      fr: "La porte 25 se trouve dans le centre G et correspond à l’hexagramme 25, L’Innocence. Elle porte un amour sans condition qui s’étend à tout ce qui vit, et une innocence que les épreuves mettent à l’essai. Définie, elle se voit souvent dans un lien profond avec les animaux ou la nature, et chez quelqu’un qui continue de faire confiance après avoir été déçu.",
+      fr: "La porte 25 se trouve dans le centre G et correspond à l’hexagramme 25, L’Innocence. Elle porte un amour sans condition qui s’étend à tout ce qui vit, et une innocence que les coups durs mettent à l’épreuve. Définie, elle se voit souvent dans un lien profond avec les animaux ou la nature, et chez quelqu’un qui continue de faire confiance après avoir été déçu.",
     },
   },
   26: {
@@ -238,8 +238,8 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
   33: {
     name: { en: "Privacy", fr: "Retrait" },
     what: {
-      en: "Gate 33 sits in the Throat centre (hexagram 33, Retreat). Its theme is stepping back to digest an experience, then telling what was learned. Defined, it often shows as someone who needs time alone after a trip, a breakup or a big project before they can talk about it; once processed, their account is usually the clearest one.",
-      fr: "La porte 33 se trouve dans le centre de la Gorge et correspond à l’hexagramme 33, La Retraite. Elle parle de prendre du recul pour digérer une expérience, puis de raconter ce qu’on en a tiré. Définie, elle se voit souvent chez quelqu’un qui a besoin d’être seul après un voyage, une rupture ou un gros projet avant d’en parler\u202f; une fois digéré, son récit est souvent le plus clair.",
+      en: "Gate 33 sits in the Throat centre (hexagram 33, Retreat). Its theme is stepping back to digest an experience, then telling what was learned. Defined, it often shows as someone who needs time alone after a trip, a breakup or a big project before they can talk about it; once they have processed it, their account is usually the clearest one.",
+      fr: "La porte 33 se trouve dans le centre de la Gorge et correspond à l’hexagramme 33, La Retraite. Elle parle de prendre du recul pour digérer une expérience, puis de raconter ce qu’on en a tiré. Définie, elle se voit souvent chez quelqu’un qui a besoin d’être seul après un voyage, une rupture ou un gros projet avant d’en parler\u202f; une fois l’expérience digérée, son récit est souvent le plus clair.",
     },
   },
   34: {
@@ -308,8 +308,8 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
   43: {
     name: { en: "Insight", fr: "Perspicacité" },
     what: {
-      en: "Gate 43 sits in the Ajna (hexagram 43, Breakthrough). It produces sudden, individual insights that arrive already formed. Defined, it often shows as a solution that pops up in the shower, followed by the difficulty of explaining how they know. Waiting until someone is ready to listen gives the insight a much better reception.",
-      fr: "La porte 43 se trouve dans l’Ajna et correspond à l’hexagramme 43, La Percée. Elle produit des intuitions soudaines et personnelles qui arrivent toutes formées. Définie, elle se voit souvent sous la forme d’une solution qui surgit sous la douche, suivie de la difficulté d’expliquer d’où elle vient. Attendre que l’autre soit prêt à écouter lui assure un bien meilleur accueil.",
+      en: "Gate 43 sits in the Ajna (hexagram 43, Breakthrough). It produces sudden, individual insights that arrive already formed. Defined, it often shows as a solution that pops up in the shower, followed by the difficulty of explaining where it came from. Waiting until someone is ready to listen gives the insight a much better reception.",
+      fr: "La porte 43 se trouve dans l’Ajna et correspond à l’hexagramme 43, La Percée. Elle produit des intuitions soudaines et personnelles qui arrivent toutes formées. Définie, elle se voit souvent sous la forme d’une solution qui surgit sous la douche, suivie de la difficulté d’expliquer d’où elle vient. Attendre que l’autre soit prêt à écouter assure à l’intuition un bien meilleur accueil.",
     },
   },
   44: {
@@ -334,9 +334,9 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
     },
   },
   47: {
-    name: { en: "Realization", fr: "Réalisation" },
+    name: { en: "Realisation", fr: "Réalisation" },
     what: {
-      en: "Gate 47 sits in the Ajna (hexagram 47, Oppression). It works on making sense of past experience, which can feel like mental pressure until the answer comes. Defined, it often shows as an event that remained confusing for weeks and then suddenly makes sense. Trying to force that moment tends to deepen the frustration.",
+      en: "Gate 47 sits in the Ajna (hexagram 47, Oppression). It works on making sense of past experience, which can feel like mental pressure until the answer comes. Defined, it often shows as an event that stays confusing for weeks and then suddenly makes sense. Trying to force that moment tends to deepen the frustration.",
       fr: "La porte 47 se trouve dans l’Ajna et correspond à l’hexagramme 47, L’Accablement. Elle cherche à donner un sens à l’expérience passée, ce qui peut peser sur le mental jusqu’à ce que la réponse arrive. Définie, elle se voit souvent quand un événement reste confus des semaines puis s’éclaire d’un coup. Vouloir forcer ce moment ne fait qu’augmenter la frustration.",
     },
   },
@@ -350,8 +350,8 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
   49: {
     name: { en: "Principles", fr: "Principes" },
     what: {
-      en: "Gate 49 sits in the Solar Plexus (hexagram 49, Revolution). Its theme is principles that decide who is accepted or rejected, and the change that follows when those principles are broken. Defined, it often shows as someone who ends a job or a relationship once a core value is crossed; waiting out the emotional wave keeps that decision fair.",
-      fr: "La porte 49 se trouve dans le Plexus solaire et correspond à l’hexagramme 49, La Révolution. Elle parle de principes qui décident de qui est accepté ou rejeté, et du changement qui suit quand ces principes sont bafoués. Définie, elle se voit souvent chez quelqu’un qui quitte un poste ou une relation dès qu’une valeur essentielle est franchie\u202f; laisser passer la vague émotionnelle garde cette décision juste.",
+      en: "Gate 49 sits in the Solar Plexus (hexagram 49, Revolution). Its theme is principles that decide who is accepted or rejected, and the change that follows when those principles are broken. Defined, it often shows as someone who ends a job or a relationship once a core value is violated; waiting out the emotional wave keeps that decision fair.",
+      fr: "La porte 49 se trouve dans le Plexus solaire et correspond à l’hexagramme 49, La Révolution. Elle parle de principes qui décident de qui est accepté ou rejeté, et du changement qui suit quand ces principes sont bafoués. Définie, elle se voit souvent chez quelqu’un qui quitte un poste ou une relation dès qu’on porte atteinte à une valeur essentielle\u202f; laisser passer la vague émotionnelle garde cette décision juste.",
     },
   },
   50: {
@@ -407,7 +407,7 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
     name: { en: "Intuitive Clarity", fr: "Clarté intuitive" },
     what: {
       en: "Gate 57 sits in the Spleen (hexagram 57, The Gentle). It is intuition in the present moment, often felt as an inner hearing. Defined, it often shows as a quiet, one-time sense that something is off — don’t sign that lease, call that friend now. Because it speaks once and softly, it is easy to dismiss.",
-      fr: "La porte 57 se trouve dans la Rate et correspond à l’hexagramme 57, Le Doux. C’est l’intuition de l’instant, souvent vécue comme une écoute intérieure. Définie, elle se voit souvent sous la forme d’un signal discret, qui ne se répète pas — ne pas signer ce bail, appeler un ami maintenant. Comme il ne parle qu’une fois et à voix basse, il est facile de s’en dissuader.",
+      fr: "La porte 57 se trouve dans la Rate et correspond à l’hexagramme 57, Le Doux. C’est l’intuition de l’instant, souvent vécue comme une écoute intérieure. Définie, elle se voit souvent sous la forme d’un signal discret, qui ne se répète pas — ne pas signer ce bail, appeler un ami maintenant. Comme il ne parle qu’une fois et à voix basse, il est facile de ne pas en tenir compte.",
     },
   },
   58: {
@@ -466,7 +466,7 @@ export const HD_CHANNEL_TEXT: Record<string, HdText> = {
   "64–47": {
     name: { en: "Abstraction", fr: "Abstraction" },
     what: {
-      en: "The channel of Abstraction links the Head (gate 64) to the Ajna (gate 47). It makes a consistent way of thinking: sorting through past images and experiences until they form a meaningful story. Someone with it defined often reflects on what happened last year and slowly draws a clear lesson from it. Confusion is part of the process and usually resolves with time.",
+      en: "The channel of Abstraction links the Head (gate 64) to the Ajna (gate 47). It gives a consistent way of thinking: sorting through past images and experiences until they form a meaningful story. Someone with it defined often reflects on what happened last year and slowly draws a clear lesson from it. Confusion is part of the process and usually resolves with time.",
       fr: "Le canal de l’Abstraction relie la Tête (porte 64) à l’Ajna (porte 47). Il installe une façon constante de penser\u202f: trier les images et les expériences passées jusqu’à en tirer une histoire qui a du sens. Une personne qui l’a défini revient souvent sur ce qui s’est passé l’an dernier et en dégage peu à peu une leçon claire. La confusion fait partie du processus et se dissipe en général avec le temps.",
     },
   },
@@ -494,15 +494,15 @@ export const HD_CHANNEL_TEXT: Record<string, HdText> = {
   "43–23": {
     name: { en: "Structuring", fr: "Structuration" },
     what: {
-      en: "The channel of Structuring links the Ajna (gate 43) to the Throat (gate 23). It makes a person consistently able to voice original insights that can change how others think. Someone with it defined often says something ahead of its time; explained at the right moment and in simple terms it is recognised as brilliant, blurted out too early it sounds strange.",
-      fr: "Le canal de la Structuration relie l’Ajna (porte 43) à la Gorge (porte 23). Il rend une personne constamment capable d’exprimer des intuitions originales qui peuvent changer la façon de penser des autres. Une personne qui l’a défini dit souvent des choses en avance sur leur temps\u202f; expliquées au bon moment et simplement, elles passent pour brillantes, lâchées trop tôt, pour étranges.",
+      en: "The channel of Structuring links the Ajna (gate 43) to the Throat (gate 23). It makes a person consistently able to voice original insights that can change how others think. Someone with it defined often says something ahead of its time: explained at the right moment and in simple terms, it is recognised as brilliant; blurted out too early, it sounds strange.",
+      fr: "Le canal de la Structuration relie l’Ajna (porte 43) à la Gorge (porte 23). Il rend une personne constamment capable d’exprimer des intuitions originales qui peuvent changer la façon de penser des autres. Une personne qui l’a défini dit souvent des choses en avance sur leur temps. Expliquées au bon moment et simplement, elles passent pour brillantes\u202f; lâchées trop tôt, pour étranges.",
     },
   },
   "11–56": {
     name: { en: "Curiosity", fr: "Curiosité" },
     what: {
       en: "The channel of Curiosity links the Ajna (gate 11) to the Throat (gate 56). It gives a steady flow of ideas turned into stories that stimulate others. Someone with it defined is often a natural teacher, writer or dinner-table storyteller who searches for new experiences to talk about. The ideas are there to inspire, not all to be acted on.",
-      fr: "Le canal de la Curiosité relie l’Ajna (porte 11) à la Gorge (porte 56). Il donne un flot régulier d’idées transformées en récits qui stimulent les autres. Une personne qui l’a défini est souvent enseignant, auteur ou conteur de tablée par nature, toujours en quête d’expériences nouvelles à raconter. Ces idées sont là pour inspirer, pas toutes pour être réalisées.",
+      fr: "Le canal de la Curiosité relie l’Ajna (porte 11) à la Gorge (porte 56). Il donne un flot régulier d’idées transformées en récits qui stimulent les autres. Une personne qui l’a défini a souvent l’âme d’un enseignant, d’un auteur ou d’un conteur qui anime les dîners, toujours en quête d’expériences nouvelles à raconter. Ces idées sont là pour inspirer, pas toutes pour être réalisées.",
     },
   },
   "16–48": {
@@ -522,8 +522,8 @@ export const HD_CHANNEL_TEXT: Record<string, HdText> = {
   "34–20": {
     name: { en: "Charisma", fr: "Charisme" },
     what: {
-      en: "The channel of Charisma links the Sacral (gate 34) directly to the Throat (gate 20). A motor connected to the Throat, it turns impulse into immediate action, so someone with it defined can always act and, in Human Design, is a Manifesting Generator. It often shows as a busy, effective person moving from task to task; the risk is doing a lot without checking it is the right thing.",
-      fr: "Le canal du Charisme relie directement le Sacral (porte 34) à la Gorge (porte 20). Moteur relié à la Gorge, il transforme la pensée en action immédiate\u202f: une personne qui l’a défini est toujours capable d’agir et, en Human Design, c’est un Générateur manifesteur. Cela se voit souvent chez quelqu’un d’occupé et d’efficace, qui enchaîne les tâches\u202f; le risque est d’en faire beaucoup sans vérifier que c’est la bonne chose.",
+      en: "The channel of Charisma links the Sacral (gate 34) directly to the Throat (gate 20). Linking a motor to the Throat, it turns thought into immediate action, so someone with it defined can always act and, in Human Design, is a Manifesting Generator. It often shows as a busy, effective person moving from task to task; the risk is doing a lot without checking it is the right thing.",
+      fr: "Le canal du Charisme relie directement le Sacral (porte 34) à la Gorge (porte 20). Reliant un moteur à la Gorge, il transforme la pensée en action immédiate\u202f: une personne qui l’a défini est toujours capable d’agir et, en Human Design, c’est un Générateur manifesteur. Cela se voit souvent chez quelqu’un d’occupé et d’efficace, qui enchaîne les tâches\u202f; le risque est d’en faire beaucoup sans vérifier que c’est la bonne chose.",
     },
   },
   "10–20": {
@@ -557,22 +557,22 @@ export const HD_CHANNEL_TEXT: Record<string, HdText> = {
   "45–21": {
     name: { en: "Money", fr: "Argent" },
     what: {
-      en: "The channel of Money links the Throat (gate 45) to the Heart (gate 21). A motor connected to the Throat, it gives consistent willpower to manage and direct material resources, and the ability to act on it. Someone with it defined often wants to run their own business or control the household budget. Being in charge suits them; being micromanaged does not.",
-      fr: "Le canal de l’Argent relie la Gorge (porte 45) au Cœur (porte 21). Moteur relié à la Gorge, il donne une volonté constante de gérer et d’orienter les ressources matérielles, et la capacité d’agir en ce sens. Une personne qui l’a défini veut souvent diriger sa propre affaire ou tenir le budget du foyer. Être aux commandes lui convient\u202f; être surveillée de près, beaucoup moins.",
+      en: "The channel of Money links the Throat (gate 45) to the Heart (gate 21). Linking a motor to the Throat, it gives consistent willpower to manage and direct material resources, and the ability to act on it. Someone with it defined often wants to run their own business or control the household budget. Being in charge suits them; being micromanaged does not.",
+      fr: "Le canal de l’Argent relie la Gorge (porte 45) au Cœur (porte 21). Reliant un moteur à la Gorge, il donne une volonté constante de gérer et d’orienter les ressources matérielles, et la capacité d’agir en ce sens. Une personne qui l’a défini veut souvent diriger sa propre affaire ou tenir le budget du foyer. Être aux commandes lui convient\u202f; être surveillée de près, beaucoup moins.",
     },
   },
   "12–22": {
     name: { en: "Openness", fr: "Ouverture" },
     what: {
-      en: "The channel of Openness links the Throat (gate 12) to the Solar Plexus (gate 22). A motor connected to the Throat, it makes emotional expression and social grace a consistent part of a person, always coloured by mood. Someone with it defined can be deeply moving when they speak or perform in the right mood, and is best left to their silence when they are not.",
-      fr: "Le canal de l’Ouverture relie la Gorge (porte 12) au Plexus solaire (porte 22). Moteur relié à la Gorge, il fait de l’expression émotionnelle et de l’aisance sociale une part constante de la personne, toujours teintée par l’humeur. Une personne qui l’a défini peut être très touchante quand elle parle ou se produit dans la bonne humeur, et mieux vaut respecter son silence dans le cas contraire.",
+      en: "The channel of Openness links the Throat (gate 12) to the Solar Plexus (gate 22). Linking a motor to the Throat, it makes emotional expression and social grace a consistent part of a person, always coloured by mood. Someone with it defined can be deeply moving when they speak or perform in the right mood, and is best left to their silence when they are not.",
+      fr: "Le canal de l’Ouverture relie la Gorge (porte 12) au Plexus solaire (porte 22). Reliant un moteur à la Gorge, il fait de l’expression émotionnelle et de l’aisance sociale une part constante de la personne, toujours teintée par l’humeur. Une personne qui l’a défini peut être très touchante quand elle parle ou se produit et que l’humeur s’y prête, et mieux vaut respecter son silence dans le cas contraire.",
     },
   },
   "35–36": {
     name: { en: "Transitoriness", fr: "Éphémère" },
     what: {
-      en: "The channel of Transitoriness links the Throat (gate 35) to the Solar Plexus (gate 36). A motor connected to the Throat, it gives a consistent emotional drive for new experiences and the ability to act on it. Someone with it defined often changes jobs, cities or passions several times and gains broad life experience. Waiting for emotional clarity before jumping in avoids many of the crises.",
-      fr: "Le canal de l’Éphémère relie la Gorge (porte 35) au Plexus solaire (porte 36). Moteur relié à la Gorge, il donne une poussée émotionnelle constante vers de nouvelles expériences et la capacité d’y aller. Une personne qui l’a défini change souvent plusieurs fois de travail, de ville ou de passion et acquiert une large expérience de la vie. Attendre la clarté émotionnelle avant de se lancer évite bien des crises.",
+      en: "The channel of Transitoriness links the Throat (gate 35) to the Solar Plexus (gate 36). Linking a motor to the Throat, it gives a consistent emotional drive for new experiences and the ability to act on it. Someone with it defined often changes jobs, cities or passions several times and gains broad life experience. Waiting for emotional clarity before jumping in avoids many of the crises.",
+      fr: "Le canal de l’Éphémère relie la Gorge (porte 35) au Plexus solaire (porte 36). Reliant un moteur à la Gorge, il donne une poussée émotionnelle constante vers de nouvelles expériences et la capacité d’y aller. Une personne qui l’a défini change souvent plusieurs fois de travail, de ville ou de passion et acquiert une large expérience de la vie. Attendre la clarté émotionnelle avant de se lancer évite bien des crises.",
     },
   },
   "10–57": {
@@ -653,9 +653,9 @@ export const HD_CHANNEL_TEXT: Record<string, HdText> = {
     },
   },
   "18–58": {
-    name: { en: "Judgment", fr: "Jugement" },
+    name: { en: "Judgement", fr: "Jugement" },
     what: {
-      en: "The channel of Judgment links the Spleen (gate 18) to the Root (gate 58). It gives a consistent drive to see what is wrong and improve it, fuelled by a real joy in making things better. Someone with it defined is often an excellent editor, tester or coach. Offered where it was invited, the critique helps; offered everywhere, it strains relationships.",
+      en: "The channel of Judgement links the Spleen (gate 18) to the Root (gate 58). It gives a consistent drive to see what is wrong and improve it, fuelled by a real joy in making things better. Someone with it defined is often an excellent editor, tester or coach. Offered where it was invited, the critique helps; offered everywhere, it strains relationships.",
       fr: "Le canal du Jugement relie la Rate (porte 18) à la Racine (porte 58). Il donne une poussée constante à voir ce qui ne va pas et à l’améliorer, nourrie par une vraie joie de rendre les choses meilleures. Une personne qui l’a défini est souvent excellente en relecture, en test ou en accompagnement. Là où elle a été invitée, la critique aide\u202f; distribuée partout, elle abîme les relations.",
     },
   },
@@ -684,7 +684,7 @@ export const HD_CHANNEL_TEXT: Record<string, HdText> = {
     name: { en: "Mutation", fr: "Mutation" },
     what: {
       en: "The channel of Mutation links the Sacral (gate 3) to the Root (gate 60). It makes a person consistently able to bring something new into form, but in pulses rather than steadily. Someone with it defined may go through flat or melancholic stretches followed by sudden creative change, in their work or their life. Accepting the quiet phases as part of the process helps.",
-      fr: "Le canal de la Mutation relie le Sacral (porte 3) à la Racine (porte 60). Il permet en permanence de donner forme à quelque chose de neuf, mais par impulsions plutôt que de façon régulière. Une personne qui l’a défini traverse parfois des périodes plates ou mélancoliques suivies d’un changement créatif soudain, dans son travail ou sa vie. Accepter les phases calmes comme une partie du processus aide.",
+      fr: "Le canal de la Mutation relie le Sacral (porte 3) à la Racine (porte 60). Il permet en permanence de donner forme à quelque chose de neuf, mais par impulsions plutôt que de façon régulière. Une personne qui l’a défini traverse parfois des périodes plates ou mélancoliques suivies d’un changement créatif soudain, dans son travail ou sa vie. Il est utile d’accepter les phases calmes comme faisant partie du processus.",
     },
   },
   "42–53": {
@@ -698,7 +698,7 @@ export const HD_CHANNEL_TEXT: Record<string, HdText> = {
     name: { en: "Synthesis", fr: "Synthèse" },
     what: {
       en: "The channel of Synthesis links the Root (gate 19) to the Solar Plexus (gate 49). It makes a person consistently sensitive to needs and principles within relationships and groups. Someone with it defined often notices what a partner or a community needs before it is said, and has firm views on who belongs. Emotional clarity keeps their decisions about people fair.",
-      fr: "Le canal de la Synthèse relie la Racine (porte 19) au Plexus solaire (porte 49). Il rend une personne constamment sensible aux besoins et aux principes au sein des relations et des groupes. Une personne qui l’a défini remarque souvent ce dont un partenaire ou une communauté a besoin avant que ce soit dit, et a des vues fermes sur qui a sa place. La clarté émotionnelle garde ses décisions sur les gens justes.",
+      fr: "Le canal de la Synthèse relie la Racine (porte 19) au Plexus solaire (porte 49). Il rend une personne constamment sensible aux besoins et aux principes au sein des relations et des groupes. Une personne qui l’a défini remarque souvent ce dont un partenaire ou une communauté a besoin avant que ce soit dit, et a des vues fermes sur qui a sa place. C’est la clarté émotionnelle qui rend justes ses décisions sur les autres.",
     },
   },
   "39–55": {
@@ -736,7 +736,7 @@ export const HD_PROFILE_TEXT: Record<string, HdText> = {
   "2/4": {
     name: { en: "Hermit / Opportunist", fr: "Ermite / Opportuniste" },
     what: {
-      en: "The 2/4 profile combines a conscious need for time alone to practise natural talents (line 2) with an unconscious ability to connect through friends and acquaintances (line 4). The person often doesn’t see their own gifts, but others do and call them out. For example, someone who plays guitar alone in their room until a friend asks them to play at a wedding. Accepting the right calls, not all of them, matters.",
+      en: "The 2/4 profile combines a conscious need for time alone to practise natural talents (line 2) with an unconscious ability to connect through friends and acquaintances (line 4). The person often doesn’t see their own gifts, but others do and draw them out. For example, someone who plays guitar alone in their room until a friend asks them to play at a wedding. Accepting the right calls, not all of them, matters.",
       fr: "Le profil 2/4 associe un besoin conscient de solitude pour cultiver des talents naturels (ligne 2) à une capacité inconsciente à se lier par les amis et connaissances (ligne 4). La personne voit rarement ses propres dons, mais les autres les voient et viennent la chercher. Par exemple, quelqu’un qui joue de la guitare seul dans sa chambre jusqu’à ce qu’un ami lui demande de jouer à un mariage. L’enjeu est d’accepter les bons appels, pas tous.",
     },
   },
@@ -817,7 +817,7 @@ export const HD_LINE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6, HdText> = {
   2: {
     name: { en: "Hermit", fr: "Ermite" },
     what: {
-      en: "Line 2 carries natural talents that develop best in private. It wants to be left alone to do its thing, and is often called out by others who spot the talent. For example, someone who sings only at home until a friend overhears and invites them to perform.",
+      en: "Line 2 carries natural talents that develop best in private. It wants to be left alone to do its thing, and is often drawn out by others who spot the talent. For example, someone who sings only at home until a friend overhears and invites them to perform.",
       fr: "La ligne 2 porte des talents naturels qui se développent mieux à l’abri des regards. Elle veut qu’on la laisse faire tranquillement, et d’autres viennent souvent la chercher après avoir repéré son talent. Par exemple, quelqu’un qui ne chante que chez lui jusqu’à ce qu’un ami l’entende et l’invite à se produire.",
     },
   },
@@ -825,14 +825,14 @@ export const HD_LINE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6, HdText> = {
     name: { en: "Martyr", fr: "Martyr" },
     what: {
       en: "Line 3 learns through trial and error: it discovers what works by running into what doesn’t. The name sounds heavy, but the result is resilient, practical knowledge. Someone with a third line may try several jobs before finding the right one, and can later explain why the others failed.",
-      fr: "La ligne 3 apprend par essais et erreurs\u202f: elle découvre ce qui marche en se heurtant à ce qui ne marche pas. Le nom semble lourd, mais le résultat est un savoir pratique et résistant. Une personne qui a une ligne 3 essaie parfois plusieurs métiers ou recettes avant de trouver le bon, et peut ensuite expliquer précisément pourquoi les autres ont échoué.",
+      fr: "La ligne 3 apprend par essais et erreurs\u202f: elle découvre ce qui marche en se heurtant à ce qui ne marche pas. Le nom semble lourd, mais le résultat est un savoir pratique et résistant. Une personne qui a une ligne 3 essaie parfois plusieurs métiers avant de trouver le bon, et peut ensuite expliquer pourquoi les autres n’ont pas marché.",
     },
   },
   4: {
     name: { en: "Opportunist", fr: "Opportuniste" },
     what: {
-      en: "Line 4 works through its network. Its opportunities come mainly through people it already knows, and it influences others through friendship rather than strangers. For example, someone who gets most of their jobs by recommendation and feels unsettled when a long friendship ends without a clear replacement.",
-      fr: "La ligne 4 passe par son réseau. Ses occasions viennent surtout de personnes qu’elle connaît déjà, et elle influence les autres par l’amitié plutôt qu’auprès d’inconnus. Par exemple, quelqu’un qui trouve la plupart de ses emplois par recommandation et se sent désemparé quand une longue amitié se termine sans relais.",
+      en: "Line 4 works through its network. Its opportunities come mainly through people it already knows, and its influence works through friendship, on its own circle rather than on strangers. For example, someone who gets most of their jobs by recommendation and feels unsettled when a long friendship ends without a clear replacement.",
+      fr: "La ligne 4 passe par son réseau. Ses occasions viennent surtout de personnes qu’elle connaît déjà, et son influence passe par l’amitié, auprès de ses proches plutôt que d’inconnus. Par exemple, quelqu’un qui trouve la plupart de ses emplois par recommandation et se sent désemparé quand une longue amitié se termine sans relais.",
     },
   },
   5: {
@@ -863,7 +863,7 @@ export const HD_DEFINITION_TEXT: Record<HdDefinition, Bi> = {
   },
   Split: {
     en: "Split definition means the defined centres form two separate groups that are not connected to each other. The person often feels something is missing and is drawn to people whose gates bridge the gap. In practice, they may think most clearly after talking with a friend, a partner or a colleague; taking time before deciding also helps both parts come together.",
-    fr: "Une définition scindée signifie que les centres définis forment deux groupes séparés, non reliés entre eux. La personne a souvent l’impression qu’il lui manque quelque chose et se sent attirée par ceux dont les portes font le pont. Concrètement, elle réfléchit souvent plus clairement après avoir parlé avec un ami, un partenaire ou un collègue\u202f; prendre du temps avant de décider aide aussi les deux parties à se rejoindre.",
+    fr: "Une définition double signifie que les centres définis forment deux groupes séparés, non reliés entre eux. La personne a souvent l’impression qu’il lui manque quelque chose et se sent attirée par ceux dont les portes font le pont. Concrètement, elle réfléchit souvent plus clairement après avoir parlé avec un ami, un partenaire ou un collègue\u202f; prendre du temps avant de décider aide aussi les deux parties à se rejoindre.",
   },
   "Triple split": {
     en: "Triple split definition means the defined centres form three separate groups. The person usually needs variety in their contacts, because different people connect different parts. For example, they may think best in public places such as cafés or open offices, and decide better after some time moving between people rather than under pressure.",
@@ -885,12 +885,12 @@ export const HD_ABOUT: {
   personalityDesign: Bi;
 } = {
   system: {
-    en: "Human Design is a system created by Ra Uru Hu in 1987 that combines astrology, the I Ching, the Kabbalah Tree of Life and the chakras. It uses the planets' positions at birth and about 88° of solar arc before birth — roughly three months — to draw a bodygraph of nine centres. In Human Design, that chart describes how a person is built to make decisions and use their energy; it is a framework for self-observation, not a scientific finding.",
-    fr: "Le Human Design est un système créé par Ra Uru Hu en 1987, qui combine astrologie, Yi King, Arbre de vie de la Kabbale et chakras. Il s’appuie sur la position des planètes à la naissance et environ 88° d’arc solaire avant la naissance — trois mois à peu près — pour tracer un schéma corporel à neuf centres. En Human Design, ce schéma décrit la façon dont une personne est faite pour décider et utiliser son énergie\u202f; c’est un cadre d’observation de soi, pas un résultat scientifique.",
+    en: "Human Design is a system created by Ra Uru Hu in 1987 that combines astrology, the I Ching, the Kabbalah Tree of Life and the chakras. It uses the planets’ positions at birth and about 88° of solar arc before birth — roughly three months — to draw a bodygraph of nine centres. In Human Design, that chart describes how a person is built to make decisions and use their energy; it is a framework for self-observation, not a scientific finding.",
+    fr: "Le Human Design est un système créé par Ra Uru Hu en 1987, qui combine astrologie, Yi King, Arbre de vie de la Kabbale et chakras. Il s’appuie sur la position des planètes à la naissance et environ 88° d’arc solaire avant la naissance — trois mois à peu près — pour tracer un bodygraph à neuf centres. En Human Design, ce schéma décrit la façon dont une personne est faite pour décider et utiliser son énergie\u202f; c’est un cadre d’observation de soi, pas un résultat scientifique.",
   },
   gate: {
-    en: "A gate is one of the 64 hexagrams of the I Ching, placed around the zodiac so that each covers about 5.6° of the ecliptic. Each gate belongs to one centre, and a planet in that section at birth or in the Design period activates it. An activated gate is a theme you carry consistently, even when the gate across from it is not active.",
-    fr: "Une porte est l’un des 64 hexagrammes du Yi King, répartis autour du zodiaque de sorte que chacun couvre environ 5,6° de l’écliptique. Chaque porte appartient à un centre, et une planète située dans ce secteur à la naissance ou pendant la période du Design l’active. Une porte activée est un thème que vous portez de façon constante, même quand la porte qui lui fait face n’est pas active.",
+    en: "A gate is one of the 64 hexagrams of the I Ching, placed around the zodiac so that each covers about 5.6° of the ecliptic. Each gate belongs to one centre, and a planet in that section at birth or at the Design moment activates it. An activated gate is a theme you carry consistently, even when the gate across from it is not active.",
+    fr: "Une porte est l’un des 64 hexagrammes du Yi King, répartis autour du zodiaque de sorte que chacun couvre environ 5,6° de l’écliptique. Chaque porte appartient à un centre, et une planète située dans ce secteur à la naissance ou au moment du Design l’active. Une porte activée est un thème que vous portez de façon constante, même quand la porte qui lui fait face n’est pas active.",
   },
   channel: {
     en: "A channel joins two gates in two different centres. When both gates are activated, the channel is defined and both centres become defined too. In Human Design, a defined channel is an always-on trait, a consistent way of functioning that others can rely on.",
@@ -902,10 +902,10 @@ export const HD_ABOUT: {
   },
   definition: {
     en: "Definition describes how the defined centres connect to each other through channels. They can form one continuous group (single), two or more separate groups (split, triple split, quadruple split), or there can be none at all. It shows whether someone tends to feel whole on their own or finds that certain people help their parts connect.",
-    fr: "La définition décrit la façon dont les centres définis sont reliés entre eux par des canaux. Ils peuvent former un seul ensemble continu (définition simple), deux groupes séparés ou plus (scindée, triple, quadruple), ou il peut n’y en avoir aucun. Elle indique si une personne tend à se sentir complète seule, ou si certaines personnes l’aident à relier ses différentes parties.",
+    fr: "La définition décrit la façon dont les centres définis sont reliés entre eux par des canaux. Ils peuvent former un seul ensemble continu (définition simple), deux groupes séparés ou plus (double, triple, quadruple), ou il peut n’y en avoir aucun. Elle indique si une personne tend à se sentir complète seule, ou si certaines personnes l’aident à relier ses différentes parties.",
   },
   personalityDesign: {
-    en: "Each chart has two layers. The Personality, shown in black, uses the planets at the moment of birth and describes what you are conscious of in yourself. The Design, shown in red, uses the planets when the Sun was about 88° earlier — roughly three months before birth — and describes traits others often see in you more clearly than you do.",
-    fr: "Chaque schéma comporte deux couches. La Personnalité, en noir, utilise les planètes au moment de la naissance et décrit ce dont vous avez conscience en vous. Le Design, en rouge, utilise les planètes quand le Soleil se trouvait environ 88° plus tôt — trois mois avant la naissance à peu près — et décrit des traits que les autres voient souvent en vous plus clairement que vous-même.",
+    en: "Each chart has two layers. The Personality, shown in ink (black in traditional charts), uses the planets at the moment of birth and describes what you are conscious of in yourself. The Design, shown in red, uses the planets when the Sun was about 88° earlier — roughly three months before birth — and describes traits others often see in you more clearly than you do.",
+    fr: "Chaque schéma comporte deux couches. La Personnalité, à l’encre (en noir dans les schémas traditionnels), utilise les planètes au moment de la naissance et décrit ce dont vous avez conscience en vous. Le Design, en rouge, utilise les planètes quand le Soleil se trouvait environ 88° plus tôt — trois mois avant la naissance à peu près — et décrit des traits que les autres voient souvent en vous plus clairement que vous-même.",
   },
 };

@@ -8,7 +8,6 @@ import type { TransitWindow } from "@/lib/chart/personal-transits";
 import type { SkyAspect, SkyEvent } from "@/lib/chart/sky-events";
 import { seasonOf } from "@/lib/chart/sky-events";
 import { utcFromCivil, type CivilDate } from "@/lib/chart/timing-window";
-import { formatOrb } from "@/lib/i18n/astro";
 import {
   CALENDAR_UI,
   dayMoonWords,
@@ -24,7 +23,7 @@ import {
 import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
 import { dateFormat } from "@/lib/intl-cache";
-import { cn, formatDegree } from "@/lib/utils";
+import { cn, formatArc, formatDegree } from "@/lib/utils";
 
 const D = CALENDAR_UI.day;
 
@@ -101,7 +100,7 @@ export function CalendarDay({
     if (next != null) return fill(CALENDAR_UI.yours.exactOn, locale, { when: shortDay(next) });
     const last = w.passes[w.passes.length - 1];
     if (last != null) return fill(D.easing, locale, { when: shortDay(last) });
-    return fill(D.closest, locale, { orb: formatOrb(w.minOrb, locale) });
+    return fill(D.closest, locale, { orb: formatArc(w.minOrb) });
   };
 
   return (

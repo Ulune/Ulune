@@ -33,7 +33,7 @@ function coreLine(chart: NumerologyChart, id: NumerologyCoreId, locale: AppLocal
     : isMaster(value.number)
       ? `, ${numerologyWheelText(locale, "master")}`
       : "";
-  const sep = locale === "fr" ? " : " : ": ";
+  const sep = locale === "fr" ? "\u202f: " : ": ";
   return steps && steps !== whole ? `${label} ${whole}${sep}${steps}${tail}` : `${label} ${whole}${tail}`;
 }
 
@@ -56,7 +56,7 @@ export function numerologySay(chart: NumerologyChart, id: string, locale: AppLoc
     );
     if (chart.personalYear.digit === n) cores.push(numerologyWheelText(locale, "yearDisc", { n, year: chart.calendarYear }));
     if (!cores.length) return line;
-    return birth ? `${line}${locale === "fr" ? " ; " : "; "}${cores.join(", ")}` : `${line}${locale === "fr" ? " : " : ": "}${cores.join(", ")}`;
+    return birth ? `${line}${locale === "fr" ? "\u202f; " : "; "}${cores.join(", ")}` : `${line}${locale === "fr" ? "\u202f: " : ": "}${cores.join(", ")}`;
   }
   if (id.startsWith("letter:")) {
     const at = Number(id.slice(7));
@@ -80,7 +80,7 @@ export function numerologySay(chart: NumerologyChart, id: string, locale: AppLoc
   if (id === "core:personalYear") {
     const steps = stepsText(chart.personalYear);
     const head = numerologyWheelText(locale, "yearDisc", { n: chart.personalYear.number ?? "", year: chart.calendarYear });
-    return steps ? `${head}${locale === "fr" ? " : " : ": "}${steps}` : head;
+    return steps ? `${head}${locale === "fr" ? "\u202f: " : ": "}${steps}` : head;
   }
   if (id === "time:month") {
     return numerologyWheelText(locale, "monthTick", {

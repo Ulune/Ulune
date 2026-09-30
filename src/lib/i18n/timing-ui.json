@@ -12,11 +12,11 @@
     },
     "year": {
       "en": "Year",
-      "fr": "An"
+      "fr": "Année"
     }
   },
   "readingEmpty": {
-    "en": "Tap a date, a body, or an aspect.",
+    "en": "Tap a date, a body or an aspect.",
     "fr": "Touchez une date, un astre ou un aspect."
   },
   "noNatal": {
