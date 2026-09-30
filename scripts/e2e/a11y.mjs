@@ -1,6 +1,7 @@
 /**
  * Accessible names: every visible button, link, input and select has one,
- * and in French no aria-label is left in English.
+ * and in French no aria-label is left in English. The keyboard: the tab
+ * lists, the wheel's list, and no field hidden under a sticky button.
  */
 import { FIXTURE_A, castFixture, clickDockTab, goStudioPage, gotoApp, launch, setLang } from "./_lib.mjs";
 
@@ -149,6 +150,36 @@ for (const lang of ["en", "fr"]) {
     if (!name || !said.includes(name)) fail(`said "${said}" for "${name}"`);
     const stops = await page.evaluate(() => document.querySelectorAll('svg.ulune-wheel [tabindex="0"]').length);
     if (stops) fail(`${stops} parts of the wheel are still Tab stops`);
+  } finally {
+    await browser.close();
+  }
+}
+
+// A field reached with Tab is never hidden under the Cast button that sticks to
+// the bottom of the form below 768 px (WCAG 2.4.11): on a phone, on a laptop at 200%.
+for (const [width, height] of [[390, 664], [640, 450]]) {
+  const { browser, page } = await launch({ width, height });
+  try {
+    await gotoApp(page);
+    await page.waitForSelector("#native-name");
+    const names = page.getByTestId("birth-names");
+    if ((await names.count()) && !(await names.evaluate((el) => el.open))) await names.locator("summary").click();
+    await page.evaluate(() => document.activeElement?.blur());
+    for (let i = 0; i < 30; i += 1) {
+      await page.keyboard.press("Tab");
+      await page.waitForTimeout(100);
+      const r = await page.evaluate(() => {
+        const el = document.activeElement;
+        if (!el || el === document.body || !el.closest("form")) return null;
+        const b = el.getBoundingClientRect();
+        const top = document.elementFromPoint(b.left + b.width / 2, Math.min(innerHeight - 1, b.top + b.height / 2));
+        const hidden = b.bottom > innerHeight || !(top === el || el.contains(top) || top?.contains(el));
+        return { id: el.id || el.getAttribute("data-testid") || el.tagName.toLowerCase(), hidden, under: top?.getAttribute("data-testid") ?? top?.tagName };
+      });
+      if (!r) continue;
+      if (r.hidden) problems.push(`focus: ${width}×${height}: ${r.id} hidden under ${r.under}`);
+      if (r.id === "cast-submit") break;
+    }
   } finally {
     await browser.close();
   }

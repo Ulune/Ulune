@@ -519,7 +519,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
     <form
       ref={formRef}
       data-mode={mode ?? "new"}
-      className="grid grid-cols-2 items-end gap-[var(--space-3)]"
+      className="ulune-birth-form grid grid-cols-2 items-end gap-[var(--space-3)]"
       autoComplete="off"
       noValidate
       action="#"

@@ -385,6 +385,13 @@ body {
 .ulune-orb-mark:last-child {
   transform: translateX(calc(-100% + var(--ulune-orb-thumb) / 2));
 }
+/* Under 768 px the Cast button sticks to the bottom of the form: a field reached
+   with Tab scrolls to stop above it, not under it. */
+@media (width < 48rem) {
+  :is(.ob-figure, .ulune-dock-scroll):has(.ulune-birth-form) {
+    scroll-padding-bottom: 4.5rem;
+  }
+}
 .ulune-orb-slider {
   -webkit-appearance: none;
   appearance: none;
