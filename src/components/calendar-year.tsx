@@ -72,6 +72,22 @@ function useFormats(tz: string) {
   };
 }
 
+/** The widest stretch of a sign's time that no retrograde stretch covers (the whole of it when none does). */
+function openStretch(seg: { from: number; to: number }, retro: { from: number; to: number }[]) {
+  let parts = [{ from: seg.from, to: seg.to }];
+  for (const r of retro) {
+    parts = parts.flatMap((p) =>
+      r.to <= p.from || r.from >= p.to
+        ? [p]
+        : [
+            ...(r.from > p.from ? [{ from: p.from, to: r.from }] : []),
+            ...(r.to < p.to ? [{ from: r.to, to: p.to }] : []),
+          ],
+    );
+  }
+  return parts.reduce((best, p) => (p.to - p.from > best.to - best.from ? p : best), { from: seg.from, to: seg.from });
+}
+
 /** The long cycles changing in the year, each with the noon of its birthday in the calendar's clock. */
 function yearChanges(num: NumerologyCalendar | null | undefined, year: number, tz: string) {
   if (!num) return [];
@@ -166,6 +182,8 @@ function YearTimeline({ layout, tz, nowMs, showSky, showYours, selectedId, onSel
                 {b.segments.map((s) => {
                   const w = x(s.to) - x(s.from);
                   const id = SIGN_IDS[s.sign]!;
+                  const free = openStretch(s, b.retro);
+                  const room = x(free.to) - x(free.from);
                   return (
                     <span
                       key={s.from}
@@ -173,7 +191,11 @@ function YearTimeline({ layout, tz, nowMs, showSky, showYours, selectedId, onSel
                       style={{ left: pct(x(s.from)), width: pct(w), ["--el" as string]: ELEMENT_COLOR[SIGN_META[id].element] }}
                       title={`${bodyLabel(b.body, locale)} · ${f.dayMonth(s.from)} – ${f.dayMonth(s.to)}`}
                     >
-                      {w > 0.035 ? <SignMark sign={s.sign} size={12} /> : null}
+                      {room > 0.035 ? (
+                        <span className="ulune-cal-tl-signat" style={{ left: pct((x((free.from + free.to) / 2) - x(s.from)) / w) }}>
+                          <SignMark sign={s.sign} size={12} />
+                        </span>
+                      ) : null}
                     </span>
                   );
                 })}
@@ -571,7 +593,9 @@ export function CalendarYearPanel({
           ) : null}
           {retro.map((r) => (
             <p key={r.body} className="ulune-cal-yearline">
-              <b>{fill(Y.retro, locale, { body: bodyLabel(r.body, locale) })}</b> {join(r.spans)}
+              <b>{fill(Y.retro, locale, { body: bodyLabel(r.body, locale) })}</b>
+              {locale === "fr" ? "\u202f: " : ": "}
+              {join(r.spans)}
             </p>
           ))}
           {slow.length ? (

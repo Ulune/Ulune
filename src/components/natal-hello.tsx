@@ -144,8 +144,8 @@ export function NatalGlance({
     });
   }
 
-  const elMax = Math.max(1, ...ELEMENTS.map((e) => pat.elementCounts[e] ?? 0));
-  const moMax = Math.max(1, ...MODALITIES.map((m) => pat.modalityCounts[m] ?? 0));
+  // One scale for both rows, so that three bodies draw the same bar in each.
+  const balanceMax = Math.max(1, ...ELEMENTS.map((e) => pat.elementCounts[e] ?? 0), ...MODALITIES.map((m) => pat.modalityCounts[m] ?? 0));
 
   return (
     <section
@@ -224,7 +224,7 @@ export function NatalGlance({
             n: pat.elementCounts[e] ?? 0,
             color: `var(--el-${e})`,
           }))}
-          max={elMax}
+          max={balanceMax}
         />
         <BalanceRow
           uncertain={!signsSure}
@@ -235,7 +235,7 @@ export function NatalGlance({
             n: pat.modalityCounts[m] ?? 0,
             color: "var(--color-fg-muted)",
           }))}
-          max={moMax}
+          max={balanceMax}
         />
       </div>
 

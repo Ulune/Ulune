@@ -1768,6 +1768,10 @@ html.theme-switching * {
   color: var(--color-fg);
   font: 400 16px/1 var(--font-ui);
 }
+.ob-palette-input input::placeholder {
+  color: var(--color-fg-subtle);
+  opacity: 1;
+}
 .ob-palette-list {
   margin: 0;
   padding: 6px;
