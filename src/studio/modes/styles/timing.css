@@ -610,7 +610,8 @@ button.ulune-cal-now-line:hover,
   background: var(--color-bg-subtle);
 }
 .ulune-cal-row.is-past {
-  opacity: 0.55;
+  opacity: 0.75;
+  --color-fg-subtle: var(--color-fg-muted);
 }
 .ulune-cal-row-time {
   font: 500 13px/1 var(--font-mono);

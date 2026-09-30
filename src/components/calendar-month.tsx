@@ -115,6 +115,26 @@ export function CalendarMonth({
   }, [civil.year, civil.month]);
   const inMonth = (key: string | null) => (key && key.startsWith(`${civil.year}-${String(civil.month).padStart(2, "0")}-`) ? key : null);
   const stop = inMonth(selectedDay) ?? inMonth(todayKey) ?? civilKey(first);
+  // The chosen day, else today, in view: on a short screen the last weeks sit below the
+  // calendar's fold. Measured from the layout, not the cells' entrance transforms.
+  const shownDay = inMonth(selectedDay) ?? inMonth(todayKey);
+  useEffect(() => {
+    if (!shownDay) return;
+    const frame = requestAnimationFrame(() => {
+      const cell = grid.current?.querySelector<HTMLElement>(`[data-testid="calendar-day-${shownDay}"]`);
+      const box = cell?.closest<HTMLElement>(".ulune-timing-hero");
+      if (!cell || !box || box.scrollHeight <= box.clientHeight + 1) return;
+      const top = (el: HTMLElement) => {
+        let t = 0;
+        for (let e: HTMLElement | null = el; e; e = e.offsetParent as HTMLElement | null) t += e.offsetTop;
+        return t;
+      };
+      const y = top(cell) - top(box);
+      if (y + cell.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = y + cell.offsetHeight - box.clientHeight + 8;
+      else if (y < box.scrollTop) box.scrollTop = Math.max(0, y - 8);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [shownDay, civil.year, civil.month]);
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
     const btn = (e.target as HTMLElement).closest<HTMLElement>("[data-day]");
     if (!btn) return;

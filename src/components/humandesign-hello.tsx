@@ -47,7 +47,10 @@ export function HumanDesignHello({
     if (id === "strategy") return hdStrategyLabel(locale, chart.strategy);
     if (id === "authority") {
       const label = hdAuthorityLabel(locale, chart.authority);
-      return seat ? `${label} · ${hdCenterLabel(locale, seat)}` : label;
+      const center = seat ? hdCenterLabel(locale, seat) : "";
+      // "Sacral · Sacral" says nothing more: the centre only when its name differs.
+      const same = center && label.toLowerCase().startsWith(center.toLowerCase().slice(0, 5));
+      return center && !same ? `${label} · ${center}` : label;
     }
     if (id === "profile") return read?.profileName ? `${chart.profile} · ${read.profileName}` : chart.profile;
     return hdDefinitionLabel(locale, chart.definition);

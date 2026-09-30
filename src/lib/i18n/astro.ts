@@ -140,7 +140,7 @@ const PLANET_FR_NOM: Record<PlanetId, FrNom> = {
 
 const PLANET_ABBR_EN: Record<PlanetId, string> = {
   sun: "Sun",
-  moon: "Moo",
+  moon: "Moon",
   mercury: "Mer",
   venus: "Ven",
   mars: "Mar",
@@ -167,7 +167,7 @@ const PLANET_ABBR_EN: Record<PlanetId, string> = {
 
 const PLANET_ABBR_FR: Record<PlanetId, string> = {
   sun: "Sol",
-  moon: "Lun",
+  moon: "Lune",
   mercury: "Mer",
   venus: "Vén",
   mars: "Mar",

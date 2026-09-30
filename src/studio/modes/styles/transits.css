@@ -16,6 +16,14 @@
   min-width: 0;
   flex: 1 1 7.5rem;
 }
+/* The date and its calendar button keep room for "30/09/2026"; the time needs less. */
+.ulune-transit-clock-field:first-of-type {
+  flex: 1.5 1 10.5rem;
+  min-width: 10.5rem;
+}
+.ulune-transit-clock-field:nth-of-type(2) {
+  flex: 1 1 5.5rem;
+}
 .ulune-transit-now {
   display: inline-flex;
   flex-shrink: 0;
