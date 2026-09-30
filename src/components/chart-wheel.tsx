@@ -67,9 +67,8 @@ import {
 import { CenteredAspectGlyph, MidpointGlyph, MONO_STACK, PlanetGlyph, SignGlyph, StarGlyph } from "./glyphs";
 import { cssVar, textInk, useTextInkVersion } from "@/lib/chart/text-ink";
 import { WheelZoom, type WheelLens } from "./wheel-zoom";
-import { WheelFade } from "./wheel-fade";
-import { DepthController, LENS_MAX, LENS_MIN, type LiftMode } from "./depth/depth-controller";
-import { WHEEL_DEPTH_ADAPTER, collectWheelRelief } from "./depth/wheel-depth";
+import { DepthController, LENS_MAX, LENS_MIN } from "./depth/depth-controller";
+import { WHEEL_DEPTH_ADAPTER } from "./depth/wheel-depth";
 import { rankWheelFocus, rankedIds } from "@/lib/chart/wheel-rank";
 import { CAMERA_ANGLES, CAMERA_DEFAULT, CAMERA_RX_MAX, CAMERA_RX_MIN, type CameraAngle, type Wheel3DGeometry } from "./depth/camera";
 import type { WheelView3D } from "./depth/wheel-view3d";
@@ -87,6 +86,8 @@ import { WheelHint } from "./wheel-hint";
 import { WheelKeys } from "./wheel-keys";
 import { arcSpan, placeBadges, placeBeside, placeLabels, type Disc, type LabelPlace } from "@/lib/chart/wheel-layout";
 import { createSelectionStore, type SelectionStore } from "@/lib/chart/selection-store";
+import { getWheelPrefs, subscribeWheelPrefs } from "@/lib/chart/wheel-prefs";
+import { WheelToggles } from "./wheel-toggles";
 import type { AspectId } from "@/lib/chart/types";
 import { formatArc } from "@/lib/utils";
 
@@ -127,22 +128,6 @@ const ASPECT_ARRIVE_MS = 700;
 
 // A reader who left the chart in 3D gets the 3D view's code straight away.
 if (typeof window !== "undefined" && getDepthPrefs().view === "3d") preloadView3D();
-/** A pin or unpin fades the focus in slower than a hover does (ms). */
-const PIN_FADE_MS = 520;
-/** How long a focus takes to fade in: on hover, and on a pin or unpin (ms; styles.css --chart-quick and [data-focus-fade]). */
-const HOVER_CROSS_MS = 180;
-const PIN_CROSS_MS = 460;
-/**
- * For comparing (QA): `localStorage["ulune.debug.fades"] = "node"` brings back
- * the per-node focus fades the composited ones replaced (wheel-fade.ts).
- */
-function nodeFades(): boolean {
-  try {
-    return window.localStorage.getItem("ulune.debug.fades") === "node";
-  } catch {
-    return false;
-  }
-}
 /**
  * The 3D view's QA handles on its stage (`__uluneView3d`, `__uluneDepth`):
  * for automated tests, or with `localStorage["ulune.debug.3d"] = "1"`.
@@ -162,10 +147,6 @@ function dropQaHandle(scene: HTMLElement | null, v: WheelView3D) {
   const s = scene as QaStage | null;
   if (s?.__uluneView3d === v) delete s.__uluneView3d;
 }
-/** How long the pointer rests on something before its relief rises (ms). */
-const HOVER_LIFT_MS = 120;
-/** How long a hover outlives the pointer leaving its target, in case the next one is right there (ms). */
-const HOVER_LINGER_MS = 90;
 const DIGNITY_MARK: Record<DignityKind, string> = {
   domicile: "D",
   exalted: "E",
@@ -230,8 +211,7 @@ const CHEVRON_MIN_LEN = 40;
 const TAPER = { lg: 14, sm: 18 } as const;
 /** The dot marking a body's degree on the aspect circle (units). */
 const DEGREE_DOT_R = 2.4;
-/** Up to this many aspects, the long major lines show their glyph at rest too. */
-const REST_MARK_MAX = 25;
+/** A line shows its glyph at rest (the switch under the chart) when it is this long, this far from the next glyph (units). */
 const REST_MARK_MIN_LEN = 40;
 const REST_MARK_GAP = 24;
 /** Degree labels: text size (units) on a desktop-sized wheel and on a small one (degree only). */
@@ -351,10 +331,15 @@ function tickPath(from: number, to: number, step: number, r0: number, r1: number
  * `hw`×`hh` half-extents of a label box. Slop is not baked in — see `hitTest`.
  */
 type HitTarget = { id: string; x: number; y: number; core: number; hw?: number; hh?: number };
-/** Forgiveness around a painted mark, in CSS pixels at any wheel size. */
+/**
+ * Forgiveness around a painted mark for a finger, in CSS pixels at any wheel
+ * size. A mouse gets none: it lights what it is on, nothing around it.
+ */
 const TOUCH_SLOP_PX = 5;
-/** Same, for the aspect chords in the inner disc. */
+/** How near an aspect line a finger may land and still take it (CSS pixels, each side). */
 const ASPECT_HIT_PX = 4.5;
+/** The same for a mouse: close to the line as drawn, enough to catch a hairline. */
+const ASPECT_HIT_MOUSE_PX = 3;
 
 /** Signed distance to the painted mark: 0 or less means the pointer is on it. */
 function targetDist(t: HitTarget, x: number, y: number) {
@@ -763,19 +748,10 @@ const ChartWheelView = memo(function ChartWheelView({
   const hoverIdRef = useRef<string | null>(null);
   const cacheRef = useRef<WheelPaintCache | null>(null);
   const ctxRef = useRef<WheelFocusCtx | null>(null);
-  /** Paint the focus for `hover`; `liftOnly` skips the paint (it stands) and only lifts. */
-  const paintNowRef = useRef<(hover: string | null, liftOnly?: boolean) => void>(() => {});
-  /** A pin's relief waiting for the frame that shows its highlight. */
-  const liftSoonRef = useRef({ frame: 0, task: 0 });
-  useEffect(
-    () => () => {
-      window.cancelAnimationFrame(liftSoonRef.current.frame);
-      window.clearTimeout(liftSoonRef.current.task);
-    },
-    [],
-  );
-  // Depth: the scene around the SVG, the controller that lifts what is in
-  // focus, and the id another panel asks us to preview.
+  /** Paint the focus for `hover` (with the pin, or a panel's preview), at once. */
+  const paintNowRef = useRef<(hover: string | null) => void>(() => {});
+  // Depth: the scene around the SVG, the controller the 3D view turns, and
+  // the id another panel asks us to preview.
   const sceneRef = useRef<HTMLDivElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
   const depthRef = useRef<DepthController | null>(null);
@@ -814,12 +790,6 @@ const ChartWheelView = memo(function ChartWheelView({
   /** The wheel's detail band (wheel-zoom.tsx): a small wheel gets shorter, bigger labels. */
   const [fit, setFit] = useState<"sm" | "lg">("lg");
   const depthView = useDepthPrefs().view;
-  const lastPinRef = useRef<string | null>(null);
-  const pinFadeRef = useRef(0);
-  /** Until when a pin's slower fade runs (performance.now()). */
-  const pinFadeUntilRef = useRef(0);
-  /** The focus fades, composited (wheel-fade.ts): one per live SVG. */
-  const fadeRef = useRef<WheelFade | null>(null);
   /**
    * The element under the pointer showing the hand, while it is over
    * something: the cursor is set on it, not on the SVG (an inherited change on
@@ -834,16 +804,11 @@ const ChartWheelView = memo(function ChartWheelView({
     if (el) el.style.cursor = "pointer";
     cursorElRef.current = el;
   };
-  /** A hovered relief waiting for the pointer to rest (see HOVER_LIFT_MS). */
-  const hoverLiftRef = useRef<{ key: string | null; timer: number }>({ key: null, timer: 0 });
-  /** A hover about to be let go (see HOVER_LINGER_MS). */
-  const hoverClearRef = useRef(0);
   const orbitClickRef = useRef(false);
   /** A right-button pan just ended: swallow its context menu. */
   const panMenuRef = useRef(false);
   /** Let go of the pointer hover (entering or leaving the 3D view swaps what is under it). */
   const clearHoverRef = useRef(() => {
-    window.clearTimeout(hoverClearRef.current);
     if (hoverIdRef.current === null) return;
     hoverIdRef.current = null;
     announceChartHover(null);
@@ -1023,14 +988,15 @@ const ChartWheelView = memo(function ChartWheelView({
       const lane = degreeLanes[i];
       r.yoke = yokeGeo(degreeSpans[i], [R_ASPECT, R_ASPECT], R_ASPECT - YOKE_IN[fit] - lane * step, lane, asc);
     });
-    // Glyphs at rest: on a chart with few aspects, the long major lines show
-    // their glyph without a hover, each slid along its line clear of the others.
-    if (rows.length <= REST_MARK_MAX) {
+    // Glyphs at rest (the switch under the chart shows them): each line's
+    // glyph slid along its line clear of the others, the tightest orbs
+    // choosing first; a line with no room left shows its glyph on hover only.
+    {
       const taken: { x: number; y: number }[] = [];
       for (const r of [...rows].sort((x, y) => x.a.orb - y.a.orb)) {
-        if (r.yoke || r.a.level !== "major") continue;
+        if (r.yoke) continue;
         if (Math.hypot(r.p2.x - r.p1.x, r.p2.y - r.p1.y) < REST_MARK_MIN_LEN) continue;
-        for (const t of [0.5, 0.4, 0.6, 0.32, 0.68]) {
+        for (const t of [0.5, 0.4, 0.6, 0.32, 0.68, 0.26, 0.74]) {
           const q = { x: r.p1.x + (r.p2.x - r.p1.x) * t, y: r.p1.y + (r.p2.y - r.p1.y) * t };
           if (taken.every((m) => Math.hypot(m.x - q.x, m.y - q.y) >= REST_MARK_GAP)) {
             taken.push(q);
@@ -1246,12 +1212,11 @@ const ChartWheelView = memo(function ChartWheelView({
     houses: chart.houses.map((h, i) => ({ id: h.id, ecl0: h.ecliptic, ecl1: chart.houses[(i + 1) % chart.houses.length].ecliptic })),
   };
 
-  paintNowRef.current = (hover, liftOnly = false) => {
+  paintNowRef.current = (hover) => {
     const svg = svgRef.current;
     const ctx = ctxRef.current;
     if (!svg || !ctx) return;
     const view3d = view3dRef.current;
-    if (liftOnly && view3d) return;
     const roots = view3d ? view3d.paintRoots() : [];
     // With the 3D view on stage the live chart is hidden under it: it is not
     // painted (the view is handed the focus itself). It is painted again as
@@ -1263,133 +1228,39 @@ const ChartWheelView = memo(function ChartWheelView({
     const preview = previewIdRef.current;
     const focusId = selected ?? hover ?? preview;
     const focus = resolveWheelFocus(focusId, ctx);
-    // A pin or unpin changes the whole picture: let it fade over slower than
-    // a hover (the attribute must be set before the paint below).
-    let pinChanged = false;
-    if (!liftOnly && selected !== lastPinRef.current) {
-      pinChanged = true;
-      lastPinRef.current = selected;
-      if (!prefersReducedMotion()) {
-        pinFadeUntilRef.current = performance.now() + PIN_FADE_MS;
-        // The per-node fades read it off the SVG; composited ones need not
-        // (toggling it restyled the whole wheel, twice a pin).
-        if (!fadeRef.current) {
-          svg.setAttribute("data-focus-fade", "");
-          window.clearTimeout(pinFadeRef.current);
-          pinFadeRef.current = window.setTimeout(() => svgRef.current?.removeAttribute("data-focus-fade"), PIN_FADE_MS);
-        }
-      }
-    }
-    if (!liftOnly) {
-      // The live wheel snaps to the new focus; a copy of what it showed fades
-      // out over it (wheel-fade.ts). Not in 3D, nor with reduced motion.
-      const fade = fadeRef.current;
-      const crossFade = Boolean(fade?.begin({ focus, selected }, !view3d && !prefersReducedMotion()));
-      if (paintLive) {
-        const cache = cacheRef.current ?? (cacheRef.current = cacheWheelPaint(svg, roots));
-        paintWheelFocus(svg, cache, focus, selected, roots);
-      }
-      if (crossFade) fade?.run(pinChanged ? PIN_CROSS_MS : HOVER_CROSS_MS);
+    // The flat chart answers at once: no fade, no rise, nothing waits (part 82).
+    if (paintLive) {
+      const cache = cacheRef.current ?? (cacheRef.current = cacheWheelPaint(svg, roots));
+      paintWheelFocus(svg, cache, focus, selected, roots, { marks: getWheelPrefs().marks });
     }
     const depth = depthRef.current;
-    const outerPrefix = synastryMode ? "partner" : progressedMode ? "progressed" : "transit";
-    if (depth && view3d) {
+    if (!depth) return;
+    structureDirtyRef.current = false;
+    if (view3d) {
       // In the 3D view, depth comes from the strata: bodies rise on their
-      // stems and the lit aspects stand up as arcs.
-      depth.lift(null);
-      depth.preview(null);
-      structureDirtyRef.current = false;
-      // Ranked like the flat chart: the focus rises highest, what it directly
-      // involves next, what those touch least (wheel-rank.ts).
+      // stems and the lit aspects stand up as arcs, ranked like the flat
+      // chart's focus: the focus itself, what it directly involves, what
+      // those touch (wheel-rank.ts).
+      const outerPrefix = synastryMode ? "partner" : progressedMode ? "progressed" : "transit";
       const rank = rankWheelFocus(focus, ctx);
       view3d.setFocus(focus, rankedIds(rank, outerPrefix), rank.aspects, Boolean(selected));
-    } else if (depth) {
-      const prefs = getDepthPrefs();
-      const mode: LiftMode | null = selected ? "pinned" : hover ? "hover" : preview ? "preview" : null;
-      // What stands out, and how high: the focus itself, then what it directly
-      // involves (sign, house, aspects — tighter orbs higher), then what those
-      // touch (see wheel-rank.ts).
-      const houses = new Map(ctx.shownPlanets.map((p) => [p.id, p.house]));
-      const reliefOpts = {
-        outerPrefix,
-        houseOf: (id: string) => houses.get(id) ?? null,
-        pinFade: performance.now() < pinFadeUntilRef.current,
-      } as const;
-      // The request's key is the ranking's id: known without collecting the
-      // pieces, which is only done once they are going to rise.
-      const rank = prefs.lift && focusId && mode ? rankWheelFocus(focus, ctx) : null;
-      const key = rank?.id || null;
-      let rise = Boolean(key);
-      // Hover intent: the highlight follows the pointer at once, but a relief
-      // only rises once the pointer rests on its target. Sweeping across the
-      // chart no longer leaves a trail of pieces rising and sinking.
-      const intent = hoverLiftRef.current;
-      if (key && mode === "hover" && depth.activeKey() !== key && !prefersReducedMotion()) {
-        if (intent.key !== key) {
-          window.clearTimeout(intent.timer);
-          intent.key = key;
-          intent.timer = window.setTimeout(() => {
-            intent.timer = 0;
-            // The highlight already stands: only the relief is left to rise.
-            paintNowRef.current(hoverIdRef.current, true);
-          }, HOVER_LIFT_MS);
-          rise = false;
-        } else if (intent.timer) {
-          rise = false;
-        }
-      } else if (intent.key !== null) {
-        window.clearTimeout(intent.timer);
-        intent.key = null;
-        intent.timer = 0;
-      }
-      const lift = () => {
-        const req = rise && rank && mode ? collectWheelRelief(svg, rank, mode, reliefOpts) : null;
-        if (structureDirtyRef.current) {
-          structureDirtyRef.current = false;
-          depth.refresh(req);
-        } else {
-          depth.lift(req);
-        }
-        // A panel preview while something is pinned rises on its own, lower.
-        const aux =
-          prefs.lift && selected && preview && preview !== selected
-            ? collectWheelRelief(svg, rankWheelFocus(resolveWheelFocus(preview, ctx), ctx), "preview", reliefOpts)
-            : null;
-        depth.preview(aux);
-      };
-      // A newer paint replaces a lift still waiting.
-      window.cancelAnimationFrame(liftSoonRef.current.frame);
-      window.clearTimeout(liftSoonRef.current.task);
-      liftSoonRef.current = { frame: 0, task: 0 };
-      if (pinChanged && !prefersReducedMotion()) {
-        // A pin or unpin shows its highlight first (it is painted above, in
-        // this commit); its relief is built in the task after that frame.
-        liftSoonRef.current.frame = window.requestAnimationFrame(() => {
-          liftSoonRef.current.frame = 0;
-          liftSoonRef.current.task = window.setTimeout(() => {
-            liftSoonRef.current.task = 0;
-            lift();
-          }, 0);
-        });
-      } else {
-        lift();
-      }
     }
   };
   paintApi.current.refresh = () => paintNowRef.current(hoverIdRef.current);
 
   useEffect(() => {
+    // A press anywhere off the chart and its companions lets go of the pin, at once.
     const onDoc = (e: PointerEvent) => {
       const selected = selectedIdRef.current;
       if (!selected) return;
       const node = e.target;
       if (!(node instanceof Element)) return;
       if (node.closest("[data-chart-pick]")) return;
-      onSelect(selected);
+      chooseRef.current(selected);
     };
     document.addEventListener("pointerdown", onDoc);
     return () => document.removeEventListener("pointerdown", onDoc);
-  }, [onSelect, selectedIdRef]);
+  }, [selectedIdRef]);
 
   // When the outer ring jumps in time (Now, a new date, another partner) its
   // bodies glide round the ring to where they now stand, glyphs and labels
@@ -1566,21 +1437,29 @@ const ChartWheelView = memo(function ChartWheelView({
     };
     scene.addEventListener("contextmenu", onMenu);
     const offPrefs = subscribeDepthPrefs(() => paintNowRef.current(hoverIdRef.current));
+    // The switches under the chart: with highlighting on hover off, what the
+    // pointer (or a panel) was lighting lets go at once; the glyphs follow theirs.
+    const offWheelPrefs = subscribeWheelPrefs(() => {
+      if (!getWheelPrefs().hover) {
+        previewIdRef.current = null;
+        clearHoverRef.current();
+        hideWheelTip();
+      }
+      paintNowRef.current(hoverIdRef.current);
+    });
     const offPreview = onChartPreview((id) => {
-      previewIdRef.current = id;
+      // A panel's preview is a hover too: none while highlighting on hover is off.
+      previewIdRef.current = getWheelPrefs().hover ? id : null;
       paintNowRef.current(hoverIdRef.current);
     });
     const offReset = onDepthReset(() => view3dRef.current?.resetCamera());
-    const intent = hoverLiftRef.current;
-    const linger = hoverClearRef;
     return () => {
       scene.removeEventListener("wheel", onWheel);
       scene.removeEventListener("contextmenu", onMenu);
       offPrefs();
+      offWheelPrefs();
       offPreview();
       offReset();
-      window.clearTimeout(intent.timer);
-      window.clearTimeout(linger.current);
       view3dRef.current?.destroy();
       view3dRef.current = null;
       depth.destroy();
@@ -1644,7 +1523,6 @@ const ChartWheelView = memo(function ChartWheelView({
       if (scene && qaHandles()) Object.assign(scene, { __uluneView3d: v, __uluneDepth: depth });
       scene?.setAttribute("data-depth-view", "3d");
       clearHoverRef.current();
-      fadeRef.current?.suspend();
       v.enter();
       cacheRef.current = null;
       paintNowRef.current(hoverIdRef.current);
@@ -1659,33 +1537,12 @@ const ChartWheelView = memo(function ChartWheelView({
         cacheRef.current = null;
         structureDirtyRef.current = true;
         paintNowRef.current(hoverIdRef.current);
-        fadeRef.current?.resume();
       });
       cacheRef.current = null;
       paintNowRef.current(hoverIdRef.current);
     }
   };
   useEffect(() => subscribeDepthPrefs(() => syncView3dRef.current()), []);
-
-  // The focus fades (wheel-fade.ts): one per live SVG, suspended in 3D.
-  useLayoutEffect(() => {
-    const svg = svgRef.current;
-    if (!svg || nodeFades()) return;
-    const fade = new WheelFade(svg);
-    if (view3dRef.current?.entered) fade.suspend();
-    fadeRef.current = fade;
-    const unwatch = fade.watch();
-    return () => {
-      unwatch();
-      fade.destroy();
-      if (fadeRef.current === fade) fadeRef.current = null;
-    };
-  }, [wheelKey]);
-  // Any re-render may have changed what the wheel draws: its ghost is rebuilt
-  // once it rests.
-  useLayoutEffect(() => {
-    fadeRef.current?.stale();
-  });
 
   // Recache only when the SVG structure actually changes — not on every
   // parent render, and not when selection is painted through the wrapper.
@@ -1863,14 +1720,17 @@ const ChartWheelView = memo(function ChartWheelView({
   }, [placed, transitPlaced, chart, visible, bodies, asc, showTransits, angleLabelR, shownStars, shownMids, overlays, biWheel, chords, outerHit, fit, labelAt, transitLabelAt, badgeAt]);
 
   // Nearest-target-wins hit test: landing on a painted mark beats everything,
-  // then aspect lines, then the touch slop around a mark, then the ring zones.
-  // `unitsPerPx` converts the CSS-pixel slop into wheel units.
-  const hitTest = (
+  // then aspect lines, then (for a finger) the slop around a mark, then the
+  // ring zones: a sign, a decan or a house (the chart's ground). A mouse takes
+  // what it is on: no slop round the marks, and lines within a hairline's
+  // reach. `unitsPerPx` converts the CSS-pixel slop into wheel units.
+  const hitAt = (
     x: number,
     y: number,
     unitsPerPx: number,
     allow: (id: string) => boolean = () => true,
-  ): string | null => {
+    coarse = true,
+  ): { id: string | null; ground: boolean } => {
     let best: HitTarget | null = null;
     let bestD = Infinity;
     for (const pt of hitModel.points) {
@@ -1881,9 +1741,9 @@ const ChartWheelView = memo(function ChartWheelView({
         best = pt;
       }
     }
-    if (best && bestD <= 0) return best.id;
+    if (best && bestD <= 0) return { id: best.id, ground: false };
     let seg: string | null = null;
-    let segD = ASPECT_HIT_PX * unitsPerPx;
+    let segD = (coarse ? ASPECT_HIT_PX : ASPECT_HIT_MOUSE_PX) * unitsPerPx;
     for (const s of hitModel.segs) {
       if (!allow(s.id)) continue;
       const d = distToSeg(x, y, s.x1, s.y1, s.x2, s.y2);
@@ -1892,17 +1752,17 @@ const ChartWheelView = memo(function ChartWheelView({
         seg = s.id;
       }
     }
-    if (seg) return seg;
-    if (best && bestD <= TOUCH_SLOP_PX * unitsPerPx) return best.id;
+    if (seg) return { id: seg, ground: false };
+    if (coarse && best && bestD <= TOUCH_SLOP_PX * unitsPerPx) return { id: best.id, ground: false };
     const r = Math.hypot(x - CX, y - CY);
     const ccw = ((Math.atan2(y - CY, CX - x) * 180) / Math.PI + 360) % 360;
     const ecl = (asc + ccw) % 360;
     const signIdx = Math.floor(ecl / 30) % 12;
     const signId = `sign:${SIGN_IDS[signIdx]}`;
-    if (r >= R_SIGN_IN && r <= R_OUTER && allow(signId)) return signId;
+    if (r >= R_SIGN_IN && r <= R_OUTER && allow(signId)) return { id: signId, ground: true };
     if (r >= R_DECAN_IN && r < R_SIGN_IN) {
       const decanId = `decan:${SIGN_IDS[signIdx]}-${faceIndex(ecl)}`;
-      if (allow(decanId)) return decanId;
+      if (allow(decanId)) return { id: decanId, ground: true };
     }
     if (r >= R_ASPECT && r < R_DECAN_IN) {
       for (let i = 0; i < chart.houses.length; i += 1) {
@@ -1910,11 +1770,13 @@ const ChartWheelView = memo(function ChartWheelView({
         const n = chart.houses[(i + 1) % 12];
         const span = ((n.ecliptic - h.ecliptic) % 360 + 360) % 360;
         const off = ((ecl - h.ecliptic) % 360 + 360) % 360;
-        if (off < span && allow(`house:${h.id}`)) return `house:${h.id}`;
+        if (off < span && allow(`house:${h.id}`)) return { id: `house:${h.id}`, ground: true };
       }
     }
-    return null;
+    return { id: null, ground: true };
   };
+  const hitTest = (x: number, y: number, unitsPerPx: number, allow?: (id: string) => boolean, coarse = true): string | null =>
+    hitAt(x, y, unitsPerPx, allow, coarse).id;
 
   /**
    * Hit test in the 3D view: the view's own pieces first (planets, aspect
@@ -1950,20 +1812,16 @@ const ChartWheelView = memo(function ChartWheelView({
   };
 
   /**
-   * The pointer's target. Crossing a gap between two targets does not flash
-   * the whole chart back to rest: letting go waits a moment (HOVER_LINGER_MS)
-   * in case the next target is right there.
+   * The pointer's target, painted in the same moment: on at once, off the
+   * moment the pointer leaves it (part 82: nothing lingers). With highlighting
+   * on hover switched off, only a click lights the chart.
    */
-  const setHover = (id: string | null, now = false) => {
-    window.clearTimeout(hoverClearRef.current);
-    if (id === hoverIdRef.current) return;
-    if (id === null && !now && !prefersReducedMotion()) {
-      hoverClearRef.current = window.setTimeout(() => setHover(null, true), HOVER_LINGER_MS);
-      return;
-    }
-    hoverIdRef.current = id;
-    announceChartHover(id);
-    paintNowRef.current(id);
+  const setHover = (id: string | null) => {
+    const next = id && getWheelPrefs().hover ? id : null;
+    if (next === hoverIdRef.current) return;
+    hoverIdRef.current = next;
+    announceChartHover(next);
+    paintNowRef.current(next);
   };
 
   /**
@@ -2005,6 +1863,20 @@ const ChartWheelView = memo(function ChartWheelView({
     }, 250);
   };
   const pickRef = useRef(pickFromWheel);
+  /**
+   * A pin from the wheel, a key or a click away: the chart shows it in this
+   * very moment (painted straight onto the SVG, the store's own toggle), and
+   * the studio (the panel, the strip, the address) follows through `onSelect`
+   * once that frame is on screen: the panel takes longer to draw than the
+   * chart's highlight, and made the click wait for it.
+   */
+  const choose = (id: string) => {
+    selectedIdRef.current = selectedIdRef.current === id ? null : id;
+    paintNowRef.current(hoverIdRef.current);
+    window.requestAnimationFrame(() => window.setTimeout(() => onSelectRef.current(id), 0));
+  };
+  const chooseRef = useRef(choose);
+  chooseRef.current = choose;
 
   // The keyboard's walk through the wheel (WheelKeys): the part reached is
   // lit like a pointed one, turned to the front in 3D, and named by the tip.
@@ -2031,7 +1903,7 @@ const ChartWheelView = memo(function ChartWheelView({
   }, []);
   const keysPick = useCallback((id: string) => {
     pickRef.current();
-    onSelectRef.current(id);
+    chooseRef.current(id);
   }, []);
 
   /** The camera from the top, tilted or low (the zoom bar's angle button). */
@@ -2051,7 +1923,7 @@ const ChartWheelView = memo(function ChartWheelView({
     if (e.key === "Escape" && selectedIdRef.current) {
       e.preventDefault();
       pickFromWheel();
-      onSelect(selectedIdRef.current);
+      choose(selectedIdRef.current);
       return;
     }
     const depth = depthRef.current;
@@ -2112,6 +1984,7 @@ const ChartWheelView = memo(function ChartWheelView({
     <LensZoom
       depthRef={depthRef}
       lens={lens}
+      tools={<WheelToggles in3d={depthView === "3d"} />}
       onFit={setFit}
       legend={<AspectStrip rows={stripRows} hidden={hiddenTypes} ctx={focusCtx} selection={selection} />}
       aside={biWheel ? null : <WheelAspectGrid rows={gridRows} ctx={focusCtx} selection={selection} onSelect={onSelect} />}
@@ -2246,18 +2119,18 @@ const ChartWheelView = memo(function ChartWheelView({
           } else {
             const pt = toSvgPoint(e);
             if (!pt) return;
-            id = hitTest(pt.x, pt.y, pt.unitsPerPx);
+            id = hitTest(pt.x, pt.y, pt.unitsPerPx, undefined, e.pointerType !== "mouse");
           }
           pointAt(e.target, Boolean(id));
           setHover(id);
-          // A line the mouse rests on says what it is (wheel-tip.ts).
-          const tip = id && e.pointerType === "mouse" ? aspectTipsRef.current.get(id) : undefined;
+          // A line the mouse rests on says what it is (wheel-tip.ts), when pointing lights the chart.
+          const tip = id && e.pointerType === "mouse" && getWheelPrefs().hover ? aspectTipsRef.current.get(id) : undefined;
           if (tip) showWheelTip(tip, e.clientX, e.clientY);
           else hideWheelTip();
         }}
         onPointerLeave={() => {
           pointAt(null, false);
-          setHover(null, true);
+          setHover(null);
           hideWheelTip();
         }}
         // Keep pointer clicks from moving DOM focus onto whichever node
@@ -2269,18 +2142,22 @@ const ChartWheelView = memo(function ChartWheelView({
         }}
         onClick={(e) => {
           const pt = toSvgPoint(e);
-          const id = view3dRef.current?.entered
-            ? hitTest3D(e.clientX, e.clientY, coarsePointerRef.current)
+          const hit = view3dRef.current?.entered
+            ? { id: hitTest3D(e.clientX, e.clientY, coarsePointerRef.current), ground: false }
             : pt
-              ? hitTest(pt.x, pt.y, pt.unitsPerPx)
-              : null;
+              ? hitAt(pt.x, pt.y, pt.unitsPerPx, undefined, coarsePointerRef.current)
+              : { id: null, ground: true };
           pickFromWheel();
-          if (id) {
-            onSelect(id);
+          const pinned = selectedIdRef.current;
+          // With something pinned, the chart's ground lets go of it: a sign, a
+          // decan or a house away from its marks, or empty space. The whole
+          // wheel is there to click away, not only its edge. A mark (a body, a
+          // line, a label, a house number) takes the pin instead.
+          if (hit.id && !(pinned && hit.ground)) {
+            choose(hit.id);
             return;
           }
-          // Empty space (center, gaps) clears a pin.
-          if (selectedIdRef.current) onSelect(selectedIdRef.current);
+          if (pinned) choose(pinned);
         }}
       >
         {(() => {
@@ -2309,14 +2186,16 @@ const ChartWheelView = memo(function ChartWheelView({
 
         {/* Tick bands are tagged so the 1° band can drop out on a small wheel,
             where 360 marks 2px apart read as a grey ring, not as degrees. */}
+        {/* The 1° marks in the 5° and 10° marks' ink (part 82: they read
+            against the ground), at their own length and weight. */}
         <path
           d={ticks.fine}
           data-kind="tick-fine"
           className="ulune-tick-fine"
           fill="none"
-          stroke="var(--color-border-strong)"
+          stroke="var(--color-fg-muted)"
           strokeWidth={HAIR_FINE}
-          opacity={0.8}
+          opacity={0.75}
         />
         <path
           d={ticks.mid}
@@ -3348,7 +3227,7 @@ const ChartWheelView = memo(function ChartWheelView({
                 strokeWidth={1.8}
               />
               {/* Borderless mask so the glyph floats clear of lines beneath. */}
-              <circle cx={p.x} cy={p.y} r={12.5} fill="var(--color-bg-elevated)" />
+              <circle className="ulune-glyph-mask" cx={p.x} cy={p.y} r={12.5} fill="var(--color-bg-elevated)" />
               <g transform={`translate(${p.x}, ${p.y})`}>
                 <g className="ulune-glyph-scale">
                   <g transform={`translate(${-GLYPH / 2}, ${-GLYPH / 2})`}>
@@ -3541,9 +3420,9 @@ const ChartWheelView = memo(function ChartWheelView({
               data-kind="tick-fine"
               className="ulune-tick-fine"
               fill="none"
-              stroke="var(--color-border-strong)"
+              stroke="var(--color-fg-muted)"
               strokeWidth={HAIR_FINE}
-              opacity={0.8}
+              opacity={0.75}
             />
             <path
               d={outerTicks.mid}
@@ -3639,7 +3518,7 @@ const ChartWheelView = memo(function ChartWheelView({
                     stroke="var(--color-halo)"
                     strokeWidth={1.8}
                   />
-                  <circle cx={p.x} cy={p.y} r={10.5} fill="var(--color-bg)" />
+                  <circle className="ulune-glyph-mask" cx={p.x} cy={p.y} r={10.5} fill="var(--color-bg)" />
                   <g transform={`translate(${p.x}, ${p.y})`}>
                     <g className="ulune-glyph-scale">
                       <g transform={`translate(${-TRANSIT_GLYPH / 2}, ${-TRANSIT_GLYPH / 2})`}>

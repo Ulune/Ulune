@@ -932,87 +932,11 @@ html.theme-ready body {
   border-radius: 12px;
 }
 
-/* The focus is painted in JS; it fades in quickly on hover (the response
-   starts at once) and slower on a pin or unpin ([data-focus-fade]). */
-.ulune-wheel [data-dimmable],
-.ulune-wheel [data-kind="decan-glyph"],
-.ulune-wheel [data-kind="sign-band"] > [data-kind="sign-color"],
-.ulune-wheel [data-kind="sign-band"] > [data-kind="sign-glyph"],
-.ulune-wheel .ulune-wheel-halo {
-  transition: opacity var(--chart-quick) var(--chart-ease);
-}
-/* Opacity only: an animated stroke width re-lays out the SVG on every frame
-   (and the lit line's copy above it already carries the change). */
-.ulune-wheel [data-aspect-line],
-.ulune-wheel [data-aspect-tip] {
-  transition: opacity var(--chart-quick) var(--chart-ease);
-}
-.ulune-wheel [data-kind="house"] {
-  transition: fill var(--chart-quick) var(--chart-ease);
-}
-.ulune-wheel .ulune-glyph-scale {
-  transition: transform 260ms var(--chart-ease);
-}
-.ulune-wheel[data-focus-fade] [data-dimmable],
-.ulune-wheel[data-focus-fade] [data-kind="decan-glyph"],
-.ulune-wheel[data-focus-fade] [data-kind="sign-band"] > [data-kind="sign-color"],
-.ulune-wheel[data-focus-fade] [data-kind="sign-band"] > [data-kind="sign-glyph"],
-.ulune-wheel[data-focus-fade] .ulune-wheel-halo,
-.ulune-wheel[data-focus-fade] [data-aspect-line],
-.ulune-wheel[data-focus-fade] [data-aspect-tip],
-.ulune-wheel[data-focus-fade] [data-kind="house"] {
-  transition-duration: 460ms;
-}
+/* The focus is painted in JS and shows at once (part 82): what the pointer
+   is on lights up in the same frame, and lets go the moment it leaves. No
+   node fades, no copy of the wheel fades over it, nothing rises. */
 .ulune-wheel [data-kind="planet"] {
   opacity: var(--wheel-base-o, 1);
-}
-/* Composited focus fades (wheel-fade.ts): the live wheel snaps to each focus
-   and a copy of what it showed fades out over it, so none of the per-node
-   fades above run (a glyph growing into focus, or a mark popping in, is part
-   of that cross-fade too). */
-.ulune-wheel[data-fades="layer"]
-  :is(
-    [data-dimmable],
-    [data-kind="decan-glyph"],
-    [data-kind="sign-band"] > *,
-    .ulune-wheel-halo,
-    [data-aspect-line],
-    [data-aspect-tip],
-    [data-kind="house"],
-    [data-kind="house-num"],
-    [data-kind="cusp"],
-    [data-kind="cusp-deg"],
-    .ulune-aspect-dir,
-    .ulune-aspect-case,
-    .ulune-aspect-top,
-    [data-kind="lead"] > line,
-    .ulune-aspect-mark,
-    .ulune-aspect-mark-pop,
-    .ulune-glyph-scale
-  ) {
-  transition: none;
-}
-/* The copy: exactly over the live wheel, on the page's own background (so
-   fading it out is an exact cross-fade), still and out of the way. */
-.ulune-wheel.ulune-wheel-ghost {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  will-change: opacity;
-  /* Never under the pointer: a cursor of its own keeps the stage's cursor
-     changes from restyling all of its nodes. */
-  cursor: default;
-}
-.ulune-wheel.ulune-wheel-ghost,
-.ulune-wheel.ulune-wheel-ghost * {
-  transition: none !important;
-  animation: none !important;
-}
-.ulune-wheel-ghost > [data-backdrop] {
-  fill: var(--color-bg);
 }
 
 /* Something arriving on the wheel (mixer, filters, layers): a body pops in,
@@ -1097,17 +1021,15 @@ html.theme-ready body {
 }
 
 /* Aspect type marks sit on the chord. Hidden until that line is in
-   focus (hover or pin). Opacity is painted in JS (same as aspect lines)
-   so Safari cannot stick them at 0. Transition matches a body arriving.
+   focus (hover or pin), or at rest with the glyphs switched on. Opacity is
+   painted in JS (same as aspect lines) so Safari cannot stick them at 0.
    Do not CSS-transform this <g> — it overrides the SVG translate. */
 .ulune-wheel .ulune-aspect-mark {
   pointer-events: none;
-  transition: opacity var(--motion-ui) var(--ease-out);
 }
 .ulune-wheel .ulune-aspect-mark-pop {
   transform-origin: 0 0;
   transform: scale(0.96);
-  transition: transform var(--motion-ui) var(--ease-out);
 }
 .ulune-wheel .ulune-aspect-mark[data-on="1"] .ulune-aspect-mark-pop {
   transform: scale(1);
@@ -1145,16 +1067,6 @@ html.theme-ready body {
 /* The houses are the chart's scaffolding: a focus steps back the ones it
    does not stand in (wheel-focus.ts) — their numbers, cusps and cusp
    degrees — so its own lines and bodies read first. */
-.ulune-wheel [data-kind="house-num"],
-.ulune-wheel [data-kind="cusp"],
-.ulune-wheel [data-kind="cusp-deg"] {
-  transition: opacity var(--chart-quick) var(--chart-ease);
-}
-.ulune-wheel[data-focus-fade] [data-kind="house-num"],
-.ulune-wheel[data-focus-fade] [data-kind="cusp"],
-.ulune-wheel[data-focus-fade] [data-kind="cusp-deg"] {
-  transition-duration: 460ms;
-}
 .ulune-wheel[data-focus-kind="natal"] .ulune-dim-house-num[data-in-focus="0"],
 .ulune-wheel[data-focus-kind="transit"] .ulune-dim-house-num[data-in-focus="0"] {
   opacity: 0.3;
@@ -1242,16 +1154,20 @@ html.theme-ready body {
   transform-box: fill-box;
   transform-origin: center;
 }
-/* Only what you point at grows (everything it involves growing too made the
-   glyphs pulse as the pointer moved across the chart). */
-.ulune-wheel [data-exact="1"] .ulune-glyph-scale {
-  transform: scale(1.12);
+/* What you point at grows, and a line's two bodies with it (wheel-focus.ts
+   writes data-grow), glyph and disc together; no halo round it (part 82).
+   (Everything a focus involves growing made the glyphs pulse as the pointer
+   crossed the chart: only these.) */
+.ulune-wheel .ulune-glyph-mask {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.ulune-wheel [data-grow="1"] .ulune-glyph-scale,
+.ulune-wheel [data-grow="1"] > .ulune-glyph-mask {
+  transform: scale(1.4);
 }
 .ulune-wheel .ulune-wheel-halo {
   opacity: 0;
-}
-.ulune-wheel [data-exact="1"] > .ulune-wheel-halo {
-  opacity: 0.65;
 }
 
 /* ─── Chart visibility (see the chart visibility plan) ────────
@@ -1323,7 +1239,6 @@ html.light .ulune-wheel[data-bi] [data-kind="decan-glyph"] {
    re-renders nothing). */
 .ulune-wheel .ulune-aspect-dir {
   opacity: var(--dir-o, 1);
-  transition: opacity var(--chart-quick) var(--chart-ease);
 }
 html.light .ulune-wheel .ulune-aspect-dir {
   opacity: var(--dir-ol, var(--dir-o, 1));
@@ -1347,32 +1262,16 @@ html.light .ulune-wheel [data-cfg-type] {
 }
 /* Casing parts crossing majors. It follows its line: out of another focus
    it goes (else it would cut the lit lines under it). */
-.ulune-wheel .ulune-aspect-case {
-  transition: opacity var(--chart-quick) var(--chart-ease);
-}
 .ulune-wheel:not([data-focus-kind=""]) g[data-aspect][data-in-focus="0"] > .ulune-aspect-case {
   opacity: 0;
 }
-.ulune-wheel[data-focus-fade] .ulune-aspect-case {
-  transition-duration: 460ms;
-}
-/* The lit lines' copies above every line fade with the focus, over the
-   lines they copy. */
-.ulune-wheel .ulune-aspect-top {
-  transition: opacity var(--chart-quick) var(--chart-ease);
-}
-.ulune-wheel[data-focus-fade] .ulune-aspect-top {
-  transition-duration: 460ms;
-}
-/* A glyph shown at rest on its line is a little smaller than a lit one. */
-.ulune-wheel .ulune-aspect-mark[data-on="rest"] .ulune-aspect-mark-pop {
+/* A glyph shown at rest on its line is a little smaller than a lit one
+   (dimmed with its line while something else is in focus). */
+.ulune-wheel .ulune-aspect-mark:is([data-on="rest"], [data-on="dim"]) .ulune-aspect-mark-pop {
   transform: scale(0.78);
 }
 /* One leader per planet reads: the one to its degree on the ring. The one in
    to the aspect circle whispers until the planet is in focus. */
-.ulune-wheel [data-kind="lead"] > line {
-  transition: opacity var(--chart-quick) var(--chart-ease);
-}
 .ulune-wheel [data-kind="lead"]:not([data-in-focus="1"]) > line {
   opacity: 0.15;
 }

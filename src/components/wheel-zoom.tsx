@@ -186,10 +186,13 @@ export function WheelZoom({
   lens = null,
   legend = null,
   aside = null,
+  tools = null,
   onFit,
 }: {
   children: ReactNode;
   lens?: WheelLens | null;
+  /** The chart's own switches (wheel-toggles.tsx), at the bar's end. */
+  tools?: ReactNode;
   /** The wheel's legend (the aspect count strip): beside the wheel when there is room, else in the stage footer. */
   legend?: ReactNode;
   /** A companion for wide stages (the aspect grid): right of the wheel when the margin fits it, else not shown. */
@@ -559,6 +562,7 @@ export function WheelZoom({
         <span aria-hidden>3D</span>
       </button>
       ) : null}
+      {tools}
     </div>
   );
 

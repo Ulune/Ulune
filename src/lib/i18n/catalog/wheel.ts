@@ -18,6 +18,8 @@ export const wheel = {
     "Tip the chart into perspective. Drag to turn it, double-click to reset.",
     "Inclinez le thème en perspective. Glissez pour le faire tourner, double-cliquez pour le réinitialiser.",
   ],
+  wheelHoverToggle: ["Highlight what you point at", "Mettre en valeur ce que vous pointez"],
+  wheelMarksToggle: ["Aspect glyphs on the lines", "Glyphes des aspects sur les lignes"],
   aspectStripAria: ["Aspects on the chart", "Aspects du thème"],
   aspectStripOf: ["Aspects of {name}", "Aspects de {name}"],
   aspectStripHide: ["{name}: {n} — click to hide", "{name}\u202f: {n} — cliquer pour masquer"],

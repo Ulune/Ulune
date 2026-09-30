@@ -1,8 +1,7 @@
 /**
- * Depth: the ranked relief on hover and click (the focus, its sign and house
- * stand out of the flat chart as solids with sides and shadows, tops exactly
- * in place; its aspect lines stay flat lines, lit and drawn over the others),
- * the 3D view (strata,
+ * Depth: the flat chart stays flat (part 82: a hover or a click lights the
+ * focus at once, its glyph grows, its lines are drawn over the others;
+ * nothing rises, nothing lingers), the chart's two switches, the 3D view (strata,
  * sprites, stems, arcs, orbit), companions that preview in the chart, the
  * bodygraph and the numerology wheel, reduced motion, phones, and the Look
  * switches. Stability is checked too: the flat chart never tilts or drifts,
@@ -130,66 +129,42 @@ async function desktop() {
     let scene = await sceneState(page);
     if (scene.stack || scene.perspective || scene.camera) throw new Error(`3D camera on at rest ${JSON.stringify(scene)}`);
 
-    // Hover the Moon: it stands out with its sign and house (a solid with
-    // sides and a shadow); its aspects stay flat lines, lit and drawn over
-    // every other line; nothing tilts.
+    // Hover the Moon (part 82: the flat chart is flat): it lights up in the
+    // same moment, its glyph grows (no halo round it), its aspects are lit and
+    // drawn over every other line; nothing rises, nothing is copied, nothing
+    // tilts.
+    const focusNow = () => page.evaluate(() => document.querySelector(".ob-figure svg[data-depth-base]")?.getAttribute("data-focus-id") ?? "");
     const moon = await center(page, ".ob-figure svg[data-depth-base] [data-kind=planet][data-body=moon] .ulune-wheel-halo");
     await page.mouse.move(moon.x - 60, moon.y - 60);
     await page.mouse.move(moon.x, moon.y, { steps: 6 });
-    await page.waitForTimeout(700);
-    let relief = await liveRelief(page);
-    const hovered = relief.find((r) => r.key === "planet:moon" && r.mode === "hover");
-    if (!hovered) throw new Error(`no relief for the hovered Moon ${JSON.stringify(relief)}`);
-    const moonTop = hovered.tops.find((t) => t.tier === 0 && t.ids.includes("planet:moon"));
-    if (!moonTop) throw new Error(`the Moon is not the focus of its relief ${JSON.stringify(hovered.tops)}`);
-    if (hovered.tops.some((t) => t.kind === "aspect")) throw new Error("an aspect line rose out of the flat chart (lines stay flat in 2D)");
-    const litTops = await page.evaluate(() => {
+    await page.waitForTimeout(60);
+    if ((await focusNow()) !== "planet:moon") throw new Error(`hover picked ${await focusNow()}`);
+    const lit = await page.evaluate(() => {
       const svg = document.querySelector(".ob-figure svg[data-depth-base]");
-      const lit = [...svg.querySelectorAll("[data-aspect-line][data-in-focus='1']")].map((l) => l.getAttribute("data-hl"));
+      const moon = svg.querySelector("[data-kind=planet][data-body=moon]");
+      const lines = [...svg.querySelectorAll("[data-aspect-line][data-in-focus='1']")].map((l) => l.getAttribute("data-hl"));
       const shown = [...svg.querySelectorAll("[data-kind='aspect-top'] [data-top-of][data-on='1']")].map((g) => g.getAttribute("data-top-of"));
-      return { lit, shown };
+      return {
+        grow: moon.getAttribute("data-grow"),
+        scale: getComputedStyle(moon.querySelector(".ulune-glyph-scale")).transform,
+        halo: getComputedStyle(moon.querySelector(".ulune-wheel-halo")).opacity,
+        lines,
+        shown,
+        hidden: svg.querySelectorAll("[data-depth-hidden]").length,
+      };
     });
-    if (!litTops.lit.length || litTops.lit.some((id) => !litTops.shown.includes(id)) || litTops.shown.length !== litTops.lit.length) {
-      throw new Error(`the Moon's lit lines are not drawn over the others ${JSON.stringify(litTops)}`);
+    if (lit.grow !== "1" || !/matrix\(1\.4, 0, 0, 1\.4/.test(lit.scale)) throw new Error(`the hovered Moon did not grow ${JSON.stringify(lit)}`);
+    if (lit.halo !== "0") throw new Error(`a halo shows round the hovered Moon (${lit.halo})`);
+    if (!lit.lines.length || lit.lines.some((id) => !lit.shown.includes(id)) || lit.shown.length !== lit.lines.length) {
+      throw new Error(`the Moon's lit lines are not drawn over the others ${JSON.stringify(lit)}`);
     }
-    if (!hovered.tops.some((t) => t.kind === "sign" && t.tier === 1) || !hovered.tops.some((t) => t.kind === "house" && t.tier === 1)) {
-      throw new Error(`the Moon's sign and house did not rise with it ${JSON.stringify(hovered.tops.map((t) => `${t.kind}:${t.tier}`))}`);
-    }
-    if (hovered.walls < 4 || hovered.dy < 2) throw new Error(`no sides or shadow ${JSON.stringify({ walls: hovered.walls, dy: hovered.dy })}`);
-    const hidden = await page.evaluate(() => document.querySelector(".ob-figure svg[data-depth-base] [data-kind=planet][data-body=moon]")?.getAttribute("data-depth-hidden"));
-    if (hidden !== "1") throw new Error("original Moon not hidden under its copy");
+    if ((await liveRelief(page)).length || lit.hidden) throw new Error(`the flat chart lifted something ${JSON.stringify(await liveRelief(page))}`);
     scene = await sceneState(page);
     if (scene.stack || scene.camera) throw new Error(`chart moved on hover ${JSON.stringify(scene)}`);
-    // Every top sits exactly on its original: nothing jumps under the pointer.
-    const drift = await page.evaluate(() => {
-      const pairs = [
-        ["[data-kind=planet][data-body=moon] .ulune-wheel-halo", "[data-hl='planet:moon'] .ulune-wheel-halo"],
-        ['[data-kind="sign-band"] path[data-kind="sign"]', 'path[data-kind="sign"]'],
-        ['path[data-kind="house"]', 'path[data-kind="house"]'],
-      ];
-      let worst = 0;
-      for (const top of document.querySelectorAll(".ob-figure .ulune-relief-top")) {
-        for (const [origSel, copySel] of pairs) {
-          const copy = top.querySelector(copySel);
-          if (!copy) continue;
-          const hl = copy.getAttribute("data-hl") ?? copy.closest("[data-hl]")?.getAttribute("data-hl");
-          const kind = copy.getAttribute("data-kind");
-          const orig = [...document.querySelectorAll(`.ob-figure svg[data-depth-base] ${origSel}`)].find(
-            (o) => (o.getAttribute("data-hl") ?? o.closest("[data-hl]")?.getAttribute("data-hl")) === hl && o.getAttribute("data-kind") === kind,
-          );
-          if (!orig) continue;
-          const a = orig.getBoundingClientRect();
-          const b = copy.getBoundingClientRect();
-          worst = Math.max(worst, Math.hypot(b.x - a.x, b.y - a.y), Math.abs(b.width - a.width), Math.abs(b.height - a.height));
-        }
-      }
-      return worst;
-    });
-    if (drift > 0.5) throw new Error(`a lifted top drifted ${drift}px off its original`);
-    const focus = await page.evaluate(() => document.querySelector(".ob-figure svg[data-depth-base]")?.getAttribute("data-focus-id"));
-    if (focus !== "planet:moon") throw new Error(`hover picked ${focus}`);
+    // No fades: nothing on the wheel is animating once the pointer is on the Moon.
+    const running = await page.evaluate(() => document.querySelector(".ob-figure svg[data-depth-base]").getAnimations({ subtree: true }).filter((a) => a.playState === "running").length);
+    if (running) throw new Error(`${running} animations run on a hover`);
     await page.screenshot({ path: join(SHOTS, "depth-hover-1280.png") });
-    const hoverDy = hovered.dy;
 
     // Small moves on the Moon keep the same focus (no flicker).
     await recordFocus(page);
@@ -200,45 +175,80 @@ async function desktop() {
     const log = await page.evaluate(() => window.__focusLog);
     if (log.length !== 1) throw new Error(`focus flickered on the Moon: ${log.join(" → ")}`);
 
-    // Click pins it higher: the Moon highest, its sign and house next, what
-    // its aspects touch lowest; the lines themselves stay flat.
+    // Off the Moon, the chart is back at rest in the next frame (nothing lingers).
+    const stage = await page.locator(".ob-figure .ulune-wheel-stage").boundingBox();
+    const offChart = { x: stage.x + 6, y: stage.y + 6 };
+    await page.mouse.move(offChart.x, offChart.y);
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => r())));
+    if ((await focusNow()) !== "") throw new Error(`the hover lingered: ${await focusNow()}`);
+
+    // A click pins it; the pin stays when the pointer leaves, still flat.
     await page.mouse.click(moon.x, moon.y);
-    await page.waitForTimeout(900);
-    relief = await liveRelief(page);
-    const pinned = relief.find((r) => r.key === "planet:moon" && r.mode === "pinned");
-    if (!pinned || pinned.dy <= hoverDy) throw new Error(`pinned lift ${JSON.stringify(relief)} vs ${hoverDy}`);
-    const h0 = pinned.tops.find((t) => t.tier === 0)?.h ?? 0;
-    const slabs1 = pinned.tops.filter((t) => t.kind !== "aspect" && t.tier === 1 && (t.kind === "sign" || t.kind === "house"));
-    const touched = pinned.tops.filter((t) => t.tier === 2);
-    if (!(h0 > 0) || !slabs1.length || slabs1.some((t) => t.h >= h0) || touched.some((t) => t.h >= Math.min(...slabs1.map((x) => x.h)))) {
-      throw new Error(`tiers out of order ${JSON.stringify(pinned.tops.map((t) => [t.key, t.tier, t.h]))}`);
-    }
-    if (pinned.tops.some((t) => t.kind === "aspect")) throw new Error("an aspect line rose with the pin (lines stay flat in 2D)");
+    await page.mouse.move(offChart.x, offChart.y);
+    await page.waitForTimeout(150);
+    if ((await focusNow()) !== "planet:moon") throw new Error(`the pin did not hold: ${await focusNow()}`);
     const litPinned = await page.evaluate(() => document.querySelectorAll(".ob-figure svg[data-depth-base] [data-kind='aspect-top'] [data-top-of][data-on='1']").length);
     if (litPinned < 2) throw new Error(`the Moon should have several lit lines drawn over the rest (${litPinned})`);
-    // Several solid pieces, each with sides.
-    if (pinned.walls < 10) throw new Error(`pinned relief has few sides (${pinned.walls})`);
+    if ((await liveRelief(page)).length) throw new Error("the pin lifted something");
     await page.screenshot({ path: join(SHOTS, "depth-pinned-1280.png") });
 
-    // Clicking the pinned Moon again clears the pin; leaving lets everything
-    // sink back (briefly) and go.
-    const stage = await page.locator(".ob-figure .ulune-wheel-stage").boundingBox();
+    // Clicking the pinned Moon again clears the pin, at once.
     await page.mouse.click(moon.x, moon.y);
-    await page.mouse.move(stage.x - 40, stage.y + 20);
-    await page.waitForTimeout(450);
-    if ((await liveRelief(page)).length) throw new Error(`relief still live after clearing: ${JSON.stringify(await liveRelief(page))}`);
+    await page.mouse.move(offChart.x, offChart.y);
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => r())));
+    if ((await focusNow()) !== "") throw new Error(`the pin stayed after a second click: ${await focusNow()}`);
     if (await page.locator(".ob-figure [data-depth-hidden]").count()) throw new Error("originals left hidden");
 
-    // Hello cell → after a short dwell, the chart previews the Sun.
+    // With something pinned, the chart's ground lets go of it: a click on the
+    // zodiac's decan band (away from any mark) clears the pin instead of
+    // taking it.
+    await page.mouse.click(moon.x, moon.y);
+    await page.waitForTimeout(100);
+    const ground = await page.evaluate(() => {
+      const svg = document.querySelector(".ob-figure svg[data-depth-base]");
+      const m = svg.getScreenCTM();
+      // The decan band's middle, below the centre (the wheel's own units: 360,360 is its centre).
+      const x = 360, y = 360 + 291;
+      return { x: m.a * x + m.c * y + m.e, y: m.b * x + m.d * y + m.f };
+    });
+    await page.mouse.click(ground.x, ground.y);
+    await page.mouse.move(offChart.x, offChart.y);
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => r())));
+    if ((await focusNow()) !== "") throw new Error(`a click on the ground kept or moved the pin: ${await focusNow()}`);
+
+    // Hello cell → the chart previews the Sun, flat.
     await page.getByTestId("natal-hello-sun").hover();
     await page.waitForTimeout(500);
-    relief = await liveRelief(page);
-    if (!relief.some((r) => r.mode === "preview" && r.tops.some((t) => t.tier === 0 && t.ids.includes("planet:sun")))) {
-      throw new Error(`hello preview ${JSON.stringify(relief)}`);
-    }
+    if ((await focusNow()) !== "planet:sun") throw new Error(`hello preview ${await focusNow()}`);
+    if ((await liveRelief(page)).length) throw new Error("the preview lifted something");
     await page.mouse.move(5, 5);
     await page.waitForTimeout(500);
-    if ((await liveRelief(page)).length) throw new Error("preview did not let go");
+    if ((await focusNow()) !== "") throw new Error("preview did not let go");
+
+    // The chart's switches (under it): with highlighting on hover off, the
+    // pointer lights nothing and a click still pins; with the glyphs on, every
+    // line the wheel found room on shows its glyph at rest.
+    await page.getByTestId("wheel-hover-switch").click();
+    await page.mouse.move(moon.x, moon.y, { steps: 3 });
+    await page.waitForTimeout(80);
+    if ((await focusNow()) !== "") throw new Error(`pointing lit ${await focusNow()} with highlighting off`);
+    await page.mouse.click(moon.x, moon.y);
+    await page.waitForTimeout(150);
+    if ((await focusNow()) !== "planet:moon") throw new Error("a click did not pin with highlighting off");
+    await page.mouse.click(moon.x, moon.y);
+    await page.getByTestId("wheel-hover-switch").click();
+    if ((await page.getByTestId("wheel-hover-switch").getAttribute("aria-pressed")) !== "true") throw new Error("highlighting on hover did not come back");
+    await page.mouse.move(5, 5);
+    const restMarks = () => page.evaluate(() => document.querySelectorAll(".ob-figure svg[data-depth-base] [data-aspect-mark][data-on='rest']").length);
+    if (await restMarks()) throw new Error("glyphs at rest with the glyphs switched off");
+    await page.getByTestId("wheel-marks-switch").click();
+    await page.waitForTimeout(100);
+    if ((await restMarks()) < 5) throw new Error(`few glyphs at rest with the glyphs on (${await restMarks()})`);
+    const kept = await page.evaluate(() => JSON.parse(localStorage.getItem("ulune.wheel.v1") || "{}"));
+    if (kept.marks !== true || kept.hover !== true) throw new Error(`the switches were not kept ${JSON.stringify(kept)}`);
+    await page.getByTestId("wheel-marks-switch").click();
+    await page.waitForTimeout(100);
+    if (await restMarks()) throw new Error("glyphs stayed at rest after switching them off");
 
     // The mouse wheel zooms the flat chart around the pointer (the desktop
     // studio does not scroll); zooming back out puts it back.
@@ -533,15 +543,14 @@ async function desktop() {
       throw new Error(`a lift stayed after leaving 3D: ${JSON.stringify(await liveRelief(page))}`);
     }
 
-    // Look → Type & ink → Depth: lift off means nothing rises.
+    // Look → Type & ink → Depth: the 3D view only (the flat chart has no lift to switch, part 82).
     await clickDockTab(page, "look");
     await page.getByTestId("look-page-type").click();
-    if (await page.locator("[data-depth-pref=tilt]").count()) throw new Error("tilt switch still offered");
-    await page.locator("[data-depth-pref=lift]").click();
+    if (await page.locator("[data-depth-pref=tilt], [data-depth-pref=lift]").count()) throw new Error("a tilt or lift switch still offered");
+    if (!(await page.locator("[data-depth-pref=view]").count())) throw new Error("the 3D view's switch is gone from the Look tab");
     await page.mouse.move(moon.x, moon.y, { steps: 4 });
-    await page.waitForTimeout(500);
-    if ((await liveRelief(page)).length) throw new Error("lift still on after switching it off");
-    await page.locator("[data-depth-pref=lift]").click();
+    await page.waitForTimeout(300);
+    if ((await liveRelief(page)).length) throw new Error("something rose out of the flat chart");
 
     // Bodygraph: pointing at a centre outlines it where it is drawn (the
     // Human Design plan, part 44): nothing lifts, nothing is copied over the
@@ -592,14 +601,19 @@ async function reduced() {
     if (await page.evaluate(() => document.querySelector(".ob-figure svg[data-depth-base]").hasAttribute("data-entering"))) {
       throw new Error("reduced motion: the wheel staged its entrance");
     }
-    await page.waitForTimeout(400);
+    // Whatever arrived with the wheel settles first; the hover must start nothing.
+    await page.waitForFunction(() => !document.querySelector(".ob-figure svg[data-depth-base]").getAnimations({ subtree: true }).some((a) => a.playState === "running"), null, { timeout: 5000 });
     const moon = await center(page, ".ob-figure svg[data-depth-base] [data-kind=planet][data-body=moon] .ulune-wheel-halo");
     await page.mouse.move(moon.x, moon.y, { steps: 3 });
     await page.waitForTimeout(80);
-    const relief = await liveRelief(page);
-    const moonUp = relief.find((r) => r.key === "planet:moon");
-    if (!moonUp || moonUp.dy < 2 || !moonUp.walls) throw new Error(`reduced motion: relief should be there at once (${JSON.stringify(relief)})`);
-    if (moonUp.anims || moonUp.tops.some((t) => t.pop)) throw new Error("reduced motion: relief animated");
+    const at = await page.evaluate(() => {
+      const svg = document.querySelector(".ob-figure svg[data-depth-base]");
+      // (Reduced motion's reset leaves 0.01 ms transitions behind: instant, not motion.)
+      const moving = svg.getAnimations({ subtree: true }).filter((a) => a.playState === "running" && Number(a.effect?.getTiming().duration) > 1);
+      return { focus: svg.getAttribute("data-focus-id"), anims: moving.length };
+    });
+    if (at.focus !== "planet:moon" || at.anims) throw new Error(`reduced motion: the hover should show at once, still (${JSON.stringify(at)})`);
+    if ((await liveRelief(page)).length) throw new Error("reduced motion: something rose");
     if ((await sceneState(page)).stack) throw new Error("reduced motion: chart transformed");
     console.log("depth-reduced OK");
   } finally {
@@ -621,8 +635,10 @@ async function phone() {
     const sun = await center(page, ".ob-figure svg[data-depth-base] [data-kind=planet][data-body=sun] .ulune-wheel-halo");
     await page.touchscreen.tap(sun.x, sun.y);
     await page.waitForTimeout(700);
-    const relief = await liveRelief(page);
-    if (!relief.some((r) => r.mode === "pinned" && r.tops.some((t) => t.tier === 0 && t.ids.includes("planet:sun")))) throw new Error(`phone tap lift ${JSON.stringify(relief)}`);
+    const tapped = await page.evaluate(() => document.querySelector(".ob-figure svg[data-depth-base]").getAttribute("data-focus-id"));
+    if (tapped !== "planet:sun") throw new Error(`phone tap pinned ${tapped}`);
+    if ((await liveRelief(page)).length) throw new Error("phone: the tap lifted something");
+    if (await page.getByTestId("wheel-hover-switch").isVisible()) throw new Error("phone: a switch for pointing on a touch screen");
     if ((await sceneState(page)).stack) throw new Error("phone: chart transformed without the 3D view");
     const btn = page.getByTestId("wheel-depth-3d");
     await btn.scrollIntoViewIfNeeded();

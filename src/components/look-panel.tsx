@@ -501,27 +501,24 @@ export function LookPanel({ page = "all" }: { page?: LookPanelPage }) {
               </button>
             ))}
           </div>
-          <p className="ulune-kicker mt-[var(--space-4)] text-fg-muted">{t("lookDepth")}</p>
-          <p className="mt-1 text-xs text-fg-muted">{t("lookDepthKicker")}</p>
-          <div className="mt-2 flex flex-wrap gap-1.5" data-testid="look-depth">
-            {(
-              [
-                ["lift", "lookDepthLift", depth.lift, () => setDepthPrefs({ lift: !depth.lift })],
-                ["view", "depthView3d", depth.view === "3d", () => setDepthPrefs({ view: depth.view === "3d" ? "flat" : "3d" })],
-              ] as const
-            ).filter(([id]) => id !== "view" || can3d).map(([id, key, on, toggle]) => (
-              <button
-                key={id}
-                type="button"
-                data-depth-pref={id}
-                aria-pressed={on}
-                onClick={toggle}
-                className={`${PRESET} ${on ? CHIP_ON : CHIP_OFF}`}
-              >
-                {t(key)}
-              </button>
-            ))}
-          </div>
+          {/* The flat chart has no depth of its own (part 82): only the 3D view, where WebGL runs. */}
+          {can3d ? (
+            <>
+              <p className="ulune-kicker mt-[var(--space-4)] text-fg-muted">{t("lookDepth")}</p>
+              <p className="mt-1 text-xs text-fg-muted">{t("lookDepthKicker")}</p>
+              <div className="mt-2 flex flex-wrap gap-1.5" data-testid="look-depth">
+                <button
+                  type="button"
+                  data-depth-pref="view"
+                  aria-pressed={depth.view === "3d"}
+                  onClick={() => setDepthPrefs({ view: depth.view === "3d" ? "flat" : "3d" })}
+                  className={`${PRESET} ${depth.view === "3d" ? CHIP_ON : CHIP_OFF}`}
+                >
+                  {t("depthView3d")}
+                </button>
+              </div>
+            </>
+          ) : null}
         </div>
       ) : null}
 

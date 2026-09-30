@@ -439,6 +439,9 @@ type HlNode = {
   /** What was last written (null: not yet), so only changes are written. */
   inFocus: string | null;
   exact: string | null;
+  /** A body's glyph (a planet or an outer body): it grows when it is what the focus is about. */
+  glyph: "natal" | "outer" | null;
+  grow: string | null;
 };
 
 type Emphasis = "base" | "lit" | "dim";
@@ -483,7 +486,7 @@ type AspectNode = {
   /** A conjunction's yoke: under the glyphs, or hanging from the degrees. */
   yoke: string | null;
   conj: boolean;
-  /** Its glyph shows at rest (a long major line on a chart with few aspects). */
+  /** The wheel found its glyph a place at rest (shown there when the glyphs are switched on). */
   rest: boolean;
   markAt: string | null;
   color: string;
@@ -663,11 +666,14 @@ export function cacheWheelPaint(svg: SVGSVGElement, extra: Element[] = []): Whee
   const all = <T extends Element>(sel: string) => rootEls.flatMap((r) => [...r.querySelectorAll<T>(sel)]);
   const byEl = new Map<Element, HlNode>();
   const hl = all("[data-hl]").map((el) => {
+    const kind = el.getAttribute("data-kind");
     const n: HlNode = {
       el,
       ...focusKeyOf(el),
       inFocus: el.getAttribute("data-in-focus"),
       exact: el.getAttribute("data-exact"),
+      glyph: kind === "planet" ? "natal" : kind === "transit" ? "outer" : null,
+      grow: el.getAttribute("data-grow"),
     };
     byEl.set(el, n);
     return n;
@@ -774,12 +780,22 @@ export function tempAspectMarks(svg: SVGSVGElement, hls: Iterable<string>): Map<
   return out;
 }
 
+/** What the chart's own switches ask of the paint (wheel-prefs.ts). */
+export type WheelPaintOpts = {
+  /** Every line shows its glyph at rest (where the wheel found it room), dimmed while something else is in focus. */
+  marks?: boolean;
+};
+
+/** An aspect's focus, by its id (natal, cross or outer). */
+const ASPECT_FOCUS = /^(aspect|saspect|taspect|paspect|oaspect):/;
+
 export function paintWheelFocus(
   svg: SVGSVGElement,
   cache: WheelPaintCache,
   f: WheelFocus,
   _selectedId: string | null = null,
   _extra: Element[] = [],
+  opts: WheelPaintOpts = {},
 ) {
   const kind = f.kind;
   const id = f.id ?? "";
@@ -794,16 +810,29 @@ export function paintWheelFocus(
     }
   }
   const exact = f.id;
+  // What grows: what you point at, and for a line the two bodies it joins.
+  const aspectFocus = Boolean(exact && ASPECT_FOCUS.test(exact));
   for (const n of cache.hl) {
     const nextOn = isOn(n, f) ? "1" : "0";
     if (n.inFocus !== nextOn) {
       n.el.setAttribute("data-in-focus", nextOn);
       n.inFocus = nextOn;
     }
-    const nextExact = exact && n.hl === exact ? "1" : "0";
+    const isExact = Boolean(exact && n.hl === exact);
+    const nextExact = isExact ? "1" : "0";
     if (n.exact !== nextExact) {
       n.el.setAttribute("data-exact", nextExact);
       n.exact = nextExact;
+    }
+    if (n.glyph) {
+      const end =
+        aspectFocus &&
+        (n.glyph === "natal" ? Boolean(n.body && f.bodies.has(n.body)) : Boolean(n.transit && f.partners.has(n.transit)));
+      const nextGrow = isExact || end ? "1" : "0";
+      if (n.grow !== nextGrow) {
+        n.el.setAttribute("data-grow", nextGrow);
+        n.grow = nextGrow;
+      }
     }
   }
   // The lines' opacities are the page theme's own: after a theme switch
@@ -861,6 +890,7 @@ export function paintWheelFocus(
     c.el.setAttribute("data-in-focus", next);
   }
   const showMarks = Boolean(f.id);
+  const allMarks = Boolean(opts.marks);
   const exactKey = f.id ? f.id.slice(f.id.indexOf(":") + 1) : null;
   const markAfter = new Map<ExtrasLayer, Element | null>();
   for (const a of cache.aspects) {
@@ -869,10 +899,11 @@ export function paintWheelFocus(
     // A conjunction's arc is its own sign; its glyph shows only when that
     // conjunction itself is the focus (in a stellium the marks would pile up).
     const on = showMarks && f.aspects.has(a.aspect) && (!a.conj || exactKey === a.aspect);
-    // With nothing in focus, a chart with few aspects shows the glyphs of its
-    // long major lines at rest (chart-wheel.tsx places them), a little smaller.
-    const rest = !on && !kind && a.rest;
-    const next = on ? "1" : rest ? "rest" : null;
+    // With the glyphs switched on, every line the wheel found room on shows
+    // its glyph at rest (chart-wheel.tsx places them), a little smaller, and
+    // dimmed with its line while something else is in focus.
+    const rest = !on && allMarks && a.rest;
+    const next = on ? "1" : rest ? (kind ? "dim" : "rest") : null;
     if (!next) {
       if (a.mark) {
         a.mark.remove();
@@ -893,7 +924,7 @@ export function paintWheelFocus(
     a.mark.setAttribute("data-on", next);
     // SVG presentation + inline style: CSS class opacity on <g> is unreliable
     // in Safari and would leave the marks invisible after a refresh.
-    const op = on ? "1" : "0.92";
+    const op = on ? "1" : next === "dim" ? "0.22" : "0.92";
     a.mark.setAttribute("opacity", op);
     a.mark.style.opacity = op;
   }

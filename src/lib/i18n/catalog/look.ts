@@ -95,8 +95,7 @@ export const look = {
   ],
   lookDepth: ["Depth", "Profondeur"],
   lookDepthKicker: [
-    "Charts lift what you point at, and can tip into a 3D view. Saved on this device.",
-    "Les thèmes soulèvent ce que vous pointez et peuvent basculer en vue 3D. Enregistré sur cet appareil.",
+    "Charts can tip into a 3D view. Saved on this device.",
+    "Les thèmes peuvent basculer en vue 3D. Enregistré sur cet appareil.",
   ],
-  lookDepthLift: ["Lift on hover", "Soulever au survol"],
 } as const satisfies Record<string, readonly [string, string]>;

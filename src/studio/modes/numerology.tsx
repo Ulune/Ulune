@@ -5,7 +5,6 @@ import { chartNameOf } from "@/lib/chart/library";
 import { valueOfCore } from "@/lib/chart/numerology";
 import { WHEEL_CORES } from "@/lib/chart/numerology-focus";
 import { wholeText } from "@/lib/chart/numerology-reduce";
-import { useDepthPrefs } from "@/lib/depth/prefs";
 import { focusField } from "@/lib/focus-field";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
@@ -37,12 +36,11 @@ function NumerologyFigure() {
   const w = useWheelView();
   const clear = useStudioStore((s) => s.clear);
   const numerology = useModeData("numerology");
-  const depth = useDepthPrefs();
   const numbers = numerology?.numbers ?? null;
   if (!numbers || numbers.lifePath.number == null) return null;
   const isNow = numbers.calendarYear === new Date().getFullYear();
   return (
-    <div className="ulune-num-stage" data-depth={depth.lift ? "on" : "off"}>
+    <div className="ulune-num-stage">
       <NumerologyWheel chart={numbers} isNow={isNow} selectedId={w.selectedId} onSelect={w.pick} onClear={clear} />
       <NumerologyYSwitch numbers={numbers} selectedId={w.selectedId} locale={locale} />
       <NumerologyYearStepper numbers={numbers} locale={locale} selectedId={w.selectedId} onSelect={w.pick} />

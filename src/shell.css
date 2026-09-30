@@ -952,6 +952,20 @@ html.theme-switching * {
 .ulune-wheel-depth-btn[aria-pressed="true"]:hover {
   background: color-mix(in oklab, var(--color-fg) 88%, transparent);
 }
+/* The chart's two switches (wheel-toggles.tsx): on, the icon in ink on a
+   light well; off, a quieter icon. A touch screen has no pointing to switch. */
+.ulune-wheel-switch {
+  color: var(--color-fg-muted);
+}
+.ulune-wheel-switch[aria-pressed="true"] {
+  color: var(--color-fg);
+  background: color-mix(in oklab, var(--color-fg) 10%, transparent);
+}
+@media (hover: none) {
+  .ulune-wheel-switch-hover {
+    display: none;
+  }
+}
 /* Phones pinch to zoom: − and + give their room to the 3D switch, so the
    footer row fits a 390px screen without pushing Share off the edge. */
 @media (max-width: 560px) and (pointer: coarse) {
@@ -1324,16 +1338,24 @@ html.theme-switching * {
 }
 
 /* The footer row fits narrow screens (Share fell off at 390 px with − and +,
-   and 3D at 320): the view switch keeps its icons (its names stay in its
-   labels and titles), and below 360 px − and + give way to pinching. */
-@media (max-width: 359.98px), (max-width: 440px) and (pointer: fine) {
+   and 3D at 320; the chart's switches came in part 82): up to 440 px the
+   view switch keeps its icons (its names stay in its labels and titles) and
+   − and + give way to pinching or the mouse wheel; below 360 px 3D keeps its
+   cube (its name stays in its label). */
+@media (max-width: 440px) {
   .ob-view-label {
+    display: none;
+  }
+  .ulune-wheel-zoom-bar [data-testid="wheel-zoom-out"],
+  .ulune-wheel-zoom-bar [data-testid="wheel-zoom-in"] {
     display: none;
   }
 }
 @media (max-width: 359.98px) {
-  .ulune-wheel-zoom-bar [data-testid="wheel-zoom-out"],
-  .ulune-wheel-zoom-bar [data-testid="wheel-zoom-in"] {
+  .ulune-wheel-depth-btn {
+    padding: 0;
+  }
+  .ulune-wheel-depth-btn > span {
     display: none;
   }
 }

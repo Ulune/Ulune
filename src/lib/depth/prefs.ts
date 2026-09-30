@@ -1,18 +1,18 @@
 /**
- * Depth preferences, kept on this device only (like Look): whether elements
- * lift when you point at them, and whether the 3D view is on.
+ * Depth preferences, kept on this device only (like Look): whether the 3D view
+ * is on. (The flat chart's relief, and its "lift" switch, went in part 82: the
+ * flat chart is flat. A stored "lift" is ignored.)
  */
 import { useSyncExternalStore } from "react";
 
 export type DepthView = "flat" | "3d";
 
 export type DepthPrefs = {
-  lift: boolean;
   view: DepthView;
 };
 
 const KEY = "ulune.depth.v1";
-const DEFAULTS: DepthPrefs = { lift: true, view: "flat" };
+const DEFAULTS: DepthPrefs = { view: "flat" };
 
 let current: DepthPrefs = DEFAULTS;
 let loaded = false;
@@ -24,10 +24,7 @@ function load(): DepthPrefs {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return DEFAULTS;
     const v = JSON.parse(raw) as Partial<DepthPrefs>;
-    return {
-      lift: typeof v.lift === "boolean" ? v.lift : DEFAULTS.lift,
-      view: v.view === "3d" ? "3d" : "flat",
-    };
+    return { view: v.view === "3d" ? "3d" : "flat" };
   } catch {
     return DEFAULTS;
   }
@@ -43,7 +40,7 @@ export function getDepthPrefs(): DepthPrefs {
 
 export function setDepthPrefs(patch: Partial<DepthPrefs>) {
   const next = { ...getDepthPrefs(), ...patch };
-  if (next.lift === current.lift && next.view === current.view) return;
+  if (next.view === current.view) return;
   current = next;
   if (typeof window !== "undefined") {
     try {
