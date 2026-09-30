@@ -4,6 +4,7 @@ import { ASPECT_COLOR, ELEMENT_COLOR, SIGN_META } from "@/lib/chart/constants";
 import { seasonOf, type PhaseIndex, type SkyAspect, type SkyEvent } from "@/lib/chart/sky-events";
 import { SIGN_IDS } from "@/lib/chart/types";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n/locale";
 
 const PHASE_ELONG: Record<PhaseIndex, number> = { 0: 0, 1: 90, 2: 180, 3: 270 };
 
@@ -36,6 +37,7 @@ export function PairIcon({ a, type, b, size = 14 }: { a: string; type: SkyAspect
  * void-of-course Moon.
  */
 export function SkyEventIcon({ ev, size = 13 }: { ev: SkyEvent; size?: number }) {
+  const { locale } = useI18n();
   if (ev.k === "phase") return <MoonGlyph elong={PHASE_ELONG[ev.phase]} size={size} />;
   if (ev.k === "eclipse") return <span className={cn("ulune-cal-eclipse", ev.kind === "lunar" && "is-lunar")} style={{ width: size, height: size }} aria-hidden />;
   if (ev.k === "station") {
@@ -50,7 +52,7 @@ export function SkyEventIcon({ ev, size = 13 }: { ev: SkyEvent; size?: number })
   if (ev.k === "void") {
     return (
       <span className="ulune-cal-vc" aria-hidden>
-        v/c
+        {locale === "fr" ? "VC" : "v/c"}
       </span>
     );
   }

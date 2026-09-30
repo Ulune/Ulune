@@ -1,4 +1,4 @@
-import { Circle, Table2 } from "lucide-react";
+import { CalendarDays, Circle, Shapes, Table2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { SegmentedToggle } from "@/components/segmented-toggle";
 import { useI18n } from "@/lib/i18n/locale";
@@ -13,22 +13,30 @@ import { useStudioUrl } from "@/studio/use-studio-url";
 function ViewToggle() {
   const { t } = useI18n();
   const view = useStudioStore((s) => s.view);
+  const studioPage = useStudioStore((s) => s.page);
   const { setView } = useStudioUrl({ hydrate: false });
+  // The drawn view is named for what it draws: the calendar and the bodygraph are no wheels.
+  const drawn =
+    studioPage === "timing"
+      ? { name: t("viewCalendar"), Icon: CalendarDays, switch: t("viewSwitchCalendar") }
+      : studioPage === "design"
+        ? { name: t("viewBodygraph"), Icon: Shapes, switch: t("viewSwitchBodygraph") }
+        : { name: t("viewWheel"), Icon: Circle, switch: t("viewSwitch") };
   return (
     <SegmentedToggle
-      ariaLabel={t("viewSwitch")}
+      ariaLabel={drawn.switch}
       value={view}
       onChange={setView}
       options={[
         {
           value: "wheel",
           testId: "view-wheel",
-          ariaLabel: t("viewWheel"),
-          title: t("viewWheel"),
+          ariaLabel: drawn.name,
+          title: drawn.name,
           icon: (
             <span className="inline-flex items-center gap-1.5">
-              <Circle className="size-3.5" strokeWidth={1.75} aria-hidden />
-              <span className="ob-view-label">{t("viewWheel")}</span>
+              <drawn.Icon className="size-3.5" strokeWidth={1.75} aria-hidden />
+              <span className="ob-view-label">{drawn.name}</span>
             </span>
           ),
         },
@@ -93,6 +101,45 @@ export function Stage({
   const stageRef = useRef<HTMLElement>(null);
   useLayoutEffect(() => {
     if (stageRef.current) stageRef.current.scrollTop = 0;
+  }, [swapKey]);
+  // Held upright on a tablet with the sheet folded, the wheel takes the whole width and the
+  // stage scrolls to its controls. When giving up a little of that width (up to 12%) lets the
+  // controls row fit above the sheet, the wheel does (shell.css reads --ob-port-fit); phones
+  // keep the full width.
+  useLayoutEffect(() => {
+    const stage = stageRef.current;
+    if (!stage || typeof ResizeObserver === "undefined") return;
+    let frame = 0;
+    const fit = () => {
+      frame = 0;
+      const port = stage.querySelector<HTMLElement>(".ob-figure .ulune-wheel-port");
+      // The box the port's width is a share of (a wrapper may draw no box of its own).
+      let holder = port?.parentElement ?? null;
+      while (holder && getComputedStyle(holder).display === "contents") holder = holder.parentElement;
+      let cap = "";
+      if (port && holder && stage.clientWidth >= 600 && getComputedStyle(stage).overflowY === "auto") {
+        const box = getComputedStyle(holder);
+        const side = holder.clientWidth - parseFloat(box.paddingLeft) - parseFloat(box.paddingRight);
+        const rest = stage.scrollHeight - port.getBoundingClientRect().height;
+        const room = stage.clientHeight - rest;
+        if (rest + side > stage.clientHeight + 0.5 && room >= side * 0.88) cap = `${Math.floor(room)}px`;
+      }
+      if (stage.style.getPropertyValue("--ob-port-fit") !== cap) {
+        if (cap) stage.style.setProperty("--ob-port-fit", cap);
+        else stage.style.removeProperty("--ob-port-fit");
+      }
+    };
+    const soon = () => {
+      if (!frame) frame = requestAnimationFrame(fit);
+    };
+    const watch = new ResizeObserver(soon);
+    watch.observe(stage);
+    for (const child of stage.children) watch.observe(child);
+    soon();
+    return () => {
+      watch.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, [swapKey]);
   return (
     <ZoomSlotContext.Provider value={zoomSlot}>

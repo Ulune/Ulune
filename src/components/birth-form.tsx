@@ -62,7 +62,7 @@ function offsetLabel(value: string): string {
 }
 
 const SELECT_CLASS = cn(
-  "block h-11 w-full min-w-0 rounded-md border border-border bg-bg px-3 text-base text-fg transition-[border-color,box-shadow] duration-[var(--motion-ui)] md:text-sm",
+  "block h-11 w-full min-w-0 rounded-md border border-border-field bg-bg px-3 text-base text-fg transition-[border-color,box-shadow] duration-[var(--motion-ui)] md:text-sm",
   "focus-visible:outline-none focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-ring",
   "disabled:opacity-50",
 );

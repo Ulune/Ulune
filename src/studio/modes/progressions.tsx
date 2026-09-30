@@ -66,7 +66,7 @@ function ProgressionsControls() {
         type="button"
         data-testid="progressions-today"
         onClick={() => setTarget(Date.now())}
-        className="inline-flex h-11 shrink-0 items-center rounded-md border border-border-strong bg-bg-subtle px-[var(--space-4)] text-sm font-medium text-fg hover:bg-bg"
+        className="ulune-progressions-today"
       >
         {progressionClockLabel(locale, "today")}
       </button>

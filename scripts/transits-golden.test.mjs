@@ -585,3 +585,18 @@ test("a transit a few minutes short of exact is applying, exact in minutes (not 
   const gone = findExactDays({ lonAt: line(105, 14), natalLon: 10, target: 90, applying: false, maxDays: 40 });
   assert.ok(Math.abs(gone + 5 / 14) < 1e-6, `gone ${gone}`);
 });
+
+test("an axis is named once among the closest transits: the square to the Ascendant, not also to the Descendant", () => {
+  const aspects = [
+    { id: "t-uranus-square-descendant", type: "square", level: "major", a: "uranus", b: "descendant", orb: 0.3834, applying: true },
+    { id: "t-uranus-square-ascendant", type: "square", level: "major", a: "uranus", b: "ascendant", orb: 0.3834, applying: true },
+    { id: "t-saturn-opposition-ic", type: "opposition", level: "major", a: "saturn", b: "ic", orb: 1.1, applying: true },
+    { id: "t-saturn-conjunction-midheaven", type: "conjunction", level: "major", a: "saturn", b: "midheaven", orb: 1.1, applying: true },
+    { id: "t-mars-trine-sun", type: "trine", level: "major", a: "mars", b: "sun", orb: 2.4, applying: true },
+  ];
+  const hits = tightestApplyingMajors(aspects, 3);
+  assert.deepEqual(
+    hits.map((h) => h.id),
+    ["t-uranus-square-ascendant", "t-saturn-conjunction-midheaven", "t-mars-trine-sun"],
+  );
+});

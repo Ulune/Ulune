@@ -125,7 +125,8 @@ export function skyEventShort(ev: SkyEvent, locale: AppLocale): string {
       return bodyBare(ev.body, locale);
     }
     case "station":
-      return pick(ev.turn === "rx" ? s.retrograde : s.direct, locale);
+      // Its glyph and ℞ or D come first: the word names the planet, as an ingress's does.
+      return bodyBare(ev.body, locale);
     default:
       return "";
   }

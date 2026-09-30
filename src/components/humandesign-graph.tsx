@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import {
   BODYGRAPH_CENTERS,
   BODYGRAPH_CHANNELS,
@@ -164,6 +164,33 @@ export function HumanDesignGraph({
     "data-hover": outline?.lit.has(id) ? (outline.hero === id ? "hero" : "1") : undefined,
   });
 
+  // The two columns' headers take the taller one's height (the Design's line can run a line
+  // longer in a narrow column), so their rows stay level with each other.
+  const row3 = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const box = row3.current;
+    if (!box || typeof ResizeObserver === "undefined") return;
+    let frame = 0;
+    const level = () => {
+      frame = 0;
+      const heads = [...box.querySelectorAll<HTMLElement>(".ulune-hd-col-head")];
+      if (heads.length !== 2) return;
+      for (const h of heads) h.style.minHeight = "";
+      const tall = Math.max(...heads.map((h) => h.getBoundingClientRect().height));
+      for (const h of heads) h.style.minHeight = `${tall}px`;
+    };
+    const soon = () => {
+      if (!frame) frame = requestAnimationFrame(level);
+    };
+    const watch = new ResizeObserver(soon);
+    watch.observe(box);
+    soon();
+    return () => {
+      watch.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
+
   const column = (layer: "design" | "personality") => (
     <HdColumn
       chart={chart}
@@ -182,7 +209,7 @@ export function HumanDesignGraph({
 
   return (
     <div className="ulune-hd-graph" data-testid="hd-box" data-focus={mode ?? undefined}>
-      <div className="ulune-hd-row3">
+      <div ref={row3} className="ulune-hd-row3">
         {column("design")}
         <FigureZoom testId="hd-zoom">
           <svg

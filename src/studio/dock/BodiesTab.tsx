@@ -162,7 +162,7 @@ export function BodiesTab() {
               value={houseSystem}
               onChange={(e) => onHouseSystem(e.target.value as HouseSystemId)}
               className={cn(
-                "block h-11 w-full min-w-0 rounded-md border border-border bg-bg px-3 text-base text-fg md:text-sm",
+                "block h-11 w-full min-w-0 rounded-md border border-border-field bg-bg px-3 text-base text-fg md:text-sm",
                 "focus-visible:outline-none focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-ring",
                 "disabled:opacity-50",
               )}

@@ -8,6 +8,20 @@
   gap: 1rem;
   min-width: 0;
   width: 100%;
+  /* A day reached with the keyboard stops clear of the pinned bar. */
+  scroll-padding-top: 6rem;
+}
+/* The period, its arrows and Today stay in view while the days scroll under
+   them (on a short screen the month scrolls today's week into view). */
+.ulune-timing-hero > .ulune-cal-bar {
+  position: sticky;
+  /* Flush with the scroller's edge, the page's colour a step above and below
+     the bar so no sliver of a day shows round it; the layout doesn't move. */
+  top: calc(-1 * var(--space-2));
+  z-index: 5;
+  margin-block: calc(-1 * var(--space-2));
+  padding-block: var(--space-2);
+  background: var(--color-bg);
 }
 /* ---------------------------------------------------------------------------
    The calendar (part 55 of the launch plan): the bar, the month, the legend,
@@ -103,6 +117,13 @@ html.light .ulune-moon {
 .ulune-cal-chip.is-on {
   color: var(--color-fg);
   background: var(--color-bg-subtle);
+}
+/* Today is an action, not a switch: the outlined pill of the transits' Now
+   and progressions' Today, at the bar's size. */
+.ulune-cal-today {
+  border-color: var(--color-border-field);
+  color: var(--color-fg);
+  font-weight: 500;
 }
 .ulune-cal-chip:not(.is-on) .ulune-cal-dot {
   opacity: 0.35;
@@ -270,6 +291,21 @@ html.light .ulune-moon {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Cells too narrow for a planet's name after its glyphs (a tablet, a laptop with the panel
+   open): the glyphs say it (Chiron → Aries, Uranus ℞), and a phase's words go onto two lines
+   instead of losing their end. */
+@container (min-width: 561px) and (max-width: 860px) {
+  .ulune-cal-word[data-word="body"] {
+    display: none;
+  }
+  .ulune-cal-line:has(.ulune-cal-word[data-word="event"]) {
+    align-items: flex-start;
+    white-space: normal;
+  }
+  .ulune-cal-word[data-word="event"] {
+    overflow: visible;
+  }
+}
 .ulune-cal-more {
   font-family: var(--font-mono);
   font-size: 10.5px;
@@ -370,6 +406,18 @@ html.light .ulune-moon {
 @media (max-width: 639.98px) {
   .ulune-cal-bar {
     display: contents;
+  }
+  /* The bar has no box of its own here: its period line is what stays pinned. */
+  .ulune-timing-hero > .ulune-cal-bar > .ulune-cal-caption {
+    position: sticky;
+    top: calc(-1 * var(--space-2));
+    z-index: 5;
+    margin-block: calc(-1 * var(--space-2));
+    padding-block: var(--space-2);
+    background: var(--color-bg);
+  }
+  .ulune-timing-hero {
+    scroll-padding-top: 3.5rem;
   }
   .ulune-cal-title {
     font-size: 1.5rem;
@@ -571,8 +619,10 @@ button.ulune-cal-now-line:hover,
   margin-left: -1px;
   background: var(--color-fg);
 }
+/* Its word just under the rail, clear of its edge. */
 .ulune-cal-nowline span {
-  bottom: -2px;
+  top: calc(100% + 2px);
+  bottom: auto;
   color: var(--color-fg);
 }
 .ulune-cal-nowline.is-late span {

@@ -167,6 +167,8 @@
   --color-fg-subtle: #898781;
   --color-border: color-mix(in oklab, var(--color-fg) 10%, transparent);
   --color-border-strong: color-mix(in oklab, var(--color-fg) 18%, transparent);
+  /* A field's edge: 3:1 against the page, as WCAG 2.2 asks of what shows a control. */
+  --color-border-field: color-mix(in oklab, var(--color-fg) 38%, transparent);
   --color-accent: var(--color-fg);
   --color-accent-fg: var(--color-bg);
   --color-halo: #c6a15a;
@@ -229,6 +231,7 @@ html.light {
   --color-fg-subtle: oklch(0.52 0.015 72);
   --color-border: color-mix(in oklab, var(--color-fg) 10%, transparent);
   --color-border-strong: color-mix(in oklab, var(--color-fg) 20%, transparent);
+  --color-border-field: color-mix(in oklab, var(--color-fg) 50%, transparent);
   --color-accent: var(--color-fg);
   --color-accent-fg: var(--color-bg);
   --color-halo: #a56b32;
@@ -1691,6 +1694,8 @@ html.light .ulune-wheel [data-cfg-type] {
   z-index: 2;
   width: 100%;
   max-width: 100%;
+  /* Clear of the date or partner row above it. */
+  margin-top: var(--space-2);
   margin-bottom: var(--space-2);
   display: flex;
   justify-content: center;

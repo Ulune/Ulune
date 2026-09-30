@@ -63,7 +63,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
       {
         h: "Gardé sur votre appareil",
         list: [
-          "Les réglages d’affichage (apparence, langue, looks, vues, les astuces et la visite que vous avez fermées), dans le stockage de votre navigateur, en clair.",
+          "Les réglages d’affichage (apparence, langue, styles, vues, les astuces et la visite que vous avez fermées), dans le stockage de votre navigateur, en clair.",
           "Si vous vous connectez\u202f: vos thèmes, les partenaires que vous leur associez et, si vous choisissez de rester déverrouillé, une copie du dernier thème pour un démarrage rapide. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
           "Les sauvegardes que vous téléchargez sont scellées de la même façon. Une copie lisible, si vous en demandez une, ne l’est pas\u202f: gardez-la pour vous.",
           "Tant que vous regardez sans vous connecter, les thèmes restent dans l’onglet ouvert et sont effacés à sa fermeture.",

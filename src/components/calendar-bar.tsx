@@ -119,7 +119,7 @@ export function CalendarBar({
         <button type="button" data-testid="timing-next" aria-label={t("periodNext")} onClick={() => onShift(1)} className="ob-icon-btn ob-icon-btn--quiet">
           <ChevronRight className="size-4" />
         </button>
-        <button type="button" data-testid="calendar-today" onClick={onToday} className="ulune-cal-chip">
+        <button type="button" data-testid="calendar-today" onClick={onToday} className="ulune-cal-chip ulune-cal-today">
           {pick(CALENDAR_UI.switches.today, locale)}
         </button>
       </div>

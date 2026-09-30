@@ -83,7 +83,7 @@ export function LookTab() {
               className={cn(
                 "inline-flex min-h-11 items-center justify-center px-3 text-sm",
                 on
-                  ? "text-fg shadow-[inset_0_-2px_0_var(--color-halo)]"
+                  ? "ob-subtab-on"
                   : "text-fg-muted",
               )}
             >

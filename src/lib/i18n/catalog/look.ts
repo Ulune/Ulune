@@ -53,12 +53,13 @@ export const look = {
   ],
   lookProfilesKicker: [
     "Save this look as a profile, then switch between profiles here.",
-    "Enregistrez ce look comme profil, puis passez de l’un à l’autre ici.",
+    "Enregistrez ce style comme profil, puis passez de l’un à l’autre ici.",
   ],
   lookRename: ["Name", "Nom"],
   lookReset: ["Reset to Ulune defaults", "Rétablir les réglages d’Ulune"],
   lookResetHint: ["Ruby, emerald, gold, sapphire — Classic type.", "Rubis, émeraude, or, saphir — typo Classique."],
   lookSave: ["Save profile", "Enregistrer le profil"],
+  lookSaved: ["Saved", "Enregistré"],
   lookStroke: ["Wheel lines", "Traits de la roue"],
   lookStrokeHeavy: ["Heavy", "Gras"],
   lookStrokeKicker: ["How thick the aspect lines are.", "L’épaisseur des lignes d’aspect."],
@@ -66,7 +67,7 @@ export const look = {
   lookStrokeThin: ["Thin", "Fin"],
   lookTeachProfiles: [
     "Saved looks. Switch without leaving the panel.",
-    "Vos looks enregistrés. Changez sans quitter le panneau.",
+    "Vos styles enregistrés. Changez sans quitter le panneau.",
   ],
   lookTeachTypeInk: [
     "Typeface pairing, glyph face, text size, line weight, planet colour and depth.",

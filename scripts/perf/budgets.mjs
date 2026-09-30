@@ -116,10 +116,11 @@ if (want.has("bundle")) {
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's
-  // wheel and table page, parts 60 to 62: limit 48).
+  // wheel and table page, parts 60 to 62: limit 48; the picture review's
+  // fixes, part 81, with the modes they touch: limit 49).
   const cssUpFront = home.files.filter((f) => f.type === "stylesheet" && !f.later).reduce((n, f) => n + (f.gz ?? 0), 0);
   check("bundle", '"/" style sheets up front', cssUpFront / 1024, 32, "KB gz");
-  check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 48, "KB gz");
+  check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 49, "KB gz");
   const largest = Math.max(...home.files.filter((f) => f.type === "script").map((f) => f.gz ?? 0));
   check("bundle", "largest script", largest / 1024, 80, "KB gz");
 }

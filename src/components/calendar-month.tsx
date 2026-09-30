@@ -5,7 +5,7 @@ import { MoonGlyph } from "@/components/moon-glyph";
 import { headlineRank, isHeadline, moonAt } from "@/lib/chart/calendar-sky";
 import { changeId, changesByDay, dayKey, personalDayOn, type NumerologyCalendar } from "@/lib/chart/numerology-calendar";
 import { ASPECT_COLOR } from "@/lib/chart/constants";
-import { skyEventId, type PhaseIndex, type SkyEvent } from "@/lib/chart/sky-events";
+import { seasonOf, skyEventId, type PhaseIndex, type SkyEvent } from "@/lib/chart/sky-events";
 import type { SkyWindow } from "@/lib/chart/sky-window";
 import { civilKey, daysInMonth, mondayIndex, utcFromCivil, type CivilDate } from "@/lib/chart/timing-window";
 import type { TimingHit } from "@/lib/chart/types";
@@ -130,8 +130,13 @@ export function CalendarMonth({
         return t;
       };
       const y = top(cell) - top(box);
+      // The bar stays pinned at the top (on a phone its period line): a day above sits clear of it.
+      const pinned = [...box.querySelectorAll<HTMLElement>(".ulune-cal-bar, .ulune-cal-caption")].find(
+        (el) => getComputedStyle(el).position === "sticky",
+      );
+      const head = pinned?.offsetHeight ?? 0;
       if (y + cell.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = y + cell.offsetHeight - box.clientHeight + 8;
-      else if (y < box.scrollTop) box.scrollTop = Math.max(0, y - 8);
+      else if (y - head < box.scrollTop) box.scrollTop = Math.max(0, y - head - 8);
     });
     return () => cancelAnimationFrame(frame);
   }, [shownDay, civil.year, civil.month]);
@@ -244,7 +249,9 @@ export function CalendarMonth({
                   {heads.slice(0, 3).map((ev) => (
                     <span key={skyEventId(ev)} className="ulune-cal-line">
                       <SkyEventIcon ev={ev} />
-                      <span className="ulune-cal-word">{skyEventShort(ev, locale)}</span>
+                      <span className="ulune-cal-word" data-word={(ev.k === "ingress" && seasonOf(ev) == null) || ev.k === "station" ? "body" : "event"}>
+                        {skyEventShort(ev, locale)}
+                      </span>
                     </span>
                   ))}
                   {heads.length > 3 ? (

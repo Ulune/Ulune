@@ -671,10 +671,36 @@ export function applyingFromExactDays(
   return fallback;
 }
 
-/** Tightest applying majors: smallest orb, residual shrinking. Separating and minors skipped. */
+/** An axis's far end, and the end it is named by. */
+const AXIS_HEAD: Partial<Record<BodyId, BodyId>> = { descendant: "ascendant", ic: "midheaven", southnode: "northnode" };
+/** The same aspect seen from the axis's other end. */
+const AXIS_TURN: Partial<Record<AspectId, AspectId>> = { conjunction: "opposition", opposition: "conjunction", sextile: "trine", trine: "sextile" };
+
+/**
+ * One line for an axis: a square to the Ascendant is also a square to the
+ * Descendant, and a conjunction with the MC an opposition to the IC. The
+ * twins share this key; the one to the axis's named end (Ascendant, MC)
+ * leads.
+ */
+function axisKey(a: AspectLink): string {
+  const head = AXIS_HEAD[a.b];
+  return head ? `${a.a}>${head}|${AXIS_TURN[a.type] ?? a.type}` : `${a.a}>${a.b}|${a.type}`;
+}
+
+/** Tightest applying majors: smallest orb, residual shrinking. Separating and minors skipped, an axis named once. */
 export function tightestApplyingMajors(aspects: AspectLink[], n = 3): AspectLink[] {
-  return aspects
+  const tail = (a: AspectLink) => (AXIS_HEAD[a.b] ? 1 : 0);
+  const sorted = aspects
     .filter((a) => isTransitTablePair(a) && a.applying === true)
-    .sort((a, b) => a.orb - b.orb || a.id.localeCompare(b.id))
-    .slice(0, n);
+    .sort((a, b) => Math.round((a.orb - b.orb) * 1e6) || tail(a) - tail(b) || a.id.localeCompare(b.id));
+  const seen = new Set<string>();
+  const out: AspectLink[] = [];
+  for (const a of sorted) {
+    const key = axisKey(a);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(a);
+    if (out.length === n) break;
+  }
+  return out;
 }

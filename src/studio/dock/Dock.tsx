@@ -60,8 +60,14 @@ export type SheetDetent = "peek" | "half" | "full";
  */
 export function Dock() {
   const { t } = useI18n();
-  const dock = useStudioStore((s) => s.dock);
+  const chosen = useStudioStore((s) => s.dock);
   const dockOpen = useStudioStore((s) => s.dockOpen);
+  // Human Design and numerology read their own bodies, all of them: the Bodies tab (the
+  // wheels' bodies, aspects and stars) is left out there, and comes back with the wheels.
+  const studioPage = useStudioStore((s) => s.page);
+  const noBodies = studioPage === "design" || studioPage === "numerology";
+  const tabs = noBodies ? PANEL_TABS.filter((tab) => tab.id !== "bodies") : PANEL_TABS;
+  const dock: DockTab = noBodies && chosen === "bodies" ? "reading" : chosen;
   const openDock = useStudioStore((s) => s.openDock);
   const toggleDock = useStudioStore((s) => s.toggleDock);
   const [width, setWidth] = useState<PanelWidth>("normal");
@@ -224,7 +230,7 @@ export function Dock() {
       >
         <span className="ob-sheet-grip" aria-hidden />
         <div className="ob-panel-tabs" role="tablist" aria-label={t("dockExpand")} onKeyDown={(e) => onTablistKeyDown(e, true)}>
-          {PANEL_TABS.map((tab) => {
+          {tabs.map((tab) => {
             const on = dock === tab.id;
             const Icon = tab.icon;
             return (

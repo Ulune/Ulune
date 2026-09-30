@@ -1160,7 +1160,8 @@ const ChartWheelView = memo(function ChartWheelView({
     [asc, showTransits],
   );
   const wheelKey = `${chart.meta.date}|${chart.meta.time}|${chart.meta.latitude}|${chart.meta.longitude}|${synastryMode ? "s" : progressedMode ? "p" : showTransits ? "t" : "n"}`;
-  const angleLabelR = showTransits ? R_OUTER + 11 : R_OUTER + 24;
+  /** The angles' names: outside the zodiac; on a double wheel, between the pins and the outer ring's glyphs. */
+  const angleLabelR = showTransits ? R_OUTER + 27 : R_OUTER + 24;
   /** Cusp degrees are written on desktop-sized wheels (a phone wheel has no room for them). */
   const cuspDegrees = fit === "lg";
   const cuspOnAngle = (ecl: number) =>
@@ -1832,10 +1833,8 @@ const ChartWheelView = memo(function ChartWheelView({
       if (!visible.has(key)) continue;
       const tip = polar(chart.angles[key].ecliptic, R_OUTER + 8, asc);
       points.push({ id: `angle:${key}`, x: tip.x, y: tip.y, core: 8 });
-      if (!showTransits) {
-        const lp = polar(chart.angles[key].ecliptic, angleLabelR, asc);
-        points.push({ id: `angle:${key}`, x: lp.x, y: lp.y, core: 0, hw: 16, hh: 8 });
-      }
+      const lp = polar(chart.angles[key].ecliptic, angleLabelR, asc);
+      points.push({ id: `angle:${key}`, x: lp.x, y: lp.y, core: 0, hw: 16, hh: 8 });
     }
     const segs: { id: string; x1: number; y1: number; x2: number; y2: number }[] = [];
     for (const row of chords) {
@@ -3172,22 +3171,33 @@ const ChartWheelView = memo(function ChartWheelView({
                   opacity={uncertain ? 0.4 : 1}
                 />
               )}
-              {!showTransits ? (
-                <text
-                  x={label.x}
-                  y={label.y}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fill="var(--color-fg)"
-                  fontSize={11}
-                  fontFamily="var(--font-display)"
-                  fontWeight={600}
-                  letterSpacing="0.14em"
-                  opacity={uncertain ? 0.4 : 1}
-                >
-                  {uncertain ? `${names[key]}?` : names[key]}
-                </text>
+              {showTransits ? (
+                // On a double wheel the name sits over the outer ring's leaders: on its own chip.
+                <rect
+                  x={label.x - (names[key].length + (uncertain ? 1 : 0)) * 4.6 - 4}
+                  y={label.y - 7.5}
+                  width={(names[key].length + (uncertain ? 1 : 0)) * 9.2 + 8}
+                  height={15}
+                  rx={3}
+                  fill="var(--color-bg)"
+                  data-kind="angle-chip"
+                  className="pointer-events-none"
+                />
               ) : null}
+              <text
+                x={label.x}
+                y={label.y}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="var(--color-fg)"
+                fontSize={11}
+                fontFamily="var(--font-display)"
+                fontWeight={600}
+                letterSpacing="0.14em"
+                opacity={uncertain ? 0.4 : 1}
+              >
+                {uncertain ? `${names[key]}?` : names[key]}
+              </text>
               {!showTransits && !uncertain && fit === "lg" ? (() => {
                 // Its degree and sign under the name (outward at the top and
                 // bottom of the wheel, below it at the sides).

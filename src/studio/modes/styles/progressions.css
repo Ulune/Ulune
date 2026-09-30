@@ -20,6 +20,31 @@
 .ulune-progressions-clock-field input {
   height: 44px;
 }
+/* The date field takes the row up to Today, as the transits' fields do. */
+.ulune-progressions-clock-field > div {
+  flex: 1 1 auto;
+}
+/* Today: the outlined pill of the transits' Now and the calendar's Today. */
+.ulune-progressions-today {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: 999px;
+  border: 1px solid var(--color-border-field);
+  background: transparent;
+  color: var(--color-fg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color var(--dur-hover) var(--ease-out);
+}
+.ulune-progressions-today:hover {
+  background: var(--color-bg-subtle);
+}
 .ulune-progressions-clock,
 .ulune-progressions-scrub {
   min-width: 0;

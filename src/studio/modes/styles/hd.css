@@ -248,19 +248,33 @@ html.light {
   min-width: 0;
   overflow: hidden;
   font-size: 12.5px;
+  line-height: 1.15;
   text-align: right;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* A long name (North Node) goes onto two lines rather than losing its end;
+     both columns hold the same names, so their rows stay level. */
+  white-space: normal;
   color: var(--color-fg-muted);
+}
+@media (max-width: 1023.98px) {
+  .ulune-hd-row {
+    gap: 6px;
+    padding-inline: 6px;
+  }
 }
 .ulune-hd-col[data-layer="personality"] .ulune-hd-row-name {
   text-align: left;
 }
 .ulune-hd-row-gl {
+  /* As wide as the widest gate.line (64.6), so every row leaves its name the same room. */
+  min-width: 4ch;
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.ulune-hd-col[data-layer="personality"] .ulune-hd-row-gl {
+  text-align: left;
 }
 .ulune-hd-row-glyph,
 .ulune-hd-row-arrow {

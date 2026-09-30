@@ -999,6 +999,13 @@ html.theme-switching * {
   min-width: 0;
   width: auto;
 }
+/* On a wide screen the clock stops growing: a date field doesn't need 900 px. */
+@media (min-width: 1024px) {
+  .ob-strip .ulune-transit-clock-bar,
+  .ob-strip .ulune-progressions-clock-bar {
+    max-width: 36rem;
+  }
+}
 .ulune-aspect-layer .ulune-seg {
   min-width: 0;
   pointer-events: auto;
@@ -1268,6 +1275,19 @@ html.theme-switching * {
   }
 }
 
+/* On a tablet held upright, the controls row of the bodygraph, the numerology and the
+   calendar stays in view just above the folded sheet while the stage scrolls (a phone keeps
+   it at the end of the stage). Not over a wheel: the wheel would shrink to clear it and
+   leave its time band under it; a wheel makes room for the row itself (--ob-port-fit below). */
+@media (min-width: 600px) and (max-width: 1023.98px) and (orientation: portrait) {
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-stage:not(:has(.ob-figure .ulune-wheel-port)) > .ob-foot {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    background: var(--color-bg);
+  }
+}
+
 /* Held upright, with the sheet folded, every wheel takes the stage's whole
    width (a transit bi-wheel was about 180 px wide on a phone): the wheel's
    frame is at least as tall as it is wide, and the stage scrolls when the
@@ -1287,6 +1307,10 @@ html.theme-switching * {
   .ob-body:has(.ob-panel[data-detent="peek"]) .ob-figure .ulune-wheel-port {
     flex: 1 0 auto;
     aspect-ratio: 1;
+    /* On a tablet the wheel may give up a little of the width so that its controls row fits
+       above the sheet (Stage.tsx measures and sets --ob-port-fit). */
+    width: min(100%, var(--ob-port-fit, 100%));
+    margin-inline: auto;
   }
   /* With the sheet open, the wheel left above it is small (the Chart / Both
      switch and the time band covered it): the switch waits for the sheet to
@@ -1714,7 +1738,7 @@ html.theme-switching * {
   min-width: 0;
   height: 44px;
   padding: 0 10px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-field);
   border-radius: var(--radius-md);
   background: var(--color-bg);
   color: var(--color-fg);
@@ -1912,24 +1936,27 @@ html.theme-switching * {
   text-decoration-color: currentColor;
 }
 /* The links between the legal pages (components/legal-page.tsx). */
+/* A line of words, so its rows balance: no link left alone on the last one. */
 .ob-legal-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 18px;
-  margin-top: 24px;
-  padding-top: 16px;
+  display: block;
+  margin-top: 28px;
+  padding-top: 12px;
   border-top: 1px solid var(--color-border);
   font-size: 14px;
+  line-height: 36px;
+  text-wrap: balance;
 }
-.ob-settings-card > .ob-legal-nav {
+/* Settings' "About Ulune" card: the links under its title, no rule. */
+.ob-settings-card:not(.ob-notice) > .ob-legal-nav {
   margin-top: 4px;
   padding-top: 0;
   border-top: 0;
 }
 .ob-legal-nav-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
+  display: inline-block;
+  margin-inline-end: 18px;
+  line-height: 32px;
+  vertical-align: middle;
   color: var(--color-fg-muted);
   text-decoration: underline;
   text-decoration-color: var(--color-border-strong);

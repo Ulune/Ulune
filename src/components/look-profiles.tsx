@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { DEFAULT_LOOK_ID, MAX_LOOK_PROFILES, nextLookProfileName } from "@/lib/look";
 import { useLook } from "@/lib/look-provider";
 import { useI18n } from "@/lib/i18n/locale";
@@ -25,6 +25,8 @@ export function LookProfiles({ compact = false }: { compact?: boolean }) {
   const atCap = profiles.length >= MAX_LOOK_PROFILES;
   const onDefault = activeId === DEFAULT_LOOK_ID;
   const saveDisabled = onDefault ? atCap || !dirty : !dirty;
+  /** A saved profile, unchanged: the button says so instead of standing greyed out. */
+  const saved = !onDefault && !dirty;
 
   function onSave() {
     if (onDefault) {
@@ -39,10 +41,8 @@ export function LookProfiles({ compact = false }: { compact?: boolean }) {
   return (
     <div data-testid="look-profiles" className="flex flex-col gap-2">
       {!compact ? (
-        <div>
-          <p className="ulune-kicker text-fg-subtle">{t("lookProfiles")}</p>
-          <p className="mt-1 text-xs text-fg-muted">{t("lookProfilesKicker")}</p>
-        </div>
+        // The page's title already says "Profiles": its instruction only.
+        <p className="text-xs text-fg-muted">{t("lookProfilesKicker")}</p>
       ) : (
         <p className="ulune-kicker text-fg-subtle">{t("lookProfiles")}</p>
       )}
@@ -92,7 +92,7 @@ export function LookProfiles({ compact = false }: { compact?: boolean }) {
             saveDisabled
               ? atCap && onDefault
                 ? t("lookProfilesFull")
-                : !dirty
+                : saved
                   ? t("lookHintSaved")
                   : t("lookHintSave")
               : undefined
@@ -101,9 +101,16 @@ export function LookProfiles({ compact = false }: { compact?: boolean }) {
             onSave();
             toast(t("toastProfileSaved"));
           }}
-          className={`${CHIP} ${CHIP_OFF} disabled:opacity-40`}
+          className={`${CHIP} ${saved ? "gap-1 border-border text-fg-muted" : `${CHIP_OFF} disabled:opacity-60`}`}
         >
-          {t("lookSave")}
+          {saved ? (
+            <>
+              <Check className="size-3.5" aria-hidden />
+              {t("lookSaved")}
+            </>
+          ) : (
+            t("lookSave")
+          )}
         </button>
       </div>
       {!compact && active ? (
@@ -123,16 +130,13 @@ export function LookProfiles({ compact = false }: { compact?: boolean }) {
               if (e.key !== "Enter") return;
               (e.target as HTMLInputElement).blur();
             }}
-            className="block h-11 w-full min-w-0 rounded-md border border-border bg-bg px-3 text-sm text-fg"
+            className="block h-11 w-full min-w-0 rounded-md border border-border-field bg-bg px-3 text-sm text-fg"
           />
         </label>
       ) : null}
+      {/* Ulune's own look, unchanged, is no saved profile: the hint says how to make one. */}
       <p className="text-xs text-fg-muted">
-        {atCap && onDefault
-          ? t("lookProfilesFull")
-          : dirty
-            ? t("lookHintSave")
-            : t("lookHintSaved")}
+        {atCap && onDefault ? t("lookProfilesFull") : saved ? t("lookHintSaved") : t("lookHintSave")}
       </p>
     </div>
   );

@@ -10,7 +10,7 @@ export const account = {
   dataHereTitle: ["In this browser", "Dans ce navigateur"],
   dataHere: [
     "Display settings only, in the clear: appearance, language, looks and views ({n} kept now).",
-    "Des réglages d’affichage seulement, en clair\u202f: apparence, langue, looks et vues ({n} gardés pour l’instant).",
+    "Des réglages d’affichage seulement, en clair\u202f: apparence, langue, styles et vues ({n} gardés pour l’instant).",
   ],
   dataSpaceTitle: ["In your private space", "Dans votre espace privé"],
   dataSpaceOpen: [

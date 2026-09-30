@@ -9,6 +9,8 @@
 
 const ST =
   'fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+const ST_LIGHT =
+  'fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"';
 
 function svg(inner: string): string {
   return `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
@@ -95,11 +97,13 @@ export const GLYPH_SVG: Record<string, string> = {
   vesta: svg(
     `<path d="M12 3.5 16.5 10.8H7.5z" ${ST} /><rect x="6.6" y="12.1" width="10.8" height="8" rx="1.1" ${ST} />`,
   ),
+  // Eris and Sedna as Unicode draws them (⯰, ⯲), a little lighter: the Classic set has no
+  // glyph of its own for them, and its asteroids are drawn fine.
   eris: svg(
-    `<circle cx="10.2" cy="13.4" r="5.3" ${ST} /><path d="M14 9.6 19.6 4M19.6 4h-5M19.6 4v5" ${ST} />`,
+    `<path d="M12 5v14M6.2 6.2a5.8 5.8 0 0 1 0 11.6M17.8 6.2a5.8 5.8 0 0 0 0 11.6" ${ST_LIGHT} />`,
   ),
   sedna: svg(
-    `<circle cx="9.1" cy="12" r="5.1" ${ST} /><path d="M14.2 12h6.4M17.4 7.4v9.2" ${ST} />`,
+    `<circle cx="7.6" cy="6.3" r="1.9" ${ST_LIGHT} /><path d="M5.8 8.1h9.4M11.8 4.2v6.4M11.8 10.6a6.2 9.2 0 0 1 6.2 9.2" ${ST_LIGHT} />`,
   ),
   ascendant: svg(`<path d="M5 20L12 4.8 19 20M8.1 13.6h7.8" ${ST} />`),
   midheaven: svg(`<path d="M4.4 20V5.2L12 14.2 19.6 5.2V20" ${ST} />`),
