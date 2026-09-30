@@ -84,7 +84,7 @@ import { AspectStrip } from "./aspect-strip";
 import { WheelAspectGrid, type GridRow } from "./wheel-aspect-grid";
 import { WheelHint } from "./wheel-hint";
 import { WheelKeys } from "./wheel-keys";
-import { arcSpan, placeBadges, placeBeside, placeLabels, type Disc, type LabelPlace } from "@/lib/chart/wheel-layout";
+import { arcSpan, boxesOverlap, placeBadges, placeBeside, placeLabels, type Disc, type LabelPlace, type OBox } from "@/lib/chart/wheel-layout";
 import { createSelectionStore, type SelectionStore } from "@/lib/chart/selection-store";
 import { getWheelPrefs, subscribeWheelPrefs } from "@/lib/chart/wheel-prefs";
 import { WheelToggles } from "./wheel-toggles";
@@ -102,11 +102,16 @@ const R_TICK_OUT = 283;
 const R_TICK_1 = 278;
 const R_TICK_5 = 275;
 const R_TICK_10 = 270;
-const R_PLANET = Math.round(R_OUTER / PHI);
-/* Degree labels sit a golden-ratio step beyond the glyphs so they never touch. */
-const R_LABEL = R_PLANET + 34;
+/*
+ * The planets' glyphs sit just inside the degree ticks, beside the signs they
+ * are read against, a golden-ratio step beyond the golden-ratio ring; each
+ * one's degree close under it, or just under the yokes there (`labelAt`).
+ */
+const R_LABEL = Math.round(R_OUTER / PHI);
+const R_PLANET = R_LABEL + 34;
 const R_ASPECT = Math.round(R_OUTER / (PHI * Math.sqrt(PHI)));
-const R_HOUSE_NUM = Math.round((R_PLANET + R_ASPECT) / 2);
+/** House numbers: between the aspect circle and the degree labels. */
+const R_HOUSE_NUM = R_ASPECT + 18;
 const GLYPH = 21;
 /** Aspect type mark in the middle of a lit line — smaller than planet glyphs. */
 const ASPECT_MARK = 20;
@@ -116,9 +121,15 @@ const ASPECT_MARK_DISK = 10;
 const ASPECT_MARK_MIN_SPAN = 22;
 /** Filled disk around each glyph (matches the circle `r`). */
 const PLANET_DISK = 13;
+/** The disc of a glyph in focus, grown 1.4 times (styles.css): its degree label keeps clear of it. */
+const PLANET_DISK_GROWN = PLANET_DISK * 1.4;
 /** SVG units between disks — ~2px on the desktop wheel, ~1px on a phone. */
 const PLANET_PAD = 3;
-const PLANET_MIN_SEP = ((PLANET_DISK * 2 + PLANET_PAD) / R_PLANET) * (180 / Math.PI);
+/**
+ * How far apart crowded glyphs fan (degrees): as far as discs on the golden-ratio
+ * ring need, so the degree labels under them keep the room they need.
+ */
+const PLANET_MIN_SEP = ((PLANET_DISK * 2 + PLANET_PAD) / R_LABEL) * (180 / Math.PI);
 const R_STAR = R_OUTER + 5;
 const EMPTY_IDS = new Set<string>();
 /** How long a fresh wheel's entrance takes, all staging included (ms). */
@@ -186,14 +197,16 @@ const CUSP_CADENT_W = 1.1;
  * into the other's (conjunct bodies are always fanned apart, so a yoke is
  * never a speck). A yoke that shares any stretch with a narrower one runs a
  * lane deeper, so a stellium's conjunctions nest like brackets and can be
- * counted; yokes that only meet at a body share a lane, like a comb. Across
+ * counted; yokes that only meet at a body share a lane, like a comb. Three
+ * lanes at most (the degree labels sit just under them; past the third,
+ * yokes share it). Across
  * the two rings, or between two outer bodies, the yoke hangs from their
  * degrees on the aspect circle instead. Lanes sit further apart on a small
  * wheel (its strokes do not shrink with it).
  */
 const YOKE_IN = { lg: 6, sm: 7 } as const;
 const YOKE_STEP = { lg: 4.2, sm: 6.5 } as const;
-const YOKE_LANES = { lg: 5, sm: 4 } as const;
+const YOKE_LANES = { lg: 3, sm: 3 } as const;
 /** Radius of a yoke's rounded corners (units). */
 const YOKE_CORNER = 2.6;
 /** A yoke is never shorter than this (degrees): a planet on an angle still gets one. */
@@ -217,8 +230,8 @@ const REST_MARK_GAP = 24;
 /** Degree labels: text size (units) on a desktop-sized wheel and on a small one (degree only). */
 const LABEL_FONT = 10.5;
 const LABEL_FONT_SM = 16;
-/** The second label ring, units further out (a label that would touch a neighbour). */
-const LABEL_RING2 = { lg: 16, sm: 24 } as const;
+/** The second label ring, units further in (a label that would touch a neighbour): a label and its padding apart. */
+const LABEL_RING2 = { lg: 18, sm: 25 } as const;
 /** The outer ring's: enough for a level label to clear its neighbour's near the top and bottom of the wheel. */
 const TRANSIT_LABEL_RING2 = { lg: 18, sm: 24 } as const;
 /** House numbers: their size, and where they step in when a house is too full. */
@@ -847,14 +860,6 @@ const ChartWheelView = memo(function ChartWheelView({
   );
   /** The planets' glyph discs, which labels and house numbers keep clear of. */
   const glyphDiscs = useMemo<Disc[]>(() => placed.map((p) => ({ x: p.x, y: p.y, r: PLANET_DISK })), [placed]);
-  /** Degree labels: each where it touches no other label and no glyph (wheel-layout.ts). */
-  const labelAt = useMemo(() => {
-    const items = placed.map((p) => {
-      const spec = labelSpec(p.formatted, p.retrograde, fit);
-      return { id: p.id, angle: p.display, w: spec.w, h: spec.h };
-    });
-    return placeLabels(items, (e, r) => polar(e, r, asc), { x: CX, y: CY }, { r1: R_LABEL, r2: R_LABEL + LABEL_RING2[fit], discs: glyphDiscs });
-  }, [placed, fit, asc, glyphDiscs]);
   const transitLabelAt = useMemo(() => {
     const items = transitPlaced.map((p) => {
       const spec = labelSpec(p.formatted, p.retrograde, fit);
@@ -1073,7 +1078,7 @@ const ChartWheelView = memo(function ChartWheelView({
   const aspectTipsRef = useRef(aspectTips);
   aspectTipsRef.current = aspectTips;
   useEffect(() => () => hideWheelTip(), []);
-  /** Where the yokes under the glyphs run (house numbers and their marks keep clear of them). */
+  /** Where the yokes under the glyphs run (the degree labels, house numbers and their marks keep clear of them). */
   const yokeDots = useMemo<Disc[]>(() => {
     const out: Disc[] = [];
     for (const row of chords) {
@@ -1081,6 +1086,81 @@ const ChartWheelView = memo(function ChartWheelView({
     }
     return out;
   }, [chords]);
+  /**
+   * Where the cusp degrees can go: along each cusp's inner end, on its house's
+   * side of the line or the other (desktop-sized wheels; a cusp an angle falls
+   * on is named by the angle already). `cuspDegs` picks the side.
+   */
+  const cuspDegSpots = useMemo(() => {
+    if (fit !== "lg" || timeUnknown) return [];
+    const onAngle = (ecl: number) =>
+      (["ascendant", "midheaven", "descendant", "ic"] as const).some((k) => {
+        const a = chart.angles[k];
+        return a != null && Math.abs(((((a.ecliptic - ecl) % 360) + 540) % 360) - 180) < 0.5;
+      });
+    return chart.houses.flatMap((house) => {
+      if (house.uncertain === true || onAngle(house.ecliptic)) return [];
+      const p0 = polar(house.ecliptic, R_ASPECT + CUSP_DEG_IN, asc);
+      const p1 = polar(house.ecliptic, R_ASPECT + CUSP_DEG_IN + 10, asc);
+      const q = polar(house.ecliptic + 1, R_ASPECT + CUSP_DEG_IN, asc);
+      const nl = Math.hypot(q.x - p0.x, q.y - p0.y) || 1;
+      const deg = (Math.atan2(p1.y - p0.y, p1.x - p0.x) * 180) / Math.PI;
+      const flip = Math.cos((deg * Math.PI) / 180) < 0;
+      // The text runs out along the cusp from `at` either way (a flipped one ends there).
+      const len = house.formatted.length * 0.6 * CUSP_DEG_FONT;
+      const ux = Math.cos((deg * Math.PI) / 180);
+      const uy = Math.sin((deg * Math.PI) / 180);
+      const sides = [1, -1].map((side) => {
+        const at = { x: p0.x + ((q.x - p0.x) / nl) * CUSP_DEG_SIDE * side, y: p0.y + ((q.y - p0.y) / nl) * CUSP_DEG_SIDE * side };
+        const box: OBox = { cx: at.x + (ux * len) / 2, cy: at.y + (uy * len) / 2, hw: len / 2 + 1.5, hh: CUSP_DEG_FONT / 2 + 1.5, rot: deg };
+        return { at, box };
+      });
+      return [{ house, deg, flip, sides }];
+    });
+  }, [fit, timeUnknown, chart.houses, chart.angles, asc]);
+  /**
+   * Degree labels: each close under its glyph (clear of it grown in focus),
+   * or just under the yokes there, touching no other label (wheel-layout.ts).
+   */
+  const labelAt = useMemo(() => {
+    const items = placed.map((p) => {
+      const spec = labelSpec(p.formatted, p.retrograde, fit);
+      return { id: p.id, angle: p.display, w: spec.w, h: spec.h };
+    });
+    const r1 = R_PLANET - PLANET_DISK_GROWN - 1 - labelSpec("0°00'", false, fit).h / 2;
+    return placeLabels(items, (e, r) => polar(e, r, asc), { x: CX, y: CY }, {
+      r1,
+      r2: r1 - LABEL_RING2[fit],
+      discs: [...placed.map((p) => ({ x: p.x, y: p.y, r: PLANET_DISK_GROWN })), ...yokeDots],
+      hug: { floor: R_ASPECT + 2 },
+      turnCost: 2,
+      overlapCost: 25,
+    });
+  }, [placed, fit, asc, yokeDots]);
+  /** The degree labels as drawn (house numbers and their marks keep clear of them). */
+  const labelBoxes = useMemo<OBox[]>(
+    () =>
+      placed.flatMap((p) => {
+        const place = labelAt.get(p.id);
+        if (!place) return [];
+        const spec = labelSpec(p.formatted, p.retrograde, fit);
+        return [{ cx: place.x, cy: place.y, hw: spec.w / 2, hh: spec.h / 2, rot: place.rot }];
+      }),
+    [placed, labelAt, fit],
+  );
+  /**
+   * The cusp degrees as written: each on its house's side of the cusp, or
+   * where a degree label covers it there, the other side; covered there too,
+   * it is not written (the table has it).
+   */
+  const cuspDegs = useMemo(
+    () =>
+      cuspDegSpots.flatMap(({ house, deg, flip, sides }) => {
+        const side = sides.find((c) => labelBoxes.every((b) => !boxesOverlap(c.box, b)));
+        return side ? [{ house, at: side.at, deg, flip }] : [];
+      }),
+    [cuspDegSpots, labelBoxes],
+  );
   /** Where each house number's text goes so its digits' ink is centred in its disc (text-ink.ts; null until the font is in). */
   const inkVersion = useTextInkVersion();
   const numInk = useMemo(() => {
@@ -1094,7 +1174,7 @@ const ChartWheelView = memo(function ChartWheelView({
       return at.get(n) ?? null;
     };
   }, [inkVersion]);
-  /** House numbers: in the middle of their house, clear of the planets' discs and the yokes under them. */
+  /** House numbers: in the middle of their house, clear of the planets' discs, the yokes under them and their degrees. */
   const badgeAt = useMemo(() => {
     return placeBadges(
       chart.houses.map((h, i) => {
@@ -1103,9 +1183,9 @@ const ChartWheelView = memo(function ChartWheelView({
         return { id: String(h.id), from: h.ecliptic, to: next.ecliptic, mid: (h.ecliptic + span / 2) % 360 };
       }),
       (e, r) => polar(e, r, asc),
-      { r: R_HOUSE_NUM, rIn: R_ASPECT + HOUSE_NUM_R + 1, radius: HOUSE_NUM_R, discs: [...glyphDiscs, ...yokeDots] },
+      { r: R_HOUSE_NUM, rIn: R_ASPECT + HOUSE_NUM_R + 1, radius: HOUSE_NUM_R, discs: [...glyphDiscs, ...yokeDots], boxes: labelBoxes },
     );
-  }, [chart.houses, asc, glyphDiscs, yokeDots]);
+  }, [chart.houses, asc, glyphDiscs, yokeDots, labelBoxes]);
   const ticks = useMemo(
     () => ({
       fine: tickPath(0, 360, 1, R_TICK_1, R_TICK_OUT, asc),
@@ -1128,13 +1208,8 @@ const ChartWheelView = memo(function ChartWheelView({
   const wheelKey = `${chart.meta.date}|${chart.meta.time}|${chart.meta.latitude}|${chart.meta.longitude}|${synastryMode ? "s" : progressedMode ? "p" : showTransits ? "t" : "n"}`;
   /** The angles' names: outside the zodiac; on a double wheel, between the pins and the outer ring's glyphs. */
   const angleLabelR = showTransits ? R_OUTER + 27 : R_OUTER + 24;
-  /** Cusp degrees are written on desktop-sized wheels (a phone wheel has no room for them). */
+  /** Cusp degrees are written on desktop-sized wheels (a phone wheel has no room for them): `cuspDegs`. */
   const cuspDegrees = fit === "lg";
-  const cuspOnAngle = (ecl: number) =>
-    (["ascendant", "midheaven", "descendant", "ic"] as const).some((k) => {
-      const a = chart.angles[k];
-      return a != null && Math.abs(((((a.ecliptic - ecl) % 360) + 540) % 360) - 180) < 0.5;
-    });
   const flagsMap = chart.patterns.flags ?? {};
   const shownStars = useMemo(
     () => (chart.stars ?? []).filter((s) => starVisible.has(s.id)),
@@ -2830,15 +2905,7 @@ const ChartWheelView = memo(function ChartWheelView({
             the lines: a yoke passing under one is cut by its halo. */}
         {cuspDegrees ? (
           <g data-kind="cusp-degs" className="pointer-events-none">
-            {chart.houses.map((house) => {
-              if (timeUnknown || house.uncertain === true || cuspOnAngle(house.ecliptic)) return null;
-              const p0 = polar(house.ecliptic, R_ASPECT + CUSP_DEG_IN, asc);
-              const p1 = polar(house.ecliptic, R_ASPECT + CUSP_DEG_IN + 10, asc);
-              const q = polar(house.ecliptic + 1, R_ASPECT + CUSP_DEG_IN, asc);
-              const nl = Math.hypot(q.x - p0.x, q.y - p0.y) || 1;
-              const at = { x: p0.x + ((q.x - p0.x) / nl) * CUSP_DEG_SIDE, y: p0.y + ((q.y - p0.y) / nl) * CUSP_DEG_SIDE };
-              const deg = (Math.atan2(p1.y - p0.y, p1.x - p0.x) * 180) / Math.PI;
-              const flip = Math.cos((deg * Math.PI) / 180) < 0;
+            {cuspDegs.map(({ house, at, deg, flip }) => {
               return (
                 <text
                   key={`cdeg-${house.id}`}
@@ -2904,13 +2971,16 @@ const ChartWheelView = memo(function ChartWheelView({
                 <g data-kind="intercepted" data-signs={intercepted.join(" ")}>
                   {intercepted.map((sign, k) => {
                     // Beside the number along its ring, on whichever side
-                    // touches no glyph, yoke or the number itself.
+                    // touches no glyph, yoke, degree label or the number itself.
                     const at = placeBeside(
                       { ecl: (mid as { ecl?: number }).ecl ?? midEcl, r: Math.hypot(mid.x - CX, mid.y - CY) },
                       k,
                       (e, r) => polar(e, r, asc),
                       9.5,
                       [...glyphDiscs, ...yokeDots, { x: mid.x, y: mid.y, r: HOUSE_NUM_R }],
+                      undefined,
+                      undefined,
+                      labelBoxes,
                     );
                     return (
                       <g key={sign} transform={`translate(${(at.x - 6).toFixed(2)} ${(at.y - 6).toFixed(2)})`} style={{ color: ink(ELEMENT_COLOR[SIGN_META[sign].element]) }}>

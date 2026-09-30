@@ -35,7 +35,8 @@ function mockGL() {
   return gl;
 }
 
-const CX = 360, CY = 360, R_OUTER = 338, R_SIGN_IN = 300, R_DECAN_IN = 283, R_ASPECT = 164, R_PLANET = 209, R_LABEL = 243;
+// The natal glyphs just inside the degree ticks, their degrees under them (chart-wheel.tsx, part 83).
+const CX = 360, CY = 360, R_OUTER = 338, R_SIGN_IN = 300, R_DECAN_IN = 283, R_ASPECT = 164, R_PLANET = 243, R_LABEL = 216;
 const polar = (ecl, r, asc) => { const a = ((((ecl - asc) % 360) + 360) % 360) * Math.PI / 180; return { x: CX - r * Math.cos(a), y: CY + r * Math.sin(a) }; };
 const PATTERN = { conjunction: "arc", opposition: "solid", square: "solid", trine: "solid", sextile: "dash", quincunx: "dashdot", semisextile: "dots", semisquare: "dots", quintile: "dots" };
 const DASH = { dash: [6, 3.5], dashdot: [7, 3, 0.01, 3], dots: [0.01, 3.2] };

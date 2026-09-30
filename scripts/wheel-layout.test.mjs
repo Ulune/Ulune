@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { arcSpan, boxesOverlap, discGap, placeBadges, placeLabels } from "../src/lib/chart/wheel-layout.ts";
+import { arcSpan, boxesOverlap, discGap, placeBadges, placeBeside, placeLabels } from "../src/lib/chart/wheel-layout.ts";
 import { fanAngles } from "../src/lib/chart/fan-angles.ts";
 
 const CX = 360;
@@ -40,6 +40,67 @@ test("a seven-planet stellium's degree labels touch neither each other nor any g
       for (let j = i + 1; j < boxes.length; j += 1) assert.ok(!boxesOverlap(boxes[i], boxes[j]), `labels ${i} and ${j} touch (asc ${asc})`);
       for (const d of discs) assert.ok(discGap(d, boxes[i]) > 0, `label ${i} touches a glyph (asc ${asc})`);
     }
+  }
+});
+
+/**
+ * The natal ring as chart-wheel.tsx draws it since part 83: glyphs just inside the degree ticks,
+ * each degree label close under its glyph (clear of it grown 1.4 times in focus), or under the yokes.
+ */
+const INNER = { glyph: 243, grown: 13 * 1.4, aspect: 164 };
+const innerOpts = (discs, h = 16) => {
+  const r1 = INNER.glyph - INNER.grown - 1 - h / 2;
+  return { r1, r2: r1 - 18, discs, hug: { floor: INNER.aspect + 2 }, turnCost: 2, overlapCost: 25 };
+};
+
+test("under their glyphs: a seven-planet stellium's degree labels touch no label, no glyph grown in focus and no yoke", () => {
+  const trues = [300.97, 301.6, 303.68, 314.72, 316.53, 318.08, 318.38];
+  const sep = ((13 * 2 + 3) / 209) * (180 / Math.PI);
+  const texts = ["0°58'", "1°36'", "3°41'", "14°43'", "16°32'", "18°05'", "18°23'"];
+  for (const asc of [0, 90, 204.27, 300]) {
+    const pol = (ecl, r) => {
+      const rad = ((((ecl - asc) % 360) + 360) % 360) * (Math.PI / 180);
+      return { x: CX - r * Math.cos(rad), y: CY + r * Math.sin(rad) };
+    };
+    const shown = fanAngles(trues, sep);
+    const grown = shown.map((e) => ({ ...pol(e, INNER.glyph), r: INNER.grown }));
+    // Three nested yoke lanes under the whole stellium, a dot every degree.
+    const yokes = [];
+    for (const lane of [224, 219.8, 215.6]) for (let e = shown[0]; e <= shown[shown.length - 1] + 1e-9; e += 1) yokes.push({ ...pol(e, lane), r: 1.5 });
+    const items = shown.map((e, i) => ({ id: `p${i}`, angle: e, w: labelW(texts[i]), h: 16 }));
+    const places = placeLabels(items, pol, { x: CX, y: CY }, innerOpts([...grown, ...yokes]));
+    const boxes = items.map((it) => {
+      const p = places.get(it.id);
+      return { cx: p.x, cy: p.y, hw: it.w / 2, hh: it.h / 2, rot: p.rot };
+    });
+    for (let i = 0; i < boxes.length; i += 1) {
+      for (let j = i + 1; j < boxes.length; j += 1) assert.ok(!boxesOverlap(boxes[i], boxes[j]), `labels ${i} and ${j} overlap (asc ${asc})`);
+      for (const d of grown) assert.ok(discGap(d, boxes[i]) > 0, `label ${i} touches a glyph (asc ${asc})`);
+      for (const d of yokes) assert.ok(discGap(d, boxes[i]) > 0, `label ${i} touches a yoke (asc ${asc})`);
+      const b = boxes[i];
+      const a = (b.rot * Math.PI) / 180;
+      for (const [u, v] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+        const x = b.cx + u * b.hw * Math.cos(a) - v * b.hh * Math.sin(a);
+        const y = b.cy + u * b.hw * Math.sin(a) + v * b.hh * Math.cos(a);
+        assert.ok(Math.hypot(x - CX, y - CY) >= INNER.aspect + 1, `label ${i} reaches into the aspect circle (asc ${asc})`);
+      }
+    }
+  }
+});
+
+test("under their glyphs: a planet on its own has its degree level and close under it, beside the wheel too", () => {
+  for (const angle of [0, 45, 90, 135, 180, 270]) {
+    const pol = (ecl, r) => {
+      const rad = (((ecl % 360) + 360) % 360) * (Math.PI / 180);
+      return { x: CX - r * Math.cos(rad), y: CY + r * Math.sin(rad) };
+    };
+    const g = { ...pol(angle, INNER.glyph), r: INNER.grown };
+    const item = { id: "sun", angle, w: labelW("24°03'"), h: 16 };
+    const p = placeLabels([item], pol, { x: CX, y: CY }, innerOpts([g])).get("sun");
+    assert.equal(p.at, 0, `level on its ring at ${angle}°`);
+    const box = { cx: p.x, cy: p.y, hw: item.w / 2, hh: item.h / 2, rot: 0 };
+    const gap = discGap(g, box);
+    assert.ok(gap > 0 && gap < 2.5, `close under its glyph at ${angle}° (${gap.toFixed(2)} units off it grown)`);
   }
 });
 
@@ -125,6 +186,17 @@ test("a house number slides out from under a planet, and stays in its house", ()
   const packed = Array.from({ length: 60 }, (_, k) => ({ ...polar(100 + k / 2, 180 + (k % 3) * 4), r: 3 }));
   const least = placeBadges([{ id: "h1", from: 100, to: 130, mid: 115 }], polar, { r: 186, rIn: 172, radius: 11, discs: packed });
   assert.ok(least.get("h1").ecl > 115, "it moves toward the free end of the house");
+});
+
+test("a house number and the mark beside it keep clear of a degree label", () => {
+  const badges = [{ id: "h8", from: 100, to: 130, mid: 115 }];
+  const at = polar(115, 190);
+  const label = { cx: at.x, cy: at.y, hw: 23, hh: 8, rot: 0 };
+  const m = placeBadges(badges, polar, { r: 182, rIn: 176, radius: 11, discs: [], boxes: [label] }).get("h8");
+  assert.ok(m.ecl > 103 - 1e-9 && m.ecl < 127 + 1e-9, "inside its house");
+  assert.ok(discGap({ x: m.x, y: m.y, r: 11 }, label) >= 2 - 1e-6, "clear of the label");
+  const beside = placeBeside({ ecl: m.ecl, r: 182 }, 0, polar, 9.5, [{ x: m.x, y: m.y, r: 11 }], undefined, undefined, [label]);
+  assert.ok(discGap({ x: beside.x, y: beside.y, r: 9.5 }, label) >= 1 - 1e-6, "the mark beside it clear of the label");
 });
 
 test("the shortest arc holding a stellium, across 0° Aries too", () => {
