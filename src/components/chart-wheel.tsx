@@ -2195,7 +2195,10 @@ const ChartWheelView = memo(function ChartWheelView({
             const a = within(120) ?? within(260);
             if (a && b) {
               const dt = Math.max(8, b.t - a.t) / 1000;
-              const rest = Math.exp(-Math.max(0, e.timeStamp - b.t) / 100);
+              // A pause is time beyond the device's own spacing of moves: on a slow
+              // device the release comes a whole frame after the last move.
+              const spacing = (b.t - a.t) / Math.max(1, o.trail.indexOf(b) - o.trail.indexOf(a));
+              const rest = Math.exp(-Math.max(0, e.timeStamp - b.t - spacing) / 100);
               const cap = (v: number) => Math.max(-300, Math.min(300, v * 0.55 * rest));
               depthRef.current?.glideCamera(cap((b.rx - a.rx) / dt), cap((b.rz - a.rz) / dt));
             }
