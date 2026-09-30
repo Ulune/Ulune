@@ -381,6 +381,10 @@ body {
   white-space: nowrap;
   pointer-events: none;
 }
+/* The last mark ("Any", « Illimité ») ends where the track ends, inside the box. */
+.ulune-orb-mark:last-child {
+  transform: translateX(calc(-100% + var(--ulune-orb-thumb) / 2));
+}
 .ulune-orb-slider {
   -webkit-appearance: none;
   appearance: none;

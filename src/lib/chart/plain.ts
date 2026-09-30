@@ -78,7 +78,7 @@ export function pointInSignText(id: BodyId, sign: SignId, locale: Locale): strin
   const kw = joinList(pickBi(SIGN_TEXT[sign]?.keywords, locale).split(/,\s*/).slice(0, 3), locale);
   const short = bodyAs(id, locale);
   if (locale === "fr") {
-    return `${bodyThe(id, locale, true)} ${inSign(sign, locale)} : ${short} s’exprime avec ${kw}, dans le style ${signDe(sign)}.`;
+    return `${bodyThe(id, locale, true)} ${inSign(sign, locale)}\u202f: ${short} s’exprime avec ${kw}, dans le style ${signDe(sign)}.`;
   }
   return `${bodyThe(id, locale, true)} in ${signName(sign, locale)}: ${short} tends to show in a ${kw} way.`;
 }
@@ -159,7 +159,7 @@ export function aspectSentence(chart: NatalChart, link: AspectLink, from: BodyId
   const practice = aspectPractice(from, other, link.type, locale);
   if (locale === "fr") {
     const phrase = aspectLinkPhrase(from, link.type, other, locale);
-    return `${phrase}${otherP ? ` ${inSign(otherP.sign, locale)}` : ""} (orbe ${orb}) : ${practice}`;
+    return `${phrase}${otherP ? ` ${inSign(otherP.sign, locale)}` : ""} (orbe ${orb})\u202f: ${practice}`;
   }
   const right = otherP ? `${bodyLabel(other, locale)} in ${signName(otherP.sign, locale)}` : bodyLabel(other, locale);
   return `${bodyLabel(from, locale)} ${aspectName(link.type, locale).toLowerCase()} ${right} (${orb}): ${practice}`;
@@ -175,10 +175,10 @@ export function aspectParagraphs(chart: NatalChart, link: AspectLink, locale: Lo
   if (a && b) {
     if (locale === "fr") {
       where.push(
-        `${cap(bodyInline(link.a, locale))} est ${inSign(a.sign, locale)}, en ${houseInline(a.house, locale)} (${houseArea(a.house, locale)}) ; ${bodyInline(link.b, locale)} est ${inSign(b.sign, locale)}, en ${houseInline(b.house, locale)} (${houseArea(b.house, locale)}). L’aspect relie ces deux domaines de votre vie.`,
+        `${cap(bodyInline(link.a, locale))} est ${inSign(a.sign, locale)}, en ${houseInline(a.house, locale)} (${houseArea(a.house, locale)})\u202f; ${bodyInline(link.b, locale)} est ${inSign(b.sign, locale)}, en ${houseInline(b.house, locale)} (${houseArea(b.house, locale)}). L’aspect relie ces deux domaines de votre vie.`,
       );
       where.push(
-        `L’orbe est de ${formatArc(link.orb)}${app ? ` et l’aspect est ${app}` : ""} : ${link.orb < 2 ? "il est serré et se fait nettement sentir" : link.orb < 5 ? "il est d’intensité moyenne" : "il est large et plus diffus"}.`,
+        `L’orbe est de ${formatArc(link.orb)}${app ? ` et l’aspect est ${app}` : ""}\u202f: ${link.orb < 2 ? "il est serré et se fait nettement sentir" : link.orb < 5 ? "il est d’intensité moyenne" : "il est large et plus diffus"}.`,
       );
     } else {
       where.push(

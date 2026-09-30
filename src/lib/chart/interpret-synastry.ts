@@ -62,14 +62,14 @@ export function synastryBodyReading(
     .sort((x, y) => x.orb - y.orb)
     .slice(0, 6);
   const lead = fr
-    ? `Chez ${ownerName}, ${bodyInline(placement.id, locale)} est à ${placement.formatted} ${inSign(placement.sign, locale)}, en ${houseInline(placement.house, locale)} (${houseArea(placement.house, locale)}). ${hits.length ? `Ce point forme ${hits.length} aspect${hits.length > 1 ? "s" : ""} majeur${hits.length > 1 ? "s" : ""} avec le thème ${de(otherName)} : c’est là que ${otherName} touche ${bodyKeywords(placement.id, locale)} ${de(ownerName)}.` : `Ce point ne forme aucun aspect majeur avec le thème ${de(otherName)}.`}`
+    ? `Chez ${ownerName}, ${bodyInline(placement.id, locale)} est à ${placement.formatted} ${inSign(placement.sign, locale)}, en ${houseInline(placement.house, locale)} (${houseArea(placement.house, locale)}). ${hits.length ? `Ce point forme ${hits.length} aspect${hits.length > 1 ? "s" : ""} majeur${hits.length > 1 ? "s" : ""} avec le thème ${de(otherName)}\u202f: c’est là que ${otherName} touche ${bodyKeywords(placement.id, locale)} ${de(ownerName)}.` : `Ce point ne forme aucun aspect majeur avec le thème ${de(otherName)}.`}`
     : `${ownerName}’s ${name} is at ${placement.formatted} ${signName(placement.sign, locale)}, in their ${houseInline(placement.house, locale)} (${houseArea(placement.house, locale)}). ${hits.length ? `It makes ${hits.length} major aspect${hits.length > 1 ? "s" : ""} to ${otherName}’s chart: this is where ${otherName} touches ${ownerName}’s ${bodyKeywords(placement.id, locale)}.` : `It makes no major aspect to ${otherName}’s chart.`}`;
   const inChart: string[] = [];
   const tight = hits.find((row) => row.orb <= TIGHT_ORB);
   if (tight) {
     inChart.push(
       fr
-        ? `Le contact le plus serré : ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))}, à ${formatArc(tight.orb)}. ${familyText(tight, aName, bName, locale)}`
+        ? `Le contact le plus serré\u202f: ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))}, à ${formatArc(tight.orb)}. ${familyText(tight, aName, bName, locale)}`
         : `The tightest contact is ${aspectLinkPhrase(tight.a, tight.type, tight.b, locale)} at ${formatArc(tight.orb)}. ${familyText(tight, aName, bName, locale)}`,
     );
   }
@@ -116,13 +116,13 @@ export function synastryAspectReading(link: AspectLink, a: NatalChart, b: NatalC
   if (aPlace && bPlace) {
     inChart.push(
       fr
-        ? `Chez ${aName}, ${bodyInline(link.a, locale)} est ${inSign(aPlace.sign, locale)} (${houseInline(aPlace.house, locale)} : ${houseArea(aPlace.house, locale)}) ; chez ${bName}, ${bodyInline(link.b, locale)} est ${inSign(bPlace.sign, locale)} (${houseInline(bPlace.house, locale)} : ${houseArea(bPlace.house, locale)}).`
+        ? `Chez ${aName}, ${bodyInline(link.a, locale)} est ${inSign(aPlace.sign, locale)} (${houseInline(aPlace.house, locale)}\u202f: ${houseArea(aPlace.house, locale)})\u202f; chez ${bName}, ${bodyInline(link.b, locale)} est ${inSign(bPlace.sign, locale)} (${houseInline(bPlace.house, locale)}\u202f: ${houseArea(bPlace.house, locale)}).`
         : `${aName}’s ${bodyLabel(link.a, locale)} is in ${signName(aPlace.sign, locale)} (${houseInline(aPlace.house, locale)}: ${houseArea(aPlace.house, locale)}); ${bName}’s ${bodyLabel(link.b, locale)} is in ${signName(bPlace.sign, locale)} (${houseInline(bPlace.house, locale)}: ${houseArea(bPlace.house, locale)}).`,
     );
   }
   inChart.push(
     fr
-      ? `Orbe ${orb} : ${link.orb < 2 ? "un contact serré, très sensible entre vous" : link.orb < 5 ? "un contact net" : "un contact plus diffus"}.`
+      ? `Orbe ${orb}\u202f: ${link.orb < 2 ? "un contact serré, très sensible entre vous" : link.orb < 5 ? "un contact net" : "un contact plus diffus"}.`
       : `Orb ${orb}: ${link.orb < 2 ? "a tight contact, strongly felt between you" : link.orb < 5 ? "a clear contact" : "a looser, more diffuse contact"}.`,
   );
   const note = aspectIs(link.type, locale);

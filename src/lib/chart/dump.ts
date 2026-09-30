@@ -107,12 +107,12 @@ export function dumpChartForPrompt(
   }
   lines.push(
     fr
-      ? `Éléments (10 cœur) : ${elementName("fire", locale)} ${patterns.elementCounts.fire}, ${elementName("earth", locale)} ${patterns.elementCounts.earth}, ${elementName("air", locale)} ${patterns.elementCounts.air}, ${elementName("water", locale)} ${patterns.elementCounts.water}`
+      ? `Éléments (10 cœur)\u202f: ${elementName("fire", locale)} ${patterns.elementCounts.fire}, ${elementName("earth", locale)} ${patterns.elementCounts.earth}, ${elementName("air", locale)} ${patterns.elementCounts.air}, ${elementName("water", locale)} ${patterns.elementCounts.water}`
       : `Elements (core 10): fire ${patterns.elementCounts.fire}, earth ${patterns.elementCounts.earth}, air ${patterns.elementCounts.air}, water ${patterns.elementCounts.water}`,
   );
   lines.push(
     fr
-      ? `Modalités : ${modalityName("cardinal", locale)} ${patterns.modalityCounts.cardinal}, ${modalityName("fixed", locale)} ${patterns.modalityCounts.fixed}, ${modalityName("mutable", locale)} ${patterns.modalityCounts.mutable}`
+      ? `Modalités\u202f: ${modalityName("cardinal", locale)} ${patterns.modalityCounts.cardinal}, ${modalityName("fixed", locale)} ${patterns.modalityCounts.fixed}, ${modalityName("mutable", locale)} ${patterns.modalityCounts.mutable}`
       : `Modalities: cardinal ${patterns.modalityCounts.cardinal}, fixed ${patterns.modalityCounts.fixed}, mutable ${patterns.modalityCounts.mutable}`,
   );
   if (patterns.retrogrades.length) {

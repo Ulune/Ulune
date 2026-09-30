@@ -208,7 +208,7 @@
     },
     "needsTime": {
       "en": "Without a birth time the chart is cast for 12:00, a stand-in. What depends on the time is marked ~, and a body that moves half a degree or more that day shows how far it goes.",
-      "fr": "Sans heure de naissance, le thème est calculé pour 12 h, en attendant. Ce qui dépend de l’heure est marqué ~, et un corps qui avance d’un demi-degré ou plus ce jour-là montre sa course."
+      "fr": "Sans heure de naissance, le thème est calculé par défaut pour 12 h. Ce qui dépend de l’heure est marqué ~, et un corps qui avance d’un demi-degré ou plus ce jour-là montre sa course."
     },
     "triplicity": {
       "en": "triplicity",
@@ -234,7 +234,7 @@
     },
     "standIn": {
       "en": "the chart is cast at 12:00 as a stand-in",
-      "fr": "le thème est calculé à 12 h en attendant"
+      "fr": "le thème est calculé par défaut à 12 h"
     },
     "universalTime": {
       "en": "Universal time",
@@ -382,7 +382,7 @@
   "unknown": {
     "houses": {
       "en": "Without a birth time these cusps are cast for 12:00, a stand-in only.",
-      "fr": "Sans heure de naissance, ces cuspides sont calculées pour 12 h, en attendant."
+      "fr": "Sans heure de naissance, ces cuspides sont calculées par défaut pour 12 h."
     },
     "balance": {
       "en": "Without a birth time the angles are left out. Hemispheres, quadrants and angularity come from the houses, cast for 12:00: marked ~.",

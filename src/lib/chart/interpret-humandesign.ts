@@ -447,10 +447,10 @@ function hdReadingOf(
           : hdLayerLabel(locale, "design");
     const state = live
       ? fr
-        ? `Ce canal est défini dans votre schéma : ses deux portes sont activées, donc ${hdCenterLabel(locale, ch.centers[0])} et ${hdCenterLabel(locale, ch.centers[1])} sont reliés en permanence. C’est un trait constant, présent quelle que soit la personne avec qui vous êtes.`
+        ? `Ce canal est défini dans votre schéma\u202f: ses deux portes sont activées, donc ${hdCenterLabel(locale, ch.centers[0])} et ${hdCenterLabel(locale, ch.centers[1])} sont reliés en permanence. C’est un trait constant, présent quelle que soit la personne avec qui vous êtes.`
         : `This channel is defined in your chart: both gates are activated, so ${hdCenterLabel(locale, ch.centers[0])} and ${hdCenterLabel(locale, ch.centers[1])} are permanently linked. It is a consistent trait, present whoever you are with.`
       : fr
-        ? `Ce canal n’est pas défini dans cette vue${aBodies.length || bBodies.length ? " : une seule de ses portes est activée, et l’autre moitié peut être apportée par une autre personne ou un transit" : ""}.`
+        ? `Ce canal n’est pas défini dans cette vue${aBodies.length || bBodies.length ? "\u202f: une seule de ses portes est activée, et l’autre moitié peut être apportée par une autre personne ou un transit" : ""}.`
         : `This channel is not defined in this view${aBodies.length || bBodies.length ? ": only one of its gates is activated, and the other half can be supplied by another person or a transit" : ""}.`;
     const lead = [inChart, pickBi(text?.what, locale)].filter(Boolean).join(" ");
     return {
@@ -492,13 +492,13 @@ function hdReadingOf(
     const state = rows.length
       ? channels.length
         ? fr
-          ? "Cette porte est activée et fait partie d’un canal défini : son thème s’exprime de façon constante."
+          ? "Cette porte est activée et fait partie d’un canal défini\u202f: son thème s’exprime de façon constante."
           : "This gate is activated and part of a defined channel: its theme is expressed consistently."
         : fr
-          ? "Cette porte est activée, sans canal complet : son thème est présent chez vous, et se renforce quand quelqu’un active la porte opposée."
+          ? "Cette porte est activée, sans canal complet\u202f: son thème est présent chez vous, et se renforce quand quelqu’un active la porte opposée."
           : "This gate is activated but not part of a complete channel: its theme is present in you, and grows stronger when someone else activates the opposite gate."
       : fr
-        ? "Cette porte n’est pas activée dans votre schéma ; vous pouvez en vivre le thème à travers d’autres personnes ou des transits."
+        ? "Cette porte n’est pas activée dans votre schéma\u202f; vous pouvez en vivre le thème à travers d’autres personnes ou des transits."
         : "This gate is not activated in your chart; you can experience its theme through other people or transits.";
     const inChart = rows.length
       ? fillBi(HD_IN_CHART.gateBy, locale, { acts: joinList(rows.map((r) => whoOnLine(locale, r)), locale) })

@@ -55,13 +55,13 @@ export function progressedReading(
   const area = houseArea(placement.house, locale);
   const moved = natalP && natalP.sign !== placement.sign;
   const lead = fr
-    ? `${cap(bodyInline(id, locale))} ${bodyAgree(id, "progressé", "progressée")} est à ${placement.formatted} ${inSign(placement.sign, locale)}, dans votre ${houseInline(placement.house, locale)} (${area}).${moved ? ` À la naissance, ce point était ${inSign(natalP!.sign, locale)} : avec ce changement de signe, ${bodyKeywords(id, locale)} se colorent désormais des traits du nouveau signe (${signKeywords(placement.sign, locale)}).` : " Ce point n’a pas changé de signe depuis la naissance."}`
+    ? `${cap(bodyInline(id, locale))} ${bodyAgree(id, "progressé", "progressée")} est à ${placement.formatted} ${inSign(placement.sign, locale)}, dans votre ${houseInline(placement.house, locale)} (${area}).${moved ? ` À la naissance, ce point était ${inSign(natalP!.sign, locale)}\u202f: avec ce changement de signe, ${bodyKeywords(id, locale)} se colorent désormais des traits du nouveau signe (${signKeywords(placement.sign, locale)}).` : " Ce point n’a pas changé de signe depuis la naissance."}`
     : `Your progressed ${name} is at ${placement.formatted} ${signName(placement.sign, locale)}, in your ${houseInline(placement.house, locale)} (${area}).${moved ? ` At birth it was in ${signName(natalP!.sign, locale)}: this change of sign is read as ${bodyKeywords(id, locale)} developing a more ${signKeywords(placement.sign, locale)} style.` : " It is still in the sign it had at birth."}`;
   const inChart: string[] = [];
   if (placement.retrograde) {
     inChart.push(
       fr
-        ? "Ce point est rétrograde en progression : sa fonction se tourne davantage vers l’intérieur pendant ces années."
+        ? "Ce point est rétrograde en progression\u202f: sa fonction se tourne davantage vers l’intérieur pendant ces années."
         : "It is retrograde by progression: its function turns more inward during these years.",
     );
   }
@@ -69,13 +69,13 @@ export function progressedReading(
   if (tight) {
     inChart.push(
       fr
-        ? `Son contact le plus serré : ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))} ${bodyAgree(tight.b, "natal", "natale")}, à ${formatArc(tight.orb)}. ${pickBi(PROGRESSED_ACTIVE[paceOf(id)], locale)}`
+        ? `Son contact le plus serré\u202f: ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))} ${bodyAgree(tight.b, "natal", "natale")}, à ${formatArc(tight.orb)}. ${pickBi(PROGRESSED_ACTIVE[paceOf(id)], locale)}`
         : `Its tightest contact is ${aspectLinkPhrase(tight.a, tight.type, tight.b, locale)} (natal), at ${formatArc(tight.orb)}. ${pickBi(PROGRESSED_ACTIVE[paceOf(id)], locale)}`,
     );
   } else if (!hits.length) {
     inChart.push(
       fr
-        ? "Aucun aspect majeur serré à votre thème en ce moment : ce point progressé agit surtout par son signe et sa maison."
+        ? "Aucun aspect majeur serré à votre thème en ce moment\u202f: ce point progressé agit surtout par son signe et sa maison."
         : "No tight major aspect to your chart at the moment: this progressed point works mostly through its sign and house.",
     );
   }

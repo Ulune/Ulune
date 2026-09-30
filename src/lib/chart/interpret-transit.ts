@@ -65,7 +65,7 @@ export function transitReading(
   if (placement.retrograde) {
     inChart.push(
       fr
-        ? "La planète est rétrograde en ce moment : vue de la Terre, elle semble reculer. On lit cette phase comme un temps pour revoir et reprendre plutôt que pour lancer du nouveau."
+        ? "La planète est rétrograde en ce moment\u202f: vue de la Terre, elle semble reculer. On lit cette phase comme un temps pour revoir et reprendre plutôt que pour lancer du nouveau."
         : "It is retrograde at the moment: seen from Earth, it appears to move backwards. This phase is read as a time to review and redo rather than to launch something new.",
     );
   }
@@ -73,13 +73,13 @@ export function transitReading(
   if (tight) {
     inChart.push(
       fr
-        ? `Son contact le plus serré : ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))} ${bodyAgree(tight.b, "natal", "natale")}, à ${formatArc(tight.orb)}. C’est là que le transit se fait le plus sentir en ce moment.`
+        ? `Son contact le plus serré\u202f: ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))} ${bodyAgree(tight.b, "natal", "natale")}, à ${formatArc(tight.orb)}. C’est là que le transit se fait le plus sentir en ce moment.`
         : `Its tightest contact is ${aspectLinkPhrase(tight.a, tight.type, tight.b, locale)} (natal), at ${formatArc(tight.orb)}: that is where this transit is felt most right now.`,
     );
   } else if (!hits.length) {
     inChart.push(
       fr
-        ? "Aucun aspect majeur serré à votre thème pour l’instant : le transit agit surtout par la maison qu’il traverse."
+        ? "Aucun aspect majeur serré à votre thème pour l’instant\u202f: le transit agit surtout par la maison qu’il traverse."
         : "No tight major aspect to your chart just now: this transit works mostly through the house it is crossing.",
     );
   }
@@ -141,7 +141,7 @@ export function transitAspectReading(
   if (theme) inChart.push(theme);
   inChart.push(
     fr
-      ? `Orbe ${orb}${app ? `, ${app}` : ""} : ${link.applying ? "le contact se rapproche encore de l’exactitude" : link.applying === false ? "le point exact est passé, l’effet diminue" : "le contact est actif"}.`
+      ? `Orbe ${orb}${app ? `, ${app}` : ""}\u202f: ${link.applying ? "le contact se rapproche encore de l’exactitude" : link.applying === false ? "le point exact est passé, l’effet diminue" : "le contact est actif"}.`
       : `Orb ${orb}${app ? `, ${app}` : ""}: ${link.applying ? "the contact is still getting closer to exact" : link.applying === false ? "the exact point has passed and the effect is fading" : "the contact is active"}.`,
   );
   const pace = pickBi(TRANSIT_PACE[link.a], locale);

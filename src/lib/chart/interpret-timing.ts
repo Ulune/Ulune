@@ -44,11 +44,11 @@ export function timingExactReading(
   const fr = locale === "fr";
   const nPos = natal ? `${natal.formatted} ${inSign(natal.sign, locale)}` : "";
   const first = fr
-    ? `Exact le ${when} : ${bodyInline(hit.moving, locale)} en transit forme ${aspectName(hit.type, locale).toLowerCase() === "conjonction" ? "une conjonction" : `un ${aspectName(hit.type, locale).toLowerCase()}`} exact avec ${bodyInline(hit.natal, locale)} de votre thème${nPos ? ` (${nPos})` : ""}.`
+    ? `Exact le ${when}\u202f: ${bodyInline(hit.moving, locale)} en transit forme ${aspectName(hit.type, locale).toLowerCase() === "conjonction" ? "une conjonction" : `un ${aspectName(hit.type, locale).toLowerCase()}`} exact avec ${bodyInline(hit.natal, locale)} de votre thème${nPos ? ` (${nPos})` : ""}.`
     : `Exact on ${when}: transiting ${bodyLabel(hit.moving, locale)} makes an exact ${aspectName(hit.type, locale).toLowerCase()} to your natal ${bodyLabel(hit.natal, locale)}${nPos ? ` (${nPos})` : ""}.`;
   const lead = movingFamilyText(TRANSIT_FAMILY, hit.moving as BodyId, hit.natal as BodyId, hit.type, locale);
   const second = fr
-    ? `${app ? `Il est actuellement ${app}. ` : ""}L’effet se fait sentir avant et après la date exacte : ${pickBi(TRANSIT_PACE[hit.moving as BodyId], locale) || "plus la planète est lente, plus la période est longue."}`
+    ? `${app ? `Il est actuellement ${app}. ` : ""}L’effet se fait sentir avant et après la date exacte\u202f: ${pickBi(TRANSIT_PACE[hit.moving as BodyId], locale) || "plus la planète est lente, plus la période est longue."}`
     : `${app ? `It is currently ${app}. ` : ""}The effect is felt before and after the exact date: ${pickBi(TRANSIT_PACE[hit.moving as BodyId], locale) || "the slower the planet, the longer the period."}`;
   const theme = pairTheme(hit.moving as BodyId, hit.natal as BodyId, locale);
   return {
@@ -104,7 +104,7 @@ export function timingBodyReading(
     note: pickBi(TRANSIT_PACE[moving as BodyId], locale) || undefined,
     lead: hits.length
       ? fr
-        ? `Dans la période affichée, ${bodyInline(moving, locale)} en transit forme ${hits.length} aspect${hits.length > 1 ? "s" : ""} exact${hits.length > 1 ? "s" : ""} à votre thème : ${bodyKeywords(moving as BodyId, locale)} y sont en jeu.`
+        ? `Dans la période affichée, ${bodyInline(moving, locale)} en transit forme ${hits.length} aspect${hits.length > 1 ? "s" : ""} exact${hits.length > 1 ? "s" : ""} à votre thème\u202f: ${bodyKeywords(moving as BodyId, locale)} y sont en jeu.`
         : `In the period shown, transiting ${name} makes ${hits.length} exact aspect${hits.length > 1 ? "s" : ""} to your chart, bringing ${bodyKeywords(moving as BodyId, locale)} into play.`
       : empty,
     links: hits.length
@@ -117,6 +117,6 @@ export function timingBodyReading(
           })),
         }
       : undefined,
-    about: { title: fr ? `À propos : ${name}` : `About ${name}`, paragraphs: [bodyIs(moving, locale), pickBi(TIMING_ABOUT, locale)] },
+    about: { title: fr ? `À propos\u202f: ${name}` : `About ${name}`, paragraphs: [bodyIs(moving, locale), pickBi(TIMING_ABOUT, locale)] },
   };
 }

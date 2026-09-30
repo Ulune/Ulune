@@ -132,7 +132,7 @@ function dignityKey(d: string) {
 function chartRulerLine(chart: NatalChart, p: Placement, locale: Locale): string {
   const asc = chart.angles.ascendant.sign;
   if (locale === "fr") {
-    return `${cap(bodyInline(p.id, locale))} gouverne votre signe ascendant, ${signThe(asc)} : c’est le maître de votre thème. Son signe, sa maison et ses aspects en disent long sur votre façon d’aborder la vie dans son ensemble.`;
+    return `${cap(bodyInline(p.id, locale))} gouverne votre signe ascendant, ${signThe(asc)}\u202f: c’est le maître de votre thème. Son signe, sa maison et ses aspects en disent long sur votre façon d’aborder la vie dans son ensemble.`;
   }
   return `${bodyThe(p.id, locale, true)} rules your rising sign, ${signName(asc, locale)}, which makes it your chart ruler: its sign, house and aspects say a lot about how you approach life as a whole.`;
 }
@@ -143,8 +143,8 @@ function decanLine(sign: SignId, ecliptic: number, locale: Locale): string {
   const own = d.faceSign === sign;
   if (locale === "fr") {
     return own
-      ? `Il tombe dans le ${face} décan ${signDe(sign)}, le décan propre au signe, gouverné par ${bodyInline(d.ruler, locale)} : le style ${signDe(sign)} y est le plus pur.`
-      : `Il tombe dans le ${face} décan ${signDe(sign)}, le décan ${signDe(d.faceSign)}, sous-gouverné par ${bodyInline(d.ruler, locale)} : il ajoute au style du signe une touche ${signDe(d.faceSign)} (${signKeywords(d.faceSign, locale)}).`;
+      ? `Il tombe dans le ${face} décan ${signDe(sign)}, le décan propre au signe, gouverné par ${bodyInline(d.ruler, locale)}\u202f: le style ${signDe(sign)} y est le plus pur.`
+      : `Il tombe dans le ${face} décan ${signDe(sign)}, le décan ${signDe(d.faceSign)}, sous-gouverné par ${bodyInline(d.ruler, locale)}\u202f: il ajoute au style du signe une touche ${signDe(d.faceSign)} (${signKeywords(d.faceSign, locale)}).`;
   }
   return own
     ? `It falls in the ${face} decan of ${signName(sign, locale)}, the sign’s own decan, ruled by ${bodyThe(d.ruler, locale)}: the ${signName(sign, locale)} style in its purest form.`
@@ -231,7 +231,7 @@ function angleReading(chart: NatalChart, id: keyof NatalChart["angles"], locale:
     if (ruler) {
       inChart.push(
         locale === "fr"
-          ? `Le maître de votre Ascendant, ${bodyInline(ruler.id, locale)}, est ${inSign(ruler.sign, locale)} en ${houseInline(ruler.house, locale)} (${houseArea(ruler.house, locale)}) : c’est dans ce domaine que votre façon d’être se met le plus en action.`
+          ? `Le maître de votre Ascendant, ${bodyInline(ruler.id, locale)}, est ${inSign(ruler.sign, locale)} en ${houseInline(ruler.house, locale)} (${houseArea(ruler.house, locale)})\u202f: c’est dans ce domaine que votre façon d’être se met le plus en action.`
           : `Your Ascendant’s ruler, ${bodyThe(ruler.id, locale)}, is in ${signName(ruler.sign, locale)} in your ${houseInline(ruler.house, locale)} (${houseArea(ruler.house, locale)}): that is where your way of meeting the world is put to work most.`,
       );
       facts.push({ label: c.factRuler, value: bodyLabel(ruler.id, locale), ref: `planet:${ruler.id}` });
@@ -246,7 +246,7 @@ function angleReading(chart: NatalChart, id: keyof NatalChart["angles"], locale:
     const list = joinList(onAngle.map((p) => bodyThe(p.id, locale)), locale);
     inChart.push(
       locale === "fr"
-        ? `${cap(list)} ${onAngle.length > 1 ? "sont" : "est"} conjoint${onAngle.length > 1 ? "s" : ""} à cet angle : une planète sur un angle est très visible dans la vie et dans le caractère.`
+        ? `${cap(list)} ${onAngle.length > 1 ? "sont" : "est"} conjoint${onAngle.length > 1 ? "s" : ""} à cet angle\u202f: une planète sur un angle est très visible dans la vie et dans le caractère.`
         : `${cap(list)} ${onAngle.length > 1 ? "are" : "is"} conjunct this angle: a planet on an angle is very visible in character and in life.`,
     );
   }
@@ -301,7 +301,7 @@ function houseReading(chart: NatalChart, house: number, locale: Locale): Element
     const names = joinList(tenants.map((t) => `${bodyThe(t.id, locale)} ${inSign(t.sign, locale)}`), locale);
     inChart.push(
       locale === "fr"
-        ? `${cap(names)} ${tenants.length > 1 ? "occupent" : "occupe"} cette maison : ${tenants.length > 1 ? "ce sont les principaux acteurs" : "c’est le principal acteur"} de ce domaine (${area}).`
+        ? `${cap(names)} ${tenants.length > 1 ? "occupent" : "occupe"} cette maison\u202f: ${tenants.length > 1 ? "ce sont les principaux acteurs" : "c’est le principal acteur"} de ce domaine (${area}).`
         : `${cap(names)} ${tenants.length > 1 ? "occupy" : "occupies"} this house: ${tenants.length > 1 ? "they are the main actors" : "it is the main actor"} in ${area}.`,
     );
     for (const t of tenants) {
@@ -320,7 +320,7 @@ function houseReading(chart: NatalChart, house: number, locale: Locale): Element
   if (rulerP) {
     inChart.push(
       locale === "fr"
-        ? `${signIs(signId, { m: "gouverné", f: "gouvernée", p: "gouvernés" })} par ${bodyInline(ruler, locale)}, qui se trouve en ${houseInline(rulerP.house, locale)} (${houseArea(rulerP.house, locale)}) : ce domaine de votre vie est donc lié à celui-ci.`
+        ? `${signIs(signId, { m: "gouverné", f: "gouvernée", p: "gouvernés" })} par ${bodyInline(ruler, locale)}, qui se trouve en ${houseInline(rulerP.house, locale)} (${houseArea(rulerP.house, locale)})\u202f: ce domaine de votre vie est donc lié à celui-ci.`
         : `${signName(signId, locale)} is ruled by ${bodyThe(ruler, locale)}, which sits in your ${houseInline(rulerP.house, locale)} (${houseArea(rulerP.house, locale)}): this area of your life is tied to that one.`,
     );
   }
@@ -328,7 +328,7 @@ function houseReading(chart: NatalChart, house: number, locale: Locale): Element
   for (const s of swallowed) {
     inChart.push(
       locale === "fr"
-        ? `${signIs(s, { m: "intercepté", f: "interceptée", p: "interceptés" })} dans cette maison : le signe y est entièrement contenu sans toucher de cuspide. Son style (${signKeywords(s, locale)}) joue ici un rôle réel mais moins visible.`
+        ? `${signIs(s, { m: "intercepté", f: "interceptée", p: "interceptés" })} dans cette maison\u202f: le signe y est entièrement contenu sans toucher de cuspide. Son style (${signKeywords(s, locale)}) joue ici un rôle réel mais moins visible.`
         : `${signName(s, locale)} is intercepted in this house: it lies wholly inside it without touching a cusp. Its style (${signKeywords(s, locale)}) plays a real but less visible part here.`,
     );
   }
@@ -376,16 +376,16 @@ function signReading(chart: NatalChart, sign: SignId, locale: Locale): ElementRe
   if (tenants.length) {
     const list = joinList(tenants.map((t) => bodyThe(t.id, locale)), locale);
     lead = fr
-      ? `Dans votre thème, ${signThe(sign)} contient ${list} : ${tenants.length > 1 ? "ces positions s’expriment" : "cette position s’exprime"} dans le style du signe.`
+      ? `Dans votre thème, ${signThe(sign)} contient ${list}\u202f: ${tenants.length > 1 ? "ces positions s’expriment" : "cette position s’exprime"} dans le style du signe.`
       : `In your chart, ${signName(sign, locale)} holds ${list}: ${tenants.length > 1 ? "these placements express themselves" : "this placement expresses itself"} in the sign’s style.`;
   } else if (cusps.length) {
     const list = cusps.map((n) => houseInline(n, locale)).join(", ");
     lead = fr
-      ? `Aucune planète n’est ${inSign(sign, locale)} dans votre thème, mais le signe est sur la cuspide de votre ${list} : il colore la façon dont vous vivez ce domaine.`
+      ? `Aucune planète n’est ${inSign(sign, locale)} dans votre thème, mais le signe est sur la cuspide de votre ${list}\u202f: il colore la façon dont vous vivez ce domaine.`
       : `No planet is in ${signName(sign, locale)} in your chart, but the sign is on the cusp of your ${list}: it colours how you handle that area.`;
   } else {
     lead = fr
-      ? `Aucune planète ni cuspide ne tombe ${inSign(sign, locale)} dans votre thème${intercepted ? " (le signe est intercepté)" : ""} : il y joue un rôle de fond.`
+      ? `Aucune planète ni cuspide ne tombe ${inSign(sign, locale)} dans votre thème${intercepted ? " (le signe est intercepté)" : ""}\u202f: il y joue un rôle de fond.`
       : `No planet or house cusp falls in ${signName(sign, locale)} in your chart${intercepted ? " (the sign is intercepted)" : ""}: it plays a background role.`;
   }
   const style = [pickBi(text.strengths, locale), pickBi(text.pitfalls, locale), pickBi(text.example, locale)];
@@ -453,15 +453,15 @@ function decanReading(chart: NatalChart, sign: SignId, face: 0 | 1 | 2, locale: 
   const own = decan.faceSign === sign;
   const lead = fr
     ? own
-      ? `Le ${faceLabelLocale(decan.face, locale)} décan ${signDe(sign)} va de ${start}° à ${end}°. C’est le décan propre au signe, gouverné par ${bodyInline(decan.ruler, locale)} : on y trouve le style ${signDe(sign)} sous sa forme la plus nette (${signKeywords(sign, locale)}).`
-      : `Le ${faceLabelLocale(decan.face, locale)} décan ${signDe(sign)} va de ${start}° à ${end}°. C’est le décan ${signDe(decan.faceSign)}, sous-gouverné par ${bodyInline(decan.ruler, locale)} : il ajoute au style du signe une touche ${signDe(decan.faceSign)} (${signKeywords(decan.faceSign, locale)}).`
+      ? `Le ${faceLabelLocale(decan.face, locale)} décan ${signDe(sign)} va de ${start}° à ${end}°. C’est le décan propre au signe, gouverné par ${bodyInline(decan.ruler, locale)}\u202f: on y trouve le style ${signDe(sign)} sous sa forme la plus nette (${signKeywords(sign, locale)}).`
+      : `Le ${faceLabelLocale(decan.face, locale)} décan ${signDe(sign)} va de ${start}° à ${end}°. C’est le décan ${signDe(decan.faceSign)}, sous-gouverné par ${bodyInline(decan.ruler, locale)}\u202f: il ajoute au style du signe une touche ${signDe(decan.faceSign)} (${signKeywords(decan.faceSign, locale)}).`
     : own
       ? `The ${faceLabelLocale(decan.face, locale)} decan of ${signName(sign, locale)} runs from ${start}° to ${end}°. It is the sign’s own decan, ruled by ${bodyThe(decan.ruler, locale)}: the ${signName(sign, locale)} style in its clearest form (${signKeywords(sign, locale)}).`
       : `The ${faceLabelLocale(decan.face, locale)} decan of ${signName(sign, locale)} runs from ${start}° to ${end}°. It is the ${signName(decan.faceSign, locale)} decan, sub-ruled by ${bodyThe(decan.ruler, locale)}: it adds a touch of ${signName(decan.faceSign, locale)} (${signKeywords(decan.faceSign, locale)}) to the sign’s style.`;
   const inChart = tenants.length
     ? [
         fr
-          ? `Dans votre thème : ${joinList(tenants.map((t) => `${bodyThe(t.id, locale)} (${t.formatted})`), locale)}. ${tenants.length > 1 ? "Ces positions prennent" : "Cette position prend"} cette nuance.`
+          ? `Dans votre thème\u202f: ${joinList(tenants.map((t) => `${bodyThe(t.id, locale)} (${t.formatted})`), locale)}. ${tenants.length > 1 ? "Ces positions prennent" : "Cette position prend"} cette nuance.`
           : `In your chart: ${joinList(tenants.map((t) => `${bodyThe(t.id, locale)} (${t.formatted})`), locale)}. ${tenants.length > 1 ? "These placements take" : "This placement takes"} on this nuance.`,
       ]
     : [fr ? "Aucune planète natale ne se trouve dans ces 10°." : "No natal planet sits in these 10°."];
@@ -684,7 +684,7 @@ export function buildCompositeDossier(chart: NatalChart, locale: Locale): LocalD
     title: fr ? "Dans un thème composite" : "In a composite chart",
     paragraphs: [
       fr
-        ? "Ce thème est celui de la relation, calculé à partir des points médians de vos deux thèmes. Lisez « vous » comme « vous deux, ensemble » : il décrit ce que la relation fait naître, pas l’une ou l’autre personne."
+        ? "Ce thème est celui de la relation, calculé à partir des points médians de vos deux thèmes. Lisez «\u202fvous\u202f» comme «\u202fvous deux, ensemble\u202f»\u202f: il décrit ce que la relation fait naître, pas l’une ou l’autre personne."
         : "This is the chart of the relationship, built from the midpoints of your two charts. Read “you” as “the two of you together”: it describes what the relationship brings out, not either person on their own.",
     ],
   };
