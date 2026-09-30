@@ -525,7 +525,20 @@ export function CalendarYearPanel({
     </button>
   );
   const link = (ev: SkyEvent, text: string) => linkTo(`sky:${skyEventId(ev)}`, text);
-  const join = (items: React.ReactNode[]) => items.flatMap((it, i) => (i ? [", ", it] : [it]));
+  /** Items with commas between them, each comma kept on the line of the item before it. */
+  const join = (items: React.ReactNode[]) => {
+    const list = items.filter(Boolean);
+    return list.flatMap((it, i) =>
+      i < list.length - 1
+        ? [
+            <span key={`j${i}`} className="whitespace-nowrap">
+              {it},
+            </span>,
+            " ",
+          ]
+        : [it],
+    );
+  };
   // Retrograde stretches of Mercury, Venus and Mars that start in the year.
   const retro = (["mercury", "venus", "mars"] as const)
     .map((body) => {

@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { YourData } from "@/components/your-data";
 import { SpaceSettings } from "@/components/space/space-settings";
 import { LegalNav } from "@/components/legal-page";
+import { keepWhole } from "@/components/keep-whole";
 import { pageHead } from "@/lib/page-head";
 import { problemMailto } from "@/lib/contact";
 
@@ -48,7 +49,7 @@ function Settings() {
             </a>
           </p>
           <p className="ob-data-body">
-            {t("guidePrecise4")}{" "}
+            {keepWhole(t("guidePrecise4"))}{" "}
             <a
               href={SOURCE_URL}
               className="ob-keep-link"

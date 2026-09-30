@@ -6,6 +6,7 @@ import { dateFormat } from "@/lib/intl-cache";
 import { OPERATOR } from "@/lib/legal/operator";
 import type { NoticeBlock } from "@/lib/legal/privacy-notice";
 import { LEGAL_LINKS } from "@/lib/legal/links";
+import { keepWhole } from "@/components/keep-whole";
 
 
 const TOKEN = /\[([^\]]+)\]\(((?:https:\/\/|\/)[^)\s]*)\)|\{name\}|\{contact\}/g;
@@ -20,7 +21,7 @@ export function LegalText({ text }: { text: string }) {
   let last = 0;
   for (const m of text.matchAll(TOKEN)) {
     const at = m.index ?? 0;
-    if (at > last) out.push(text.slice(last, at));
+    if (at > last) out.push(keepWhole(text.slice(last, at), `p${at}`));
     if (m[0] === "{name}") out.push(OPERATOR.name);
     else if (m[0] === "{contact}")
       out.push(
@@ -52,7 +53,7 @@ export function LegalText({ text }: { text: string }) {
       );
     last = at + m[0].length;
   }
-  if (last < text.length) out.push(text.slice(last));
+  if (last < text.length) out.push(keepWhole(text.slice(last), "end"));
   return <>{out.map((part, i) => (typeof part === "string" ? <Fragment key={`t${i}`}>{part}</Fragment> : part))}</>;
 }
 

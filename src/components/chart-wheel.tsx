@@ -239,6 +239,8 @@ const LABEL_FONT = 10.5;
 const LABEL_FONT_SM = 16;
 /** The second label ring, units further out (a label that would touch a neighbour). */
 const LABEL_RING2 = { lg: 16, sm: 24 } as const;
+/** The outer ring's: enough for a level label to clear its neighbour's near the top and bottom of the wheel. */
+const TRANSIT_LABEL_RING2 = { lg: 18, sm: 24 } as const;
 /** House numbers: their size, and where they step in when a house is too full. */
 const HOUSE_NUM_R = 11;
 const HOUSE_NUM_FONT = 12;
@@ -894,7 +896,14 @@ const ChartWheelView = memo(function ChartWheelView({
       return { id: p.id, angle: p.display, w: spec.w, h: spec.h };
     });
     const discs = transitPlaced.map((p) => ({ x: p.x, y: p.y, r: TRANSIT_DISK }));
-    return placeLabels(items, (e, r) => polar(e, r, asc), { x: CX, y: CY }, { r1: R_TRANSIT_LABEL, r2: R_TRANSIT_LABEL + LABEL_RING2[fit], discs });
+    // Kept inside the drawing, and beside the wheel just clear of each glyph.
+    return placeLabels(items, (e, r) => polar(e, r, asc), { x: CX, y: CY }, {
+      r1: R_TRANSIT_LABEL,
+      r2: R_TRANSIT_LABEL + TRANSIT_LABEL_RING2[fit],
+      discs,
+      half: BIWHEEL_VIEW.size / 2,
+      own: { r: R_TRANSIT, radius: TRANSIT_DISK },
+    });
   }, [transitPlaced, fit, asc]);
   const outerAspects = useMemo(() => {
     if (!transits?.length) return [];

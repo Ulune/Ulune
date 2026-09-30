@@ -909,6 +909,12 @@ button.ulune-num-card:hover {
   padding: 8px 0;
   background: var(--color-bg);
 }
+/* On a phone or a tablet the panel is a raised sheet: the band takes the sheet's colour, not the page's. */
+@media (max-width: 1023.98px) {
+  .ulune-num-first-foot {
+    background: var(--color-bg-elevated);
+  }
+}
 .ulune-num-first-dots {
   display: flex;
   gap: 6px;

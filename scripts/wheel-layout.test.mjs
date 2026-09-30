@@ -43,6 +43,66 @@ test("a seven-planet stellium's degree labels touch neither each other nor any g
   }
 });
 
+/** The outer ring of a double wheel, as chart-wheel.tsx draws it: glyphs, the label ring, the drawing's edge. */
+const OUTER = { glyph: 388, disc: 11, r1: 416, r2: 434, half: 458 };
+const labelW = (txt) => txt.length * 0.62 * 10.5 + 7;
+
+/** Every label clear of every other, of every glyph, and inside the drawing. */
+function assertClear(items, places, discs, half, what) {
+  const boxes = items.map((it) => {
+    const p = places.get(it.id);
+    return { cx: p.x, cy: p.y, hw: it.w / 2, hh: it.h / 2, rot: p.rot };
+  });
+  for (let i = 0; i < boxes.length; i += 1) {
+    for (let j = i + 1; j < boxes.length; j += 1) assert.ok(!boxesOverlap(boxes[i], boxes[j]), `${what}: ${items[i].id} and ${items[j].id} touch`);
+    for (const d of discs) assert.ok(discGap(d, boxes[i]) > 0, `${what}: ${items[i].id} touches a glyph`);
+    const b = boxes[i];
+    const a = (b.rot * Math.PI) / 180;
+    for (const [u, v] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+      const x = b.cx + u * b.hw * Math.cos(a) - v * b.hh * Math.sin(a);
+      const y = b.cy + u * b.hw * Math.sin(a) + v * b.hh * Math.cos(a);
+      assert.ok(Math.abs(x - CX) <= half + 1 && Math.abs(y - CY) <= half + 1, `${what}: ${items[i].id} crosses the edge`);
+    }
+  }
+}
+
+test("a partner's labels round the outer ring touch nothing (an Ascendant beside the Sun, Mercury beside Neptune)", () => {
+  // A made-up couple's synastry (Camille Marie Laurent's wheel, Yolanda Mary Kyle's bodies outside): where the glyphs are drawn.
+  const asc = 155.15;
+  const pol = (ecl, r) => {
+    const rad = ((((ecl - asc) % 360) + 360) % 360) * (Math.PI / 180);
+    return { x: CX - r * Math.cos(rad), y: CY + r * Math.sin(rad) };
+  };
+  const bodies = [
+    ["sun", 247.24, "7°14'"], ["moon", 325.51, "25°31'"], ["mercury", 267.54, "28°31'"], ["venus", 288.32, "18°19'"],
+    ["mars", 310.19, "10°11'"], ["jupiter", 284.18, "14°11'"], ["saturn", 231.21, "21°12'"], ["uranus", 253.4, "13°24'"],
+    ["neptune", 271.23, "0°16'"], ["pluto", 213.42, "3°25'"], ["ascendant", 243.43, "3°26'"], ["midheaven", 173.93, "23°56'"],
+    ["descendant", 63.43, "3°26'"], ["ic", 353.93, "23°56'"],
+  ];
+  const items = bodies.map(([id, angle, txt]) => ({ id, angle, w: labelW(txt), h: 16 }));
+  const discs = bodies.map(([, angle]) => ({ ...pol(angle, OUTER.glyph), r: OUTER.disc }));
+  const places = placeLabels(items, pol, { x: CX, y: CY }, { r1: OUTER.r1, r2: OUTER.r2, discs, half: OUTER.half, own: { r: OUTER.glyph, radius: OUTER.disc } });
+  assertClear(items, places, discs, OUTER.half, "synastry");
+});
+
+test("three labels crowded low on the outer ring are settled together; one beside the wheel sits just clear of its glyph", () => {
+  const pol = (ecl, r) => {
+    const rad = (((ecl % 360) + 360) % 360) * (Math.PI / 180);
+    return { x: CX - r * Math.cos(rad), y: CY + r * Math.sin(rad) };
+  };
+  // Three bodies at the least spacing the ring allows, where neither ring has room for all three level: all turned.
+  const crowd = [["a", 117.83, "10°01'"], ["b", 121.52, "11°27'"], ["c", 125.21, "15°18'"], ["side", 0, "14°11'"]];
+  const items = crowd.map(([id, angle, txt]) => ({ id, angle, w: labelW(txt), h: 16 }));
+  const discs = crowd.map(([, angle]) => ({ ...pol(angle, OUTER.glyph), r: OUTER.disc }));
+  const places = placeLabels(items, pol, { x: CX, y: CY }, { r1: OUTER.r1, r2: OUTER.r2, discs, half: OUTER.half, own: { r: OUTER.glyph, radius: OUTER.disc } });
+  assertClear(items, places, discs, OUTER.half, "crowd");
+  // Beside the wheel the level label moves out only as far as its own glyph asks (not to the second ring).
+  const side = places.get("side");
+  assert.equal(side.at, 0);
+  const reach = CX - side.x;
+  assert.ok(reach > OUTER.r1 && reach < OUTER.r1 + 8, `beside the wheel at ${reach.toFixed(1)}`);
+});
+
 test("a house number slides out from under a planet, and stays in its house", () => {
   const badges = [{ id: "h8", from: 100, to: 130, mid: 115 }];
   const pNear = polar(115, 209);

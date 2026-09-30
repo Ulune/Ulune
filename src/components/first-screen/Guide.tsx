@@ -5,6 +5,7 @@ import { SOURCE_URL } from "@/lib/app-identity";
 import { useI18n } from "@/lib/i18n/locale";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { GlossaryDetails } from "@/components/glossary-details";
+import { keepWhole } from "@/components/keep-whole";
 
 type Icon = ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean }>;
 
@@ -97,7 +98,7 @@ export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () =
           <li>{t("guideData1")}</li>
           <li>{t("guideData2")}</li>
           <li>{t("guideData3")}</li>
-          <li>{t("guideData4")}</li>
+          <li>{keepWhole(t("guideData4"))}</li>
         </ul>
         <p className="ob-guide-links">
           <Link to="/privacy" className="ob-guide-link" data-testid="guide-privacy">
@@ -116,7 +117,7 @@ export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () =
           <li>{t("guidePrecise3")}</li>
           <li>{t("guidePreciseProgressions")}</li>
           <li>{t("guidePreciseNumerology")}</li>
-          <li>{t("guidePrecise4")}</li>
+          <li>{keepWhole(t("guidePrecise4"))}</li>
         </ul>
         <p className="ob-guide-links">
           <a
