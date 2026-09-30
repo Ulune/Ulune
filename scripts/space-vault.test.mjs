@@ -9,7 +9,7 @@ import {
   parseRecoveryCode,
 } from "../src/lib/space/crypto.ts";
 import { memoryStore } from "../src/lib/space/store.ts";
-import { Vault, WrongSecret, adoptBackup, openBackup, parseBackup } from "../src/lib/space/vault.ts";
+import { Vault, WrongSecret, adoptBackup, checkBackupWay, openBackup, parseBackup } from "../src/lib/space/vault.ts";
 
 const PASS = "correct horse battery staple";
 const CHART = { id: "c1", input: { name: "Sample B", date: "03/11/1987" }, savedAt: 1 };
@@ -188,6 +188,42 @@ test("a backup opens elsewhere with the passphrase or the recovery code, and onl
   const there = await Vault.unlock(elsewhere, { recovery: recoveryCode });
   assert.deepEqual(await there.get("chart/c1"), CHART);
   assert.equal(there.meta.lock, "close");
+});
+
+test("a backup is checked before it is used: its way in on the file first, and no wrap asking for too much work", async () => {
+  const store = memoryStore();
+  const { vault, recoveryCode } = await Vault.create(store, { passphrase: PASS });
+  await vault.put("chart/c1", CHART);
+  const backup = parseBackup(JSON.stringify(await vault.backup()));
+  // The way in is tried on the file itself, before anything is written anywhere.
+  await checkBackupWay(backup, { passphrase: PASS });
+  await checkBackupWay(backup, { recovery: recoveryCode });
+  await assert.rejects(() => checkBackupWay(backup, { passphrase: "a wrong passphrase" }), WrongSecret);
+  // A passphrase wrap asking Argon2 for 2 GiB, 100 passes or no lane: the file is refused.
+  const withWrap = (change) => {
+    const copy = structuredClone(backup);
+    const wrap = copy.meta.wraps.find((w) => w.kind === "passphrase");
+    Object.assign(wrap, change);
+    return JSON.stringify(copy);
+  };
+  assert.ok(parseBackup(withWrap({})), "Ulune's own settings pass");
+  assert.equal(parseBackup(withWrap({ m: 2_097_152 })), null);
+  assert.equal(parseBackup(withWrap({ t: 100 })), null);
+  assert.equal(parseBackup(withWrap({ p: 0 })), null);
+  assert.equal(parseBackup(withWrap({ m: "19456" })), null);
+  assert.equal(parseBackup(withWrap({ salt: 7 })), null);
+  // A kind this version doesn't know is left alone, as long as one it knows is there.
+  const later = structuredClone(backup);
+  later.meta.wraps.push({ kind: "from-a-later-version", id: "x", iv: "AA", ct: "AA" });
+  assert.ok(parseBackup(JSON.stringify(later)));
+  later.meta.wraps = later.meta.wraps.filter((w) => w.kind === "from-a-later-version");
+  assert.equal(parseBackup(JSON.stringify(later)), null);
+  // The same limit holds for the space on this device: a greedy wrap there is not tried.
+  const meta = await store.getMeta();
+  meta.wraps.find((w) => w.kind === "passphrase").m = 2_097_152;
+  await store.putMeta(meta);
+  vault.lock();
+  await assert.rejects(() => Vault.unlock(store, { passphrase: PASS }), WrongSecret);
 });
 
 test("a wrap altered in the description does not open the space", async () => {

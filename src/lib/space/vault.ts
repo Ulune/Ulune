@@ -104,12 +104,35 @@ async function passkeyWrap(
   };
 }
 
+/**
+ * The Argon2 settings a passphrase wrap may ask for: well above Ulune's own
+ * (ARGON), well below what would freeze or crash a tab. A wrap asking for
+ * more is not tried, and a backup holding one is refused.
+ */
+const ARGON_LIMITS = { m: [8, 262_144], t: [1, 16], p: [1, 8] } as const;
+
+function argonFits(w: { m?: unknown; t?: unknown; p?: unknown }): boolean {
+  const within = (v: unknown, [lo, hi]: readonly [number, number]) => Number.isInteger(v) && (v as number) >= lo && (v as number) <= hi;
+  return within(w.m, ARGON_LIMITS.m) && within(w.t, ARGON_LIMITS.t) && within(w.p, ARGON_LIMITS.p);
+}
+
+/** A wrap read from a file: the fields its kind needs, of the right types. Unknown kinds are left for newer versions. */
+function wrapFits(w: unknown): "ok" | "bad" | "unknown" {
+  if (!w || typeof w !== "object") return "bad";
+  const x = w as Record<string, unknown>;
+  if (typeof x.id !== "string" || typeof x.iv !== "string" || typeof x.ct !== "string") return "bad";
+  if (x.kind === "passphrase") return typeof x.salt === "string" && argonFits(x) ? "ok" : "bad";
+  if (x.kind === "recovery") return "ok";
+  if (x.kind === "passkey") return typeof x.credId === "string" && typeof x.prfSalt === "string" ? "ok" : "bad";
+  return "unknown";
+}
+
 /** The data key from the first wrap this way in opens, or WrongSecret. */
 async function unwrapWith(meta: SpaceMeta, way: WayIn, extractable: boolean): Promise<CryptoKey> {
   const tries: { wrap: Wrap; kek: () => Promise<CryptoKey> }[] = [];
   if ("passphrase" in way) {
     for (const wrap of meta.wraps) {
-      if (wrap.kind !== "passphrase") continue;
+      if (wrap.kind !== "passphrase" || !argonFits(wrap)) continue;
       tries.push({
         wrap,
         kek: () => passphraseKek(way.passphrase, fromB64u(wrap.salt), { m: wrap.m, t: wrap.t, p: wrap.p }),
@@ -427,6 +450,8 @@ export function parseBackup(text: string): SpaceBackup | null {
   if (!b || b.app !== "ulune" || b.type !== "private-space" || b.v !== 1) return null;
   const m = b.meta as Partial<SpaceMeta> | undefined;
   if (!m || m.v !== 1 || typeof m.id !== "string" || !Array.isArray(m.wraps) || !m.wraps.length) return null;
+  const wraps = m.wraps.map(wrapFits);
+  if (wraps.includes("bad") || !wraps.includes("ok")) return null;
   if (!Array.isArray(b.items)) return null;
   for (const row of b.items) {
     if (!Array.isArray(row) || typeof row[0] !== "string" || typeof row[1]?.iv !== "string" || typeof row[1]?.ct !== "string") {
@@ -459,6 +484,15 @@ export async function openBackup(backup: SpaceBackup, way: WayIn): Promise<Map<s
 }
 
 /** Make a backup this browser's space (there is none here): it opens with the backup's ways in. */
+/**
+ * WrongSecret unless this way in opens the backup. Checked on the file itself,
+ * before anything of it is written here: a wrong passphrase answers as fast
+ * for a large backup as for a small one.
+ */
+export async function checkBackupWay(backup: SpaceBackup, way: WayIn): Promise<void> {
+  await unwrapWith({ ...backup.meta, lock: "close" }, way, false);
+}
+
 export async function adoptBackup(store: SpaceStore, backup: SpaceBackup): Promise<void> {
   const meta: SpaceMeta = { ...backup.meta, lock: "close" };
   await store.replaceAll(

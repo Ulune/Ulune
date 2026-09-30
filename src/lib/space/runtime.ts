@@ -15,6 +15,7 @@ import { idbStore, spaceSupported, type LockMode, type SpaceMeta, type SpaceStor
 import {
   Vault,
   adoptBackup,
+  checkBackupWay,
   openBackup,
   parseBackup,
   type PasskeySecret,
@@ -283,11 +284,14 @@ export async function readBackupFile(file: File): Promise<SpaceBackup | null> {
  */
 export async function restoreSpace(backup: SpaceBackup, way: WayIn): Promise<void> {
   if (await Vault.find(theStore())) throw new Error("space-exists");
-  await adoptBackup(theStore(), backup);
   let vault: Vault;
   try {
+    // The way in is tried on the file first: a wrong one answers at once, whatever the backup's size.
+    await checkBackupWay(backup, way);
+    await adoptBackup(theStore(), backup);
     vault = await Vault.unlock(theStore(), way);
   } catch (err) {
+    // Nothing is left behind, not even the empty database the check above opened.
     await theStore()
       .erase()
       .catch(() => {});
