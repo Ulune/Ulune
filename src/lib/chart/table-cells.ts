@@ -592,11 +592,11 @@ export function chartFacts(chart: NatalChart, isDay: boolean, locale: AppLocale)
     detail: `${unknown ? chartFactText(locale, "standIn") : birthZoneLine(meta, locale)}${julian}`,
   });
 
-  const jd = julianDayLine(meta);
+  const jd = julianDayLine(meta, locale);
   facts.push({
     id: "ut",
     label: chartFactText(locale, "universalTime"),
-    value: universalTimeLine(meta),
+    value: universalTimeLine(meta, locale),
     mono: true,
     detail: jd ?? undefined,
     detailMono: true,

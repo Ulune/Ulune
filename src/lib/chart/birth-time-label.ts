@@ -27,16 +27,18 @@ export function birthZoneLine(meta: Meta, locale: AppLocale): string {
 }
 
 /** "1990-06-15 12:30:00 UT" (tenths of a second when the offset had them, as Local Mean Time does). */
-export function universalTimeLine(meta: Meta): string {
+export function universalTimeLine(meta: Meta, locale: AppLocale = "en"): string {
   const m = /^([+-]?\d+-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(?:\.(\d+))?Z$/.exec(meta.utc);
   if (!m) return meta.utc;
-  const tenths = m[3] && Number(m[3]) !== 0 ? `.${m[3].slice(0, 1)}` : "";
+  const tenths = m[3] && Number(m[3]) !== 0 ? `${locale === "fr" ? "," : "."}${m[3].slice(0, 1)}` : "";
   return `${m[1]} ${m[2]}${tenths} UT`;
 }
 
-/** "JD 2448058.020833 · ΔT 56.9 s" when the chart carries them. */
-export function julianDayLine(meta: Meta): string | null {
+/** "JD 2448058.020833 · ΔT 56.9 s" when the chart carries them ("JJ 2448058,020833 · ΔT 56,9 s" in French). */
+export function julianDayLine(meta: Meta, locale: AppLocale = "en"): string | null {
   if (meta.jdUt == null) return null;
-  const dt = meta.deltaT != null ? ` · ΔT ${meta.deltaT.toFixed(1)} s` : "";
-  return `JD ${meta.jdUt.toFixed(6)}${dt}`;
+  const fr = locale === "fr";
+  const num = (v: number, digits: number) => (fr ? v.toFixed(digits).replace(".", ",") : v.toFixed(digits));
+  const dt = meta.deltaT != null ? ` · ΔT ${num(meta.deltaT, 1)} s` : "";
+  return `${fr ? "JJ" : "JD"} ${num(meta.jdUt, 6)}${dt}`;
 }
