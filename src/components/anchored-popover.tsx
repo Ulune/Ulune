@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { popoverPlacement } from "@/lib/popover-place";
+import { usePresence } from "@/lib/presence";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -47,13 +48,16 @@ export function AnchoredPopover({
   takeFocus?: boolean;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
-  const [place, setPlace] = useState<{ top: number; left: number; width: number } | null>(null);
+  const [place, setPlace] = useState<{ top: number; left: number; width: number; above: boolean } | null>(null);
+  // Closing, it stays where it is for its exit (lib/presence.ts), then goes.
+  const { shown, leaving } = usePresence(open);
 
   useLayoutEffect(() => {
-    if (!open) {
-      setPlace(null);
-      return;
-    }
+    if (!shown) setPlace(null);
+  }, [shown]);
+
+  useLayoutEffect(() => {
+    if (!open) return;
     const placeNow = () => {
       const node = anchorRef.current;
       if (!node) return;
@@ -64,7 +68,7 @@ export function AnchoredPopover({
         height: panel?.height,
         align,
       });
-      setPlace(next);
+      setPlace({ ...next, above: next.top + (panel?.height ?? 0) <= rect.top + 1 });
     };
     placeNow();
     const onKey = (e: KeyboardEvent) => {
@@ -110,7 +114,8 @@ export function AnchoredPopover({
       // somewhere else: leave it.
       if (openRef.current) return;
       const active = document.activeElement;
-      if (!active || active === document.body) anchor?.focus({ preventScroll: true });
+      // (A closing panel stays a moment for its exit: focus inside it goes back too.)
+      if (!active || active === document.body || panelRef.current?.contains(active)) anchor?.focus({ preventScroll: true });
     };
   }, [open, takeFocus, anchorRef]);
 
@@ -136,11 +141,11 @@ export function AnchoredPopover({
     items[next]?.focus();
   };
 
-  if (!open || typeof document === "undefined") return null;
+  if (!shown || typeof document === "undefined") return null;
 
   return createPortal(
     <>
-      {backdrop ? (
+      {backdrop && !leaving ? (
         <button
           type="button"
           className="fixed inset-0 z-40 cursor-default"
@@ -150,14 +155,29 @@ export function AnchoredPopover({
       ) : null}
       <div
         ref={panelRef}
-        id={id}
-        role={role}
-        aria-label={ariaLabel}
-        data-testid={testId}
+        id={leaving ? undefined : id}
+        role={leaving ? undefined : role}
+        aria-label={leaving ? undefined : ariaLabel}
+        aria-hidden={leaving || undefined}
+        // A closing panel is only its picture leaving: not the panel any more.
+        data-testid={leaving ? undefined : testId}
+        data-leaving={leaving ? "" : undefined}
+        inert={leaving || undefined}
         tabIndex={-1}
         onKeyDown={onPanelKey}
-        className="fixed z-50 max-h-[min(70dvh,32rem)] overflow-auto outline-none"
-        style={place ? { top: place.top, left: place.left, width: place.width } : { visibility: "hidden" }}
+        className="ob-popover fixed z-50 max-h-[min(70dvh,32rem)] overflow-auto outline-none"
+        style={
+          place
+            ? {
+                top: place.top,
+                left: place.left,
+                width: place.width,
+                // It grows from the button that opened it.
+                ["--pop-origin" as string]: `${align === "end" ? "right" : "left"} ${place.above ? "bottom" : "top"}`,
+                ["--pop-dy" as string]: place.above ? "4px" : "-4px",
+              }
+            : { visibility: "hidden" }
+        }
       >
         {children}
       </div>

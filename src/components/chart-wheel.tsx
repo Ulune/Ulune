@@ -1,3 +1,4 @@
+import { firstSight } from "@/lib/seen-once";
 import {
   memo,
   useCallback,
@@ -137,7 +138,9 @@ const PLANET_MIN_SEP = ((PLANET_DISK * 2 + PLANET_PAD) / R_LABEL) * (180 / Math.
 const R_STAR = R_OUTER + 5;
 const EMPTY_IDS = new Set<string>();
 /** How long a fresh wheel's entrance takes, all staging included (ms). */
-const WHEEL_ENTER_MS = 2200;
+const WHEEL_ENTER_MS = 1600;
+/** A wheel seen before in this visit only settles in (styles.css, data-settle). */
+const WHEEL_SETTLE_MS = 450;
 /** An aspect's own arrival, its longest part (a line drawing itself: 600 ms), with a margin. */
 const ASPECT_ARRIVE_MS = 700;
 
@@ -1467,6 +1470,8 @@ const ChartWheelView = memo(function ChartWheelView({
   // it, and only the planets and lines fly in.
   const firstViewRef = useRef(firstView);
   firstViewRef.current = firstView;
+  /** Whether this wheel builds or settles, decided once for its key (an effect run again keeps it). */
+  const entranceRef = useRef<{ key: string; full: boolean } | null>(null);
   useLayoutEffect(() => {
     const svg = svgRef.current;
     if (!svg) return;
@@ -1475,13 +1480,21 @@ const ChartWheelView = memo(function ChartWheelView({
       handoff?.done();
       return;
     }
-    svg.setAttribute("data-entering", "");
+    // The full build once per chart and kind of wheel in a visit; seen
+    // before (another mode, back to it, the table and back), it settles in.
+    if (entranceRef.current?.key !== wheelKey) {
+      entranceRef.current = { key: wheelKey, full: firstSight(`wheel|${wheelKey}`) || Boolean(handoff) };
+    }
+    const full = entranceRef.current.full;
+    const attr = full ? "data-entering" : "data-settle";
+    svg.setAttribute(attr, "");
     const id = window.setTimeout(() => {
-      svg.removeAttribute("data-entering");
+      svg.removeAttribute(attr);
       handoff?.done();
-    }, WHEEL_ENTER_MS);
+    }, full ? WHEEL_ENTER_MS : WHEEL_SETTLE_MS);
     return () => {
       window.clearTimeout(id);
+      svg.removeAttribute(attr);
       handoff?.done();
     };
   }, [wheelKey]);

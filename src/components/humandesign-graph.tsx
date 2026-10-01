@@ -239,7 +239,7 @@ export function HumanDesignGraph({
               </pattern>
             </defs>
             <g className="hd-channels">
-              {HD_CHANNELS.map((ch) => {
+              {HD_CHANNELS.map((ch, chIndex) => {
                 const draw = BODYGRAPH_CHANNELS[ch.id];
                 const t0 = tones.get(ch.gates[0]) ?? "off";
                 const t1 = tones.get(ch.gates[1]) ?? "off";
@@ -247,7 +247,7 @@ export function HumanDesignGraph({
                 const half = (tone: Tone, d: string) =>
                   tone === "off" ? null : (
                     <>
-                      <path className={tone === "design" ? "hd-line is-design" : "hd-line is-personality"} d={d} />
+                      <path className={tone === "design" ? "hd-line is-design" : "hd-line is-personality"} d={d} pathLength={1} />
                       {tone === "both" ? <path className="hd-line is-both-dash" d={d} /> : null}
                     </>
                   );
@@ -259,6 +259,8 @@ export function HumanDesignGraph({
                     data-tone={on ? "defined" : t0 !== "off" || t1 !== "off" ? "hanging" : "off"}
                     data-uncertain={uncertainChannels.has(ch.id) ? "1" : undefined}
                     className={cn("ulune-hd-channel", on && "is-on")}
+                    // Its place in the entrance: the defined channels draw first (hd.css).
+                    style={{ ["--enter" as string]: on ? 0 : 1 + (chIndex % 12) }}
                   >
                     <path className="hd-hit" d={draw.d} />
                     <path className="hd-off" d={draw.d} />
@@ -269,9 +271,11 @@ export function HumanDesignGraph({
               })}
             </g>
             <g className="hd-centers">
-              {HD_CENTER_IDS.map((c) => (
+              {HD_CENTER_IDS.map((c, ci) => (
                 <path
                   key={c}
+                  // From the Head down to the Root in the entrance (hd.css).
+                  style={{ ["--enter" as string]: ci }}
                   {...attrs(`center:${c}`)}
                   d={centerPath(c)}
                   data-testid={`hd-center-${c}`}

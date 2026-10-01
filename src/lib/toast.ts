@@ -1,6 +1,8 @@
 import { useSyncExternalStore } from "react";
 
-export type Toast = { id: number; text: string; tone: "ok" | "error" };
+export type Toast = { id: number; text: string; tone: "ok" | "error"; leaving?: boolean };
+/** A toast's exit (shell.css): it fades and sinks before it goes. */
+const TOAST_EXIT_MS = 150;
 
 let items: Toast[] = [];
 let seq = 0;
@@ -15,8 +17,12 @@ export function toast(text: string, tone: Toast["tone"] = "ok", ms?: number) {
   if (typeof window !== "undefined") {
     window.setTimeout(
       () => {
-        items = items.filter((t) => t.id !== id);
+        items = items.map((t) => (t.id === id ? { ...t, leaving: true } : t));
         emit();
+        window.setTimeout(() => {
+          items = items.filter((t) => t.id !== id);
+          emit();
+        }, TOAST_EXIT_MS);
       },
       ms ?? (tone === "error" ? 5200 : 2400),
     );

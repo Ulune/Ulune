@@ -14,6 +14,21 @@ import {
 } from "@/studio/url";
 import { coerceBodiesPage } from "@/studio/bodies-pages";
 import { coerceLookPage } from "@/studio/look-pages";
+import { loadMode, modeReady } from "@/studio/modes/registry";
+import { swapTransition } from "@/lib/swap-transition";
+import { MODE_GROUPS } from "@/studio/url";
+
+/** Every page in the order of the bars (groups left to right, then their row): a switch comes from the side it moves toward. */
+const PAGE_ORDER: StudioPage[] = MODE_GROUPS.flatMap((g) => g.pages as readonly StudioPage[]);
+function dirOf(from: StudioPage, to: StudioPage): -1 | 0 | 1 {
+  const a = PAGE_ORDER.indexOf(from);
+  const b = PAGE_ORDER.indexOf(to);
+  return a < 0 || b < 0 || a === b ? 0 : b > a ? 1 : -1;
+}
+/** A switch waits at most this long for a mode's code, then shows what is there. */
+const CODE_WAIT_MS = 250;
+/** The latest switch asked for: one still waiting for its code gives way to a later one. */
+let switchSeq = 0;
 
 /** Shared across hook instances so StageControls setView isn’t clobbered by Shell hydrate. */
 const pendingNav: { current: { page: StudioPage; view: StudioView } | null } = {
@@ -87,7 +102,23 @@ export function useStudioUrl(opts?: { hydrate?: boolean }) {
     const view = useStudioStore.getState().view;
     pendingNav.current = { page: next, view };
     saveStudioPage(next);
-    useStudioStore.getState().setPage(next);
+    const from = useStudioStore.getState().page;
+    const seq = ++switchSeq;
+    const go = () => {
+      if (seq !== switchSeq) return;
+      swapTransition(() => useStudioStore.getState().setPage(next), { part: "figure", dir: dirOf(from, next) });
+      navigateTo(next, view);
+    };
+    // The switch starts once the mode's code is here (fetched on the press,
+    // usually ahead): no empty frame between the two pages.
+    if (from === next || modeReady(next)) go();
+    else {
+      const late = new Promise((r) => window.setTimeout(r, CODE_WAIT_MS));
+      void Promise.race([loadMode(next), late]).then(go, go);
+    }
+  }
+
+  function navigateTo(next: StudioPage, view: StudioView) {
     void navigate({
       to: "/",
       search: studioSearch(
@@ -105,7 +136,11 @@ export function useStudioUrl(opts?: { hydrate?: boolean }) {
     const page = useStudioStore.getState().page;
     pendingNav.current = { page, view };
     saveStudioView(view);
-    useStudioStore.getState().setView(view);
+    const from = useStudioStore.getState().view;
+    swapTransition(() => useStudioStore.getState().setView(view), {
+      part: "figure",
+      dir: from === view ? 0 : view === "table" ? 1 : -1,
+    });
     void navigate({
       to: "/",
       search: studioSearch(

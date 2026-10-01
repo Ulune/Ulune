@@ -150,6 +150,8 @@ export function HdColumn({
               data-hero={selectedId === id ? "1" : undefined}
               data-hover={outlined?.has(id) ? "1" : undefined}
               className="ulune-hd-row"
+              // Its place in the bodygraph's entrance (hd.css).
+              style={{ ["--enter" as string]: i }}
               onClick={() => {
                 setAt(i);
                 onPick(id);

@@ -39,6 +39,7 @@ export function SubModeSwitch() {
             aria-selected={on}
             tabIndex={on ? 0 : -1}
             onPointerEnter={() => preloadMode(id)}
+            onPointerDown={() => preloadMode(id)}
             onFocus={() => preloadMode(id)}
             onClick={() => {
               if (on) return;

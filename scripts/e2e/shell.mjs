@@ -227,6 +227,8 @@ async function runNatalLayout(width) {
       if (readingOn !== "true") throw new Error("the Reading tab did not open the reading");
       await page.getByTestId("click-note").waitFor({ timeout: 8000 });
       await clickDockTab(page, "look");
+      // The pane cross-fades (a view transition): the tabs change on its next frame.
+      await page.waitForFunction(() => document.querySelector("[data-testid=dock-tab-look]")?.getAttribute("aria-selected") === "true", null, { timeout: 3000 }).catch(() => {});
       const lookOn = await page.getByTestId("dock-tab-look").getAttribute("aria-selected");
       const readOn = await page.getByTestId("dock-tab-reading").getAttribute("aria-selected");
       if (lookOn !== "true" || readOn === "true") throw new Error("look tab did not close reading");

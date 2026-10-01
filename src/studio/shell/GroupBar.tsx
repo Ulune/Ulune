@@ -53,7 +53,22 @@ export function GroupBar() {
       style={{ ["--ob-i" as string]: String(Math.max(0, index)) }}
     >
       <div className="ob-groups-track" role="tablist" aria-label={t("studioNav")} onKeyDown={(e) => onTablistKeyDown(e)}>
-        <span className="ob-groups-ind" aria-hidden />
+        {/* The sliding pill carries its own copy of the four buttons, drawn in
+            the pill's colour and held still while the pill moves over them:
+            each button changes colour exactly where the pill's edge passes. */}
+        <span className="ob-groups-ind" aria-hidden>
+          <span className="ob-groups-ink">
+            {MODE_GROUPS.map((g) => {
+              const Icon = ICON[g.id];
+              return (
+                <span key={g.id} className="ob-group ob-group--ink">
+                  <Icon className="ob-group-icon" strokeWidth={1.75} />
+                  <span className="ob-group-label">{t(GROUP_LABEL[g.id])}</span>
+                </span>
+              );
+            })}
+          </span>
+        </span>
         {MODE_GROUPS.map((g) => {
           const on = active === g.id;
           const Icon = ICON[g.id];
@@ -76,6 +91,8 @@ export function GroupBar() {
               aria-selected={on}
               tabIndex={on ? 0 : -1}
               onPointerEnter={ahead}
+              // A finger has no hover: the mode's code starts on the press.
+              onPointerDown={ahead}
               onFocus={ahead}
               onClick={() => {
                 if (on) return;

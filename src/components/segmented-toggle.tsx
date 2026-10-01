@@ -42,7 +42,17 @@ export function SegmentedToggle<T extends string>({
         viewTransitionName: vtName,
       }}
     >
-      <span className="ulune-seg-pill" aria-hidden="true" />
+      {/* The pill carries a copy of the labels in its own colour, held still
+          while it slides: a label changes colour where the pill's edge passes. */}
+      <span className="ulune-seg-pill" aria-hidden="true">
+        <span className="ulune-seg-ink">
+          {options.map((opt) => (
+            <span key={opt.value} className="ulune-seg-ink-cell">
+              {opt.icon ?? opt.label}
+            </span>
+          ))}
+        </span>
+      </span>
       {options.map((opt) => {
         const active = opt.value === value;
         return (

@@ -10,11 +10,64 @@ html.light {
   --hd-design-ink: oklch(0.54 0.19 26);
 }
 
-/* The figure fades in as one piece, nothing scaled or moved (the old
-   per-part entrance scaled SVG groups, which Safari places differently). */
-.ulune-hd-svg {
-  animation: ulune-fade-plain 420ms var(--chart-ease) both;
+/* The entrance (the motion plan). The first time a chart's bodygraph is
+   shown in a visit it builds itself in about 1.1 s (design.tsx, data-build):
+   the key cards rise one after another; the centres appear from the Head
+   down to the Root, the defined ones then filling with their colour; the
+   channels draw themselves, the defined first; the gates and activations
+   come last, the active ones after the rest; beside it the columns fill row
+   by row. Only opacity, fill and the drawing of a line move: Safari places
+   scaled SVG groups wrongly (why the old per-part entrance went). Seen
+   again, it settles in as one piece (data-settle). */
+@keyframes hd-in {
+  from {
+    opacity: 0;
+  }
 }
+@keyframes hd-fill {
+  from {
+    fill-opacity: 0;
+  }
+}
+@keyframes hd-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.ulune-hd-figure[data-settle] .ulune-hd-svg {
+  animation: ulune-fade-plain 380ms var(--chart-ease) both;
+}
+html[data-vt] .ulune-hd-figure[data-settle] .ulune-hd-svg {
+  animation: none;
+}
+.ulune-hd-figure[data-build] .ulune-hd-center {
+  animation: hd-in 300ms var(--chart-ease) calc(var(--enter, 0) * 40ms) backwards;
+}
+.ulune-hd-figure[data-build] .ulune-hd-center[data-defined] {
+  animation:
+    hd-in 300ms var(--chart-ease) calc(var(--enter, 0) * 40ms) backwards,
+    hd-fill 320ms var(--chart-ease) calc(140ms + var(--enter, 0) * 40ms) backwards;
+}
+.ulune-hd-figure[data-build] .ulune-hd-channel {
+  animation: hd-in 260ms var(--chart-ease) calc(300ms + var(--enter, 0) * 16ms) backwards;
+}
+.ulune-hd-figure[data-build] .ulune-hd-channel .hd-line:not(.is-both-dash) {
+  animation: ulune-draw 440ms var(--chart-ease-io) calc(300ms + var(--enter, 0) * 16ms) backwards;
+}
+.ulune-hd-figure[data-build] .ulune-hd-gate {
+  animation: hd-in 260ms var(--chart-ease) 650ms backwards;
+}
+.ulune-hd-figure[data-build] .ulune-hd-gate:not([data-tone="off"]) {
+  animation-delay: 840ms;
+}
+.ulune-hd-figure[data-build] .ulune-hd-fact {
+  animation: hd-rise 260ms var(--ease-soft) calc(var(--enter, 0) * 50ms) backwards;
+}
+.ulune-hd-figure[data-build] .ulune-hd-row {
+  animation: hd-in 260ms var(--chart-ease) calc(200ms + var(--enter, 0) * 24ms) backwards;
+}
+
 .ulune-hd-control {
   min-width: 0;
   width: 100%;
@@ -50,8 +103,10 @@ html.light {
   text-align: left;
   color: var(--color-fg);
 }
-.ulune-hd-fact:hover {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ulune-hd-fact:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-hd-fact[aria-pressed="true"] {
   background: var(--color-bg-subtle);
@@ -192,9 +247,13 @@ html.light {
 .ulune-hd-col-head > span {
   display: block;
 }
-.ulune-hd-col-head:hover,
 .ulune-hd-col-head[aria-pressed="true"] {
   background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  .ulune-hd-col-head:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-hd-col[data-layer="design"] .ulune-hd-col-head {
   text-align: right;
@@ -318,9 +377,13 @@ html.light {
   color: var(--color-fg-muted);
 }
 /* Pointed at or kept bright by the chosen piece; the others fade with the chart. */
-.ulune-hd-row:hover,
 .ulune-hd-row:is([data-hover], [data-lit]) {
   background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  .ulune-hd-row:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-hd-row:is([data-hover], [data-lit]) .ulune-hd-row-name {
   color: var(--color-fg);
@@ -685,10 +748,14 @@ html.light .ulune-hd-gate[data-tone="both"] text {
   text-align: left;
   color: var(--color-fg);
 }
-.ulune-hd-step:hover,
 .ulune-hd-step[data-previewed],
 .ulune-hd-step.is-on {
   background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  .ulune-hd-step:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-hd-step-n {
   display: grid;

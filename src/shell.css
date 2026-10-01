@@ -13,15 +13,110 @@ html.theme-switching,
 html.theme-switching * {
   transition: none !important;
 }
-::view-transition-old(root),
-::view-transition-new(root) {
+html.theme-switching::view-transition-old(root),
+html.theme-switching::view-transition-new(root) {
   animation-duration: 360ms;
   animation-timing-function: var(--ease-inout);
+}
+
+/* Switches between places (lib/swap-transition.ts): only the part that
+   changes is named, so it cross-fades while the bars around it stay still.
+   The old picture leaves quickly; the new one arrives softly, drifting a few
+   px from the side the reader moved toward. */
+html[data-vt="figure"] .ob-stage > .ob-figure {
+  view-transition-name: ob-figure;
+}
+/* Inside a switch the transition does the fade: the figure's own would double it. */
+html[data-vt] .ob-swap {
+  animation: none;
+}
+html[data-vt="pane"] .ob-panel-pane {
+  view-transition-name: ob-pane;
+}
+html[data-vt] {
+  --vt-dx: 0px;
+  --vt-dy: 4px;
+}
+html[data-vt][data-vt-dir="1"] {
+  --vt-dx: 8px;
+  --vt-dy: 0px;
+}
+html[data-vt][data-vt-dir="-1"] {
+  --vt-dx: -8px;
+  --vt-dy: 0px;
+}
+@keyframes ob-vt-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes ob-vt-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--vt-dx), var(--vt-dy));
+  }
+}
+html[data-vt]::view-transition-old(root) {
+  animation: ob-vt-out var(--dur-swap-out) var(--ease-quick-in) both;
+}
+html[data-vt]::view-transition-new(root) {
+  animation: ob-fade var(--dur-swap) var(--ease-soft) both;
+}
+html[data-vt]::view-transition-group(ob-figure),
+html[data-vt]::view-transition-group(ob-pane) {
+  animation-duration: var(--dur-swap);
+  animation-timing-function: var(--ease-soft);
+}
+html[data-vt]::view-transition-old(ob-figure),
+html[data-vt]::view-transition-old(ob-pane) {
+  animation: ob-vt-out var(--dur-swap-out) var(--ease-quick-in) both;
+}
+html[data-vt]::view-transition-new(ob-figure),
+html[data-vt]::view-transition-new(ob-pane) {
+  animation: ob-vt-in var(--dur-swap) var(--ease-soft) both;
+}
+/* A page (the guide, settings, privacy, legal, what's new) arrives with a short rise. */
+@keyframes ob-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.ob-pagebar ~ * {
+  animation: ob-page-in var(--dur-swap) var(--ease-soft) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ob-pagebar ~ * {
+    animation: none;
+  }
 }
 
 :where(.ob-app, .ob-page, .ob-pop, .ob-panel) :focus-visible {
   outline: 2px solid var(--color-ring);
   outline-offset: 2px;
+}
+
+/* Presses (the motion plan): every control shows the press on the frame it
+   is touched and lets go more slowly than it went in. The transition each
+   control declares reads --dur-press (the release); while pressed it is the
+   quick 70 ms going in. [data-pressed] (lib/press.ts) holds a quick tap's
+   press for at least 90 ms, which iOS often skips. */
+:where(button, [role="tab"], a, summary, label):is(:active, [data-pressed]) {
+  --dur-press: var(--dur-press-in);
+}
+:where(.ob-chip, .ob-menu-item, .ob-aspect-chip, .ob-panel-tab, .ob-submode, .ulune-seg-btn):is(:active, [data-pressed]):not(:disabled) {
+  transform: scale(0.97);
+}
+:where(.ob-icon-btn, .ob-btn, .ulune-wheel-zoom-btn, .ulune-wheel-zoom-fit):is([data-pressed]):not(:disabled) {
+  transform: scale(0.96);
+}
+.ob-group[data-pressed] .ob-group-icon {
+  transform: scale(0.94);
+}
+/* A tap answers at once (no double-tap wait) and draws no grey flash of its own. */
+:where(button, a, [role="tab"], summary, label, input, select, .ulune-wheel-stage) {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @keyframes ob-fade {
@@ -32,8 +127,33 @@ html.theme-switching * {
 @keyframes ob-pop-in {
   from {
     opacity: 0;
-    transform: translateY(-4px) scale(0.98);
+    transform: translateY(var(--pop-dy, -4px)) scale(0.98);
   }
+}
+/* Leaving: quicker than it came, without the rise (the motion plan). */
+@keyframes ob-pop-out {
+  to {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+@keyframes ob-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+/* A popover (anchored-popover.tsx) grows from the button that opened it and
+   leaves the same way; what is inside it does not animate on its own. */
+.ob-popover {
+  transform-origin: var(--pop-origin, top center);
+  animation: ob-pop-in var(--dur-in) var(--ease-soft) both;
+}
+.ob-popover .ob-pop {
+  animation: none;
+}
+.ob-popover[data-leaving] {
+  pointer-events: none;
+  animation: ob-pop-out var(--dur-out) var(--ease-quick-in) forwards;
 }
 
 .ob-swap {
@@ -125,8 +245,10 @@ html.theme-switching * {
     color var(--dur-hover) var(--ease-out),
     transform var(--dur-press) var(--ease-out);
 }
-.ob-icon-btn:hover:not(:disabled) {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ob-icon-btn:hover:not(:disabled) {
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-icon-btn:active:not(:disabled) {
   transform: scale(0.96);
@@ -137,11 +259,13 @@ html.theme-switching * {
 .ob-icon-btn--quiet {
   color: var(--color-fg-muted);
 }
-.ob-icon-btn--quiet:hover:not(:disabled) {
-  color: var(--color-fg);
-}
-.ob-icon-btn--danger:hover:not(:disabled) {
-  color: var(--color-danger);
+@media (hover: hover) {
+  .ob-icon-btn--quiet:hover:not(:disabled) {
+    color: var(--color-fg);
+  }
+  .ob-icon-btn--danger:hover:not(:disabled) {
+    color: var(--color-danger);
+  }
 }
 .ob-avatar-btn {
   border-radius: 999px;
@@ -184,15 +308,19 @@ html.theme-switching * {
   background: var(--color-fg);
   color: var(--color-bg);
 }
-.ob-btn--primary:hover {
-  opacity: 0.88;
+@media (hover: hover) {
+  .ob-btn--primary:hover {
+    opacity: 0.88;
+  }
 }
 .ob-btn--ghost {
   background: transparent;
   color: var(--color-fg);
 }
-.ob-btn--ghost:hover {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ob-btn--ghost:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-btn--danger {
   background: var(--color-danger);
@@ -217,7 +345,8 @@ html.theme-switching * {
 }
 .ulune-seg-pill {
   position: absolute;
-  z-index: 0;
+  z-index: 2;
+  overflow: hidden;
   top: 3px;
   bottom: 3px;
   left: 3px;
@@ -225,8 +354,35 @@ html.theme-switching * {
   border-radius: 7px;
   background: var(--color-fg);
   transform: translateX(calc(var(--ulune-seg-i) * 100%));
-  transition: transform var(--dur-move) var(--ease-out);
+  transition: transform var(--dur-move) var(--ease-glide);
   pointer-events: none;
+}
+/* The labels again, in the pill's colour, held still while the pill slides
+   (segmented-toggle.tsx): the colour changes where the pill's edge passes. */
+.ulune-seg-ink {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: -3px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  width: calc(var(--ulune-seg-n) * 100% + 6px);
+  transform: translateX(calc(var(--ulune-seg-i) * -1 * (100% - 6px) / var(--ulune-seg-n)));
+  transition: transform var(--dur-move) var(--ease-glide);
+  color: var(--color-bg);
+}
+.ulune-seg-ink-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 12px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
 }
 .ulune-seg-btn {
   font-family: var(--font-ui);
@@ -235,13 +391,17 @@ html.theme-switching * {
   line-height: 1;
   white-space: nowrap;
   color: var(--color-fg-muted);
-  transition: color var(--dur-hover) var(--ease-out);
+  transition:
+    color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
 }
-.ulune-seg-btn:hover:not(.is-on) {
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ulune-seg-btn:hover:not(.is-on) {
+    color: var(--color-fg);
+  }
 }
 .ulune-seg-btn.is-on {
-  color: var(--color-bg);
+  color: var(--color-fg);
 }
 
 /* ---------------------------------------------------------- chart chip */
@@ -258,11 +418,17 @@ html.theme-switching * {
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-fg);
-  transition: background-color var(--dur-hover) var(--ease-out);
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
 }
-.ob-chip:hover,
 .ob-chip[aria-expanded="true"] {
   background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  .ob-chip:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-chip-mark {
   flex: 0 0 auto;
@@ -344,10 +510,14 @@ html.theme-switching * {
   color: var(--color-fg);
   font-size: 14px;
   text-align: left;
-  transition: background-color var(--dur-hover) var(--ease-out);
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
 }
-.ob-menu-item:hover {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ob-menu-item:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-menu-item svg {
   color: var(--color-fg-muted);
@@ -409,9 +579,11 @@ html.theme-switching * {
     background-color var(--dur-hover) var(--ease-out),
     color var(--dur-hover) var(--ease-out);
 }
-.ob-picker-name:hover {
-  color: var(--color-fg);
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ob-picker-name:hover {
+    color: var(--color-fg);
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-picker-name.is-on {
   color: var(--color-fg);
@@ -457,9 +629,13 @@ html.theme-switching * {
   margin-top: 0;
   border-top: 0;
 }
-.ob-picker-new:hover,
 .ob-picker-new.is-on {
   color: var(--color-fg);
+}
+@media (hover: hover) {
+  .ob-picker-new:hover {
+    color: var(--color-fg);
+  }
 }
 
 /* ----------------------------------------------------------- group bar */
@@ -479,13 +655,33 @@ html.theme-switching * {
 }
 .ob-groups-ind {
   position: absolute;
+  z-index: 2;
   top: 0;
   bottom: 0;
   left: 0;
   width: 25%;
   transform: translateX(calc(var(--ob-i, 0) * 100%));
-  transition: transform var(--dur-move) var(--ease-out);
+  transition: transform var(--dur-move) var(--ease-glide);
   pointer-events: none;
+  /* The pill's shape: its copy of the buttons shows only inside it. */
+  clip-path: inset(6px calc(50% - 26px) calc(100% - 32px) calc(50% - 26px) round 13px);
+}
+/* The four buttons again, in the pill's colour, held still while the pill
+   slides (GroupBar.tsx): each changes colour where the pill's edge passes. */
+.ob-groups-ink {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 400%;
+  transform: translateX(calc(var(--ob-i, 0) * -25%));
+  transition: transform var(--dur-move) var(--ease-glide);
+}
+.ob-group.ob-group--ink,
+.ob-group.ob-group--ink .ob-group-icon {
+  color: var(--color-bg);
 }
 .ob-groups-ind::before {
   content: "";
@@ -518,7 +714,9 @@ html.theme-switching * {
   width: 18px;
   height: 18px;
   flex: 0 0 auto;
-  transition: color var(--dur-hover) var(--ease-out);
+  transition:
+    color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
 }
 .ob-group-label {
   max-width: 100%;
@@ -529,14 +727,16 @@ html.theme-switching * {
   font-weight: 500;
   line-height: 1.3;
 }
-.ob-group:hover {
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ob-group:hover {
+    color: var(--color-fg);
+  }
 }
 .ob-group.is-on {
   color: var(--color-fg);
 }
 .ob-group.is-on .ob-group-icon {
-  color: var(--color-bg);
+  color: var(--color-fg);
 }
 .ob-group:active .ob-group-icon {
   transform: scale(0.94);
@@ -606,7 +806,7 @@ html.theme-switching * {
     0 0 0 1px var(--color-border-strong),
     0 1px 2px rgb(0 0 0 / 0.12);
   transform: translateX(calc(var(--ob-i, 0) * 100%));
-  transition: transform var(--dur-move) var(--ease-out);
+  transition: transform var(--dur-move) var(--ease-glide);
   pointer-events: none;
 }
 .ob-submode {
@@ -623,11 +823,17 @@ html.theme-switching * {
   color: var(--color-fg-muted);
   font-size: 13px;
   font-weight: 500;
-  transition: color var(--dur-hover) var(--ease-out);
+  transition:
+    color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
 }
-.ob-submode:hover,
 .ob-submode.is-on {
   color: var(--color-fg);
+}
+@media (hover: hover) {
+  .ob-submode:hover {
+    color: var(--color-fg);
+  }
 }
 .ob-submode-label {
   overflow: hidden;
@@ -848,10 +1054,13 @@ html.theme-switching * {
   font: 500 12px/1 var(--font-mono);
   transition:
     background-color var(--dur-hover) var(--ease-out),
-    opacity var(--dur-hover) var(--ease-out);
+    opacity var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
 }
-.ob-aspect-chip:hover {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ob-aspect-chip:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-aspect-chip:focus-visible {
   outline: 2px solid var(--color-ring);
@@ -892,8 +1101,10 @@ html.theme-switching * {
   padding: 0 8px;
   color: var(--color-fg-muted);
 }
-.ob-aspect-density:hover {
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ob-aspect-density:hover {
+    color: var(--color-fg);
+  }
 }
 
 /* Zoom bar: one sunken group, 44px targets. */
@@ -931,9 +1142,11 @@ html.theme-switching * {
 .ulune-wheel-zoom-fit {
   padding: 0 12px;
 }
-.ulune-wheel-zoom-btn:hover:not(:disabled),
+@media (hover: hover) {
+  .ulune-wheel-zoom-btn:hover:not(:disabled),
 .ulune-wheel-zoom-fit:hover {
-  background: color-mix(in oklab, var(--color-fg) 8%, transparent);
+    background: color-mix(in oklab, var(--color-fg) 8%, transparent);
+  }
 }
 .ulune-wheel-zoom-btn:active:not(:disabled),
 .ulune-wheel-zoom-fit:active {
@@ -957,8 +1170,10 @@ html.theme-switching * {
   background: var(--color-fg);
   color: var(--color-bg);
 }
-.ulune-wheel-depth-btn[aria-pressed="true"]:hover {
-  background: color-mix(in oklab, var(--color-fg) 88%, transparent);
+@media (hover: hover) {
+  .ulune-wheel-depth-btn[aria-pressed="true"]:hover {
+    background: color-mix(in oklab, var(--color-fg) 88%, transparent);
+  }
 }
 /* The chart's two switches (wheel-toggles.tsx): on, the icon in ink on a
    light well; off, a quieter icon. A touch screen has no pointing to switch. */
@@ -1131,10 +1346,13 @@ html.theme-switching * {
   color: var(--color-fg-muted);
   transition:
     background-color var(--dur-hover) var(--ease-out),
-    color var(--dur-hover) var(--ease-out);
+    color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
 }
-.ob-panel-tab:hover {
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ob-panel-tab:hover {
+    color: var(--color-fg);
+  }
 }
 .ob-panel-tab.is-on {
   color: var(--color-fg);
@@ -1214,8 +1432,12 @@ html.theme-switching * {
   background: var(--color-accent, var(--color-fg));
   animation: ob-fade var(--dur-move) var(--ease-out) both;
 }
-.ob-collapse-icon {
-  transition: transform var(--dur-move) var(--ease-out);
+.ob-collapse-icon,
+.ob-sheet-chevron {
+  transition: transform var(--dur-move) var(--ease-glide);
+}
+.ob-sheet-chevron[data-flip] {
+  transform: rotate(180deg);
 }
 
 /* ------------------------------------------------------ compact (<1024) */
@@ -1443,6 +1665,9 @@ html.theme-switching * {
     grid-template-columns: repeat(4, 112px);
     height: 44px;
   }
+  .ob-groups-ind {
+    clip-path: inset(0 round var(--radius-md));
+  }
   .ob-groups-ind::before {
     top: 0;
     left: 0;
@@ -1467,7 +1692,7 @@ html.theme-switching * {
   }
   .ob-group.is-on,
   .ob-group.is-on .ob-group-icon {
-    color: var(--color-bg);
+    color: var(--color-fg);
   }
 
   .ob-body {
@@ -1584,9 +1809,11 @@ html.theme-switching * {
     background-color var(--dur-hover) var(--ease-out),
     color var(--dur-hover) var(--ease-out);
 }
-.ob-back:hover {
-  color: var(--color-fg);
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ob-back:hover {
+    color: var(--color-fg);
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-brand--page {
   display: inline-flex;
@@ -1645,6 +1872,7 @@ html.theme-switching * {
   }
   .ob-swap,
   .ob-pop,
+  .ob-popover,
   .ob-picker-confirm {
     animation: none !important;
   }
@@ -1652,7 +1880,10 @@ html.theme-switching * {
   .ob-btn:active,
   .ulune-wheel-zoom-btn:active,
   .ulune-wheel-zoom-fit:active,
-  .ob-group:active .ob-group-icon {
+  .ob-group:active .ob-group-icon,
+  [data-pressed],
+  .ob-group[data-pressed] .ob-group-icon,
+  :where(.ob-chip, .ob-menu-item, .ob-aspect-chip, .ob-panel-tab, .ob-submode, .ulune-seg-btn):active {
     transform: none !important;
   }
 }
@@ -1698,8 +1929,10 @@ html.theme-switching * {
     color var(--dur-hover) var(--ease-out),
     box-shadow var(--dur-move) var(--ease-out);
 }
-[role="tab"]:hover {
-  color: var(--color-fg);
+@media (hover: hover) {
+  [role="tab"]:hover {
+    color: var(--color-fg);
+  }
 }
 [role="tab"].ob-subtab-on {
   color: var(--color-fg);
@@ -1728,6 +1961,19 @@ html.theme-switching * {
   font: 500 13px/1.3 var(--font-ui);
   box-shadow: 0 6px 24px rgb(0 0 0 / 0.18);
   animation: ob-pop-in var(--dur-swap) var(--ease-out) both;
+}
+.ob-toast {
+  /* Toasts sit at the foot of the screen: they rise into place. */
+  --pop-dy: 8px;
+}
+.ob-toast[data-leaving] {
+  animation: ob-toast-out 140ms var(--ease-quick-in) forwards;
+}
+@keyframes ob-toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(4px);
+  }
 }
 .ob-toast[data-tone="error"] {
   background: var(--color-danger);
@@ -1816,6 +2062,14 @@ html.theme-switching * {
   padding: max(10vh, 56px) 16px 16px;
   background: rgb(0 0 0 / 0.36);
   animation: ob-fade var(--dur-swap) var(--ease-out) both;
+}
+/* Closing, the palette fades and settles out (CommandPalette.tsx, lib/presence.ts). */
+[data-leaving] .ob-palette-scrim {
+  pointer-events: none;
+  animation: ob-fade-out var(--dur-out) var(--ease-quick-in) forwards;
+}
+[data-leaving] .ob-palette {
+  animation: ob-pop-out var(--dur-out) var(--ease-quick-in) forwards;
 }
 .ob-palette {
   display: flex;
@@ -1987,8 +2241,10 @@ html.theme-switching * {
   text-underline-offset: 3px;
   overflow-wrap: anywhere;
 }
-.ob-notice-link:hover {
-  text-decoration-color: currentColor;
+@media (hover: hover) {
+  .ob-notice-link:hover {
+    text-decoration-color: currentColor;
+  }
 }
 /* The links between the legal pages (components/legal-page.tsx). */
 /* A line of words, so its rows balance: no link left alone on the last one. */
@@ -2017,8 +2273,10 @@ html.theme-switching * {
   text-decoration-color: var(--color-border-strong);
   text-underline-offset: 3px;
 }
-.ob-legal-nav-link:hover {
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ob-legal-nav-link:hover {
+    color: var(--color-fg);
+  }
 }
 .ob-legal-nav-link[aria-current="page"] {
   color: var(--color-fg);
@@ -2089,10 +2347,14 @@ html.theme-switching * {
 .ob-wgrid-cell[data-empty] {
   background: transparent;
 }
-button.ob-wgrid-cell:hover,
 .ob-wgrid-cell[data-lit="1"],
 .ob-wgrid:not([data-focus]) .ob-wgrid-cell[data-hover-lit] {
   background: color-mix(in oklab, currentColor 18%, transparent);
+}
+@media (hover: hover) {
+  button.ob-wgrid-cell:hover {
+    background: color-mix(in oklab, currentColor 18%, transparent);
+  }
 }
 .ob-wgrid[data-focus] .ob-wgrid-cell:not([data-lit="1"]):not([data-empty]),
 .ob-wgrid[data-hover-focus]:not([data-focus]) .ob-wgrid-cell:not([data-hover-lit]):not([data-empty]) {
@@ -2151,9 +2413,11 @@ button.ob-wgrid-cell:hover,
   background: transparent;
   color: var(--color-fg-subtle);
 }
-.ulune-wheel-hint-close:hover {
-  background: var(--color-bg-subtle);
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ulune-wheel-hint-close:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
 }
 .ulune-wheel-hint-close:focus-visible {
   outline: 2px solid var(--color-ring);
@@ -2355,10 +2619,10 @@ html[data-first-view]
 /* The degree dots and aspect marks faded in with the whole wheel before:
    here they come with their planets and lines. */
 html[data-first-view] .ulune-wheel[data-entering] > [data-kind="degree-dots"] {
-  animation: ulune-fade-plain 520ms var(--chart-ease) 300ms backwards;
+  animation: ulune-fade-plain 420ms var(--chart-ease) 220ms backwards;
 }
 html[data-first-view] .ulune-wheel[data-entering] > [data-kind="aspect-marks"] {
-  animation: ulune-fade-plain 560ms var(--chart-ease) 820ms backwards;
+  animation: ulune-fade-plain 460ms var(--chart-ease) 600ms backwards;
 }
 
 /* ------------------------------------------------------- private space */
@@ -2542,8 +2806,10 @@ html[data-first-view] .ulune-wheel[data-entering] > [data-kind="aspect-marks"] {
   font: 400 14px/1.2 var(--font-ui);
   transition: color var(--dur-hover) var(--ease-out);
 }
-.ob-space-link:hover {
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ob-space-link:hover {
+    color: var(--color-fg);
+  }
 }
 .ob-space-link--small {
   font-size: 13px;
@@ -2613,8 +2879,10 @@ html[data-first-view] .ulune-wheel[data-entering] > [data-kind="aspect-marks"] {
   text-decoration-color: var(--color-border-strong);
   text-underline-offset: 3px;
 }
-.ob-keep-link:hover {
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ob-keep-link:hover {
+    color: var(--color-fg);
+  }
 }
 
 /* Under the birth form: what is kept, and what a cast sends. */
@@ -2869,8 +3137,10 @@ html[data-tour-done] .ob-tour-link {
   text-underline-offset: 3px;
   cursor: pointer;
 }
-.ob-guide-link:hover {
-  text-decoration-color: currentColor;
+@media (hover: hover) {
+  .ob-guide-link:hover {
+    text-decoration-color: currentColor;
+  }
 }
 .ob-guide-faq {
   display: flex;
@@ -2956,8 +3226,10 @@ html[data-tour-done] .ob-tour-link {
   text-decoration-color: var(--color-border-strong);
   text-underline-offset: 3px;
 }
-.ob-footer-link:hover {
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ob-footer-link:hover {
+    color: var(--color-fg);
+  }
 }
 .ob-footer-meta {
   display: flex;
@@ -3090,6 +3362,33 @@ html[data-tour-done] .ob-tour-link {
   text-underline-offset: 3px;
   cursor: pointer;
 }
-.ob-tour-skip:hover {
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ob-tour-skip:hover {
+    color: var(--color-fg);
+  }
+}
+
+
+/* Disclosures open and close in height (the motion plan): where the browser
+   can animate to the content's own height (interpolate-size), the content
+   grows in on the glide curve; elsewhere it opens at once, as before. */
+@supports (interpolate-size: allow-keywords) {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+  details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size var(--dur-move) var(--ease-glide),
+      content-visibility var(--dur-move) allow-discrete;
+  }
+  details[open]::details-content {
+    block-size: auto;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    details::details-content {
+      transition: none;
+    }
+  }
 }

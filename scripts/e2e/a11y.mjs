@@ -114,6 +114,8 @@ for (const lang of ["en", "fr"]) {
 
     await page.getByTestId("dock-tab-reading").focus();
     await page.keyboard.press("ArrowRight");
+    // The pane cross-fades (a view transition): the tab is chosen on its next frame.
+    await page.waitForFunction(() => document.querySelector("[data-testid=dock-tab-bodies]")?.getAttribute("aria-selected") === "true", null, { timeout: 3000 }).catch(() => {});
     const dock = await page.evaluate(() => ({
       focus: document.activeElement?.getAttribute("data-testid"),
       chosen: document.querySelector("[data-testid=dock-tab-bodies]")?.getAttribute("aria-selected"),

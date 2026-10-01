@@ -42,8 +42,10 @@
   white-space: nowrap;
   transition: background-color var(--dur-hover) var(--ease-out);
 }
-.ulune-progressions-today:hover {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ulune-progressions-today:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-progressions-clock,
 .ulune-progressions-scrub {

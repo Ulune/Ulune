@@ -1,7 +1,6 @@
 import {
   BookOpen,
   CalendarDays,
-  ChevronDown,
   ChevronRight,
   ChevronUp,
   ChevronsLeftRight,
@@ -31,6 +30,7 @@ import { useStudioStore, type DockTab } from "@/studio/store";
 import { useModeReading } from "@/studio/modes/data";
 import { onTablistKeyDown } from "@/lib/a11y/tablist";
 import { SHEET_MOVE_MS, captureStage, dropStage, playStage } from "@/lib/stage-flip";
+import { swapTransition } from "@/lib/swap-transition";
 
 export const PANEL_TABS: {
   id: DockTab;
@@ -102,17 +102,30 @@ export function Dock() {
   useEffect(
     () =>
       useStudioStore.subscribe((s, prev) => {
-        if (s.dockOpen !== prev.dockOpen && !isWide()) captureStage();
+        if (s.dockOpen !== prev.dockOpen) captureStage();
       }),
     [],
   );
+  // The wide/narrow button: the stage and the panel slide together too.
+  const shownWidth = useRef(width);
+  useLayoutEffect(() => {
+    if (shownWidth.current === width) return;
+    shownWidth.current = width;
+    if (ready && isWide()) playStage(true);
+    else dropStage();
+  }, [width, ready]);
   const shownDetent = useRef(detent);
   useLayoutEffect(() => {
     if (shownDetent.current === detent) return;
     shownDetent.current = detent;
     const el = sheetRef.current;
-    if (!ready || isWide() || !el) {
+    if (!ready || !el) {
       dropStage();
+      return;
+    }
+    // A computer's side panel: the stage and the panel slide together.
+    if (isWide()) {
+      playStage(true);
       return;
     }
     playStage();
@@ -127,6 +140,7 @@ export function Dock() {
   }, [detent, ready]);
 
   const flipWidth = useCallback(() => {
+    captureStage();
     setWidth((w) => {
       const next = w === "wide" ? "normal" : "wide";
       savePanelWidth(next);
@@ -139,6 +153,11 @@ export function Dock() {
       const s = useStudioStore.getState();
       if (!isWide() && s.dockOpen && s.dock === id) {
         toggleDock();
+        return;
+      }
+      // Another tab of the open panel: its pane cross-fades in place.
+      if (s.dockOpen && s.dock !== id) {
+        swapTransition(() => openDock(id), { part: "pane" });
         return;
       }
       openDock(id);
@@ -358,11 +377,8 @@ export function Dock() {
               setFull((f) => !f);
             }}
           >
-            {detent === "full" ? (
-              <ChevronDown className="size-4" strokeWidth={1.75} />
-            ) : (
-              <ChevronUp className="size-4" strokeWidth={1.75} />
-            )}
+            {/* One chevron that turns, never two icons swapped. */}
+            <ChevronUp className="ob-sheet-chevron size-4" strokeWidth={1.75} data-flip={detent === "full" ? "1" : undefined} />
           </button>
         </div>
       </div>

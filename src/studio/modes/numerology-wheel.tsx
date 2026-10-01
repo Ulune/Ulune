@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -22,6 +23,7 @@ import {
 } from "@/lib/chart/numerology-wheel";
 import { announceChartHover, onChartPreview } from "@/lib/depth/preview-bus";
 import { prefersReducedMotion } from "@/lib/depth/env";
+import { firstSight } from "@/lib/seen-once";
 import { useI18n } from "@/lib/i18n/locale";
 import { numerologySay } from "@/lib/i18n/numerology-say";
 import { numerologyWheelText } from "@/lib/i18n/numerology-ui";
@@ -165,11 +167,30 @@ export function NumerologyWheel({
     );
   };
 
+  // The wheel comes in round the first time this birth's numbers are shown in
+  // a visit; after that it settles in as one piece (num.css, data-settle).
+  const svgRef = useRef<SVGSVGElement>(null);
+  const sightKey = `num|${chart.year}-${chart.month}-${chart.day}|${chart.name ?? ""}|${chart.currentName ?? ""}`;
+  const settleRef = useRef<{ key: string; settle: boolean } | null>(null);
+  useLayoutEffect(() => {
+    const svg = svgRef.current;
+    if (!svg || prefersReducedMotion()) return;
+    if (settleRef.current?.key !== sightKey) settleRef.current = { key: sightKey, settle: !firstSight(sightKey) };
+    if (!settleRef.current.settle) return;
+    svg.setAttribute("data-settle", "");
+    const id = window.setTimeout(() => svg.removeAttribute("data-settle"), 450);
+    return () => {
+      window.clearTimeout(id);
+      svg.removeAttribute("data-settle");
+    };
+  }, [sightKey]);
+
   return (
     <div className="ulune-num-graph" data-testid="num-box" data-focus={mode ?? undefined}>
       <div className="ulune-num-wheelbox">
         <FigureZoom testId="num-zoom">
           <svg
+            ref={svgRef}
             viewBox={`${-WHEEL.half} ${-WHEEL.half} ${WHEEL.half * 2} ${WHEEL.half * 2}`}
             className="ulune-num-svg"
             data-testid="numerology-ring"

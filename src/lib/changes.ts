@@ -14,6 +14,18 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
     updated: "Updated {date}",
     blocks: [
       {
+        h: "Ulune 1.0.2",
+        p: "The chart’s look, and motion throughout:",
+        list: [
+          "A choice in Look for the planets’ colours: plain, their traditional colours, or by element as before.",
+          "Bigger planet glyphs, and each degree written along its planet’s line, in the size and style of the axes’ degrees; retrograde marked beside the glyph.",
+          "The aspect glyphs in the strip under the chart are twice as big on a computer.",
+          "Every press, switch and page change moves softly and quickly: presses that let go gently, switches whose colour follows the sliding pill, menus and the search that close with a fade, pages and modes that cross-fade, the side panel that slides on a computer.",
+          "A chart builds itself the first time you see it in a visit and simply settles in after that; Human Design builds its bodygraph too, centre by centre.",
+          "No hover highlight left behind after a tap on a phone.",
+        ],
+      },
+      {
         h: "Ulune 1.0.1",
         p: "On phones:",
         list: [
@@ -44,6 +56,18 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
     title: "Nouveautés",
     updated: "Mis à jour le {date}",
     blocks: [
+      {
+        h: "Ulune 1.0.2",
+        p: "L’allure du thème, et le mouvement partout\u202f:",
+        list: [
+          "Un choix dans Style pour la couleur des planètes\u202f: unies, leurs couleurs traditionnelles, ou par élément comme avant.",
+          "Des glyphes de planètes plus grands, et chaque degré écrit le long de la ligne de sa planète, à la taille et dans le style des degrés des axes\u202f; la rétrogradation marquée à côté du glyphe.",
+          "Les glyphes d’aspect de la bande sous le thème sont deux fois plus grands sur ordinateur.",
+          "Chaque pression, chaque bascule et chaque changement de page bouge avec douceur et vivacité\u202f: des pressions qui relâchent en souplesse, des bascules dont la couleur suit la pastille qui glisse, des menus et la recherche qui se ferment en fondu, des pages et des modes en fondu enchaîné, le panneau latéral qui glisse sur ordinateur.",
+          "Un thème se construit la première fois que vous le voyez dans une visite, puis il apparaît simplement\u202f; le Human Design construit aussi son bodygraph, centre après centre.",
+          "Plus de survol qui reste allumé après un toucher sur téléphone.",
+        ],
+      },
       {
         h: "Ulune 1.0.1",
         p: "Sur téléphone\u202f:",

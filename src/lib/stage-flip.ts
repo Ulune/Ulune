@@ -16,6 +16,8 @@ import { prefersReducedMotion } from "@/lib/depth/env";
 /** The sheet's slide (shell.css --sheet-move, --sheet-ease): the stage moves with it. */
 export const SHEET_MOVE_MS = 280;
 export const SHEET_EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
+/** The side panel's slide on a wide screen (shell.css --dur-sheet): the stage moves with it. */
+export const PANEL_MOVE_MS = 240;
 
 type Box = { left: number; top: number; width: number; height: number };
 type Snapshot = {
@@ -27,6 +29,8 @@ type Snapshot = {
   figureBox: Box | null;
   rows: Map<Element, Box>;
   foot: Element | null;
+  /** The side panel (a wide screen): it slides open from its old edge. */
+  panel: Box | null;
 };
 
 let pending: Snapshot | null = null;
@@ -78,6 +82,10 @@ export function captureStage() {
     figureBox: figure ? boxOf(figure) : null,
     rows,
     foot: stage.querySelector(":scope > .ob-foot"),
+    panel: (() => {
+      const p = document.querySelector(".ob-body .ob-panel");
+      return p ? boxOf(p) : null;
+    })(),
   };
   for (const a of running) a.cancel();
   running.clear();
@@ -88,9 +96,11 @@ export function dropStage() {
   pending = null;
 }
 
+let moveMs = SHEET_MOVE_MS;
+
 function play(el: Element, frames: Keyframe[], delay = 0, after?: () => void) {
   if (!(el instanceof HTMLElement) || typeof el.animate !== "function") return;
-  const a = el.animate(frames, { duration: SHEET_MOVE_MS, easing: SHEET_EASE, delay, fill: "backwards" });
+  const a = el.animate(frames, { duration: moveMs, easing: SHEET_EASE, delay, fill: "backwards" });
   running.add(a);
   const done = () => {
     running.delete(a);
@@ -100,12 +110,27 @@ function play(el: Element, frames: Keyframe[], delay = 0, after?: () => void) {
   a.oncancel = done;
 }
 
-/** After the change (a layout effect: before the new layout is painted), play each piece from where it stood. */
-export function playStage() {
+/**
+ * After the change (a layout effect: before the new layout is painted), play
+ * each piece from where it stood. `wide`: the side panel moved (a computer),
+ * not the bottom sheet.
+ */
+export function playStage(wide = false) {
   const snap = pending;
   pending = null;
   if (!snap || !snap.stage.isConnected || performance.now() - snap.at > STALE_MS) return;
   const { stage, figure } = snap;
+  moveMs = wide ? PANEL_MOVE_MS : SHEET_MOVE_MS;
+  // The side panel opening or growing: it slides open from where its edge was
+  // (a clip, so its text is laid out once, at its new width).
+  if (wide && snap.panel) {
+    const panel = document.querySelector(".ob-body .ob-panel");
+    const now = panel ? boxOf(panel) : null;
+    if (panel && now && now.width > snap.panel.width + 1) {
+      const hide = Math.round(now.width - snap.panel.width);
+      play(panel, [{ clipPath: `inset(0 0 0 ${hide}px)` }, { clipPath: "inset(0 0 0 0)" }]);
+    }
+  }
   // The figure: the wheel's square goes from its old box to its new one
   // (scale and move), the figure's frame carried along with it.
   if (figure && figure.isConnected && stage.querySelector(":scope > .ob-figure") === figure) {
@@ -149,7 +174,7 @@ export function playStage() {
     const now = boxOf(row);
     if (!now) continue;
     if (!was) {
-      if (footSame) play(row, [{ opacity: 0 }, { opacity: 1 }], SHEET_MOVE_MS * 0.35);
+      if (footSame) play(row, [{ opacity: 0 }, { opacity: 1 }], moveMs * 0.35);
       continue;
     }
     const dx = was.left - now.left;

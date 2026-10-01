@@ -20,7 +20,7 @@ export function HdFacts({
   const { locale } = useI18n();
   return (
     <div className="ulune-hd-facts" data-testid="hd-facts">
-      {hdKeyRows(chart, locale).map((f) => {
+      {hdKeyRows(chart, locale).map((f, fi) => {
         const id = `hello:${f.key}`;
         // Without a birth time, a key that differs at another hour is marked ~.
         const maybe = f.uncertain;
@@ -30,6 +30,8 @@ export function HdFacts({
             key={f.key}
             type="button"
             className="ulune-hd-fact"
+            // Its place in the bodygraph's entrance (hd.css).
+            style={{ ["--enter" as string]: fi }}
             data-testid={`hd-fact-${f.key}`}
             data-fact={f.key}
             data-uncertain={maybe ? "1" : undefined}

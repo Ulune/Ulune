@@ -267,21 +267,32 @@ html.light {
   --tracking-kicker: 0.08em;
   --tracking-display: -0.02em;
 
-  /* Motion: fast in, faster out. Nothing over 220ms but the sheet's slide. */
-  --dur-press: 90ms;
-  --dur-hover: 120ms;
-  --dur-out: 100ms;
-  --dur-in: 140ms;
-  --dur-swap: 150ms;
-  --dur-move: 180ms;
-  --dur-sheet: 200ms;
+  /* Motion (the motion plan, 1.0.2): one set of durations and curves for
+     every control. A press goes in fast and lets go slower (--dur-press is
+     the release; :active sets the 70 ms going in, shell.css); exits run
+     about 60% of their entrance; the phone moves a little longer where
+     things cross the screen (below, pointer: coarse). */
+  --dur-press: 180ms;
+  --dur-press-in: 70ms;
+  --dur-hover: 140ms;
+  --dur-out: 110ms;
+  --dur-in: 180ms;
+  --dur-swap: 200ms;
+  --dur-swap-out: 90ms;
+  --dur-move: 220ms;
+  --dur-sheet: 240ms;
+  /* The curves: soft out (arrivals, colour), glide (a thing changing place),
+     quick in (exits only). */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-glide: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-quick-in: cubic-bezier(0.4, 0, 1, 1);
   /* The bottom sheet's slide and the stage moving with it (stage-flip.ts
      SHEET_MOVE_MS, SHEET_EASE): longer than the chrome's, it travels across
      the screen. */
   --sheet-move: 280ms;
   --sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
   --dur-theme: 200ms;
-  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-out: var(--ease-soft);
   /* Chart motion (cinematic pass, the motion plan): starts at
      once, settles slowly. UI chrome keeps the quick tokens above. */
   --chart-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -973,41 +984,61 @@ html.theme-ready body {
 .ulune-wheel[data-entering] [data-kind="sign-band"] {
   transform-box: view-box;
   transform-origin: 360px 360px;
-  animation: ulune-bloom 640ms var(--chart-ease) calc(60ms + var(--enter, 0) * 32ms) backwards;
+  animation: ulune-bloom 520ms var(--chart-ease) calc(40ms + var(--enter, 0) * 24ms) backwards;
 }
 .ulune-wheel[data-entering] [data-decans] {
-  animation: ulune-fade-plain 520ms var(--chart-ease) calc(180ms + var(--enter, 0) * 32ms) backwards;
+  animation: ulune-fade-plain 420ms var(--chart-ease) calc(130ms + var(--enter, 0) * 24ms) backwards;
 }
 .ulune-wheel[data-entering] [data-house] > line {
-  animation: ulune-fade-plain 560ms var(--chart-ease) calc(240ms + var(--enter, 0) * 36ms) backwards;
+  animation: ulune-fade-plain 460ms var(--chart-ease) calc(170ms + var(--enter, 0) * 26ms) backwards;
 }
 .ulune-wheel[data-entering] [data-kind="house-num"] {
-  animation: ulune-fade-plain 480ms var(--chart-ease) calc(420ms + var(--enter, 0) * 30ms) backwards;
+  animation: ulune-fade-plain 400ms var(--chart-ease) calc(300ms + var(--enter, 0) * 22ms) backwards;
 }
 .ulune-wheel[data-entering] [data-kind="angle"] {
-  animation-delay: calc(220ms + var(--enter, 0) * 70ms);
+  animation-delay: calc(160ms + var(--enter, 0) * 50ms);
 }
 .ulune-wheel[data-entering] [data-kind="lead"] {
-  animation: ulune-fade-plain 520ms var(--chart-ease) calc(300ms + var(--enter, 0) * 520ms) backwards;
+  animation: ulune-fade-plain 420ms var(--chart-ease) calc(220ms + var(--enter, 0) * 380ms) backwards;
 }
 .ulune-wheel[data-entering] [data-kind="planet"] {
-  animation-delay: calc(300ms + var(--enter, 0) * 520ms);
+  animation-duration: 460ms;
+  animation-delay: calc(220ms + var(--enter, 0) * 380ms);
 }
 .ulune-wheel[data-entering] g[data-aspect][data-arrive],
 .ulune-wheel[data-entering] [data-kind="aspect"][data-draw] {
-  animation-delay: calc(820ms + var(--enter, 0) * 34ms);
+  animation-duration: 520ms;
+  animation-delay: calc(600ms + var(--enter, 0) * 24ms);
 }
 .ulune-wheel[data-entering] [data-kind="outer-ring"] {
   transform-box: view-box;
   transform-origin: 360px 360px;
-  animation: ulune-bloom 700ms var(--chart-ease) 520ms backwards;
+  animation: ulune-bloom 560ms var(--chart-ease) 380ms backwards;
 }
 .ulune-wheel[data-entering] [data-kind="transit"] {
-  animation-delay: calc(760ms + var(--enter, 0) * 420ms);
+  animation-delay: calc(540ms + var(--enter, 0) * 300ms);
 }
 .ulune-wheel[data-entering] [data-kind="star"],
 .ulune-wheel[data-entering] [data-kind="mp"] {
-  animation-delay: 1000ms;
+  animation-delay: 720ms;
+}
+/* A wheel seen before in this visit (chart-wheel.tsx, data-settle) settles
+   in as one piece: a short fade from a hair smaller, nothing built again. */
+@keyframes ulune-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+.ulune-wheel[data-settle] {
+  animation: ulune-settle 420ms var(--chart-ease) both;
+}
+/* Inside a switch (lib/swap-transition.ts) the transition already fades it in. */
+html[data-vt] .ulune-wheel[data-settle] {
+  animation: none;
+}
+.ulune-wheel[data-settle] :is([data-kind="planet"], [data-kind="transit"], [data-kind="angle"], g[data-aspect][data-arrive], [data-kind="aspect"][data-draw], [data-kind="star"], [data-kind="mp"]) {
+  animation: none;
 }
 /* An aspect already on the wheel (data-seen, chart-wheel.tsx) never plays its
    arrival again: when the list reorders around it (a time step), React moves
@@ -1424,9 +1455,14 @@ html.light .ulune-wheel [data-cfg-type] {
   color: var(--color-fg-muted);
 }
 
-.ulune-sky-read-ai:hover,
 .ulune-sky-read-ai:focus-visible {
   color: var(--color-fg);
+}
+
+@media (hover: hover){
+  .ulune-sky-read-ai:hover {
+    color: var(--color-fg);
+  }
 }
 
 .ulune-sky-read-ai-icon,
@@ -1777,9 +1813,11 @@ html.light .ulune-wheel [data-cfg-type] {
   font: 500 13px/1.2 var(--font-ui);
   cursor: pointer;
 }
-.ob-rc-back:hover {
-  background: var(--color-bg-subtle);
-  color: var(--color-fg);
+@media (hover: hover){
+  .ob-rc-back:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
 }
 .ob-rc-head {
   display: flex;
@@ -1873,9 +1911,11 @@ html.light .ulune-wheel [data-cfg-type] {
   cursor: pointer;
   transition: border-color var(--dur-hover) var(--ease-out), background var(--dur-hover) var(--ease-out);
 }
-.ob-rc-fact.is-link:hover {
-  border-color: var(--color-border-strong);
-  background: var(--color-bg-subtle);
+@media (hover: hover){
+  .ob-rc-fact.is-link:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-rc-fact-k {
   font: 500 10px/1.2 var(--font-ui);
@@ -1953,8 +1993,10 @@ html.light .ulune-wheel [data-cfg-type] {
   text-decoration-color: var(--color-border-strong);
   cursor: pointer;
 }
-.ob-rc-more:hover {
-  background: var(--color-bg-subtle);
+@media (hover: hover){
+  .ob-rc-more:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-rc-rows {
   display: flex;
@@ -1978,8 +2020,10 @@ html.light .ulune-wheel [data-cfg-type] {
   text-align: left;
   cursor: pointer;
 }
-.ob-rc-row:hover:not(:disabled) {
-  background: var(--color-bg-subtle);
+@media (hover: hover){
+  .ob-rc-row:hover:not(:disabled) {
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-rc-row:disabled {
   cursor: default;
@@ -2280,9 +2324,13 @@ html.light .ulune-wheel [data-cfg-type] {
   font: 500 13px/1.2 var(--font-ui);
   cursor: pointer;
 }
-.ob-rc-ask-btn:hover,
 .ob-rc-ask-btn[aria-expanded="true"] {
   background: var(--color-bg-subtle);
+}
+@media (hover: hover){
+  .ob-rc-ask-btn:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-progress {
   display: flex;
@@ -2350,8 +2398,10 @@ html.light .ulune-wheel [data-cfg-type] {
   text-align: left;
   cursor: pointer;
 }
-.ob-pick-row:hover {
-  background: var(--color-bg-subtle);
+@media (hover: hover){
+  .ob-pick-row:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-balance-grid {
   display: grid;
@@ -2477,8 +2527,10 @@ html.light .ulune-wheel [data-cfg-type] {
   text-decoration-color: var(--color-border-strong);
   cursor: pointer;
 }
-.ob-sample-link:hover {
-  color: var(--color-fg);
+@media (hover: hover){
+  .ob-sample-link:hover {
+    color: var(--color-fg);
+  }
 }
 
 /* Motion (content): card swap 120ms with a 4px rise; disclosures 150ms. */
@@ -2771,3 +2823,14 @@ svg[data-depth-base][data-view3d="gl"] > :not([data-backdrop]) {
   }
 }
 
+
+/* On a touch screen things that cross the screen move a little longer (the motion plan). */
+@media (pointer: coarse) {
+  :root {
+    --dur-in: 200ms;
+    --dur-out: 120ms;
+    --dur-swap: 220ms;
+    --dur-swap-out: 100ms;
+    --dur-move: 240ms;
+  }
+}

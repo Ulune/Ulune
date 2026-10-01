@@ -1,4 +1,6 @@
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { firstSight } from "@/lib/seen-once";
+import { prefersReducedMotion } from "@/lib/depth/env";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { HumanDesignGraph } from "@/components/humandesign-graph";
 import { HdCard } from "@/components/hd-card";
 import { HdFacts } from "@/components/hd-facts";
@@ -58,12 +60,28 @@ function useWide(): boolean {
   return wide;
 }
 
+/** The bodygraph's entrance (hd.css): the whole build, and the settle of one seen before. */
+const HD_BUILD_MS = 1300;
+const HD_SETTLE_MS = 450;
+
 function DesignFigure() {
   const { locale, t } = useI18n();
   const w = useWheelView();
   const wide = useWide();
   const hd = useModeData("design");
   const natal = useStudioStore((s) => s.chart);
+  // The bodygraph builds itself the first time this chart's is shown in a
+  // visit (hd.css, data-build); after that it settles in as one piece.
+  const sightKey = natal ? `hd|${natal.meta.date}|${natal.meta.time}|${natal.meta.latitude}|${natal.meta.longitude}` : "hd";
+  const entranceRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node || prefersReducedMotion() || node.hasAttribute("data-build") || node.hasAttribute("data-settle")) return;
+      const attr = firstSight(sightKey) ? "data-build" : "data-settle";
+      node.setAttribute(attr, "");
+      window.setTimeout(() => node.removeAttribute(attr), attr === "data-build" ? HD_BUILD_MS : HD_SETTLE_MS);
+    },
+    [sightKey],
+  );
   const hdChart = hd?.hd ?? null;
   const tz = natal?.meta.timezone;
   const withTime = !natal?.meta.timeUnknown;
@@ -106,7 +124,11 @@ function DesignFigure() {
     else useStudioStore.setState((s) => ({ selectedId: s.selectedId === id ? null : id }));
   };
   return (
-    <div className="ulune-hd-figure flex h-full min-h-0 w-full flex-col items-center justify-start overflow-auto" style={{ opacity: hd.busy ? 0.7 : 1 }}>
+    <div
+      ref={entranceRef}
+      className="ulune-hd-figure flex h-full min-h-0 w-full flex-col items-center justify-start overflow-auto"
+      style={{ opacity: hd.busy ? 0.7 : 1 }}
+    >
       <HdFacts chart={chart} selectedId={w.selectedId} onSelect={w.pick} />
       {chart.uncertain ? (
         <p className="ulune-hd-unknown" data-testid="hd-unknown" role="note">

@@ -111,8 +111,10 @@ html.light .ulune-moon {
     background-color var(--dur-hover) var(--ease-out),
     color var(--dur-hover) var(--ease-out);
 }
-.ulune-cal-chip:hover {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ulune-cal-chip:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-cal-chip.is-on {
   color: var(--color-fg);
@@ -213,8 +215,10 @@ html.light .ulune-moon {
     border-color var(--dur-hover) var(--ease-out),
     background-color var(--dur-hover) var(--ease-out);
 }
-.ulune-cal-cell:hover:not(.is-empty) {
-  border-color: var(--color-border-strong);
+@media (hover: hover) {
+  .ulune-cal-cell:hover:not(.is-empty) {
+    border-color: var(--color-border-strong);
+  }
 }
 .ulune-cal-cell.is-empty {
   border-style: dashed;
@@ -477,9 +481,13 @@ html.light .ulune-moon {
   text-align: left;
   border-radius: 8px;
 }
-button.ulune-cal-now-line:hover,
 .ulune-cal-now-line.is-on {
   background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  button.ulune-cal-now-line:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-cal-now-icon {
   display: flex;
@@ -528,8 +536,10 @@ button.ulune-cal-now-line:hover,
   text-align: left;
   transition: border-color var(--dur-hover) var(--ease-out);
 }
-.ulune-cal-moonbar:hover {
-  border-color: var(--color-border-strong);
+@media (hover: hover) {
+  .ulune-cal-moonbar:hover {
+    border-color: var(--color-border-strong);
+  }
 }
 .ulune-cal-moonbar.is-on {
   border-color: var(--color-fg);
@@ -653,11 +663,15 @@ button.ulune-cal-now-line:hover,
 .ulune-cal-agenda > li:first-child > .ulune-cal-row {
   border-top-color: transparent;
 }
-.ulune-cal-row:hover,
 .ulune-cal-row.is-on,
-.ulune-cal-effect-line:hover,
 .ulune-cal-effect-line.is-on {
   background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  .ulune-cal-row:hover,
+.ulune-cal-effect-line:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-cal-row.is-past {
   opacity: 0.75;
@@ -793,8 +807,10 @@ button.ulune-cal-now-line:hover,
   text-transform: uppercase;
   color: var(--color-fg-subtle);
 }
-.ulune-cal-tl-axis button:hover {
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ulune-cal-tl-axis button:hover {
+    color: var(--color-fg);
+  }
 }
 .ulune-cal-tl-row.is-moon .ulune-cal-tl-track {
   height: 46px;
@@ -897,10 +913,15 @@ button.ulune-cal-now-line:hover,
   padding: 2px 4px;
   border-radius: 6px;
 }
-.ulune-cal-tl-you:hover,
 .ulune-cal-tl-you.is-on {
   background: var(--color-bg-subtle);
   color: var(--color-fg);
+}
+@media (hover: hover) {
+  .ulune-cal-tl-you:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
 }
 .ulune-cal-tl-win {
   position: absolute;
@@ -967,8 +988,10 @@ button.ulune-cal-now-line:hover,
   font: 400 1.25rem/1.1 var(--font-display);
   color: var(--color-fg);
 }
-.ulune-cal-monthcard-h button:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .ulune-cal-monthcard-h button:hover {
+    text-decoration: underline;
+  }
 }
 .ulune-cal-monthcard-chips {
   display: flex;
@@ -1005,9 +1028,13 @@ button.ulune-cal-now-line:hover,
   text-decoration: underline dotted color-mix(in oklab, var(--color-fg) 30%, transparent);
   text-underline-offset: 3px;
 }
-.ulune-cal-inline:hover,
 .ulune-cal-inline.is-on {
   color: var(--color-fg);
+}
+@media (hover: hover) {
+  .ulune-cal-inline:hover {
+    color: var(--color-fg);
+  }
 }
 
 /* The events table (parts 57 and 52): its filters over the parts, the past dimmed. */
@@ -1106,9 +1133,13 @@ button.ulune-cal-now-line:hover,
   text-decoration: underline dotted color-mix(in oklab, var(--color-fg) 30%, transparent);
   text-underline-offset: 3px;
 }
-.ulune-cal-title-num:hover,
 .ulune-cal-title-num.is-on {
   color: var(--color-fg);
+}
+@media (hover: hover) {
+  .ulune-cal-title-num:hover {
+    color: var(--color-fg);
+  }
 }
 .ulune-cal-title-num.is-on {
   text-decoration-style: solid;
@@ -1172,8 +1203,10 @@ button.ulune-cal-now-line:hover,
   text-align: left;
   transition: border-color var(--dur-hover) var(--ease-out);
 }
-.ulune-cal-numbar:hover {
-  border-color: var(--color-border-strong);
+@media (hover: hover) {
+  .ulune-cal-numbar:hover {
+    border-color: var(--color-border-strong);
+  }
 }
 .ulune-cal-numbar.is-on {
   border-color: var(--color-fg);
@@ -1233,9 +1266,11 @@ button.ulune-cal-now-line:hover,
 .ulune-cal-tl-pm:nth-child(odd) {
   background: color-mix(in oklab, var(--color-halo) 17%, transparent);
 }
-.ulune-cal-tl-pm:hover {
-  color: var(--color-fg);
-  background: color-mix(in oklab, var(--color-halo) 28%, transparent);
+@media (hover: hover) {
+  .ulune-cal-tl-pm:hover {
+    color: var(--color-fg);
+    background: color-mix(in oklab, var(--color-halo) 28%, transparent);
+  }
 }
 .ulune-cal-tl-pm.is-on {
   color: var(--color-fg);

@@ -220,13 +220,28 @@ export async function goStudioPage(page, id) {
     const el = document.querySelector(`[data-testid="${gid}"]`);
     if (el instanceof HTMLElement) el.click();
   }, groupId);
+  // The switch lands a frame or two later (the mode's code, then a view
+  // transition): wait until it has, and until the transition is over.
+  const landed = async (sel) => {
+    await page
+      .waitForFunction(
+        (s) => Boolean(document.querySelector(s)) && !document.documentElement.dataset.vt,
+        sel,
+        { timeout: 8000 },
+      )
+      .catch(() => {});
+  };
   // One-mode groups (Chart) have no sub-mode switch: the group tab is the mode.
-  if (Object.values(MODE_GROUP).filter((g) => g === MODE_GROUP[id]).length === 1) return;
+  if (Object.values(MODE_GROUP).filter((g) => g === MODE_GROUP[id]).length === 1) {
+    await landed(`[data-testid="${groupId}"][aria-selected="true"]`);
+    return;
+  }
   await page.getByTestId(pageId).waitFor({ state: "attached", timeout: 8000 });
   await page.evaluate((pid) => {
     const el = document.querySelector(`[data-testid="${pid}"]`);
     if (el instanceof HTMLElement) el.click();
   }, pageId);
+  await landed(`[data-testid="${pageId}"]:is([aria-selected="true"], [aria-pressed="true"], [aria-current])`);
 }
 
 /**

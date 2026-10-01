@@ -199,20 +199,37 @@
   stroke-width: 2.6;
 }
 
+/* Seen before in this visit (numerology-wheel.tsx): it settles in as one piece. */
+@keyframes num-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+.ulune-num-svg[data-settle] {
+  transform-origin: center;
+  animation: num-settle 380ms var(--chart-ease) both;
+}
+html[data-vt] .ulune-num-svg[data-settle] {
+  animation: none;
+}
+.ulune-num-svg[data-settle] :is(.num-sector, .num-letters, .num-tracks, .num-discs, .num-time, .num-centre) {
+  animation: none;
+}
 /* The wheel comes in round: the band, then the letters, the discs, the centre. */
 .num-sector {
-  animation: ulune-fade-plain 480ms var(--chart-ease) calc(80ms + var(--enter, 0) * 45ms) backwards;
+  animation: ulune-fade-plain 480ms var(--chart-ease) calc(60ms + var(--enter, 0) * 36ms) backwards;
 }
 .num-letters,
 .num-tracks {
-  animation: ulune-fade-plain 520ms var(--chart-ease) 460ms backwards;
+  animation: ulune-fade-plain 440ms var(--chart-ease) 340ms backwards;
 }
 .num-discs,
 .num-time {
-  animation: ulune-fade-plain 520ms var(--chart-ease) 620ms backwards;
+  animation: ulune-fade-plain 440ms var(--chart-ease) 460ms backwards;
 }
 .num-centre {
-  animation: ulune-fade-plain 560ms var(--chart-ease) 720ms backwards;
+  animation: ulune-fade-plain 460ms var(--chart-ease) 540ms backwards;
 }
 
 .ulune-num-say {
@@ -310,10 +327,12 @@
 .ulune-num-year-n:not([data-now]) {
   box-shadow: inset 0 -2px 0 var(--color-halo);
 }
-.ulune-num-step:hover:not(:disabled),
+@media (hover: hover) {
+  .ulune-num-step:hover:not(:disabled),
 .ulune-num-year-n:hover {
-  background: var(--color-bg-subtle);
-  color: var(--color-fg);
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
 }
 .ulune-num-step:disabled {
   opacity: 0.4;
@@ -343,9 +362,13 @@
   transition: background-color var(--dur-hover) var(--ease-out);
 }
 /* Each chip opens its reading (part 63). */
-button.ulune-num-chip:hover,
 .ulune-num-chip.is-on {
   background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  button.ulune-num-chip:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-num-chip.is-on {
   border-color: var(--color-fg);
@@ -381,7 +404,7 @@ button.ulune-num-chip:hover,
   overflow-x: auto;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
-  animation: ulune-fade-plain 520ms var(--chart-ease) 820ms backwards;
+  animation: ulune-fade-plain 440ms var(--chart-ease) 600ms backwards;
 }
 .ulune-num-tiles::-webkit-scrollbar {
   display: none;
@@ -405,8 +428,10 @@ button.ulune-num-chip:hover,
     background-color var(--dur-hover) var(--ease-out),
     border-color var(--dur-hover) var(--ease-out);
 }
-.ulune-num-tile:hover:not(:disabled) {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ulune-num-tile:hover:not(:disabled) {
+    background: var(--color-bg-subtle);
+  }
 }
 @media (hover: hover) and (pointer: fine) {
   .ulune-num-tile:hover:not(:disabled) {
@@ -554,8 +579,10 @@ button.ulune-num-chip:hover,
   box-shadow: inset 0 -1.5px 0 var(--color-halo);
   font: inherit;
 }
-.ulune-num-y:hover {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ulune-num-y:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-num-counts td[data-lesson] {
   color: var(--color-fg-subtle);
@@ -621,9 +648,13 @@ button.ulune-num-chip:hover,
   border-radius: var(--radius-md);
   text-align: left;
 }
-.ulune-num-card.is-on,
-button.ulune-num-card:hover {
+.ulune-num-card.is-on {
   background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  button.ulune-num-card:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-num-card-k {
   font-size: 11.5px;
@@ -849,9 +880,11 @@ button.ulune-num-card:hover {
   text-decoration: underline dotted color-mix(in oklab, var(--color-fg) 35%, transparent);
   text-underline-offset: 3px;
 }
-.ulune-num-first-skip:hover,
+@media (hover: hover) {
+  .ulune-num-first-skip:hover,
 .ulune-num-first-open:hover {
-  color: var(--color-fg);
+    color: var(--color-fg);
+  }
 }
 .ulune-num-first-intro {
   margin: 0;
@@ -939,14 +972,18 @@ button.ulune-num-card:hover {
   font-size: 13px;
   color: var(--color-fg);
 }
-.ulune-num-first-btn:hover {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ulune-num-first-btn:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-num-first-btn.is-main {
   border-color: var(--color-fg);
   background: var(--color-fg);
   color: var(--color-bg);
 }
-.ulune-num-first-btn.is-main:hover {
-  background: color-mix(in oklab, var(--color-fg) 85%, var(--color-bg));
+@media (hover: hover) {
+  .ulune-num-first-btn.is-main:hover {
+    background: color-mix(in oklab, var(--color-fg) 85%, var(--color-bg));
+  }
 }

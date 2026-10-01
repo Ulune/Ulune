@@ -143,6 +143,8 @@ async function fillBirth(page, fixture, { checkAdvance = false, checkPlaceKeepsB
     const list = page.locator("#birth-place-list [role=option] button");
     await list.first().waitFor({ timeout: 12000 });
     await page.locator("#birth-place").press("Escape");
+    // The list leaves with a short fade (lib/presence.ts).
+    await list.first().waitFor({ state: "hidden", timeout: 1500 }).catch(() => {});
     const stillOpen = await list.first().isVisible().catch(() => false);
     if (stillOpen) throw new Error("Escape did not close the place list");
     await page.locator("#native-name").focus();

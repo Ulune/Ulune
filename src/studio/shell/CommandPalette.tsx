@@ -3,6 +3,7 @@ import { lazyNamed, prefetch, whenIdle } from "@/lib/lazy-component";
 import { useStudioStore } from "@/studio/store";
 import { MODE_GROUPS, type StudioPage } from "@/studio/url";
 import { useStudioUrl } from "@/studio/use-studio-url";
+import { usePresence } from "@/lib/presence";
 
 const loadDialog = () => import("@/studio/shell/CommandPaletteDialog");
 const CommandPaletteDialog = lazyNamed(loadDialog, "CommandPaletteDialog");
@@ -70,10 +71,14 @@ export function CommandPalette() {
     window.requestAnimationFrame(() => returnFocus.current?.focus?.());
   };
 
-  if (!open) return null;
+  // Closing, it fades out first (lib/presence.ts).
+  const { shown, leaving } = usePresence(open);
+  if (!shown) return null;
   return (
-    <Suspense fallback={null}>
-      <CommandPaletteDialog onClose={close} />
-    </Suspense>
+    <div className="contents" data-leaving={leaving ? "" : undefined} inert={leaving || undefined}>
+      <Suspense fallback={null}>
+        <CommandPaletteDialog onClose={close} />
+      </Suspense>
+    </div>
   );
 }

@@ -1,3 +1,4 @@
+import { installPressFeedback } from "@/lib/press";
 import { createRootRoute, HeadContent, Outlet, Scripts, useRouter } from "@tanstack/react-router";
 import { AiSurfaceProvider } from "@/lib/ai/use-ai-surface";
 import { SpaceGate } from "@/components/space/space-gate";
@@ -51,6 +52,7 @@ function ClientGuards() {
   useEffect(() => {
     installErrorReports();
     installStaleChunkRecovery();
+    installPressFeedback();
   }, []);
   return null;
 }

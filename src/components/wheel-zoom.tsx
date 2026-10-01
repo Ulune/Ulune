@@ -247,11 +247,12 @@ export function WheelZoom({
     const { x, y } = panRef.current;
     const fit = fitRef.current;
     if (how === "glide" && !prefersReducedMotion()) {
-      el.style.transition = "transform 460ms var(--chart-ease)";
+      // Quick enough that taps on + run together rather than queue (the motion plan).
+      el.style.transition = "transform 340ms var(--ease-glide)";
       window.clearTimeout(glideTimer.current);
       glideTimer.current = window.setTimeout(() => {
         el.style.transition = "";
-      }, 520);
+      }, 400);
     } else if (how === "direct") {
       window.clearTimeout(glideTimer.current);
       el.style.transition = "";

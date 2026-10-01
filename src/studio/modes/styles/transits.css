@@ -45,8 +45,10 @@
   white-space: nowrap;
   transition: background-color var(--dur-hover) var(--ease-out);
 }
-.ulune-transit-now:hover {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ulune-transit-now:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-transit-live {
   display: inline-flex;

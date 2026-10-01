@@ -108,12 +108,14 @@
   font: 500 13px/1 var(--font-ui);
   cursor: pointer;
 }
-.ob-table-export-btn:hover {
-  background: var(--color-bg-subtle);
-  color: var(--color-fg);
-}
-.ulune-data-table tbody tr.cursor-pointer:hover td {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  .ob-table-export-btn:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
+  .ulune-data-table tbody tr.cursor-pointer:hover td {
+    background: var(--color-bg-subtle);
+  }
 }
 @container (max-width: 639.98px) {
   .ulune-table-wrap {
@@ -282,8 +284,10 @@
     color var(--dur-hover) var(--ease-out),
     box-shadow var(--dur-move) var(--ease-out);
 }
-.ulune-tbar-link:hover {
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ulune-tbar-link:hover {
+    color: var(--color-fg);
+  }
 }
 .ulune-tbar-link[aria-current="true"] {
   color: var(--color-fg);
@@ -355,9 +359,11 @@
   color: var(--color-fg-muted);
   cursor: pointer;
 }
-.ulune-tpart-copy:hover {
-  background: var(--color-bg-subtle);
-  color: var(--color-fg);
+@media (hover: hover) {
+  .ulune-tpart-copy:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
 }
 /* No box inside the page; headers pin under the bar. */
 .ulune-tpage .ulune-table-wrap {
@@ -647,8 +653,10 @@
 button.ulune-glyph-pick {
   cursor: pointer;
 }
-button.ulune-glyph-pick:hover {
-  background: var(--color-bg-subtle);
+@media (hover: hover) {
+  button.ulune-glyph-pick:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-ruler {
   display: flex;
@@ -786,9 +794,13 @@ button.ulune-glyph-pick:hover {
 .ob-agrid td[data-level="minor"] button {
   color: var(--color-fg-subtle);
 }
-.ob-agrid td button:hover,
 .ob-agrid td[data-on="1"] button {
   background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  .ob-agrid td button:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ob-agrid td[data-uncertain="1"] > * {
   opacity: 0.6;
@@ -1058,9 +1070,13 @@ button.ulune-glyph-pick:hover {
   text-align: left;
   cursor: pointer;
 }
-.ulune-both-pick:hover,
 .ulune-both-pick.is-on {
   background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  .ulune-both-pick:hover {
+    background: var(--color-bg-subtle);
+  }
 }
 .ulune-hd-centre-dot {
   display: inline-block;

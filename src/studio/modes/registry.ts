@@ -73,6 +73,11 @@ export function loadMode(page: StudioPage): Promise<ModeDef> {
   return job;
 }
 
+/** Whether a mode's code is here (a switch to it can draw it at once). */
+export function modeReady(page: StudioPage): boolean {
+  return defs.has(page);
+}
+
 /** Fetch a mode ahead of use (hover, focus, idle); errors wait for the real open. */
 export function preloadMode(page: StudioPage): void {
   if (defs.has(page) || inflight.has(page)) return;
