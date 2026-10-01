@@ -6,7 +6,7 @@
  */
 import type { LegalText } from "@/lib/legal/pages";
 
-export const CHANGES_UPDATED = "2026-09-29";
+export const CHANGES_UPDATED = "2026-10-01";
 
 export const CHANGES: Record<"en" | "fr", LegalText> = {
   en: {
