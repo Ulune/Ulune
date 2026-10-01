@@ -204,8 +204,19 @@ async function runNatalLayout(width) {
       if (clash > 1) throw new Error(`stage runs ${clash}px under the sheet`);
       const selected = await page.locator("[data-testid^=dock-tab-][aria-selected=true]").count();
       if (selected !== 1) throw new Error(`expected 1 dock tab selected, got ${selected}`);
+      // A tap on the chart keeps it whole: the sheet stays as it is, and its
+      // Reading tab carries the name of what was chosen, to open when wanted.
+      const foldedBefore = (await page.getByTestId("dock").getAttribute("data-dock-open")) !== "true";
       await page.locator("[data-body=sun]").first().click({ force: true });
       await page.waitForTimeout(260);
+      if (foldedBefore) {
+        if ((await page.getByTestId("dock").getAttribute("data-dock-open")) === "true") throw new Error("a wheel tap opened the sheet");
+        const named = await page.getByTestId("dock-tab-reading").innerText();
+        // (Its name: the Sun, or the house the tap found under it.)
+        if (!named.trim() || /^reading$/i.test(named.trim())) throw new Error(`the Reading tab does not name what was chosen: "${named}"`);
+        await page.getByTestId("dock-tab-reading").click();
+        await page.waitForTimeout(400);
+      }
       const clashOpen = await page.evaluate(() => {
         const stage = document.querySelector(".ob-stage")?.getBoundingClientRect();
         const sheet = document.querySelector("[data-testid=dock]")?.getBoundingClientRect();
@@ -213,7 +224,7 @@ async function runNatalLayout(width) {
       });
       if (clashOpen > 1) throw new Error(`open sheet covers the stage by ${clashOpen}px`);
       const readingOn = await page.getByTestId("dock-tab-reading").getAttribute("aria-selected");
-      if (readingOn !== "true") throw new Error("wheel tap did not select reading tab");
+      if (readingOn !== "true") throw new Error("the Reading tab did not open the reading");
       await page.getByTestId("click-note").waitFor({ timeout: 8000 });
       await clickDockTab(page, "look");
       const lookOn = await page.getByTestId("dock-tab-look").getAttribute("aria-selected");

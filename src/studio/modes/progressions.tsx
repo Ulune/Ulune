@@ -135,7 +135,7 @@ function ProgressionsFigure() {
           overlays={w.overlays}
           starVisible={w.starVisible}
           midpointVisible={w.midpointVisible}
-          onSelect={w.pick}
+          onSelect={w.choose}
           transits={progressions.outer}
           crossAspects={progressions.shownSky?.aspects}
           outerKind="progressions"

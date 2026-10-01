@@ -1185,6 +1185,27 @@ html.theme-switching * {
 .ob-sheet-grip {
   display: none;
 }
+
+/* Something chosen on the chart, the panel closed (Dock.tsx): the Reading
+   tab carries its name and a dot, the reading a tap away. */
+.ob-panel-tab-glyph {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.ob-panel-tab[data-waiting] {
+  color: var(--color-fg);
+}
+.ob-panel-tab-dot {
+  position: absolute;
+  top: -2px;
+  right: -5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-accent, var(--color-fg));
+  animation: ob-fade var(--dur-move) var(--ease-out) both;
+}
 .ob-collapse-icon {
   transition: transform var(--dur-move) var(--ease-out);
 }

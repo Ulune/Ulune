@@ -68,7 +68,7 @@ function SynastryFigure() {
           overlays={w.overlays}
           starVisible={w.starVisible}
           midpointVisible={w.midpointVisible}
-          onSelect={w.pick}
+          onSelect={w.choose}
           transits={synastry.outerBodies}
           crossAspects={synastry.synastry.aspects}
           outerKind="synastry"

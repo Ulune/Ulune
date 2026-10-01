@@ -28,6 +28,7 @@ import { BirthTab } from "@/studio/dock/BirthTab";
 import { isWide, loadPanelWidth, savePanelWidth, type PanelWidth } from "@/studio/dock/dock-layout";
 import { ReadingTab } from "@/studio/dock/ReadingTab";
 import { useStudioStore, type DockTab } from "@/studio/store";
+import { useModeReading } from "@/studio/modes/data";
 import { onTablistKeyDown } from "@/lib/a11y/tablist";
 import { SHEET_MOVE_MS, captureStage, dropStage, playStage } from "@/lib/stage-flip";
 
@@ -75,6 +76,12 @@ export function Dock() {
   const [width, setWidth] = useState<PanelWidth>("normal");
   const [full, setFull] = useState(false);
   const detent: SheetDetent = !dockOpen ? "peek" : full ? "full" : "half";
+  // Something chosen on the chart while the panel is closed: the chart stays
+  // whole (store.choose) and the Reading tab carries its name, to open when
+  // the reader wants it.
+  const selectedId = useStudioStore((s) => s.selectedId);
+  const reading = useModeReading();
+  const waiting = !dockOpen && selectedId && reading ? reading.title : null;
 
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -285,6 +292,7 @@ export function Dock() {
           {tabs.map((tab) => {
             const on = dock === tab.id;
             const Icon = tab.icon;
+            const named = tab.id === "reading" && waiting ? waiting : null;
             return (
               <button
                 key={tab.id}
@@ -293,15 +301,19 @@ export function Dock() {
                 data-testid={`dock-tab-${tab.id}`}
                 aria-selected={on}
                 tabIndex={on ? 0 : -1}
-                aria-label={t(tab.label)}
-                title={t(tab.label)}
+                aria-label={named ? `${t(tab.label)} · ${named}` : t(tab.label)}
+                title={named ? `${t(tab.label)} · ${named}` : t(tab.label)}
+                data-waiting={named ? "" : undefined}
                 onPointerEnter={TAB_AHEAD[tab.id]}
                 onFocus={TAB_AHEAD[tab.id]}
                 onClick={() => onTab(tab.id)}
                 className={cn("ob-panel-tab", on && "is-on")}
               >
-                <Icon className="ob-panel-tab-icon" strokeWidth={1.75} />
-                <span className="ob-panel-tab-label">{t(tab.label)}</span>
+                <span className="ob-panel-tab-glyph">
+                  <Icon className="ob-panel-tab-icon" strokeWidth={1.75} />
+                  {named ? <span className="ob-panel-tab-dot" aria-hidden /> : null}
+                </span>
+                <span className="ob-panel-tab-label">{named ?? t(tab.label)}</span>
               </button>
             );
           })}

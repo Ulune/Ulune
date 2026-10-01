@@ -144,7 +144,7 @@ function TransitsFigure() {
           overlays={w.overlays}
           starVisible={w.starVisible}
           midpointVisible={w.midpointVisible}
-          onSelect={w.pick}
+          onSelect={w.choose}
           transits={transits.shownTransits}
           crossAspects={transits.sky?.aspects}
           outerKind="transit"

@@ -6,12 +6,14 @@ export function useWheelView() {
   const chart = useStudioStore((s) => s.chart);
   const selectedId = useStudioStore((s) => s.selectedId);
   const pick = useStudioStore((s) => s.pick);
+  const choose = useStudioStore((s) => s.choose);
   const casting = useStudioStore((s) => s.casting);
   const composing = useStudioStore((s) => s.composing);
   return {
     chart,
     selectedId,
     pick,
+    choose,
     casting,
     composing,
     visible: view.visible,

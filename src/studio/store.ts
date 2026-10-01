@@ -190,6 +190,8 @@ type StudioState = LibrarySlice &
     remove: (id: string) => Promise<void>;
     select: (id: string) => void;
     pick: (id: string) => void;
+    /** Choose on the chart itself: selected, the panel left as it is. */
+    choose: (id: string) => void;
     clear: () => void;
     setInput: (next: BirthInput) => void;
     /** Numerology: the birth name's Y's switched by hand (none: as the rule says), kept with the chart. */
@@ -544,6 +546,18 @@ export const useStudioStore = create<StudioState>((set, get) => ({
       selectedId: next,
       dock: next ? "reading" : get().dock,
       dockOpen: next ? true : get().dockOpen,
+    });
+  },
+  // Choosing something on the chart itself lights it and readies its reading,
+  // but never opens the panel: the chart stays whole, and the reader opens the
+  // reading when they want it (the card over the stage, ReadCard.tsx, or the
+  // panel's Reading tab). An open panel turns to the reading at once. (A row
+  // of a table or a list is picked: it asks for its reading.)
+  choose: (id) => {
+    const next = get().selectedId === id ? null : id;
+    set({
+      selectedId: next,
+      dock: next && get().dockOpen ? "reading" : get().dock,
     });
   },
   clear: () => set({ selectedId: null }),

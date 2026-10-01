@@ -41,6 +41,8 @@ async function runViewport(width) {
       if (el instanceof SVGElement) el.focus();
     });
     await page.keyboard.press("Enter");
+    // Choosing on the chart keeps the panel as it is: its reading is opened from the Reading tab.
+    await clickDockTab(page, "reading");
     await page.getByTestId("click-note").waitFor({ timeout: 8000 });
     const sunNote = await page.getByTestId("click-note").innerText();
     if (!/sun|soleil/i.test(sunNote)) throw new Error(`planet click-note missing sun: "${sunNote.slice(0, 80)}"`);
@@ -94,6 +96,7 @@ async function runViewport(width) {
     const outerSun = page.locator("[data-testid=transit-ring] [data-kind=transit][data-transit=sun]");
     await outerSun.focus();
     await page.keyboard.press("Enter");
+    await clickDockTab(page, "reading");
     await page.getByTestId("click-note").waitFor({ timeout: 8000 });
     await clickDockTab(page, "reading");
     await clickDockTab(page, "data");
@@ -236,6 +239,7 @@ async function runViewport(width) {
     const partnerSun = page.locator("[data-testid=synastry-ring] [data-kind=transit][data-transit=sun]");
     await partnerSun.focus();
     await page.keyboard.press("Enter");
+    await clickDockTab(page, "reading");
     await page.getByTestId("click-note").waitFor({ timeout: 8000 });
     await page.locator("[data-testid=synastry-ring]").click({ position: { x: 8, y: 8 } }).catch(() => {});
     await clickDockTab(page, "reading");

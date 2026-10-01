@@ -576,6 +576,10 @@ async function phone() {
     });
     if (layout.wheel < 340 || layout.square > 1 || !layout.tilesScroll || layout.sideways > 1) throw new Error(`phone layout ${JSON.stringify(layout)}`);
     await page.getByTestId("numerology-digit-3").tap();
+    // The wheel stays whole: the reading waits behind the Reading tab.
+    await page.waitForTimeout(300);
+    if ((await page.getByTestId("dock").getAttribute("data-dock-open")) === "true") throw new Error("a tap on the wheel opened the sheet");
+    await page.getByTestId("dock-tab-reading").tap();
     await page.getByTestId("click-note").waitFor({ timeout: 8000 });
     await page.waitForTimeout(700);
     const half = await page.evaluate(() => {

@@ -41,7 +41,7 @@ function NumerologyFigure() {
   const isNow = numbers.calendarYear === new Date().getFullYear();
   return (
     <div className="ulune-num-stage">
-      <NumerologyWheel chart={numbers} isNow={isNow} selectedId={w.selectedId} onSelect={w.pick} onClear={clear} />
+      <NumerologyWheel chart={numbers} isNow={isNow} selectedId={w.selectedId} onSelect={w.choose} onClear={clear} />
       <NumerologyYSwitch numbers={numbers} selectedId={w.selectedId} locale={locale} />
       <NumerologyYearStepper numbers={numbers} locale={locale} selectedId={w.selectedId} onSelect={w.pick} />
       <div className="ulune-num-tiles" role="group" aria-label={numerologyWheelText(locale, "tiles")} data-testid="num-tiles">

@@ -101,7 +101,8 @@ function DesignFigure() {
   // waits behind the card's button instead of a sheet rising over the chart.
   // What is only words (the layers) opens its reading at once.
   const select = (id: string) => {
-    if (wide || id.startsWith("hello:")) w.pick(id);
+    if (id.startsWith("hello:")) w.pick(id);
+    else if (wide) w.choose(id);
     else useStudioStore.setState((s) => ({ selectedId: s.selectedId === id ? null : id }));
   };
   return (

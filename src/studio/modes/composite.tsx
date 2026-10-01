@@ -72,7 +72,7 @@ function CompositeFigure() {
           overlays={w.overlays}
           starVisible={w.starVisible}
           midpointVisible={w.midpointVisible}
-          onSelect={w.pick}
+          onSelect={w.choose}
         />
       </WheelPort>
     </div>
