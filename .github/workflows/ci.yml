@@ -38,6 +38,8 @@ jobs:
       - name: Unit and precision tests
         run: npm run test:unit
       - run: npm run build
+      # The deploy check casts a chart through the page in Chromium.
+      - run: npx playwright install --with-deps chromium
       - name: The built server, as Vercel runs it
         run: npm run check:deploy
 
