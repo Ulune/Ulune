@@ -809,6 +809,14 @@ html.theme-switching * {
 .ulune-wheel-legend[data-place="foot"] .ob-aspect-scope {
   height: 28px;
 }
+/* A computer's strip: the aspect glyph is twice as big (26 px), the chip grows only by what it needs. */
+@media (min-width: 1024px) {
+  .ulune-wheel-legend[data-place="foot"] .ob-aspect-chip,
+  .ulune-wheel-legend[data-place="below"] .ob-aspect-chip,
+  .ulune-wheel-legend[data-place="foot"] .ob-aspect-scope {
+    height: 32px;
+  }
+}
 .ulune-wheel-legend[data-place="below"] {
   display: flex;
   justify-content: center;

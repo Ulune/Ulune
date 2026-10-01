@@ -14,6 +14,7 @@ import {
   HUE_CHIPS,
   nearestHueChip,
   oklchCss,
+  PLANET_INKS,
   resolveSwatch,
   type AspectKey,
   type ClassicPlanet,
@@ -21,6 +22,7 @@ import {
   type HueChipId,
   type LookState,
   type Oklch,
+  type PlanetInk,
   type StrokeWeight,
   type TypePairing,
 } from "@/lib/look";
@@ -83,6 +85,12 @@ const PAIRING_LABEL: Record<TypePairing, MessageKey> = {
   classic: "lookPairingClassic",
   editorial: "lookPairingEditorial",
   clean: "lookPairingClean",
+};
+
+const PLANET_INK_LABEL: Record<PlanetInk, MessageKey> = {
+  plain: "lookPlanetInkPlain",
+  traditional: "lookPlanetInkTraditional",
+  element: "lookPlanetInkElement",
 };
 
 const STROKE_LABEL: Record<StrokeWeight, MessageKey> = {
@@ -447,6 +455,24 @@ export function LookPanel({ page = "all" }: { page?: LookPanelPage }) {
               </span>
             </button>
           )}
+          {/* How every planet is coloured; a planet pinned below keeps its own colour. */}
+          <div className="mt-2" data-testid="look-planet-ink">
+            <p className="text-xs text-fg-muted">{t("lookPlanetInkKicker")}</p>
+            <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label={t("lookPlanets")}>
+              {PLANET_INKS.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  data-planet-ink={id}
+                  aria-pressed={(look.planetInk ?? "element") === id}
+                  onClick={() => patchLook((prev) => ({ ...prev, planetInk: id }))}
+                  className={`${PRESET} ${(look.planetInk ?? "element") === id ? CHIP_ON : CHIP_OFF}`}
+                >
+                  {t(PLANET_INK_LABEL[id])}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className={paged || planetsOpen ? "mt-3 flex flex-col gap-3" : "hidden"}>
             {CLASSIC_PLANETS.map((id) => {
               const override = look.planets[id];

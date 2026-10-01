@@ -40,6 +40,13 @@ export const look = {
   lookPairingClassic: ["Classic", "Classique"],
   lookPairingClean: ["Clean", "Net"],
   lookPairingEditorial: ["Editorial", "Éditorial"],
+  lookPlanetInkElement: ["By element", "Par élément"],
+  lookPlanetInkKicker: [
+    "Plain in the text colour, the classical colours, or tinted by the element of each planet’s sign.",
+    "Unies dans la couleur du texte, les couleurs classiques, ou teintées par l’élément du signe de chaque planète.",
+  ],
+  lookPlanetInkPlain: ["Plain", "Unies"],
+  lookPlanetInkTraditional: ["Traditional", "Traditionnelles"],
   lookPlanets: ["Planets", "Planètes"],
   lookPlanetsKicker: [
     "Auto follows each planet’s sign. Pick a hue to pin a glyph’s colour.",

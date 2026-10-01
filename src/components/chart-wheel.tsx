@@ -112,7 +112,8 @@ const R_PLANET = R_LABEL + 34;
 const R_ASPECT = Math.round(R_OUTER / (PHI * Math.sqrt(PHI)));
 /** House numbers: between the aspect circle and the degree labels. */
 const R_HOUSE_NUM = R_ASPECT + 18;
-const GLYPH = 21;
+/** Planet glyphs: the first thing read on the wheel (part 85a: 21 → 26). */
+const GLYPH = 26;
 /** Aspect type mark in the middle of a lit line — smaller than planet glyphs. */
 const ASPECT_MARK = 20;
 const ASPECT_MARK_CONJ = 16;
@@ -120,7 +121,10 @@ const ASPECT_MARK_QUINTILE = 26;
 const ASPECT_MARK_DISK = 10;
 const ASPECT_MARK_MIN_SPAN = 22;
 /** Filled disk around each glyph (matches the circle `r`). */
-const PLANET_DISK = 13;
+const PLANET_DISK = 16;
+/** The marks around a glyph (rings, overlay marks) were placed for a 13-unit disc: they scale with it. */
+const MK = PLANET_DISK / 13;
+const mk = (n: number) => Number((n * MK).toFixed(2));
 /** The disc of a glyph in focus, grown 1.4 times (styles.css): its degree label keeps clear of it. */
 const PLANET_DISK_GROWN = PLANET_DISK * 1.4;
 /** SVG units between disks — ~2px on the desktop wheel, ~1px on a phone. */
@@ -235,10 +239,13 @@ const DEGREE_DOT_R = 2.4;
 const REST_MARK_MIN_LEN = 40;
 const REST_MARK_GAP = 24;
 /** Degree labels: text size (units) on a desktop-sized wheel and on a small one (degree only). */
-const LABEL_FONT = 10.5;
-const LABEL_FONT_SM = 16;
-/** The second label ring, units further in (a label that would touch a neighbour): a label and its padding apart. */
-const LABEL_RING2 = { lg: 18, sm: 25 } as const;
+const LABEL_FONT = 9;
+const LABEL_FONT_SM = 13;
+/** The outer ring's degrees (transits, a partner) keep their size: they sit outside, with room. */
+const TRANSIT_LABEL_FONT = 10.5;
+const TRANSIT_LABEL_FONT_SM = 16;
+/** A degree along its planet's line: the gap after the glyph's disc, and before the line takes over again (units). */
+const DEG_GAP = 2.5;
 /** The outer ring's: enough for a level label to clear its neighbour's near the top and bottom of the wheel. */
 const TRANSIT_LABEL_RING2 = { lg: 18, sm: 24 } as const;
 /** House numbers: their size, and where they step in when a house is too full. */
@@ -477,14 +484,58 @@ function chevronPath(p1: { x: number; y: number }, p2: { x: number; y: number },
   return `${one(1)} ${one(-1)}`;
 }
 
-/** A degree label's text and box for the wheel's detail band (a small wheel shows the degree only, bigger). */
-function labelSpec(formatted: string, retrograde: boolean, fit: "sm" | "lg") {
+/**
+ * A planet's degree as written along its line (part 85a): the axes' size and
+ * font, no box; a small wheel shows the degree only. Retrograde is marked
+ * beside the glyph, so every degree has the same length.
+ */
+function labelSpec(formatted: string, _retrograde: boolean, fit: "sm" | "lg") {
   if (fit === "sm") {
     const txt = `${formatted.split("°")[0]}°`;
-    return { txt, font: LABEL_FONT_SM, w: txt.length * 0.62 * LABEL_FONT_SM + 8, h: 22 };
+    return { txt, font: LABEL_FONT_SM, w: txt.length * 0.6 * LABEL_FONT_SM + 1, h: LABEL_FONT_SM + 1 };
+  }
+  const txt = formatted;
+  return { txt, font: LABEL_FONT, w: txt.length * 0.6 * LABEL_FONT + 1, h: LABEL_FONT + 1 };
+}
+
+/** The outer ring's degree labels (transits, a partner): level, in a small box, as before. */
+function transitLabelSpec(formatted: string, retrograde: boolean, fit: "sm" | "lg") {
+  if (fit === "sm") {
+    const txt = `${formatted.split("°")[0]}°`;
+    return { txt, font: TRANSIT_LABEL_FONT_SM, w: txt.length * 0.62 * TRANSIT_LABEL_FONT_SM + 8, h: 22 };
   }
   const txt = `${formatted}${retrograde ? " ℞" : ""}`;
-  return { txt, font: LABEL_FONT, w: txt.length * 0.62 * LABEL_FONT + 7, h: 16 };
+  return { txt, font: TRANSIT_LABEL_FONT, w: txt.length * 0.62 * TRANSIT_LABEL_FONT + 7, h: 16 };
+}
+
+/**
+ * Where a degree goes along its planet's line: from just past the glyph's disc
+ * straight in along the glyph's spoke (a fanned glyph's too, so neighbours'
+ * degrees never cross), turned to read left to right. `tail` is where the
+ * line takes over again, on to the planet's true degree on the aspect circle.
+ */
+function radialLabel(glyph: { x: number; y: number }, w: number): LabelPlace & { start: number; end: number; tail: { x: number; y: number } } {
+  const dx = CX - glyph.x;
+  const dy = CY - glyph.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len;
+  const uy = dy / len;
+  // Clear of the glyph grown in focus (1.4 times), so lighting a planet never covers its degree.
+  const start = PLANET_DISK_GROWN - 1;
+  const mid = start + w / 2;
+  let rot = (Math.atan2(uy, ux) * 180) / Math.PI;
+  if (rot > 90) rot -= 180;
+  else if (rot < -90) rot += 180;
+  const end = start + w;
+  return {
+    x: glyph.x + ux * mid,
+    y: glyph.y + uy * mid,
+    rot,
+    at: "radial",
+    start,
+    end,
+    tail: { x: glyph.x + ux * (end + DEG_GAP), y: glyph.y + uy * (end + DEG_GAP) },
+  };
 }
 
 /** SVG rotation for a turned label (around its centre). */
@@ -869,7 +920,7 @@ const ChartWheelView = memo(function ChartWheelView({
   const glyphDiscs = useMemo<Disc[]>(() => placed.map((p) => ({ x: p.x, y: p.y, r: PLANET_DISK })), [placed]);
   const transitLabelAt = useMemo(() => {
     const items = transitPlaced.map((p) => {
-      const spec = labelSpec(p.formatted, p.retrograde, fit);
+      const spec = transitLabelSpec(p.formatted, p.retrograde, fit);
       return { id: p.id, angle: p.display, w: spec.w, h: spec.h };
     });
     const discs = transitPlaced.map((p) => ({ x: p.x, y: p.y, r: TRANSIT_DISK }));
@@ -1130,20 +1181,16 @@ const ChartWheelView = memo(function ChartWheelView({
    * or just under the yokes there, touching no other label (wheel-layout.ts).
    */
   const labelAt = useMemo(() => {
-    const items = placed.map((p) => {
+    // Each degree along its planet's line, from the glyph toward the aspect
+    // circle (part 85a): as thin across as a line of text, so wherever the
+    // glyphs fan apart their degrees do too.
+    const out = new Map<string, ReturnType<typeof radialLabel>>();
+    for (const p of placed) {
       const spec = labelSpec(p.formatted, p.retrograde, fit);
-      return { id: p.id, angle: p.display, w: spec.w, h: spec.h };
-    });
-    const r1 = R_PLANET - PLANET_DISK_GROWN - 1 - labelSpec("0°00'", false, fit).h / 2;
-    return placeLabels(items, (e, r) => polar(e, r, asc), { x: CX, y: CY }, {
-      r1,
-      r2: r1 - LABEL_RING2[fit],
-      discs: [...placed.map((p) => ({ x: p.x, y: p.y, r: PLANET_DISK_GROWN })), ...yokeDots],
-      hug: { floor: R_ASPECT + 2 },
-      turnCost: 2,
-      overlapCost: 25,
-    });
-  }, [placed, fit, asc, yokeDots]);
+      out.set(p.id, radialLabel({ x: p.x, y: p.y }, spec.w));
+    }
+    return out;
+  }, [placed, fit]);
   /** The degree labels as drawn (house numbers and their marks keep clear of them). */
   const labelBoxes = useMemo<OBox[]>(
     () =>
@@ -1747,7 +1794,7 @@ const ChartWheelView = memo(function ChartWheelView({
     }
     for (const p of transitPlaced) {
       points.push({ id: outerHit(p.id), x: p.x, y: p.y, core: TRANSIT_DISK });
-      const spec = labelSpec(p.formatted, p.retrograde, fit);
+      const spec = transitLabelSpec(p.formatted, p.retrograde, fit);
       const b = labelBox(transitLabelAt.get(p.id), polar(p.display, R_TRANSIT_LABEL, asc), spec.w, spec.h);
       points.push({ id: outerHit(p.id), x: b.x, y: b.y, core: 0, hw: b.hw, hh: b.hh });
     }
@@ -2497,7 +2544,8 @@ const ChartWheelView = memo(function ChartWheelView({
           const glyph = { x: p.x, y: p.y };
           const glyphFromTick = toward(tickJoin, glyph, PLANET_DISK);
           const inner = polar(p.ecliptic, R_ASPECT, asc);
-          const glyphFromInner = toward(inner, glyph, PLANET_DISK);
+          // The line resumes past the degree written along it (radialLabel).
+          const glyphFromInner = labelAt.get(p.id)?.tail ?? toward(inner, glyph, PLANET_DISK);
           // In a stellium the glyph is fanned off its degree. Pin the true
           // longitude on the tick ring so the leader reads as a pointer to a
           // marked degree, not as a stray line.
@@ -3224,7 +3272,7 @@ const ChartWheelView = memo(function ChartWheelView({
                 <circle
                   cx={p.x}
                   cy={p.y}
-                  r={18.5}
+                  r={mk(18.5)}
                   fill="none"
                   stroke="var(--color-halo)"
                   strokeWidth={1.8}
@@ -3236,7 +3284,7 @@ const ChartWheelView = memo(function ChartWheelView({
                 <circle
                   cx={p.x}
                   cy={p.y}
-                  r={17.2}
+                  r={mk(17.2)}
                   fill="none"
                   stroke={ink("var(--aspect-conj)")}
                   strokeWidth={1.8}
@@ -3248,7 +3296,7 @@ const ChartWheelView = memo(function ChartWheelView({
                 <circle
                   cx={p.x}
                   cy={p.y}
-                  r={19.4}
+                  r={mk(19.4)}
                   fill="none"
                   stroke={ink("var(--aspect-conj)")}
                   strokeWidth={1.8}
@@ -3261,7 +3309,7 @@ const ChartWheelView = memo(function ChartWheelView({
                 <circle
                   cx={p.x}
                   cy={p.y}
-                  r={15.4}
+                  r={mk(15.4)}
                   fill="none"
                   stroke={ink("var(--aspect-conj)")}
                   strokeWidth={1.8}
@@ -3273,7 +3321,7 @@ const ChartWheelView = memo(function ChartWheelView({
                 <circle
                   cx={p.x}
                   cy={p.y}
-                  r={15.4}
+                  r={mk(15.4)}
                   fill="none"
                   stroke={ink("var(--aspect-hard)")}
                   strokeWidth={1.8}
@@ -3286,7 +3334,7 @@ const ChartWheelView = memo(function ChartWheelView({
                 <circle
                   cx={p.x}
                   cy={p.y}
-                  r={16.2}
+                  r={mk(16.2)}
                   fill="none"
                   stroke="var(--color-fg-muted)"
                   strokeWidth={RING}
@@ -3299,13 +3347,13 @@ const ChartWheelView = memo(function ChartWheelView({
                 className="ulune-wheel-halo pointer-events-none"
                 cx={p.x}
                 cy={p.y}
-                r={13.2}
+                r={mk(13.2)}
                 fill="none"
                 stroke="var(--color-halo)"
                 strokeWidth={1.8}
               />
               {/* Borderless mask so the glyph floats clear of lines beneath. */}
-              <circle className="ulune-glyph-mask" cx={p.x} cy={p.y} r={12.5} fill="var(--color-bg-elevated)" />
+              <circle className="ulune-glyph-mask" cx={p.x} cy={p.y} r={mk(12.5)} fill="var(--color-bg-elevated)" />
               <g transform={`translate(${p.x}, ${p.y})`}>
                 <g className="ulune-glyph-scale">
                   <g transform={`translate(${-GLYPH / 2}, ${-GLYPH / 2})`}>
@@ -3316,8 +3364,8 @@ const ChartWheelView = memo(function ChartWheelView({
               <g className="pointer-events-none">
                 {overlayOn(overlays, "dignity") && flags?.dignity ? (
                   <text
-                    x={p.x + 11}
-                    y={p.y - 10}
+                    x={p.x + mk(11)}
+                    y={p.y - mk(10)}
                     textAnchor="middle"
                     fill="var(--color-fg)"
                     fontSize={7}
@@ -3329,8 +3377,8 @@ const ChartWheelView = memo(function ChartWheelView({
                 ) : null}
                 {overlayOn(overlays, "stationary") && flags?.stationary ? (
                   <rect
-                    x={p.x + 7}
-                    y={p.y + 6}
+                    x={p.x + mk(7)}
+                    y={p.y + mk(6)}
                     width={5}
                     height={5}
                     fill="var(--color-fg)"
@@ -3339,15 +3387,15 @@ const ChartWheelView = memo(function ChartWheelView({
                 ) : null}
                 {overlayOn(overlays, "fast") && flags?.fast ? (
                   <polygon
-                    points={`${p.x + 10},${p.y + 5} ${p.x + 16},${p.y + 8.5} ${p.x + 10},${p.y + 12}`}
+                    points={`${p.x + mk(10)},${p.y + mk(5)} ${p.x + mk(16)},${p.y + mk(8.5)} ${p.x + mk(10)},${p.y + mk(12)}`}
                     fill={ink("var(--el-fire)")}
                     opacity={0.85}
                   />
                 ) : null}
                 {overlayOn(overlays, "vocMoon") && p.id === "moon" && chart.patterns.vocMoon ? (
                   <text
-                    x={p.x - 11}
-                    y={p.y - 10}
+                    x={p.x - mk(11)}
+                    y={p.y - mk(10)}
                     textAnchor="middle"
                     fill="var(--el-water)"
                     fontSize={7}
@@ -3359,8 +3407,8 @@ const ChartWheelView = memo(function ChartWheelView({
                 ) : null}
                 {overlayOn(overlays, "oob") && flags?.oob ? (
                   <text
-                    x={p.x - 11}
-                    y={p.y + 12}
+                    x={p.x - mk(11)}
+                    y={p.y + mk(12)}
                     textAnchor="middle"
                     fill="var(--color-fg)"
                     fontSize={8}
@@ -3370,15 +3418,16 @@ const ChartWheelView = memo(function ChartWheelView({
                   </text>
                 ) : null}
               </g>
+              {/* Its degree, along its line toward the aspect circle, in its colour (part 85a).
+                  The box draws nothing: the 3D view reads where the degree stands from it. */}
               <rect
                 x={labelPt.x - spec.w / 2}
                 y={labelPt.y - spec.h / 2}
                 width={spec.w}
                 height={spec.h}
-                rx={3}
-                fill="var(--color-bg-elevated)"
+                fill="none"
+                stroke="none"
                 transform={labelTurn(place)}
-                data-label-at={place ? String(place.at) : undefined}
                 className="pointer-events-none"
               />
               <text
@@ -3386,14 +3435,40 @@ const ChartWheelView = memo(function ChartWheelView({
                 y={labelPt.y}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fill="var(--color-fg)"
+                fill="currentColor"
                 fontSize={spec.font}
                 fontFamily="var(--font-mono)"
                 transform={labelTurn(place)}
-                className="pointer-events-none"
+                data-label-at={place ? String(place.at) : undefined}
+                data-kind="planet-deg"
+                className="ulune-planet-deg pointer-events-none"
               >
                 {spec.txt}
               </text>
+              {p.retrograde ? (() => {
+                // Beside the glyph on the pinwheel's side, a little to one side
+                // (clear of its degree and of a fanned neighbour).
+                const len = Math.hypot(CX - p.x, CY - p.y) || 1;
+                const ux = (CX - p.x) / len;
+                const uy = (CY - p.y) / len;
+                const rx = p.x - ux * mk(9) - uy * mk(12);
+                const ry = p.y - uy * mk(9) + ux * mk(12);
+                return (
+                <text
+                  x={rx}
+                  y={ry}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fill="currentColor"
+                  fontSize={fit === "sm" ? 11 : 8}
+                  fontFamily="var(--font-mono)"
+                  data-kind="retro"
+                  className="pointer-events-none"
+                >
+                  ℞
+                </text>
+                );
+              })() : null}
             </g>
           );
         })}

@@ -8,7 +8,7 @@ import {
   isGlyphFamily,
   type GlyphFamily,
 } from "@/lib/chart/glyphs";
-import type { BodyId, ElementId, PlanetId, SignId } from "@/lib/chart/types";
+import { ANGLE_IDS, PLANET_IDS, type BodyId, type ElementId, type PlanetId, type SignId } from "@/lib/chart/types";
 
 export type Oklch = { h: number; c: number; l: number };
 
@@ -17,6 +17,9 @@ export type AspectKey = "conj" | "hard" | "soft" | "minor";
 export type ClassicPlanet = (typeof CLASSIC_BODIES)[number];
 export type TypePairing = "classic" | "editorial" | "clean";
 export type StrokeWeight = "thin" | "regular" | "heavy";
+/** How the planets are coloured: the text colour, their classical colours, or the element of their sign. */
+export type PlanetInk = "plain" | "traditional" | "element";
+export const PLANET_INKS: PlanetInk[] = ["plain", "traditional", "element"];
 
 export type LookState = {
   elements: Record<ElementKey, Oklch>;
@@ -27,6 +30,7 @@ export type LookState = {
   glyphFamily: GlyphFamily;
   textScale: number;
   stroke: StrokeWeight;
+  planetInk: PlanetInk;
 };
 
 export type HueChipId =
@@ -116,7 +120,40 @@ export const DEFAULT_LOOK: LookState = {
   glyphFamily: DEFAULT_GLYPH_FAMILY,
   textScale: 1,
   stroke: "regular",
+  planetInk: "element",
 };
+
+/**
+ * The planets' classical colours (the night swatch; the day one is derived as
+ * for any swatch, resolveSwatch). Traditions differ on a few; this is the
+ * common modern reading, Saturn lifted from black to stay visible at night.
+ */
+export const TRADITIONAL_PLANET_INK: Record<ClassicPlanet, Oklch> = {
+  sun: { h: 85, c: 0.15, l: 0.82 },
+  moon: { h: 250, c: 0.02, l: 0.86 },
+  mercury: { h: 55, c: 0.16, l: 0.75 },
+  venus: { h: 150, c: 0.15, l: 0.75 },
+  mars: { h: 25, c: 0.21, l: 0.64 },
+  jupiter: { h: 260, c: 0.15, l: 0.68 },
+  saturn: { h: 280, c: 0.06, l: 0.62 },
+  uranus: { h: 210, c: 0.12, l: 0.8 },
+  neptune: { h: 185, c: 0.1, l: 0.74 },
+  pluto: { h: 0, c: 0.15, l: 0.58 },
+} as Record<ClassicPlanet, Oklch>;
+
+/** The same colours on the light theme, deep enough to read on cream. */
+export const TRADITIONAL_PLANET_INK_DAY: Record<ClassicPlanet, Oklch> = {
+  sun: { h: 75, c: 0.14, l: 0.62 },
+  moon: { h: 250, c: 0.02, l: 0.55 },
+  mercury: { h: 50, c: 0.16, l: 0.58 },
+  venus: { h: 150, c: 0.14, l: 0.52 },
+  mars: { h: 25, c: 0.2, l: 0.52 },
+  jupiter: { h: 262, c: 0.16, l: 0.48 },
+  saturn: { h: 280, c: 0.07, l: 0.38 },
+  uranus: { h: 215, c: 0.11, l: 0.55 },
+  neptune: { h: 190, c: 0.09, l: 0.5 },
+  pluto: { h: 0, c: 0.14, l: 0.42 },
+} as Record<ClassicPlanet, Oklch>;
 
 /** First V1 gold air — khaki / brown-gray olive. Saved Looks still on this mix upgrade. */
 const MUDDY_V1_AIR_NIGHT: Oklch = { h: 95, c: 0.14, l: 0.78 };
@@ -211,6 +248,7 @@ export function cloneLook(look: LookState): LookState {
     glyphFamily: look.glyphFamily,
     textScale: look.textScale,
     stroke: look.stroke,
+    planetInk: look.planetInk ?? "element",
   };
 }
 
@@ -400,9 +438,14 @@ export function isClassicPlanet(id: string): id is ClassicPlanet {
 /** Which classic planets carry their own colour; only presence matters here (the colour itself is a CSS variable). */
 export type PlanetPaints = Partial<Record<ClassicPlanet, unknown>>;
 
+/**
+ * A planet's colour: its own pinned colour, else the Look's planet ink
+ * (`--pm-<id>`, written by applyLook for Plain and Traditional), else the
+ * element of its sign.
+ */
 export function planetPaint(id: string, sign: SignId, planets: PlanetPaints): string {
   if (isClassicPlanet(id) && planets[id]) return `var(--planet-${id})`;
-  return ELEMENT_COLOR[SIGN_META[sign].element];
+  return `var(--pm-${id}, ${ELEMENT_COLOR[SIGN_META[sign].element]})`;
 }
 
 export function mixerPlanetPaint(
@@ -414,7 +457,7 @@ export function mixerPlanetPaint(
   if (!on) return "var(--color-fg-subtle)";
   if (isClassicPlanet(id) && planets[id]) return `var(--planet-${id})`;
   const el = essential[id as PlanetId];
-  return el ? ELEMENT_COLOR[el] : "var(--color-fg)";
+  return `var(--pm-${id}, ${el ? ELEMENT_COLOR[el] : "var(--color-fg)"})`;
 }
 
 function parseOklch(raw: unknown, fallback: Oklch): Oklch {
@@ -465,6 +508,9 @@ export function parseLook(raw: unknown): LookState | null {
   }
   if (o.stroke === "thin" || o.stroke === "regular" || o.stroke === "heavy") {
     next.stroke = o.stroke;
+  }
+  if (o.planetInk === "plain" || o.planetInk === "traditional" || o.planetInk === "element") {
+    next.planetInk = o.planetInk;
   }
   return upgradeLegacyFactoryTokens(next);
 }
@@ -616,6 +662,18 @@ export function applyLook(root: HTMLElement, look: LookState, theme: Theme) {
     if (swatch) put(varName, oklchCss(resolveSwatch(swatch, theme)));
     else root.style.removeProperty(varName);
   }
+  // The planets' ink (planetPaint): by element needs no variable.
+  const inkMode = look.planetInk ?? "element";
+  for (const id of [...PLANET_IDS, ...ANGLE_IDS]) {
+    const varName = `--pm-${id}`;
+    if (inkMode === "element") {
+      root.style.removeProperty(varName);
+      continue;
+    }
+    const trad = inkMode === "traditional" && isClassicPlanet(id) ? TRADITIONAL_PLANET_INK[id] : null;
+    const day = trad && isClassicPlanet(id) ? TRADITIONAL_PLANET_INK_DAY[id] : null;
+    put(varName, trad ? oklchCss(resolveSwatch(trad, theme, day)) : "var(--color-fg)");
+  }
   const fonts = PAIRING_FONTS[look.pairing];
   put("--font-display", fonts.display);
   put("--font-sans", fonts.sans);
@@ -639,6 +697,7 @@ export function clearLook(root: HTMLElement) {
   for (const key of ASPECT_KEYS) root.style.removeProperty(ASPECT_VAR[key]);
   for (const key of ASPECT_KEYS) root.style.removeProperty(OUTER_ASPECT_VAR[key]);
   for (const id of CLASSIC_PLANETS) root.style.removeProperty(`--planet-${id}`);
+  for (const id of [...PLANET_IDS, ...ANGLE_IDS]) root.style.removeProperty(`--pm-${id}`);
   root.style.removeProperty("--font-display");
   root.style.removeProperty("--font-sans");
   root.style.removeProperty("--font-glyphs");

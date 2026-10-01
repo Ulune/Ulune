@@ -18,6 +18,9 @@ import {
   nearestHueChip,
   oklchCss,
   parseLook,
+  planetPaint,
+  TRADITIONAL_PLANET_INK,
+  TRADITIONAL_PLANET_INK_DAY,
   resolveSwatch,
   sameOklch,
 } from "../src/lib/look.ts";
@@ -218,4 +221,20 @@ test("DEFAULT_LOOK / DEFAULT_LOOK_DAY lockstep with CSS", () => {
     void oklchCss(night);
   }
   assert.match(css, /--aspect-outer-conj \{\n[\s\S]*initial-value: #dfa700;/);
+});
+
+test("planet colour mode: kept, read back, and painted through --pm-<id>", () => {
+  assert.equal(DEFAULT_LOOK.planetInk, "element");
+  assert.equal(parseLook({ planetInk: "plain" })?.planetInk, "plain");
+  assert.equal(parseLook({ planetInk: "traditional" })?.planetInk, "traditional");
+  assert.equal(parseLook({ planetInk: "neon" })?.planetInk, "element");
+  assert.equal(parseLook({})?.planetInk, "element");
+  // No pinned colour: the mode's variable, the element of its sign behind it.
+  assert.equal(planetPaint("mars", "aries", {}), "var(--pm-mars, var(--el-fire))");
+  // A pinned colour wins in every mode.
+  assert.equal(planetPaint("mars", "aries", { mars: { h: 1, c: 0.1, l: 0.5 } }), "var(--planet-mars)");
+  for (const id of ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]) {
+    assert.ok(TRADITIONAL_PLANET_INK[id] && TRADITIONAL_PLANET_INK_DAY[id], id);
+    assert.ok(TRADITIONAL_PLANET_INK_DAY[id].l < TRADITIONAL_PLANET_INK[id].l, `${id} is deeper by day`);
+  }
 });

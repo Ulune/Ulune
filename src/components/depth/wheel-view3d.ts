@@ -178,6 +178,8 @@ type Sprite = {
   house: number | null;
   stem: RGB;
   labelAt: { x: number; y: number } | null;
+  /** Its disc's radius as the flat chart draws it (its halo's), units. */
+  r: number;
   rise: Spring;
   scale: Spring;
   alpha: Spring;
@@ -1336,6 +1338,8 @@ export class WheelView3D {
       seen.add(id);
       const rect = el.querySelector(":scope > rect");
       const labelAt = rect ? { x: num(rect, "x") + num(rect, "width") / 2, y: num(rect, "y") + num(rect, "height") / 2 } : null;
+      const haloR = num(halo, "r");
+      const discR = Number.isFinite(haloR) && haloR > 0 ? haloR : DISC_R;
       const deg = (Math.atan2(y - cy, x - cx) * 180) / Math.PI;
       const wave = ((((180 - deg) % 360) + 360) % 360) / 360;
       const outer = el.getAttribute("data-kind") === "transit";
@@ -1343,7 +1347,7 @@ export class WheelView3D {
       const s = this.sprites.get(id);
       const key = focusKeyOf(el);
       if (s) {
-        Object.assign(s, { el, key, x, y, wave, outer, stem, labelAt, house: outer ? null : this.houseAt(x, y) });
+        Object.assign(s, { el, key, x, y, wave, outer, stem, labelAt, r: discR, house: outer ? null : this.houseAt(x, y) });
       } else {
         this.sprites.set(id, {
           id,
@@ -1356,6 +1360,7 @@ export class WheelView3D {
           house: outer ? null : this.houseAt(x, y),
           stem,
           labelAt,
+          r: discR,
           rise: makeSpring(0, EASE),
           scale: makeSpring(1, FADE),
           alpha: makeSpring(1, FADE),
@@ -2364,7 +2369,7 @@ export class WheelView3D {
       // Never too small to read: a far body on a small stage grows a little.
       const unitPx = (f.k * fit) / depth;
       s.upDepth = depth;
-      s.upScale = Math.max(0.5, s.scale.x) * boost(2 * DISC_R * Math.max(0.5, s.scale.x), unitPx, MIN_GLYPH_PX);
+      s.upScale = Math.max(0.5, s.scale.x) * boost(2 * s.r * Math.max(0.5, s.scale.x), unitPx, MIN_GLYPH_PX);
       s.upLabel = s.labelCell ? boost(LABEL_TEXT * s.labelCell.h, unitPx, MIN_LABEL_PX) : 1;
       up.push(s);
     }
@@ -2381,7 +2386,7 @@ export class WheelView3D {
       if (isSprite(u)) {
         const s = u;
         const sc = s.upScale;
-        drawQuad(s.x, s.y, s.nowZ, GLYPH_HALF * sc, GLYPH_HALF * sc, axes, DISC_R + 2, s.alpha.x, s.glyphCell, 0, hc, Math.max(0, s.halo.x), DISC_R * sc, (0.9 / k) * sc, 0.45 * sc);
+        drawQuad(s.x, s.y, s.nowZ, GLYPH_HALF * sc, GLYPH_HALF * sc, axes, s.r + 2, s.alpha.x, s.glyphCell, 0, hc, Math.max(0, s.halo.x), s.r * sc, (0.9 / k) * sc, 0.45 * sc);
         const label = s.labelCell;
         if (label && s.labelAt) {
           const lb = s.upLabel;
@@ -2523,13 +2528,13 @@ export class WheelView3D {
       if (s.nowSeen !== this.frameNo) continue;
       projectInto(sceneM, s.x, s.y, s.nowZ, PRJ);
       const unitPx = (k * fit) / PRJ[2];
-      const sc = Math.max(0.5, s.scale.x) * boost(2 * DISC_R * Math.max(0.5, s.scale.x), unitPx, MIN_GLYPH_PX);
+      const sc = Math.max(0.5, s.scale.x) * boost(2 * s.r * Math.max(0.5, s.scale.x), unitPx, MIN_GLYPH_PX);
       if (s.alpha.x > 0.2) {
         const d = discs[nd] ?? (discs[nd] = { id: "", x: 0, y: 0, r: 0 });
         d.id = s.id;
         d.x = PRJ[0];
         d.y = PRJ[1];
-        d.r = DISC_R * sc * unitPx;
+        d.r = s.r * sc * unitPx;
         nd += 1;
       }
       const cell = s.labelCell;
@@ -2615,8 +2620,8 @@ export class WheelView3D {
       const y = PRJ[1];
       const w = PRJ[2];
       const unitPx = (f.k * fit) / w;
-      const sc = Math.max(0.5, s.scale.x) * boost(2 * DISC_R * Math.max(0.5, s.scale.x), unitPx, MIN_GLYPH_PX);
-      const r = (DISC_R + 1) * sc * unitPx;
+      const sc = Math.max(0.5, s.scale.x) * boost(2 * s.r * Math.max(0.5, s.scale.x), unitPx, MIN_GLYPH_PX);
+      const r = (s.r + 1) * sc * unitPx;
       // A body sinking out of another focus is still found where it stands
       // at rest: it must not slip out from under a pointer on its way to it
       // (crossing its neighbour's house on the way sank it out of reach).

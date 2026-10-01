@@ -119,6 +119,27 @@ function useTouch(): boolean {
   return touch;
 }
 
+/**
+ * The aspect glyph in the strip: twice its old size on a computer, half again
+ * on a phone, so each aspect is known at a glance (part 85a); the line
+ * sample and the count keep their size.
+ */
+const WIDE_QUERY = "(min-width: 1024px)";
+function subscribeWide(fn: () => void) {
+  if (typeof window === "undefined" || !window.matchMedia) return () => {};
+  const mq = window.matchMedia(WIDE_QUERY);
+  mq.addEventListener("change", fn);
+  return () => mq.removeEventListener("change", fn);
+}
+function useStripGlyphSize(): number {
+  const wide = useSyncExternalStore(
+    subscribeWide,
+    () => (typeof window !== "undefined" && window.matchMedia ? window.matchMedia(WIDE_QUERY).matches : true),
+    () => true,
+  );
+  return wide ? 26 : 19;
+}
+
 export function AspectStrip({
   rows,
   hidden,
@@ -134,6 +155,7 @@ export function AspectStrip({
 }) {
   const { t, locale } = useI18n();
   const touch = useTouch();
+  const glyphPx = useStripGlyphSize();
   // What the strip says about the chip under the pointer, in focus or just
   // tapped: each aspect's name, its count and what a click or a tap does
   // (a hover title never shows on a phone, and shows late with a mouse).
@@ -238,7 +260,7 @@ export function AspectStrip({
             }}
           >
             <AspectSwatch type={type} />
-            <AspectGlyph id={type} size={13} className="ob-aspect-chip-glyph" />
+            <AspectGlyph id={type} size={glyphPx} className="ob-aspect-chip-glyph" />
             <span className="ob-aspect-chip-name">{name}</span>
             <span className="ob-aspect-chip-n">{shown}</span>
           </button>

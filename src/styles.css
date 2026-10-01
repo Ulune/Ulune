@@ -1163,6 +1163,14 @@ html.theme-ready body {
    writes data-grow), glyph and disc together; no halo round it (part 82).
    (Everything a focus involves growing made the glyphs pulse as the pointer
    crossed the chart: only these.) */
+/* A planet's degree along its line (part 85a): a thin halo of the wheel's
+   face keeps it legible where a yoke or an aspect line passes under it. */
+.ulune-wheel .ulune-planet-deg {
+  paint-order: stroke;
+  stroke: var(--color-bg-elevated);
+  stroke-width: 2.6px;
+  stroke-linejoin: round;
+}
 .ulune-wheel .ulune-glyph-mask {
   transform-box: fill-box;
   transform-origin: center;
