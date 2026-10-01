@@ -1196,21 +1196,16 @@ html.theme-switching * {
     display: none !important;
   }
 
-  /* Panel on: the stage sits above the sheet; it never paints under it. */
-  /* Opening: the stage shrinks at once. Closing: it grows only once the sheet
-     has slid away, so nothing is ever painted under the sheet. */
+  /* Panel on: the stage sits above the sheet. It takes its new size at once,
+     both ways, and the wheel and the rows under it move there with the sheet
+     (stage-flip.ts plays them from where they stood): no snap at the start of
+     an opening or at the end of a closing. */
   .ob-body[data-panel="on"] .ob-stage {
     position: absolute;
     inset: 0 0 var(--ob-peek-h) 0;
-    transition: bottom 0s linear var(--dur-sheet);
   }
   .ob-body[data-panel="on"]:has(.ob-panel:not([data-detent="peek"])) .ob-stage {
     bottom: 50%;
-    transition: none;
-  }
-  .ob-body[data-panel="on"]:has(.ob-panel[data-dragging]) .ob-stage,
-  .ob-body[data-panel="on"]:has(.ob-panel:not([data-ready])) .ob-stage {
-    transition: none;
   }
   .ob-body[data-panel="on"]:has(.ob-panel:not([data-detent="peek"])) .ob-foot-cap {
     display: none;
@@ -1231,10 +1226,11 @@ html.theme-switching * {
     transform: translateY(calc(100% - var(--ob-vis)));
     will-change: transform;
   }
+  /* The slide: quick off the mark, a long soft landing (a phone's own sheets). */
   .ob-panel[data-ready] {
     transition:
-      transform var(--dur-sheet) var(--ease-out),
-      border-radius var(--dur-sheet) var(--ease-out);
+      transform var(--sheet-move) var(--sheet-ease),
+      border-radius var(--sheet-move) var(--sheet-ease);
   }
   .ob-panel[data-detent="half"] {
     --ob-vis: 50%;
@@ -1282,6 +1278,14 @@ html.theme-switching * {
      of a reading could never be scrolled into view. */
   .ob-panel-body {
     max-height: calc(var(--ob-vis) - var(--ob-peek-h));
+  }
+  /* While the sheet is dragged or slides, its body stays whole and shown: a
+     closing sheet no longer goes blank as it starts down, a shrinking one is
+     not cut short on screen, and a drag does not lay out the reading again
+     at every move. It takes its height once the sheet has stopped. */
+  .ob-panel:is([data-dragging], [data-moving]) .ob-panel-body {
+    visibility: visible;
+    max-height: calc(100% - var(--ob-peek-h));
   }
   /* The sheet open leaves a small wheel above it: the first-run hint waits. */
   .ob-body:has(.ob-panel:not([data-detent="peek"])) .ulune-wheel-hint {

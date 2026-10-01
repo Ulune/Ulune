@@ -267,7 +267,7 @@ html.light {
   --tracking-kicker: 0.08em;
   --tracking-display: -0.02em;
 
-  /* Motion: fast in, faster out. Nothing over 220ms. */
+  /* Motion: fast in, faster out. Nothing over 220ms but the sheet's slide. */
   --dur-press: 90ms;
   --dur-hover: 120ms;
   --dur-out: 100ms;
@@ -275,6 +275,11 @@ html.light {
   --dur-swap: 150ms;
   --dur-move: 180ms;
   --dur-sheet: 200ms;
+  /* The bottom sheet's slide and the stage moving with it (stage-flip.ts
+     SHEET_MOVE_MS, SHEET_EASE): longer than the chrome's, it travels across
+     the screen. */
+  --sheet-move: 280ms;
+  --sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
   --dur-theme: 200ms;
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   /* Chart motion (cinematic pass, the motion plan): starts at

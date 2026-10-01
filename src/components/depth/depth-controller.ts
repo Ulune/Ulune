@@ -50,6 +50,14 @@ export const LENS_MAX = 3;
 const LENS_STEPS_PER_2X = 3;
 /** Frames slower than this count toward the lite-mode watchdog. */
 const SLOW_FRAME_MS = 40;
+/**
+ * The most time one frame moves the springs by: twice the frames before it, at
+ * least this. A frame the page held up (the 3D view's first picture, a long
+ * task) used to carry the motion that far in one step, a visible jump; it now
+ * moves as far as an ordinary frame or two. (A device that draws every frame
+ * slowly keeps its pace: its ordinary frames are long.)
+ */
+const MAX_STEP_MS = 50;
 const SLOW_FRAMES_TO_LITE = 20;
 
 export type DepthOptions = {
@@ -87,6 +95,11 @@ export class DepthController {
   private lastPerspective = "";
   private raf = 0;
   private last = 0;
+  /** Inside a frame: a kick then only asks for the next one (never two loops). */
+  private ticking = false;
+  private kicked = false;
+  /** How long this device's frames usually take (ms, a running average). */
+  private usualFrame = 1000 / 60;
   private slow = 0;
   private cameraOn = false;
   lite = false;
@@ -579,6 +592,10 @@ export class DepthController {
   }
 
   kick() {
+    if (this.ticking) {
+      this.kicked = true;
+      return;
+    }
     if (this.raf || typeof window === "undefined") return;
     this.last = performance.now();
     this.raf = window.requestAnimationFrame(this.tick);
@@ -587,6 +604,25 @@ export class DepthController {
 
   private tick = (now: number) => {
     this.raf = 0;
+    this.ticking = true;
+    this.kicked = false;
+    let busy = false;
+    try {
+      busy = this.step(now);
+    } finally {
+      this.ticking = false;
+    }
+    if (busy || this.kicked) {
+      this.kicked = false;
+      this.raf = window.requestAnimationFrame(this.tick);
+      this.stack.classList.add("is-moving");
+    } else {
+      this.stack.classList.remove("is-moving");
+    }
+  };
+
+  /** One frame: step the springs and the extras, write the camera. True while anything still moves. */
+  private step(now: number): boolean {
     const t0 = performance.now();
     const dtMs = now - this.last;
     this.last = now;
@@ -597,7 +633,9 @@ export class DepthController {
     } else {
       this.slow = 0;
     }
-    const dt = dtMs / 1000;
+    const cap = Math.max(MAX_STEP_MS, 2 * this.usualFrame);
+    if (dtMs > 0 && dtMs < 250) this.usualFrame += (Math.min(dtMs, cap) - this.usualFrame) * 0.2;
+    const dt = Math.min(Math.max(dtMs, 0), cap) / 1000;
     let busy = false;
     busy = stepSpring(this.rx, dt, now) || busy;
     busy = stepSpring(this.rz, dt, now) || busy;
@@ -619,12 +657,8 @@ export class DepthController {
     // Opt-in frame-cost probe for QA (window.__uluneDepthProfile = []).
     const probe = (window as unknown as { __uluneDepthProfile?: number[] }).__uluneDepthProfile;
     if (probe) probe.push(performance.now() - t0);
-    if (busy) {
-      this.raf = window.requestAnimationFrame(this.tick);
-    } else {
-      this.stack.classList.remove("is-moving");
-    }
-  };
+    return busy;
+  }
 
   private enterLite() {
     this.lite = true;

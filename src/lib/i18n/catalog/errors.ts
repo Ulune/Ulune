@@ -38,6 +38,10 @@ export const errors = {
     "Use a time like 14:30, or tick “I don’t know the time”.",
     "Utilisez une heure comme 14:30, ou cochez «\u202fJe ne connais pas l’heure\u202f».",
   ],
+  err_birth_time_missing: [
+    "Add the birth time, or tick “I don’t know the time”.",
+    "Indiquez l’heure de naissance, ou cochez «\u202fJe ne connais pas l’heure\u202f».",
+  ],
   err_birth_time_invalid: ["That time isn’t valid.", "Cette heure n’est pas valide."],
   err_birth_place_missing: ["Choose a birthplace from the list.", "Choisissez un lieu de naissance dans la liste."],
   err_chart_houses_failed: [

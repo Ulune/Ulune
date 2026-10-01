@@ -291,6 +291,10 @@ export function WheelZoom({
     let last = { d: 0, x: 0, y: 0, w: 0, h: 0 };
     let frame = 0;
     const applySize = () => {
+      // The stage moving with the sheet scales the wheel's frame for a moment
+      // (stage-flip.ts): what is on screen then is not its room. It asks again
+      // once the move is over.
+      if (port.closest("[data-flipping]")) return;
       const portRect = port.getBoundingClientRect();
       if (portRect.width < 8) return;
       const inset =
@@ -366,10 +370,14 @@ export function WheelZoom({
     ro.observe(port);
     if (port.ownerDocument.body) ro.observe(port.ownerDocument.body);
     window.addEventListener("resize", schedule);
+    // The stage moving with the sheet (stage-flip.ts) needs the wheel's new
+    // size at once, to play the move from the old one.
+    port.addEventListener("ulune:refit", applySize);
     return () => {
       if (frame) cancelAnimationFrame(frame);
       ro.disconnect();
       window.removeEventListener("resize", schedule);
+      port.removeEventListener("ulune:refit", applySize);
     };
   }, [paint]);
 
@@ -555,6 +563,8 @@ export function WheelZoom({
         aria-label={t("depthView3d")}
         title={t("depthView3dHint")}
         onPointerEnter={preloadView3D}
+        // A finger has no hover: the download starts as it touches.
+        onPointerDown={preloadView3D}
         onFocus={preloadView3D}
         onClick={() => setDepthPrefs({ view: depth.view === "3d" ? "flat" : "3d" })}
       >

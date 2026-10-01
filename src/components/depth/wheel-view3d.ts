@@ -809,6 +809,16 @@ export class WheelView3D {
   private draws = 0;
   /** The live chart hides only once the canvas has drawn over it (render), so the stage is never empty in between. */
   private revealOnDraw = false;
+  /**
+   * The camera to tip into once the first picture is on the canvas. The first
+   * frame of a new view is the slow one (its pictures reach the GPU, its
+   * shaders are made): drawn flat, exactly as the chart it replaces, and the
+   * tilt starts after it, from flat, instead of jumping in part way.
+   */
+  private enterCam: { rx: number; rz: number } | null = null;
+  /** How much the page scales the stage (a zoomed page), read when it is not moving. */
+  private pageZoom = 1;
+  private enterAfter = 0;
 
   constructor(depth: DepthController, base: SVGSVGElement, hooks: View3DHooks, reduced: () => boolean) {
     this.depth = depth;
@@ -975,8 +985,13 @@ export class WheelView3D {
   private dpr(): number {
     if (typeof window === "undefined") return 1;
     const scene = this.depth.scene;
-    const rect = scene.getBoundingClientRect();
-    const zoom = scene.clientWidth ? rect.width / scene.clientWidth : 1;
+    // The stage moving with the sheet scales the frame for a moment
+    // (stage-flip.ts): that is not a zoom, and draws nothing again.
+    if (!scene.closest("[data-flipping]")) {
+      const rect = scene.getBoundingClientRect();
+      this.pageZoom = scene.clientWidth ? rect.width / scene.clientWidth : 1;
+    }
+    const zoom = this.pageZoom;
     const want = (window.devicePixelRatio || 1) * Math.max(1, zoom);
     return this.depth.lite ? Math.min(1, want) : Math.min(want, glDprCap());
   }
@@ -1176,9 +1191,13 @@ export class WheelView3D {
         if (this.reduced()) {
           this.depth.setCamera(cam);
           settle(this.t, 1);
-        } else {
+        } else if (this.t.x > 0.001 || !this.depth.isFlat()) {
+          // Back into 3D while it was still settling out: on from where it is.
           this.depth.setCamera(cam, SPRINGS.view);
           aim(this.t, 1, SPRINGS.view);
+        } else {
+          this.enterCam = cam;
+          this.enterAfter = this.frameNo;
         }
       }
       this.depth.kick();
@@ -1841,7 +1860,17 @@ export class WheelView3D {
 
   private step(now: number, dt: number): boolean {
     this.moved = false;
-    let busy = this.adv(this.t, dt, now);
+    let entering = false;
+    if (this.enterCam) {
+      if (!this.entered) this.enterCam = null;
+      else if (this.frameNo > this.enterAfter) {
+        // The flat first picture is up: tip in from it.
+        this.depth.setCamera(this.enterCam, SPRINGS.view);
+        aim(this.t, 1, SPRINGS.view);
+        this.enterCam = null;
+      } else entering = true;
+    }
+    let busy = this.adv(this.t, dt, now) || entering;
     for (const s of this.sprites.values()) {
       busy = this.adv(s.rise, dt, now) || busy;
       busy = this.adv(s.scale, dt, now) || busy;

@@ -7,6 +7,7 @@ import {
   isCompleteBirthTime,
   isValidBirthTime,
   maskBirthTime,
+  maskEuropeanDate,
   parseCoords,
   parseDate,
   parseTime,
@@ -95,6 +96,18 @@ function focusControl(id: string) {
     const el = document.getElementById(id);
     if (el instanceof HTMLElement) el.focus();
   });
+}
+
+/**
+ * Whether a finished date or time moves on to the next field by itself. Not on
+ * a touch screen: a phone's keyboard can stay with the field it was typing in
+ * when the focus moves without a tap (the time's digits went into the full date
+ * field and were dropped, and the chart was cast for an unknown time). There
+ * the keyboard's own Next and a tap move on.
+ */
+function advancesByItself(): boolean {
+  if (typeof window === "undefined" || !window.matchMedia) return true;
+  return !window.matchMedia("(pointer: coarse)").matches;
 }
 
 /** The field a message is about: it is marked invalid and described by the message. */
@@ -217,6 +230,29 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
     setPicked(Number.isFinite(value.latitude) && Number.isFinite(value.longitude));
   }, [incoming, value]);
 
+  // What was typed before the page had started (a slow phone shows the form
+  // before its script runs): the fields hold it, the form did not hear it.
+  // It is taken in now, read the way typing it would have been.
+  useEffect(() => {
+    const typed = (id: string) => {
+      const el = document.getElementById(id);
+      return el instanceof HTMLInputElement ? el.value : "";
+    };
+    const d = draftRef.current;
+    const early: Partial<BirthInput> = {};
+    const name = typed("native-name");
+    if (name && !d.name) early.name = name;
+    const date = typed("birth-date");
+    if (date && !d.date) early.date = dateForField(maskEuropeanDate(date));
+    const time = typed("birth-time");
+    if (time && !d.time && !noTime) early.time = maskBirthTime(time);
+    if (Object.keys(early).length) patch(early);
+    const place = typed("birth-place");
+    if (place && !query) setQuery(place);
+    // Once, as the form starts.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   /** Say something under the form; with a field, mark that field and tie the message to it. */
   function flag(text: string | null, field: FieldId | null = null) {
     setHint(text);
@@ -249,7 +285,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
     const prev = draftRef.current.date;
     // A repeated-hour choice belongs to the moment it was made for.
     patch({ date: next, fold: undefined });
-    if (!isCompleteBirthDate(prev) && isCompleteBirthDate(next)) {
+    if (!isCompleteBirthDate(prev) && isCompleteBirthDate(next) && advancesByItself()) {
       focusControl("birth-time");
     }
   }
@@ -270,6 +306,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
       window.clearTimeout(advanceTimer.current);
       advanceTimer.current = null;
     }
+    if (!advancesByItself()) return;
     if (/^\d{2}:\d{2}:\d{2}$/.test(next.trim()) && isValidBirthTime(next)) {
       focusControl("birth-place");
       return;
@@ -419,6 +456,13 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
       }
       next.date = read.ok;
       commitDraft(next);
+    }
+    // No time and the box not ticked: ask, never cast for an unknown time
+    // without being told (a time that did not register made a wrong chart).
+    if (!noTime && !next.time.trim()) {
+      flag(t("err_birth_time_missing"), "birth-time");
+      focusControl("birth-time");
+      return;
     }
     if (!noTime && next.time.trim() && !isValidBirthTime(next.time)) {
       const read = readTime(next.time);

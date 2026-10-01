@@ -1,6 +1,6 @@
 {
   "name": "ulune",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Astrology charts, Human Design and numerology, calculated with the Swiss Ephemeris. Free, no account; charts stay on the reader's device.",
   "license": "AGPL-3.0-or-later",

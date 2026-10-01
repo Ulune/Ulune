@@ -97,7 +97,10 @@ async function glyphsIn(page, selector) {
 }
 
 async function portSize(page) {
-  return page.locator("[data-testid=studio-natal] .ulune-wheel-zoom-inner").evaluate((el) => {
+  return page.locator("[data-testid=studio-natal] .ulune-wheel-zoom-inner").evaluate(async (el) => {
+    // The stage moving with the sheet (stage-flip.ts) scales the wheel's frame for a moment: its size once it has landed.
+    const fig = el.closest(".ob-figure");
+    if (fig) await Promise.all(fig.getAnimations().map((a) => a.finished.catch(() => null)));
     const r = el.getBoundingClientRect();
     return { w: r.width, h: r.height };
   });

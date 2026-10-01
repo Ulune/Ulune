@@ -207,6 +207,13 @@ const CUSP_CADENT_W = 1.1;
 const YOKE_IN = { lg: 6, sm: 7 } as const;
 const YOKE_STEP = { lg: 4.2, sm: 6.5 } as const;
 const YOKE_LANES = { lg: 3, sm: 3 } as const;
+/**
+ * Aspect lines on a small wheel (a phone): their widths are device pixels at
+ * any size (non-scaling strokes), so on a wheel under ~430 px they weighed as
+ * much as on a large one and crowded it. Thinner there; the orb still sets
+ * each line's weight against the others.
+ */
+const ASPECT_LINE_K = { lg: 1, sm: 0.7 } as const;
 /** Radius of a yoke's rounded corners (units). */
 const YOKE_CORNER = 2.6;
 /** A yoke is never shorter than this (degrees): a planet on an angle still gets one. */
@@ -2597,15 +2604,16 @@ const ChartWheelView = memo(function ChartWheelView({
 
         {chords.map((row) => {
           const { a, p1, p2, color, jewel, focusId: id, rank, ends, yoke, restMark } = row;
-          const visBase = aspectLook(a, "base", strokeScale, "dark");
-          const visLit = aspectLook(a, "lit", strokeScale, "dark");
-          const visDim = aspectLook(a, "dim", strokeScale, "dark");
+          const lineScale = strokeScale * ASPECT_LINE_K[fit];
+          const visBase = aspectLook(a, "base", lineScale, "dark");
+          const visLit = aspectLook(a, "lit", lineScale, "dark");
+          const visDim = aspectLook(a, "dim", lineScale, "dark");
           // Only the opacities differ on the light theme (widths and dashes
           // don't): both are carried, and the focus paint writes the theme's
           // own (wheel-focus.ts), so a theme switch re-renders nothing here.
-          const dayBase = aspectLook(a, "base", strokeScale, "light").opacity;
-          const dayLit = aspectLook(a, "lit", strokeScale, "light").opacity;
-          const dayDim = aspectLook(a, "dim", strokeScale, "light").opacity;
+          const dayBase = aspectLook(a, "base", lineScale, "light").opacity;
+          const dayLit = aspectLook(a, "lit", lineScale, "light").opacity;
+          const dayDim = aspectLook(a, "dim", lineScale, "light").opacity;
           // What the paint, the 3D view and the relief read off every line.
           const lineData = {
             stroke: color,

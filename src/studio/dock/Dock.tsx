@@ -13,6 +13,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type FocusEvent as ReactFocusEvent,
@@ -28,6 +29,7 @@ import { isWide, loadPanelWidth, savePanelWidth, type PanelWidth } from "@/studi
 import { ReadingTab } from "@/studio/dock/ReadingTab";
 import { useStudioStore, type DockTab } from "@/studio/store";
 import { onTablistKeyDown } from "@/lib/a11y/tablist";
+import { SHEET_MOVE_MS, captureStage, dropStage, playStage } from "@/lib/stage-flip";
 
 export const PANEL_TABS: {
   id: DockTab;
@@ -87,6 +89,36 @@ export function Dock() {
     if (!dockOpen) setFull(false);
   }, [dockOpen]);
 
+  // The stage moves with the sheet (stage-flip.ts): where it stands is read as
+  // the sheet is told to open or close (the page not yet changed), and played
+  // back from there once it has.
+  useEffect(
+    () =>
+      useStudioStore.subscribe((s, prev) => {
+        if (s.dockOpen !== prev.dockOpen && !isWide()) captureStage();
+      }),
+    [],
+  );
+  const shownDetent = useRef(detent);
+  useLayoutEffect(() => {
+    if (shownDetent.current === detent) return;
+    shownDetent.current = detent;
+    const el = sheetRef.current;
+    if (!ready || isWide() || !el) {
+      dropStage();
+      return;
+    }
+    playStage();
+    // While it slides, the sheet keeps its whole body (shell.css): nothing in
+    // it is cut off or hidden before it is out of sight.
+    el.setAttribute("data-moving", "");
+    const id = window.setTimeout(() => el.removeAttribute("data-moving"), SHEET_MOVE_MS + 40);
+    return () => {
+      window.clearTimeout(id);
+      el.removeAttribute("data-moving");
+    };
+  }, [detent, ready]);
+
   const flipWidth = useCallback(() => {
     setWidth((w) => {
       const next = w === "wide" ? "normal" : "wide";
@@ -109,7 +141,14 @@ export function Dock() {
 
   // --- compact sheet drag ---------------------------------------------------
   const sheetRef = useRef<HTMLElement>(null);
-  const drag = useRef<{ y: number; start: number; moved: boolean; h: number } | null>(null);
+  const drag = useRef<{
+    y: number;
+    start: number;
+    moved: boolean;
+    h: number;
+    /** The last moves (time, px shown), for the speed it is let go at. */
+    trail: { t: number; v: number }[];
+  } | null>(null);
   const suppressClick = useRef(false);
   /**
    * Where the dragged sheet stands (px shown). Written straight onto the sheet
@@ -133,25 +172,32 @@ export function Dock() {
   const visibleFor = useCallback((d: SheetDetent, h: number) => {
     const peek = 52;
     if (d === "peek") return peek;
-    if (d === "half") return Math.round(h * 0.56);
+    // As shell.css shows it (--ob-vis: 50%): a drag starts where the sheet is.
+    if (d === "half") return Math.round(h * 0.5);
     return h;
   }, []);
 
   const onHeadDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (isWide() || e.button !== 0) return;
     const h = sheetRef.current?.parentElement?.getBoundingClientRect().height ?? 0;
-    drag.current = { y: e.clientY, start: visibleFor(detent, h), moved: false, h };
+    drag.current = { y: e.clientY, start: visibleFor(detent, h), moved: false, h, trail: [] };
   };
   const onHeadMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     const d = drag.current;
     if (!d) return;
-    const dy = d.y - e.clientY;
-    if (!d.moved && Math.abs(dy) < 6) return;
     if (!d.moved) {
+      if (Math.abs(d.y - e.clientY) < 6) return;
       d.moved = true;
+      // From here on the sheet follows the finger (no jump by the few px that
+      // told a drag from a tap).
+      d.y = e.clientY;
       e.currentTarget.setPointerCapture(e.pointerId);
     }
-    showDrag(Math.max(52, Math.min(d.h, d.start + dy)));
+    const vis = Math.max(52, Math.min(d.h, d.start + d.y - e.clientY));
+    const now = e.timeStamp || performance.now();
+    d.trail.push({ t: now, v: vis });
+    while (d.trail.length > 2 && now - d.trail[0].t > 100) d.trail.shift();
+    showDrag(vis);
   };
   const onHeadUp = (e: ReactPointerEvent<HTMLDivElement>) => {
     const d = drag.current;
@@ -164,15 +210,21 @@ export function Dock() {
       /* released */
     }
     const vis = dragY.current ?? d.start;
-    showDrag(null);
+    // A flick carries on: the sheet goes where it was heading (its speed over
+    // the last tenth of a second, carried a fifth of a second on).
+    const first = d.trail[0];
+    const last = d.trail[d.trail.length - 1];
+    const speed = first && last && last.t > first.t ? (last.v - first.v) / (last.t - first.t) : 0;
+    const aimAt = vis + Math.max(-1.5, Math.min(1.5, speed)) * 200;
     const stops: [SheetDetent, number][] = [
       ["peek", visibleFor("peek", d.h)],
       ["half", visibleFor("half", d.h)],
       ["full", visibleFor("full", d.h)],
     ];
     let best = stops[0];
-    for (const s of stops) if (Math.abs(s[1] - vis) < Math.abs(best[1] - vis)) best = s;
+    for (const s of stops) if (Math.abs(s[1] - aimAt) < Math.abs(best[1] - aimAt)) best = s;
     const [next] = best;
+    showDrag(null);
     if (next === "peek") {
       if (useStudioStore.getState().dockOpen) toggleDock();
     } else {

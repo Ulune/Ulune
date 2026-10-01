@@ -14,6 +14,16 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
     updated: "Updated {date}",
     blocks: [
       {
+        h: "Ulune 1.0.1",
+        p: "On phones:",
+        list: [
+          "A birth time always reaches the chart: the form no longer jumps to the next field by itself on a touch screen (the keyboard could stay behind, and the time was lost), what is typed while the page is still starting is kept, and a form with no time and “I don’t know the time” unticked asks for one instead of casting for an unknown time.",
+          "The panel slides up and down smoothly, and the chart above it grows and shrinks with it instead of jumping; a flick carries the panel on.",
+          "The 3D view tips in from the flat chart, with no jump at the start.",
+          "Thinner aspect lines on a small chart.",
+        ],
+      },
+      {
         h: "Ulune 1.0",
         p: "The first public version:",
         list: [
@@ -33,6 +43,16 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
     title: "Nouveautés",
     updated: "Mis à jour le {date}",
     blocks: [
+      {
+        h: "Ulune 1.0.1",
+        p: "Sur téléphone\u202f:",
+        list: [
+          "L’heure de naissance arrive toujours jusqu’au thème\u202f: sur un écran tactile, le formulaire ne passe plus seul au champ suivant (le clavier pouvait rester en arrière, et l’heure se perdait), ce qui est tapé pendant que la page démarre est gardé, et un formulaire sans heure, «\u202fJe ne connais pas l’heure\u202f» non coché, la demande au lieu de calculer pour une heure inconnue.",
+          "Le panneau monte et descend en douceur, et le thème au-dessus grandit et rapetisse avec lui au lieu de sauter\u202f; un geste rapide emporte le panneau.",
+          "La vue 3D s’incline depuis le thème à plat, sans saut au départ.",
+          "Des lignes d’aspect plus fines sur un petit thème.",
+        ],
+      },
       {
         h: "Ulune 1.0",
         p: "La première version publique\u202f:",
