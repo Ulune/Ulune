@@ -1,6 +1,7 @@
-import { firstSight } from "@/lib/seen-once";
+import { markSeen, seenBefore } from "@/lib/seen-once";
+import { settleIn } from "@/lib/settle";
 import { prefersReducedMotion } from "@/lib/depth/env";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HumanDesignGraph } from "@/components/humandesign-graph";
 import { HdCard } from "@/components/hd-card";
 import { HdFacts } from "@/components/hd-facts";
@@ -62,7 +63,8 @@ function useWide(): boolean {
 
 /** The bodygraph's entrance (hd.css): the whole build, and the settle of one seen before. */
 const HD_BUILD_MS = 1300;
-const HD_SETTLE_MS = 450;
+/** A build on screen this long counts as seen; cut shorter by a quick switch, it plays whole next time. */
+const HD_SEEN_AFTER_MS = 600;
 
 function DesignFigure() {
   const { locale, t } = useI18n();
@@ -71,14 +73,31 @@ function DesignFigure() {
   const hd = useModeData("design");
   const natal = useStudioStore((s) => s.chart);
   // The bodygraph builds itself the first time this chart's is shown in a
-  // visit (hd.css, data-build); after that it settles in as one piece.
+  // visit (hd.css, data-build); after that it settles in as one piece
+  // (lib/settle.ts).
   const sightKey = natal ? `hd|${natal.meta.date}|${natal.meta.time}|${natal.meta.latitude}|${natal.meta.longitude}` : "hd";
+  const entrance = useRef<{ node: HTMLDivElement; started: number; timer: number; stop: (() => void) | null } | null>(null);
   const entranceRef = useCallback(
     (node: HTMLDivElement | null) => {
-      if (!node || prefersReducedMotion() || node.hasAttribute("data-build") || node.hasAttribute("data-settle")) return;
-      const attr = firstSight(sightKey) ? "data-build" : "data-settle";
-      node.setAttribute(attr, "");
-      window.setTimeout(() => node.removeAttribute(attr), attr === "data-build" ? HD_BUILD_MS : HD_SETTLE_MS);
+      const was = entrance.current;
+      if (was && was.node !== node) {
+        window.clearTimeout(was.timer);
+        was.node.removeAttribute("data-build");
+        was.stop?.();
+        if (was.timer && performance.now() - was.started >= HD_SEEN_AFTER_MS) markSeen(sightKey);
+        entrance.current = null;
+      }
+      if (!node || entrance.current || prefersReducedMotion()) return;
+      if (seenBefore(sightKey)) {
+        entrance.current = { node, started: performance.now(), timer: 0, stop: settleIn(node) };
+        return;
+      }
+      node.setAttribute("data-build", "");
+      const timer = window.setTimeout(() => {
+        node.removeAttribute("data-build");
+        markSeen(sightKey);
+      }, HD_BUILD_MS);
+      entrance.current = { node, started: performance.now(), timer, stop: null };
     },
     [sightKey],
   );

@@ -21,8 +21,10 @@ import {
   civilFromUtc,
   civilKey,
   hitsInScope,
+  landOnToday,
   localHourFraction,
   scopeBounds,
+  shiftCivil,
   timingWhen,
   yearBounds,
 } from "../src/lib/chart/timing-window.ts";
@@ -322,4 +324,22 @@ test("applying flag from exact days is unchanged", () => {
   assert.equal(applyingFromExactDays(-12.5, true), false);
   assert.equal(lockedAspectResidual(90, 0, 90, 1) === 0, true);
   assert.equal(civilKey({ year: 2026, month: 8, day: 27 }), "2026-08-27");
+});
+
+test("the calendar's arrows keep the day and land on today in its own period", () => {
+  const today = { year: 2026, month: 10, day: 1 };
+  // A month on: the same day, the 31st clamped, today when the month holds it.
+  assert.deepEqual(shiftCivil("month", { year: 2026, month: 8, day: 15 }, 1, today), { year: 2026, month: 9, day: 15 });
+  assert.deepEqual(shiftCivil("month", { year: 2027, month: 1, day: 31 }, 1, today), { year: 2027, month: 2, day: 28 });
+  assert.deepEqual(shiftCivil("month", { year: 2026, month: 9, day: 1 }, 1, today), today);
+  assert.deepEqual(shiftCivil("month", { year: 2026, month: 12, day: 3 }, 1, today), { year: 2027, month: 1, day: 3 });
+  // A year on: the same date, not 1 January; today in today's year.
+  assert.deepEqual(shiftCivil("year", { year: 2026, month: 10, day: 1 }, 1, today), { year: 2027, month: 10, day: 1 });
+  assert.deepEqual(shiftCivil("year", { year: 2025, month: 3, day: 9 }, 1, today), today);
+  assert.deepEqual(shiftCivil("year", { year: 2028, month: 2, day: 29 }, -1, today), { year: 2027, month: 2, day: 28 });
+  // A day is a day.
+  assert.deepEqual(shiftCivil("day", { year: 2026, month: 10, day: 31 }, 1, today), { year: 2026, month: 11, day: 1 });
+  // A month opened from the year.
+  assert.deepEqual(landOnToday("month", { year: 2026, month: 10, day: 1 }, { year: 2026, month: 10, day: 17 }), { year: 2026, month: 10, day: 17 });
+  assert.deepEqual(landOnToday("month", { year: 2026, month: 3, day: 1 }, today), { year: 2026, month: 3, day: 1 });
 });

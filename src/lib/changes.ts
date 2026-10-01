@@ -17,12 +17,15 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
         h: "Ulune 1.0.2",
         p: "The chart’s look, and motion throughout:",
         list: [
-          "A choice in Look for the planets’ colours: plain, their traditional colours, or by element as before.",
+          "A choice in Look for the planets’ colours: plain, by element as before, or their traditional colours, now the default.",
           "Bigger planet glyphs, and each degree written along its planet’s line, in the size and style of the axes’ degrees; retrograde marked beside the glyph.",
           "The aspect glyphs in the strip under the chart are twice as big on a computer.",
           "Every press, switch and page change moves softly and quickly: presses that let go gently, switches whose colour follows the sliding pill, menus and the search that close with a fade, pages and modes that cross-fade, the side panel that slides on a computer.",
           "A chart builds itself the first time you see it in a visit and simply settles in after that; Human Design builds its bodygraph too, centre by centre.",
           "No hover highlight left behind after a tap on a phone.",
+          "Richer colours on screens that can show more than the usual range, as on iPhones and recent Macs.",
+          "Switching quickly between charts no longer makes them flash or play their entrance twice.",
+          "The calendar stays on today: the year view and back, or the arrows, no longer send it to 1 January.",
         ],
       },
       {
@@ -60,12 +63,15 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
         h: "Ulune 1.0.2",
         p: "L’allure du thème, et le mouvement partout\u202f:",
         list: [
-          "Un choix dans Style pour la couleur des planètes\u202f: unies, leurs couleurs traditionnelles, ou par élément comme avant.",
+          "Un choix dans Style pour la couleur des planètes\u202f: unies, par élément comme avant, ou leurs couleurs traditionnelles, désormais par défaut.",
           "Des glyphes de planètes plus grands, et chaque degré écrit le long de la ligne de sa planète, à la taille et dans le style des degrés des axes\u202f; la rétrogradation marquée à côté du glyphe.",
           "Les glyphes d’aspect de la bande sous le thème sont deux fois plus grands sur ordinateur.",
           "Chaque pression, chaque bascule et chaque changement de page bouge avec douceur et vivacité\u202f: des pressions qui relâchent en souplesse, des bascules dont la couleur suit la pastille qui glisse, des menus et la recherche qui se ferment en fondu, des pages et des modes en fondu enchaîné, le panneau latéral qui glisse sur ordinateur.",
           "Un thème se construit la première fois que vous le voyez dans une visite, puis il apparaît simplement\u202f; le Human Design construit aussi son bodygraph, centre après centre.",
           "Plus de survol qui reste allumé après un toucher sur téléphone.",
+          "Des couleurs plus riches sur les écrans capables d’en montrer davantage, comme ceux des iPhone et des Mac récents.",
+          "Passer vite d’un thème à l’autre ne les fait plus clignoter ni rejouer leur entrée.",
+          "Le calendrier reste sur aujourd’hui\u202f: la vue de l’année puis le retour, ou les flèches, ne le renvoient plus au 1er janvier.",
         ],
       },
       {

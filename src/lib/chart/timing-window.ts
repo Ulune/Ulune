@@ -94,15 +94,36 @@ export function yearBounds(year: number, tz: string): { from: Date; to: Date } {
   return scopeBounds("year", { year, month: 1, day: 1 }, tz);
 }
 
-export function shiftCivil(scope: TimingScope, civil: CivilDate, dir: 1 | -1): CivilDate {
+/**
+ * The period before or after: a day, or the same day of the next month or
+ * year (the 31st becomes the month's last day). If that period holds
+ * `today`, it lands on today, so a reader going back and forth finds today
+ * again and the day view opens on it.
+ */
+export function shiftCivil(scope: TimingScope, civil: CivilDate, dir: 1 | -1, today?: CivilDate): CivilDate {
   if (scope === "day") return addCivilDays(civil, dir);
+  let { year, month } = civil;
   if (scope === "month") {
-    const month = civil.month + dir;
-    if (month < 1) return { year: civil.year - 1, month: 12, day: 1 };
-    if (month > 12) return { year: civil.year + 1, month: 1, day: 1 };
-    return { year: civil.year, month, day: 1 };
+    month += dir;
+    if (month < 1) {
+      year -= 1;
+      month = 12;
+    } else if (month > 12) {
+      year += 1;
+      month = 1;
+    }
+  } else {
+    year += dir;
   }
-  return { year: civil.year + dir, month: 1, day: 1 };
+  if (today && today.year === year && (scope === "year" || today.month === month)) return { ...today };
+  return { year, month, day: Math.min(civil.day, daysInMonth(year, month)) };
+}
+
+/** A month or year opened: today if the period holds it, else the date given. */
+export function landOnToday(scope: TimingScope, civil: CivilDate, today: CivilDate): CivilDate {
+  if (scope === "day") return civil;
+  if (today.year === civil.year && (scope === "year" || today.month === civil.month)) return { ...today };
+  return civil;
 }
 
 export function hitsInScope<T extends { exactUtc: string }>(

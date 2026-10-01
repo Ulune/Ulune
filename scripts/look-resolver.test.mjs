@@ -224,11 +224,12 @@ test("DEFAULT_LOOK / DEFAULT_LOOK_DAY lockstep with CSS", () => {
 });
 
 test("planet colour mode: kept, read back, and painted through --pm-<id>", () => {
-  assert.equal(DEFAULT_LOOK.planetInk, "element");
+  assert.equal(DEFAULT_LOOK.planetInk, "traditional");
   assert.equal(parseLook({ planetInk: "plain" })?.planetInk, "plain");
   assert.equal(parseLook({ planetInk: "traditional" })?.planetInk, "traditional");
-  assert.equal(parseLook({ planetInk: "neon" })?.planetInk, "element");
-  assert.equal(parseLook({})?.planetInk, "element");
+  assert.equal(parseLook({ planetInk: "neon" })?.planetInk, "traditional");
+  assert.equal(parseLook({ planetInk: "element" })?.planetInk, "element");
+  assert.equal(parseLook({})?.planetInk, "traditional");
   // No pinned colour: the mode's variable, the element of its sign behind it.
   assert.equal(planetPaint("mars", "aries", {}), "var(--pm-mars, var(--el-fire))");
   // A pinned colour wins in every mode.

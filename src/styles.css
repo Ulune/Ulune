@@ -1022,24 +1022,8 @@ html.theme-ready body {
 .ulune-wheel[data-entering] [data-kind="mp"] {
   animation-delay: 720ms;
 }
-/* A wheel seen before in this visit (chart-wheel.tsx, data-settle) settles
-   in as one piece: a short fade from a hair smaller, nothing built again. */
-@keyframes ulune-settle {
-  from {
-    opacity: 0;
-    transform: scale(0.985);
-  }
-}
-.ulune-wheel[data-settle] {
-  animation: ulune-settle 420ms var(--chart-ease) both;
-}
-/* Inside a switch (lib/swap-transition.ts) the transition already fades it in. */
-html[data-vt] .ulune-wheel[data-settle] {
-  animation: none;
-}
-.ulune-wheel[data-settle] :is([data-kind="planet"], [data-kind="transit"], [data-kind="angle"], g[data-aspect][data-arrive], [data-kind="aspect"][data-draw], [data-kind="star"], [data-kind="mp"]) {
-  animation: none;
-}
+/* A wheel seen before in this visit settles in as one piece, nothing built
+   again (chart-wheel.tsx, lib/settle.ts: scripted, so nothing restarts). */
 /* An aspect already on the wheel (data-seen, chart-wheel.tsx) never plays its
    arrival again: when the list reorders around it (a time step), React moves
    its node, and a moved node would start its animations over. */

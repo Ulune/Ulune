@@ -23,7 +23,8 @@ import {
 } from "@/lib/chart/numerology-wheel";
 import { announceChartHover, onChartPreview } from "@/lib/depth/preview-bus";
 import { prefersReducedMotion } from "@/lib/depth/env";
-import { firstSight } from "@/lib/seen-once";
+import { markSeen, seenBefore } from "@/lib/seen-once";
+import { settleIn } from "@/lib/settle";
 import { useI18n } from "@/lib/i18n/locale";
 import { numerologySay } from "@/lib/i18n/numerology-say";
 import { numerologyWheelText } from "@/lib/i18n/numerology-ui";
@@ -41,6 +42,9 @@ import { numerologyWheelText } from "@/lib/i18n/numerology-ui";
 const DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 /** A pointer that crosses the gap between two parts keeps the first lit this long (ms). */
 const HOVER_LINGER_MS = 90;
+/** The wheel coming in round, its last part included (num.css), and how much of it counts as seen. */
+const NUM_ENTER_MS = 1100;
+const NUM_SEEN_AFTER_MS = 600;
 /** What a panel may point at on the wheel (a tile, a row, a reading's link). */
 const PREVIEWABLE = /^(number|letter|core|time|detail|plane|bridge):/;
 
@@ -168,20 +172,21 @@ export function NumerologyWheel({
   };
 
   // The wheel comes in round the first time this birth's numbers are shown in
-  // a visit; after that it settles in as one piece (num.css, data-settle).
+  // a visit; after that it settles in as one piece (lib/settle.ts). Coming in
+  // round takes about a second: cut shorter by a quick switch, it plays again.
   const svgRef = useRef<SVGSVGElement>(null);
   const sightKey = `num|${chart.year}-${chart.month}-${chart.day}|${chart.name ?? ""}|${chart.currentName ?? ""}`;
   const settleRef = useRef<{ key: string; settle: boolean } | null>(null);
   useLayoutEffect(() => {
     const svg = svgRef.current;
     if (!svg || prefersReducedMotion()) return;
-    if (settleRef.current?.key !== sightKey) settleRef.current = { key: sightKey, settle: !firstSight(sightKey) };
-    if (!settleRef.current.settle) return;
-    svg.setAttribute("data-settle", "");
-    const id = window.setTimeout(() => svg.removeAttribute("data-settle"), 450);
+    if (settleRef.current?.key !== sightKey) settleRef.current = { key: sightKey, settle: seenBefore(sightKey) };
+    if (settleRef.current.settle) return settleIn(svg, { scale: 0.985 });
+    const started = performance.now();
+    const id = window.setTimeout(() => markSeen(sightKey), NUM_ENTER_MS);
     return () => {
       window.clearTimeout(id);
-      svg.removeAttribute("data-settle");
+      if (performance.now() - started >= NUM_SEEN_AFTER_MS) markSeen(sightKey);
     };
   }, [sightKey]);
 

@@ -13,7 +13,7 @@ import {
   factoryDayFor,
   HUE_CHIPS,
   nearestHueChip,
-  oklchCss,
+  swatchCss,
   PLANET_INKS,
   resolveSwatch,
   type AspectKey,
@@ -135,7 +135,7 @@ function HueRow<K extends string>({
             >
               <span
                 className="size-4 rounded-full border border-border"
-                style={{ background: oklchCss(painted) }}
+                style={{ background: swatchCss(painted) }}
               />
               <span className="sr-only">{t(HUE_KEY[chip.id])}</span>
             </button>
@@ -216,7 +216,7 @@ function SwatchRow<K extends string>({
       <div className="mb-[var(--space-2)] flex items-center gap-[var(--space-2)]">
         <span
           className="size-5 shrink-0 rounded-full border border-border"
-          style={{ background: oklchCss(preview) }}
+          style={{ background: swatchCss(preview) }}
           aria-hidden
         />
         <div className="min-w-0">
@@ -464,9 +464,9 @@ export function LookPanel({ page = "all" }: { page?: LookPanelPage }) {
                   key={id}
                   type="button"
                   data-planet-ink={id}
-                  aria-pressed={(look.planetInk ?? "element") === id}
+                  aria-pressed={(look.planetInk ?? DEFAULT_LOOK.planetInk) === id}
                   onClick={() => patchLook((prev) => ({ ...prev, planetInk: id }))}
-                  className={`${PRESET} ${(look.planetInk ?? "element") === id ? CHIP_ON : CHIP_OFF}`}
+                  className={`${PRESET} ${(look.planetInk ?? DEFAULT_LOOK.planetInk) === id ? CHIP_ON : CHIP_OFF}`}
                 >
                   {t(PLANET_INK_LABEL[id])}
                 </button>

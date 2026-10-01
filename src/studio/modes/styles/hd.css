@@ -9,6 +9,15 @@
 html.light {
   --hd-design-ink: oklch(0.54 0.19 26);
 }
+/* On a Display P3 screen, as vivid as the chart's own colours there (lib/color-gamut.ts widen). */
+@media (color-gamut: p3) {
+  :root {
+    --hd-design-ink: oklch(0.62 0.21 26);
+  }
+  html.light {
+    --hd-design-ink: oklch(0.54 0.21 26);
+  }
+}
 
 /* The entrance (the motion plan). The first time a chart's bodygraph is
    shown in a visit it builds itself in about 1.1 s (design.tsx, data-build):
@@ -18,7 +27,7 @@ html.light {
    come last, the active ones after the rest; beside it the columns fill row
    by row. Only opacity, fill and the drawing of a line move: Safari places
    scaled SVG groups wrongly (why the old per-part entrance went). Seen
-   again, it settles in as one piece (data-settle). */
+   again, it settles in as one piece (lib/settle.ts). */
 @keyframes hd-in {
   from {
     opacity: 0;
@@ -34,12 +43,6 @@ html.light {
     opacity: 0;
     transform: translateY(4px);
   }
-}
-.ulune-hd-figure[data-settle] .ulune-hd-svg {
-  animation: ulune-fade-plain 380ms var(--chart-ease) both;
-}
-html[data-vt] .ulune-hd-figure[data-settle] .ulune-hd-svg {
-  animation: none;
 }
 .ulune-hd-figure[data-build] .ulune-hd-center {
   animation: hd-in 300ms var(--chart-ease) calc(var(--enter, 0) * 40ms) backwards;

@@ -1,4 +1,5 @@
 import { forgetBootLook, rememberBootLook } from "@/lib/boot";
+import { lchCss, wideScreen, widen } from "@/lib/color-gamut";
 import type { Theme } from "@/lib/theme";
 import { CLASSIC_BODIES, ELEMENT_COLOR, SIGN_META } from "@/lib/chart/constants";
 import {
@@ -120,7 +121,7 @@ export const DEFAULT_LOOK: LookState = {
   glyphFamily: DEFAULT_GLYPH_FAMILY,
   textScale: 1,
   stroke: "regular",
-  planetInk: "element",
+  planetInk: "traditional",
 };
 
 /**
@@ -248,7 +249,7 @@ export function cloneLook(look: LookState): LookState {
     glyphFamily: look.glyphFamily,
     textScale: look.textScale,
     stroke: look.stroke,
-    planetInk: look.planetInk ?? "element",
+    planetInk: look.planetInk ?? DEFAULT_LOOK.planetInk,
   };
 }
 
@@ -261,6 +262,15 @@ export function oklchCss(color: Oklch): string {
   const c = clampChroma(color.c).toFixed(3);
   const l = clampLightness(color.l).toFixed(3);
   return `oklch(${l} ${c} ${h})`;
+}
+
+/**
+ * A resolved swatch as painted on this screen: as chosen on an sRGB screen,
+ * saturated into the extra room of a Display P3 one (lib/color-gamut.ts), so
+ * the chart is as vivid on an iPhone as the screen allows.
+ */
+export function swatchCss(color: Oklch, wide: boolean = wideScreen()): string {
+  return wide ? lchCss(widen(color)) : oklchCss(color);
 }
 
 export function sameOklch(a: Oklch, b: Oklch): boolean {
@@ -632,7 +642,7 @@ export function saveLook(look: LookState) {
   saveLookLibrary(lib);
 }
 
-export function applyLook(root: HTMLElement, look: LookState, theme: Theme) {
+export function applyLook(root: HTMLElement, look: LookState, theme: Theme, wide: boolean = wideScreen()) {
   // Every property set here is also written down (below), so the next visit's
   // boot script paints this Look from the first frame (src/lib/boot.ts).
   const set: [string, string][] = [];
@@ -643,27 +653,27 @@ export function applyLook(root: HTMLElement, look: LookState, theme: Theme) {
   for (const key of ELEMENT_KEYS) {
     const stored = look.elements[key];
     const day = factoryDayFor(stored, DEFAULT_LOOK.elements, DEFAULT_LOOK_DAY.elements, key);
-    put(ELEMENT_VAR[key], oklchCss(resolveSwatch(stored, theme, day)));
+    put(ELEMENT_VAR[key], swatchCss(resolveSwatch(stored, theme, day), wide));
   }
   for (const key of ASPECT_KEYS) {
     const stored = look.aspects[key];
     const day = factoryDayFor(stored, DEFAULT_LOOK.aspects, DEFAULT_LOOK_DAY.aspects, key);
-    put(ASPECT_VAR[key], oklchCss(resolveSwatch(stored, theme, day)));
+    put(ASPECT_VAR[key], swatchCss(resolveSwatch(stored, theme, day), wide));
   }
   const outer = look.outerAspects ?? DEFAULT_LOOK.outerAspects;
   for (const key of ASPECT_KEYS) {
     const stored = outer[key] ?? DEFAULT_LOOK.outerAspects[key];
     const day = factoryDayFor(stored, DEFAULT_LOOK.outerAspects, DEFAULT_LOOK_DAY.outerAspects, key);
-    put(OUTER_ASPECT_VAR[key], oklchCss(resolveSwatch(stored, theme, day)));
+    put(OUTER_ASPECT_VAR[key], swatchCss(resolveSwatch(stored, theme, day), wide));
   }
   for (const id of CLASSIC_PLANETS) {
     const varName = `--planet-${id}`;
     const swatch = look.planets[id];
-    if (swatch) put(varName, oklchCss(resolveSwatch(swatch, theme)));
+    if (swatch) put(varName, swatchCss(resolveSwatch(swatch, theme), wide));
     else root.style.removeProperty(varName);
   }
   // The planets' ink (planetPaint): by element needs no variable.
-  const inkMode = look.planetInk ?? "element";
+  const inkMode = look.planetInk ?? DEFAULT_LOOK.planetInk;
   for (const id of [...PLANET_IDS, ...ANGLE_IDS]) {
     const varName = `--pm-${id}`;
     if (inkMode === "element") {
@@ -672,7 +682,7 @@ export function applyLook(root: HTMLElement, look: LookState, theme: Theme) {
     }
     const trad = inkMode === "traditional" && isClassicPlanet(id) ? TRADITIONAL_PLANET_INK[id] : null;
     const day = trad && isClassicPlanet(id) ? TRADITIONAL_PLANET_INK_DAY[id] : null;
-    put(varName, trad ? oklchCss(resolveSwatch(trad, theme, day)) : "var(--color-fg)");
+    put(varName, trad ? swatchCss(resolveSwatch(trad, theme, day), wide) : "var(--color-fg)");
   }
   const fonts = PAIRING_FONTS[look.pairing];
   put("--font-display", fonts.display);

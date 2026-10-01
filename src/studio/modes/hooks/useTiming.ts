@@ -20,6 +20,7 @@ import {
   civilFromUtc,
   civilKey,
   hitsInScope,
+  landOnToday,
   parseCivilKey,
   scopeBounds,
   shiftCivil,
@@ -314,25 +315,31 @@ export function useTiming() {
     [pick],
   );
 
-  /** A month opened from the year. */
-  const pickMonth = useCallback((next: CivilDate) => {
-    setCivil(next);
-    setScope("month");
-  }, []);
+  const todayCivil = useCallback((): CivilDate => {
+    const now = civilFromUtc(new Date(), tz);
+    return { year: now.year, month: now.month, day: now.day };
+  }, [tz]);
 
-  const changeScope = useCallback((next: TimingScope) => {
-    setScope(next);
-    if (next === "year") setCivil((c) => ({ year: c.year, month: 1, day: 1 }));
-  }, []);
+  /** A month opened from the year: on today if it is this month. */
+  const pickMonth = useCallback(
+    (next: CivilDate) => {
+      setCivil(landOnToday("month", next, todayCivil()));
+      setScope("month");
+    },
+    [todayCivil],
+  );
+
+  /**
+   * Day, month or year: the date stays where it is (today unless the reader
+   * moved), so the year view and back keeps the month, not January.
+   */
+  const changeScope = useCallback((next: TimingScope) => setScope(next), []);
 
   const shift = useCallback(
-    (dir: 1 | -1) => setCivil((c) => shiftCivil(scope, c, dir)),
-    [scope],
+    (dir: 1 | -1) => setCivil((c) => shiftCivil(scope, c, dir, todayCivil())),
+    [scope, todayCivil],
   );
-  const goToday = useCallback(() => {
-    const now = civilFromUtc(new Date(), tz);
-    setCivil({ year: now.year, month: now.month, day: now.day });
-  }, [tz]);
+  const goToday = useCallback(() => setCivil(todayCivil()), [todayCivil]);
   const retry = useCallback(() => setTick((n) => n + 1), []);
   /** The period's name in file names: "2026-09-28", "2026-09", "2026". */
   const fileName = scope === "year" ? String(civil.year) : scope === "month" ? `${civil.year}-${String(civil.month).padStart(2, "0")}` : civilKey(civil);

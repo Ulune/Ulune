@@ -130,6 +130,19 @@ export function LookProvider({ children }: { children: ReactNode }) {
   // cross-fade (the effect below reloads the library after it).
   useEffect(() => onThemeApplied((next) => applyLook(document.documentElement, libraryRef.current.live, next)), []);
 
+  // The window moved to a screen with another gamut (a Mac with an external
+  // display): the colours are painted for it (lib/color-gamut.ts).
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(color-gamut: p3)");
+    const onChange = () => {
+      applyLook(document.documentElement, libraryRef.current.live, themeRef.current);
+      setPaintRev((n) => n + 1);
+    };
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, []);
+
   useEffect(() => {
     // A change still settling is written first, so it is read back here.
     flushSave();

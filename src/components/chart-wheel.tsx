@@ -1,4 +1,5 @@
-import { firstSight } from "@/lib/seen-once";
+import { markSeen, seenBefore } from "@/lib/seen-once";
+import { settleIn } from "@/lib/settle";
 import {
   memo,
   useCallback,
@@ -139,8 +140,8 @@ const R_STAR = R_OUTER + 5;
 const EMPTY_IDS = new Set<string>();
 /** How long a fresh wheel's entrance takes, all staging included (ms). */
 const WHEEL_ENTER_MS = 1600;
-/** A wheel seen before in this visit only settles in (styles.css, data-settle). */
-const WHEEL_SETTLE_MS = 450;
+/** A build on screen this long counts as seen: cut shorter (a quick switch), it plays whole next time. */
+const WHEEL_SEEN_AFTER_MS = 700;
 /** An aspect's own arrival, its longest part (a line drawing itself: 600 ms), with a margin. */
 const ASPECT_ARRIVE_MS = 700;
 
@@ -1481,20 +1482,28 @@ const ChartWheelView = memo(function ChartWheelView({
       return;
     }
     // The full build once per chart and kind of wheel in a visit; seen
-    // before (another mode, back to it, the table and back), it settles in.
+    // before (another mode, back to it, the table and back), it settles in
+    // (lib/settle.ts). A build cut short by a quick switch plays whole again.
+    const sight = `wheel|${wheelKey}`;
     if (entranceRef.current?.key !== wheelKey) {
-      entranceRef.current = { key: wheelKey, full: firstSight(`wheel|${wheelKey}`) || Boolean(handoff) };
+      entranceRef.current = { key: wheelKey, full: !seenBefore(sight) || Boolean(handoff) };
     }
-    const full = entranceRef.current.full;
-    const attr = full ? "data-entering" : "data-settle";
-    svg.setAttribute(attr, "");
-    const id = window.setTimeout(() => {
-      svg.removeAttribute(attr);
+    if (!entranceRef.current.full) {
+      const stop = settleIn(svg, { scale: 0.985 });
       handoff?.done();
-    }, full ? WHEEL_ENTER_MS : WHEEL_SETTLE_MS);
+      return stop;
+    }
+    svg.setAttribute("data-entering", "");
+    const started = performance.now();
+    const id = window.setTimeout(() => {
+      svg.removeAttribute("data-entering");
+      markSeen(sight);
+      handoff?.done();
+    }, WHEEL_ENTER_MS);
     return () => {
       window.clearTimeout(id);
-      svg.removeAttribute(attr);
+      svg.removeAttribute("data-entering");
+      if (performance.now() - started >= WHEEL_SEEN_AFTER_MS) markSeen(sight);
       handoff?.done();
     };
   }, [wheelKey]);

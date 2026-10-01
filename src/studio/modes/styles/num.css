@@ -199,23 +199,6 @@
   stroke-width: 2.6;
 }
 
-/* Seen before in this visit (numerology-wheel.tsx): it settles in as one piece. */
-@keyframes num-settle {
-  from {
-    opacity: 0;
-    transform: scale(0.985);
-  }
-}
-.ulune-num-svg[data-settle] {
-  transform-origin: center;
-  animation: num-settle 380ms var(--chart-ease) both;
-}
-html[data-vt] .ulune-num-svg[data-settle] {
-  animation: none;
-}
-.ulune-num-svg[data-settle] :is(.num-sector, .num-letters, .num-tracks, .num-discs, .num-time, .num-centre) {
-  animation: none;
-}
 /* The wheel comes in round: the band, then the letters, the discs, the centre. */
 .num-sector {
   animation: ulune-fade-plain 480ms var(--chart-ease) calc(60ms + var(--enter, 0) * 36ms) backwards;
