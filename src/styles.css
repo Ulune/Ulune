@@ -1051,6 +1051,19 @@ html.theme-ready body {
   transform-origin: 0 0;
   transform: scale(0.96);
 }
+/* The copy under a mark (glyphs.tsx, cut) is the face it stands on: the
+   aspect circle's, or the planets' ring's for a yoke under the glyphs. Filled
+   and stroked wider, it parts the lines under the mark in the mark's shape. */
+.ulune-wheel .ulune-mark-cut * {
+  fill: var(--mark-face, var(--color-bg));
+  stroke: var(--mark-face, var(--color-bg));
+  stroke-width: 5.6px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.ulune-wheel .ulune-aspect-mark[data-face="ring"] {
+  --mark-face: var(--color-bg-elevated);
+}
 .ulune-wheel .ulune-aspect-mark[data-on="1"] .ulune-aspect-mark-pop {
   transform: scale(1);
 }

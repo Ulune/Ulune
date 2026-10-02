@@ -609,6 +609,8 @@ function makeMark(a: AspectNode): SVGElement | null {
     "data-aspect": a.aspect,
     "data-mark-of": a.hl,
     "data-conj": a.conj ? "1" : null,
+    // A yoke under the glyphs stands on the planets' ring, not the aspect circle: its disc takes that face (styles.css).
+    "data-face": a.yoke === "glyphs" ? "ring" : null,
     "data-rest": a.rest ? "1" : null,
     transform: `translate(${a.markAt})`,
   });

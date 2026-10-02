@@ -120,9 +120,11 @@ const R_HOUSE_NUM = R_ASPECT + 18;
 const GLYPH = 26;
 /** Aspect type mark in the middle of a lit line — smaller than planet glyphs. */
 const ASPECT_MARK = 20;
-const ASPECT_MARK_CONJ = 16;
+/** A conjunction's mark sits on its yoke, a thin bracket: small, so the bracket still reads round it. */
+const ASPECT_MARK_CONJ = 11;
 const ASPECT_MARK_QUINTILE = 26;
-const ASPECT_MARK_DISK = 10;
+/** How far an aspect's mark reaches from its point (where marks keep apart). */
+const ASPECT_MARK_DISK = 11;
 const ASPECT_MARK_MIN_SPAN = 22;
 /**
  * A glyph's reach: its hit zone, where a lead line stops short of it, the
@@ -3164,12 +3166,12 @@ const ChartWheelView = memo(function ChartWheelView({
           {markTypes.map((type) => (
             <g key={type} data-mark-template={type}>
               <g className="ulune-aspect-mark-pop">
-                {/* No circle round the glyph (part 86d): a disc of the aspect
-                    circle's own face, unseen on it, parts the lines under it. */}
-                <circle r={ASPECT_MARK_DISK} fill="var(--color-bg)" />
+                {/* No circle round the glyph (part 86d): a copy of it in the
+                    face it stands on parts the lines under it, in its shape. */}
                 <CenteredAspectGlyph
                   id={type}
                   size={type === "conjunction" ? ASPECT_MARK_CONJ : type === "quintile" ? ASPECT_MARK_QUINTILE : ASPECT_MARK}
+                  cut
                 />
               </g>
             </g>

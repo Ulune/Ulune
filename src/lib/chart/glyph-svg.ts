@@ -141,9 +141,8 @@ export const GLYPH_SVG: Record<string, string> = {
   pisces: svg(
     `<path d="M6.05 4.55c3.55 3.4 3.55 11.5 0 14.9M17.95 4.55c-3.55 3.4-3.55 11.5 0 14.9M5.35 12h13.3" ${ST} />`,
   ),
-  conjunction: svg(
-    `<circle cx="9.1" cy="12" r="5.2" ${ST} /><circle cx="14.9" cy="12" r="5.2" ${ST} />`,
-  ),
+  // The traditional mark: a circle with a stroke rising from it to the upper right (☌).
+  conjunction: svg(`<circle cx="10" cy="14" r="5" ${ST} /><path d="M13.54 10.46 19.6 4.4" ${ST} />`),
   opposition: svg(
     `<circle cx="6.2" cy="12" r="3.15" ${ST} /><circle cx="17.8" cy="12" r="3.15" ${ST} /><path d="M9.4 12h5.2" ${ST} />`,
   ),

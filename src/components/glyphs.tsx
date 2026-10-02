@@ -296,12 +296,25 @@ export function AspectGlyph({
   return <Glyph id={id} size={size} className={className} />;
 }
 
-/** Path mark whose ink is centred on (0,0) — for aspect discs on the wheel. */
-export function CenteredAspectGlyph({ id, size }: { id: string; size: number }) {
+/**
+ * Where a mark reads as centred, when that is not the middle of its ink:
+ * a triangle's is its centroid (its box's middle sits high in it, and a line
+ * through it looked off).
+ */
+const MARK_CENTRE: Record<string, readonly [number, number]> = { trine: [12, 13.93] };
+
+/**
+ * Path mark whose ink is centred on (0,0) — for aspect marks on the wheel's
+ * lines. With `cut`, a copy of the mark drawn first in the face it stands on
+ * (styles.css, .ulune-mark-cut: filled, and stroked wider) parts the lines
+ * under it in the mark's own shape.
+ */
+export function CenteredAspectGlyph({ id, size, cut = false }: { id: string; size: number; cut?: boolean }) {
   const raw = GLYPH_SVG[id];
   if (!raw) return <AspectGlyph id={id} size={size} />;
   const { viewBox, inner } = parseSvg(raw);
-  const shift = glyphShift(id);
+  const centre = MARK_CENTRE[id];
+  const shift = centre ? { dx: 12 - centre[0], dy: 12 - centre[1] } : glyphShift(id);
   return (
     <svg
       x={-size / 2}
@@ -313,6 +326,9 @@ export function CenteredAspectGlyph({ id, size }: { id: string; size: number }) 
       aria-hidden="true"
       className="ulune-glyph"
     >
+      {cut ? (
+        <g className="ulune-mark-cut" transform={shift ? `translate(${shift.dx} ${shift.dy})` : undefined} dangerouslySetInnerHTML={{ __html: inner }} />
+      ) : null}
       <g transform={shift ? `translate(${shift.dx} ${shift.dy})` : undefined} dangerouslySetInnerHTML={{ __html: inner }} />
     </svg>
   );
