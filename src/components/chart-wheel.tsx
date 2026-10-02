@@ -233,7 +233,7 @@ const YOKE_LANES = { lg: 3, sm: 3 } as const;
  * much as on a large one and crowded it. Thinner there; the orb still sets
  * each line's weight against the others.
  */
-const ASPECT_LINE_K = { lg: 1, sm: 0.7 } as const;
+const ASPECT_LINE_K = { lg: 1, sm: 0.55 } as const;
 /** Radius of a yoke's rounded corners (units). */
 const YOKE_CORNER = 2.6;
 /** A yoke is never shorter than this (degrees): a planet on an angle still gets one. */
@@ -251,6 +251,8 @@ const CHEVRON_MIN_LEN = 40;
  * at one body stay apart right up to its dot.
  */
 const TAPER = { lg: 14, sm: 18 } as const;
+/** Units per px before the focus paint measures it (it cuts the pointed ends again at once). */
+const TAPER_K_GUESS = { lg: 1.05, sm: 2.1 } as const;
 /** The dot marking a body's degree on the aspect circle (units). */
 const DEGREE_DOT_R = 2.4;
 /** A line shows its glyph at rest (the switch under the chart) when it is this long, this far from the next glyph (units). */
@@ -1416,6 +1418,22 @@ const ChartWheelView = memo(function ChartWheelView({
     }
   };
   paintApi.current.refresh = () => paintNowRef.current(hoverIdRef.current);
+  // The lines' pointed ends are cut for the px a unit covers: the wheel
+  // resized (the window, the panel, a phone turned), they are cut again.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg || typeof ResizeObserver === "undefined") return;
+    let raf = 0;
+    const obs = new ResizeObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => paintNowRef.current(hoverIdRef.current));
+    });
+    obs.observe(svg);
+    return () => {
+      cancelAnimationFrame(raf);
+      obs.disconnect();
+    };
+  }, [wheelKey]);
 
   useEffect(() => {
     // A press anywhere off the chart and its companions lets go of the pin, at once.
@@ -2812,8 +2830,14 @@ const ChartWheelView = memo(function ChartWheelView({
                       className="ulune-aspect-case pointer-events-none"
                     />
                   ) : null}
+                  {/* The line and its pointed ends as one piece: the group takes
+                      their opacity (wheel-focus.ts), so where they meet never
+                      shows lighter or darker (part 87). */}
+                  <g data-aspect-ink="">
                   {/* The line proper; its ends (data-x1…y2) are the two
-                      degrees it joins, where the 3D view joins it too. */}
+                      degrees it joins, where the 3D view joins it too. A solid
+                      one ends square where its points take over; a dashed one
+                      keeps its round dashes. */}
                   <line
                     x1={taper.a.x}
                     y1={taper.a.y}
@@ -2824,12 +2848,13 @@ const ChartWheelView = memo(function ChartWheelView({
                     data-x2={p2.x.toFixed(2)}
                     data-y2={p2.y.toFixed(2)}
                     {...lineData}
+                    strokeLinecap={visBase.dash ? "round" : "butt"}
                   />
-                  {/* Its ends narrow to a point on each body's degree: both
-                      ends in one shape (aspect-taper.ts), re-cut by the focus
-                      paint for the lit width (data-w-* are the line's widths). */}
+                  {/* Its ends narrow smoothly to a point on each body's degree:
+                      both in one shape (aspect-taper.ts), cut again by the focus
+                      paint for the lit width and the wheel's scale. */}
                   <path
-                    d={tipsPath(p1, p2, TAPER[fit], visBase.width)}
+                    d={tipsPath(p1, p2, TAPER[fit], visBase.width, TAPER_K_GUESS[fit])}
                     fill={color}
                     data-kind="aspect-tip"
                     data-aspect-tip=""
@@ -2847,6 +2872,7 @@ const ChartWheelView = memo(function ChartWheelView({
                     data-ol-dim={dayDim}
                     className="pointer-events-none"
                   />
+                  </g>
                 </>
               )}
               {applySep && long && a.applying != null ? (

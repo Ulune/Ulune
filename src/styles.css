@@ -1028,7 +1028,7 @@ html.theme-ready body {
    arrival again: when the list reorders around it (a time step), React moves
    its node, and a moved node would start its animations over. */
 .ulune-wheel g[data-aspect][data-seen],
-.ulune-wheel g[data-seen] > [data-kind="aspect"][data-draw] {
+.ulune-wheel g[data-seen] [data-kind="aspect"][data-draw] {
   animation: none;
 }
 /* In a time jump the cross aspects wait for the bodies to arrive and fade in

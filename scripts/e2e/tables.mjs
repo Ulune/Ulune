@@ -359,6 +359,10 @@ async function runViewport(width) {
     await moon.waitFor({ state: "attached", timeout: 8000 });
     await moon.scrollIntoViewIfNeeded();
     await moon.click({ force: true });
+    // The pick lands a frame later under load: wait for it rather than read at once.
+    await page
+      .waitForFunction(() => document.querySelector("[data-testid=studio-table][data-chart-pick]")?.getAttribute("data-selected") === "planet:moon", null, { timeout: 3000 })
+      .catch(() => {});
     const tableSel = await page.locator("[data-testid=studio-table][data-chart-pick]").getAttribute("data-selected");
     if (tableSel !== "planet:moon") throw new Error(`store selectedId expected planet:moon, got "${tableSel}"`);
     const selected = await moon.getAttribute("data-selected");

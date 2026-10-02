@@ -461,6 +461,14 @@ type LineNode = {
    */
   taper: { p1: Pt; p2: Pt; t: number; d: Map<string, string> } | null;
   mode: Emphasis | null;
+  /**
+   * What takes its opacity: a line drawn with its tapered ends is one piece
+   * (their group, data-aspect-ink, part 87), so the line's opacity goes on the
+   * group and its ends take none of their own; anything else, itself.
+   */
+  oEl: Element | null;
+  /** The units per px its tapered ends were last cut for. */
+  k: string | null;
 };
 
 type CuspNode = { el: SVGElement; n: number; on: string | null };
@@ -559,14 +567,29 @@ function parseTaper(el: Element): LineNode["taper"] {
   return { p1: { x: v[0], y: v[1] }, p2: { x: v[2], y: v[3] }, t: v[4], d: new Map() };
 }
 
-/** The tapered ends' outline for a line width (cut once per width). */
-function tipsFor(taper: NonNullable<LineNode["taper"]>, w: string): string {
-  let d = taper.d.get(w);
+/** The tapered ends' outline for a line width at a scale (cut once per width and scale). */
+function tipsFor(taper: NonNullable<LineNode["taper"]>, w: string, k: string): string {
+  const key = `${w}|${k}`;
+  let d = taper.d.get(key);
   if (!d) {
-    d = tipsPath(taper.p1, taper.p2, taper.t, Number(w));
-    taper.d.set(w, d);
+    d = tipsPath(taper.p1, taper.p2, taper.t, Number(w), Number(k));
+    taper.d.set(key, d);
   }
   return d;
+}
+
+/**
+ * The wheel's units per screen px, as its non-scaling strokes are drawn
+ * (the svg's own box, not its CSS transforms), to 2%: the tapered ends meet
+ * their lines at the lines' own width.
+ */
+function unitsPerPx(svg: SVGSVGElement): string {
+  const vb = svg.viewBox?.baseVal;
+  const w = svg.clientWidth || svg.getBoundingClientRect().width;
+  if (!vb || !vb.width || !w) return "1";
+  const k = vb.width / w;
+  // Steps of 2%: a resize by a pixel cuts nothing again.
+  return String(Math.round(Math.exp(Math.round(Math.log(k) / 0.02) * 0.02) * 1000) / 1000);
 }
 
 /** The lit copy of an aspect's line, drawn above every line on a band of the ground's colour. */
@@ -585,11 +608,13 @@ function makeTop(a: AspectNode, theme: LineTheme): Element {
     );
   } else {
     const at = { x1: a.line.getAttribute("x1"), y1: a.line.getAttribute("y1"), x2: a.line.getAttribute("x2"), y2: a.line.getAttribute("y2") };
-    g.append(
-      svgEl(doc, "line", { ...at, stroke: ground, "stroke-width": w + 2.2, "stroke-linecap": "round" }),
-      svgEl(doc, "line", { ...at, stroke: a.color, "stroke-width": w, "stroke-dasharray": a.line.getAttribute("stroke-dasharray"), "stroke-linecap": "round", opacity: litO }),
+    // The line and its tapered ends as one piece (one opacity for both).
+    const ink = svgEl(doc, "g", { opacity: litO });
+    ink.append(
+      svgEl(doc, "line", { ...at, stroke: a.color, "stroke-width": w, "stroke-dasharray": a.line.getAttribute("stroke-dasharray"), "stroke-linecap": a.line.getAttribute("stroke-linecap") ?? "round" }),
     );
-    if (a.tips?.taper) g.append(svgEl(doc, "path", { d: tipsFor(a.tips.taper, a.litW), fill: a.color, opacity: litO }));
+    if (a.tips?.taper) ink.append(svgEl(doc, "path", { d: tipsFor(a.tips.taper, a.litW, a.tips.k ?? "1"), fill: a.color }));
+    g.append(svgEl(doc, "line", { ...at, stroke: ground, "stroke-width": w + 2.2, "stroke-linecap": "round" }), ink);
   }
   if (a.dir) {
     const c = a.dir.cloneNode(true) as Element;
@@ -630,10 +655,10 @@ function layerOf(root: Element): ExtrasLayer {
 }
 
 function aspectNode(g: Element, layer: ExtrasLayer, lineBy: Map<Element, LineNode>): AspectNode | null {
-  const line = g.querySelector(":scope > [data-aspect-line]");
+  const line = g.querySelector(":scope > [data-aspect-line], :scope > [data-aspect-ink] > [data-aspect-line]");
   const hl = g.getAttribute("data-hl");
   if (!line || !hl) return null;
-  const tipsEl = g.querySelector(":scope > [data-aspect-tip]");
+  const tipsEl = g.querySelector(":scope > [data-aspect-tip], :scope > [data-aspect-ink] > [data-aspect-tip]");
   return {
     hl,
     aspect: g.getAttribute("data-aspect") ?? "",
@@ -692,9 +717,10 @@ export function cacheWheelPaint(svg: SVGSVGElement, extra: Element[] = []): Whee
       o.light[m] = el.getAttribute(`data-ol-${m}`) ?? o.dark[m];
     }
     const taper = el.hasAttribute("data-aspect-tip") ? parseTaper(el) : null;
-    // The outline drawn now is the resting width's.
-    if (taper && w.base) taper.d.set(w.base, el.getAttribute("d") ?? "");
-    const l: LineNode = { el, node, isLine: el.hasAttribute("data-aspect-line"), w, o, taper, mode: null };
+    const isLine = el.hasAttribute("data-aspect-line");
+    const ink = el.parentElement?.hasAttribute("data-aspect-ink") ? el.parentElement : null;
+    const oEl = isLine ? (ink ?? el) : ink ? null : el;
+    const l: LineNode = { el, node, isLine, w, o, taper, mode: null, oEl, k: null };
     lineBy.set(el, l);
     return l;
   };
@@ -845,7 +871,7 @@ export function paintWheelFocus(
     cache.theme = theme;
     for (const l of cache.lines) {
       const o = l.mode ? l.o[theme][l.mode] : null;
-      if (o) l.el.setAttribute("opacity", o);
+      if (o) l.oEl?.setAttribute("opacity", o);
     }
     for (const a of cache.aspects) {
       a.top?.remove();
@@ -853,20 +879,23 @@ export function paintWheelFocus(
     }
   }
   const lit = new Set<string>();
+  const k = unitsPerPx(svg);
   for (const l of cache.lines) {
     const mode: Emphasis = !kind ? "base" : l.node.inFocus === "1" ? "lit" : "dim";
     if (mode === "lit" && l.isLine && l.node.hl) lit.add(l.node.hl);
-    if (l.mode === mode) continue;
+    // A tapered end is cut again when the wheel's scale has moved too.
+    if (l.mode === mode && (!l.taper || l.k === k)) continue;
     l.mode = mode;
     const w = l.w[mode];
     const o = l.o[theme][mode];
     if (w) {
       if (l.taper) {
-        const d = tipsFor(l.taper, w);
+        l.k = k;
+        const d = tipsFor(l.taper, w, k);
         if (l.el.getAttribute("d") !== d) l.el.setAttribute("d", d);
       } else l.el.setAttribute("stroke-width", w);
     }
-    if (o) l.el.setAttribute("opacity", o);
+    if (o) l.oEl?.setAttribute("opacity", o);
   }
   // A lit line's copy above every line: no dimmed line crosses it. Made
   // while it is lit, in the lines' own order (the tightest on top).

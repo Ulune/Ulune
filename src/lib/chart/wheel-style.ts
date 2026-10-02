@@ -91,10 +91,13 @@ export function aspectLook(
   const spanW = (minor ? 1.0 : 2.05) * weight;
   // Dots are as wide as the line: a hairline dot would vanish. A
   // conjunction's yoke stays fine: in a stellium they nest a few px apart.
-  const floorW = pattern === "dots" ? 1.7 : ASPECT_MIN_W;
+  // The floors thin with the lines (a phone's wheel, a thin Look), never
+  // thickening them: on a phone the screen's pixels are finer than a CSS px.
+  const s = Math.min(1, strokeScale);
+  const floorW = pattern === "dots" ? Math.max(1.2, 1.7 * s) : ASPECT_MIN_W * s;
   const width =
     pattern === "arc"
-      ? Math.max(ASPECT_MIN_W, (1.1 + t * 0.6) * strokeScale)
+      ? Math.max(ASPECT_MIN_W * s, (1.1 + t * 0.6) * strokeScale)
       : Math.max(floorW, (baseW + t * spanW) * strokeScale);
   const [lo, hi] = OPACITY[theme][minor ? "minor" : "major"];
   const opacity = lo + t * (hi - lo);
