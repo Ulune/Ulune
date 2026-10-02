@@ -109,13 +109,14 @@ export function aspectLook(
 
 /**
  * A chart colour as ink for a glyph: itself on the dark theme, deeper on the
- * light one (--ink-keep: 100% / 76%). It deepens toward black in oklch, so
- * its hue and its saturation stay (toward the warm text colour, blues went
- * grey and greens olive).
+ * light one (--ink-keep: 100% / 76%). Only its lightness goes down, toward
+ * --ink-deep (styles.css: a lightness with no chroma or hue of its own, so
+ * the colour keeps both): on cream a glyph is its colour a shade deeper, as
+ * vivid as the zodiac's bands, not the muddy colour a mix toward black gave.
  */
 export function ink(color: string): string {
   const keep = PALE.test(color) ? "var(--ink-keep-pale, var(--ink-keep, 100%))" : "var(--ink-keep, 100%)";
-  return `color-mix(in oklch, ${color} ${keep}, black)`;
+  return `color-mix(in oklch, ${color} ${keep}, var(--ink-deep, black))`;
 }
 
 /**
@@ -131,7 +132,7 @@ const PALE = /--(?:el-air|aspect-conj|aspect-outer-conj)\)/;
  */
 export function lineInk(color: string): string {
   const keep = PALE.test(color) ? "var(--line-keep-pale, var(--line-keep, 100%))" : "var(--line-keep, 100%)";
-  return `color-mix(in oklch, ${color} ${keep}, black)`;
+  return `color-mix(in oklch, ${color} ${keep}, var(--ink-deep, black))`;
 }
 
 /** Signed shortest turn from `a` to `b`, degrees (−180 … 180). */

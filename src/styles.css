@@ -1192,25 +1192,26 @@ html.theme-ready body {
 /* The glyphs stand bare (part 86, as on Astrodienst and Astro Gold): no
    disc behind them, a slight shadow to lift them off the lines that pass
    under (chart-wheel.tsx, defs "glyph-fx"); the one in focus, pointed at or
-   chosen, turns gold with a soft glow. */
+   chosen, keeps its colour inside a golden aura. */
 :root {
   --wheel-glyph-shadow: oklch(0 0 0 / 0.85);
 }
+/* On cream the shadow is a soft keyline of the wheel's own paper: a dark one
+   made the colours there look muddy. */
 html.light {
-  --wheel-glyph-shadow: oklch(0.35 0.02 70 / 0.28);
+  --wheel-glyph-shadow: oklch(0.982 0.0095 80 / 0.95);
 }
 .ulune-wheel .ulune-glyph-shadow {
   flood-color: var(--wheel-glyph-shadow);
 }
 .ulune-wheel .ulune-glyph-glow {
   flood-color: var(--color-halo);
-  flood-opacity: 0.7;
+  flood-opacity: 0.95;
 }
 .ulune-wheel .ulune-glyph-at {
   filter: var(--glyph-shadow);
 }
 .ulune-wheel :is([data-kind="planet"], [data-kind="transit"])[data-exact="1"] > .ulune-glyph-at {
-  color: var(--color-halo);
   filter: var(--glyph-glow);
 }
 .ulune-wheel .ulune-wheel-halo {
@@ -1225,6 +1226,9 @@ html.light {
    element colours of the ring, a shade deeper. Structural lines take a
    touch more ink on cream for the same contrast. */
 :root {
+  /* Where an ink deepens to on cream: only its lightness moves (no chroma,
+     no hue here), so the colour stays as saturated (wheel-style.ts ink). */
+  --ink-deep: oklch(0.3 none none);
   --ink-keep: 100%;
   --line-keep: 100%;
   --ink-keep-pale: 100%;

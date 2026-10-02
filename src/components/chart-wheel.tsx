@@ -3134,15 +3134,23 @@ const ChartWheelView = memo(function ChartWheelView({
             would cut through one drawn with its own line). wheel-focus.ts
             makes a line's mark while it shows (in a focus, or at rest on a
             chart with few aspects), from its type's template here. */}
-        {/* The glyphs' slight shadow, and the golden glow of the one in focus
+        {/* The glyphs' slight shadow, and the golden aura of the one in focus
             (styles.css, .ulune-glyph-at): the glyphs stand bare, the shadow
             lifts them off the lines that pass under them. */}
         <defs data-kind="glyph-fx">
           <filter id={`${glyphFx}-shadow`} x="-40%" y="-40%" width="180%" height="180%" colorInterpolationFilters="sRGB">
             <feDropShadow dx={0} dy={0.7} stdDeviation={1.1} className="ulune-glyph-shadow" />
           </filter>
+          {/* A golden aura that follows the glyph's own shape (it keeps its colour). */}
           <filter id={`${glyphFx}-glow`} x="-60%" y="-60%" width="220%" height="220%" colorInterpolationFilters="sRGB">
-            <feDropShadow dx={0} dy={0} stdDeviation={2.2} className="ulune-glyph-glow" />
+            <feMorphology in="SourceAlpha" operator="dilate" radius={1.3} result="spread" />
+            <feGaussianBlur in="spread" stdDeviation={1.7} result="soft" />
+            <feFlood className="ulune-glyph-glow" result="gold" />
+            <feComposite in="gold" in2="soft" operator="in" result="aura" />
+            <feMerge>
+              <feMergeNode in="aura" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
           </filter>
         </defs>
         <defs data-kind="mark-templates">
