@@ -1246,11 +1246,13 @@ html.light {
   --wheel-aspect-ring: color-mix(in oklab, var(--color-fg) 18%, transparent);
 }
 html.light {
-  --ink-keep: 76%;
-  --line-keep: 88%;
-  /* Air's yellow and the conjunctions' gold: 3:1 on cream (2.2 to 2.7 at the keeps above). */
-  --ink-keep-pale: 68%;
-  --line-keep-pale: 78%;
+  /* A shade deeper than by night, no more (your ask: lighter, not muddy):
+     the colours stay light and clean on cream. */
+  --ink-keep: 90%;
+  --line-keep: 96%;
+  /* Air's yellow and the conjunctions' gold take a little more. */
+  --ink-keep-pale: 84%;
+  --line-keep-pale: 90%;
   --wheel-sign-line: color-mix(in oklab, var(--color-fg) 44%, transparent);
   --wheel-aspect-ring: color-mix(in oklab, var(--color-fg) 24%, transparent);
 }

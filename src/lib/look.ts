@@ -144,16 +144,16 @@ export const TRADITIONAL_PLANET_INK: Record<ClassicPlanet, Oklch> = {
 
 /** The same colours on the light theme: their light counterparts, as vivid (the glyph ink, wheel-style.ts, takes them a shade deeper on cream). */
 export const TRADITIONAL_PLANET_INK_DAY: Record<ClassicPlanet, Oklch> = {
-  sun: { h: 80, c: 0.13, l: 0.74 },
-  moon: { h: 250, c: 0.03, l: 0.62 },
-  mercury: { h: 55, c: 0.15, l: 0.72 },
-  venus: { h: 150, c: 0.16, l: 0.68 },
-  mars: { h: 25, c: 0.21, l: 0.62 },
-  jupiter: { h: 260, c: 0.17, l: 0.64 },
-  saturn: { h: 280, c: 0.08, l: 0.56 },
-  uranus: { h: 212, c: 0.1, l: 0.68 },
-  neptune: { h: 188, c: 0.1, l: 0.66 },
-  pluto: { h: 0, c: 0.16, l: 0.56 },
+  sun: { h: 80, c: 0.13, l: 0.78 },
+  moon: { h: 250, c: 0.03, l: 0.66 },
+  mercury: { h: 55, c: 0.15, l: 0.74 },
+  venus: { h: 150, c: 0.16, l: 0.72 },
+  mars: { h: 25, c: 0.21, l: 0.63 },
+  jupiter: { h: 260, c: 0.17, l: 0.66 },
+  saturn: { h: 280, c: 0.08, l: 0.6 },
+  uranus: { h: 212, c: 0.1, l: 0.72 },
+  neptune: { h: 188, c: 0.1, l: 0.7 },
+  pluto: { h: 0, c: 0.16, l: 0.57 },
 } as Record<ClassicPlanet, Oklch>;
 
 /** First V1 gold air — khaki / brown-gray olive. Saved Looks still on this mix upgrade. */
