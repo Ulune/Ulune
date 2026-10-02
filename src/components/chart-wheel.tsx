@@ -2293,7 +2293,10 @@ const ChartWheelView = memo(function ChartWheelView({
         key={wheelKey}
         viewBox={showTransits ? BIWHEEL_VIEW.vb : NATAL_VIEW.vb}
         className="ulune-wheel h-full w-full origin-center select-none"
-        style={{ ["--glyph-shadow" as string]: `url(#${glyphFx}-shadow)`, ["--glyph-glow" as string]: `url(#${glyphFx}-glow)` }}
+        style={{
+          ["--glyph-shadow" as string]: `url(#${glyphFx}-shadow)`,
+          ["--glyph-glow" as string]: `url(#${glyphFx}-glow)`,
+        }}
         data-bi={showTransits ? "1" : undefined}
         role="img"
         aria-label={t("wheelAria")}
@@ -3161,7 +3164,9 @@ const ChartWheelView = memo(function ChartWheelView({
           {markTypes.map((type) => (
             <g key={type} data-mark-template={type}>
               <g className="ulune-aspect-mark-pop">
-                <circle r={ASPECT_MARK_DISK} fill="var(--color-bg-elevated)" stroke="currentColor" strokeWidth={1.8} />
+                {/* No circle round the glyph (part 86d): a disc of the aspect
+                    circle's own face, unseen on it, parts the lines under it. */}
+                <circle r={ASPECT_MARK_DISK} fill="var(--color-bg)" />
                 <CenteredAspectGlyph
                   id={type}
                   size={type === "conjunction" ? ASPECT_MARK_CONJ : type === "quintile" ? ASPECT_MARK_QUINTILE : ASPECT_MARK}
