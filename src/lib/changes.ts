@@ -6,7 +6,7 @@
  */
 import type { LegalText } from "@/lib/legal/pages";
 
-export const CHANGES_UPDATED = "2026-10-01";
+export const CHANGES_UPDATED = "2026-10-02";
 
 export const CHANGES: Record<"en" | "fr", LegalText> = {
   en: {
@@ -24,6 +24,7 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "A chart builds itself the first time you see it in a visit and simply settles in after that; Human Design builds its bodygraph too, centre by centre.",
           "No hover highlight left behind after a tap on a phone.",
           "Richer colours on screens that can show more than the usual range, as on iPhones and recent Macs.",
+          "The planet glyphs stand bare on the chart, with a slight shadow, and turn gold when you point at one or choose it; in a stellium they sit a pixel or two apart, and their degrees start below the brackets that join conjunctions.",
           "Switching quickly between charts no longer makes them flash or play their entrance twice.",
           "The calendar stays on today: the year view and back, or the arrows, no longer send it to 1 January.",
         ],
@@ -70,6 +71,7 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "Un thème se construit la première fois que vous le voyez dans une visite, puis il apparaît simplement\u202f; le Human Design construit aussi son bodygraph, centre après centre.",
           "Plus de survol qui reste allumé après un toucher sur téléphone.",
           "Des couleurs plus riches sur les écrans capables d’en montrer davantage, comme ceux des iPhone et des Mac récents.",
+          "Les glyphes des planètes se tiennent seuls sur le thème, avec une légère ombre, et passent à l’or quand vous en désignez ou en choisissez un\u202f; dans un stellium ils se serrent à un ou deux pixels, et leurs degrés commencent sous les crochets qui relient les conjonctions.",
           "Passer vite d’un thème à l’autre ne les fait plus clignoter ni rejouer leur entrée.",
           "Le calendrier reste sur aujourd’hui\u202f: la vue de l’année puis le retour, ou les flèches, ne le renvoient plus au 1er janvier.",
         ],

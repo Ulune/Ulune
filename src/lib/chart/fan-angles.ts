@@ -89,3 +89,68 @@ function unwrapAlong(target: number[], order: number[]): number[] {
   }
   return u;
 }
+
+/**
+ * Fan angles where each neighbour pair asks for its own room: `gap(a, b)`
+ * is the least separation (degrees) between the bodies at input indices a
+ * and b, so narrow glyphs can sit closer than wide ones (the natal ring,
+ * part 86: the glyphs a pixel or two apart in a stellium). A crowd is laid
+ * out with those gaps and centred on its bodies' own places (the least
+ * squares fit), as `fanAngles` does with one gap.
+ */
+export function fanAnglesBy(ecliptics: number[], gap: (a: number, b: number) => number): number[] {
+  const n = ecliptics.length;
+  if (n === 0) return [];
+  const target = ecliptics.map((e) => ((e % 360) + 360) % 360);
+  if (n === 1) return target;
+  const order = circularOrder(target);
+  const unwrapped = unwrapAlong(target, order);
+  // The pairs' gaps along the circle; all of them shrunk together if the
+  // whole ring would not hold them.
+  const pair = order.map((k, i) => gap(k, order[(i + 1) % n] ?? k));
+  const ring = pair.reduce((s, g) => s + g, 0);
+  const fit = ring > 360 - 0.45 * n ? (360 - 0.45 * n) / ring : 1;
+  const step = pair.map((g) => g * fit);
+
+  type Cluster = { first: number; last: number };
+  const clusters: Cluster[] = unwrapped.map((_, k) => ({ first: k, last: k }));
+  const offsets = (c: Cluster) => {
+    const off: number[] = [0];
+    for (let k = c.first + 1; k <= c.last; k += 1) off.push((off[off.length - 1] ?? 0) + (step[k - 1] ?? 0));
+    return off;
+  };
+  const bounds = (c: Cluster) => {
+    const off = offsets(c);
+    let sum = 0;
+    for (let k = c.first; k <= c.last; k += 1) sum += (unwrapped[k] ?? 0) - (off[k - c.first] ?? 0);
+    const lo = sum / (c.last - c.first + 1);
+    return { lo, hi: lo + (off[off.length - 1] ?? 0), off };
+  };
+
+  for (let guard = 0; guard < n; guard += 1) {
+    let merged = false;
+    for (let i = 0; i < clusters.length - 1; i += 1) {
+      const a = clusters[i];
+      const b = clusters[i + 1];
+      if (!a || !b) continue;
+      if (bounds(a).hi + (step[a.last] ?? 0) > bounds(b).lo + 1e-9) {
+        clusters[i] = { first: a.first, last: b.last };
+        clusters.splice(i + 1, 1);
+        merged = true;
+        break;
+      }
+    }
+    if (!merged) break;
+  }
+
+  const out = target.slice();
+  for (const c of clusters) {
+    const { lo, off } = bounds(c);
+    for (let k = c.first; k <= c.last; k += 1) {
+      const orig = order[k];
+      if (orig == null) continue;
+      out[orig] = (((lo + (off[k - c.first] ?? 0)) % 360) + 360) % 360;
+    }
+  }
+  return out;
+}

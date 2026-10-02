@@ -112,7 +112,8 @@ if (want.has("wheel")) {
 if (want.has("bundle")) {
   const out = node([join(ROOT, "scripts/perf/load/chunks.mjs"), "/", "--returning", "--json"]);
   const [home] = JSON.parse(out.slice(out.indexOf("[")));
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 262, "KB gz");
+  // Part 86 (the glyphs laid out by their own widths, their degrees under the yokes): 263, limit 265.
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 265, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's

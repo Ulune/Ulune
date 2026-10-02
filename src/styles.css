@@ -1186,13 +1186,32 @@ html.theme-ready body {
   stroke-width: 2.6px;
   stroke-linejoin: round;
 }
-.ulune-wheel .ulune-glyph-mask {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.ulune-wheel [data-grow="1"] .ulune-glyph-scale,
-.ulune-wheel [data-grow="1"] > .ulune-glyph-mask {
+.ulune-wheel [data-grow="1"] .ulune-glyph-scale {
   transform: scale(1.4);
+}
+/* The glyphs stand bare (part 86, as on Astrodienst and Astro Gold): no
+   disc behind them, a slight shadow to lift them off the lines that pass
+   under (chart-wheel.tsx, defs "glyph-fx"); the one in focus, pointed at or
+   chosen, turns gold with a soft glow. */
+:root {
+  --wheel-glyph-shadow: oklch(0 0 0 / 0.85);
+}
+html.light {
+  --wheel-glyph-shadow: oklch(0.35 0.02 70 / 0.28);
+}
+.ulune-wheel .ulune-glyph-shadow {
+  flood-color: var(--wheel-glyph-shadow);
+}
+.ulune-wheel .ulune-glyph-glow {
+  flood-color: var(--color-halo);
+  flood-opacity: 0.7;
+}
+.ulune-wheel .ulune-glyph-at {
+  filter: var(--glyph-shadow);
+}
+.ulune-wheel :is([data-kind="planet"], [data-kind="transit"])[data-exact="1"] > .ulune-glyph-at {
+  color: var(--color-halo);
+  filter: var(--glyph-glow);
 }
 .ulune-wheel .ulune-wheel-halo {
   opacity: 0;

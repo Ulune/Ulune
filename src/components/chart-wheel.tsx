@@ -4,6 +4,7 @@ import {
   memo,
   useCallback,
   useEffect,
+  useId,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -58,7 +59,8 @@ import { useLookPaintRev, useLookShape } from "@/lib/look-provider";
 import { quietChartMotionEvents } from "@/lib/quiet-motion-events";
 import { captureFirstView, claimFirstView } from "@/lib/first-view";
 import { whenIdle } from "@/lib/lazy-component";
-import { fanAngles } from "@/lib/chart/fan-angles";
+import { fanAngles, fanAnglesBy } from "@/lib/chart/fan-angles";
+import { GLYPH_INK } from "@/lib/chart/glyph-ink";
 import {
   cacheWheelPaint,
   paintWheelFocus,
@@ -122,20 +124,28 @@ const ASPECT_MARK_CONJ = 16;
 const ASPECT_MARK_QUINTILE = 26;
 const ASPECT_MARK_DISK = 10;
 const ASPECT_MARK_MIN_SPAN = 22;
-/** Filled disk around each glyph (matches the circle `r`). */
+/**
+ * A glyph's reach: its hit zone, where a lead line stops short of it, the
+ * room its degree and the yokes keep. The glyphs stand bare on the wheel
+ * (part 86, no disc behind them, as on Astrodienst and Astro Gold).
+ */
 const PLANET_DISK = 16;
 /** The marks around a glyph (rings, overlay marks) were placed for a 13-unit disc: they scale with it. */
 const MK = PLANET_DISK / 13;
 const mk = (n: number) => Number((n * MK).toFixed(2));
 /** The disc of a glyph in focus, grown 1.4 times (styles.css): its degree label keeps clear of it. */
 const PLANET_DISK_GROWN = PLANET_DISK * 1.4;
-/** SVG units between disks — ~2px on the desktop wheel, ~1px on a phone. */
-const PLANET_PAD = 3;
 /**
- * How far apart crowded glyphs fan (degrees): as far as discs on the golden-ratio
- * ring need, so the degree labels under them keep the room they need.
+ * Crowded glyphs (part 86) stand side by side this far apart, ink to ink:
+ * about 2 px on a computer's wheel, 1 px on a phone's. Each pair takes the
+ * room its own two glyphs need across the spoke (a Moon is narrower than a
+ * Saturn), and their degrees along the spokes keep theirs.
  */
-const PLANET_MIN_SEP = ((PLANET_DISK * 2 + PLANET_PAD) / R_LABEL) * (180 / Math.PI);
+const GLYPH_GAP = 2.5;
+/** A face's glyph can ink a little wider than the drawn one measured in glyph-ink.ts. */
+const GLYPH_INK_ROOM = 1.04;
+/** Between two degrees along their spokes, at their inner ends (units). */
+const DEG_SIDE_GAP = 1;
 const R_STAR = R_OUTER + 5;
 const EMPTY_IDS = new Set<string>();
 /** How long a fresh wheel's entrance takes, all staging included (ms). */
@@ -228,6 +238,8 @@ const YOKE_CORNER = 2.6;
 const YOKE_MIN_LEN = 3;
 /** A yoke's leg starts this far inside its glyph's disc, under the disc, so the two meet cleanly. */
 const YOKE_TUCK = 2;
+/** A degree under a yoke starts this far below its lane (units: the line, and a little air). */
+const YOKE_CLEAR = { lg: 2.6, sm: 3.6 } as const;
 /** Aspect lines shorter than this carry no direction chevrons at rest (units). */
 const CHEVRON_MIN_LEN = 40;
 /**
@@ -518,14 +530,19 @@ function transitLabelSpec(formatted: string, retrograde: boolean, fit: "sm" | "l
  * degrees never cross), turned to read left to right. `tail` is where the
  * line takes over again, on to the planet's true degree on the aspect circle.
  */
-function radialLabel(glyph: { x: number; y: number }, w: number): LabelPlace & { start: number; end: number; tail: { x: number; y: number } } {
+function radialLabel(
+  glyph: { x: number; y: number },
+  w: number,
+  from = PLANET_DISK_GROWN - 1,
+): LabelPlace & { start: number; end: number; tail: { x: number; y: number } } {
   const dx = CX - glyph.x;
   const dy = CY - glyph.y;
   const len = Math.hypot(dx, dy) || 1;
   const ux = dx / len;
   const uy = dy / len;
-  // Clear of the glyph grown in focus (1.4 times), so lighting a planet never covers its degree.
-  const start = PLANET_DISK_GROWN - 1;
+  // Clear of the glyph grown in focus (1.4 times), so lighting a planet never
+  // covers its degree; below the yokes there (labelAt).
+  const start = from;
   const mid = start + w / 2;
   let rot = (Math.atan2(uy, ux) * 180) / Math.PI;
   if (rot > 90) rot -= 180;
@@ -820,6 +837,8 @@ const ChartWheelView = memo(function ChartWheelView({
   // Hover is painted onto the SVG in the same frame as the pointer move —
   // React state would rebuild the whole wheel and feel like lag.
   const svgRef = useRef<SVGSVGElement>(null);
+  /** The ids of this wheel's glyph filters (two wheels on a page each have their own). */
+  const glyphFx = `ulune-gfx${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const hoverIdRef = useRef<string | null>(null);
   const cacheRef = useRef<WheelPaintCache | null>(null);
   const ctxRef = useRef<WheelFocusCtx | null>(null);
@@ -898,7 +917,7 @@ const ChartWheelView = memo(function ChartWheelView({
     () => [...shownPlanets, ...Object.values(chart.angles).filter((a) => visible.has(a.id))],
     [shownPlanets, chart, visible],
   );
-  const placed = useMemo(() => layoutPlanets(shownPlanets, asc), [shownPlanets, asc]);
+  const placed = useMemo(() => layoutPlanets(shownPlanets, asc, fit), [shownPlanets, asc, fit]);
   const showTransits = Boolean(transits);
   const synastryMode = outerKind === "synastry";
   const progressedMode = outerKind === "progressions";
@@ -966,6 +985,8 @@ const ChartWheelView = memo(function ChartWheelView({
       ends: string;
       /** A conjunction is drawn as a yoke, not a chord. */
       yoke: YokeGeo | null;
+      /** A yoke under the glyphs: the arc it spans and the radius of its lane (the degrees start below it). */
+      underAt?: { span: YokeSpan; r: number };
       /** Where its glyph shows at rest (long major lines on a chart with few aspects), if it does. */
       restMark: { x: number; y: number } | null;
     }[] = [];
@@ -1043,6 +1064,7 @@ const ChartWheelView = memo(function ChartWheelView({
       // Up into a planet's disc; an angle's axis crosses the lane itself.
       const top = (hl: string) => (hl.startsWith("planet:") ? R_PLANET - PLANET_DISK + YOKE_TUCK : rr);
       r.yoke = yokeGeo(glyphSpans[i], [top(first), top(second)], rr, lane, asc);
+      r.underAt = { span: glyphSpans[i], r: rr };
     });
     // Every line lands exactly on its bodies' degrees on the aspect circle,
     // on the dot each body has there (the ends taper to a point so the lines
@@ -1188,13 +1210,21 @@ const ChartWheelView = memo(function ChartWheelView({
     // Each degree along its planet's line, from the glyph toward the aspect
     // circle (part 85a): as thin across as a line of text, so wherever the
     // glyphs fan apart their degrees do too.
+    // A degree under a yoke starts below its lane, so the yokes of a
+    // stellium never cross the degrees (part 86).
+    const lanes = chords.flatMap((c) => (c.underAt ? [c.underAt] : []));
     const out = new Map<string, ReturnType<typeof radialLabel>>();
     for (const p of placed) {
       const spec = labelSpec(p.formatted, p.retrograde, fit);
-      out.set(p.id, radialLabel({ x: p.x, y: p.y }, spec.w));
+      let start = PLANET_DISK_GROWN - 1;
+      for (const { span, r } of lanes) {
+        const half = Math.max(span.len, YOKE_MIN_LEN) / 2 + 0.2;
+        if (Math.abs(turn(span.mid, p.display)) <= half) start = Math.max(start, R_PLANET - r + YOKE_CLEAR[fit]);
+      }
+      out.set(p.id, radialLabel({ x: p.x, y: p.y }, spec.w, start));
     }
     return out;
-  }, [placed, fit]);
+  }, [placed, fit, chords]);
   /** The degree labels as drawn (house numbers and their marks keep clear of them). */
   const labelBoxes = useMemo<OBox[]>(
     () =>
@@ -1205,19 +1235,6 @@ const ChartWheelView = memo(function ChartWheelView({
         return [{ cx: place.x, cy: place.y, hw: spec.w / 2, hh: spec.h / 2, rot: place.rot }];
       }),
     [placed, labelAt, fit],
-  );
-  /**
-   * The cusp degrees as written: each on its house's side of the cusp, or
-   * where a degree label covers it there, the other side; covered there too,
-   * it is not written (the table has it).
-   */
-  const cuspDegs = useMemo(
-    () =>
-      cuspDegSpots.flatMap(({ house, deg, flip, sides }) => {
-        const side = sides.find((c) => labelBoxes.every((b) => !boxesOverlap(c.box, b)));
-        return side ? [{ house, at: side.at, deg, flip }] : [];
-      }),
-    [cuspDegSpots, labelBoxes],
   );
   /** Where each house number's text goes so its digits' ink is centred in its disc (text-ink.ts; null until the font is in). */
   const inkVersion = useTextInkVersion();
@@ -1244,6 +1261,23 @@ const ChartWheelView = memo(function ChartWheelView({
       { r: R_HOUSE_NUM, rIn: R_ASPECT + HOUSE_NUM_R + 1, radius: HOUSE_NUM_R, discs: [...glyphDiscs, ...yokeDots], boxes: labelBoxes },
     );
   }, [chart.houses, asc, glyphDiscs, yokeDots, labelBoxes]);
+  const numbers = useMemo<OBox[]>(
+    () => [...badgeAt.values()].map((b) => ({ cx: b.x, cy: b.y, hw: HOUSE_NUM_R, hh: HOUSE_NUM_R, rot: 0 })),
+    [badgeAt],
+  );
+  /**
+   * The cusp degrees as written: each on its house's side of the cusp, or
+   * where a degree label covers it there, the other side; covered there too,
+   * it is not written (the table has it). A house number's disc covers it too.
+   */
+  const cuspDegs = useMemo(
+    () =>
+      cuspDegSpots.flatMap(({ house, deg, flip, sides }) => {
+        const side = sides.find((c) => labelBoxes.every((b) => !boxesOverlap(c.box, b)) && numbers.every((b) => !boxesOverlap(c.box, b)));
+        return side ? [{ house, at: side.at, deg, flip }] : [];
+      }),
+    [cuspDegSpots, labelBoxes, numbers],
+  );
   const ticks = useMemo(
     () => ({
       fine: tickPath(0, 360, 1, R_TICK_1, R_TICK_OUT, asc),
@@ -2259,6 +2293,7 @@ const ChartWheelView = memo(function ChartWheelView({
         key={wheelKey}
         viewBox={showTransits ? BIWHEEL_VIEW.vb : NATAL_VIEW.vb}
         className="ulune-wheel h-full w-full origin-center select-none"
+        style={{ ["--glyph-shadow" as string]: `url(#${glyphFx}-shadow)`, ["--glyph-glow" as string]: `url(#${glyphFx}-glow)` }}
         data-bi={showTransits ? "1" : undefined}
         role="img"
         aria-label={t("wheelAria")}
@@ -3099,6 +3134,17 @@ const ChartWheelView = memo(function ChartWheelView({
             would cut through one drawn with its own line). wheel-focus.ts
             makes a line's mark while it shows (in a focus, or at rest on a
             chart with few aspects), from its type's template here. */}
+        {/* The glyphs' slight shadow, and the golden glow of the one in focus
+            (styles.css, .ulune-glyph-at): the glyphs stand bare, the shadow
+            lifts them off the lines that pass under them. */}
+        <defs data-kind="glyph-fx">
+          <filter id={`${glyphFx}-shadow`} x="-40%" y="-40%" width="180%" height="180%" colorInterpolationFilters="sRGB">
+            <feDropShadow dx={0} dy={0.7} stdDeviation={1.1} className="ulune-glyph-shadow" />
+          </filter>
+          <filter id={`${glyphFx}-glow`} x="-60%" y="-60%" width="220%" height="220%" colorInterpolationFilters="sRGB">
+            <feDropShadow dx={0} dy={0} stdDeviation={2.2} className="ulune-glyph-glow" />
+          </filter>
+        </defs>
         <defs data-kind="mark-templates">
           {markTypes.map((type) => (
             <g key={type} data-mark-template={type}>
@@ -3374,9 +3420,7 @@ const ChartWheelView = memo(function ChartWheelView({
                 stroke="var(--color-halo)"
                 strokeWidth={1.8}
               />
-              {/* Borderless mask so the glyph floats clear of lines beneath. */}
-              <circle className="ulune-glyph-mask" cx={p.x} cy={p.y} r={mk(12.5)} fill="var(--color-bg-elevated)" />
-              <g transform={`translate(${p.x}, ${p.y})`}>
+              <g className="ulune-glyph-at" transform={`translate(${p.x}, ${p.y})`}>
                 <g className="ulune-glyph-scale">
                   <g transform={`translate(${-GLYPH / 2}, ${-GLYPH / 2})`}>
                     <PlanetGlyph id={p.id} size={GLYPH} />
@@ -3468,13 +3512,13 @@ const ChartWheelView = memo(function ChartWheelView({
                 {spec.txt}
               </text>
               {p.retrograde ? (() => {
-                // Beside the glyph on the pinwheel's side, a little to one side
-                // (clear of its degree and of a fanned neighbour).
+                // At the glyph's outer corner on one side (clear of its degree;
+                // the ring keeps room for it beside a crowded neighbour, planetGap).
                 const len = Math.hypot(CX - p.x, CY - p.y) || 1;
                 const ux = (CX - p.x) / len;
                 const uy = (CY - p.y) / len;
-                const rx = p.x - ux * mk(9) - uy * mk(12);
-                const ry = p.y - uy * mk(9) + ux * mk(12);
+                const rx = p.x - ux * RX_OUT - uy * RX_SIDE;
+                const ry = p.y - uy * RX_OUT + ux * RX_SIDE;
                 return (
                 <text
                   x={rx}
@@ -3482,7 +3526,7 @@ const ChartWheelView = memo(function ChartWheelView({
                   textAnchor="middle"
                   dominantBaseline="central"
                   fill="currentColor"
-                  fontSize={fit === "sm" ? 11 : 8}
+                  fontSize={rxFont(fit)}
                   fontFamily="var(--font-mono)"
                   data-kind="retro"
                   className="pointer-events-none"
@@ -3693,8 +3737,7 @@ const ChartWheelView = memo(function ChartWheelView({
                     stroke="var(--color-halo)"
                     strokeWidth={1.8}
                   />
-                  <circle className="ulune-glyph-mask" cx={p.x} cy={p.y} r={10.5} fill="var(--color-bg)" />
-                  <g transform={`translate(${p.x}, ${p.y})`}>
+                  <g className="ulune-glyph-at" transform={`translate(${p.x}, ${p.y})`}>
                     <g className="ulune-glyph-scale">
                       <g transform={`translate(${-TRANSIT_GLYPH / 2}, ${-TRANSIT_GLYPH / 2})`}>
                         <PlanetGlyph id={p.id} size={TRANSIT_GLYPH} />
@@ -3739,22 +3782,54 @@ const ChartWheelView = memo(function ChartWheelView({
   );
 });
 
-function layoutRing(
-  planets: NatalChart["planets"],
-  asc: number,
-  radius: number,
-  minSep: number,
-) {
-  const items = planets.map((p) => ({
-    ...p,
-    radius,
-    display: p.ecliptic,
-    x: 0,
-    y: 0,
-  }));
-  const fanned = fanAngles(
+/** The retrograde mark: out from the glyph toward the ticks, and to one side of it (units). */
+const RX_OUT = 12;
+const RX_SIDE = 10;
+const rxFont = (fit: "sm" | "lg") => (fit === "sm" ? 11 : 8);
+
+/**
+ * How far a glyph reaches across its spoke on one side (units): its ink seen
+ * along the ring there (taken as round: the corners of its box are empty),
+ * or its retrograde mark if that is on this side.
+ */
+function sideReach(p: NatalChart["planets"][number], higher: boolean, asc: number, fit: "sm" | "lg"): number {
+  const [x0, y0, x1, y1] = GLYPH_INK[p.id] ?? [4, 3, 20, 21];
+  const k = (GLYPH / 24) * GLYPH_INK_ROOM;
+  const hw = ((x1 - x0) / 2) * k;
+  const hh = ((y1 - y0) / 2) * k;
+  const pt = polar(p.ecliptic, R_PLANET, asc);
+  const len = Math.hypot(pt.x - CX, pt.y - CY) || 1;
+  const ux = (CX - pt.x) / len;
+  const uy = (CY - pt.y) / len;
+  // Along the ring, toward higher longitudes.
+  const ahead = polar(p.ecliptic + 0.5, R_PLANET, asc);
+  const ax = ahead.x - pt.x;
+  const ay = ahead.y - pt.y;
+  const al = Math.hypot(ax, ay) || 1;
+  const reach = Math.hypot((ax / al) * hw, (ay / al) * hh);
+  if (!p.retrograde) return reach;
+  // The mark sits on the side (-uy, ux) points to (the render below).
+  const rxHigher = -uy * ax + ux * ay > 0;
+  return rxHigher === higher ? Math.max(reach, RX_SIDE + rxFont(fit) * 0.36) : reach;
+}
+
+/** The least angle (degrees) between two neighbours on the natal ring, b after a: their glyphs, and their degrees. */
+function planetGap(a: NatalChart["planets"][number], b: NatalChart["planets"][number], asc: number, fit: "sm" | "lg"): number {
+  const glyphs = (sideReach(a, true, asc, fit) + sideReach(b, false, asc, fit) + GLYPH_GAP) / R_PLANET;
+  const la = labelSpec(a.formatted, a.retrograde, fit);
+  const lb = labelSpec(b.formatted, b.retrograde, fit);
+  // The degrees run in along the spokes and close in toward their ends.
+  const deepest = Math.max(PLANET_DISK_GROWN - 1, PLANET_DISK + YOKE_IN[fit] + (YOKE_LANES[fit] - 1) * YOKE_STEP[fit] + YOKE_CLEAR[fit]);
+  const inner = R_PLANET - deepest - Math.max(la.w, lb.w);
+  const degrees = ((la.h + lb.h) / 2 + DEG_SIDE_GAP) / inner;
+  return (Math.max(glyphs, degrees) * 180) / Math.PI;
+}
+
+function layoutPlanets(planets: NatalChart["planets"], asc: number, fit: "sm" | "lg") {
+  const items = planets.map((p) => ({ ...p, radius: R_PLANET, display: p.ecliptic, x: 0, y: 0 }));
+  const fanned = fanAnglesBy(
     items.map((p) => p.ecliptic),
-    minSep,
+    (i, j) => planetGap(planets[i], planets[j], asc, fit),
   );
   items.forEach((p, i) => {
     p.display = fanned[i] ?? p.ecliptic;
@@ -3763,10 +3838,6 @@ function layoutRing(
     p.y = pt.y;
   });
   return items;
-}
-
-function layoutPlanets(planets: NatalChart["planets"], asc: number) {
-  return layoutRing(planets, asc, R_PLANET, PLANET_MIN_SEP);
 }
 
 function layoutTransits(planets: NatalChart["planets"], asc: number) {

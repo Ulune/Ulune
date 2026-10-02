@@ -158,8 +158,10 @@ for (const width of [390, 1280]) {
     const after = await page.screenshot({ clip });
     // The ring's anti-aliased edges can come out a few levels apart (up to 47 of
     // 255, seen in about one run in three at 1280) when the copy or the live SVG
-    // is painted on a layer of its own; a shift or a missing piece is far more.
-    const apart = await pixelsApart(page, before, after, 48);
+    // is painted on a layer of its own; since the glyphs' shadow filters (part
+    // 86) the live wheel is, and an edge pixel at 390 lands 50 apart. A shift
+    // or a missing piece is far more.
+    const apart = await pixelsApart(page, before, after, 56);
     if (apart !== 0) {
       await writeFile(join(SHOTS, `first-view-${width}-before.png`), before);
       await writeFile(join(SHOTS, `first-view-${width}-after.png`), after);

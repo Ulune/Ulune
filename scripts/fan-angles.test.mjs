@@ -102,3 +102,20 @@ test("leaders would not cross: display is monotonic along the cluster", () => {
     );
   }
 });
+
+test("fanAnglesBy: one gap for all is fanAngles; narrow pairs sit closer than wide ones", async () => {
+  const { fanAnglesBy } = await import("../src/lib/chart/fan-angles.ts");
+  const crowd = [10, 10.5, 11, 11.2, 30, 359.5, 0.2];
+  const a = fanAngles(crowd, 5);
+  const b = fanAnglesBy(crowd, () => 5);
+  for (let i = 0; i < crowd.length; i += 1) assert.ok(Math.abs(((a[i] - b[i] + 540) % 360) - 180) < 1e-9);
+  // Three bodies at one place: the narrow pair (0, 1) 3° apart, the wide pair (1, 2) 6°.
+  const out = fanAnglesBy([100, 100, 100], (i, j) => (i + j === 1 ? 3 : 6));
+  const sorted = [...out].sort((x, y) => x - y);
+  assert.ok(Math.abs(sorted[1] - sorted[0] - 3) < 1e-9 || Math.abs(sorted[1] - sorted[0] - 6) < 1e-9);
+  assert.ok(Math.abs(sorted[2] - sorted[0] - 9) < 1e-9);
+  // Centred on the crowd's place (least squares): the mean stays at 100.
+  assert.ok(Math.abs(out.reduce((s, x) => s + x, 0) / 3 - 100) < 1e-9);
+  // Apart already: nothing moves.
+  assert.deepEqual(fanAnglesBy([10, 50, 90], () => 5), [10, 50, 90]);
+});
