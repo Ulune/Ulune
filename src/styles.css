@@ -1192,7 +1192,7 @@ html.theme-ready body {
 /* The glyphs stand bare (part 86, as on Astrodienst and Astro Gold): no
    disc behind them, a slight shadow to lift them off the lines that pass
    under (chart-wheel.tsx, defs "glyph-fx"); the one in focus, pointed at or
-   chosen, keeps its colour inside a golden aura. */
+   chosen, glows in its own colour (chart-wheel.tsx, the glow filter). */
 :root {
   --wheel-glyph-shadow: oklch(0 0 0 / 0.85);
 }
@@ -1203,10 +1203,6 @@ html.light {
 }
 .ulune-wheel .ulune-glyph-shadow {
   flood-color: var(--wheel-glyph-shadow);
-}
-.ulune-wheel .ulune-glyph-glow {
-  flood-color: var(--color-halo);
-  flood-opacity: 0.95;
 }
 .ulune-wheel .ulune-glyph-at {
   filter: var(--glyph-shadow);

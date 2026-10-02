@@ -3134,19 +3134,23 @@ const ChartWheelView = memo(function ChartWheelView({
             would cut through one drawn with its own line). wheel-focus.ts
             makes a line's mark while it shows (in a focus, or at rest on a
             chart with few aspects), from its type's template here. */}
-        {/* The glyphs' slight shadow, and the golden aura of the one in focus
+        {/* The glyphs' slight shadow, and the aura of the one in focus
             (styles.css, .ulune-glyph-at): the glyphs stand bare, the shadow
             lifts them off the lines that pass under them. */}
         <defs data-kind="glyph-fx">
           <filter id={`${glyphFx}-shadow`} x="-40%" y="-40%" width="180%" height="180%" colorInterpolationFilters="sRGB">
             <feDropShadow dx={0} dy={0.7} stdDeviation={1.1} className="ulune-glyph-shadow" />
           </filter>
-          {/* A golden aura that follows the glyph's own shape (it keeps its colour). */}
+          {/* A subtle aura of the glyph's own colour, following its shape: the glyph
+              spread and blurred under itself, so it is the planet's colour in
+              each Look (white or black when plain, its traditional colour, its
+              element's). */}
           <filter id={`${glyphFx}-glow`} x="-60%" y="-60%" width="220%" height="220%" colorInterpolationFilters="sRGB">
-            <feMorphology in="SourceAlpha" operator="dilate" radius={1.3} result="spread" />
-            <feGaussianBlur in="spread" stdDeviation={1.7} result="soft" />
-            <feFlood className="ulune-glyph-glow" result="gold" />
-            <feComposite in="gold" in2="soft" operator="in" result="aura" />
+            <feMorphology in="SourceGraphic" operator="dilate" radius={0.6} result="spread" />
+            <feGaussianBlur in="spread" stdDeviation={1.5} result="soft" />
+            <feComponentTransfer in="soft" result="aura">
+              <feFuncA type="linear" slope={0.5} />
+            </feComponentTransfer>
             <feMerge>
               <feMergeNode in="aura" />
               <feMergeNode in="SourceGraphic" />
