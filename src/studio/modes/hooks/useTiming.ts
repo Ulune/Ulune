@@ -133,6 +133,15 @@ export function useTiming() {
     [fetchKey, tz],
   );
 
+  // What has arrived for the span shown (review 3 Oct, T1): until both its
+  // transits and its year files are here, the exports wait (they used to
+  // save whatever had come, a year with a tenth of its events).
+  const spanKey = `${needed.from.getTime()}|${needed.to.getTime()}|${natalSig}`;
+  const yearsKey = `${needed.from.getTime()}|${needed.to.getTime()}`;
+  const [hitsFor_, setHitsFor] = useState<string | null>(null);
+  const [yearsFor, setYearsFor] = useState<string | null>(null);
+  const loading = hitsFor_ !== spanKey || yearsFor !== yearsKey;
+
   // The span shown: its chunks, then your transits in it, worked out here.
   useEffect(() => {
     if (!enabled || !chart) return;
@@ -151,6 +160,7 @@ export function useTiming() {
       if (!found || n !== gen.current) return;
       ready.current = true;
       setHits(found);
+      setHitsFor(`${from}|${to}|${natalSig}`);
       setBusy(false);
     })().catch((err) => {
       if (n !== gen.current) return;
@@ -191,7 +201,10 @@ export function useTiming() {
     const to = needed.to.getTime();
     loadYearsBetween(from - YEARS_AROUND_MS, to + YEARS_AROUND_MS)
       .then((years) => {
-        if (live && years) setSpanYears(years);
+        if (live && years) {
+          setSpanYears(years);
+          setYearsFor(`${from}|${to}`);
+        }
       })
       .catch(() => {
         /* the day and the readings do without */
@@ -389,6 +402,7 @@ export function useTiming() {
       windows,
       scoped,
       busy,
+      loading,
       error,
       retry,
       nowMs,
@@ -402,6 +416,6 @@ export function useTiming() {
       numRows,
       numTitle,
     }),
-    [scope, civil, changeScope, shift, goToday, tz, zones, prefs, updatePrefs, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled, numCal, numRows, numTitle],
+    [scope, civil, changeScope, shift, goToday, tz, zones, prefs, updatePrefs, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, loading, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled, numCal, numRows, numTitle],
   );
 }

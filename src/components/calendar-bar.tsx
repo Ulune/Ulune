@@ -1,7 +1,7 @@
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
 import { SegmentedToggle } from "@/components/segmented-toggle";
 import { zoneCity, zoneOffset, type CalendarZone } from "@/lib/chart/calendar-prefs";
-import type { CivilDate } from "@/lib/chart/timing-window";
+import { scopeBounds, utcFromCivil, type CivilDate } from "@/lib/chart/timing-window";
 import type { TimingScope } from "@/lib/chart/transit-exact";
 import { CALENDAR_UI, fill } from "@/lib/i18n/calendar-words";
 import { useI18n } from "@/lib/i18n/locale";
@@ -47,6 +47,23 @@ export function CalendarScope({ scope, onScope }: { scope: TimingScope; onScope:
  * the times follow and the two switches (the sky, your transits). On a phone
  * the clock and switches move under the month (calendar.css).
  */
+/**
+ * The zone's offset over the period shown, not today's (review 3 Oct, T3):
+ * "UTC+1" in November, "UTC+2 → UTC+1" for a month or day the clocks go back
+ * in, "UTC+1 / UTC+2" for a year with summer time.
+ */
+function periodOffset(zone: string, scope: TimingScope, civil: CivilDate): string {
+  if (scope === "year") {
+    const winter = zoneOffset(zone, utcFromCivil({ year: civil.year, month: 1, day: 15, hour: 12, minute: 0 }, zone).getTime());
+    const summer = zoneOffset(zone, utcFromCivil({ year: civil.year, month: 7, day: 15, hour: 12, minute: 0 }, zone).getTime());
+    return winter === summer ? winter : `${winter} / ${summer}`;
+  }
+  const b = scopeBounds(scope, civil, zone);
+  const from = zoneOffset(zone, b.from.getTime());
+  const to = zoneOffset(zone, b.to.getTime() - 1);
+  return from === to ? from : `${from} → ${to}`;
+}
+
 export function CalendarBar({
   scope,
   civil,
@@ -55,12 +72,13 @@ export function CalendarBar({
   zone,
   zones,
   onZone,
-  nowMs,
+  nowMs: _nowMs,
   showSky,
   showYours,
   onSky,
   onYours,
   onExport,
+  loading = false,
   table = false,
   num = null,
   numOn = false,
@@ -81,6 +99,8 @@ export function CalendarBar({
   onYours: (on: boolean) => void;
   /** Save the period shown as a calendar file (.ics). */
   onExport: () => void;
+  /** The period is still arriving: the file waits for it. */
+  loading?: boolean;
   /** Over the table, which has its own filters and export: the period and the clock only. */
   table?: boolean;
   /** Your numerology for the period shown, "Personal month 4" (with your transits on), and its reading's id. */
@@ -93,7 +113,7 @@ export function CalendarBar({
   const current = zones[zone];
   // A device set to UTC says so the same way as the UT choice.
   const ut = zone === "utc" || current === "UTC" || current === "Etc/UTC";
-  const zoneLine = ut ? pick(z.ut, locale) : `${fill(z.cityTime, locale, { city: zoneCity(current) })} · ${zoneOffset(current, nowMs)}`;
+  const zoneLine = ut ? pick(z.ut, locale) : `${fill(z.cityTime, locale, { city: zoneCity(current) })} · ${periodOffset(current, scope, civil)}`;
   return (
     <div data-testid="timing-scope" className="ulune-cal-bar">
       <div className="ulune-cal-caption">
@@ -151,8 +171,17 @@ export function CalendarBar({
             <i className="ulune-cal-dot" style={{ background: "var(--aspect-soft)" }} />
             {pick(CALENDAR_UI.switches.yours, locale)}
           </button>
-          <button type="button" data-testid="calendar-export" className="ulune-cal-chip" onClick={onExport} title={pick(CALENDAR_UI.switches.fileHint, locale)} aria-label={pick(CALENDAR_UI.switches.fileHint, locale)}>
-            <CalendarDays className="size-3.5" aria-hidden />
+          <button
+            type="button"
+            data-testid="calendar-export"
+            className="ulune-cal-chip"
+            onClick={onExport}
+            disabled={loading}
+            aria-busy={loading || undefined}
+            title={pick(loading ? CALENDAR_UI.switches.fileWait : CALENDAR_UI.switches.fileHint, locale)}
+            aria-label={pick(loading ? CALENDAR_UI.switches.fileWait : CALENDAR_UI.switches.fileHint, locale)}
+          >
+            {loading ? <LoaderCircle className="size-3.5 animate-spin" aria-hidden /> : <CalendarDays className="size-3.5" aria-hidden />}
             <span className="ulune-cal-file-word">.ics</span>
           </button>
         </div>

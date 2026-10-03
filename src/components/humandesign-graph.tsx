@@ -76,6 +76,8 @@ export function HumanDesignGraph({
   const uncertainRows = useMemo(() => (chart.uncertain ? new Set(chart.uncertain.rows) : null), [chart.uncertain]);
   const uncertainChannels = useMemo(() => new Set(chart.uncertain?.channels ?? []), [chart.uncertain]);
   const onChannels = useMemo(() => new Set(graph.channels.map((c) => c.id)), [graph.channels]);
+  const channelRank = (ch: (typeof HD_CHANNELS)[number]) =>
+    onChannels.has(ch.id) ? 2 : (tones.get(ch.gates[0]) ?? "off") !== "off" || (tones.get(ch.gates[1]) ?? "off") !== "off" ? 1 : 0;
 
   const svgRef = useRef<SVGSVGElement>(null);
   const [hover, setHover] = useState<string | null>(null);
@@ -239,7 +241,12 @@ export function HumanDesignGraph({
               </pattern>
             </defs>
             <g className="hd-channels">
-              {HD_CHANNELS.map((ch, chIndex) => {
+              {/* Undefined channels first, hanging ones next, the defined last, on
+                  top: where two cross (2–14 and 44–26), a click on a coloured
+                  channel opens that channel, not the bare line drawn over it. */}
+              {HD_CHANNELS.map((ch, chIndex) => ({ ch, chIndex, rank: channelRank(ch) }))
+                .sort((a, b) => a.rank - b.rank || a.chIndex - b.chIndex)
+                .map(({ ch, chIndex }) => {
                 const draw = BODYGRAPH_CHANNELS[ch.id];
                 const t0 = tones.get(ch.gates[0]) ?? "off";
                 const t1 = tones.get(ch.gates[1]) ?? "off";

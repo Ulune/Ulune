@@ -104,17 +104,22 @@ export function useStudioUrl(opts?: { hydrate?: boolean }) {
     saveStudioPage(next);
     const from = useStudioStore.getState().page;
     const seq = ++switchSeq;
+    // The bars answer the press at once (their pill starts its glide on the
+    // compositor); the page itself is drawn two frames later, so the work of
+    // drawing it never holds the press back.
+    useStudioStore.getState().setNavPage(from === next ? null : next);
     const go = () => {
       if (seq !== switchSeq) return;
       swapTransition(() => useStudioStore.getState().setPage(next), { part: "figure", dir: dirOf(from, next) });
       navigateTo(next, view);
     };
+    const afterPaint = new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
     // The switch starts once the mode's code is here (fetched on the press,
     // usually ahead): no empty frame between the two pages.
-    if (from === next || modeReady(next)) go();
+    if (from === next || modeReady(next)) void afterPaint.then(go);
     else {
       const late = new Promise((r) => window.setTimeout(r, CODE_WAIT_MS));
-      void Promise.race([loadMode(next), late]).then(go, go);
+      void Promise.all([afterPaint, Promise.race([loadMode(next), late])]).then(go, go);
     }
   }
 

@@ -11,7 +11,8 @@ import { onTablistKeyDown } from "@/lib/a11y/tablist";
 /** Modes inside the active group. Hidden for one-mode groups. */
 export function SubModeSwitch() {
   const { t } = useI18n();
-  const page = useStudioStore((s) => s.page);
+  // The page pressed shows at once, before it is drawn (store.navPage).
+  const page = useStudioStore((s) => s.navPage ?? s.page);
   const { setPage } = useStudioUrl({ hydrate: false });
   const group = MODE_GROUPS.find((g) => g.id === groupOf(page));
   const pages = (group?.pages ?? []) as readonly StudioPage[];

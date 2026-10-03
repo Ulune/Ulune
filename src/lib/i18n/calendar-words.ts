@@ -70,8 +70,17 @@ function lastAspectWords(body: string, type: SkyAspect, locale: AppLocale): stri
   return `${EN_VERB[type]} ${bodyLabel(body, locale)}`;
 }
 
-/** An event's title: "Mars enters Leo", "Venus turns retrograde", "Total solar eclipse", "September equinox"… */
-export function skyEventTitle(ev: SkyEvent, locale: AppLocale, time: (ms: number) => string): string {
+/**
+ * An event's title: "Mars enters Leo", "Venus turns retrograde", "Total solar eclipse", "September equinox"…
+ * With `shortDay` (the reader's "Mon 5 Oct"), a void of course that ends on
+ * another day says which: "until Mon 5 Oct, 00:54" (review 3 Oct, T2).
+ */
+export function skyEventTitle(
+  ev: SkyEvent,
+  locale: AppLocale,
+  time: (ms: number) => string,
+  shortDay?: (ms: number) => string,
+): string {
   switch (ev.k) {
     case "phase":
       return phaseWord(ev.phase, locale);
@@ -91,8 +100,11 @@ export function skyEventTitle(ev: SkyEvent, locale: AppLocale, time: (ms: number
         : fill(source.sky.turnsDirect, locale, { body: bodyLabel(ev.body, locale), direct: bodyAgree(ev.body, "direct", "directe") });
     case "aspect":
       return skyAspectWords(ev.a, ev.type, ev.b, locale);
-    case "void":
-      return fill(source.sky.voidUntil, locale, { time: time(ev.end) });
+    case "void": {
+      const later = shortDay && shortDay(ev.end) !== shortDay(ev.t);
+      const end = later ? `${shortDay(ev.end)}${locale === "fr" ? " à " : ", "}${time(ev.end)}` : time(ev.end);
+      return fill(source.sky.voidUntil, locale, { time: end });
+    }
   }
 }
 

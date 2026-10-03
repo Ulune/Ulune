@@ -24,6 +24,7 @@ export function calendarIcs(
 ): string {
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
   const time = (ms: number) => dateFormat(loc, { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(ms));
+  const shortDay = (ms: number) => dateFormat(loc, { timeZone: tz, weekday: "short", day: "numeric", month: "short" }).format(new Date(ms));
   const degree = (lon: number) => `${formatDegree(lon)} ${signWord(Math.floor((((lon % 360) + 360) % 360) / 30), locale)}`;
   const items: IcsItem[] = rows.map((r) => {
     if (r.kind === "sky") {
@@ -33,7 +34,7 @@ export function calendarIcs(
         uid: `${r.id.slice(4)}@ulune.app`,
         start: ev.t,
         end: ev.k === "void" ? ev.end : undefined,
-        summary: skyEventTitle(ev, locale, time),
+        summary: skyEventTitle(ev, locale, time, shortDay),
         description: [pick(CALENDAR_UI.day.sky, locale), detail].filter(Boolean).join(" · "),
       };
     }

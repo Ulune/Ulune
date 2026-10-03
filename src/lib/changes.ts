@@ -32,6 +32,9 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "A precise arrow over the chart instead of an open hand, with the pointing hand over anything you can choose; the closed hand shows only while you drag a zoomed chart.",
           "On transits, progressions and a partner’s chart, the outer planets are as big as your own, a little closer to the wheel, and their degrees are in each planet’s colour, with the retrograde mark on a phone too.",
           "New time controls for transits and progressions, as in the desktop programs: a step from a minute to a year, ‹ › to take one (Shift for ten, or the arrow keys), play forward or backward, and a tape of dates to drag, flick or scroll that moves by whole steps; a month on keeps the day, a day on keeps the time, and transits go anywhere from 1800 to 2399.",
+          "Switching pages no longer flashes dark or freezes for a moment: the bar answers the press at once and the page eases in.",
+          "Synastry, transits and progressions open on the aspects between the two charts (each page keeps its own choice); with one person only, synastry asks for the second.",
+          "Fixes: a coloured Human Design channel opens its own reading; 3D turns off with a second press; the calendar file and the table's Copy and CSV wait until the period has loaded; a void of course ending on another day says which; the calendar's UTC offset is the period's; on a phone the day and year views open at their top; a composite keeps Mercury and Venus beside its Sun and shows no motion or dignity of its own; the first-time hint no longer covers the chart.",
         ],
       },
       {
@@ -84,6 +87,9 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "Une flèche précise sur le thème au lieu d’une main ouverte, et la main qui pointe sur tout ce que vous pouvez choisir\u202f; la main fermée n’apparaît que lorsque vous faites glisser un thème agrandi.",
           "En transits, en progressions et avec le thème d’un partenaire, les planètes extérieures sont aussi grandes que les vôtres, un peu plus près de la roue, et leurs degrés ont la couleur de chaque planète, avec la marque de rétrogradation sur téléphone aussi.",
           "De nouvelles commandes du temps pour les transits et les progressions, comme dans les logiciels de bureau\u202f: un pas d’une minute à un an, ‹ › pour en faire un (Maj pour dix, ou les flèches du clavier), la lecture en avant ou en arrière, et une règle de dates à faire glisser, lancer ou défiler qui avance de pas entiers\u202f; un mois plus tard garde le jour, un jour plus tard garde l’heure, et les transits vont de 1800 à 2399.",
+          "Changer de page ne fait plus d’éclair sombre ni de pause\u202f: la barre répond à l’instant et la page apparaît en douceur.",
+          "La synastrie, les transits et les progressions s’ouvrent sur les aspects entre les deux thèmes (chaque page garde son choix)\u202f; avec une seule personne, la synastrie demande la seconde.",
+          "Corrections\u202f: un canal coloré du Human Design ouvre sa propre lecture\u202f; la 3D se coupe d’un second appui\u202f; le fichier agenda, la copie et le CSV du tableau attendent que la période soit chargée\u202f; une Lune vide de course qui finit un autre jour dit lequel\u202f; le décalage UTC du calendrier est celui de la période\u202f; sur téléphone, les vues jour et année s’ouvrent en haut\u202f; un composite garde Mercure et Vénus près de son Soleil et n’affiche ni mouvement ni dignité propres\u202f; l’astuce de départ ne cache plus le thème.",
         ],
       },
       {

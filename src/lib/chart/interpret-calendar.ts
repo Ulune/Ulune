@@ -176,7 +176,7 @@ export function skyEventReading(ev: SkyEvent, locale: Locale, tz: string, ctx: C
   const f = formats(locale, tz);
   const degree = degreeOf(locale);
   const events = ctx.events ?? [];
-  const title = skyEventTitle(ev, locale, f.time);
+  const title = skyEventTitle(ev, locale, f.time, f.shortDay);
   const detail = skyEventDetail(ev, locale, degree);
   const facts: ReadingFact[] = [];
   const sections: ReadingSection[] = [];
@@ -402,7 +402,7 @@ export function calendarDayReading(
     for (const c of num.changes.filter((x) => x.day === key)) rows.push({ ref: changeId(c), label: numChangeTitle(c, locale), detail: numChangeDetail(c, locale) });
   }
   for (const r of ov.rows) {
-    const label = r.kind === "sky" ? skyEventTitle(r.ev, locale, f.time) : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale);
+    const label = r.kind === "sky" ? skyEventTitle(r.ev, locale, f.time, f.shortDay) : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale);
     rows.push({ ref: r.id, label, detail: `${f.time(r.t)} · ${pick(r.kind === "sky" ? CALENDAR_UI.day.sky : CALENDAR_UI.day.you, locale)}` });
   }
   for (const w of ov.effect) {

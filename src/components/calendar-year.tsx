@@ -387,7 +387,11 @@ function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelec
     if (!card || !box) return;
     const last = placed.current;
     if (last && last.year === layout.year && Math.abs(box.scrollTop - last.top) > 2) return;
-    box.scrollTop += card.getBoundingClientRect().top - box.getBoundingClientRect().top - 8;
+    // Clear of the bar pinned at the top (review 3 Oct, T6), as the month does.
+    const pinned = [...box.querySelectorAll<HTMLElement>(".ulune-cal-bar, .ulune-cal-caption")].find(
+      (p) => getComputedStyle(p).position === "sticky",
+    );
+    box.scrollTop += card.getBoundingClientRect().top - box.getBoundingClientRect().top - 8 - (pinned?.offsetHeight ?? 0);
     placed.current = { year: layout.year, top: box.scrollTop };
   }, [layout.year, layout.transits.length, layout.phases.length, layout.stations.length]);
   return (

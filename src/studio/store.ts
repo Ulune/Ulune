@@ -154,6 +154,11 @@ type LibrarySlice = {
 
 type NavSlice = {
   page: StudioPage;
+  /**
+   * The page just pressed, while it is on its way (use-studio-url.ts): the
+   * bars show it at once, so the press answers before the page is drawn.
+   */
+  navPage: StudioPage | null;
   view: StudioView;
   dock: DockTab;
   dockOpen: boolean;
@@ -202,6 +207,7 @@ type StudioState = LibrarySlice &
      */
     setNumerologyNames: (next: Pick<BirthInput, "birthName" | "currentName">) => void;
     setPage: (page: StudioPage) => void;
+    setNavPage: (page: StudioPage | null) => void;
     setView: (view: StudioView) => void;
     openDock: (tab: DockTab) => void;
     toggleDock: () => void;
@@ -231,6 +237,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   formEpoch: 0,
   selectedId: null,
   page: "natal",
+  navPage: null,
   view: loadStudioView(),
   dock: "birth",
   dockOpen: loadDockOpen(),
@@ -576,7 +583,8 @@ export const useStudioStore = create<StudioState>((set, get) => ({
       return { ...rest, ...(birthName ? { birthName } : {}), ...(currentName ? { currentName } : {}) };
     });
   },
-  setPage: (page) => set({ page }),
+  setPage: (page) => set({ page, navPage: null }),
+  setNavPage: (navPage) => set({ navPage }),
   setView: (view) => set({ view }),
   openDock: (tab) => {
     saveDockOpen(true);

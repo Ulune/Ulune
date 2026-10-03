@@ -220,12 +220,12 @@ export async function goStudioPage(page, id) {
     const el = document.querySelector(`[data-testid="${gid}"]`);
     if (el instanceof HTMLElement) el.click();
   }, groupId);
-  // The switch lands a frame or two later (the mode's code, then a view
-  // transition): wait until it has, and until the transition is over.
+  // The switch lands a frame or two later (the bars answer at once, the page
+  // is drawn two frames on, once its code is here): wait until it has.
   const landed = async (sel) => {
     await page
       .waitForFunction(
-        (s) => Boolean(document.querySelector(s)) && !document.documentElement.dataset.vt,
+        (s) => Boolean(document.querySelector(s)) && !document.querySelector("[data-testid=studio-nav][data-pending]"),
         sel,
         { timeout: 8000 },
       )

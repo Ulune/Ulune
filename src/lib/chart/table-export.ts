@@ -285,7 +285,9 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale, scope:
   for (const g of groupedPoints(chart)) for (const p of g.rows) groupOf.set(p.id, g.id);
   for (const p of chartPoints(chart)) {
     const flag = patterns.flags[p.id];
-    const row: PointRow = pointRow(p, chart, patterns, locale);
+    const full: PointRow = pointRow(p, chart, patterns, locale);
+    // A composite's points carry no motion or dignity of their own (as on screen).
+    const row: PointRow = chart.meta.time === "midpoint" ? { ...full, motion: null, dignity: null } : full;
     const near = p.kind !== "angle" ? nearestAngle(p.ecliptic, chart.angles) : null;
     const range = chart.meta.dayRange?.[p.id as keyof NonNullable<NatalChart["meta"]["dayRange"]>];
     add([
@@ -368,7 +370,7 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale, scope:
       a.type,
       a.level,
       a.orb.toFixed(4),
-      a.applying === true ? "applying" : a.applying === false ? "separating" : "",
+      chart.meta.time === "midpoint" ? "" : a.applying === true ? "applying" : a.applying === false ? "separating" : "",
       bit(row.uncertain),
       String(aspectOrb(a.type, a.a, a.b)),
       row.strength.toFixed(4),

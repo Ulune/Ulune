@@ -80,6 +80,11 @@ const TERMS: Partial<Record<TablePartId, GlossaryId[]>> = {
   stars: ["fixedStar", "midpoint"],
 };
 
+/** A midpoint composite (lib/chart/composite.ts marks its time "midpoint"). */
+function isCompositeChart(chart: NatalChart): boolean {
+  return chart.meta.time === "midpoint";
+}
+
 export function NatalTable({
   chart,
   selectedId = null,
@@ -183,6 +188,9 @@ function PointsPart({
 }) {
   const { locale } = useI18n();
   const unknown = chart.meta.timeUnknown === true;
+  // A composite has no motion of its own and its dignities are left to the
+  // birth charts (review 3 Oct, P5): those columns go.
+  const composite = isCompositeChart(chart);
   const groups = useMemo(
     () => groupedPoints(chart).map((g) => ({ id: g.id, rows: g.rows.map((p) => pointRow(p, chart, patterns, locale)) })),
     [chart, patterns, locale],
@@ -196,17 +204,17 @@ function PointsPart({
             <th data-col="body">{pointsText(locale, "body")}</th>
             <th data-col="position">{pointsText(locale, "position")}</th>
             <th data-col="house">{pointsText(locale, "house")}</th>
-            <th data-col="motion">{pointsText(locale, "motion")}</th>
+            {composite ? null : <th data-col="motion">{pointsText(locale, "motion")}</th>}
             <th data-col="latitude">{pointsText(locale, "latitude")}</th>
             <th data-col="declination">{pointsText(locale, "declination")}</th>
-            <th data-col="dignity">{pointsText(locale, "dignity")}</th>
+            {composite ? null : <th data-col="dignity">{pointsText(locale, "dignity")}</th>}
             <th data-col="notes">{pointsText(locale, "notes")}</th>
           </tr>
         </thead>
         {groups.map((g) => (
           <tbody key={g.id} data-group={g.id}>
             <tr className="ulune-group-row">
-              <th colSpan={8} scope="colgroup" data-testid={`points-group-${g.id}`}>
+              <th colSpan={composite ? 6 : 8} scope="colgroup" data-testid={`points-group-${g.id}`}>
                 {pointsGroupLabel(locale, g.id)}
               </th>
             </tr>
@@ -249,7 +257,7 @@ function PointsPart({
                   <td data-col="house" className="ulune-house-num tabular-nums">
                     <Maybe cell={r.house} mono />
                   </td>
-                  <td data-col="motion">
+                  {composite ? null : <td data-col="motion">
                     {r.motion ? (
                       <>
                         <span className="font-mono">{r.motion.speed}</span>
@@ -263,7 +271,7 @@ function PointsPart({
                         ) : null}
                       </>
                     ) : null}
-                  </td>
+                  </td>}
                   <td data-col="latitude" className="whitespace-nowrap">
                     {r.latitude ? <Maybe cell={r.latitude} mono /> : null}
                   </td>
@@ -276,7 +284,7 @@ function PointsPart({
                       </span>
                     ) : null}
                   </td>
-                  <td data-col="dignity">
+                  {composite ? null : <td data-col="dignity">
                     {r.dignity ? (
                       <span className={cn(r.dignity.uncertain && "ulune-uncertain")} data-testid={`dignity-${p.id}`}>
                         <span className="ulune-score font-mono">
@@ -286,7 +294,7 @@ function PointsPart({
                         <span className="ulune-cell-sub">{r.dignity.words.join(" · ")}</span>
                       </span>
                     ) : null}
-                  </td>
+                  </td>}
                   <td data-col="notes">
                     {r.notes.map((n) => (
                       <Maybe key={n.text} cell={n} className="ulune-note" />
@@ -443,6 +451,8 @@ function AspectsPart({
 }) {
   const { locale, t } = useI18n();
   const unknown = chart.meta.timeUnknown === true;
+  // Applying or separating needs a sky that moves: not a composite's (review 3 Oct, P5).
+  const composite = isCompositeChart(chart);
   const [opts, setOptsState] = useState<AspectOptions>(aspectOptions);
   const setOpts = (next: AspectOptions) => {
     aspectOptions = next;
@@ -500,7 +510,7 @@ function AspectsPart({
               <th data-col="pair">{aspectsWord(locale, "pair")}</th>
               <th data-col="aspect">{aspectsWord(locale, "aspect")}</th>
               <th data-col="orb">{aspectsWord(locale, "orb")}</th>
-              <th data-col="phase">{aspectsWord(locale, "phase")}</th>
+              {composite ? null : <th data-col="phase">{aspectsWord(locale, "phase")}</th>}
             </tr>
           </thead>
           <tbody>
@@ -556,7 +566,7 @@ function AspectsPart({
                       <span style={{ width: `${Math.round(r.strength * 100)}%` }} />
                     </span>
                   </td>
-                  <td data-col="phase">{r.phase}</td>
+                  {composite ? null : <td data-col="phase">{r.phase}</td>}
                 </tr>
               );
             })}

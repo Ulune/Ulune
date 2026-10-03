@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from "react";
+import { Suspense, useLayoutEffect, useMemo, useRef } from "react";
 import { CalendarBar, CalendarScope } from "@/components/calendar-bar";
 import { CalendarLegend, CalendarMonth } from "@/components/calendar-month";
 import { CalendarNow } from "@/components/calendar-now";
@@ -59,6 +59,7 @@ function TimingBar({ table = false }: { table?: boolean }) {
       onSky={(sky) => timing.updatePrefs({ sky })}
       onYours={(yours) => timing.updatePrefs({ yours })}
       onExport={timing.exportIcs}
+      loading={timing.loading}
       table={table}
       num={timing.numTitle}
       numOn={!!timing.numTitle && selectedId === timing.numTitle.id}
@@ -72,6 +73,14 @@ function TimingFigure() {
   const timing = useModeData("timing");
   const selectedId = useStudioStore((s) => s.selectedId);
   const pick = useStudioStore((s) => s.pick);
+  // Day, month and year each open at their top (review 3 Oct, T6): the day
+  // kept the month's scroll, its Moon card under the pinned bar. The month
+  // then brings today or the day chosen into view, the year its month.
+  const hero = useRef<HTMLDivElement>(null);
+  const scope = timing?.scope;
+  useLayoutEffect(() => {
+    if (hero.current) hero.current.scrollTop = 0;
+  }, [scope]);
   if (!timing) return null;
   if (!timing.enabled && !timing.cast) {
     return <p className="px-5 py-10 font-display text-2xl text-fg">{timingNoNatal(locale)}</p>;
@@ -80,6 +89,7 @@ function TimingFigure() {
   const num = timing.prefs.yours ? timing.numCal : null;
   return (
     <div
+      ref={hero}
       className="ulune-timing-hero w-full min-w-0 overflow-auto px-[var(--stage-pad)] py-[var(--space-2)]"
       style={{ opacity: timing.busy ? 0.7 : 1 }}
     >
@@ -201,6 +211,7 @@ function TimingData() {
           selectedId={w.selectedId}
           onSelect={w.pick}
           num={timing.prefs.yours ? timing.numRows : NO_ROWS}
+          loading={timing.loading}
         />
       </Suspense>
     </div>

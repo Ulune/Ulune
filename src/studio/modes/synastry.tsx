@@ -120,9 +120,26 @@ function SynastryCaption() {
 }
 
 function SynastryHelloEmpty() {
+  const { locale } = useI18n();
   const w = useWheelView();
   const synastry = useModeData("synastry");
   if (!synastry?.inner) return null;
+  // With one person only, nothing can meet yet (review 3 Oct, P3): the panel
+  // asks for the second instead of saying the two Suns make no aspect.
+  if (!synastry.chartB || !synastry.synastry) {
+    return (
+      <section data-testid="synastry-hello" data-empty="1" className="ob-glance">
+        <button
+          type="button"
+          data-testid="synastry-add-second-panel"
+          onClick={synastry.addSecond}
+          className="inline-flex min-h-11 items-center rounded-md font-display text-xl leading-tight text-fg hover:text-fg-muted"
+        >
+          {synastryAddSecond(locale)}
+        </button>
+      </section>
+    );
+  }
   return (
     <SynastryHello
       a={synastry.inner}

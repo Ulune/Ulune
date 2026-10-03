@@ -187,7 +187,7 @@ export function CalendarDay({
             key={r.id}
             className={cn("ulune-cal-tick", r.kind === "you" && "is-you")}
             style={{ left: pct(frac(r.t)), ["--c" as string]: r.kind === "you" ? ASPECT_COLOR[r.hit.type] : undefined }}
-            title={`${time(r.t)} ${r.kind === "sky" ? skyEventTitle(r.ev, locale, time) : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale)}`}
+            title={`${time(r.t)} ${r.kind === "sky" ? skyEventTitle(r.ev, locale, time, shortDay) : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale)}`}
           />
         ))}
         {today ? (
@@ -202,7 +202,7 @@ export function CalendarDay({
           {rows.map((r) => {
             const on = selectedId === r.id;
             const past = today && r.t < nowMs;
-            const title = r.kind === "sky" ? skyEventTitle(r.ev, locale, time) : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale);
+            const title = r.kind === "sky" ? skyEventTitle(r.ev, locale, time, shortDay) : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale);
             const sub = r.kind === "sky" ? skySub(r.ev) : youSub(r);
             const headline = r.kind === "sky" && (r.ev.k === "eclipse" || r.ev.k === "station" || r.ev.k === "phase" || seasonOf(r.ev) != null);
             return (

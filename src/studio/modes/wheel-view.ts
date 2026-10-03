@@ -1,5 +1,8 @@
+import { useAspectLayer, type BiWheelKind } from "@/lib/chart/aspect-layer-pref";
 import { useChartView } from "@/lib/chart/use-chart-view";
 import { useStudioStore } from "@/studio/store";
+
+const BIWHEEL: Partial<Record<string, BiWheelKind>> = { transits: "transit", progressions: "progressions", synastry: "synastry" };
 
 export function useWheelView() {
   const view = useChartView();
@@ -9,6 +12,8 @@ export function useWheelView() {
   const choose = useStudioStore((s) => s.choose);
   const casting = useStudioStore((s) => s.casting);
   const composing = useStudioStore((s) => s.composing);
+  const page = useStudioStore((s) => s.page);
+  const [aspectLayer, setAspectLayer] = useAspectLayer(BIWHEEL[page] ?? null);
   return {
     chart,
     selectedId,
@@ -22,7 +27,7 @@ export function useWheelView() {
     starVisible: view.starVisible,
     midpointVisible: view.midpointVisible,
     readingDepth: view.readingDepth,
-    aspectLayer: view.aspectLayer,
-    setAspectLayer: view.setAspectLayer,
+    aspectLayer,
+    setAspectLayer,
   };
 }

@@ -5,8 +5,9 @@
  * while the tour runs, and the tour's second step, which teaches the same
  * gesture, counts as having seen it.
  */
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import type { SelectionStore } from "@/lib/chart/selection-store";
+import { createPortal } from "react-dom";
 import { useI18n } from "@/lib/i18n/locale";
 import { useTour } from "@/lib/tour/state";
 
@@ -35,6 +36,27 @@ export function WheelHint({ selection }: { selection: SelectionStore }) {
   const [touch, setTouch] = useState(false);
   const pinned = useSyncExternalStore(selection.subscribe, selection.get, () => null);
   const touring = useTour((s) => s.active);
+  // Off the chart (review 3 Oct, C5: it sat on the MC until closed). It is
+  // drawn in the wheel's port, not on the zoomed wheel: in the free band above
+  // the wheel where the stage is taller than wide (a phone), else in the
+  // port's top-left corner, outside the round of the wheel.
+  const anchor = useRef<HTMLSpanElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const [port, setPort] = useState<HTMLElement | null>(null);
+  const [place, setPlace] = useState<CSSProperties | null>(null);
+  useLayoutEffect(() => {
+    if (!port) setPort(anchor.current?.closest<HTMLElement>(".ulune-wheel-zoom-port") ?? null);
+  }, [port, open]);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    const stage = anchor.current?.parentElement;
+    if (!el || !stage || !port) return;
+    const s = stage.getBoundingClientRect();
+    const p = port.getBoundingClientRect();
+    const above = s.top - p.top;
+    if (above >= el.offsetHeight + 12) setPlace({ top: `${Math.round((above - el.offsetHeight) / 2)}px` });
+    else setPlace({ top: "8px", left: "8px", transform: "none", maxWidth: "200px" });
+  }, [open, touring, port]);
   useEffect(() => {
     if (seen()) return;
     setTouch(typeof window.matchMedia === "function" && window.matchMedia("(hover: none)").matches);
@@ -48,9 +70,9 @@ export function WheelHint({ selection }: { selection: SelectionStore }) {
       setOpen(false);
     }
   }, [pinned, open]);
-  if (!open || touring) return null;
-  return (
-    <div className="ulune-wheel-hint" role="note" data-testid="wheel-hint">
+  if (!open || touring) return <span ref={anchor} hidden />;
+  const hint = (
+    <div ref={ref} className="ulune-wheel-hint" role="note" data-testid="wheel-hint" style={place ?? { visibility: "hidden" }}>
       <span>{t(touch ? "wheelHintTap" : "wheelHintPoint")}</span>
       <button
         type="button"
@@ -66,5 +88,11 @@ export function WheelHint({ selection }: { selection: SelectionStore }) {
         </svg>
       </button>
     </div>
+  );
+  return (
+    <>
+      <span ref={anchor} hidden />
+      {port ? createPortal(hint, port) : null}
+    </>
   );
 }

@@ -40,7 +40,9 @@ export function rememberGroupPage(page: StudioPage) {
 /** Four groups. Header centre on wide, bottom tab bar on compact. */
 export function GroupBar() {
   const { t } = useI18n();
-  const page = useStudioStore((s) => s.page);
+  // The page pressed shows at once, before it is drawn (store.navPage).
+  const page = useStudioStore((s) => s.navPage ?? s.page);
+  const pending = useStudioStore((s) => s.navPage != null);
   const { setPage } = useStudioUrl({ hydrate: false });
   const active = groupOf(page);
   const index = MODE_GROUPS.findIndex((g) => g.id === active);
@@ -48,6 +50,7 @@ export function GroupBar() {
   return (
     <nav
       data-testid="studio-nav"
+      data-pending={pending ? "1" : undefined}
       aria-label={t("studioNav")}
       className="ob-groups"
       style={{ ["--ob-i" as string]: String(Math.max(0, index)) }}

@@ -7,9 +7,10 @@ import { prefersReducedMotion } from "@/lib/depth/env";
  * hair smaller. Played with the Web Animations API rather than an attribute
  * lifted afterwards: lifting a CSS animation starts the one under it over, so
  * the wheel and its planets used to pop in a second time once the settle
- * ended, and again after each quick switch. Inside a switch (html[data-vt],
- * lib/swap-transition.ts) the view transition already fades it in: only the
- * arrivals are finished.
+ * ended, and again after each quick switch. It starts from a little
+ * transparency, not from nothing: arriving with a page switch, its place is
+ * easing in already (shell.css .ob-swap), and from nothing the two together
+ * read as a blink.
  */
 export const SETTLE_MS = 420;
 const SETTLE_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -41,9 +42,8 @@ export function settleIn(el: Element, opts: { scale?: number } = {}): () => void
   finishArrivals(el);
   let anim: Animation | null = null;
   const reduced = prefersReducedMotion();
-  const inSwitch = typeof document !== "undefined" && Boolean(document.documentElement.dataset.vt);
-  if (!reduced && !inSwitch && typeof el.animate === "function") {
-    const from: Keyframe = { opacity: 0 };
+  if (!reduced && typeof el.animate === "function") {
+    const from: Keyframe = { opacity: 0.6 };
     const to: Keyframe = { opacity: 1 };
     if (opts.scale != null) {
       from.transform = `scale(${opts.scale})`;

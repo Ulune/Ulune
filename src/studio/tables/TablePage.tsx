@@ -306,10 +306,13 @@ export function TableActions({
   csv,
   fileName,
   extra,
+  disabled = false,
 }: {
   text: () => string;
   csv: () => string;
   fileName: string;
+  /** What they would export is still arriving. */
+  disabled?: boolean;
   /** More buttons after Copy and CSV (the calendar's file). */
   extra?: ReactNode;
 }) {
@@ -326,6 +329,7 @@ export function TableActions({
         type="button"
         className="ob-table-export-btn"
         data-testid="table-copy"
+        disabled={disabled}
         onClick={async () => {
           try {
             await navigator.clipboard.writeText(text());
@@ -342,7 +346,7 @@ export function TableActions({
           {copied ? t("tableCopied") : t("tableCopy")}
         </span>
       </button>
-      <button type="button" className="ob-table-export-btn" data-testid="table-csv" onClick={() => downloadText(`${slug}.csv`, csv())}>
+      <button type="button" className="ob-table-export-btn" data-testid="table-csv" disabled={disabled} onClick={() => downloadText(`${slug}.csv`, csv())}>
         <Download className="size-3.5" aria-hidden />
         <span className="ulune-tbar-act-label">{t("tableExportCsv")}</span>
       </button>

@@ -544,19 +544,6 @@ export function WheelZoom({
       >
         <Plus className="size-4" strokeWidth={1.75} />
       </button>
-      {lens?.angle ? (
-        <button
-          type="button"
-          className="ulune-wheel-zoom-btn ulune-wheel-angle-btn"
-          data-testid="wheel-camera-angle"
-          data-angle={lens.angle.at}
-          aria-label={t("cameraAngle", { angle: t(ANGLE_LABEL[lens.angle.at]), next: t(ANGLE_LABEL[NEXT_ANGLE[lens.angle.at]]) })}
-          title={t("cameraAngle", { angle: t(ANGLE_LABEL[lens.angle.at]), next: t(ANGLE_LABEL[NEXT_ANGLE[lens.angle.at]]) })}
-          onClick={() => lens.angle?.set(NEXT_ANGLE[lens.angle.at])}
-        >
-          <AngleIcon at={lens.angle.at} />
-        </button>
-      ) : null}
       {can3d ? (
       <button
         type="button"
@@ -574,6 +561,21 @@ export function WheelZoom({
         <Box className="size-4" strokeWidth={1.75} aria-hidden />
         <span aria-hidden>3D</span>
       </button>
+      ) : null}
+      {/* After 3D, not before it: 3D stays where it was pressed, so a second
+          press leaves 3D (the angle button used to slide in under it). */}
+      {lens?.angle ? (
+        <button
+          type="button"
+          className="ulune-wheel-zoom-btn ulune-wheel-angle-btn"
+          data-testid="wheel-camera-angle"
+          data-angle={lens.angle.at}
+          aria-label={t("cameraAngle", { angle: t(ANGLE_LABEL[lens.angle.at]), next: t(ANGLE_LABEL[NEXT_ANGLE[lens.angle.at]]) })}
+          title={t("cameraAngle", { angle: t(ANGLE_LABEL[lens.angle.at]), next: t(ANGLE_LABEL[NEXT_ANGLE[lens.angle.at]]) })}
+          onClick={() => lens.angle?.set(NEXT_ANGLE[lens.angle.at])}
+        >
+          <AngleIcon at={lens.angle.at} />
+        </button>
       ) : null}
       {tools}
     </div>

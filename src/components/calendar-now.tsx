@@ -123,7 +123,15 @@ export function CalendarNow({
   const moonDetail = moon
     ? [
         fill(CALENDAR_UI.moon.inSign, locale, { sign: signWord(moon.sign, locale) }),
-        voidNow ? fill(CALENDAR_UI.moon.voidSince, locale, { time: time(voidNow.t) }) : "",
+        voidNow
+          ? fill(CALENDAR_UI.moon.voidSince, locale, {
+              // Since a time on another day says the day (review 3 Oct, T2).
+              time:
+                dayKey(voidNow.t) === dayKey(nowMs)
+                  ? time(voidNow.t)
+                  : `${dayKey(voidNow.t) === dayKey(nowMs - DAY_MS) ? pick(CALENDAR_UI.when.yesterday, locale).toLowerCase() : shortDay(voidNow.t)}${locale === "fr" ? " à " : " "}${time(voidNow.t)}`,
+            })
+          : "",
         nextIngress
           ? dayKey(nextIngress.t) === dayKey(nowMs)
             ? fill(CALENDAR_UI.moon.entersAt, locale, { sign: signWord(nextIngress.sign, locale), time: time(nextIngress.t) })
@@ -223,7 +231,7 @@ export function CalendarNow({
                 selected={selectedId === id}
                 onSelect={onSelect}
                 icon={<SkyEventIcon ev={ev} size={15} />}
-                title={skyEventTitle(ev, locale, time)}
+                title={skyEventTitle(ev, locale, time, shortDay)}
                 detail={[`${when(ev.t)} · ${time(ev.t)}`, extra].filter(Boolean).join(" · ")}
               />
             );

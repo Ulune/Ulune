@@ -5,7 +5,8 @@
     "sky": { "en": "Sky", "fr": "Ciel" },
     "yours": { "en": "For you", "fr": "Pour vous" },
     "today": { "en": "Today", "fr": "Aujourd’hui" },
-    "fileHint": { "en": "Save as a calendar file (.ics), made on this device", "fr": "Enregistrer en fichier agenda (.ics), créé sur cet appareil" }
+    "fileHint": { "en": "Save as a calendar file (.ics), made on this device", "fr": "Enregistrer en fichier agenda (.ics), créé sur cet appareil" },
+    "fileWait": { "en": "The period is still loading; the calendar file waits for it", "fr": "La période se charge encore ; le fichier agenda l’attend" }
   },
   "zone": {
     "cityTime": { "en": "{city} time", "fr": "Heure locale ({city})" },
@@ -144,7 +145,8 @@
   },
   "when": {
     "today": { "en": "Today", "fr": "Aujourd’hui" },
-    "tomorrow": { "en": "Tomorrow", "fr": "Demain" }
+    "tomorrow": { "en": "Tomorrow", "fr": "Demain" },
+    "yesterday": { "en": "Yesterday", "fr": "Hier" }
   },
   "num": {
     "label": { "en": "Numerology", "fr": "Numérologie" },

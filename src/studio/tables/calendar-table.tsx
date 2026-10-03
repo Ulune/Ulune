@@ -52,6 +52,7 @@ export function CalendarTable({
   selectedId,
   onSelect,
   num = [],
+  loading = false,
 }: {
   events: readonly SkyEvent[];
   hits: readonly TimingHit[];
@@ -70,6 +71,8 @@ export function CalendarTable({
   onSelect: (id: string) => void;
   /** Numerology's changes on your birthdays (with your transits). */
   num?: readonly NumRow[];
+  /** The period is still arriving: Copy, CSV and the file wait for it. */
+  loading?: boolean;
 }) {
   const { locale, t } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
@@ -249,8 +252,9 @@ export function CalendarTable({
             text={text}
             csv={csv}
             fileName={`ulune-${fileName}`}
+            disabled={loading}
             extra={
-              <button type="button" className="ob-table-export-btn" data-testid="calendar-ics" title={pick(T.icsHint, locale)} onClick={exportIcs}>
+              <button type="button" className="ob-table-export-btn" data-testid="calendar-ics" title={pick(T.icsHint, locale)} onClick={exportIcs} disabled={loading} aria-busy={loading || undefined}>
                 <CalendarDays className="size-3.5" aria-hidden />
                 <span className="ulune-tbar-act-label">{pick(T.ics, locale)}</span>
               </button>

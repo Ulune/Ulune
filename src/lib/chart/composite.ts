@@ -2,9 +2,15 @@
  * Midpoint composite (not Davison).
  *
  * Positions: circular mean on the 360° ecliptic of each matching body/angle
- * from natal charts A and B (`midpointLon` — shorter-arc mean of two points).
- * Speeds, latitude, and declination are arithmetic means. Nothing is recast
- * through Swiss at a midpoint time or place.
+ * from natal charts A and B (`midpointLon` — shorter-arc mean of two points),
+ * except that Mercury and Venus take the midpoint on the composite Sun's
+ * side when the shorter arc would put them across the wheel from it (review
+ * 3 Oct, P5: the shorter arcs of the three can disagree, and a Mercury
+ * opposite the Sun is a sky that never was; Solar Fire offers the same).
+ * Speeds and latitude are arithmetic means; declination is the composite
+ * point's own, from its longitude and latitude (a mean of the two natal
+ * declinations did not match the position). Nothing is recast through Swiss
+ * at a midpoint time or place.
  *
  * Houses: the ring is *derived* from the composite axes under the charts'
  * own house system — never by averaging the twelve natal cusps one at a time.
@@ -113,11 +119,22 @@ function retarget(
   return next;
 }
 
-function midpointPlacement(a: Placement, b: Placement, cusps: number[]): Placement {
-  const lon = midpointLon(a.ecliptic, b.ecliptic);
+/** Mercury and Venus stay near the Sun: never more than 28° and 47° from it in a real sky. */
+const INNER_PLANETS = new Set<string>(["mercury", "venus"]);
+
+/** The declination of an ecliptic point (degrees), for a latitude and the obliquity. */
+export function declinationOfPoint(lon: number, lat: number, obliquity: number): number {
+  const r = Math.PI / 180;
+  const s = Math.sin(lat * r) * Math.cos(obliquity * r) + Math.cos(lat * r) * Math.sin(obliquity * r) * Math.sin(lon * r);
+  return Math.asin(Math.max(-1, Math.min(1, s))) / r;
+}
+
+function midpointPlacement(a: Placement, b: Placement, cusps: number[], sunLon: number | null, obliquity: number): Placement {
+  let lon = midpointLon(a.ecliptic, b.ecliptic);
+  if (sunLon != null && INNER_PLANETS.has(a.id) && sep180(lon, sunLon) > 90) lon = wrap360(lon + 180);
   const speed = mean(a.speed, b.speed) ?? 0;
   const latitude = mean(a.latitude, b.latitude);
-  const declination = mean(a.declination, b.declination);
+  const declination = a.declination == null && b.declination == null ? undefined : declinationOfPoint(lon, latitude ?? 0, obliquity);
   const house = houseFromCusps(lon, cusps);
   return retarget(a, lon, house, speed, {
     latitude,
@@ -312,6 +329,10 @@ export function buildComposite(a: NatalChart, b: NatalChart): CompositeChart {
 
   const planets: Placement[] = [];
   const dropped: BodyId[] = [];
+  const sunA = a.planets.find((p) => p.id === "sun");
+  const sunB = b.planets.find((p) => p.id === "sun");
+  const sunLon = sunA && sunB ? midpointLon(sunA.ecliptic, sunB.ecliptic) : null;
+  const obliquity = mean(a.meta.obliquity, b.meta.obliquity) ?? 23.4393;
   for (const id of PLANET_IDS) {
     const pa = a.planets.find((p) => p.id === id);
     const pb = b.planets.find((p) => p.id === id);
@@ -321,7 +342,7 @@ export function buildComposite(a: NatalChart, b: NatalChart): CompositeChart {
       if (pa || pb) dropped.push(id);
       continue;
     }
-    planets.push(midpointPlacement(pa, pb, cusps));
+    planets.push(midpointPlacement(pa, pb, cusps, sunLon, obliquity));
   }
   if (dropped.length) {
     warnings.push(
@@ -389,16 +410,34 @@ function compositeDay(a: NatalChart, b: NatalChart, planets: Placement[]): Pick<
   };
   const dayRange: NonNullable<NatalChart["meta"]["dayRange"]> = {};
   const dayDecl: NonNullable<NatalChart["meta"]["dayDecl"]> = {};
+  // The Sun's own ends first: Mercury and Venus keep to its side at each end, as at noon.
+  const sunEnds = (() => {
+    const ra = ends(a, a.planets.find((x) => x.id === "sun"), "dayRange");
+    const rb = ends(b, b.planets.find((x) => x.id === "sun"), "dayRange");
+    return ra && rb ? [midpointLon(ra[0], rb[0]), midpointLon(ra[1], rb[1])] : null;
+  })();
+  const obliquity = mean(a.meta.obliquity, b.meta.obliquity) ?? 23.4393;
   for (const p of planets) {
     if (p.uncertain) continue;
     const pa = a.planets.find((x) => x.id === p.id);
     const pb = b.planets.find((x) => x.id === p.id);
     const ra = ends(a, pa, "dayRange");
     const rb = ends(b, pb, "dayRange");
-    if (ra && rb) dayRange[p.id as PlanetId] = [midpointLon(ra[0], rb[0]), midpointLon(ra[1], rb[1])];
-    const da = ends(a, pa, "dayDecl");
-    const db = ends(b, pb, "dayDecl");
-    if (da && db) dayDecl[p.id as PlanetId] = [(da[0] + db[0]) / 2, (da[1] + db[1]) / 2];
+    if (!ra || !rb) continue;
+    const at = (k: 0 | 1) => {
+      const lon = midpointLon(ra[k], rb[k]);
+      const sun = sunEnds?.[k];
+      return sun != null && INNER_PLANETS.has(p.id) && sep180(lon, sun) > 90 ? wrap360(lon + 180) : lon;
+    };
+    const range: [number, number] = [at(0), at(1)];
+    dayRange[p.id as PlanetId] = range;
+    // Declination as the composite point's own at each end (its latitude taken as at noon).
+    if (p.declination != null) {
+      dayDecl[p.id as PlanetId] = [
+        declinationOfPoint(range[0], p.latitude ?? 0, obliquity),
+        declinationOfPoint(range[1], p.latitude ?? 0, obliquity),
+      ];
+    }
   }
   return { dayRange, dayDecl };
 }

@@ -19,61 +19,16 @@ html.theme-switching::view-transition-new(root) {
   animation-timing-function: var(--ease-inout);
 }
 
-/* Switches between places (lib/swap-transition.ts): only the part that
-   changes is named, so it cross-fades while the bars around it stay still.
-   The old picture leaves quickly; the new one arrives softly, drifting a few
-   px from the side the reader moved toward. */
-html[data-vt="figure"] .ob-stage > .ob-figure {
-  view-transition-name: ob-figure;
-}
-/* Inside a switch the transition does the fade: the figure's own would double it. */
-html[data-vt] .ob-swap {
-  animation: none;
-}
-html[data-vt="pane"] .ob-panel-pane {
-  view-transition-name: ob-pane;
-}
-html[data-vt] {
-  --vt-dx: 0px;
-  --vt-dy: 4px;
-}
-html[data-vt][data-vt-dir="1"] {
-  --vt-dx: 8px;
-  --vt-dy: 0px;
-}
-html[data-vt][data-vt-dir="-1"] {
-  --vt-dx: -8px;
-  --vt-dy: 0px;
-}
-@keyframes ob-vt-out {
-  to {
-    opacity: 0;
-  }
-}
-@keyframes ob-vt-in {
+/* Switches between places (lib/swap-transition.ts): the place that arrives
+   eases in from a little transparency (.ob-swap below), in place: nothing
+   slides (a drift moved the wheel while its box was measured for the first
+   view) and nothing else moves. No picture of the page is blended: the view
+   transition used until part 87e dipped through a dark frame and froze the
+   bars while the new place was drawn. */
+@keyframes ob-swap-in {
   from {
-    opacity: 0;
-    transform: translate(var(--vt-dx), var(--vt-dy));
+    opacity: 0.35;
   }
-}
-html[data-vt]::view-transition-old(root) {
-  animation: ob-vt-out var(--dur-swap-out) var(--ease-quick-in) both;
-}
-html[data-vt]::view-transition-new(root) {
-  animation: ob-fade var(--dur-swap) var(--ease-soft) both;
-}
-html[data-vt]::view-transition-group(ob-figure),
-html[data-vt]::view-transition-group(ob-pane) {
-  animation-duration: var(--dur-swap);
-  animation-timing-function: var(--ease-soft);
-}
-html[data-vt]::view-transition-old(ob-figure),
-html[data-vt]::view-transition-old(ob-pane) {
-  animation: ob-vt-out var(--dur-swap-out) var(--ease-quick-in) both;
-}
-html[data-vt]::view-transition-new(ob-figure),
-html[data-vt]::view-transition-new(ob-pane) {
-  animation: ob-vt-in var(--dur-swap) var(--ease-soft) both;
 }
 /* A page (the guide, settings, privacy, legal, what's new) arrives with a short rise. */
 @keyframes ob-page-in {
@@ -157,7 +112,7 @@ html[data-vt]::view-transition-new(ob-pane) {
 }
 
 .ob-swap {
-  animation: ob-fade var(--dur-swap) var(--ease-out) both;
+  animation: ob-swap-in var(--dur-swap) var(--ease-soft) both;
 }
 
 /* -------------------------------------------------------------- app grid */
