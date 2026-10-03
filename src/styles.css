@@ -1203,25 +1203,29 @@ html.theme-ready body {
   transform: scale(1.4);
 }
 /* The glyphs stand bare (part 86, as on Astrodienst and Astro Gold): no
-   disc behind them, a slight shadow to lift them off the lines that pass
-   under (chart-wheel.tsx, defs "glyph-fx"); the one in focus, pointed at or
-   chosen, glows in its own colour (chart-wheel.tsx, the glow filter). */
-:root {
-  --wheel-glyph-shadow: oklch(0 0 0 / 0.85);
+   disc behind them, but a thin margin of the ring's face in each glyph's own
+   shape (part 87c, as the aspect marks have), so what passes under a glyph
+   stops just short of it: black on the dark theme, the paper on the light
+   one (chart-wheel.tsx, defs "glyph-fx"). The one in focus, pointed at or
+   chosen, also glows in its own colour (the glow filter). */
+.ulune-wheel .ulune-glyph-face {
+  flood-color: var(--color-bg-elevated);
 }
-/* On cream the shadow is a soft keyline of the wheel's own paper: a dark one
-   made the colours there look muddy. */
-html.light {
-  --wheel-glyph-shadow: oklch(0.982 0.0095 80 / 0.95);
-}
-.ulune-wheel .ulune-glyph-shadow {
-  flood-color: var(--wheel-glyph-shadow);
+/* A bi-wheel's outer glyphs stand beyond the wheel, on the page. */
+.ulune-wheel .ulune-glyph-face-out {
+  flood-color: var(--color-bg);
 }
 .ulune-wheel .ulune-glyph-at {
-  filter: var(--glyph-shadow);
+  filter: var(--glyph-cut);
 }
-.ulune-wheel :is([data-kind="planet"], [data-kind="transit"])[data-exact="1"] > .ulune-glyph-at {
+.ulune-wheel [data-kind="transit"] > .ulune-glyph-at {
+  filter: var(--glyph-cut-out);
+}
+.ulune-wheel [data-kind="planet"][data-exact="1"] > .ulune-glyph-at {
   filter: var(--glyph-glow);
+}
+.ulune-wheel [data-kind="transit"][data-exact="1"] > .ulune-glyph-at {
+  filter: var(--glyph-glow-out);
 }
 .ulune-wheel .ulune-wheel-halo {
   opacity: 0;

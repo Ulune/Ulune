@@ -144,6 +144,55 @@ const PLANET_DISK_GROWN = PLANET_DISK * 1.4;
  * Saturn), and their degrees along the spokes keep theirs.
  */
 const GLYPH_GAP = 2.5;
+/**
+ * The margin of the ring's face round each body's glyph, in its shape (the
+ * glyph filters): under half GLYPH_GAP, so a glyph's margin never reaches
+ * its neighbour in a stellium.
+ */
+const GLYPH_CUT = 1.1;
+
+/**
+ * A body glyph's filters, for the face it stands on (styles.css,
+ * .ulune-glyph-face): `-cut` sets it on a margin of that face in its own
+ * shape; `-glow`, for the one in focus, adds a subtle aura of the glyph's own
+ * colour, the glyph spread and blurred under itself, so it is the planet's
+ * colour in each Look (white or black when plain, its traditional colour,
+ * its element's). The face's colour is set on the feFlood itself: a filter
+ * takes its styles from where it is defined, not from the glyph using it.
+ */
+function GlyphFilters({ id, face }: { id: string; face: string }) {
+  const margin = (
+    <>
+      <feMorphology in="SourceAlpha" operator="dilate" radius={GLYPH_CUT} result="grown" />
+      <feFlood className={face} />
+      <feComposite in2="grown" operator="in" result="face" />
+    </>
+  );
+  return (
+    <>
+      <filter id={`${id}-cut`} x="-40%" y="-40%" width="180%" height="180%" colorInterpolationFilters="sRGB">
+        {margin}
+        <feMerge>
+          <feMergeNode in="face" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+      <filter id={`${id}-glow`} x="-60%" y="-60%" width="220%" height="220%" colorInterpolationFilters="sRGB">
+        {margin}
+        <feMorphology in="SourceGraphic" operator="dilate" radius={0.6} result="spread" />
+        <feGaussianBlur in="spread" stdDeviation={1.5} result="soft" />
+        <feComponentTransfer in="soft" result="aura">
+          <feFuncA type="linear" slope={0.5} />
+        </feComponentTransfer>
+        <feMerge>
+          <feMergeNode in="face" />
+          <feMergeNode in="aura" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </>
+  );
+}
 /** A face's glyph can ink a little wider than the drawn one measured in glyph-ink.ts. */
 const GLYPH_INK_ROOM = 1.04;
 /** Between two degrees along their spokes, at their inner ends (units). */
@@ -2314,8 +2363,10 @@ const ChartWheelView = memo(function ChartWheelView({
         viewBox={showTransits ? BIWHEEL_VIEW.vb : NATAL_VIEW.vb}
         className="ulune-wheel h-full w-full origin-center select-none"
         style={{
-          ["--glyph-shadow" as string]: `url(#${glyphFx}-shadow)`,
+          ["--glyph-cut" as string]: `url(#${glyphFx}-cut)`,
           ["--glyph-glow" as string]: `url(#${glyphFx}-glow)`,
+          ["--glyph-cut-out" as string]: `url(#${glyphFx}-out-cut)`,
+          ["--glyph-glow-out" as string]: `url(#${glyphFx}-out-glow)`,
         }}
         data-bi={showTransits ? "1" : undefined}
         role="img"
@@ -3165,28 +3216,15 @@ const ChartWheelView = memo(function ChartWheelView({
             would cut through one drawn with its own line). wheel-focus.ts
             makes a line's mark while it shows (in a focus, or at rest on a
             chart with few aspects), from its type's template here. */}
-        {/* The glyphs' slight shadow, and the aura of the one in focus
-            (styles.css, .ulune-glyph-at): the glyphs stand bare, the shadow
-            lifts them off the lines that pass under them. */}
+        {/* The glyphs stand bare (styles.css, .ulune-glyph-at), each on a thin
+            margin of the ring's own face in its own shape, as the aspect marks
+            are: the lines, leads and brackets that pass under a glyph stop just
+            short of it. The one in focus also glows. */}
         <defs data-kind="glyph-fx">
-          <filter id={`${glyphFx}-shadow`} x="-40%" y="-40%" width="180%" height="180%" colorInterpolationFilters="sRGB">
-            <feDropShadow dx={0} dy={0.7} stdDeviation={1.1} className="ulune-glyph-shadow" />
-          </filter>
-          {/* A subtle aura of the glyph's own colour, following its shape: the glyph
-              spread and blurred under itself, so it is the planet's colour in
-              each Look (white or black when plain, its traditional colour, its
-              element's). */}
-          <filter id={`${glyphFx}-glow`} x="-60%" y="-60%" width="220%" height="220%" colorInterpolationFilters="sRGB">
-            <feMorphology in="SourceGraphic" operator="dilate" radius={0.6} result="spread" />
-            <feGaussianBlur in="spread" stdDeviation={1.5} result="soft" />
-            <feComponentTransfer in="soft" result="aura">
-              <feFuncA type="linear" slope={0.5} />
-            </feComponentTransfer>
-            <feMerge>
-              <feMergeNode in="aura" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+          {/* Two faces: the wheel's, under the natal glyphs, and the page's,
+              under a bi-wheel's outer glyphs, which stand beyond the wheel. */}
+          <GlyphFilters id={glyphFx} face="ulune-glyph-face" />
+          <GlyphFilters id={`${glyphFx}-out`} face="ulune-glyph-face-out" />
         </defs>
         <defs data-kind="mark-templates">
           {markTypes.map((type) => (
