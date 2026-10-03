@@ -29,6 +29,7 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "Aspect lines end in smooth points, with no stepped or lighter patches where they meet a planet, dimmed or not; thinner lines on phones.",
           "Switching quickly between charts no longer makes them flash or play their entrance twice.",
           "The calendar stays on today: the year view and back, or the arrows, no longer send it to 1 January.",
+          "A precise arrow over the chart instead of an open hand, with the pointing hand over anything you can choose; the closed hand shows only while you drag a zoomed chart.",
         ],
       },
       {
@@ -78,6 +79,7 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "Les lignes d’aspect finissent en pointes lisses, sans marches ni taches plus claires là où elles rejoignent une planète, estompées ou non\u202f; des lignes plus fines sur téléphone.",
           "Passer vite d’un thème à l’autre ne les fait plus clignoter ni rejouer leur entrée.",
           "Le calendrier reste sur aujourd’hui\u202f: la vue de l’année puis le retour, ou les flèches, ne le renvoient plus au 1er janvier.",
+          "Une flèche précise sur le thème au lieu d’une main ouverte, et la main qui pointe sur tout ce que vous pouvez choisir\u202f; la main fermée n’apparaît que lorsque vous faites glisser un thème agrandi.",
         ],
       },
       {

@@ -153,6 +153,7 @@ export function FigureZoom({ children, testId }: { children: ReactNode; testId: 
     const dx = e.clientX - drag.x;
     const dy = e.clientY - drag.y;
     if (!panning.current && Math.hypot(dx, dy) < 8) return;
+    if (!panning.current) portRef.current?.setAttribute("data-panning", "");
     panning.current = true;
     didPan.current = true;
     portRef.current?.setPointerCapture(e.pointerId);
@@ -163,7 +164,10 @@ export function FigureZoom({ children, testId }: { children: ReactNode; testId: 
   const onPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
     pointers.current.delete(e.pointerId);
     if (pointers.current.size < 2) pinch0.current = null;
-    if (pointers.current.size === 0) drag0.current = null;
+    if (pointers.current.size === 0) {
+      drag0.current = null;
+      portRef.current?.removeAttribute("data-panning");
+    }
   };
 
   const bar = (

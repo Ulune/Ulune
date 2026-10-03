@@ -190,7 +190,6 @@ html.light {
 }
 .ulune-figure-zoom:not([data-zoom="1.00"]) {
   touch-action: none;
-  cursor: grab;
 }
 .ulune-figure-zoom-inner {
   width: 100%;

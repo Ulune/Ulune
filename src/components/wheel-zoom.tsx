@@ -484,6 +484,7 @@ export function WheelZoom({
     const dx = e.clientX - drag.x;
     const dy = e.clientY - drag.y;
     if (!panning.current && Math.hypot(dx, dy) < 8) return;
+    if (!panning.current) portRef.current?.setAttribute("data-panning", "");
     panning.current = true;
     didPan.current = true;
     portRef.current?.setPointerCapture(e.pointerId);
@@ -496,6 +497,7 @@ export function WheelZoom({
     if (pointers.current.size < 2) pinch0.current = null;
     if (pointers.current.size === 0) {
       drag0.current = null;
+      portRef.current?.removeAttribute("data-panning");
       if (zoomRef.current <= ZOOM_MIN + 0.001) panRef.current = { x: 0, y: 0 };
       paint();
     }

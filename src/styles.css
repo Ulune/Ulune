@@ -1424,18 +1424,21 @@ html.light .ulune-wheel [data-cfg-type] {
   overflow: hidden;
   touch-action: pan-y pinch-zoom;
   overscroll-behavior: auto;
-  cursor: grab;
 }
 .ulune-wheel-zoom-port:not([data-zoom="1.00"]) {
   touch-action: none;
   overscroll-behavior: contain;
 }
 
-/* The closed hand while pressing, where a drag moves the wheel (zoomed in).
-   At the fit there is nothing to drag; and every node of the wheel inherits
-   the cursor, so switching it on each press restyled the whole wheel (and its
-   fade copy) under a click on a planet. */
-.ulune-wheel-zoom-port:not([data-zoom="1.00"]):active {
+/* The chart keeps the arrow, whose tip points exactly, and a part under it
+   shows the pointing hand (chart-wheel.tsx, pointAt); an open hand over the
+   whole chart made aiming at a thin aspect line feel loose. The closed hand
+   shows only while a drag is moving the view (wheel-zoom.tsx and
+   figure-zoom.tsx set data-panning once the pointer has travelled), never on
+   a plain click: every node of the wheel inherits the cursor, so switching it
+   on each press restyled the whole wheel under a click on a planet. */
+.ulune-wheel-zoom-port[data-panning],
+.ulune-figure-zoom[data-panning] {
   cursor: grabbing;
 }
 
@@ -2810,7 +2813,6 @@ svg[data-depth-base][data-view3d="gl"] > :not([data-backdrop]) {
   pointer-events: none;
 }
 .ulune-depth[data-depth-view="3d"] {
-  cursor: grab;
   touch-action: none;
 }
 .ulune-depth[data-depth-view="3d"].is-orbiting {
