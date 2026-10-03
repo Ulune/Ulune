@@ -1199,6 +1199,10 @@ html.theme-ready body {
   stroke-width: 2.6px;
   stroke-linejoin: round;
 }
+/* The outer ring's degrees stand beyond the wheel, on the page. */
+.ulune-wheel .ulune-planet-deg--out {
+  stroke: var(--color-bg);
+}
 .ulune-wheel [data-grow="1"] .ulune-glyph-scale {
   transform: scale(1.4);
 }

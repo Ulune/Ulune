@@ -84,15 +84,29 @@ async function runViewport(width) {
     if (liveAfterNow !== "1") {
       throw new Error(`expected live after Now, data-live=${liveAfterNow}`);
     }
+    // The time dial (part 87d): a step forward is exactly one step of the size
+    // chosen, back returns to the same minute, and a drag along the tape
+    // settles on whole steps.
     const scrub = page.getByTestId("transit-scrubber");
-    const before = await scrub.inputValue();
-    await scrub.evaluate((el) => {
-      el.value = String(Number(el.min) + (Number(el.max) - Number(el.min)) * 0.7);
-      el.dispatchEvent(new Event("input", { bubbles: true }));
-      el.dispatchEvent(new Event("change", { bubbles: true }));
-    });
-    const after = await scrub.inputValue();
-    if (after === before) throw new Error("scrubber did not move at");
+    await page.getByTestId("transit-scrubber-unit").selectOption("hour");
+    const before = Number(await scrub.getAttribute("data-value"));
+    await page.getByTestId("transit-scrubber-forward").click();
+    await page.waitForFunction((b) => Number(document.querySelector("[data-testid=transit-scrubber]").dataset.value) !== b, before);
+    const oneHour = Number(await scrub.getAttribute("data-value")) - before;
+    if (oneHour !== 3_600_000) throw new Error(`a step forward moved ${oneHour} ms, not an hour`);
+    await page.getByTestId("transit-scrubber-back").click();
+    await page.waitForFunction((b) => Number(document.querySelector("[data-testid=transit-scrubber]").dataset.value) === b, before);
+    const box = await scrub.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 - 41, box.y + box.height / 2, { steps: 6 });
+    await page.waitForTimeout(150); // held still: no flick
+    await page.mouse.up();
+    await page.waitForTimeout(150);
+    const dragged = Number(await scrub.getAttribute("data-value")) - before;
+    if (dragged !== 5 * 3_600_000) throw new Error(`a 41 px drag at 8 px an hour moved ${dragged / 3_600_000} h, not 5`);
+    const after = await page.getByTestId("transit-scrubber-readout").innerText();
+    if (!after) throw new Error("the dial has no readout");
     const outerSun = page.locator("[data-testid=transit-ring] [data-kind=transit][data-transit=sun]");
     await outerSun.focus();
     await page.keyboard.press("Enter");
@@ -201,13 +215,10 @@ async function runViewport(width) {
     const pType = await page.getByTestId("progressions-date").getAttribute("type");
     if (pType === "date") throw new Error("progressions-date is native date");
     await page.getByTestId("progressed-ring").waitFor({ timeout: 30000 });
-    const slider = page.getByTestId("progressions-slider");
     const yearsBefore = await page.getByTestId("progressions-years").innerText();
-    await slider.evaluate((el) => {
-      el.value = String(Math.min(Number(el.max), Number(el.value) + 5));
-      el.dispatchEvent(new Event("input", { bubbles: true }));
-      el.dispatchEvent(new Event("change", { bubbles: true }));
-    });
+    // Ten steps on (a month each by default) from the tape, by keyboard.
+    await page.getByTestId("progressions-slider").focus();
+    await page.keyboard.press("PageUp");
     await page.waitForTimeout(400);
     const yearsAfter = await page.getByTestId("progressions-years").innerText();
     if (yearsAfter === yearsBefore) throw new Error("progressions slider did not change years");

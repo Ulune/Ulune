@@ -30,6 +30,8 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "Switching quickly between charts no longer makes them flash or play their entrance twice.",
           "The calendar stays on today: the year view and back, or the arrows, no longer send it to 1 January.",
           "A precise arrow over the chart instead of an open hand, with the pointing hand over anything you can choose; the closed hand shows only while you drag a zoomed chart.",
+          "On transits, progressions and a partner’s chart, the outer planets are as big as your own, a little closer to the wheel, and their degrees are in each planet’s colour, with the retrograde mark on a phone too.",
+          "New time controls for transits and progressions, as in the desktop programs: a step from a minute to a year, ‹ › to take one (Shift for ten, or the arrow keys), play forward or backward, and a tape of dates to drag, flick or scroll that moves by whole steps; a month on keeps the day, a day on keeps the time, and transits go anywhere from 1800 to 2399.",
         ],
       },
       {
@@ -80,6 +82,8 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "Passer vite d’un thème à l’autre ne les fait plus clignoter ni rejouer leur entrée.",
           "Le calendrier reste sur aujourd’hui\u202f: la vue de l’année puis le retour, ou les flèches, ne le renvoient plus au 1er janvier.",
           "Une flèche précise sur le thème au lieu d’une main ouverte, et la main qui pointe sur tout ce que vous pouvez choisir\u202f; la main fermée n’apparaît que lorsque vous faites glisser un thème agrandi.",
+          "En transits, en progressions et avec le thème d’un partenaire, les planètes extérieures sont aussi grandes que les vôtres, un peu plus près de la roue, et leurs degrés ont la couleur de chaque planète, avec la marque de rétrogradation sur téléphone aussi.",
+          "De nouvelles commandes du temps pour les transits et les progressions, comme dans les logiciels de bureau\u202f: un pas d’une minute à un an, ‹ › pour en faire un (Maj pour dix, ou les flèches du clavier), la lecture en avant ou en arrière, et une règle de dates à faire glisser, lancer ou défiler qui avance de pas entiers\u202f; un mois plus tard garde le jour, un jour plus tard garde l’heure, et les transits vont de 1800 à 2399.",
         ],
       },
       {

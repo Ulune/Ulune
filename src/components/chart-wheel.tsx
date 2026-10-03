@@ -59,7 +59,7 @@ import { useLookPaintRev, useLookShape } from "@/lib/look-provider";
 import { quietChartMotionEvents } from "@/lib/quiet-motion-events";
 import { captureFirstView, claimFirstView } from "@/lib/first-view";
 import { whenIdle } from "@/lib/lazy-component";
-import { fanAngles, fanAnglesBy } from "@/lib/chart/fan-angles";
+import { fanAnglesBy } from "@/lib/chart/fan-angles";
 import { GLYPH_INK } from "@/lib/chart/glyph-ink";
 import {
   cacheWheelPaint,
@@ -238,13 +238,16 @@ const DIGNITY_MARK: Record<DignityKind, string> = {
 const R_XTICK_1 = R_OUTER + (R_TICK_OUT - R_TICK_1);
 const R_XTICK_5 = R_OUTER + (R_TICK_OUT - R_TICK_5);
 const R_XTICK_10 = R_OUTER + (R_TICK_OUT - R_TICK_10);
-const TRANSIT_GLYPH = 18;
-const TRANSIT_DISK = 11;
-const TRANSIT_PAD = 3;
-/** Just outside the pin ticks, with a short leader — not a second orbit. */
-const R_TRANSIT = R_XTICK_10 + TRANSIT_DISK + 26;
-const R_TRANSIT_LABEL = R_TRANSIT + 28;
-const TRANSIT_MIN_SEP = ((TRANSIT_DISK * 2 + TRANSIT_PAD) / R_TRANSIT) * (180 / Math.PI);
+/**
+ * The outer ring's glyphs (transits, progressions, a partner) are as big as
+ * the chart's own (part 87d: 18 → 26, and their reach with them), just
+ * outside the pin ticks with a short leader, not a second orbit.
+ */
+const TRANSIT_GLYPH = GLYPH;
+const TRANSIT_DISK = PLANET_DISK;
+const R_TRANSIT = R_XTICK_10 + TRANSIT_DISK + 12;
+/** Their degrees, just beyond the dashed ring that closes the outer glyphs. */
+const R_TRANSIT_LABEL = R_TRANSIT + 32;
 
 /* Strokes carry `vector-effect: non-scaling-stroke` (see `.ulune-wheel` in
    styles.css), so every width below is device pixels at any wheel size. A
@@ -567,10 +570,10 @@ function labelSpec(formatted: string, _retrograde: boolean, fit: "sm" | "lg") {
   return { txt, font: LABEL_FONT, w: txt.length * 0.6 * LABEL_FONT + 1, h: LABEL_FONT + 1 };
 }
 
-/** The outer ring's degree labels (transits, a partner): level, in a small box, as before. */
+/** The outer ring's degree labels (transits, a partner): level, with their retrograde mark (on a small wheel too). */
 function transitLabelSpec(formatted: string, retrograde: boolean, fit: "sm" | "lg") {
   if (fit === "sm") {
-    const txt = `${formatted.split("°")[0]}°`;
+    const txt = `${formatted.split("°")[0]}°${retrograde ? "℞" : ""}`;
     return { txt, font: TRANSIT_LABEL_FONT_SM, w: txt.length * 0.62 * TRANSIT_LABEL_FONT_SM + 8, h: 22 };
   }
   const txt = `${formatted}${retrograde ? " ℞" : ""}`;
@@ -3789,7 +3792,7 @@ const ChartWheelView = memo(function ChartWheelView({
             {transitPlaced.map((p) => {
               const color = ink(planetPaint(p.id, p.sign, lookPlanets));
               const id = outerHit(p.id);
-              const spec = labelSpec(p.formatted, p.retrograde, fit);
+              const spec = transitLabelSpec(p.formatted, p.retrograde, fit);
               const place = transitLabelAt.get(p.id);
               const labelPt = place ?? polar(p.display, R_TRANSIT_LABEL, asc);
               return (
@@ -3815,7 +3818,7 @@ const ChartWheelView = memo(function ChartWheelView({
                     className="ulune-wheel-halo pointer-events-none"
                     cx={p.x}
                     cy={p.y}
-                    r={11.2}
+                    r={mk(13.2)}
                     fill="none"
                     stroke="var(--color-halo)"
                     strokeWidth={1.8}
@@ -3827,13 +3830,17 @@ const ChartWheelView = memo(function ChartWheelView({
                       </g>
                     </g>
                   </g>
+                  {/* Its degree in its colour, as the chart's own (part 87d; it was
+                      white in a box). The box draws nothing: the 3D view reads
+                      where the degree stands from it. */}
                   <rect
                     x={labelPt.x - spec.w / 2}
                     y={labelPt.y - spec.h / 2}
                     width={spec.w}
                     height={spec.h}
                     rx={3}
-                    fill="var(--color-bg-elevated)"
+                    fill="none"
+                    stroke="none"
                     transform={labelTurn(place)}
                     data-label-at={place ? String(place.at) : undefined}
                     className="pointer-events-none"
@@ -3843,11 +3850,12 @@ const ChartWheelView = memo(function ChartWheelView({
                     y={labelPt.y}
                     textAnchor="middle"
                     dominantBaseline="central"
-                    fill="var(--color-fg)"
+                    fill="currentColor"
                     fontSize={spec.font}
                     fontFamily="var(--font-mono)"
                     transform={labelTurn(place)}
-                    className="pointer-events-none"
+                    data-kind="transit-deg"
+                    className="ulune-planet-deg ulune-planet-deg--out pointer-events-none"
                   >
                     {spec.txt}
                   </text>
@@ -3923,6 +3931,21 @@ function layoutPlanets(planets: NatalChart["planets"], asc: number, fit: "sm" | 
   return items;
 }
 
+/**
+ * How far an outer glyph reaches along its ring (units): its ink, taken as
+ * round, seen along the ring there. Its retrograde mark goes with its degree.
+ */
+function ringReach(p: NatalChart["planets"][number], radius: number, asc: number): number {
+  const [x0, y0, x1, y1] = GLYPH_INK[p.id] ?? [4, 3, 20, 21];
+  const k = (TRANSIT_GLYPH / 24) * GLYPH_INK_ROOM;
+  const pt = polar(p.ecliptic, radius, asc);
+  const ahead = polar(p.ecliptic + 0.5, radius, asc);
+  const ax = ahead.x - pt.x;
+  const ay = ahead.y - pt.y;
+  const al = Math.hypot(ax, ay) || 1;
+  return Math.hypot((ax / al) * ((x1 - x0) / 2) * k, (ay / al) * ((y1 - y0) / 2) * k);
+}
+
 function layoutTransits(planets: NatalChart["planets"], asc: number) {
   const items = planets.map((p) => ({
     ...p,
@@ -3931,9 +3954,10 @@ function layoutTransits(planets: NatalChart["planets"], asc: number) {
     x: 0,
     y: 0,
   }));
-  const fanned = fanAngles(
+  // Side by side as on the chart's own ring, GLYPH_GAP apart ink to ink.
+  const fanned = fanAnglesBy(
     items.map((p) => p.ecliptic),
-    TRANSIT_MIN_SEP,
+    (i, j) => ((ringReach(planets[i], R_TRANSIT, asc) + ringReach(planets[j], R_TRANSIT, asc) + GLYPH_GAP) / R_TRANSIT) * (180 / Math.PI),
   );
   items.forEach((p, i) => {
     p.display = fanned[i] ?? p.ecliptic;

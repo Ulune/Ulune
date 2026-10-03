@@ -4,7 +4,7 @@ import { BirthDateField } from "@/components/birth-date-field";
 import { ChartWheel } from "@/components/chart-wheel";
 import { ProgressionsHello } from "@/components/progressions-hello";
 import { LoadingLines } from "@/components/loading-lines";
-import { lifeMsFromYears, TROPICAL_YEAR_DAYS } from "@/lib/chart/progressions";
+import { lifeMsFromYears } from "@/lib/chart/progressions";
 import { usePack } from "@/lib/content/packs";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { useI18n } from "@/lib/i18n/locale";
@@ -19,8 +19,8 @@ import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { WheelPort } from "@/studio/stage/WheelPort";
 import { useStudioStore } from "@/studio/store";
-import { progressedScrubTicks } from "@/studio/modes/time-scrub-ticks";
-import { dateFormat, numberFormat } from "@/lib/intl-cache";
+import { TimeDial } from "@/studio/modes/time-dial";
+import { numberFormat } from "@/lib/intl-cache";
 import "@/studio/modes/styles/progressions.css";
 import "@/studio/modes/styles/time.css";
 
@@ -30,8 +30,8 @@ const ProgressionsTable = lazyNamed(loadTable, "ProgressionsTable");
 export type ProgressionsState = ReturnType<typeof useProgressions>;
 
 const MAX_YEARS = 120;
-const YEAR_STEP = 1 / TROPICAL_YEAR_DAYS;
-const MINUTE_STEP = YEAR_STEP / (24 * 60);
+/** The progressed chart's steps: its Moon moves about a degree a month. */
+const PROGRESSION_UNITS = ["day", "week", "month", "year"] as const;
 
 function ProgressionsControls() {
   const { locale, t } = useI18n();
@@ -81,10 +81,8 @@ function ProgressionsFigure() {
   const setTarget = useStudioStore((s) => s.setProgressionTarget);
   const yearsNow = progressions?.yearsNow ?? 0;
   const spanMax = Math.max(MAX_YEARS, Math.ceil(yearsNow + 1));
-  const sliderYears = Math.min(spanMax, Math.max(0, yearsNow));
-  const sliderPct = (sliderYears / spanMax) * 100;
-  const ticks = useMemo(() => progressedScrubTicks(spanMax), [spanMax]);
   if (!w.chart || !progressions) return null;
+  const natalMs = progressions.natalUtc.getTime();
   return (
     <BiWheelFrame
       kind="progressions"
@@ -92,38 +90,19 @@ function ProgressionsFigure() {
       onChange={w.setAspectLayer}
       banner={progressions.error ? <p className="text-sm text-danger">{localizeError(progressions.error, locale, "couldNotCastProgressions")}</p> : null}
       footer={
-        <div className="ulune-time-scrub" data-testid="progressions-scrub-band">
-          <p data-testid="progressions-scrub-readout" className="ulune-scrub-readout ulune-micro text-center text-fg-muted">
-            {dateFormat(locale === "fr" ? "fr-FR" : "en-GB", {
-              dateStyle: "medium",
-              timeZone: progressions.tz || undefined,
-            }).format(lifeMsFromYears(progressions.natalUtc, sliderYears))}
-          </p>
-          <div className="ulune-time-ticks" aria-hidden="true">
-            {ticks.map((tick) => (
-              <span
-                key={`${tick.major ? "M" : "m"}-${tick.pct.toFixed(3)}`}
-                className="ulune-time-tick"
-                data-major={tick.major ? "1" : "0"}
-                style={{ left: `${tick.pct}%` }}
-              />
-            ))}
-          </div>
-          <label className="block w-full min-w-0">
-            <span className="sr-only">{t("scrubProgressions")}</span>
-            <input
-              type="range"
-              data-testid="progressions-slider"
-              min={0}
-              max={spanMax}
-              step={MINUTE_STEP}
-              value={sliderYears}
-              onChange={(e) => setTarget(lifeMsFromYears(progressions.natalUtc, Number(e.target.value)))}
-              className="ulune-time-slider"
-              style={{ ["--pct" as string]: `${sliderPct}%` }}
-            />
-          </label>
-        </div>
+        <TimeDial
+          value={progressions.at}
+          min={natalMs}
+          max={lifeMsFromYears(progressions.natalUtc, spanMax)}
+          onChange={setTarget}
+          units={PROGRESSION_UNITS}
+          defaultUnit="month"
+          storageKey="ulune.scrub.unit.progressions"
+          testId="progressions-slider"
+          label={t("scrubProgressions")}
+          timeZone={progressions.tz || undefined}
+          withTime={false}
+        />
       }
     >
       <WheelPort dim={progressions.busy || w.casting}>

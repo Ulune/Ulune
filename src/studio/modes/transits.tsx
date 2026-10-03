@@ -19,11 +19,13 @@ import { euroFromMs, msFromEuro, timeFromMs } from "@/studio/modes/euro-date";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { WheelPort } from "@/studio/stage/WheelPort";
-import { TimeScrubber } from "@/studio/modes/time-scrubber";
+import { TimeDial } from "@/studio/modes/time-dial";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/transits.css";
 
-const YEAR_MS = 365.25 * 24 * 60 * 60 * 1000;
+/** The dates the ephemeris files cover (calculate.server.ts). */
+const SKY_MIN = Date.UTC(1800, 0, 1);
+const SKY_MAX = Date.UTC(2399, 11, 31);
 
 const loadTable = () => import("@/studio/tables/transit-table");
 const TransitTable = lazyNamed(loadTable, "TransitTable");
@@ -102,12 +104,7 @@ function TransitsFigure() {
   const w = useWheelView();
   const transits = useModeData("transits");
   const pin = useStudioStore((s) => s.pin);
-  const spanOrigin = useStudioStore((s) => s.time.spanOrigin);
   if (!w.chart || !transits) return null;
-  const at = transits.atMs;
-  const spanMin = spanOrigin - YEAR_MS;
-  const spanMax = spanOrigin + YEAR_MS;
-  const sliderValue = Math.min(spanMax, Math.max(spanMin, at));
   return (
     <BiWheelFrame
       kind="transit"
@@ -124,11 +121,12 @@ function TransitsFigure() {
         ) : null
       }
       footer={
-        <TimeScrubber
-          value={sliderValue}
-          min={spanMin}
-          max={spanMax}
+        <TimeDial
+          value={transits.atMs}
+          min={SKY_MIN}
+          max={SKY_MAX}
           onChange={pin}
+          storageKey="ulune.scrub.unit"
           testId="transit-scrubber"
           label={t("scrubSky")}
           smooth={transits.smooth}
