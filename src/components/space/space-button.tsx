@@ -19,7 +19,7 @@ const LOCK_LINE: Record<string, MessageKey> = {
  * there is none, "Unlock" when it is locked, and while it is open "Private",
  * with a menu to lock it now or see what is kept.
  */
-export function SpaceButton() {
+export function SpaceButton({ unkept = false }: { unkept?: boolean } = {}) {
   const { t } = useI18n();
   const status = useSpace((s) => s.status);
   const lock = useSpace((s) => s.lock);
@@ -138,7 +138,10 @@ export function SpaceButton() {
       className="ob-icon-btn ob-space-btn"
       data-testid="space-button"
       data-space={status}
-      aria-label={t(locked ? "spaceUnlock" : "spaceSignIn")}
+      // The chart on screen isn't kept: a dot, the note under the chart having shown once (part 95).
+      data-due={unkept ? "" : undefined}
+      data-unkept={unkept ? "" : undefined}
+      aria-label={unkept ? `${t(locked ? "spaceUnlock" : "spaceSignIn")} · ${t("keepNotKept")}` : t(locked ? "spaceUnlock" : "spaceSignIn")}
       title={t(locked ? "spaceUnlockTitle" : "spaceTitle")}
       disabled={status === "checking"}
       onClick={() => openSpaceSheet(locked ? "unlock" : "create")}

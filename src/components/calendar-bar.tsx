@@ -259,6 +259,7 @@ function CalendarView({
   onSky,
   onYours,
   table,
+  legend,
 }: {
   zone: CalendarZone;
   zones: Record<CalendarZone, string>;
@@ -269,6 +270,8 @@ function CalendarView({
   onSky: (on: boolean) => void;
   onYours: (on: boolean) => void;
   table: boolean;
+  /** The key to the month's symbols (part 95: the line under the month went). */
+  legend?: ReactNode;
 }) {
   const { locale } = useI18n();
   const z = CALENDAR_UI.zone;
@@ -300,7 +303,7 @@ function CalendarView({
         aria-label={label}
         hideLabel={label}
         align="end"
-        width={264}
+        width={legend && !table ? 320 : 264}
         testId="calendar-view-pop"
       >
         <div className="ob-menu ulune-cal-view">
@@ -332,6 +335,12 @@ function CalendarView({
               </button>
             </div>
           )}
+          {legend && !table ? (
+            <div className="ulune-cal-view-key">
+              <span className="ulune-cal-view-h">{pick(CALENDAR_UI.switches.key, locale)}</span>
+              {legend}
+            </div>
+          ) : null}
         </div>
       </AnchoredPopover>
     </>
@@ -358,6 +367,7 @@ export function CalendarBar({
   numOn = false,
   onNum,
   onJump,
+  legend,
 }: {
   scope: TimingScope;
   civil: CivilDate;
@@ -384,6 +394,8 @@ export function CalendarBar({
   onNum?: (id: string) => void;
   /** Go to any date, keeping the view (day, month or year). */
   onJump?: (next: CivilDate) => void;
+  /** The key to the symbols, in View. */
+  legend?: ReactNode;
 }) {
   const { locale, t } = useI18n();
   const z = CALENDAR_UI.zone;
@@ -432,6 +444,7 @@ export function CalendarBar({
           onSky={onSky}
           onYours={onYours}
           table={table}
+          legend={legend}
         />
       </div>
       {table ? null : <IcsExportItems onExport={onExport} loading={loading} />}

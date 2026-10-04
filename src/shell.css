@@ -808,6 +808,12 @@ html.theme-switching::view-transition-new(root) {
     bottom: auto;
   }
 }
+/* Numerology's tiles run under the wheel to the stage's edge on a narrow
+   stage: there the cluster stands in the top corner (part 95). */
+.ob-figure:has(.ulune-num-stage) > .ob-zoom-corner {
+  top: 8px;
+  bottom: auto;
+}
 /* Zoom, Fit, 3D and the pointer tools: one cluster in the figure's corner. */
 .ob-zoom-corner {
   position: absolute;

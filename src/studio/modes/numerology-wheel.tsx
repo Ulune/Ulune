@@ -8,6 +8,7 @@ import {
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import { useFirstHint } from "@/lib/first-hint";
 import { FigureKeys, type FigurePart } from "@/components/figure-keys";
 import { FigureZoom } from "@/components/figure-zoom";
 import { valueOfCore, type NumerologyChart } from "@/lib/chart/numerology";
@@ -144,7 +145,9 @@ export function NumerologyWheel({
 
   const sayId =
     hover ?? (selectedId && PREVIEWABLE.test(selectedId) ? selectedId : null) ?? preview;
-  const sayLine = sayId ? say(sayId) : numerologyWheelText(locale, touch ? "hintTouch" : "hint");
+  // The how-to line shows until the pointer first finds a number (part 95).
+  const firstHint = useFirstHint("ulune.hint.num.v1", sayId != null);
+  const sayLine = sayId ? say(sayId) : firstHint ? numerologyWheelText(locale, touch ? "hintTouch" : "hint") : "\u00a0";
 
   const lp = chart.lifePath;
   const lpWhole = wholeText(lp);

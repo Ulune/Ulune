@@ -15,7 +15,6 @@ export const tables = {
   relKind: ["Relationship chart", "Thème de la relation"],
   relComposite: ["Composite", "Composite"],
   relDavison: ["Davison", "Davison"],
-  relDavisonCaption: ["Davison relationship chart", "Thème de relation de Davison"],
   relCompositeLine: ["The midpoints of the two charts: a chart of the relationship, with no moment or place of its own", "Les mi-points des deux thèmes\u202f: un thème de la relation, sans moment ni lieu propres"],
   relDavisonShort: ["A real sky: the moment and the place halfway between the two births", "Un vrai ciel\u202f: le moment et le lieu à mi-chemin des deux naissances"],
   relDavisonLine: ["A real sky: the moment and the place halfway between the two births ({when} UT, {where})", "Un vrai ciel\u202f: le moment et le lieu à mi-chemin des deux naissances ({when} UT, {where})"],

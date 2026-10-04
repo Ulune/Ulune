@@ -9,7 +9,7 @@ export const modes = {
   progressedBody: ["Progressed {name}", "{name} {progressed}"],
   progressedGlanceTitle: ["The progressed chart at {n} years", "Le thème progressé à {n}\u00a0ans"],
   progressionLegendOuter: ["Progressed", "Progressé"],
-  progressionYearsOfLife: ["{n} years of life", "{n} années de vie"],
+  progressionAge: ["age {n}", "{n} ans"],
   scrubBack: ["Step back", "Reculer"],
   scrubForward: ["Step forward", "Avancer"],
   scrubPause: ["Pause", "Pause"],

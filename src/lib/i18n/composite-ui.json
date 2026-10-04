@@ -1,10 +1,6 @@
 {
   "id": "composite.ui",
   "kind": "chrome",
-  "method": {
-    "en": "Midpoint composite",
-    "fr": "Composite des mi-points"
-  },
   "addSecond": {
     "en": "Add a second person.",
     "fr": "Ajouter une deuxième personne."

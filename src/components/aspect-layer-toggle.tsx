@@ -40,12 +40,15 @@ export function AspectLayerToggle({
   onChange,
   kind,
   names,
+  legend,
 }: {
   value: AspectLayer;
   onChange: (next: AspectLayer) => void;
   kind: Kind;
   /** The two people, for synastry's words. */
   names?: { a: string; b: string };
+  /** Which ring is which, over the choices (RingsKey). */
+  legend?: ReactNode;
 }) {
   const { t } = useI18n();
   const words = layerWords(kind, t, names);
@@ -55,6 +58,7 @@ export function AspectLayerToggle({
     <RingsMenu
       testId="aspect-layer"
       ariaLabel={t("aspectLayer")}
+      head={legend}
       value={value}
       onChange={onChange}
       options={order.map((id) => ({ value: id, label: words[id].label, line: words[id].line }))}
@@ -71,9 +75,11 @@ export function BiWheelFrame({
   footer,
   banner,
   names,
+  legend,
 }: {
   kind: Kind;
   names?: { a: string; b: string };
+  legend?: ReactNode;
   value: AspectLayer;
   onChange: (next: AspectLayer) => void;
   children: ReactNode;
@@ -83,7 +89,7 @@ export function BiWheelFrame({
   return (
     <div className="ulune-biwheel">
       {banner ? <div className="ulune-biwheel-banner">{banner}</div> : null}
-      <AspectLayerToggle kind={kind} value={value} onChange={onChange} names={names} />
+      <AspectLayerToggle kind={kind} value={value} onChange={onChange} names={names} legend={legend} />
       {children}
       {footer ? <div className="ulune-biwheel-footer">{footer}</div> : null}
     </div>

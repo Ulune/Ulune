@@ -1,7 +1,8 @@
 /**
  * A first-run hint on the wheel: how to read it (point or tap a planet to see
- * its aspects, click to pin). It goes away for good once something is pinned
- * or it is closed; the choice is kept in this browser only. It stays away
+ * its aspects, click to pin). It shows once per device, on the first wheel
+ * (UI plan, part 95), until something is pinned, it is closed or the page
+ * changes; kept in this browser only. It stays away
  * while the tour runs, and the tour's second step, which teaches the same
  * gesture, counts as having seen it.
  */
@@ -69,7 +70,11 @@ export function WheelHint({ selection }: { selection: SelectionStore }) {
     if (seen()) return;
     setTouch(typeof window.matchMedia === "function" && window.matchMedia("(hover: none)").matches);
     // After the wheel has drawn itself in.
-    const timer = window.setTimeout(() => setOpen(true), 1600);
+    // Once per device (part 95): seen as soon as it shows.
+    const timer = window.setTimeout(() => {
+      setOpen(true);
+      remember();
+    }, 1600);
     return () => window.clearTimeout(timer);
   }, []);
   useEffect(() => {

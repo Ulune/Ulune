@@ -10,7 +10,6 @@ import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { useI18n } from "@/lib/i18n/locale";
 import {
   compositeAddSecond,
-  compositeMethodLabel,
   compositeMixedHouses,
   compositeNoNatal,
 } from "@/lib/i18n/composite-ui";
@@ -150,18 +149,11 @@ function MixedHousesNote() {
   );
 }
 
+/** Under the chart: only the note when the two charts' houses differ (part 95: the method line went; Rings says it). */
 function CompositeCaption() {
-  const { locale, t } = useI18n();
   const composite = useModeData("composite");
   if (!composite?.composite) return null;
-  return (
-    <>
-      <p data-testid="composite-method" className="text-center text-xs tracking-wide text-fg-muted">
-        {composite.kind === "davison" ? t("relDavisonCaption") : compositeMethodLabel(locale)}
-      </p>
-      <MixedHousesNote />
-    </>
-  );
+  return <MixedHousesNote />;
 }
 
 function CompositeHelloEmpty() {

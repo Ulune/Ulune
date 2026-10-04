@@ -11,18 +11,6 @@
   /* A day reached with the keyboard stops clear of the pinned bar. */
   scroll-padding-top: 6rem;
 }
-/* The period, its arrows and Today stay in view while the days scroll under
-   them (on a short screen the month scrolls today's week into view). */
-.ulune-timing-hero > .ulune-cal-bar {
-  position: sticky;
-  /* Flush with the scroller's edge, the page's colour a step above and below
-     the bar so no sliver of a day shows round it; the layout doesn't move. */
-  top: calc(-1 * var(--space-2));
-  z-index: 5;
-  margin-block: calc(-1 * var(--space-2));
-  padding-block: var(--space-2);
-  background: var(--color-bg);
-}
 /* ---------------------------------------------------------------------------
    The calendar (part 55 of the launch plan): the bar, the month, the legend,
    the Now panel. The Moon is drawn by MoonGlyph (components/moon-glyph.tsx).
@@ -140,41 +128,6 @@ html.light .ulune-moon {
 .ulune-cal-switches {
   display: flex;
   gap: var(--space-2);
-}
-.ulune-cal-zone {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  font-family: var(--font-ui);
-  font-size: 12.5px;
-  color: var(--color-fg-subtle);
-  cursor: pointer;
-}
-.ulune-cal-zone-line {
-  text-decoration: underline dotted color-mix(in oklab, var(--color-fg) 35%, transparent);
-  text-underline-offset: 3px;
-}
-/* The native menu sits over the words, invisible: the words say the choice.
-   Its box is clipped to the words' (Safari lays it out as wide as its longest choice). */
-.ulune-cal-zone-hit {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-.ulune-cal-zone select {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-  font-size: 16px;
-}
-.ulune-cal-zone:focus-within .ulune-cal-zone-line {
-  outline: 2px solid var(--color-fg);
-  outline-offset: 3px;
-  border-radius: 4px;
 }
 
 .ulune-cal-month {
@@ -457,18 +410,6 @@ html.light .ulune-moon {
 }
 /* A phone: the period alone above the month, the clock and switches under it. */
 @media (max-width: 639.98px) {
-  .ulune-cal-bar {
-    display: contents;
-  }
-  /* The bar has no box of its own here: its period line is what stays pinned. */
-  .ulune-timing-hero > .ulune-cal-bar > .ulune-cal-caption {
-    position: sticky;
-    top: calc(-1 * var(--space-2));
-    z-index: 5;
-    margin-block: calc(-1 * var(--space-2));
-    padding-block: var(--space-2);
-    background: var(--color-bg);
-  }
   .ulune-timing-hero {
     scroll-padding-top: 3.5rem;
   }
@@ -480,13 +421,6 @@ html.light .ulune-moon {
   }
   .ulune-cal-title .ulune-cal-title-short {
     display: inline;
-  }
-  .ulune-cal-options {
-    order: 1;
-    justify-content: space-between;
-  }
-  .ulune-cal-legend {
-    order: 2;
   }
 }
 .ulune-cal-legend {
@@ -1165,12 +1099,6 @@ html.light .ulune-moon {
   gap: var(--space-3);
   min-width: 0;
 }
-.ulune-cal-switches[hidden] {
-  display: none;
-}
-.ulune-cal-tableview > .ulune-cal-bar {
-  padding: var(--space-2) var(--stage-pad) 0;
-}
 /* Colour never alone: the aspect's family in the ring's shape too (the legend shows the same). */
 .ulune-cal-you[data-family="hard"] {
   border-radius: 4px;
@@ -1493,14 +1421,12 @@ html.light .ulune-moon {
   flex-direction: column;
   align-items: stretch;
   gap: 4px;
-  cursor: default;
 }
 .ulune-cal-view-h {
   font-size: 12px;
   color: var(--color-fg-muted);
 }
 .ulune-cal-view .ulune-cal-zone select {
-  position: static;
   width: 100%;
   height: var(--ctl-h);
   padding: 0 8px;
@@ -1509,15 +1435,16 @@ html.light .ulune-moon {
   background: var(--color-bg);
   color: var(--color-fg);
   font-size: var(--ctl-text);
-  opacity: 1;
+}
+/* A finger: 16 px, or Safari zooms in on the menu. */
+@media (pointer: coarse) {
+  .ulune-cal-view .ulune-cal-zone select {
+    font-size: 16px;
+  }
 }
 .ulune-cal-view .ulune-cal-zone-line {
   font-size: 12px;
   color: var(--color-fg-subtle);
-  text-decoration: none;
-}
-.ulune-cal-view .ulune-cal-zone:focus-within .ulune-cal-zone-line {
-  outline: none;
 }
 .ulune-cal-view .ulune-cal-switches {
   flex-wrap: wrap;
@@ -1526,7 +1453,7 @@ html.light .ulune-moon {
 /* On a computer the Calendar's toolbar is two rows, as a desktop calendar's:
    the page and day / month / year on the first, with Wheel / Table and Export
    at its end as on the other pages; under it the period, large, with its
-   arrows and Today, and View and the file at its end (one row could not hold
+   arrows and Today, and View at its end (one row could not hold
    them beside the side panel without cutting the month's name). */
 @media (min-width: 1024px) {
   .ob-strip:has(.ulune-cal-bar) {
@@ -1633,4 +1560,21 @@ html.light .ulune-moon {
   .ob-strip .ulune-cal-today {
     margin-left: auto;
   }
+}
+
+/* The key to the month's symbols, in View (UI plan, part 95). */
+.ulune-cal-view-key {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+.ulune-cal-view .ulune-cal-legend {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-fg-muted);
 }

@@ -9,6 +9,7 @@ import {
   centerPath,
 } from "@/lib/chart/bodygraph-geometry";
 import { hdFocusOf, hdSay } from "@/lib/chart/hd-focus";
+import { useFirstHint } from "@/lib/first-hint";
 import { parseHdActId } from "@/lib/chart/hd-rows";
 import { hdArrowsOf } from "@/lib/chart/hd-variable";
 import { graphForView, HD_CENTER_IDS, HD_CHANNELS, type HdView, type HumanDesignChart } from "@/lib/chart/human-design";
@@ -157,7 +158,9 @@ export function HumanDesignGraph({
     hover ??
     (parseHdActId(selectedId) ? selectedId : (focus?.hero ?? null)) ??
     (preview && parseHdActId(preview) ? preview : (outline?.hero ?? null));
-  const sayLine = sayId ? hdSay(chart, view, sayId, locale, names) : hdGraphText(locale, touch ? "hintTouch" : "hint");
+  // The how-to line shows until the pointer first finds a shape (part 95).
+  const firstHint = useFirstHint("ulune.hint.hd.v1", sayId != null);
+  const sayLine = sayId ? hdSay(chart, view, sayId, locale, names) : firstHint ? hdGraphText(locale, touch ? "hintTouch" : "hint") : "\u00a0";
 
   const attrs = (id: string) => ({
     "data-part": id,

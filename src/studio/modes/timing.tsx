@@ -65,6 +65,7 @@ function TimingBar({ table = false }: { table?: boolean }) {
       numOn={!!timing.numTitle && selectedId === timing.numTitle.id}
       onNum={pick}
       onJump={timing.setCivil}
+      legend={timing.scope === "month" ? <CalendarLegend num={!!(timing.prefs.yours && timing.numCal)} /> : null}
     />
   );
 }
@@ -129,7 +130,6 @@ function TimingFigure() {
             onShiftMonth={timing.shift}
             num={num}
           />
-          <CalendarLegend num={!!num} />
         </>
       ) : null}
       {timing.scope === "year" && timing.yearView ? (

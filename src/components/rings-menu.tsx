@@ -1,5 +1,5 @@
 import { Check, ChevronDown } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnchoredPopover } from "@/components/anchored-popover";
 import { useI18n } from "@/lib/i18n/locale";
@@ -28,12 +28,15 @@ export function RingsMenu<T extends string>({
   options,
   testId,
   ariaLabel,
+  head,
 }: {
   value: T;
   onChange: (next: T) => void;
   options: readonly RingsOption<T>[];
   testId: string;
   ariaLabel: string;
+  /** Over the choices: which ring is which (part 95: the legend under the chart moved here). */
+  head?: ReactNode;
 }) {
   const { t } = useI18n();
   const slot = useRingsSlot();
@@ -88,6 +91,7 @@ export function RingsMenu<T extends string>({
         testId={`${testId}-menu`}
       >
         <div className="ob-menu">
+        {head}
           {options.map((o, i) => {
             const on = o.value === value;
             return (
@@ -125,4 +129,25 @@ export function RingsMenu<T extends string>({
     </div>
   );
   return slot ? createPortal(body, slot) : body;
+}
+
+/**
+ * Which ring is which, at the top of the Rings menu (UI plan, part 95): the
+ * inner ring filled, the outer dashed, as the wheel draws them, and a line on
+ * the method where there is one.
+ */
+export function RingsKey({ inner, outer, note }: { inner: string; outer: string; note?: string }) {
+  return (
+    <div className="ulune-rings-head" data-testid="rings-key">
+      <span className="ulune-rings-ring">
+        <i className="ulune-rings-dot" aria-hidden />
+        {inner}
+      </span>
+      <span className="ulune-rings-ring">
+        <i className="ulune-rings-dot is-outer" aria-hidden />
+        {outer}
+      </span>
+      {note ? <span className="ulune-rings-note">{note}</span> : null}
+    </div>
+  );
 }

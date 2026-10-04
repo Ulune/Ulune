@@ -1,5 +1,6 @@
 import { Suspense, useMemo } from "react";
 import { BiWheelFrame } from "@/components/aspect-layer-toggle";
+import { RingsKey } from "@/components/rings-menu";
 import { BirthDateField } from "@/components/birth-date-field";
 import { ChartWheel } from "@/components/chart-wheel";
 import { ProgressionsHello } from "@/components/progressions-hello";
@@ -76,11 +77,16 @@ function ProgressionsFigure() {
   const spanMax = Math.max(MAX_YEARS, Math.ceil(yearsNow + 1));
   if (!w.chart || !progressions) return null;
   const natalMs = progressions.natalUtc.getTime();
+  // The age at the moment shown, in the dial's readout (part 95: the line under the chart went).
+  const ageLabel = numberFormat(locale === "fr" ? "fr-FR" : "en-GB", { maximumFractionDigits: 1, minimumFractionDigits: 0 }).format(
+    Math.min(spanMax, Math.max(0, yearsNow)),
+  );
   return (
     <BiWheelFrame
       kind="progressions"
       value={w.aspectLayer}
       onChange={w.setAspectLayer}
+      legend={<RingsKey inner={t("transitLegendInner")} outer={t("progressionLegendOuter")} note={progressionMethodLabel(locale)} />}
       banner={progressions.error ? <p className="text-sm text-danger">{localizeError(progressions.error, locale, "couldNotCastProgressions")}</p> : null}
       footer={
         <TimeDial
@@ -98,6 +104,7 @@ function ProgressionsFigure() {
           picker={<ProgressionsPicker />}
           pickerLabel={progressionClockLabel(locale, "pick")}
           pickerTestId="progressions-clock"
+          note={{ text: t("progressionAge", { n: ageLabel }), testId: "progressions-years" }}
           live={Math.abs(progressions.at - Date.now()) < 86_400_000}
           reset={{ label: progressionClockLabel(locale, "today"), testId: "progressions-today", onReset: () => setTarget(Date.now()) }}
         />
@@ -120,36 +127,6 @@ function ProgressionsFigure() {
         />
       </WheelPort>
     </BiWheelFrame>
-  );
-}
-
-function ProgressionsCaption() {
-  const { locale, t } = useI18n();
-  const progressions = useModeData("progressions");
-  if (!progressions) return null;
-  const spanMax = Math.max(MAX_YEARS, Math.ceil(progressions.yearsNow + 1));
-  const sliderYears = Math.min(spanMax, Math.max(0, progressions.yearsNow));
-  const yearLabel = numberFormat(locale === "fr" ? "fr-FR" : "en-GB", {
-    maximumFractionDigits: 1,
-    minimumFractionDigits: 0,
-  }).format(sliderYears);
-  return (
-    <div className="flex flex-col items-center gap-[var(--space-1)]">
-      <p className="ulune-kicker flex justify-center gap-[var(--space-4)] text-fg-muted">
-        <span className="inline-flex items-center gap-1.5">
-          <span className="size-2 rounded-full border border-fg-muted bg-bg-elevated" />
-          {t("transitLegendInner")}
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="size-2 rounded-full border border-dashed border-fg-muted" />
-          {t("progressionLegendOuter")}
-        </span>
-      </p>
-      <p className="ulune-kicker flex justify-center gap-[var(--space-4)] text-fg-muted">
-        <span data-testid="progressions-method">{progressionMethodLabel(locale)}</span>
-        <span data-testid="progressions-years">{t("progressionYearsOfLife", { n: yearLabel })}</span>
-      </p>
-    </div>
   );
 }
 
@@ -213,7 +190,6 @@ export const progressionsMode: ModeDef = {
   ...MODE_META.progressions,
   emptyText: progressionNoNatal,
   Figure: ProgressionsFigure,
-  Caption: ProgressionsCaption,
   HelloEmpty: ProgressionsHelloEmpty,
   Data: ProgressionsData,
   preloadData: () => prefetch(loadTable),

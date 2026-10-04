@@ -73,6 +73,7 @@ export function TimeDial({
   picker,
   pickerLabel,
   pickerTestId,
+  note,
   reset,
   live = false,
 }: {
@@ -97,6 +98,8 @@ export function TimeDial({
   picker?: ReactNode;
   pickerLabel?: string;
   pickerTestId?: string;
+  /** A word after the date in the readout (the age on Progressions, part 95). */
+  note?: { text: string; testId?: string };
   /** Back to now (Now, Today), at the dial's end; `live`: the chart follows the clock. */
   reset?: { label: string; testId: string; onReset: () => void };
   live?: boolean;
@@ -408,7 +411,7 @@ export function TimeDial({
   const shown = clamp(value);
   const day = dateFormat(tag, { dateStyle: "medium", ...(timeZone ? { timeZone } : {}) }).format(shown);
   const clock = withTime ? dateFormat(tag, { timeStyle: "short", ...(timeZone ? { timeZone } : {}) }).format(shown) : "";
-  const readout = clock ? `${day}, ${clock}` : day;
+  const readout = [clock ? `${day}, ${clock}` : day, note?.text].filter(Boolean).join(" · ");
   const stepName = t(`scrubUnit_${unit}` as const);
 
   return (
@@ -454,12 +457,22 @@ export function TimeDial({
           >
             <span>{day}</span>
             {clock ? <span className="ulune-time-readout-clock">{clock}</span> : null}
+            {note ? (
+              <span className="ulune-time-readout-clock ulune-time-readout-note" data-testid={note.testId}>
+                {note.text}
+              </span>
+            ) : null}
             <ChevronDown className="ulune-time-readout-caret" strokeWidth={1.75} aria-hidden />
           </button>
         ) : (
           <p data-testid={`${testId}-readout`} className="ulune-time-readout" aria-live="polite">
             <span>{day}</span>
             {clock ? <span className="ulune-time-readout-clock">{clock}</span> : null}
+            {note ? (
+              <span className="ulune-time-readout-clock ulune-time-readout-note" data-testid={note.testId}>
+                {note.text}
+              </span>
+            ) : null}
           </p>
         )}
         <button

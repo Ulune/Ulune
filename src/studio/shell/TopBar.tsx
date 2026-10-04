@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import { useStudioStore } from "@/studio/store";
 import { AiAccountsButton } from "@/components/ai-accounts";
 import { AI_ENABLED } from "@/lib/features";
 import { useI18n } from "@/lib/i18n/locale";
@@ -40,11 +41,12 @@ function PaletteButton() {
 }
 
 export function TopRight() {
+  const hasChart = useStudioStore((s) => s.chart != null);
   return (
     <div className="ob-top ob-top-r" data-testid="top-right">
       <PaletteButton />
       {AI_ENABLED ? <AiAccountsButton /> : null}
-      <SpaceButton />
+      <SpaceButton unkept={hasChart} />
       <AccountMenu />
     </div>
   );

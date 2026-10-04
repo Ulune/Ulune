@@ -207,3 +207,49 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
+.ulune-time-readout-note::before {
+  content: "· ";
+}
+/* A narrow dial (a phone), after the rules above so it wins: the readout
+   that opens the fields wraps, the date over the time (or the age). */
+@container (max-width: 420px) {
+  /* The readout that opens the fields: the date over the time (or the age),
+     its caret beside the second line, the button as tall as its two lines. */
+  .ulune-time-dial .ulune-time-readout--pick {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: 0.4em;
+    row-gap: 0;
+    height: auto;
+    min-height: var(--ctl-h);
+    padding-block: 2px;
+    white-space: normal;
+  }
+  .ulune-time-dial .ulune-time-readout--pick > span:first-child {
+    flex: 0 0 100%;
+    text-align: center;
+  }
+  .ulune-time-dial .ulune-time-readout--pick > span {
+    white-space: nowrap;
+  }
+  .ulune-time-dial .ulune-time-readout--pick .ulune-time-readout-note::before {
+    content: none;
+  }
+  /* Room for the date beside Now (part 95): play backward goes, the arrows
+     narrow (still 40 px tall to tap). */
+  .ulune-time-dial .ulune-time-play-back {
+    display: none;
+  }
+  .ulune-time-dial .ulune-time-scrub-head > .ob-icon-btn {
+    width: 32px;
+    min-width: 32px;
+  }
+  /* No room for the caret: an outline says it opens instead. */
+  .ulune-time-dial .ulune-time-readout--pick {
+    border-color: var(--color-border-field);
+  }
+  .ulune-time-dial .ulune-time-readout--pick .ulune-time-readout-caret {
+    display: none;
+  }
+}

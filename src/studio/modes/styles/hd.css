@@ -79,12 +79,13 @@ html.light {
 }
 
 /* The five keys and the cross above the chart (hd-facts.tsx): one row of
-   small cards, each opening its reading. */
+   label-over-value facts without boxes (UI plan, part 95), a thin rule
+   between them, each opening its reading. */
 .ulune-hd-facts {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--space-2);
+  gap: 2px;
   width: 100%;
   margin: 6px auto var(--space-2);
   padding-inline: var(--stage-pad);
@@ -99,12 +100,23 @@ html.light {
   justify-content: center;
   gap: 1px;
   min-width: 0;
-  padding: 5px 10px 6px;
-  border-radius: 10px;
+  padding: 3px 12px 4px;
+  border-radius: var(--radius-md);
   background: transparent;
-  box-shadow: inset 0 0 0 1px var(--color-border);
   text-align: left;
   color: var(--color-fg);
+}
+.ulune-hd-facts > .ulune-hd-fact + .ulune-hd-fact {
+  position: relative;
+}
+.ulune-hd-facts > .ulune-hd-fact + .ulune-hd-fact::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: -2px;
+  width: 1px;
+  background: var(--color-border);
 }
 @media (hover: hover) {
   .ulune-hd-fact:hover {
@@ -113,7 +125,7 @@ html.light {
 }
 .ulune-hd-fact[aria-pressed="true"] {
   background: var(--color-bg-subtle);
-  box-shadow: inset 0 0 0 1.5px var(--color-fg);
+  box-shadow: inset 0 -2px 0 var(--color-fg);
 }
 .ulune-hd-fact-k {
   font-size: 10px;
@@ -560,7 +572,10 @@ html.light .ulune-hd-gate[data-tone="both"] text {
     display: flex;
   }
   .ulune-hd-fact {
-    padding: 4px 8px 5px;
+    padding: 3px 6px 4px;
+  }
+  .ulune-hd-facts > .ulune-hd-fact + .ulune-hd-fact::before {
+    display: none;
   }
   .ulune-hd-fact-v {
     font-size: 14px;

@@ -1,5 +1,6 @@
 import { Suspense, useMemo } from "react";
 import { BiWheelFrame } from "@/components/aspect-layer-toggle";
+import { RingsKey } from "@/components/rings-menu";
 import { BirthDateField } from "@/components/birth-date-field";
 import { ChartWheel } from "@/components/chart-wheel";
 import { TransitHello } from "@/components/transit-hello";
@@ -103,6 +104,7 @@ function TransitsFigure() {
       kind="transit"
       value={w.aspectLayer}
       onChange={w.setAspectLayer}
+      legend={<RingsKey inner={t("transitLegendInner")} outer={t("transitLegendOuter")} />}
       banner={
         transits.error ? (
           <p className="text-sm text-danger">
@@ -149,22 +151,6 @@ function TransitsFigure() {
         />
       </WheelPort>
     </BiWheelFrame>
-  );
-}
-
-function TransitsCaption() {
-  const { t } = useI18n();
-  return (
-    <p className="ulune-kicker flex justify-center gap-[var(--space-4)] text-fg-muted">
-      <span className="inline-flex items-center gap-1.5">
-        <span className="size-2 rounded-full border border-fg-muted bg-bg-elevated" />
-        {t("transitLegendInner")}
-      </span>
-      <span className="inline-flex items-center gap-1.5">
-        <span className="size-2 rounded-full border border-dashed border-fg-muted" />
-        {t("transitLegendOuter")}
-      </span>
-    </p>
   );
 }
 
@@ -224,7 +210,6 @@ export const transitsMode: ModeDef = {
   ...MODE_META.transits,
   emptyText: transitNoNatal,
   Figure: TransitsFigure,
-  Caption: TransitsCaption,
   HelloEmpty: TransitsHelloEmpty,
   Data: TransitsData,
   preloadData: () => prefetch(loadTable),

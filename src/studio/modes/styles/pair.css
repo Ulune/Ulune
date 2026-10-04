@@ -1,37 +1,6 @@
 /* Synastry and Composite: these styles load with the code that uses them, not with the
    first page (performance plan 1.9). Moved as they were from styles.css. */
-.ulune-synastry-pair {
-  box-sizing: border-box;
-  min-width: 0;
-  width: 100%;
-  height: var(--ctl-h);
-  max-height: var(--ctl-h);
-  flex-shrink: 0;
-}
-.ulune-composite-pair {
-  box-sizing: border-box;
-  min-width: 0;
-  width: 100%;
-  height: var(--ctl-h);
-}
-.ulune-synastry-caption {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-2) var(--space-4);
-  margin: 0;
-  padding-top: var(--space-2);
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
-  text-transform: uppercase;
-  color: var(--color-fg-subtle);
-}
-.ulune-synastry-wheel {
-  min-width: 0;
-}
+
 .ulune-synastry-pair-bar,
 .ulune-composite-pair-bar {
   display: flex;
@@ -113,116 +82,9 @@
     color: var(--color-fg);
   }
 }
-@media (max-width: 1023.98px) {
-  .ulune-synastry-sky,
-    .ulune-composite-sky {
-      display: flex;
-      flex-direction: column;
-    }
-  .ulune-synastry-rail,
-    .ulune-composite-rail {
-      display: contents;
-    }
-  .ulune-synastry-sky .ulune-synastry-pair {
-      order: 1;
-      position: sticky;
-      top: calc(var(--ulune-header-h, 6.75rem) + var(--ulune-nav-h, 4.125rem));
-      z-index: 21;
-      height: var(--ctl-h);
-      max-height: var(--ctl-h);
-      flex-shrink: 0;
-      margin-inline: calc(-1 * var(--natal-sky-pad));
-      padding: 0 var(--natal-sky-pad);
-      background: var(--color-bg-elevated);
-    }
-  .ulune-composite-sky .ulune-composite-pair {
-      order: 1;
-      position: sticky;
-      top: calc(var(--ulune-header-h, 6.75rem) + var(--ulune-nav-h, 4.125rem));
-      z-index: 21;
-      height: var(--ctl-h);
-      max-height: var(--ctl-h);
-      margin-inline: calc(-1 * var(--natal-sky-pad));
-      padding: 0 var(--natal-sky-pad);
-      background: var(--color-bg-elevated);
-    }
-  .ulune-synastry-sky .ulune-synastry-pair .ulune-synastry-pair-bar {
-      height: var(--ctl-h);
-      max-height: var(--ctl-h);
-    }
-  .ulune-synastry-sky .ulune-synastry-wheel {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-    }
-  .ulune-synastry-sky .ulune-synastry-caption {
-      order: -1;
-      position: sticky;
-      top: calc(var(--ulune-header-h, 6.75rem) + var(--ulune-nav-h, 4.125rem) + var(--ctl-h));
-      z-index: 20;
-      margin-inline: calc(-1 * var(--natal-sky-pad));
-      padding: var(--space-2) var(--natal-sky-pad);
-      background: var(--color-bg-elevated);
-    }
-  .ulune-synastry-sky .ulune-sky-wheel,
-    .ulune-composite-sky .ulune-sky-wheel {
-      order: 2;
-    }
-  .ulune-synastry-sky .ulune-sky-read,
-    .ulune-composite-sky .ulune-sky-read {
-      order: 3;
-    }
-}
-@media (min-width: 1024px) {
-  .ulune-synastry-sky.ulune-sky,
-    .ulune-composite-sky.ulune-sky {
-      display: grid;
-      grid-template-columns: minmax(520px, 56%) minmax(0, 44%);
-      align-items: start;
-      align-content: start;
-    }
-  .ulune-synastry-sky .ulune-sky-wheel,
-    .ulune-composite-sky .ulune-sky-wheel {
-      grid-column: 1;
-      grid-row: 1;
-      flex: none;
-      width: auto;
-      min-width: 520px;
-      max-width: none;
-    }
-  .ulune-synastry-rail,
-    .ulune-composite-rail {
-      grid-column: 2;
-      grid-row: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      min-width: 0;
-      position: sticky;
-      top: var(--ulune-header-h, 6.75rem);
-      max-height: calc(100dvh - var(--ulune-header-h, 6.75rem) - 1rem);
-      overflow-y: auto;
-    }
-  .ulune-synastry-rail .ulune-synastry-pair,
-    .ulune-composite-rail .ulune-composite-pair {
-      order: 1;
-      position: static;
-    }
-  .ulune-synastry-rail .ulune-sky-read,
-    .ulune-composite-rail .ulune-sky-read {
-      order: 2;
-      flex: none;
-      width: auto;
-      position: static;
-      max-height: none;
-      overflow: visible;
-    }
-}
 @media (max-width: 767px) {
   /* Parent max-height:44 was clipping the native select to ~43. */
-  .ulune-synastry-pair,
-    .ulune-composite-pair,
-    .ulune-synastry-pair-bar,
+  .ulune-synastry-pair-bar,
     .ulune-composite-pair-bar {
       height: var(--ctl-h);
       min-height: var(--ctl-h);
@@ -250,19 +112,7 @@
       min-width: var(--ctl-h);
       max-height: none;
     }
-  .ulune-synastry-sky .ulune-synastry-pair,
-    .ulune-composite-sky .ulune-composite-pair,
-    .ulune-synastry-sky .ulune-synastry-pair .ulune-synastry-pair-bar {
-      max-height: none;
-    }
-  .ulune-synastry-sky .ulune-synastry-pair,
-    .ulune-composite-sky .ulune-composite-pair,
-    .ulune-synastry-sky .ulune-synastry-pair .ulune-synastry-pair-bar,
-    .ulune-composite-sky .ulune-composite-pair .ulune-composite-pair-bar {
-      height: var(--ctl-h);
-      min-height: var(--ctl-h);
-      max-height: none !important;
-    }
+
 }
 /* Pair bar: both halves share the width; person A never shrinks below a name. */
 .ulune-synastry-pair-bar > .ulune-synastry-add,

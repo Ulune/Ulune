@@ -385,8 +385,13 @@ async function run() {
       await page.getByTestId("space-sheet").waitFor({ state: "detached" });
       if (await page.getByTestId("studio-natal").count()) throw new Error("just looking showed the space's chart");
       await castFixture(page, FIXTURE_A);
-      const offer = await page.getByTestId("keep-offer").innerText();
-      if (!/Unlock/.test(offer)) throw new Error(`the offer under a chart with a locked space: "${offer}"`);
+      // The note under the chart showed once on this device (part 95); now Unlock in the top bar carries a dot.
+      const offerShown = await page.getByTestId("keep-offer").count();
+      const unlock = page.getByTestId("space-button");
+      const label = (await unlock.getAttribute("aria-label")) ?? "";
+      const offer = offerShown ? await page.getByTestId("keep-offer").innerText() : "";
+      if ((offerShown && !/Unlock/.test(offer)) || (await unlock.getAttribute("data-unkept")) === null || !/Unlock/.test(label))
+        throw new Error(`a chart with a locked space: note "${offer}", button "${label}"`);
       if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
       await context.close();
       console.log("just look with a locked space OK");

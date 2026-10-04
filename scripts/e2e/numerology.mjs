@@ -94,6 +94,8 @@ async function calendar(page, thisYear) {
   const month = today.getMonth() + 1;
   const pm = root(personalYear(thisYear) + month);
   const key = `${thisYear}-${String(month).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  // The key to the symbols is in View (part 95).
+  await openCalendarView(page);
   const monthView = await page.evaluate((k) => ({
     title: document.querySelector('[data-testid="calendar-num"]')?.textContent ?? "",
     pd: document.querySelector(`[data-testid="calendar-day-${k}"] .ulune-cal-pd`)?.textContent ?? "",
@@ -102,6 +104,7 @@ async function calendar(page, thisYear) {
   }), key);
   const pd = String(root(pm + today.getDate()));
   if (monthView.title !== `Personal month ${pm}` || monthView.pd !== pd || monthView.days < 28 || !monthView.legend) throw new Error(`the month's numerology ${JSON.stringify(monthView)}`);
+  await page.keyboard.press("Escape");
   await page.getByTestId("calendar-num").click();
   await page.getByTestId("reading-card").waitFor({ timeout: 10000 });
   if (!/Personal month/.test(await page.getByTestId("reading-card").innerText())) throw new Error("the personal month's reading");
@@ -547,7 +550,8 @@ async function desktop() {
       chips: document.querySelector('[data-testid="num-year-line"]').textContent,
       aria: document.querySelector('[data-testid="numerology-ring"]').getAttribute("aria-label"),
     }));
-    if (!/^Touchez|^Pointez/.test(fr.say) || !/Réalisation/.test(fr.chips) || !/^Roue de numérologie/.test(fr.aria)) throw new Error(`French ${JSON.stringify(fr)}`);
+    // The how-to line shows until the wheel has been pointed at once (part 95); after that the line waits empty.
+    if (!(/^Touchez|^Pointez/.test(fr.say) || !fr.say.trim()) || !/Réalisation/.test(fr.chips) || !/^Roue de numérologie/.test(fr.aria)) throw new Error(`French ${JSON.stringify(fr)}`);
     await setLang(page, "en");
 
     if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);

@@ -325,20 +325,23 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 4px 6px;
+  gap: 2px 8px;
   margin: 0;
   font-size: 12px;
   line-height: 1.2;
   color: var(--color-fg-muted);
 }
+/* The cycles on one plain line (UI plan, part 95): words, not pills; each
+   still opens its reading, a quiet underline when chosen. */
 .ulune-num-chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  min-height: 28px;
-  padding: 3px 9px;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
+  min-height: 24px;
+  padding: 2px 6px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
   font: inherit;
   color: inherit;
   white-space: nowrap;
@@ -354,18 +357,15 @@
   }
 }
 .ulune-num-chip.is-on {
-  border-color: var(--color-fg);
+  box-shadow: inset 0 -2px 0 var(--color-fg);
 }
 .ulune-num-chip b {
   color: var(--color-fg);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
-.ulune-num-chip.is-year {
-  border-color: var(--color-border-strong);
-}
-.ulune-num-chip[data-new] {
-  border-color: var(--color-halo);
+.ulune-num-chip[data-new] b {
+  color: var(--color-halo);
 }
 .ulune-num-chip-x {
   color: var(--color-fg-subtle);
@@ -379,7 +379,7 @@
    open their readings; on a phone they scroll sideways. */
 .ulune-num-tiles {
   display: grid;
-  grid-auto-columns: minmax(5.4rem, 1fr);
+  grid-auto-columns: minmax(4.75rem, 1fr);
   grid-auto-flow: column;
   gap: 6px;
   width: min(100%, 38rem);
@@ -398,9 +398,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 4px;
-  min-height: 60px;
-  padding: 11px 4px 8px;
+  gap: 3px;
+  min-height: 44px;
+  padding: 6px 4px 5px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: transparent;
@@ -430,7 +430,7 @@
 }
 .ulune-num-tile-n {
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: 1.125rem;
   font-variant-numeric: tabular-nums;
   line-height: 1;
   white-space: nowrap;
@@ -447,15 +447,6 @@
   overflow-wrap: anywhere;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-}
-.ulune-num-system {
-  margin: 0;
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
-  color: var(--color-fg-subtle);
 }
 
 /* Held upright with the sheet folded, the wheel takes the whole width and
@@ -485,7 +476,7 @@
    year stepper, the tiles and the method's name wait for the sheet to fold
    (a Y's switch stays: its reading is the one open). */
 @media (max-width: 1023.98px) {
-  .ob-body:has(.ob-panel:not([data-detent="peek"])) :is(.ulune-num-say, .ulune-num-year, .ulune-num-tiles, .ulune-num-system) {
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) :is(.ulune-num-say, .ulune-num-year, .ulune-num-tiles) {
     display: none;
   }
 }

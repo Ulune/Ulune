@@ -11,10 +11,7 @@ import {
 } from "../src/lib/chart/composite.ts";
 import { helloCells, NATAL_HELLO } from "../src/lib/i18n/natal-hello.ts";
 import { compositeLine, compositeTitle } from "../src/lib/i18n/mode-hello.ts";
-import {
-  compositeMethodLabel,
-  compositeReadingEmpty,
-} from "../src/lib/i18n/composite-ui.ts";
+import { compositeReadingEmpty } from "../src/lib/i18n/composite-ui.ts";
 
 const PARIS = {
   latitude: 48.8566,
@@ -213,7 +210,6 @@ test("Paris 14:30 / 12:00 midpoint composite matches Swiss-derived longs to 1′
     "Son climat affectif\u202f: ce qui vous fait vous sentir chez vous, ensemble.",
   );
 
-  assert.equal(compositeMethodLabel("en"), "Midpoint composite");
   assert.equal(compositeReadingEmpty("en"), "Tap a body or an aspect in the wheel.");
 });
 

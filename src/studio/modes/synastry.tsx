@@ -1,5 +1,6 @@
 import { Suspense, useMemo } from "react";
 import { BiWheelFrame } from "@/components/aspect-layer-toggle";
+import { RingsKey } from "@/components/rings-menu";
 import { ChartWheel } from "@/components/chart-wheel";
 import { SynastryHello } from "@/components/synastry-hello";
 import { LoadingLines } from "@/components/loading-lines";
@@ -28,8 +29,19 @@ function SynastryControls() {
   return <PairSelects mode="synastry" />;
 }
 
+/** A person's name as the library shows it, for the Rings key. */
+function displayName(
+  m: { name: string; date: string; time: string; latitude: number; longitude: number; placeLabel: string },
+  untitled: string,
+): string {
+  return chartDisplayName(
+    { name: m.name, date: m.date, time: m.time, latitude: m.latitude, longitude: m.longitude, placeLabel: m.placeLabel },
+    untitled,
+  );
+}
+
 function SynastryFigure() {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const w = useWheelView();
   const synastry = useModeData("synastry");
   const partnerBirth = useStudioStore((s) => s.pair.addingPartnerFor === "synastry");
@@ -63,6 +75,12 @@ function SynastryFigure() {
       value={w.aspectLayer}
       onChange={w.setAspectLayer}
       names={{ a: synastry.inner.meta.name || "A", b: synastry.chartB.meta.name || "B" }}
+      legend={
+        <RingsKey
+          inner={`${synastryLegend(locale, "inner")} · ${displayName(synastry.inner.meta, t("untitled"))}`}
+          outer={`${synastryLegend(locale, "outer")} · ${displayName(synastry.chartB.meta, t("untitled"))}`}
+        />
+      }
     >
       <WheelPort dim={w.casting}>
         <ChartWheel
@@ -81,46 +99,6 @@ function SynastryFigure() {
         />
       </WheelPort>
     </BiWheelFrame>
-  );
-}
-
-function SynastryCaption() {
-  const { locale, t } = useI18n();
-  const synastry = useModeData("synastry");
-  if (!synastry?.inner || !synastry.chartB) return null;
-  const aName = chartDisplayName(
-    {
-      name: synastry.inner.meta.name,
-      date: synastry.inner.meta.date,
-      time: synastry.inner.meta.time,
-      latitude: synastry.inner.meta.latitude,
-      longitude: synastry.inner.meta.longitude,
-      placeLabel: synastry.inner.meta.placeLabel,
-    },
-    t("untitled"),
-  );
-  const bName = chartDisplayName(
-    {
-      name: synastry.chartB.meta.name,
-      date: synastry.chartB.meta.date,
-      time: synastry.chartB.meta.time,
-      latitude: synastry.chartB.meta.latitude,
-      longitude: synastry.chartB.meta.longitude,
-      placeLabel: synastry.chartB.meta.placeLabel,
-    },
-    t("untitled"),
-  );
-  return (
-    <p data-testid="synastry-caption" className="ulune-kicker flex justify-center gap-[var(--space-4)] text-fg-muted">
-      <span className="inline-flex items-center gap-1.5">
-        <span className="size-2 rounded-full border border-fg-muted bg-bg-elevated" />
-        {synastryLegend(locale, "inner")} · {aName}
-      </span>
-      <span className="inline-flex items-center gap-1.5">
-        <span className="size-2 rounded-full border border-dashed border-fg-muted" />
-        {synastryLegend(locale, "outer")} · {bName}
-      </span>
-    </p>
   );
 }
 
@@ -187,7 +165,6 @@ export const synastryMode: ModeDef = {
   emptyText: synastryNoNatal,
   Controls: SynastryControls,
   Figure: SynastryFigure,
-  Caption: SynastryCaption,
   HelloEmpty: SynastryHelloEmpty,
   Data: SynastryData,
   preloadData: () => prefetch(loadTable),

@@ -4,10 +4,6 @@ import { pick } from "./pick";
 
 export const COMPOSITE_UI = source;
 
-export function compositeMethodLabel(locale: AppLocale): string {
-  return pick(source.method, locale);
-}
-
 export function compositeAddSecond(locale: AppLocale): string {
   return pick(source.addSecond, locale);
 }

@@ -12,7 +12,6 @@ import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import {
   numerologyCoreLabel,
   numerologyNoNatal,
-  numerologySystemLabel,
   numerologyWheelText,
 } from "@/lib/i18n/numerology-ui";
 import { cn } from "@/lib/utils";
@@ -65,9 +64,6 @@ function NumerologyFigure() {
           );
         })}
       </div>
-      <p data-testid="numerology-system" className="ulune-num-system">
-        {numerologySystemLabel(locale)}
-      </p>
     </div>
   );
 }
