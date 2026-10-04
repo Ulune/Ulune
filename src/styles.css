@@ -1675,9 +1675,18 @@ html.light .ulune-wheel [data-cfg-type] {
   margin-top: var(--space-2);
   margin-bottom: var(--space-2);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   transform: none;
   pointer-events: auto;
+}
+/* What the chosen lines are, in words (review 3 Oct, P2). */
+.ulune-aspect-layer-line {
+  margin: 4px 0 0;
+  color: var(--color-fg-muted);
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: center;
 }
 
 /* Click reading: large wrapping title so planet / aspect names stay readable. */

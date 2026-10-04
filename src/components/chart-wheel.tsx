@@ -1389,7 +1389,8 @@ const ChartWheelView = memo(function ChartWheelView({
     [chart, midpointVisible],
   );
   /** The aspects the wheel draws, for the count strip. */
-  const stripRows = useMemo(() => chords.map((r) => ({ id: r.a.id, type: r.a.type })), [chords]);
+  // Each line's ink with its count, so the strip's chips take the colour of the lines they count (review 3 Oct, P2).
+  const stripRows = useMemo(() => chords.map((r) => ({ id: r.a.id, type: r.a.type, ink: r.jewel })), [chords]);
   const shownBodyIds = useMemo(() => [...visible], [visible]);
   /** The natal aspects the wheel draws, for the grid beside it on wide stages. */
   const gridRows = useMemo<GridRow[]>(

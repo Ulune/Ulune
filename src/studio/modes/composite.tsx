@@ -1,4 +1,6 @@
 import { Suspense, useMemo } from "react";
+import { SegmentedToggle } from "@/components/segmented-toggle";
+import { formatEuropeanDate } from "@/lib/chart/parse-birth";
 import { ChartWheel } from "@/components/chart-wheel";
 import { CompositeHello } from "@/components/composite-hello";
 import { LoadingLines } from "@/components/loading-lines";
@@ -32,6 +34,49 @@ function CompositeControls() {
   return <PairSelects mode="composite" />;
 }
 
+/**
+ * Composite or Davison (review 3 Oct, P6), with one line saying what the
+ * chart is: the midpoints, or the real moment and place halfway.
+ */
+function RelationshipKind() {
+  const { t } = useI18n();
+  const composite = useModeData("composite");
+  const kind = useStudioStore((s) => s.pair.compositeKind);
+  if (!composite?.inner || !composite.chartB) return null;
+  const chart = composite.composite;
+  const dms = (x: number, pos: string, neg: string) => {
+    const a = Math.abs(x);
+    const d = Math.floor(a);
+    const m = Math.round((a - d) * 60);
+    return `${d}°${String(m).padStart(2, "0")}′ ${x >= 0 ? pos : neg}`;
+  };
+  const line =
+    kind === "davison"
+      ? chart
+        ? t("relDavisonLine", {
+            when: `${formatEuropeanDate(chart.meta.utc.slice(0, 10)) || chart.meta.utc.slice(0, 10)} ${chart.meta.utc.slice(11, 16)}`,
+            where: `${dms(chart.meta.latitude, "N", "S")}, ${dms(chart.meta.longitude, "E", "W")}`,
+          })
+        : ""
+      : t("relCompositeLine");
+  return (
+    <div className="ulune-aspect-layer" data-testid="relationship-kind">
+      <SegmentedToggle
+        ariaLabel={t("relKind")}
+        value={kind}
+        onChange={(next) => useStudioStore.setState((s) => ({ pair: { ...s.pair, compositeKind: next } }))}
+        options={[
+          { value: "composite", testId: "relationship-composite", label: t("relComposite") },
+          { value: "davison", testId: "relationship-davison", label: t("relDavison") },
+        ]}
+      />
+      <p className="ulune-aspect-layer-line" data-testid="relationship-line" aria-live="polite">
+        {line}
+      </p>
+    </div>
+  );
+}
+
 function CompositeFigure() {
   const { locale } = useI18n();
   const w = useWheelView();
@@ -40,6 +85,20 @@ function CompositeFigure() {
   if (!composite) return null;
   if (!composite.inner) {
     return <p className="px-5 py-10 font-display text-2xl text-fg">{compositeNoNatal(locale)}</p>;
+  }
+  if (composite.davisonPending || composite.davisonError) {
+    return (
+      <div className="ulune-biwheel">
+        <RelationshipKind />
+        {composite.davisonError ? (
+          <p className="px-5 py-10 text-center text-sm text-fg-muted" role="alert">
+            {composite.davisonError}
+          </p>
+        ) : (
+          <LoadingLines testId="davison-loading" lines={4} />
+        )}
+      </div>
+    );
   }
   if (!composite.composite) {
     if (partnerBirth) {
@@ -62,7 +121,8 @@ function CompositeFigure() {
     );
   }
   return (
-    <div data-testid="composite-wheel" className="contents">
+    <div data-testid="composite-wheel" data-kind={composite.kind} className="ulune-biwheel">
+      <RelationshipKind />
       <WheelPort dim={w.casting}>
         <ChartWheel
           chart={composite.composite}
@@ -95,13 +155,13 @@ function MixedHousesNote() {
 }
 
 function CompositeCaption() {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const composite = useModeData("composite");
   if (!composite?.composite) return null;
   return (
     <>
       <p data-testid="composite-method" className="text-center text-xs tracking-wide text-fg-muted">
-        {compositeMethodLabel(locale)}
+        {composite.kind === "davison" ? t("relDavisonCaption") : compositeMethodLabel(locale)}
       </p>
       <MixedHousesNote />
     </>
@@ -126,9 +186,10 @@ function CompositeData() {
   if (!composite?.composite) return null;
   return (
     <>
+      <RelationshipKind />
       <MixedHousesNote />
       <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
-        <CompositeTable chart={composite.composite} selectedId={w.selectedId} onSelect={w.pick} />
+        <CompositeTable chart={composite.composite} selectedId={w.selectedId} onSelect={w.pick} davison={composite.kind === "davison"} />
       </Suspense>
     </>
   );

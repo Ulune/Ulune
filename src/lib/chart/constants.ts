@@ -548,6 +548,31 @@ export function aspectOrb(type: AspectId, a?: BodyId, b?: BodyId): number {
   return ASPECT_ORBS[type];
 }
 
+/**
+ * Synastry's orbs (review 3 Oct, P7): a little tighter than a birth chart's,
+ * as most synastry practice keeps them (6° for the main aspects, a degree
+ * more with the Sun or the Moon), since two whole charts against each other
+ * otherwise make a hundred contacts.
+ */
+export const SYNASTRY_ORBS: Record<AspectId, number> = {
+  conjunction: 6,
+  opposition: 6,
+  trine: 6,
+  square: 6,
+  sextile: 4,
+  quincunx: 2,
+  semisextile: 1.5,
+  semisquare: 1.5,
+  quintile: 1.5,
+};
+
+/** Synastry's orb for this pair: the lights a degree wider on the main aspects; an angle no wider than natally. */
+export function synastryOrb(type: AspectId, a?: BodyId, b?: BodyId): number {
+  const lights = a === "sun" || a === "moon" || b === "sun" || b === "moon";
+  const base = SYNASTRY_ORBS[type] + (lights && SYNASTRY_ORBS[type] >= 4 ? 1 : 0);
+  return Math.min(base, aspectOrb(type, a, b));
+}
+
 export const SIGN_RULER: Record<SignId, PlanetId> = Object.fromEntries(
   SIGN_IDS.map((id) => [id, SIGN_META[id].ruler]),
 ) as Record<SignId, PlanetId>;

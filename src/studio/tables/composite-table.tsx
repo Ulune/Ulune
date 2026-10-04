@@ -14,12 +14,17 @@ export function CompositeTable({
   chart,
   selectedId,
   onSelect,
+  davison = false,
 }: {
   chart: NatalChart;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** The Davison chart is a real moment and place: every part of a birth chart holds on it (review 3 Oct, P6). */
+  davison?: boolean;
 }) {
-  return (
+  return davison ? (
+    <NatalTable chart={chart} selectedId={selectedId} onSelect={onSelect} name="davison" testId="composite-table" />
+  ) : (
     <NatalTable chart={chart} selectedId={selectedId} onSelect={onSelect} parts={COMPOSITE_PARTS} name="composite" testId="composite-table" />
   );
 }

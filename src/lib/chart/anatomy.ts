@@ -8,6 +8,7 @@
 import {
   ASPECT_META,
   aspectOrb,
+  synastryOrb,
   bodyName,
   MAJOR_ASPECT_IDS,
   MIDPOINT_DEFS,
@@ -130,12 +131,12 @@ function applyingOf(a: Placement, b: Placement, target: number, movingOnly = fal
   return orbRate < 0;
 }
 
-function bestAspect(sep: number, a?: BodyId, b?: BodyId): { type: AspectId; orb: number } | null {
+function bestAspect(sep: number, a?: BodyId, b?: BodyId, orbOf: (type: AspectId, a?: BodyId, b?: BodyId) => number = aspectOrb): { type: AspectId; orb: number } | null {
   let best: { type: AspectId; orb: number } | null = null;
   for (const type of ASPECT_IDS) {
     const target = ASPECT_META[type].angle;
     const orb = Math.abs(sep - target);
-    const max = aspectOrb(type, a, b);
+    const max = orbOf(type, a, b);
     if (orb <= max && (!best || orb < best.orb)) best = { type, orb };
   }
   return best;
@@ -224,7 +225,7 @@ export function computeSynastryAspects(aPoints: Placement[], bPoints: Placement[
   for (const a of aPoints) {
     for (const b of bPoints) {
       const sep = sep180(a.ecliptic, b.ecliptic);
-      const best = bestAspect(sep, a.id, b.id);
+      const best = bestAspect(sep, a.id, b.id, synastryOrb);
       if (!best) continue;
       const target = ASPECT_META[best.type].angle;
       aspects.push({

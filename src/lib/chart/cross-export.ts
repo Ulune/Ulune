@@ -10,7 +10,6 @@ import type { AppLocale } from "@/lib/i18n/messages";
 import { aspectsWord, chartFactText, modesWord, moonPhaseName, pointsGroupLabel, pointsText, pointsWord } from "@/lib/i18n/table-ui";
 import { dateFormat } from "@/lib/intl-cache";
 import { formatArc, formatDegreeSeconds } from "@/lib/utils";
-import { aspectOrb } from "./constants";
 import {
   bothGroups,
   overlayRows,
@@ -129,7 +128,7 @@ function aspectCsvRows(section: string, rows: readonly CrossAspectRow[], exact: 
       l.b,
       l.level ?? "",
       r.orb.toFixed(4),
-      String(aspectOrb(l.type, l.a, l.b)),
+      String(r.allowed),
       r.strength.toFixed(4),
       l.applying === true ? "applying" : l.applying === false ? "separating" : "",
       exact ? (l.exactUtc ?? "") : "",

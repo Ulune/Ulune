@@ -15,7 +15,7 @@
  * hour earlier at birth is an hour earlier in the progressed sky.
  */
 import { houseFromCusps } from "./anatomy";
-import { ASPECT_META, aspectOrb, MEAN_SPEED } from "./constants";
+import { ASPECT_META, aspectOrb, MEAN_SPEED, synastryOrb } from "./constants";
 import { isProgressionTablePair } from "./progressions";
 import { houseRing } from "./synastry";
 import { bodyRank, crossTwinKey, twinRank } from "./table-aspects";
@@ -111,6 +111,7 @@ function crossRows(
   lonA: (id: string) => number | undefined,
   lonB: (id: string) => number | undefined,
   check: (link: AspectLink) => Check,
+  orbOf: (type: AspectId, a: BodyId, b: BodyId) => number = aspectOrb,
 ): CrossAspectRow[] {
   const groups = new Map<string, AspectLink[]>();
   for (const l of links) {
@@ -126,7 +127,7 @@ function crossRows(
     const a = lonA(head.a);
     const b = lonB(head.b);
     const orb = a != null && b != null ? residual(a, b, head.type) : head.orb;
-    const allowed = aspectOrb(head.type, head.a, head.b);
+    const allowed = orbOf(head.type, head.a, head.b);
     rows.push({ link: head, orb, allowed, strength: Math.max(0, Math.min(1, 1 - orb / allowed)), twins, ...check(head) });
   }
   return rows.sort((x, y) => x.orb - y.orb);
@@ -265,7 +266,7 @@ export function synastryCheck(a: NatalChart, b: NatalChart): (link: AspectLink) 
     if (!pa || !pb || !ra || !rb) return { uncertain: true, exactUncertain: false };
     // Two births, two unknown hours: each may be anywhere in its own range.
     const range = around({ lo: ra.lo - rb.hi, hi: ra.hi - rb.lo }, pa.ecliptic - pb.ecliptic);
-    return { uncertain: !rangeHolds(link.type, aspectOrb(link.type, link.a, link.b), range), exactUncertain: false };
+    return { uncertain: !rangeHolds(link.type, synastryOrb(link.type, link.a, link.b), range), exactUncertain: false };
   };
 }
 
@@ -275,6 +276,7 @@ export function synastryAspectRows(pair: SynastryPair, a: NatalChart, b: NatalCh
     (id) => pointOf(a, id)?.ecliptic,
     (id) => pointOf(b, id)?.ecliptic,
     synastryCheck(a, b),
+    synastryOrb,
   );
 }
 

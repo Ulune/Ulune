@@ -63,7 +63,8 @@ export function AspectSwatch({ type }: { type: AspectId }) {
   );
 }
 
-type Row = { id: string; type: AspectId };
+/** One line the wheel draws: its aspect, and its colour (the cross lines between two charts have their own). */
+type Row = { id: string; type: AspectId; ink?: string };
 
 const DENSITY_LABEL = { simple: "densitySimple", standard: "densityStandard", detailed: "densityDetailed" } as const;
 
@@ -178,7 +179,11 @@ export function AspectStrip({
   }, [selected, ctx]);
   const total = new Map<AspectId, number>();
   const inScope = new Map<AspectId, number>();
+  // A kind's chip in its lines' colour when they all share one (the lines between two charts).
+  const inks = new Map<AspectId, string | null>();
   for (const r of rows) {
+    const had = inks.get(r.type);
+    inks.set(r.type, had === undefined ? (r.ink ?? null) : had === r.ink ? had : null);
     total.set(r.type, (total.get(r.type) ?? 0) + 1);
     if (scope?.aspects.has(r.id)) inScope.set(r.type, (inScope.get(r.type) ?? 0) + 1);
   }
@@ -233,7 +238,7 @@ export function AspectStrip({
             data-zero={scope && !shown ? "1" : undefined}
             aria-pressed={on}
             aria-label={`${name}, ${shown}`}
-            style={{ color: lineInk(ASPECT_COLOR[type]) }}
+            style={{ color: lineInk(inks.get(type) ?? ASPECT_COLOR[type]) }}
             onClick={() => {
               toggleAspectType(type);
               // After a tap the strip says what happened, a moment; a mouse

@@ -58,7 +58,12 @@ function SynastryFigure() {
     );
   }
   return (
-    <BiWheelFrame kind="synastry" value={w.aspectLayer} onChange={w.setAspectLayer}>
+    <BiWheelFrame
+      kind="synastry"
+      value={w.aspectLayer}
+      onChange={w.setAspectLayer}
+      names={{ a: synastry.inner.meta.name || "A", b: synastry.chartB.meta.name || "B" }}
+    >
       <WheelPort dim={w.casting}>
         <ChartWheel
           chart={synastry.inner}

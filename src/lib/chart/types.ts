@@ -257,6 +257,8 @@ export type NatalChart = {
     name: string;
     date: string;
     time: string;
+    /** A relationship chart cast for the moment and place halfway (davison.ts, review 3 Oct P6). */
+    relationship?: "davison";
     placeLabel: string;
     latitude: number;
     longitude: number;

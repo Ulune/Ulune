@@ -175,6 +175,8 @@ type StudioState = LibrarySlice &
       compositePartnerId: string | null;
       addingPartnerFor: StudioPage | null;
       anchorId: string | null;
+      /** The relationship chart shown: the composite (midpoints) or the Davison (review 3 Oct, P6); for the visit. */
+      compositeKind: "composite" | "davison";
     };
     applySaved: (row: SavedChart) => void;
     restoreLibrary: (rows: SavedChart[], pickId?: string | null) => void;
@@ -245,7 +247,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   dock: "birth",
   dockOpen: loadDockOpen(),
   time: { at: Date.now(), live: true, spanOrigin: Date.now(), progressionTarget: Date.now() },
-  pair: { partnerId: null, compositePartnerId: null, addingPartnerFor: null, anchorId: null },
+  pair: { partnerId: null, compositePartnerId: null, addingPartnerFor: null, anchorId: null, compositeKind: "composite" },
 
   applySaved: (row) => {
     draft = false;

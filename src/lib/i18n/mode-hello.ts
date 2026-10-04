@@ -103,10 +103,11 @@ const COMPOSITE_ROLE: Record<ModeHelloId, { en: string; fr: string }> = {
   },
 };
 
-/** "Composite Sun" · "Soleil composite". */
-export function compositeTitle(id: ModeHelloId, locale: Locale): string {
+/** "Composite Sun" · "Soleil composite"; on a Davison chart "Davison Sun" · "Soleil Davison". */
+export function compositeTitle(id: ModeHelloId, locale: Locale, davison = false): string {
   const name = bodyBare(id, locale);
-  return locale === "fr" ? `${name} composite` : `Composite ${name}`;
+  const kind = davison ? "Davison" : locale === "fr" ? "composite" : "Composite";
+  return locale === "fr" ? `${name} ${kind}` : `${kind} ${name}`;
 }
 
 /**

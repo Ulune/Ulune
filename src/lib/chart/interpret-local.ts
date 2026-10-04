@@ -723,13 +723,19 @@ export function buildCompositeDossier(chart: NatalChart, locale: Locale): LocalD
   // The natal "cast for 12:00" wording does not fit a composite.
   const base = buildDossier(chart, locale, { unknownTime: false });
   const fr = locale === "fr";
+  // The Davison chart (review 3 Oct, P6) is read the same way; only how it is made differs.
+  const davison = chart.meta.relationship === "davison";
   const hint = {
     id: "composite",
-    title: fr ? "Dans un thème composite" : "In a composite chart",
+    title: davison ? (fr ? "Dans un thème Davison" : "In a Davison chart") : fr ? "Dans un thème composite" : "In a composite chart",
     paragraphs: [
-      fr
-        ? "Ce thème est celui de la relation, calculé à partir des points médians de vos deux thèmes. Lisez «\u202fvous\u202f» comme «\u202fvous deux, ensemble\u202f»\u202f: il décrit ce que la relation fait naître, pas l’une ou l’autre personne."
-        : "This is the chart of the relationship, built from the midpoints of your two charts. Read “you” as “the two of you together”: it describes what the relationship brings out, not either person on their own.",
+      davison
+        ? fr
+          ? "Ce thème est celui de la relation, dressé pour le moment et le lieu à mi-chemin de vos deux naissances. Lisez «\u202fvous\u202f» comme «\u202fvous deux, ensemble\u202f»\u202f: il décrit ce que la relation fait naître, pas l’une ou l’autre personne."
+          : "This is the chart of the relationship, cast for the moment and the place halfway between your two births. Read “you” as “the two of you together”: it describes what the relationship brings out, not either person on their own."
+        : fr
+          ? "Ce thème est celui de la relation, calculé à partir des points médians de vos deux thèmes. Lisez «\u202fvous\u202f» comme «\u202fvous deux, ensemble\u202f»\u202f: il décrit ce que la relation fait naître, pas l’une ou l’autre personne."
+          : "This is the chart of the relationship, built from the midpoints of your two charts. Read “you” as “the two of you together”: it describes what the relationship brings out, not either person on their own.",
     ],
   };
   const byId: Record<string, ElementReading> = {};

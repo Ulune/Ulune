@@ -63,7 +63,7 @@ export function CompositeHello({
           const place = placeIn(chart, id);
           const selectId = SELECT_ID[id];
           const active = selectedId === selectId;
-          const title = compositeTitle(id, locale);
+          const title = compositeTitle(id, locale, chart.meta.relationship === "davison");
           const style = place && astro ? astro.signKeywords(place.sign, locale) : "";
           const sentence = place ? compositeLine(id, place, locale, style) : "";
           const color = place ? planetPaint(id, place.sign, look.planets) : "var(--color-fg-muted)";
