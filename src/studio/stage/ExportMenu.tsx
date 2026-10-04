@@ -1,5 +1,5 @@
 import { Copy, Download, FileImage, Printer, Share2 } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnchoredPopover } from "@/components/anchored-popover";
 import { useI18n } from "@/lib/i18n/locale";
 import { importWithRetry } from "@/lib/lazy-retry";
@@ -57,7 +57,7 @@ function figureCaption(chart: NatalChart, locale: string, timeUnknown: boolean, 
 }
 
 /** Stage footer: download the figure, print a chart sheet, copy a summary. */
-export function ExportMenu() {
+export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null) => void } = {}) {
   const { locale, t } = useI18n();
   const chart = useStudioStore((s) => s.chart);
   const timeUnknown = useStudioStore((s) => s.timeUnknown);
@@ -76,6 +76,17 @@ export function ExportMenu() {
   });
   const ref = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => setOpen(false), []);
+  // A page's own items, drawn into the menu's end: picking one closes it too.
+  const [extra, setExtra] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    extraSlot?.(extra);
+    if (!extra) return;
+    const picked = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).closest("[role=menuitem]:not(:disabled)")) setOpen(false);
+    };
+    extra.addEventListener("click", picked);
+    return () => extra.removeEventListener("click", picked);
+  }, [extra, extraSlot]);
   if (!chart) return null;
   const name = slugName(`${chart.meta.name || "ulune"}-${page}`);
   const hasFigure = view === "wheel";
@@ -176,6 +187,7 @@ export function ExportMenu() {
           </label>
           {item("print", <Printer className="size-4" strokeWidth={1.75} aria-hidden />, t("exportPrint"))}
           {item("copy", <Copy className="size-4" strokeWidth={1.75} aria-hidden />, t("exportCopy"))}
+          {extraSlot ? <div ref={setExtra} className="ob-menu-extra" /> : null}
         </div>
       </AnchoredPopover>
     </>

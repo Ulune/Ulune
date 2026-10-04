@@ -1452,3 +1452,185 @@ html.light .ulune-moon {
   flex-direction: column;
   min-width: 15rem;
 }
+
+/* ─── The calendar in the stage's toolbar (UI plan, part 93) ──────────────
+   The period, View (the clock, the sky, your transits) and the file in one
+   row, day / month / year at its end. */
+.ob-strip .ulune-cal-bar {
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  row-gap: 6px;
+  justify-content: flex-start;
+  gap: var(--space-2);
+}
+.ob-strip .ulune-cal-caption {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.ob-strip .ulune-cal-title {
+  font-size: 1.125rem;
+}
+.ob-strip .ulune-cal-title-num {
+  vertical-align: 0.1em;
+}
+.ob-strip .ulune-cal-options {
+  flex-wrap: nowrap;
+  margin-left: auto;
+}
+.ob-strip .ulune-cal-scope {
+  flex: 0 0 auto;
+  width: 11.5rem;
+  margin-left: 0;
+}
+.ulune-cal-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-2);
+}
+.ulune-cal-view .ulune-cal-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  cursor: default;
+}
+.ulune-cal-view-h {
+  font-size: 12px;
+  color: var(--color-fg-muted);
+}
+.ulune-cal-view .ulune-cal-zone select {
+  position: static;
+  width: 100%;
+  height: var(--ctl-h);
+  padding: 0 8px;
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-size: var(--ctl-text);
+  opacity: 1;
+}
+.ulune-cal-view .ulune-cal-zone-line {
+  font-size: 12px;
+  color: var(--color-fg-subtle);
+  text-decoration: none;
+}
+.ulune-cal-view .ulune-cal-zone:focus-within .ulune-cal-zone-line {
+  outline: none;
+}
+.ulune-cal-view .ulune-cal-switches {
+  flex-wrap: wrap;
+}
+
+/* On a computer the Calendar's toolbar is two rows, as a desktop calendar's:
+   the page and day / month / year on the first, with Wheel / Table and Export
+   at its end as on the other pages; under it the period, large, with its
+   arrows and Today, and View and the file at its end (one row could not hold
+   them beside the side panel without cutting the month's name). */
+@media (min-width: 1024px) {
+  .ob-strip:has(.ulune-cal-bar) {
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "modes scope . end"
+      "cap cap options options";
+    column-gap: 8px;
+    row-gap: 4px;
+  }
+  .ob-strip:has(.ulune-cal-bar) > .ob-submodes {
+    grid-area: modes;
+  }
+  .ob-strip:has(.ulune-cal-bar) > .ob-strip-extra,
+  .ob-strip .ulune-cal-bar {
+    display: contents;
+  }
+  .ob-strip .ulune-cal-scope {
+    grid-area: scope;
+    width: auto;
+    min-width: 10.5rem;
+  }
+  .ob-strip .ulune-cal-options {
+    grid-area: options;
+    justify-self: end;
+    margin-left: 0;
+  }
+  .ob-strip:has(.ulune-cal-bar) > .ob-strip-end {
+    grid-area: end;
+  }
+  .ob-strip .ulune-cal-caption {
+    grid-area: cap;
+    min-height: 40px;
+  }
+  .ob-strip .ulune-cal-title {
+    font-size: 1.5rem;
+  }
+}
+/* With a finger the personal month is a control of the bar's size. */
+@media (pointer: coarse) {
+  .ob-strip .ulune-cal-title-num {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--ctl-h);
+    padding: 0;
+  }
+}
+@media (pointer: coarse) and (max-width: 639.98px) {
+  .ob-strip .ulune-cal-title-num {
+    display: flex;
+  }
+}
+
+/* On a phone or a tablet, the same toolbar in three rows: the pages of Time;
+   day / month / year with View (its icon) and Calendar / Table, Export; the
+   period with its arrows and Today. */
+@media (max-width: 1023.98px) {
+  .ob-strip:has(.ulune-cal-bar) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "modes modes modes"
+      "scope options end"
+      "cap cap cap";
+    gap: 8px;
+  }
+  .ob-strip:has(.ulune-cal-bar) > .ob-submodes {
+    grid-area: modes;
+  }
+  .ob-strip:has(.ulune-cal-bar) > .ob-strip-extra,
+  .ob-strip .ulune-cal-bar {
+    display: contents;
+  }
+  .ob-strip .ulune-cal-scope {
+    grid-area: scope;
+    min-width: 0;
+    margin: 0;
+  }
+  .ob-strip .ulune-cal-options {
+    grid-area: options;
+    order: 0;
+    flex-wrap: nowrap;
+    margin: 0;
+  }
+  .ob-strip:has(.ulune-cal-bar) > .ob-strip-end {
+    grid-area: end;
+    margin: 0;
+  }
+  .ob-strip .ulune-cal-caption {
+    grid-area: cap;
+    position: static;
+    margin: 0;
+    padding: 0;
+  }
+  .ob-strip .ulune-cal-view-btn .ulune-rings-label,
+  .ob-strip .ulune-cal-view-btn .ulune-rings-caret {
+    display: none;
+  }
+  .ob-strip .ulune-cal-view-btn {
+    width: var(--ctl-icon);
+    justify-content: center;
+    padding: 0;
+  }
+  .ob-strip .ulune-cal-today {
+    margin-left: auto;
+  }
+}

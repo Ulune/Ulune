@@ -478,11 +478,6 @@ body {
   border: 2px solid var(--color-bg-elevated);
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-fg) 20%, transparent);
 }
-@container (max-width: 480px) {
-  .ulune-time-tick[data-major="0"] {
-    display: none;
-  }
-}
 
 html.theme-ready body {
   transition: none;
@@ -1688,49 +1683,8 @@ html.light .ulune-wheel [data-cfg-type] {
     padding-inline: 0;
   }
 }
-.ulune-aspect-layer {
-  position: relative;
-  top: auto;
-  left: auto;
-  z-index: 2;
-  width: 100%;
-  max-width: 100%;
-  /* Clear of the date or partner row above it. */
-  margin-top: var(--space-2);
-  margin-bottom: var(--space-2);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transform: none;
-  pointer-events: auto;
-}
-/* What the chosen lines are, in words (review 3 Oct, P2). */
-.ulune-aspect-layer-line {
-  margin: 4px 0 0;
-  color: var(--color-fg-muted);
-  font-size: 12px;
-  line-height: 1.3;
-  text-align: center;
-}
 
 /* Click reading: large wrapping title so planet / aspect names stay readable. */
-
-.ulune-live-dot {
-  background: var(--color-halo);
-  box-shadow: 0 0 8px color-mix(in oklab, var(--color-halo) 60%, transparent);
-  animation: ulune-live 1.618s ease-in-out infinite;
-}
-
-@keyframes ulune-live {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ulune-live-dot {
-    animation: none;
-  }
-}
 
 .ulune-read {
   animation: ulune-fade-in var(--motion-ui) var(--ease-out) both;

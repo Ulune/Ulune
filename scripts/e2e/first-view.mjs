@@ -151,8 +151,9 @@ for (const width of [390, 1280]) {
       throw new Error(`hand-over entrance: ${JSON.stringify(atMount)} (want the frame still, planets flying in)`);
     await page.waitForFunction(() => !document.querySelector("ulune-first-view"), null, { timeout: 3000 });
     await page.waitForFunction(() => !document.documentElement.hasAttribute("data-first-view"), null, { timeout: 5000 });
-    // What stands over the wheel once the app runs: its hint, legend and aside.
-    await page.addStyleTag({ content: `${BODIES}, .ulune-wheel-hint, .ulune-wheel-legend, .ulune-wheel-aside { visibility: hidden !important; }` });
+    // What stands over the wheel once the app runs: its hint, legend and aside,
+    // and the zoom cluster in the figure's corner (part 93).
+    await page.addStyleTag({ content: `${BODIES}, .ulune-wheel-hint, .ulune-wheel-legend, .ulune-wheel-aside, .ob-zoom-corner { visibility: hidden !important; }` });
     await page.mouse.move(2, 400);
     await page.waitForTimeout(400);
     const after = await page.screenshot({ clip });

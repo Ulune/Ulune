@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { SegmentedToggle } from "@/components/segmented-toggle";
+import { RingsMenu } from "@/components/rings-menu";
 import type { AspectLayer } from "@/lib/chart/chart-view";
 import { useI18n } from "@/lib/i18n/locale";
 
@@ -50,19 +50,15 @@ export function AspectLayerToggle({
   const { t } = useI18n();
   const words = layerWords(kind, t, names);
   const order: AspectLayer[] = ["natal", "outer", "both", "cross"];
+  // One button in the stage's toolbar, its choices said in its menu (UI plan, part 93).
   return (
-    <div className="ulune-aspect-layer" data-testid="aspect-layer">
-      <SegmentedToggle
-        ariaLabel={t("aspectLayer")}
-        value={value}
-        onChange={onChange}
-        options={order.map((id) => ({ value: id, testId: `aspect-layer-${id}`, label: words[id].label, title: words[id].line }))}
-      />
-      {/* What the lines are, where a phone shows it too (a title never shows on touch). */}
-      <p className="ulune-aspect-layer-line" data-testid="aspect-layer-line" aria-live="polite">
-        {words[value].line}
-      </p>
-    </div>
+    <RingsMenu
+      testId="aspect-layer"
+      ariaLabel={t("aspectLayer")}
+      value={value}
+      onChange={onChange}
+      options={order.map((id) => ({ value: id, label: words[id].label, line: words[id].line }))}
+    />
   );
 }
 

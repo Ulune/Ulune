@@ -13,6 +13,8 @@ import {
   gotoApp,
   launch,
   setLang,
+  openCalendarView,
+  openTimePicker,
 } from "./_lib.mjs";
 
 async function goMode(page, id) {
@@ -60,7 +62,7 @@ async function runViewport(width) {
     await page.getByTestId("studio-transits").waitFor({ timeout: 20000 });
     const native = await page.evaluate(() => document.querySelector("input[type=date],input[type=time]"));
     if (native) throw new Error("native date/time input still present");
-    await page.getByTestId("transit-clock").waitFor();
+    await page.getByTestId("transit-scrubber-readout").waitFor();
     await page.getByTestId("transit-ring").waitFor({ timeout: 30000 });
     await page.waitForFunction(
       () => document.querySelectorAll("[data-testid=transit-ring] [data-transit]").length >= 10,
@@ -69,18 +71,22 @@ async function runViewport(width) {
     );
     const glyphs = await page.locator("[data-testid=transit-ring] [data-transit]").count();
     if (glyphs < 10) throw new Error(`transit-ring glyphs ${glyphs} < 10`);
+    // One time control (part 94): the readout opens the fields, Now at its end shows whether the sky follows the clock.
+    if ((await page.getByTestId("transit-now").getAttribute("data-live")) !== "1") throw new Error("the sky should follow the clock at first");
+    await openTimePicker(page);
     await page.getByTestId("transit-date").fill("07/09/2026");
     await page.getByTestId("transit-time").fill("12:00");
     const liveAfterType = await page.getByTestId("transit-clock").getAttribute("data-live");
     if (liveAfterType !== "0") {
       throw new Error(`expected pinned after typing clock, data-live=${liveAfterType}`);
     }
-    const pinnedLabel = await page.getByTestId("transit-clock").innerText();
-    if (!/pinned|figé/i.test(pinnedLabel)) {
-      throw new Error(`skyPinned label missing: "${pinnedLabel}"`);
+    if (!/7 Sept|Sep 7|7 Sep/.test(await page.getByTestId("transit-scrubber-readout").innerText())) {
+      throw new Error(`the readout should say the date typed: "${await page.getByTestId("transit-scrubber-readout").innerText()}"`);
     }
+    await page.keyboard.press("Escape");
+    await page.getByTestId("transit-clock").waitFor({ state: "detached", timeout: 4000 });
     await page.getByTestId("transit-now").click();
-    const liveAfterNow = await page.getByTestId("transit-clock").getAttribute("data-live");
+    const liveAfterNow = await page.getByTestId("transit-now").getAttribute("data-live");
     if (liveAfterNow !== "1") {
       throw new Error(`expected live after Now, data-live=${liveAfterNow}`);
     }
@@ -147,7 +153,8 @@ async function runViewport(width) {
       null,
       { timeout: 30000 },
     );
-    // The switch hides them, and brings them back.
+    // The switch (in View) hides them, and brings them back.
+    await openCalendarView(page);
     await page.getByTestId("calendar-switch-yours").click();
     await page.waitForFunction(() => !document.querySelector(".ulune-cal-you"), null, { timeout: 4000 });
     await page.getByTestId("calendar-switch-yours").click();
@@ -157,6 +164,8 @@ async function runViewport(width) {
     await page.waitForFunction(() => /Universal time/.test(document.querySelector("[data-testid=calendar-zone-line]")?.textContent ?? ""), null, { timeout: 4000 });
     await page.getByTestId("calendar-zone-select").selectOption("device");
     await page.waitForFunction(() => !/Universal time/.test(document.querySelector("[data-testid=calendar-zone-line]")?.textContent ?? ""), null, { timeout: 4000 });
+    await page.keyboard.press("Escape");
+    await page.getByTestId("calendar-view-pop").waitFor({ state: "detached", timeout: 4000 });
     const dayCell = page.locator("[data-testid^=calendar-day-]").first();
     const dayId = await dayCell.getAttribute("data-testid");
     await dayCell.click();
@@ -187,8 +196,10 @@ async function runViewport(width) {
     await page.getByTestId("studio-transits").waitFor({ timeout: 20000 });
     const d = new Date(at);
     const want = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-    const shown = await page.locator("#transit-time").inputValue().catch(() => "");
-    if (shown && shown !== want) throw new Error(`Transits opened at ${shown}, not ${want}`);
+    await openTimePicker(page);
+    const shown = await page.locator("#transit-time").inputValue();
+    if (shown !== want) throw new Error(`Transits opened at ${shown}, not ${want}`);
+    await page.keyboard.press("Escape");
     await goMode(page, "timing");
     await page.getByTestId("studio-timing").waitFor({ timeout: 20000 });
     // The year: a timeline on a wide stage, a card per month on a narrow one; a big transit opens its reading.
@@ -212,8 +223,10 @@ async function runViewport(width) {
 
     await goMode(page, "progressions");
     await page.getByTestId("studio-progressions").waitFor({ timeout: 20000 });
+    await openTimePicker(page, "progressions-slider", "progressions-clock");
     const pType = await page.getByTestId("progressions-date").getAttribute("type");
     if (pType === "date") throw new Error("progressions-date is native date");
+    await page.keyboard.press("Escape");
     await page.getByTestId("progressed-ring").waitFor({ timeout: 30000 });
     const yearsBefore = await page.getByTestId("progressions-years").innerText();
     // Ten steps on (a month each by default) from the tape, by keyboard.

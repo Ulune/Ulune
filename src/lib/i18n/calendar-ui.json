@@ -5,6 +5,8 @@
     "sky": { "en": "Sky", "fr": "Ciel" },
     "yours": { "en": "For you", "fr": "Pour vous" },
     "today": { "en": "Today", "fr": "Aujourd’hui" },
+    "view": { "en": "View", "fr": "Affichage" },
+    "file": { "en": "Calendar file (.ics)", "fr": "Fichier agenda (.ics)" },
     "fileHint": { "en": "Save as a calendar file (.ics), made on this device", "fr": "Enregistrer en fichier agenda (.ics), créé sur cet appareil" },
     "fileWait": { "en": "The period is still loading; the calendar file waits for it", "fr": "La période se charge encore ; le fichier agenda l’attend" },
     "icsKind": {

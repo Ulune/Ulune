@@ -16,7 +16,7 @@ import { chromium } from "playwright";
 import { DEV, FIXTURE_A, FIXTURE_B, castFixture, clickDockTab, goStudioPage, gotoApp, pickPlace } from "./_lib.mjs";
 
 const PAGES = ["natal", "transits", "timing", "synastry", "design", "numerology"];
-const CHROME = ".ob-top, .ob-groups, .ob-strip, .ob-foot, .ob-panel-head, .ulune-transit-clock-bar, .ulune-progressions-clock-bar";
+const CHROME = ".ob-top, .ob-groups, .ob-strip, .ob-foot, .ob-panel-head, .ulune-time-scrub-head";
 const CONTROL = "button, input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select";
 
 async function typeField(page, sel, value) {

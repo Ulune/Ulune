@@ -1,68 +1,21 @@
 /* Progressions: these styles load with the code that uses them, not with the
-   first page (performance plan 1.9). Moved as they were from styles.css. */
+   first page (performance plan 1.9). Since part 94 the date is typed in the
+   dial's popover (time.css lays it out). */
 .ulune-progressions-clock-bar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--space-2);
-  box-sizing: border-box;
   min-width: 0;
   width: 100%;
-  height: var(--ctl-h);
-  max-height: var(--ctl-h);
 }
 .ulune-progressions-clock-field {
   display: flex;
-  min-width: 0;
   flex: 1 1 0;
-  height: var(--ctl-h);
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
 }
 .ulune-progressions-clock-field input {
   height: var(--ctl-h);
 }
 .ulune-progressions-clock-field .ulune-date-cal {
   width: var(--ctl-icon);
-}
-/* The date field takes the row up to Today, as the transits' fields do. */
-.ulune-progressions-clock-field > div {
-  flex: 1 1 auto;
-}
-/* Today: the outlined pill of the transits' Now and the calendar's Today. */
-.ulune-progressions-today {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  height: var(--ctl-h);
-  padding: 0 var(--space-4);
-  border-radius: 999px;
-  border: 1px solid var(--color-border-field);
-  background: transparent;
-  color: var(--color-fg);
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1;
-  white-space: nowrap;
-  transition: background-color var(--dur-hover) var(--ease-out);
-}
-@media (hover: hover) {
-  .ulune-progressions-today:hover {
-    background: var(--color-bg-subtle);
-  }
-}
-.ulune-progressions-clock,
-.ulune-progressions-scrub {
-  min-width: 0;
-  width: 100%;
-}
-@media (max-width: 1023.98px) {
-  .ulune-progressions-sky .ulune-progressions-clock {
-      box-sizing: border-box;
-      height: var(--ctl-h);
-      max-height: var(--ctl-h);
-      padding-top: 0;
-      padding-bottom: 0;
-      display: flex;
-      align-items: center;
-    }
 }

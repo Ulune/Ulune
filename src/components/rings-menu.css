@@ -1,0 +1,80 @@
+/* The Rings button (rings-menu.tsx) and the Calendar's View, which looks the
+   same: they load with the pages that have them, not with the first page. */
+.ulune-rings-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--ctl-h);
+  max-width: 14rem;
+  padding: 0 6px 0 var(--ctl-pad);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  font: 500 var(--ctl-text) / 1 var(--font-ui);
+  white-space: nowrap;
+  transition: background-color var(--dur-hover) var(--ease-out);
+}
+@media (hover: hover) {
+  .ulune-rings-btn:hover {
+    background: var(--color-bg-subtle);
+  }
+}
+.ulune-rings-btn[aria-expanded="true"] {
+  background: var(--color-bg-subtle);
+}
+.ulune-rings-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ulune-rings-caret {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  color: var(--color-fg-muted);
+}
+.ulune-rings-item {
+  align-items: flex-start;
+  gap: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  text-align: left;
+}
+.ulune-rings-check {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+}
+.ulune-rings-words {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ulune-rings-name {
+  font-weight: 600;
+}
+.ulune-rings-line {
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--color-fg-muted);
+  white-space: normal;
+}
+.ulune-rings-key {
+  flex: 0 0 auto;
+  min-width: 18px;
+  padding: 1px 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font: 500 11px/1.2 var(--font-mono);
+  text-align: center;
+  color: var(--color-fg-subtle);
+}
+@media (pointer: coarse) {
+  .ulune-rings-key {
+    display: none;
+  }
+}

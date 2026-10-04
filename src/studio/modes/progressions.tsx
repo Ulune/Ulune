@@ -33,7 +33,8 @@ const MAX_YEARS = 120;
 /** The progressed chart's steps: its Moon moves about a degree a month. */
 const PROGRESSION_UNITS = ["day", "week", "month", "year"] as const;
 
-function ProgressionsControls() {
+/** The date to type, opened from the dial's readout (UI plan, part 94). */
+function ProgressionsPicker() {
   const { locale, t } = useI18n();
   const chart = useStudioStore((s) => s.chart);
   const progressions = useModeData("progressions");
@@ -42,9 +43,9 @@ function ProgressionsControls() {
   const value = formatEuropeanDate(dateInZone(new Date(progressions.at), progressions.tz));
 
   return (
-    <div className="ulune-progressions-clock-bar min-w-0 flex-1">
+    <div className="ulune-progressions-clock-bar">
       <label className="ulune-progressions-clock-field">
-        <span className="sr-only">{progressionClockLabel(locale, "date")}</span>
+        <span className="ulune-time-picker-label">{progressionClockLabel(locale, "date")}</span>
         <BirthDateField
           id="progressions-date"
           name="progressions-date"
@@ -62,14 +63,6 @@ function ProgressionsControls() {
           onBlur={() => {}}
         />
       </label>
-      <button
-        type="button"
-        data-testid="progressions-today"
-        onClick={() => setTarget(Date.now())}
-        className="ulune-progressions-today"
-      >
-        {progressionClockLabel(locale, "today")}
-      </button>
     </div>
   );
 }
@@ -102,6 +95,11 @@ function ProgressionsFigure() {
           label={t("scrubProgressions")}
           timeZone={progressions.tz || undefined}
           withTime={false}
+          picker={<ProgressionsPicker />}
+          pickerLabel={progressionClockLabel(locale, "pick")}
+          pickerTestId="progressions-clock"
+          live={Math.abs(progressions.at - Date.now()) < 86_400_000}
+          reset={{ label: progressionClockLabel(locale, "today"), testId: "progressions-today", onReset: () => setTarget(Date.now()) }}
         />
       }
     >
@@ -214,7 +212,6 @@ function useProgressionsRuntime(): ModeRuntime<ProgressionsState> {
 export const progressionsMode: ModeDef = {
   ...MODE_META.progressions,
   emptyText: progressionNoNatal,
-  Controls: ProgressionsControls,
   Figure: ProgressionsFigure,
   Caption: ProgressionsCaption,
   HelloEmpty: ProgressionsHelloEmpty,

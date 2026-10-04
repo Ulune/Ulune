@@ -8,7 +8,7 @@ export function progressionMethodLabel(locale: AppLocale): string {
   return pick(source.method, locale);
 }
 
-export function progressionClockLabel(locale: AppLocale, key: "today" | "date"): string {
+export function progressionClockLabel(locale: AppLocale, key: "today" | "date" | "pick"): string {
   return pick(source.clock[key], locale);
 }
 

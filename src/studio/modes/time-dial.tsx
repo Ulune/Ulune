@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -8,7 +8,9 @@ import {
   type KeyboardEvent,
   type MouseEvent,
   type PointerEvent,
+  type ReactNode,
 } from "react";
+import { AnchoredPopover } from "@/components/anchored-popover";
 import { useI18n } from "@/lib/i18n/locale";
 import { dateFormat } from "@/lib/intl-cache";
 import {
@@ -68,6 +70,11 @@ export function TimeDial({
   smooth = false,
   timeZone,
   withTime = true,
+  picker,
+  pickerLabel,
+  pickerTestId,
+  reset,
+  live = false,
 }: {
   value: number;
   onChange: (ms: number) => void;
@@ -83,6 +90,16 @@ export function TimeDial({
   timeZone?: string;
   /** The readout shows the time of day. */
   withTime?: boolean;
+  /**
+   * The fields to type a moment in, opened from the readout (UI plan, part
+   * 94: the dial is the page's one time control).
+   */
+  picker?: ReactNode;
+  pickerLabel?: string;
+  pickerTestId?: string;
+  /** Back to now (Now, Today), at the dial's end; `live`: the chart follows the clock. */
+  reset?: { label: string; testId: string; onReset: () => void };
+  live?: boolean;
 }) {
   const { locale, t } = useI18n();
   const tag = locale === "fr" ? "fr-FR" : "en-GB";
@@ -376,6 +393,18 @@ export function TimeDial({
     setPlaying((p) => (p === dir ? 0 : dir));
   };
 
+  // The readout opens the fields to type a moment in; the first takes the focus.
+  const readoutRef = useRef<HTMLButtonElement>(null);
+  const [picking, setPicking] = useState(false);
+  const closePicker = useCallback(() => setPicking(false), []);
+  useEffect(() => {
+    if (!picking || !pickerTestId) return;
+    const frame = window.requestAnimationFrame(() => {
+      document.querySelector<HTMLInputElement>(`[data-testid="${pickerTestId}"] input`)?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [picking, pickerTestId]);
+
   const shown = clamp(value);
   const day = dateFormat(tag, { dateStyle: "medium", ...(timeZone ? { timeZone } : {}) }).format(shown);
   const clock = withTime ? dateFormat(tag, { timeStyle: "short", ...(timeZone ? { timeZone } : {}) }).format(shown) : "";
@@ -411,10 +440,28 @@ export function TimeDial({
         >
           <ChevronLeft className="size-5" strokeWidth={1.75} />
         </button>
-        <p data-testid={`${testId}-readout`} className="ulune-time-readout" aria-live="polite">
-          <span>{day}</span>
-          {clock ? <span className="ulune-time-readout-clock">{clock}</span> : null}
-        </p>
+        {picker ? (
+          <button
+            ref={readoutRef}
+            type="button"
+            data-testid={`${testId}-readout`}
+            className="ulune-time-readout ulune-time-readout--pick"
+            aria-haspopup="dialog"
+            aria-expanded={picking}
+            aria-label={`${readout} · ${pickerLabel ?? ""}`}
+            title={pickerLabel}
+            onClick={() => setPicking((v) => !v)}
+          >
+            <span>{day}</span>
+            {clock ? <span className="ulune-time-readout-clock">{clock}</span> : null}
+            <ChevronDown className="ulune-time-readout-caret" strokeWidth={1.75} aria-hidden />
+          </button>
+        ) : (
+          <p data-testid={`${testId}-readout`} className="ulune-time-readout" aria-live="polite">
+            <span>{day}</span>
+            {clock ? <span className="ulune-time-readout-clock">{clock}</span> : null}
+          </p>
+        )}
         <button
           type="button"
           className="ob-icon-btn ob-icon-btn--quiet"
@@ -447,7 +494,36 @@ export function TimeDial({
             ))}
           </select>
         </label>
+        {reset ? (
+          <button
+            type="button"
+            className="ulune-time-reset"
+            data-testid={reset.testId}
+            data-live={live ? "1" : "0"}
+            aria-pressed={live}
+            onClick={reset.onReset}
+          >
+            <span className={live ? "ulune-time-reset-dot is-live" : "ulune-time-reset-dot"} aria-hidden />
+            {reset.label}
+          </button>
+        ) : null}
       </div>
+      {picker ? (
+        <AnchoredPopover
+          open={picking}
+          anchorRef={readoutRef}
+          onClose={closePicker}
+          role="dialog"
+          aria-label={pickerLabel}
+          hideLabel={pickerLabel}
+          width={300}
+          takeFocus={false}
+        >
+          <div className="ob-menu ulune-time-picker" data-testid={pickerTestId} data-live={live ? "1" : "0"}>
+            {picker}
+          </div>
+        </AnchoredPopover>
+      ) : null}
       <div
         ref={tapeRef}
         role="slider"

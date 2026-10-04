@@ -1,62 +1,6 @@
-/* The time scrubber (Transits, Progressions): these styles load with the code that uses them, not with the
-   first page (performance plan 1.9). Moved as they were from styles.css. */
-.ulune-time-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 2.75rem;
-  margin: 0;
-  background: transparent;
-  cursor: pointer;
-  --pct: 50%;
-}
-.ulune-time-slider:focus-visible {
-  outline: none;
-}
-.ulune-time-slider:focus-visible::-webkit-slider-thumb {
-  box-shadow: 0 0 0 4px var(--color-ring);
-}
-.ulune-time-slider::-webkit-slider-runnable-track {
-  height: 4px;
-  border-radius: 999px;
-  background: linear-gradient(
-    to right,
-    var(--color-fg) 0%,
-    var(--color-fg) var(--pct),
-    color-mix(in oklab, var(--color-fg) 16%, transparent) var(--pct),
-    color-mix(in oklab, var(--color-fg) 16%, transparent) 100%
-  );
-}
-.ulune-time-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  margin-top: -7px;
-  border-radius: 999px;
-  background: var(--color-fg);
-  border: 2px solid var(--color-bg-elevated);
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-fg) 20%, transparent);
-}
-.ulune-time-slider::-moz-range-track {
-  height: 4px;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--color-fg) 16%, transparent);
-}
-.ulune-time-slider::-moz-range-progress {
-  height: 4px;
-  border-radius: 999px;
-  background: var(--color-fg);
-}
-.ulune-time-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: var(--color-fg);
-  border: 2px solid var(--color-bg-elevated);
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-fg) 20%, transparent);
-}
-/* Date checkpoints under transit/progressed scrubber */
+/* The time dial (Transits, Progressions): these styles load with the code
+   that uses them, not with the first page (performance plan 1.9). */
+/* The dial: its head (steps, the readout, Now) over its tape. */
 .ulune-time-scrub {
   display: flex;
   flex-direction: column;
@@ -91,27 +35,6 @@
   font-family: var(--font-ui);
   font-size: 13px;
   appearance: none;
-}
-.ulune-time-ticks {
-  position: relative;
-  height: 10px;
-  width: 100%;
-  pointer-events: none;
-}
-.ulune-time-tick {
-  position: absolute;
-  top: 0;
-  width: 1px;
-  transform: translateX(-50%);
-  background: color-mix(in oklab, var(--color-border) 70%, transparent);
-}
-.ulune-time-tick[data-major="1"] {
-  height: 10px;
-  background: color-mix(in oklab, var(--color-fg-muted) 55%, transparent);
-}
-.ulune-time-tick[data-major="0"] {
-  height: 6px;
-  margin-top: 2px;
 }
 
 /* ─── The time dial (time-dial.tsx, part 87d) ──────────────────────────────
@@ -172,4 +95,115 @@
   .ulune-time-dial .ulune-time-play-back {
     display: none;
   }
+}
+
+/* ─── The dial as the page's one time control (UI plan, part 94) ──────────
+   Its readout opens the fields to type a moment in; Now (Today) sits at its
+   end, its dot lit while the chart follows the clock. */
+.ulune-time-readout--pick {
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-width: 0;
+  height: var(--ctl-h);
+  margin: 0 auto;
+  padding: 0 6px 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    border-color var(--dur-hover) var(--ease-out);
+}
+@media (hover: hover) {
+  .ulune-time-readout--pick:hover {
+    border-color: var(--color-border-field);
+  }
+}
+.ulune-time-readout--pick[aria-expanded="true"] {
+  border-color: var(--color-border-field);
+  background: var(--color-bg-subtle);
+}
+.ulune-time-dial .ulune-time-readout--pick {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.ulune-time-readout-caret {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  color: var(--color-fg-muted);
+}
+.ulune-time-reset {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  height: var(--ctl-h);
+  margin-left: 4px;
+  padding: 0 var(--ctl-pad);
+  border: 1px solid var(--color-border-field);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-fg);
+  font: 500 var(--ctl-text) / 1 var(--font-ui);
+  white-space: nowrap;
+  transition: background-color var(--dur-hover) var(--ease-out);
+}
+@media (hover: hover) {
+  .ulune-time-reset:hover {
+    background: var(--color-bg-subtle);
+  }
+}
+.ulune-time-reset-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--color-fg-subtle);
+}
+.ulune-time-reset-dot.is-live {
+  border-color: transparent;
+  background: var(--color-halo);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--color-halo) 60%, transparent);
+  animation: ulune-live 1.618s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ulune-time-reset-dot.is-live {
+    animation: none;
+  }
+}
+.ulune-time-picker {
+  padding: 8px;
+}
+.ulune-time-picker .ulune-transit-clock-bar,
+.ulune-time-picker .ulune-progressions-clock-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: end;
+}
+.ulune-time-picker .ulune-progressions-clock-bar {
+  grid-template-columns: minmax(0, 1fr);
+}
+.ulune-time-picker .ulune-transit-clock-field,
+.ulune-time-picker .ulune-progressions-clock-field {
+  min-width: 0;
+  flex: none;
+}
+.ulune-time-picker-label {
+  font-size: 12px;
+  color: var(--color-fg-muted);
+}
+.ulune-time-picker .ulune-transit-zone {
+  grid-column: 1 / -1;
+  height: auto;
+  font-size: 12px;
+}
+@keyframes ulune-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }

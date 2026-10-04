@@ -1,5 +1,6 @@
-import { CalendarDays, CalendarSearch, ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
+import { CalendarDays, CalendarSearch, ChevronDown, ChevronLeft, ChevronRight, LoaderCircle, SlidersHorizontal } from "lucide-react";
 import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import type { IcsKind } from "@/lib/i18n/calendar-export";
 import { AnchoredPopover } from "@/components/anchored-popover";
 import { LoadingLines } from "@/components/loading-lines";
@@ -14,6 +15,8 @@ import { pick } from "@/lib/i18n/pick";
 import { timingScopeLabel } from "@/lib/i18n/timing-ui";
 import { dateFormat } from "@/lib/intl-cache";
 import { cn } from "@/lib/utils";
+import { useExportSlot } from "@/studio/stage/stage-slots";
+import "./rings-menu.css";
 
 function caption(scope: TimingScope, civil: CivilDate, locale: "en" | "fr", short = false): string {
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
@@ -145,6 +148,41 @@ export function IcsMenu({
   );
 }
 
+/**
+ * The calendar file's three choices at the end of the stage's Export menu
+ * (UI plan, part 93): every way to save or share is in that one menu.
+ */
+function IcsExportItems({ onExport, loading }: { onExport: (kind: IcsKind) => void; loading: boolean }) {
+  const { locale } = useI18n();
+  const slot = useExportSlot();
+  if (!slot) return null;
+  const kinds: IcsKind[] = ["main", "mine", "all"];
+  return createPortal(
+    <div role="group" aria-label={pick(CALENDAR_UI.switches.file, locale)} data-testid="calendar-export" aria-busy={loading || undefined}>
+      <p className="ob-menu-head">
+        {pick(CALENDAR_UI.switches.file, locale)}
+        {loading ? <LoaderCircle className="size-3.5 animate-spin" aria-label={pick(CALENDAR_UI.switches.fileWait, locale)} /> : null}
+      </p>
+      {kinds.map((k) => (
+        <button
+          key={k}
+          type="button"
+          role="menuitem"
+          className="ob-menu-item"
+          data-testid={`calendar-export-${k}`}
+          disabled={loading}
+          title={pick(loading ? CALENDAR_UI.switches.fileWait : CALENDAR_UI.switches.fileHint, locale)}
+          onClick={() => onExport(k)}
+        >
+          {k === "main" ? <CalendarDays className="size-4" strokeWidth={1.75} aria-hidden /> : <span className="ob-menu-icon-gap" aria-hidden />}
+          <span>{pick(CALENDAR_UI.switches.icsKind[k], locale)}</span>
+        </button>
+      ))}
+    </div>,
+    slot,
+  );
+}
+
 // The month picker the birth form uses (its own download).
 const loadPicker = () => import("./birth-calendar");
 const BirthCalendar = lazyNamed(loadPicker, "BirthCalendar");
@@ -200,6 +238,100 @@ function DateJump({ civil, onJump, label, locale }: { civil: CivilDate; onJump: 
               }}
             />
           </Suspense>
+        </div>
+      </AnchoredPopover>
+    </>
+  );
+}
+
+/**
+ * What the calendar shows and in which clock (UI plan, part 93): one View
+ * button in the toolbar, holding the clock and the two switches (the sky,
+ * your transits) that took a row of their own.
+ */
+function CalendarView({
+  zone,
+  zones,
+  zoneLine,
+  onZone,
+  showSky,
+  showYours,
+  onSky,
+  onYours,
+  table,
+}: {
+  zone: CalendarZone;
+  zones: Record<CalendarZone, string>;
+  zoneLine: string;
+  onZone: (next: CalendarZone) => void;
+  showSky: boolean;
+  showYours: boolean;
+  onSky: (on: boolean) => void;
+  onYours: (on: boolean) => void;
+  table: boolean;
+}) {
+  const { locale } = useI18n();
+  const z = CALENDAR_UI.zone;
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLButtonElement>(null);
+  const label = pick(CALENDAR_UI.switches.view, locale);
+  return (
+    <>
+      <button
+        ref={ref}
+        type="button"
+        className="ulune-rings-btn ulune-cal-view-btn"
+        data-testid="calendar-view"
+        aria-label={`${label} · ${zoneLine}`}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        title={zoneLine}
+        onClick={() => setOpen((x) => !x)}
+      >
+        <SlidersHorizontal className="size-3.5" strokeWidth={1.75} aria-hidden />
+        <span className="ulune-rings-label">{label}</span>
+        <ChevronDown className="ulune-rings-caret" strokeWidth={1.75} aria-hidden />
+      </button>
+      <AnchoredPopover
+        open={open}
+        anchorRef={ref}
+        onClose={() => setOpen(false)}
+        role="dialog"
+        aria-label={label}
+        hideLabel={label}
+        align="end"
+        width={264}
+        testId="calendar-view-pop"
+      >
+        <div className="ob-menu ulune-cal-view">
+          <label className="ulune-cal-zone" data-testid="calendar-zone">
+            <span className="ulune-cal-view-h">{pick(z.menu, locale)}</span>
+            <select
+              aria-label={pick(z.menu, locale)}
+              value={zone}
+              onChange={(e) => onZone(e.target.value as CalendarZone)}
+              data-testid="calendar-zone-select"
+            >
+              <option value="device">{fill(z.device, locale, { city: zoneCity(zones.device) })}</option>
+              <option value="birth">{fill(z.birth, locale, { city: zoneCity(zones.birth) })}</option>
+              <option value="utc">{pick(z.utc, locale)}</option>
+            </select>
+            <span className="ulune-cal-zone-line" data-testid="calendar-zone-line">
+              {zoneLine}
+            </span>
+          </label>
+          {table ? null : (
+            <div className="ulune-cal-switches">
+              <button type="button" data-testid="calendar-switch-sky" aria-pressed={showSky} onClick={() => onSky(!showSky)} className={cn("ulune-cal-chip", showSky && "is-on")}>
+                <i className="ulune-cal-dot" style={{ background: "var(--color-fg-muted)" }} />
+                {pick(CALENDAR_UI.switches.sky, locale)}
+              </button>
+              <button type="button" data-testid="calendar-switch-yours" aria-pressed={showYours} onClick={() => onYours(!showYours)} className={cn("ulune-cal-chip", showYours && "is-on")}>
+                <i className="ulune-cal-dot" style={{ background: "var(--aspect-soft)" }} />
+                {pick(CALENDAR_UI.switches.yours, locale)}
+              </button>
+            </div>
+          )}
         </div>
       </AnchoredPopover>
     </>
@@ -290,39 +422,19 @@ export function CalendarBar({
         </button>
       </div>
       <div className="ulune-cal-options">
-        <label className="ulune-cal-zone" data-testid="calendar-zone">
-          <span className="ulune-cal-zone-line" data-testid="calendar-zone-line">
-            {zoneLine}
-          </span>
-          {/* The menu's own width stays inside the words (Safari sizes it to its longest choice). */}
-          <span className="ulune-cal-zone-hit">
-            <select
-              aria-label={pick(z.menu, locale)}
-              value={zone}
-              onChange={(e) => onZone(e.target.value as CalendarZone)}
-              data-testid="calendar-zone-select"
-            >
-              <option value="device">{fill(z.device, locale, { city: zoneCity(zones.device) })}</option>
-              <option value="birth">{fill(z.birth, locale, { city: zoneCity(zones.birth) })}</option>
-              <option value="utc">{pick(z.utc, locale)}</option>
-            </select>
-          </span>
-        </label>
-        <div className="ulune-cal-switches" hidden={table}>
-          <button type="button" data-testid="calendar-switch-sky" aria-pressed={showSky} onClick={() => onSky(!showSky)} className={cn("ulune-cal-chip", showSky && "is-on")}>
-            <i className="ulune-cal-dot" style={{ background: "var(--color-fg-muted)" }} />
-            {pick(CALENDAR_UI.switches.sky, locale)}
-          </button>
-          <button type="button" data-testid="calendar-switch-yours" aria-pressed={showYours} onClick={() => onYours(!showYours)} className={cn("ulune-cal-chip", showYours && "is-on")}>
-            <i className="ulune-cal-dot" style={{ background: "var(--aspect-soft)" }} />
-            {pick(CALENDAR_UI.switches.yours, locale)}
-          </button>
-          <IcsMenu onExport={onExport} loading={loading} className="ulune-cal-chip" testId="calendar-export">
-            {loading ? <LoaderCircle className="size-3.5 animate-spin" aria-hidden /> : <CalendarDays className="size-3.5" aria-hidden />}
-            <span className="ulune-cal-file-word">.ics</span>
-          </IcsMenu>
-        </div>
+        <CalendarView
+          zone={zone}
+          zones={zones}
+          zoneLine={zoneLine}
+          onZone={onZone}
+          showSky={showSky}
+          showYours={showYours}
+          onSky={onSky}
+          onYours={onYours}
+          table={table}
+        />
       </div>
+      {table ? null : <IcsExportItems onExport={onExport} loading={loading} />}
     </div>
   );
 }

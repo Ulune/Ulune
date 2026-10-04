@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 
-/** The stage footer hosts the wheel's zoom bar (portalled from WheelZoom). */
+/** The stage hosts the wheel's zoom bar (portalled from WheelZoom), in the figure's corner. */
 export const ZoomSlotContext = createContext<HTMLElement | null>(null);
 
 export function useZoomSlot(): HTMLElement | null {
@@ -12,4 +12,22 @@ export const AspectSlotContext = createContext<HTMLElement | null>(null);
 
 export function useAspectSlot(): HTMLElement | null {
   return useContext(AspectSlotContext);
+}
+
+/** The stage's toolbar hosts the choice of rings (components/rings-menu.tsx). */
+export const RingsSlotContext = createContext<HTMLElement | null>(null);
+
+export function useRingsSlot(): HTMLElement | null {
+  return useContext(RingsSlotContext);
+}
+
+/**
+ * Room at the end of the Export menu, while it is open, for what only one
+ * page saves (the Calendar's file, UI plan part 93): one menu for every way
+ * out, not a button per page in the toolbar.
+ */
+export const ExportSlotContext = createContext<HTMLElement | null>(null);
+
+export function useExportSlot(): HTMLElement | null {
+  return useContext(ExportSlotContext);
 }

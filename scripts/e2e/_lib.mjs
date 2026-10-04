@@ -425,3 +425,30 @@ export function legacyRow(answer, { id, name, place = "Paris, Île-de-France, Fr
     savedAt,
   };
 }
+
+/** Opens the fields to type a moment in from a time dial's readout (UI plan, part 94). */
+export async function openTimePicker(page, dial = "transit-scrubber", picker = "transit-clock") {
+  if (await page.getByTestId(picker).isVisible().catch(() => false)) return;
+  // On a phone the dial's head waits under a raised sheet: lower it first.
+  const raised = await page.evaluate(() => {
+    const d = document.querySelector(".ob-panel")?.getAttribute("data-detent");
+    return matchMedia("(max-width: 1023.98px)").matches && Boolean(d && d !== "peek");
+  });
+  if (raised) {
+    // Tapping the tab that is open closes the sheet (Dock.tsx).
+    await page.evaluate(() => {
+      const tab = document.querySelector('[data-testid^="dock-tab-"][aria-selected="true"]');
+      if (tab instanceof HTMLElement) tab.click();
+    });
+    await page.waitForFunction(() => document.querySelector(".ob-panel")?.getAttribute("data-detent") === "peek", null, { timeout: 4000 });
+  }
+  await page.getByTestId(`${dial}-readout`).click();
+  await page.getByTestId(picker).waitFor({ timeout: 8000 });
+}
+
+/** Opens the Calendar's View menu (its clock and its two switches, part 93). */
+export async function openCalendarView(page) {
+  if (await page.getByTestId("calendar-view-pop").isVisible().catch(() => false)) return;
+  await page.getByTestId("calendar-view").click();
+  await page.getByTestId("calendar-view-pop").waitFor({ timeout: 8000 });
+}

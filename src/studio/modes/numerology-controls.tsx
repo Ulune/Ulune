@@ -41,47 +41,11 @@ export function NumerologyYSwitch({ numbers, selectedId, locale }: { numbers: Nu
   );
 }
 
-/** ‹ 2026 ›: the year the wheel shows, its personal year and the long cycles it falls in. */
-export function NumerologyYearStepper({
-  numbers,
-  locale,
-  selectedId,
-  onSelect,
-}: {
-  numbers: NumerologyChart;
-  locale: AppLocale;
-  selectedId: string | null;
-  onSelect: (id: string) => void;
-}) {
-  const year = numbers.calendarYear;
+/** ‹ 2026 ›: the year the wheel shows, in the stage's toolbar (UI plan, part 93) or over its chips. */
+export function NumerologyYearSteps({ year, locale }: { year: number; locale: AppLocale }) {
   const thisYear = new Date().getFullYear();
-  const row = useMemo(() => numerologyYear(numbers, year), [numbers, year]);
-  const c = row.cycles;
-  const changed = (fromAge: number) =>
-    c && fromAge === row.age && fromAge > 0
-      ? numerologyWheelText(locale, "fromDate", { date: numerologyDay(locale, year, numbers.month, numbers.day) })
-      : undefined;
-  // Each chip opens its reading: the cycle's, or the year's for the essence (part 63).
-  const chip = (key: string, ref: string, label: string, value: NumerologyValue, since?: string, extra?: string) =>
-    value.number == null ? null : (
-      <button
-        key={key}
-        type="button"
-        className={cn("ulune-num-chip", selectedId === ref && "is-on")}
-        data-testid={`num-chip-${key}`}
-        data-new={since ? "1" : undefined}
-        title={since}
-        aria-pressed={selectedId === ref}
-        onClick={() => onSelect(ref)}
-        {...previewProps(ref)}
-      >
-        {label} <b>{wholeText(value)}</b>
-        {extra ? <span className="ulune-num-chip-x"> {extra}</span> : null}
-      </button>
-    );
   return (
-    <div className="ulune-num-year" role="group" aria-label={numerologyWheelText(locale, "yearLabel")}>
-      <div className="ulune-num-stepper">
+    <div className="ulune-num-stepper">
         <button
           type="button"
           className="ulune-num-step"
@@ -114,6 +78,52 @@ export function NumerologyYearStepper({
           <ChevronRight className="size-4" strokeWidth={1.75} />
         </button>
       </div>
+  );
+}
+
+/** ‹ 2026 ›: the year the wheel shows, its personal year and the long cycles it falls in. */
+export function NumerologyYearStepper({
+  numbers,
+  locale,
+  selectedId,
+  onSelect,
+  stepper = true,
+}: {
+  numbers: NumerologyChart;
+  locale: AppLocale;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  /** The ‹ year › steps here (false: they are in the stage's toolbar). */
+  stepper?: boolean;
+}) {
+  const year = numbers.calendarYear;
+  const row = useMemo(() => numerologyYear(numbers, year), [numbers, year]);
+  const c = row.cycles;
+  const changed = (fromAge: number) =>
+    c && fromAge === row.age && fromAge > 0
+      ? numerologyWheelText(locale, "fromDate", { date: numerologyDay(locale, year, numbers.month, numbers.day) })
+      : undefined;
+  // Each chip opens its reading: the cycle's, or the year's for the essence (part 63).
+  const chip = (key: string, ref: string, label: string, value: NumerologyValue, since?: string, extra?: string) =>
+    value.number == null ? null : (
+      <button
+        key={key}
+        type="button"
+        className={cn("ulune-num-chip", selectedId === ref && "is-on")}
+        data-testid={`num-chip-${key}`}
+        data-new={since ? "1" : undefined}
+        title={since}
+        aria-pressed={selectedId === ref}
+        onClick={() => onSelect(ref)}
+        {...previewProps(ref)}
+      >
+        {label} <b>{wholeText(value)}</b>
+        {extra ? <span className="ulune-num-chip-x"> {extra}</span> : null}
+      </button>
+    );
+  return (
+    <div className="ulune-num-year" role="group" aria-label={numerologyWheelText(locale, "yearLabel")}>
+      {stepper ? <NumerologyYearSteps year={year} locale={locale} /> : null}
       <p className="ulune-num-year-line" data-testid="num-year-line">
         <button
           type="button"

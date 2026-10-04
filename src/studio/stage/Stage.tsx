@@ -4,7 +4,8 @@ import { SegmentedToggle } from "@/components/segmented-toggle";
 import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
 import { SubModeSwitch } from "@/studio/shell/SubModeSwitch";
-import { AspectSlotContext, ZoomSlotContext } from "@/studio/stage/stage-slots";
+import { AspectSlotContext, ExportSlotContext, RingsSlotContext, ZoomSlotContext } from "@/studio/stage/stage-slots";
+import { MODE_GROUPS, groupOf } from "@/studio/url";
 import { ExportMenu } from "@/studio/stage/ExportMenu";
 import { KeepOffer } from "@/components/space/keep-offer";
 import { useStudioStore } from "@/studio/store";
@@ -58,9 +59,12 @@ function ViewToggle() {
 }
 
 /**
- * Stage frame: strip (sub-modes + mode controls) / figure / footer
- * (caption · view toggle · zoom). `form` hides the strip and footer, except
- * the mode switch when the form stands in for a mode (`nav`: no chart yet).
+ * Stage frame (UI plan, part 93): one toolbar (the page's sub-mode or, on a
+ * page without one, the chart's details · the mode's own controls · the
+ * rings · Wheel / Table · Export) / the figure, with zoom in its corner /
+ * a footer (caption, the aspect key where it doesn't fit beside the wheel).
+ * `form` hides the toolbar's tools and the footer, keeping the mode switch
+ * when the form stands in for a mode (`nav`: no chart yet).
  */
 export function Stage({
   children,
@@ -92,7 +96,14 @@ export function Stage({
 }) {
   const [zoomSlot, setZoomSlot] = useState<HTMLElement | null>(null);
   const [aspectSlot, setAspectSlot] = useState<HTMLElement | null>(null);
+  const [ringsSlot, setRingsSlot] = useState<HTMLElement | null>(null);
+  const [exportSlot, setExportSlot] = useState<HTMLElement | null>(null);
   const view = useStudioStore((s) => s.view);
+  const page = useStudioStore((s) => s.navPage ?? s.page);
+  // A page with no sub-mode (the Chart) shows the chart's details where the switch would be.
+  const single = (MODE_GROUPS.find((g) => g.id === groupOf(page))?.pages.length ?? 0) <= 1;
+  const capInBar = single && Boolean(caption);
+  const tools = !form && foot;
   // Store view comes from localStorage; only publish it once hydrated.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -144,6 +155,8 @@ export function Stage({
   return (
     <ZoomSlotContext.Provider value={zoomSlot}>
     <AspectSlotContext.Provider value={aspectSlot}>
+    <RingsSlotContext.Provider value={ringsSlot}>
+    <ExportSlotContext.Provider value={exportSlot}>
       <section
         ref={stageRef}
         className={cn("ob-stage", table && "ob-stage--table", form && "ob-stage--form")}
@@ -151,18 +164,34 @@ export function Stage({
         data-view={mounted ? view : undefined}
       >
         {form && !nav ? null : (
-          <div className="ob-strip">
-            <SubModeSwitch />
-            {!form && extraControls ? <div className="ob-strip-extra">{extraControls}</div> : null}
+          <div className="ob-strip" data-testid="stage-toolbar">
+            {capInBar && tools ? (
+              <div className="ob-strip-cap ulune-stage-caption" data-testid="stage-details">
+                {caption}
+              </div>
+            ) : (
+              <SubModeSwitch />
+            )}
+            {tools && extraControls ? <div className="ob-strip-extra">{extraControls}</div> : <span className="ob-strip-fill" />}
+            {tools ? (
+              <div className="ob-strip-end">
+                <div ref={setRingsSlot} className="ob-rings-slot" />
+                <span className="contents" onPointerEnter={viewIntent} onFocusCapture={viewIntent}>
+                  <ViewToggle />
+                </span>
+                <ExportMenu extraSlot={setExportSlot} />
+              </div>
+            ) : null}
           </div>
         )}
         <div key={swapKey} className="ob-figure ulune-stage-figure ob-swap">
           {children}
           {overlay}
+          <div ref={setZoomSlot} className="ob-zoom-slot ob-zoom-corner" />
         </div>
         {form || !foot ? null : (
           <div className="ob-foot">
-            {caption ? (
+            {caption && !capInBar ? (
               <div className="ob-foot-cap ulune-stage-caption">
                 {caption}
                 <KeepOffer />
@@ -173,16 +202,11 @@ export function Stage({
               </div>
             )}
             <div ref={setAspectSlot} className="ob-aspect-slot" data-testid="aspect-slot" />
-            <div className="ob-foot-ctrls">
-              <span className="contents" onPointerEnter={viewIntent} onFocusCapture={viewIntent}>
-                <ViewToggle />
-              </span>
-              <div ref={setZoomSlot} className="ob-zoom-slot" />
-              <ExportMenu />
-            </div>
           </div>
         )}
       </section>
+    </ExportSlotContext.Provider>
+    </RingsSlotContext.Provider>
     </AspectSlotContext.Provider>
     </ZoomSlotContext.Provider>
   );

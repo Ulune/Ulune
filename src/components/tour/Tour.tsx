@@ -57,13 +57,20 @@ function sameRect(a: Rect | null, r: DOMRect): boolean {
   );
 }
 
-/** Beside the target on a computer; at the bottom of a phone's screen, above the tabs (at the top when the target is down there). */
+/** Beside the target on a computer; at the bottom of a phone's screen, above the tabs (at the top when that covers less of the target). */
 function placeCard(rect: Rect | null, card: { w: number; h: number }, compact: boolean): Place {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   if (compact || !rect) {
-    const low = rect ? rect.y + rect.h > vh - card.h - 120 : false;
-    return { edge: low ? "top" : "bottom" };
+    if (!rect) return { edge: "bottom" };
+    // Where each edge would hold the card (shell.css), and which covers less of the target.
+    const css = getComputedStyle(document.documentElement);
+    const px = (name: string, or: number) => parseFloat(css.getPropertyValue(name)) || or;
+    const bottomTop = vh - px("--ob-group-h", 64) - px("--ob-safe-b", 0) - 12 - card.h;
+    const topBottom = px("--ob-top-h", 48) + 8 + card.h;
+    const underBottom = Math.max(0, Math.min(rect.y + rect.h, vh) - Math.max(rect.y, bottomTop));
+    const underTop = Math.max(0, Math.min(rect.y + rect.h, topBottom) - Math.max(rect.y, 0));
+    return { edge: underBottom > underTop ? "top" : "bottom" };
   }
   const clampX = (x: number) => Math.min(Math.max(x, MARGIN), vw - card.w - MARGIN);
   const clampY = (y: number) => Math.min(Math.max(y, MARGIN), vh - card.h - MARGIN);

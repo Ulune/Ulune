@@ -4,7 +4,8 @@
   "clock": {
     "now": { "en": "Now", "fr": "Maintenant" },
     "date": { "en": "Date", "fr": "Date" },
-    "time": { "en": "Time", "fr": "Heure" }
+    "time": { "en": "Time", "fr": "Heure" },
+    "pick": { "en": "Type a date and time", "fr": "Saisir une date et une heure" }
   },
   "readingEmpty": {
     "en": "Tap a transit, a natal body or an aspect in the wheel.",

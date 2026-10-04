@@ -4,7 +4,7 @@ import { pick } from "./pick";
 
 export const TRANSITS_UI = source;
 
-export function transitClockLabel(locale: AppLocale, key: "now" | "date" | "time"): string {
+export function transitClockLabel(locale: AppLocale, key: "now" | "date" | "time" | "pick"): string {
   return pick(source.clock[key], locale);
 }
 

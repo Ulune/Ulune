@@ -11,6 +11,7 @@ import {
   keepCharts,
   launch,
   pickPlace,
+  openTimePicker,
 } from "./_lib.mjs";
 
 /*
@@ -114,8 +115,10 @@ async function runViewport(width) {
       await goStudioPage(page, mode.id);
       await page.waitForTimeout(500);
       if (mode.id === "transits") {
+        await openTimePicker(page);
         await page.getByTestId("transit-date").fill("29/09/2026");
         await page.getByTestId("transit-time").fill("12:00");
+        await page.keyboard.press("Escape");
         await page.waitForTimeout(1500);
       }
       if ((mode.id === "synastry" || mode.id === "composite") && !partner) {

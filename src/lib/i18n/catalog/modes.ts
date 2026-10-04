@@ -34,8 +34,6 @@ export const modes = {
   scrubUnit_tenMinutes: ["10 min", "10 min"],
   scrubUnit_week: ["Week", "Semaine"],
   scrubUnit_year: ["Year", "Année"],
-  skyLive: ["Live", "En direct"],
-  skyPinned: ["Pinned", "Figé"],
   transitLegendInner: ["Your chart", "Votre thème"],
   transitLegendOuter: ["Transits", "Transits"],
   transiting: ["Transiting {name}", "{name} en transit"],

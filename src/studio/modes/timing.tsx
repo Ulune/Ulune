@@ -99,7 +99,6 @@ function TimingFigure() {
           {localizeError(timing.error, locale, "couldNotCastSky")}
         </p>
       ) : null}
-      <TimingBar />
       {timing.scope === "day" && timing.dayView ? (
         <CalendarDay
           ov={timing.dayView}
@@ -150,10 +149,17 @@ function TimingFigure() {
   );
 }
 
+/** The calendar's controls, in the stage's toolbar (UI plan, part 93): the period, View, the file, then day / month / year. */
 function TimingControls() {
   const timing = useModeData("timing");
+  const view = useStudioStore((s) => s.view);
   if (!timing?.enabled) return null;
-  return <CalendarScope scope={timing.scope} onScope={timing.changeScope} />;
+  return (
+    <>
+      <TimingBar table={view === "table"} />
+      <CalendarScope scope={timing.scope} onScope={timing.changeScope} />
+    </>
+  );
 }
 
 function TimingHelloEmpty() {
@@ -197,7 +203,6 @@ function TimingData() {
   if (!timing?.cast) return null;
   return (
     <div className="ulune-cal-tableview">
-      <TimingBar table />
       <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
         <CalendarTable
           events={timing.allEvents}

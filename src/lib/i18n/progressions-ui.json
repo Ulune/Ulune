@@ -7,7 +7,8 @@
   },
   "clock": {
     "today": { "en": "Today", "fr": "Aujourd’hui" },
-    "date": { "en": "Progressed to", "fr": "Progressé au" }
+    "date": { "en": "Progressed to", "fr": "Progressé au" },
+    "pick": { "en": "Type a date", "fr": "Saisir une date" }
   },
   "readingEmpty": {
     "en": "Tap a body or an aspect in the wheel.",

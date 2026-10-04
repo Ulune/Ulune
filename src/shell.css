@@ -474,6 +474,28 @@ html.theme-switching::view-transition-new(root) {
     background: var(--color-bg-subtle);
   }
 }
+/* A page's own items at the end of the Export menu (the Calendar's file). */
+.ob-menu-extra:empty {
+  display: none;
+}
+.ob-menu-extra {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--color-border);
+}
+.ob-menu-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 10px 2px;
+  font-size: 12px;
+  color: var(--color-fg-muted);
+}
+.ob-menu-icon-gap {
+  flex: 0 0 auto;
+  width: 16px;
+}
 .ob-menu-item svg {
   color: var(--color-fg-muted);
 }
@@ -717,6 +739,8 @@ html.theme-switching::view-transition-new(root) {
   min-height: 0;
 }
 
+/* The stage's toolbar (UI plan, part 93): what you look at, this page's own
+   controls, then the rings, Wheel / Table and Export at its end. */
 .ob-strip {
   display: flex;
   flex-wrap: wrap;
@@ -733,7 +757,63 @@ html.theme-switching::view-transition-new(root) {
   display: flex;
   flex: 1 1 18rem;
   align-items: center;
+  gap: 8px;
   min-width: 0;
+}
+.ob-strip-fill {
+  flex: 1 1 0;
+}
+.ob-strip-end {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.ob-rings-slot {
+  display: flex;
+  align-items: center;
+}
+.ob-rings-slot:empty {
+  display: none;
+}
+/* The view switch shows its icons; its names stay in its labels and titles. */
+.ob-strip .ob-view-label {
+  display: none;
+}
+/* The chart's details, where a page with sub-modes has its switch. */
+.ob-strip-cap {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: var(--ctl-h);
+  color: var(--color-fg-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ob-strip-cap .ulune-method-note {
+  display: none;
+}
+@media (max-width: 1023.98px) {
+  /* A phone: the details share their row with Wheel / Table and Export. */
+  .ob-strip-cap {
+    flex: 1 1 0;
+  }
+  /* Over a dial (Transits, Progressions) the zoom cluster stands in the
+     figure's top corner, where the wheel's circle leaves room. */
+  .ob-figure:has(.ulune-biwheel-footer) > .ob-zoom-corner {
+    top: 8px;
+    bottom: auto;
+  }
+}
+/* Zoom, Fit, 3D and the pointer tools: one cluster in the figure's corner. */
+.ob-zoom-corner {
+  position: absolute;
+  z-index: 5;
+  right: 8px;
+  bottom: 8px;
 }
 
 .ob-submodes {
@@ -1180,8 +1260,6 @@ html.theme-switching::view-transition-new(root) {
 }
 
 /* Mode controls living in the strip. */
-.ob-strip .ulune-transit-clock-bar,
-.ob-strip .ulune-progressions-clock-bar,
 .ob-strip .ulune-synastry-pair-bar,
 .ob-strip .ulune-composite-pair-bar,
 .ob-strip .ulune-hd-control {
@@ -1189,31 +1267,6 @@ html.theme-switching::view-transition-new(root) {
   min-width: 0;
   width: auto;
 }
-/* On a wide screen the clock stops growing: a date field doesn't need 900 px. */
-@media (min-width: 1024px) {
-  .ob-strip .ulune-transit-clock-bar,
-  .ob-strip .ulune-progressions-clock-bar {
-    max-width: 36rem;
-  }
-}
-.ulune-aspect-layer .ulune-seg {
-  min-width: 0;
-  pointer-events: auto;
-}
-.ulune-aspect-layer .ulune-seg button {
-  padding-inline: var(--space-2);
-  white-space: nowrap;
-}
-@media (max-width: 359.98px) {
-  .ulune-aspect-layer .ulune-seg {
-    flex: 1 1 auto;
-  }
-  .ulune-aspect-layer .ulune-seg button {
-    padding-inline: 4px;
-    font-size: 12px;
-  }
-}
-.ulune-timing-scope .ulune-seg,
 .ulune-hd-control .ulune-seg {
   height: var(--ctl-h);
   width: 100%;
@@ -1538,8 +1591,7 @@ html.theme-switching::view-transition-new(root) {
      switch and the time band covered it): the switch waits for the sheet to
      fold, and the time band keeps only its slider (the date stays in the bar
      above). */
-  .ob-body:has(.ob-panel:not([data-detent="peek"])) .ulune-biwheel > .ulune-aspect-layer,
-  .ob-body:has(.ob-panel:not([data-detent="peek"])) .ulune-biwheel-footer :is(.ulune-time-scrub-head, .ulune-time-ticks, .ulune-scrub-readout),
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) .ulune-biwheel-footer .ulune-time-scrub-head,
   .ob-body:has(.ob-panel:not([data-detent="peek"])):has(.ulune-biwheel-footer) .ob-aspect-slot {
     display: none;
   }
@@ -1661,11 +1713,42 @@ html.theme-switching::view-transition-new(root) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
   }
+  /* One row: what you look at · this page's controls (they wrap inside their
+     own cell when a narrow window has no room) · rings, view, export. */
   .ob-strip {
-    padding-top: 12px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    min-height: 40px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+  .ob-strip > .ob-strip-extra {
+    flex-wrap: wrap;
+    row-gap: 6px;
   }
   .ob-submodes {
-    flex: 0 1 26rem;
+    flex: 0 0 auto;
+    width: calc(var(--ob-n) * 6.5rem);
+  }
+  /* In the toolbar the page's own controls take what they need, not the row. */
+  .ob-strip-extra {
+    flex: 1 1 auto;
+  }
+  .ob-strip .ulune-synastry-pair-bar,
+  .ob-strip .ulune-composite-pair-bar {
+    flex: 0 1 auto;
+    width: auto;
+  }
+  .ob-strip .ulune-synastry-pair-slot,
+  .ob-strip .ulune-composite-pair-slot {
+    flex: 0 1 12rem;
+    width: 12rem;
+  }
+  .ob-strip .ulune-hd-control {
+    flex: 0 1 19.5rem;
+    width: auto;
+    min-width: 0;
   }
   .ob-foot {
     flex-wrap: nowrap;

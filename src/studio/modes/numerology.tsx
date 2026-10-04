@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
 import { useNumerology } from "@/studio/modes/hooks/useNumerology";
 import { MODE_META } from "@/studio/modes/meta";
-import { NumerologyYSwitch, NumerologyYearStepper } from "@/studio/modes/numerology-controls";
+import { NumerologyYSwitch, NumerologyYearStepper, NumerologyYearSteps } from "@/studio/modes/numerology-controls";
 import { NumerologyWheel } from "@/studio/modes/numerology-wheel";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
@@ -43,7 +43,7 @@ function NumerologyFigure() {
     <div className="ulune-num-stage">
       <NumerologyWheel chart={numbers} isNow={isNow} selectedId={w.selectedId} onSelect={w.choose} onClear={clear} />
       <NumerologyYSwitch numbers={numbers} selectedId={w.selectedId} locale={locale} />
-      <NumerologyYearStepper numbers={numbers} locale={locale} selectedId={w.selectedId} onSelect={w.choose} />
+      <NumerologyYearStepper numbers={numbers} locale={locale} selectedId={w.selectedId} onSelect={w.choose} stepper={false} />
       <div className="ulune-num-tiles" role="group" aria-label={numerologyWheelText(locale, "tiles")} data-testid="num-tiles">
         {WHEEL_CORES.map((id) => {
           const value = valueOfCore(numbers, id);
@@ -70,6 +70,15 @@ function NumerologyFigure() {
       </p>
     </div>
   );
+}
+
+/** The year the wheel shows, in the stage's toolbar (UI plan, part 93). */
+function NumerologyControls() {
+  const { locale } = useI18n();
+  const numerology = useModeData("numerology");
+  const numbers = numerology?.numbers ?? null;
+  if (!numbers || numbers.lifePath.number == null) return null;
+  return <NumerologyYearSteps year={numbers.calendarYear} locale={locale} />;
 }
 
 /**
@@ -120,6 +129,7 @@ function useNumerologyRuntime(): ModeRuntime<NumerologyState> {
 export const numerologyMode: ModeDef = {
   ...MODE_META.numerology,
   emptyText: numerologyNoNatal,
+  Controls: NumerologyControls,
   Figure: NumerologyFigure,
   HelloEmpty: NumerologyHelloEmpty,
   Data: NumerologyData,

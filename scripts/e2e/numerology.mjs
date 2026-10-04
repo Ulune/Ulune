@@ -30,7 +30,7 @@
  */
 import { join } from "node:path";
 import { chromium } from "playwright";
-import { DEV, SHOTS, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, serverFnName, setLang } from "./_lib.mjs";
+import { DEV, SHOTS, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, serverFnName, setLang, openCalendarView } from "./_lib.mjs";
 
 const CAMILLE = { name: "Camille Marie Laurent", date: "15/06/1990", time: "12:00", place: "Paris, France" };
 const YOLANDA = { name: "Yolanda Mary Kyle", date: "29/11/1984", time: "12:00", place: "Paris, France" };
@@ -106,10 +106,12 @@ async function calendar(page, thisYear) {
   await page.getByTestId("reading-card").waitFor({ timeout: 10000 });
   if (!/Personal month/.test(await page.getByTestId("reading-card").innerText())) throw new Error("the personal month's reading");
   // Your transits off: numerology goes with them, and comes back.
+  await openCalendarView(page);
   await page.getByTestId("calendar-switch-yours").click();
   await page.waitForFunction(() => !document.querySelector(".ulune-cal-pd") && !document.querySelector('[data-testid="calendar-num"]'), null, { timeout: 4000 });
   await page.getByTestId("calendar-switch-yours").click();
   await page.waitForFunction(() => Boolean(document.querySelector(".ulune-cal-pd")), null, { timeout: 4000 });
+  await page.keyboard.press("Escape");
   // The year: its personal year in the title, a band per personal month.
   await page.getByTestId("timing-scope-year").click();
   await page.getByTestId("calendar-year").waitFor({ timeout: 30000 });

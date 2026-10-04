@@ -29,6 +29,14 @@ try {
   await goStudioPage(page, "timing");
   await page.getByTestId("calendar-month").waitFor({ timeout: 30000 });
   await page.waitForFunction(() => [...document.querySelectorAll("[data-testid^=calendar-day-]")].some((el) => Number(el.getAttribute("data-mine")) > 0), null, { timeout: 30000 });
+  // On the calendar the file is in Export, with the other ways out (part 93), and picking it closes the menu.
+  await page.getByTestId("export-menu").click();
+  await page.getByTestId("calendar-export-main").waitFor({ timeout: 8000 });
+  if ((await page.locator("[data-testid=calendar-export] [role=menuitem]").count()) !== 3) throw new Error("the calendar file's three choices in Export");
+  await page.waitForFunction(() => !document.querySelector("[data-testid=calendar-export-main]")?.disabled, null, { timeout: 30000 });
+  const [mainDl] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.getByTestId("calendar-export-main").click()]);
+  if (!mainDl.suggestedFilename().endsWith(".ics")) throw new Error(`calendar file from Export: ${mainDl.suggestedFilename()}`);
+  await page.getByTestId("export-panel").waitFor({ state: "detached", timeout: 4000 });
   await page.getByTestId("view-table").click();
   await page.getByTestId("timing-table").waitFor({ timeout: 20000 });
   await page.locator("[data-testid=calendar-table-row-sky]").first().waitFor({ timeout: 20000 });

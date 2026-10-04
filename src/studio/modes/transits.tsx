@@ -11,7 +11,6 @@ import { maskBirthTime } from "@/lib/chart/parse-birth";
 import { useI18n } from "@/lib/i18n/locale";
 import { localizeError } from "@/lib/i18n/errors";
 import { transitClockLabel, transitNoNatal } from "@/lib/i18n/transits-ui";
-import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
 import { useTransitSky } from "@/studio/modes/hooks/useTransitSky";
 import { MODE_META } from "@/studio/modes/meta";
@@ -33,13 +32,12 @@ const TransitTable = lazyNamed(loadTable, "TransitTable");
 
 export type TransitsState = ReturnType<typeof useTransitSky>;
 
-function TransitsControls() {
+/** The fields to type a moment in, opened from the dial's readout (UI plan, part 94). */
+function TransitPicker() {
   const { locale, t } = useI18n();
   const at = useStudioStore((s) => s.time.at);
-  const live = useStudioStore((s) => s.time.live);
   const pin = useStudioStore((s) => s.pin);
-  const now = useStudioStore((s) => s.now);
-  // In the Calendar's clock, said beside the time (review 3 Oct, T4).
+  // In the Calendar's clock, said under the fields (review 3 Oct, T4).
   const clock = useClockZone(at);
   const date = euroFromMs(at, clock.tz);
   const time = timeFromMs(at, clock.tz);
@@ -54,9 +52,9 @@ function TransitsControls() {
   }
 
   return (
-    <div data-testid="transit-clock" data-live={live ? "1" : "0"} className="ulune-transit-clock-bar min-w-0 flex-1">
+    <div className="ulune-transit-clock-bar">
       <label className="ulune-transit-clock-field">
-        <span className="sr-only">{transitClockLabel(locale, "date")}</span>
+        <span className="ulune-time-picker-label">{transitClockLabel(locale, "date")}</span>
         <BirthDateField
           id="transit-date"
           name="transit-date"
@@ -70,7 +68,7 @@ function TransitsControls() {
         />
       </label>
       <label className="ulune-transit-clock-field">
-        <span className="sr-only">{transitClockLabel(locale, "time")}</span>
+        <span className="ulune-time-picker-label">{transitClockLabel(locale, "time")}</span>
         <MaskedInput
           id="transit-time"
           data-testid="transit-time"
@@ -87,20 +85,6 @@ function TransitsControls() {
       <span className="ulune-transit-zone" data-testid="transit-zone" title={clock.label}>
         {clock.label}
       </span>
-      <button type="button" data-testid="transit-now" onClick={() => now()} className="ulune-transit-now">
-        {/* On a phone the live dot sits here and the Live / Pinned word is for screen readers only. */}
-        <span className={cn("ulune-transit-now-dot", live && "is-live")} aria-hidden />
-        {transitClockLabel(locale, "now")}
-      </button>
-      <span
-        className={cn(
-          "ulune-transit-live ulune-kicker inline-flex items-center gap-[var(--space-2)]",
-          live ? "text-fg" : "text-fg-muted",
-        )}
-      >
-        <span className={cn("size-1.5 rounded-full", live ? "ulune-live-dot" : "bg-fg-subtle")} />
-        {live ? t("skyLive") : t("skyPinned")}
-      </span>
     </div>
   );
 }
@@ -111,6 +95,8 @@ function TransitsFigure() {
   const clockZone = useClockZone(Date.now()).tz;
   const transits = useModeData("transits");
   const pin = useStudioStore((s) => s.pin);
+  const now = useStudioStore((s) => s.now);
+  const live = useStudioStore((s) => s.time.live);
   if (!w.chart || !transits) return null;
   return (
     <BiWheelFrame
@@ -138,6 +124,11 @@ function TransitsFigure() {
           label={t("scrubSky")}
           smooth={transits.smooth}
           timeZone={clockZone}
+          picker={<TransitPicker />}
+          pickerLabel={transitClockLabel(locale, "pick")}
+          pickerTestId="transit-clock"
+          live={live}
+          reset={{ label: transitClockLabel(locale, "now"), testId: "transit-now", onReset: now }}
         />
       }
     >
@@ -232,7 +223,6 @@ function useTransitsRuntime(): ModeRuntime<TransitsState> {
 export const transitsMode: ModeDef = {
   ...MODE_META.transits,
   emptyText: transitNoNatal,
-  Controls: TransitsControls,
   Figure: TransitsFigure,
   Caption: TransitsCaption,
   HelloEmpty: TransitsHelloEmpty,

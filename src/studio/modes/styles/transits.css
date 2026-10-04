@@ -1,5 +1,6 @@
 /* Transits: these styles load with the code that uses them, not with the
-   first page (performance plan 1.9). Moved as they were from styles.css. */
+   first page (performance plan 1.9). Since part 94 the date and time are
+   typed in the dial's popover (time.css lays it out). */
 .ulune-transit-clock-bar {
   display: flex;
   flex-wrap: wrap;
@@ -16,169 +17,21 @@
   min-width: 0;
   flex: 1 1 7.5rem;
 }
-/* The date and its calendar button keep room for "30/09/2026"; the time needs less. */
-.ulune-transit-clock-field:first-of-type {
-  flex: 1.5 1 10.5rem;
-  min-width: 10.5rem;
-}
-.ulune-transit-clock-field:nth-of-type(2) {
-  flex: 1 1 5.5rem;
-}
-/* The date field is a form field elsewhere (--btn-h); in the bar it takes the bar's size. */
+/* The date field is a form field elsewhere (--btn-h); here it takes the bar's size. */
 .ulune-transit-clock-field input {
   height: var(--ctl-h);
 }
 .ulune-transit-clock-field .ulune-date-cal {
   width: var(--ctl-icon);
 }
-.ulune-transit-now {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  align-self: flex-end;
-  height: var(--ctl-h);
-  min-height: var(--ctl-h);
-  max-height: var(--ctl-h);
-  padding: 0 var(--space-4);
-  /* The outlined pill of progressions' and the calendar's Today: one look for "back to now". */
-  border-radius: 999px;
-  border: 1px solid var(--color-border-field);
-  background: transparent;
-  color: var(--color-fg);
-  font-size: var(--ctl-text);
-  font-weight: 500;
-  line-height: 1;
-  white-space: nowrap;
-  transition: background-color var(--dur-hover) var(--ease-out);
-}
-@media (hover: hover) {
-  .ulune-transit-now:hover {
-    background: var(--color-bg-subtle);
-  }
-}
-.ulune-transit-live {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  align-self: flex-end;
-  height: var(--ctl-h);
-  white-space: nowrap;
-}
 /* The clock the date and time are in (the Calendar's choice, review 3 Oct T4). */
 .ulune-transit-zone {
   display: inline-flex;
-  flex-shrink: 1;
   align-items: center;
-  align-self: flex-end;
   min-width: 0;
-  height: var(--ctl-h);
   overflow: hidden;
   color: var(--color-fg-muted);
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.ulune-transit-clock {
-  min-width: 0;
-  width: 100%;
-}
-.ulune-transit-scrub {
-  min-width: 0;
-  width: 100%;
-}
-@media (max-width: 1023.98px) {
-  .ulune-transits-sky .ulune-transit-clock-bar {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      grid-template-areas:
-        "date now"
-        "time live";
-      align-items: end;
-      gap: var(--space-2);
-    }
-  .ulune-transits-sky .ulune-transit-clock-field:first-of-type {
-      grid-area: date;
-      flex: none;
-      min-width: 0;
-    }
-  .ulune-transits-sky .ulune-transit-clock-field:nth-of-type(2) {
-      grid-area: time;
-      flex: none;
-      min-width: 0;
-    }
-  .ulune-transits-sky .ulune-transit-now {
-      grid-area: now;
-      width: auto;
-      min-width: var(--ctl-icon);
-      justify-self: end;
-    }
-  .ulune-transits-sky .ulune-transit-live {
-      grid-area: live;
-      display: inline-flex;
-      align-items: center;
-      justify-self: end;
-    }
-}
-
-/* The clock in the studio's strip on a phone: the date, the time and Now on
-   one row, the date wide enough for all its digits; the live dot moves into
-   Now, and "Live" / "Pinned" is read out rather than shown. */
-.ulune-transit-now-dot {
-  display: none;
-}
-@media (max-width: 1023.98px) {
-  .ob-strip .ulune-transit-clock-bar {
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(4.25rem, 1fr) auto;
-    align-items: end;
-  }
-  .ob-strip .ulune-transit-clock-field {
-    min-width: 0;
-  }
-  .ob-strip .ulune-transit-now {
-    gap: 8px;
-    padding-inline: var(--space-3);
-  }
-  .ob-strip .ulune-transit-now-dot {
-    display: block;
-    width: 6px;
-    height: 6px;
-    border-radius: 999px;
-    border: 1px solid var(--color-fg-subtle);
-  }
-  .ob-strip .ulune-transit-now-dot.is-live {
-    border-color: transparent;
-    background: var(--color-halo);
-    box-shadow: 0 0 8px color-mix(in oklab, var(--color-halo) 60%, transparent);
-    animation: ulune-live 1.618s ease-in-out infinite;
-  }
-  /* Under the fields on a phone, on its own short line. */
-  .ob-strip .ulune-transit-zone {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    height: auto;
-    margin-top: -2px;
-  }
-  .ob-strip .ulune-transit-live {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-}
-@media (max-width: 359.98px) {
-  .ob-strip .ulune-transit-clock-bar {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-  .ob-strip .ulune-transit-clock-field:first-of-type {
-    grid-column: 1 / -1;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ob-strip .ulune-transit-now-dot.is-live {
-    animation: none;
-  }
 }

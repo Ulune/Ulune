@@ -1,5 +1,5 @@
 import { Suspense, useMemo } from "react";
-import { SegmentedToggle } from "@/components/segmented-toggle";
+import { RingsMenu } from "@/components/rings-menu";
 import { formatEuropeanDate } from "@/lib/chart/parse-birth";
 import { ChartWheel } from "@/components/chart-wheel";
 import { CompositeHello } from "@/components/composite-hello";
@@ -60,20 +60,16 @@ function RelationshipKind() {
         : ""
       : t("relCompositeLine");
   return (
-    <div className="ulune-aspect-layer" data-testid="relationship-kind">
-      <SegmentedToggle
-        ariaLabel={t("relKind")}
-        value={kind}
-        onChange={(next) => useStudioStore.setState((s) => ({ pair: { ...s.pair, compositeKind: next } }))}
-        options={[
-          { value: "composite", testId: "relationship-composite", label: t("relComposite") },
-          { value: "davison", testId: "relationship-davison", label: t("relDavison") },
-        ]}
-      />
-      <p className="ulune-aspect-layer-line" data-testid="relationship-line" aria-live="polite">
-        {line}
-      </p>
-    </div>
+    <RingsMenu
+      testId="relationship"
+      ariaLabel={t("relKind")}
+      value={kind}
+      onChange={(next) => useStudioStore.setState((s) => ({ pair: { ...s.pair, compositeKind: next } }))}
+      options={[
+        { value: "composite", label: t("relComposite"), line: kind === "composite" ? line : t("relCompositeLine") },
+        { value: "davison", label: t("relDavison"), line: kind === "davison" && line ? line : t("relDavisonShort") },
+      ]}
+    />
   );
 }
 
