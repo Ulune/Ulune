@@ -92,37 +92,66 @@ function midpointSpan(chart: NatalChart, a: Placement, b: Placement, noon: numbe
   return { start, noon, end };
 }
 
-export function midpointRows(chart: NatalChart): MidpointRow[] {
+/** One midpoint's row: where it falls, and the bodies on it or on its opposite point. */
+function midpointRow(chart: NatalChart, points: Placement[], byId: Map<string, Placement>, id: string, a: BodyId, b: BodyId, ecliptic: number) {
   const unknown = timeUnknown(chart);
+  const pa = byId.get(a);
+  const pb = byId.get(b);
+  const span = unknown && pa && pb ? midpointSpan(chart, pa, pb, ecliptic) : null;
+  const rowUncertain = unknown && !span;
+  const contacts: Contact[] = [];
+  for (const p of points) {
+    if (p.id === a || p.id === b) continue;
+    const near = sep(p.ecliptic, ecliptic);
+    const opposite = near > 90;
+    const orb = opposite ? 180 - near : near;
+    if (orb > MIDPOINT_ORB) continue;
+    let uncertain = rowUncertain;
+    if (unknown && !uncertain && span) {
+      const s = daySpan(chart, p);
+      uncertain =
+        !s ||
+        !staysWithin(
+          { start: span.start - s.start, noon: span.noon - s.noon, end: span.end - s.end },
+          MIDPOINT_ORB,
+          strayOf(p.id).place + (strayOf(a).place + strayOf(b).place) / 2,
+          opposite,
+        );
+    }
+    contacts.push({ body: p.id, orb, opposite, uncertain });
+  }
+  contacts.sort((x, y) => x.orb - y.orb);
+  return { id, a, b, ecliptic, sign: signOf(ecliptic), uncertain: rowUncertain, contacts };
+}
+
+export function midpointRows(chart: NatalChart): MidpointRow[] {
   const points = contactPoints(chart);
   const byId = new Map(points.map((p) => [p.id as string, p]));
-  return chart.midpoints.map((m) => {
-    const pa = byId.get(m.a);
-    const pb = byId.get(m.b);
-    const span = unknown && pa && pb ? midpointSpan(chart, pa, pb, m.ecliptic) : null;
-    const rowUncertain = unknown && !span;
-    const contacts: Contact[] = [];
-    for (const p of points) {
-      if (p.id === m.a || p.id === m.b) continue;
-      const near = sep(p.ecliptic, m.ecliptic);
-      const opposite = near > 90;
-      const orb = opposite ? 180 - near : near;
-      if (orb > MIDPOINT_ORB) continue;
-      let uncertain = rowUncertain;
-      if (unknown && !uncertain && span) {
-        const s = daySpan(chart, p);
-        uncertain =
-          !s ||
-          !staysWithin(
-            { start: span.start - s.start, noon: span.noon - s.noon, end: span.end - s.end },
-            MIDPOINT_ORB,
-            strayOf(p.id).place + (strayOf(m.a).place + strayOf(m.b).place) / 2,
-            opposite,
-          );
-      }
-      contacts.push({ body: p.id, orb, opposite, uncertain });
+  return chart.midpoints.map((m) => midpointRow(chart, points, byId, m.id, m.a, m.b, m.ecliptic) as MidpointRow);
+}
+
+/** The bodies of the full midpoint list: the planets, the North Node and the two main angles. */
+export const MIDPOINT_LIST_BODIES: readonly BodyId[] = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto", "northnode", "ascendant", "midheaven"];
+
+export type MidpointListRow = Omit<MidpointRow, "id"> & { id: string };
+
+/**
+ * Every midpoint of those bodies (review 3 Oct, B7), in zodiac order, each
+ * with the bodies on it; `body` keeps those with that body as a member.
+ */
+export function midpointList(chart: NatalChart, body: BodyId | null = null): MidpointListRow[] {
+  const points = contactPoints(chart);
+  const byId = new Map(points.map((p) => [p.id as string, p]));
+  const ids = MIDPOINT_LIST_BODIES.filter((id) => byId.has(id));
+  const out: MidpointListRow[] = [];
+  for (let i = 0; i < ids.length; i += 1) {
+    for (let j = i + 1; j < ids.length; j += 1) {
+      const a = ids[i]!;
+      const b = ids[j]!;
+      if (body && a !== body && b !== body) continue;
+      const lon = midpointLon(byId.get(a)!.ecliptic, byId.get(b)!.ecliptic);
+      out.push(midpointRow(chart, points, byId, `${a}-${b}`, a, b, lon));
     }
-    contacts.sort((x, y) => x.orb - y.orb);
-    return { id: m.id, a: m.a, b: m.b, ecliptic: m.ecliptic, sign: signOf(m.ecliptic), uncertain: rowUncertain, contacts };
-  });
+  }
+  return out.sort((x, y) => x.ecliptic - y.ecliptic);
 }

@@ -1,3 +1,5 @@
+import { ASPECT_COLOR } from "@/lib/chart/constants";
+import { lineInk } from "@/lib/chart/wheel-style";
 import { ChevronRight } from "lucide-react";
 import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { AspectGlyph, PlanetGlyph, SignGlyph } from "@/components/glyphs";
@@ -39,9 +41,11 @@ import {
 } from "@/lib/chart/table-dignities";
 import { houseRows, interceptedText, twoCuspsText } from "@/lib/chart/table-houses";
 import { shapeText, type MergedShape } from "@/lib/chart/table-patterns";
-import { midpointRows, starRows, type Contact } from "@/lib/chart/table-stars";
-import type { ChartPatterns, NatalChart, SignId } from "@/lib/chart/types";
+import { MIDPOINT_LIST_BODIES, midpointList, starRows, type Contact } from "@/lib/chart/table-stars";
+import type { BodyId, ChartPatterns, NatalChart, SignId } from "@/lib/chart/types";
 import type { GlossaryId } from "@/lib/i18n/glossary";
+import type { AppLocale } from "@/lib/i18n/messages";
+import { partRows } from "@/lib/csv";
 import { aspectName, bodyBare, bodyLabel, houseName, signName } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
 import {
@@ -62,7 +66,7 @@ import { cn, formatArc, formatDegree, formatDegreeSeconds, formatSignedDms, form
 import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 import { ParallelGlyph } from "@/studio/tables/table-glyphs";
-import { Maybe, ToolCheck, UnknownNote } from "@/studio/tables/cross-parts";
+import { Maybe, OrbLimit, ToolCheck, UnknownNote } from "@/studio/tables/cross-parts";
 import { previewProps } from "@/lib/depth/preview-bus";
 
 /** The parts of the natal table, in reading order. */
@@ -132,18 +136,27 @@ export function NatalTable({
     stars: <StarsPart chart={chart} onSelect={onSelect} />,
   };
 
+  // Each part as its own table, for its CSV and the clipboard (review 3 Oct, B2, B3);
+  // the aspects as filtered on screen.
+  const tableOf = (id: TablePartId) => {
+    const kinds = CSV_KINDS[id];
+    if (!kinds) return undefined;
+    return () => partRows(formatChartTableCsv(chart, locale, scope), kinds, id === "aspects" ? shownAspectKeep(chart, locale) : undefined);
+  };
+
   const page: TablePart[] = shown.map((id) => ({
     id,
     label: tablePartLabel(locale, id),
     hint: tablePartHint(locale, id),
     terms: TERMS[id],
     copyText: id === "grid" ? undefined : textOf(id as ChartTextPartId),
+    table: tableOf(id),
     children: content[id],
   }));
 
   return (
     <div data-testid={testId} data-chart-pick data-selected={selectedId ?? ""} className="min-w-0">
-      <TablePage name={name} label={t("tableSections")} parts={page} actions={actions} />
+      <TablePage name={name} label={t("tableSections")} parts={page} actions={actions} fileStem={chart.meta.name || name} />
     </div>
   );
 }
@@ -153,7 +166,7 @@ function IdentityPart({ chart, patterns }: { chart: NatalChart; patterns: ChartP
   const facts = chartFacts(chart, patterns.isDay, locale);
   return (
     <dl
-      className="grid gap-x-[var(--space-5)] gap-y-[var(--space-3)] sm:grid-cols-2"
+      className="ulune-idfacts grid gap-x-[var(--space-5)] gap-y-[var(--space-3)] sm:grid-cols-2"
       data-unknown={chart.meta.timeUnknown === true ? "1" : undefined}
     >
       {facts.map((f) => (
@@ -437,8 +450,34 @@ function HousesPart({
   );
 }
 
+/** The midpoint list's body, for the visit only. */
+let midpointBody: BodyId | "" = "";
+
 /** The aspects' filters and sort, kept for the visit only (in memory, never stored). */
 let aspectOptions: AspectOptions = DEFAULT_ASPECT_OPTIONS;
+
+/** Each part's tables in the chart's CSV (the first, "section,field,value", is the chart's identity). */
+const CSV_KINDS: Partial<Record<TablePartId, string[]>> = {
+  identity: ["section"],
+  points: ["point"],
+  houses: ["house"],
+  aspects: ["aspect"],
+  dignities: ["dignity"],
+  patterns: ["shape"],
+  balance: ["balance"],
+  stars: ["star", "midpoint"],
+};
+
+/** The aspects the table shows now (their mirrors with them). */
+function shownAspectKeep(chart: NatalChart, locale: AppLocale) {
+  const { rows } = aspectTableRows(chart, locale, aspectOptions);
+  const ids = new Set<string>();
+  for (const r of rows) {
+    ids.add(r.aspect.id);
+    for (const t of r.twins) ids.add(t.id);
+  }
+  return (row: Record<string, string>) => ids.has(`${row.a}_${row.type}_${row.b}`);
+}
 
 function AspectsPart({
   chart,
@@ -485,6 +524,7 @@ function AspectsPart({
             options={sorts.map((id) => ({ value: id, testId: `aspects-sort-${id}`, label: aspectsWord(locale, sortWord[id]) }))}
           />
         </span>
+        <OrbLimit value={opts.orbMax} onChange={(orbMax) => setOpts({ ...opts, orbMax })} testId="aspects-orb" />
         <ToolCheck checked={opts.minors} onChange={(minors) => setOpts({ ...opts, minors })} testId="aspects-minors">
           {aspectsWord(locale, "minors")}
         </ToolCheck>
@@ -1018,7 +1058,14 @@ function StarsPart({ chart, onSelect }: { chart: NatalChart; onSelect?: (id: str
   const { locale } = useI18n();
   const unknown = chart.meta.timeUnknown === true;
   const stars = useMemo(() => starRows(chart), [chart]);
-  const midpoints = useMemo(() => midpointRows(chart), [chart]);
+  // Every midpoint, in zodiac order, narrowed to one body's if asked (review 3 Oct, B7).
+  const [mpBody, setMpBody] = useState<BodyId | "">(midpointBody);
+  const pickMpBody = (next: BodyId | "") => {
+    midpointBody = next;
+    setMpBody(next);
+  };
+  const midpoints = useMemo(() => midpointList(chart, mpBody || null), [chart, mpBody]);
+  const mpBodies = useMemo(() => MIDPOINT_LIST_BODIES.filter((id) => id in chart.angles || chart.planets.some((p) => p.id === id)), [chart]);
   const position = (lon: number, sign: SignId, uncertain = false) => (
     <span className={cn("whitespace-nowrap", uncertain && "ulune-uncertain")}>
       <span className="font-mono">
@@ -1059,6 +1106,22 @@ function StarsPart({ chart, onSelect }: { chart: NatalChart; onSelect?: (id: str
       </div>
       <div className="ulune-subpart" data-testid="stars-midpoints">
         <h3 className="ulune-subpart-h">{starsWord(locale, "midpointsHead")}</h3>
+        <div className="ulune-part-tools" data-testid="midpoints-tools">
+          <label className="ulune-tool-sort">
+            <span className="ulune-tool-label">{starsWord(locale, "midpointsOf")}</span>
+            <select className="ulune-tool-select" value={mpBody} onChange={(e) => pickMpBody(e.target.value as BodyId | "")} data-testid="midpoints-body">
+              <option value="">{starsWord(locale, "midpointsAll")}</option>
+              {mpBodies.map((id) => (
+                <option key={id} value={id}>
+                  {bodyBare(id, locale)}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <p className="ulune-part-count" data-testid="midpoints-count" aria-live="polite">
+          {starsWord(locale, "midpointsCount", { n: String(midpoints.length) })}
+        </p>
         <DataTable className="ulune-stars" stickyFirst={false}>
           <thead>
             <tr>
@@ -1215,7 +1278,9 @@ function AspectGrid({
                         aria-label={`${maybe}${bodyLabel(a.a, locale)} ${aspectName(a.type, locale)} ${bodyLabel(a.b, locale)}, ${formatArc(a.orb)}${phase ? `, ${phase}` : ""}`}
                         title={`${maybe}${aspectName(a.type, locale)} · ${formatArc(a.orb)}${phase ? ` · ${phase}` : ""}`}
                       >
-                        <AspectGlyph id={a.type} size={19} />
+                        <span className="ob-agrid-glyph" style={{ color: lineInk(ASPECT_COLOR[a.type]) }}>
+                          <AspectGlyph id={a.type} size={19} />
+                        </span>
                         <span className="ob-agrid-orb" aria-hidden>
                           {maybe}
                           {orb.main}

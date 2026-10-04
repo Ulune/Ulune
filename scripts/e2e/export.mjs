@@ -35,7 +35,8 @@ try {
   const shownRows = await page.locator("[data-testid^=calendar-table-row-]").count();
   const [csvDl] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.getByTestId("table-csv").click()]);
   const csv = await readFile(await csvDl.path(), "utf8");
-  const lines = csv.trim().split("\n");
+  if (!csv.startsWith("\uFEFF")) throw new Error("calendar CSV without its byte-order mark");
+  const lines = csv.slice(1).trim().split(/\r?\n/);
   if (lines[0] !== "When,What,Where,For,UT") throw new Error(`CSV header: ${lines[0]}`);
   if (!/\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(lines[1])) throw new Error(`CSV row without UT: ${lines[1]}`);
   if (lines.length - 1 < shownRows) throw new Error(`CSV ${lines.length - 1} rows, table ${shownRows}`);

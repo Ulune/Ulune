@@ -122,9 +122,17 @@ export type AspectOptions = {
   angles: boolean;
   /** List each twin on its own row. */
   unfold: boolean;
+  /** Only the aspects within this orb (degrees); null: all (review 3 Oct, B1). */
+  orbMax: number | null;
 };
 
-export const DEFAULT_ASPECT_OPTIONS: AspectOptions = { sort: "orb", minors: true, angles: true, unfold: false };
+export const DEFAULT_ASPECT_OPTIONS: AspectOptions = { sort: "orb", minors: true, angles: true, unfold: false, orbMax: null };
+
+/** The aspects' columns, the same in every table's CSV (review 3 Oct, B2; blank where a table has nothing to say). */
+export const ASPECT_CSV_HEAD = ["aspect", "a", "type", "b", "level", "orb", "allowedOrb", "strength", "applying", "exactUtc", "uncertain", "exactUncertain", "outOfSign", "mirrorOf"] as const;
+
+/** The orb limits a table offers: all, within 3°, within 1°. */
+export const ORB_LIMITS: readonly (number | null)[] = [null, 3, 1];
 
 export type AspectTableRow = {
   aspect: AspectLink;
@@ -170,7 +178,7 @@ export function aspectTableRow(a: AspectLink, chart: NatalChart, locale: AppLoca
 }
 
 /** Each body's place in the Points order: the sort by body follows the table. */
-function bodyRank(): Map<string, number> {
+export function bodyRank(): Map<string, number> {
   const rank = new Map<string, number>();
   for (const g of POINT_GROUPS) for (const id of g.ids) rank.set(id, rank.size);
   return rank;
@@ -215,7 +223,9 @@ export function aspectTableRows(
   opts: AspectOptions = DEFAULT_ASPECT_OPTIONS,
 ): { rows: AspectTableRow[]; total: number; shown: number; folded: number } {
   const points = pointMap(chart);
-  const shown = chart.aspects.filter((a) => (opts.minors || a.level === "major") && (opts.angles || !involvesAngle(a)));
+  const shown = chart.aspects.filter(
+    (a) => (opts.minors || a.level === "major") && (opts.angles || !involvesAngle(a)) && (opts.orbMax == null || a.orb <= opts.orbMax),
+  );
   const sorted = [...shown].sort(compareBy(opts.sort, bodyRank()));
   let rows: AspectTableRow[];
   let folded = 0;

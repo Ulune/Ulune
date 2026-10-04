@@ -90,7 +90,10 @@ async function csvOf(page) {
   const stream = await download.createReadStream();
   const chunks = [];
   for await (const chunk of stream) chunks.push(chunk);
-  return Buffer.concat(chunks).toString("utf8");
+  const text = Buffer.concat(chunks).toString("utf8");
+  // For spreadsheets (review 3 Oct, B2): a byte-order mark and CRLF lines.
+  if (!text.startsWith("\uFEFF")) throw new Error("CSV without its byte-order mark");
+  return text.slice(1).replace(/\r\n/g, "\n");
 }
 
 async function copied(page) {

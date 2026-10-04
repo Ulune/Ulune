@@ -1,8 +1,11 @@
-import type { CSSProperties, ReactNode } from "react";
+import { ASPECT_COLOR } from "@/lib/chart/constants";
+import { lineInk } from "@/lib/chart/wheel-style";
+import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { SegmentedToggle } from "@/components/segmented-toggle";
 import { AspectGlyph, PlanetGlyph, SignGlyph } from "@/components/glyphs";
-import type { CrossAspectRow } from "@/lib/chart/cross-table";
+import { crossView, DEFAULT_CROSS_OPTIONS, type CrossAspectRow, type CrossOptions, type CrossSort } from "@/lib/chart/cross-table";
 import { crossPhrase, exactWhen, type ExactKind, type SideOf } from "@/lib/chart/cross-export";
-import { allowedText } from "@/lib/chart/table-aspects";
+import { allowedText, ORB_LIMITS } from "@/lib/chart/table-aspects";
 import { phaseWord, type Cell } from "@/lib/chart/table-cells";
 import type { AspectLink, SignId } from "@/lib/chart/types";
 import { aspectName, bodyBare, bodyLabel, signName } from "@/lib/i18n/astro";
@@ -22,6 +25,37 @@ export function ToolCheck({ checked, onChange, testId, children }: { checked: bo
     </label>
   );
 }
+
+/** All, ≤3° or ≤1°: the orb a table's aspects are kept within (review 3 Oct, B1). */
+export function OrbLimit({ value, onChange, testId }: { value: number | null; onChange: (next: number | null) => void; testId: string }) {
+  const { locale } = useI18n();
+  const key = (n: number | null) => (n == null ? "all" : String(n));
+  return (
+    <span className="ulune-tool-sort">
+      <span className="ulune-tool-label" aria-hidden>
+        {aspectsWord(locale, "orbLimit")}
+      </span>
+      <SegmentedToggle
+        ariaLabel={aspectsWord(locale, "orbLimit")}
+        value={key(value)}
+        onChange={(k) => onChange(k === "all" ? null : Number(k))}
+        options={ORB_LIMITS.map((n) => ({
+          value: key(n),
+          testId: `${testId}-${key(n)}`,
+          label: n == null ? aspectsWord(locale, "orbAll") : aspectsWord(locale, "orbWithin", { n: String(n) }),
+        }))}
+      />
+    </span>
+  );
+}
+
+/** A sort option's name: a long name by its first word ("Camille" for Camille Marie Laurent). */
+function shortName(label: string): string {
+  return label.length > 12 ? (label.split(/\s+/)[0] ?? label) : label;
+}
+
+/** Each aspects table's sort and filters, for this visit only (in memory, never stored). */
+const crossOptions = new Map<string, CrossOptions>();
 
 /** A value that hangs on an unknown birth time: ~ before it, dimmed (as in the chart table). */
 export function Maybe({ cell, mono = false, className }: { cell: Cell; mono?: boolean; className?: string }) {
@@ -87,6 +121,9 @@ export function CrossAspects({
   empty,
   selectedId,
   onSelect,
+  tools,
+  shownRef,
+  totalAll,
 }: {
   rows: CrossAspectRow[];
   /** The words of the first and third columns ("Transit", "Natal"; the two names). */
@@ -103,13 +140,74 @@ export function CrossAspects({
   empty: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** More of the table's own tools, in the same row (synastry's bodies). */
+  tools?: ReactNode;
+  /** Set to the rows on screen, for the part's CSV (review 3 Oct, B2). */
+  shownRef?: { current: CrossAspectRow[] | null };
+  /** Every aspect, when the rows given are already narrowed (synastry without its minor bodies). */
+  totalAll?: number;
 }) {
   const { locale } = useI18n();
-  if (!rows.length) {
-    return (
-      <p className="text-sm text-fg-muted" data-testid={`${colTestPrefix}-empty`}>
-        {empty}
+  const [opts, setOptsState] = useState<CrossOptions>(() => crossOptions.get(colTestPrefix) ?? DEFAULT_CROSS_OPTIONS);
+  const setOpts = (next: CrossOptions) => {
+    crossOptions.set(colTestPrefix, next);
+    setOptsState(next);
+  };
+  const shownRows = useMemo(() => crossView(rows, opts), [rows, opts]);
+  if (shownRef) shownRef.current = shownRows;
+  const hasMinor = rows.some((r) => r.link.level === "minor");
+  // Counted as aspects, a mirror with its own (as the chart table counts them).
+  const links = (xs: readonly CrossAspectRow[]) => xs.reduce((n, r) => n + 1 + r.twins.length, 0);
+  const total = totalAll ?? links(rows);
+  const shown = links(shownRows);
+  const folded = shownRows.reduce((n, r) => n + r.twins.length, 0);
+  const count = [
+    shown === total ? aspectsWord(locale, "countAll", { total: String(total) }) : aspectsWord(locale, "countSome", { shown: String(shown), total: String(total) }),
+    folded === 1 ? aspectsWord(locale, "foldedOne") : folded > 1 ? aspectsWord(locale, "folded", { n: String(folded) }) : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const sorts: { id: CrossSort; label: string }[] = [
+    { id: "orb", label: aspectsWord(locale, "sortOrb") },
+    { id: "a", label: shortName(columns.a.label) },
+    { id: "b", label: shortName(columns.b.label) },
+    { id: "aspect", label: aspectsWord(locale, "sortAspect") },
+  ];
+  const toolRow = (
+    <>
+      <div className="ulune-part-tools" data-testid={`${colTestPrefix}-tools`}>
+        <span className="ulune-tool-sort">
+          <span className="ulune-tool-label" aria-hidden>
+            {aspectsWord(locale, "sort")}
+          </span>
+          <SegmentedToggle
+            ariaLabel={aspectsWord(locale, "sort")}
+            value={opts.sort}
+            onChange={(sort) => setOpts({ ...opts, sort })}
+            options={sorts.map((x) => ({ value: x.id, testId: `${colTestPrefix}-sort-${x.id}`, label: x.label }))}
+          />
+        </span>
+        <OrbLimit value={opts.orbMax} onChange={(orbMax) => setOpts({ ...opts, orbMax })} testId={`${colTestPrefix}-orb`} />
+        {hasMinor ? (
+          <ToolCheck checked={opts.minors} onChange={(minors) => setOpts({ ...opts, minors })} testId={`${colTestPrefix}-minors`}>
+            {aspectsWord(locale, "minors")}
+          </ToolCheck>
+        ) : null}
+        {tools}
+      </div>
+      <p className="ulune-part-count" data-testid={`${colTestPrefix}-count`} aria-live="polite">
+        {count}
       </p>
+    </>
+  );
+  if (!shownRows.length) {
+    return (
+      <>
+        {rows.length ? toolRow : tools ? <div className="ulune-part-tools">{tools}</div> : null}
+        <p className="text-sm text-fg-muted" data-testid={`${colTestPrefix}-empty`}>
+          {empty}
+        </p>
+      </>
     );
   }
   const cols: Column[] = [
@@ -134,6 +232,8 @@ export function CrossAspects({
     return <Maybe cell={{ text: when, uncertain: r.exactUncertain }} />;
   };
   return (
+    <>
+    {toolRow}
     <DataTable className="ulune-aspects ulune-cross" stickyFirst={false}>
       <thead>
         <tr data-testid={`${colTestPrefix}-cols`}>
@@ -145,7 +245,7 @@ export function CrossAspects({
         </tr>
       </thead>
       <tbody>
-        {rows.map((r) => {
+        {shownRows.map((r) => {
           const l = r.link;
           const id = `${selectPrefix}${l.id}`;
           const on = selectedId === id;
@@ -205,6 +305,7 @@ export function CrossAspects({
         })}
       </tbody>
     </DataTable>
+    </>
   );
 }
 
@@ -283,7 +384,9 @@ export function CrossGrid({
                         aria-label={`${maybe}${bodyLabel(l.a, locale)} ${aspectName(l.type, locale)} ${bodyLabel(l.b, locale)}, ${formatArc(l.orb)}${phase ? `, ${phase}` : ""}`}
                         title={`${maybe}${aspectName(l.type, locale)} · ${formatArc(l.orb)}${phase ? ` · ${phase}` : ""}`}
                       >
-                        <AspectGlyph id={l.type} size={17} />
+                        <span className="ob-agrid-glyph" style={{ color: lineInk(ASPECT_COLOR[l.type]) }}>
+                          <AspectGlyph id={l.type} size={17} />
+                        </span>
                         <span className="ob-agrid-orb" aria-hidden>
                           {maybe}
                           {orb.main}
@@ -304,4 +407,19 @@ export function CrossGrid({
       </p>
     </>
   );
+}
+
+/** For a part's CSV: the aspects rows the table shows now (each with its mirrors), by a, type and b. */
+export function shownKeep(ref: { current: CrossAspectRow[] | null }) {
+  return (row: Record<string, string>) => {
+    const rows = ref.current;
+    if (!rows) return true;
+    const key = (l: Pick<AspectLink, "a" | "type" | "b">) => `${l.a}|${l.type}|${l.b}`;
+    const keys = new Set<string>();
+    for (const r of rows) {
+      keys.add(key(r.link));
+      for (const t of r.twins) keys.add(key(t));
+    }
+    return keys.has(`${row.a}|${row.type}|${row.b}`);
+  };
 }

@@ -338,7 +338,7 @@ test("the text copy and the CSV carry the houses, the aspects and the parallels"
   assert.equal(h.intercepted, "sagittarius");
   assert.ok(Math.abs(Number(h.size) - 37.146) < 0.001, h.size);
   const aspectHead = csv.find((l) => l.startsWith("aspect,a,")).split(",");
-  const dsc = csv.find((l) => l.startsWith("aspect,uranus,descendant,")).split(",");
+  const dsc = csv.find((l) => l.startsWith("aspect,uranus,sextile,descendant,")).split(",");
   const d = Object.fromEntries(aspectHead.map((k, i) => [k, dsc[i]]));
   assert.equal(d.mirrorOf, "uranus_trine_ascendant");
   assert.equal(d.allowedOrb, "4");

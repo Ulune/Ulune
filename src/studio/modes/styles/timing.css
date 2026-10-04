@@ -1047,6 +1047,25 @@ html.light .ulune-moon {
 .ulune-cal-table-intro .ulune-tpart-hint {
   margin: 0;
 }
+/* On a phone the explanation's ⓘ sits at the filters' end, and opens under them. */
+@media (max-width: 639px) {
+  .ulune-cal-table-intro {
+    flex-flow: row wrap;
+    align-items: center;
+  }
+  .ulune-cal-table-intro .ulune-cal-table-filters {
+    order: 1;
+    flex: 1 1 0;
+  }
+  .ulune-cal-table-intro .ulune-tpart-info {
+    order: 2;
+    margin: 0;
+  }
+  .ulune-cal-table-intro .ulune-tpart-about {
+    order: 3;
+    flex-basis: 100%;
+  }
+}
 .ulune-cal-table-filters {
   display: flex;
   flex-wrap: wrap;
@@ -1307,5 +1326,47 @@ html.light .ulune-moon {
 @media (prefers-reduced-motion: reduce) {
   .ulune-cal-cell {
     animation: none;
+  }
+}
+
+/* A phone's calendar rows (review 3 Oct, B4): the moment and whom it is for
+   on the first line, the event and where on the second, without the column
+   words; about half the height they had. */
+@container (max-width: 639.98px) {
+  .ulune-cal-rows tbody tr {
+    gap: 0 10px;
+    padding-block: 6px;
+  }
+  .ulune-cal-rows tbody td[data-col="when"] {
+    order: 0;
+    flex: 1 0 50%;
+    font-size: 0.75rem;
+    color: var(--color-fg-muted);
+  }
+  .ulune-cal-rows tbody td[data-col="when"] button {
+    height: auto;
+    min-height: 24px;
+  }
+  .ulune-cal-rows tbody td[data-col="for"] {
+    order: 1;
+    flex: none;
+    margin-left: auto;
+  }
+  .ulune-cal-rows tbody td[data-col="what"] {
+    order: 2;
+    flex: 1 1 55%;
+    color: var(--color-fg);
+  }
+  .ulune-cal-rows tbody td[data-col="what"] button {
+    min-height: 32px;
+  }
+  .ulune-cal-rows tbody td[data-col="where"] {
+    order: 3;
+    flex: 0 1 auto;
+    margin-left: auto;
+    text-align: right;
+  }
+  .ulune-cal-rows tbody td::before {
+    content: none !important;
   }
 }

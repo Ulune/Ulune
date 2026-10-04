@@ -1,5 +1,5 @@
 import { useOverflowFade } from "@/lib/overflow-fade";
-import { Check, Copy, Download } from "lucide-react";
+import { Check, Copy, Download, Info } from "lucide-react";
 import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { prefersReducedMotion } from "@/lib/depth/env";
 import type { GlossaryId } from "@/lib/i18n/glossary";
@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { tableBarText } from "@/lib/i18n/table-ui";
 import { toast } from "@/lib/toast";
 import { downloadText } from "@/lib/download-text";
+import { copyTextAndTable, encodeCsv, htmlTable, parseCsv } from "@/lib/csv";
 import { activePartIndex, barScrollFor, isAtEnd, scrollTargetFor } from "@/studio/tables/table-spy";
 import "@/studio/modes/styles/tables.css";
 
@@ -22,6 +23,11 @@ export type TablePart = {
   terms?: GlossaryId[];
   /** The part's own text for its Copy button (no button without it). */
   copyText?: () => string;
+  /**
+   * The part as one table, header first, as it stands on screen (review 3 Oct,
+   * B2, B3): its own CSV button, and a real table on the clipboard beside the text.
+   */
+  table?: () => string[][];
   children: ReactNode;
 };
 
@@ -59,6 +65,7 @@ export function TablePage({
   parts,
   actions,
   intro,
+  fileStem,
 }: {
   /** Which table (one memory of the part last read per table). */
   name: string;
@@ -68,6 +75,8 @@ export function TablePage({
   actions?: ReactNode;
   /** Before the parts, under the bar: what applies to all of them (the calendar's filters). */
   intro?: ReactNode;
+  /** The start of each part's file name (the chart's name). */
+  fileStem?: string;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLElement>(null);
@@ -241,15 +250,51 @@ export function TablePage({
               <h2 id={headDomId(p.id)} className="ulune-tpart-h" tabIndex={-1}>
                 {p.heading ?? p.label}
               </h2>
-              {p.hint ? <p className="ulune-tpart-hint">{p.hint}</p> : null}
-              {p.terms?.length ? <PartTerms ids={p.terms} testId={`table-terms-${p.id}`} /> : null}
+              {p.hint || p.terms?.length ? (
+                <PartAbout id={p.id} label={p.heading ?? p.label}>
+                  {p.hint ? <p className="ulune-tpart-hint">{p.hint}</p> : null}
+                  {p.terms?.length ? <PartTerms ids={p.terms} testId={`table-terms-${p.id}`} /> : null}
+                </PartAbout>
+              ) : null}
             </div>
-            {p.copyText ? <PartCopy label={p.heading ?? p.label} text={p.copyText} testId={`table-copy-${p.id}`} /> : null}
+            <div className="ulune-tpart-acts">
+              {p.copyText ? <PartCopy label={p.heading ?? p.label} text={p.copyText} table={p.table} testId={`table-copy-${p.id}`} /> : null}
+              {p.table ? <PartCsv label={p.heading ?? p.label} table={p.table} file={`${slugOf(fileStem ?? name)}-${p.id}`} testId={`table-csv-${p.id}`} /> : null}
+            </div>
           </header>
           {p.children}
         </section>
       ))}
     </div>
+  );
+}
+
+/**
+ * A part's explanation and its words. On a phone they fold behind an ⓘ by
+ * the heading (review 3 Oct, B4), so the first screen shows the table; on a
+ * wider screen they stand open and the button is hidden (tables.css).
+ */
+export function PartAbout({ id, label, children }: { id: string; label: string; children: ReactNode }) {
+  const { locale } = useI18n();
+  const [open, setOpen] = useState(false);
+  const box = `table-part-${id}-about`;
+  return (
+    <>
+      <button
+        type="button"
+        className="ulune-tpart-info"
+        data-testid={`table-info-${id}`}
+        aria-expanded={open}
+        aria-controls={box}
+        aria-label={tableBarText(locale, "aboutPart", { part: label })}
+        onClick={() => setOpen(!open)}
+      >
+        <Info className="size-4" aria-hidden />
+      </button>
+      <div id={box} className="ulune-tpart-about" data-open={open ? "1" : undefined}>
+        {children}
+      </div>
+    </>
   );
 }
 
@@ -274,7 +319,33 @@ function PartTerms({ ids, testId }: { ids: GlossaryId[]; testId: string }) {
   );
 }
 
-function PartCopy({ label, text, testId }: { label: string; text: () => string; testId: string }) {
+function slugOf(name: string): string {
+  return (
+    name
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, "-")
+      .replace(/^-+|-+$/g, "") || "table"
+  );
+}
+
+/** A part's own CSV: one table with its header, as filtered on screen, for the reader's spreadsheet. */
+function PartCsv({ label, table, file, testId }: { label: string; table: () => string[][]; file: string; testId: string }) {
+  const { locale } = useI18n();
+  return (
+    <button
+      type="button"
+      className="ulune-tpart-copy ulune-tpart-csv"
+      data-testid={testId}
+      aria-label={tableBarText(locale, "csvPartNamed", { part: label })}
+      title={tableBarText(locale, "csvPart")}
+      onClick={() => downloadText(`${file}.csv`, encodeCsv(table(), locale))}
+    >
+      <Download className="size-4" aria-hidden />
+    </button>
+  );
+}
+
+function PartCopy({ label, text, table, testId }: { label: string; text: () => string; table?: () => string[][]; testId: string }) {
   const { locale, t } = useI18n();
   const [done, setDone] = useState(false);
   return (
@@ -286,7 +357,8 @@ function PartCopy({ label, text, testId }: { label: string; text: () => string; 
       title={tableBarText(locale, "copyPart")}
       onClick={async () => {
         try {
-          await navigator.clipboard.writeText(text());
+          const rows = table?.();
+          await copyTextAndTable(text(), rows?.length ? htmlTable(rows, label) : null);
           setDone(true);
           toast(t("tableCopied"));
           window.setTimeout(() => setDone(false), 1600);
@@ -319,13 +391,9 @@ export function TableActions({
   /** More buttons after Copy and CSV (the calendar's file). */
   extra?: ReactNode;
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [copied, setCopied] = useState(false);
-  const slug =
-    fileName
-      .toLowerCase()
-      .replace(/[^\p{L}\p{N}]+/gu, "-")
-      .replace(/^-+|-+$/g, "") || "table";
+  const slug = slugOf(fileName);
   return (
     <>
       <button
@@ -349,7 +417,7 @@ export function TableActions({
           {copied ? t("tableCopied") : t("tableCopy")}
         </span>
       </button>
-      <button type="button" className="ob-table-export-btn" data-testid="table-csv" disabled={disabled} onClick={() => downloadText(`${slug}.csv`, csv())}>
+      <button type="button" className="ob-table-export-btn" data-testid="table-csv" disabled={disabled} onClick={() => downloadText(`${slug}.csv`, encodeCsv(parseCsv(csv()), locale))}>
         <Download className="size-3.5" aria-hidden />
         <span className="ulune-tbar-act-label">{t("tableExportCsv")}</span>
       </button>

@@ -1,7 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { partRows } from "@/lib/csv";
 import { chartNameOf } from "@/lib/chart/library";
 import { GRID_BODIES, skyGroups, transitAspectRows, transitCheck, type SkyRow } from "@/lib/chart/cross-table";
-import { joinParts, natalSide, transitSide, transitTableCsv, transitTextParts } from "@/lib/chart/cross-export";
+import { gridParts, joinParts, natalSide, transitSide, transitTableCsv, transitTextParts } from "@/lib/chart/cross-export";
 import { motionFlags, transitRowTestId } from "@/lib/chart/transit-exact";
 import type { NatalChart, TransitSky } from "@/lib/chart/types";
 import { previewProps } from "@/lib/depth/preview-bus";
@@ -9,7 +10,8 @@ import { useI18n } from "@/lib/i18n/locale";
 import { modesWord, pointsGroupLabel, pointsText } from "@/lib/i18n/table-ui";
 import { transitTableEmpty } from "@/lib/i18n/transits-ui";
 import { cn, formatDegreeSeconds } from "@/lib/utils";
-import { Body, CrossAspects, CrossGrid, Maybe, Position, UnknownNote } from "@/studio/tables/cross-parts";
+import { Body, CrossAspects, CrossGrid, Maybe, Position, UnknownNote, shownKeep } from "@/studio/tables/cross-parts";
+import type { CrossAspectRow } from "@/lib/chart/cross-table";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
@@ -49,6 +51,10 @@ export function TransitTable({
 
   const rowIds = GRID_BODIES.filter((id) => moving.has(id));
   const colIds = [...GRID_BODIES.filter((id) => chart.planets.some((p) => p.id === id)), "ascendant", "midheaven"];
+  // Each part as its own table (review 3 Oct, B2, B3); the aspects as filtered on screen.
+  const shown = useRef<CrossAspectRow[] | null>(null);
+  const csvOf = (kinds: string[], keep?: (r: Record<string, string>) => boolean) => () => partRows(transitTableCsv(sky, chart, locale), kinds, keep);
+  const grid = () => gridParts(sky.aspects, rowIds, colIds, modesWord(locale, "partGrid"), locale);
 
   const parts: TablePart[] = [
     {
@@ -57,6 +63,7 @@ export function TransitTable({
       hint: modesWord(locale, "hintTransitAspects"),
       terms: ["transit", "aspect", "orb", "applying", "exact"],
       copyText: partText("aspects"),
+      table: csvOf(["aspect"], shownKeep(shown)),
       children: (
         <>
           {unknown ? <UnknownNote>{modesWord(locale, "unknownTransits")}</UnknownNote> : null}
@@ -70,6 +77,7 @@ export function TransitTable({
             rowData={(l) => ({ "data-transit": l.a, "data-aspect": l.type, "data-natal": l.b })}
             movingNote={(l) => movingNote(l.a)}
             colTestPrefix="transit"
+            shownRef={shown}
             empty={transitTableEmpty(locale)}
             selectedId={selectedId}
             onSelect={onSelect}
@@ -83,6 +91,7 @@ export function TransitTable({
       hint: modesWord(locale, "hintSky"),
       terms: ["retrograde", "station", "house"],
       copyText: partText("sky"),
+      table: csvOf(["position"]),
       children: <SkyPart groups={groups} selectedId={selectedId} onSelect={onSelect} />,
     },
     {
@@ -90,6 +99,8 @@ export function TransitTable({
       label: modesWord(locale, "partGrid"),
       hint: modesWord(locale, "hintTransitGrid"),
       terms: ["aspect", "orb", "applying"],
+      copyText: () => grid().lines.join("\n"),
+      table: () => grid().table,
       children: (
         <CrossGrid
           links={sky.aspects}
@@ -112,6 +123,7 @@ export function TransitTable({
         name="transits"
         label={t("tableSections")}
         parts={parts}
+        fileStem={`${name} transits`}
         actions={<TableActions text={() => joinParts(text())} csv={() => transitTableCsv(sky, chart, locale)} fileName={`${name} transits`} />}
       />
     </div>

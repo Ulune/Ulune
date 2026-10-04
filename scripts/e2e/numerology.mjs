@@ -374,7 +374,11 @@ async function desktop() {
     const [download] = await Promise.all([page.waitForEvent("download", { timeout: 8000 }), page.getByTestId("table-csv").click()]);
     const chunks = [];
     for await (const chunk of await download.createReadStream()) chunks.push(chunk);
-    const csv = Buffer.concat(chunks).toString("utf8");
+    // For spreadsheets (review 3 Oct, B2): a byte-order mark and CRLF lines; ";" in French.
+    const raw = Buffer.concat(chunks).toString("utf8");
+    if (!raw.startsWith("\uFEFF")) throw new Error("CSV without its byte-order mark");
+    const lang = await page.evaluate(() => document.documentElement.lang);
+    const csv = raw.slice(1).replace(/\r\n/g, "\n").replaceAll(lang.startsWith("fr") ? ";" : ",", ",");
     if (!csv.startsWith("section,field,value\nnumerology,birthDate,1990-06-15\nnumerology,name,Camille Marie Laurent")) throw new Error(`CSV head ${csv.slice(0, 120)}`);
     const yearRows = csv.split("\n").filter((l) => /^year,\d/.test(l)).length;
     if (!/\ncore,lifepath,4,4,6 \+ 6 \+ 1 = 13 → 4,13,0\n/.test(csv) || yearRows !== 91) throw new Error(`CSV rows: ${yearRows} years`);

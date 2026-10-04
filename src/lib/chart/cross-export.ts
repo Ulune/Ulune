@@ -28,7 +28,7 @@ import {
   type ProgressedMoon,
   type ProgressedRow,
 } from "./cross-table";
-import { allowedText } from "./table-aspects";
+import { allowedText, ASPECT_CSV_HEAD } from "./table-aspects";
 import { aspectWord, cellText, colon, phaseWord, stationMoment, type Cell } from "./table-cells";
 import { timeUnknown } from "./unknown-time";
 import type { AspectLink, NatalChart, ProgressedSky, SynastryPair, TransitSky } from "./types";
@@ -119,20 +119,23 @@ function positionText(c: Cell, sign: Parameters<typeof signName>[0], locale: App
 }
 
 function aspectCsvRows(section: string, rows: readonly CrossAspectRow[], exact: boolean): string[][] {
-  const out: string[][] = [[section, "a", "type", "b", "orb", "allowedOrb", "strength", "applying", ...(exact ? ["exactUtc"] : []), "uncertain", ...(exact ? ["exactUncertain"] : []), "mirrorOf"]];
+  // The natal table's columns (table-export.ts ASPECT_CSV_HEAD), the section named for its table.
+  const out: string[][] = [[section, ...ASPECT_CSV_HEAD.slice(1)]];
   for (const r of rows) {
     const cells = (l: AspectLink, mirror: string) => [
       section,
       l.a,
       l.type,
       l.b,
+      l.level ?? "",
       r.orb.toFixed(4),
       String(aspectOrb(l.type, l.a, l.b)),
       r.strength.toFixed(4),
       l.applying === true ? "applying" : l.applying === false ? "separating" : "",
-      ...(exact ? [l.exactUtc ?? ""] : []),
+      exact ? (l.exactUtc ?? "") : "",
       bit(r.uncertain),
-      ...(exact ? [bit(r.exactUncertain)] : []),
+      exact ? bit(r.exactUncertain) : "",
+      "",
       mirror,
     ];
     out.push(cells(r.link, ""));
@@ -399,4 +402,36 @@ export function synastryTableCsv(pair: SynastryPair, a: NatalChart, b: NatalChar
 /** The whole table as text: its parts, a blank line between them. */
 export function joinParts(parts: readonly TextPart[]): string {
   return parts.map((p) => p.lines.join("\n")).join("\n\n");
+}
+
+/**
+ * A grid of two charts' bodies as text and as a table (review 3 Oct, B6):
+ * each row body's contacts in a line ("Sun: Moon square 2°04' A · …"), and
+ * the matrix itself for a spreadsheet, each cell "square 2°04' A".
+ */
+export function gridParts(
+  links: readonly AspectLink[],
+  rowIds: readonly string[],
+  colIds: readonly string[],
+  title: string,
+  locale: AppLocale,
+): { lines: string[]; table: string[][] } {
+  const byPair = new Map<string, AspectLink>();
+  for (const l of links) byPair.set(`${l.a}|${l.b}`, l);
+  const as = (l: AspectLink) => (l.applying === true ? "A" : l.applying === false ? "S" : "");
+  const cell = (l: AspectLink) => [aspectWord(l.type, locale), formatArc(l.orb), as(l)].filter(Boolean).join(" ");
+  const lines = [title];
+  const table: string[][] = [["", ...colIds.map((c) => bodyBare(c, locale))]];
+  for (const r of rowIds) {
+    const contacts = colIds.flatMap((c) => {
+      const l = byPair.get(`${r}|${c}`);
+      return l ? [`${bodyBare(c, locale)} ${cell(l)}`] : [];
+    });
+    if (contacts.length) lines.push(`${bodyBare(r, locale)}${colon(locale)} ${contacts.join(" · ")}`);
+    table.push([bodyBare(r, locale), ...colIds.map((c) => {
+      const l = byPair.get(`${r}|${c}`);
+      return l ? cell(l) : "";
+    })]);
+  }
+  return { lines, table };
 }

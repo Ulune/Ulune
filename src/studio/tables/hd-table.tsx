@@ -1,3 +1,4 @@
+import { partRows } from "@/lib/csv";
 import type { HdView, HumanDesignChart } from "@/lib/chart/human-design";
 import { graphForView, HD_GATE_CENTER } from "@/lib/chart/human-design";
 import { hdActId } from "@/lib/chart/hd-rows";
@@ -51,6 +52,9 @@ export function HumanDesignTable({
   const partText = (id: string) => () => text().find((p) => p.id === id)?.lines.join("\n") ?? "";
   const note = chart.uncertain ? <UnknownNote>{hdUnknownText(locale, "line")}</UnknownNote> : null;
 
+  // Each part as its own table (review 3 Oct, B2, B3).
+  const csvOf = (kinds: string[]) => () => partRows(hdTableCsv(chart, view), kinds);
+
   const parts: TablePart[] = [
     {
       id: "keys",
@@ -58,6 +62,7 @@ export function HumanDesignTable({
       hint: modesWord(locale, "hintKeys"),
       terms: ["hdType", "hdStrategy", "hdAuthority", "hdProfile", "hdDefinition", "hdCross"],
       copyText: partText("keys"),
+      table: csvOf(["key"]),
       children: (
         <>
           {note}
@@ -71,6 +76,7 @@ export function HumanDesignTable({
       hint: modesWord(locale, "hintActivations"),
       terms: ["hdLayers", "hdGate", "hdLine"],
       copyText: partText("activations"),
+      table: csvOf(["activation"]),
       children: <ActivationsPart chart={chart} view={view} names={names} selectedId={selectedId} onSelect={onSelect} />,
     },
     {
@@ -79,6 +85,7 @@ export function HumanDesignTable({
       hint: modesWord(locale, "hintChannels"),
       terms: ["hdChannel"],
       copyText: partText("channels"),
+      table: csvOf(["channel"]),
       children: <ChannelsPart chart={chart} view={view} names={names} selectedId={selectedId} onSelect={onSelect} />,
     },
     {
@@ -87,6 +94,7 @@ export function HumanDesignTable({
       hint: modesWord(locale, "hintCentres"),
       terms: ["hdCentres", "hdGate"],
       copyText: partText("centres"),
+      table: csvOf(["centre"]),
       children: <CentresPart chart={chart} view={view} selectedId={selectedId} onSelect={onSelect} />,
     },
   ];
@@ -97,6 +105,7 @@ export function HumanDesignTable({
         name="design"
         label={t("tableSections")}
         parts={parts}
+        fileStem={`${name || "human design"} human design`}
         actions={<TableActions text={() => text().map((p) => p.lines.join("\n")).join("\n\n")} csv={() => hdTableCsv(chart, view)} fileName={`${name || "human design"} human design`} />}
       />
     </div>

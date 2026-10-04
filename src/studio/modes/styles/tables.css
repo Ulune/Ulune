@@ -346,13 +346,18 @@
   color: var(--color-fg-muted);
   font-size: 0.875rem;
 }
+/* A part's Copy and CSV, side by side at its heading's end. */
+.ulune-tpart-acts {
+  display: flex;
+  flex: 0 0 auto;
+  margin: -10px -10px 0 0;
+}
 .ulune-tpart-copy {
   display: grid;
   flex: 0 0 auto;
   place-items: center;
   width: 44px;
   height: 44px;
-  margin: -10px -10px 0 0;
   border: 0;
   border-radius: var(--radius-md);
   background: transparent;
@@ -593,10 +598,35 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+}
+/* On a narrow page a sort's options tighten rather than run off the side
+   (two people's names, "Progressed"). */
+@container tpage (max-width: 559.98px) {
+  .ulune-tool-sort .ulune-seg {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .ulune-tool-sort .ulune-seg-btn {
+    min-width: 0;
+    padding-inline: 9px;
+    font-size: 13px;
+  }
 }
 .ulune-tool-label {
   color: var(--color-fg-muted);
   font: 500 12px/1 var(--font-ui);
+}
+/* A part's choice from a list (the midpoints' body). */
+.ulune-tool-select {
+  min-height: 40px;
+  padding: 0 28px 0 10px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: 500 13px/1 var(--font-ui);
 }
 .ulune-tool-check {
   display: inline-flex;
@@ -728,6 +758,9 @@ button.ulune-glyph-pick {
   max-width: 100%;
   overflow-x: auto;
   container-type: inline-size;
+  /* A grid wider than a phone scrolls inside its box; without paint
+     containment Chromium still counts it in the page's width. */
+  contain: paint;
 }
 .ob-agrid {
   --cell: min(46px, calc((100cqi - 2px) / var(--agrid-n, 14)));
@@ -791,6 +824,32 @@ button.ulune-glyph-pick {
     display: inline;
   }
 }
+/* On a phone (review 3 Oct, B5): the symbols alone, in square cells as big
+   as a finger allows (the grid scrolls sideways when they do not fit); a tap
+   opens the aspect with its orb. */
+@media (max-width: 639px) {
+  .ob-agrid {
+    --cell: max(34px, min(46px, calc((100cqi - 2px) / var(--agrid-n, 14))));
+  }
+  .ob-agrid td,
+  .ob-agrid th,
+  .ob-agrid td button,
+  .ob-agrid-cell {
+    height: var(--cell);
+    min-height: var(--cell);
+  }
+  .ob-agrid-orb,
+  .ob-agrid-as {
+    display: none;
+  }
+}
+/* Each symbol in its aspect's colour, as on the wheel; minor ones fainter. */
+.ob-agrid-glyph {
+  display: inline-flex;
+}
+.ob-agrid td[data-level="minor"] .ob-agrid-glyph {
+  opacity: 0.6;
+}
 .ob-agrid td[data-level="minor"] button {
   color: var(--color-fg-subtle);
 }
@@ -818,6 +877,21 @@ button.ulune-glyph-pick {
   .ulune-aspects td[data-col="aspect"] .ulune-cell-sub {
     display: inline;
     margin-left: 6px;
+  }
+  /* Denser aspect rows on a phone (review 3 Oct, B4): the aspect, the orb and
+     the phase on one line, without their column words (the glyph, "of 8°"
+     and "applying" say what they are); a shorter strength bar. */
+  .ulune-aspects tbody tr {
+    gap: 2px 12px;
+    padding-block: 7px;
+  }
+  .ulune-aspects td[data-col="aspect"]::before,
+  .ulune-aspects td[data-col="orb"]::before,
+  .ulune-aspects td[data-col="phase"]::before {
+    content: none;
+  }
+  .ulune-aspects .ulune-strength {
+    width: 36px;
   }
 }
 /* ------------------------------------------------------ Dignities (part 50) */
@@ -1089,4 +1163,50 @@ button.ulune-glyph-pick {
 .ulune-hd-centre-dot.is-defined {
   border-color: var(--color-fg);
   background: var(--color-fg);
+}
+
+/* A phone's table view (review 3 Oct, B4): each part's explanation folds
+   behind the ⓘ by its heading; the identity's facts take one line each; the
+   chart's caption under the stage goes (the identity part says it). */
+.ulune-tpart-info {
+  display: none;
+}
+@media (max-width: 639px) {
+  .ulune-tpart-h {
+    display: inline;
+  }
+  .ulune-tpart-info {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    margin: -4px 0 0 2px;
+    vertical-align: middle;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-fg-muted);
+  }
+  .ulune-tpart-info[aria-expanded="true"] {
+    color: var(--color-fg);
+    background: var(--color-bg-subtle);
+  }
+  .ulune-tpart-about:not([data-open]) {
+    display: none;
+  }
+  .ulune-idfacts {
+    row-gap: var(--space-2);
+  }
+  .ulune-idfacts > div {
+    display: grid;
+    grid-template-columns: minmax(6.5rem, 34%) 1fr;
+    column-gap: var(--space-3);
+    align-items: baseline;
+  }
+  .ulune-idfacts dd {
+    margin-top: 0;
+  }
+  .ob-stage--table .ob-foot-cap {
+    display: none;
+  }
 }

@@ -17,7 +17,7 @@ import { dateFormat } from "@/lib/intl-cache";
 import { cn, formatDegree } from "@/lib/utils";
 import { downloadText } from "@/lib/download-text";
 import { DataTable } from "@/studio/tables/DataTable";
-import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
+import { PartAbout, TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
 const FIRST_ROWS = 250;
 const MORE_ROWS = 250;
@@ -90,15 +90,25 @@ export function CalendarTable({
   const degree = (lon: number) => `${formatDegree(lon)} ${signWord(Math.floor((((lon % 360) + 360) % 360) / 30), locale)}`;
   const where = (r: CalRow): string => {
     if (r.kind === "num") return "";
+    // Where a moving body stands at a moment, from the chunks at hand.
+    const lonAt = (body: string, t: number) => {
+      const w = wins.find((x) => t >= x.t0 && t <= x.t0 + (x.n - 1) * x.step * 3_600_000);
+      return w ? (bodyAt(w, body as Parameters<typeof bodyAt>[1], t)?.lon ?? null) : null;
+    };
     if (r.kind === "sky") {
       const ev = r.ev;
       if (ev.k === "phase" || ev.k === "eclipse" || ev.k === "station") return degree(ev.lon);
       if (ev.k === "ingress") return signWord(ev.sign, locale);
+      // Two moving bodies: where each stands (review 3 Oct, B6).
+      if (ev.k === "aspect") {
+        const a = lonAt(ev.a, ev.t);
+        const b = lonAt(ev.b, ev.t);
+        return a != null && b != null ? `${degree(a)} – ${degree(b)}` : "";
+      }
       return "";
     }
-    const w = wins.find((x) => r.t >= x.t0 && r.t <= x.t0 + (x.n - 1) * x.step * 3_600_000);
-    const at = w ? bodyAt(w, r.hit.moving as Parameters<typeof bodyAt>[1], r.t) : null;
-    return at ? degree(at.lon) : "";
+    const at = lonAt(r.hit.moving, r.t);
+    return at != null ? degree(at) : "";
   };
   const title = (r: CalRow) =>
     r.kind === "sky"
@@ -150,7 +160,7 @@ export function CalendarTable({
   };
 
   const table = (list: { row: CalRow; index: number }[]) => (
-    <DataTable stickyFirst={false}>
+    <DataTable className="ulune-cal-rows" stickyFirst={false}>
       <thead>
         <tr>
           {columns.slice(0, TIMING_TABLE_COLUMN_KEYS.indexOf("ut")).map((label, i) => (
@@ -207,6 +217,8 @@ export function CalendarTable({
         label: g.label,
         heading: g.heading,
         copyText: () => [g.heading, ...g.rows.map((x) => line(x.row))].join("\n"),
+        // The period as one table (review 3 Oct, B2, B3).
+        table: () => [[...columns], ...g.rows.map(({ row: r }) => [whenOf(r), what(r), where(r), forWho(r), ut(r.t)])],
         children: table(g.rows.filter((x) => x.index < n)),
       }))
     : [
@@ -223,7 +235,9 @@ export function CalendarTable({
 
   const intro = (
     <div className="ulune-cal-table-intro">
-      <p className="ulune-tpart-hint">{timingTableHint(locale)}</p>
+      <PartAbout id="calendar" label={timingTableTitle(locale)}>
+        <p className="ulune-tpart-hint">{timingTableHint(locale)}</p>
+      </PartAbout>
       <div className="ulune-cal-table-filters">
         <SegmentedToggle
           ariaLabel={pick(T.filter.label, locale)}
@@ -244,6 +258,7 @@ export function CalendarTable({
       <TablePage
         key={fileName}
         name={`calendar-${fileName}`}
+        fileStem={`ulune-${fileName}`}
         label={t("tableSections")}
         parts={parts}
         intro={intro}

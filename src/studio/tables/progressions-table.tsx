@@ -1,4 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { partRows } from "@/lib/csv";
+import type { CrossAspectRow } from "@/lib/chart/cross-table";
 import { chartNameOf } from "@/lib/chart/library";
 import {
   progressedAngleRows,
@@ -23,7 +25,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { progressionTableEmpty } from "@/lib/i18n/progressions-ui";
 import { aspectsWord, modesWord, pointsGroupLabel, pointsText } from "@/lib/i18n/table-ui";
 import { cn } from "@/lib/utils";
-import { Body, CrossAspects, Maybe, Position, UnknownNote } from "@/studio/tables/cross-parts";
+import { Body, CrossAspects, Maybe, Position, UnknownNote, shownKeep } from "@/studio/tables/cross-parts";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
@@ -59,6 +61,11 @@ export function ProgressionsTable({
     return p?.retrograde && p.kind !== "angle" ? pointsText(locale, "retrograde") : "";
   };
 
+  // Each part as its own table (review 3 Oct, B2, B3); the aspects as filtered on screen.
+  const shown = useRef<CrossAspectRow[] | null>(null);
+  const csvOf = (kinds: string[], keep?: (r: Record<string, string>) => boolean) => () => partRows(progressionTableCsv(sky, chart, locale), kinds, keep);
+  const isAngle = (r: Record<string, string>) => ["ascendant", "midheaven", "descendant", "ic"].includes(r.id ?? "");
+
   const parts: TablePart[] = [
     {
       id: "aspects",
@@ -66,6 +73,7 @@ export function ProgressionsTable({
       hint: modesWord(locale, "hintProgAspects"),
       terms: ["progression", "aspect", "orb", "applying", "exact"],
       copyText: partText("aspects"),
+      table: csvOf(["aspect"], shownKeep(shown)),
       children: (
         <>
           {unknown ? <UnknownNote>{modesWord(locale, "unknownProgressions")}</UnknownNote> : null}
@@ -79,6 +87,7 @@ export function ProgressionsTable({
             rowData={(l) => ({ "data-progressed": l.a, "data-aspect": l.type, "data-natal": l.b })}
             movingNote={(l) => movingNote(l.a)}
             colTestPrefix="progression"
+            shownRef={shown}
             empty={progressionTableEmpty(locale)}
             selectedId={selectedId}
             onSelect={onSelect}
@@ -92,6 +101,7 @@ export function ProgressionsTable({
       hint: modesWord(locale, "hintPositions"),
       terms: ["progression", "retrograde", "station"],
       copyText: partText("positions"),
+      table: csvOf(["position"], (r) => !isAngle(r)),
       children: (
         <ProgressedTable
           groups={groups.map((g) => ({ id: g.id, label: pointsGroupLabel(locale, g.id), rows: g.rows }))}
@@ -107,6 +117,7 @@ export function ProgressionsTable({
       hint: modesWord(locale, "hintAngles"),
       terms: ["ascendant", "midheaven"],
       copyText: partText("angles"),
+      table: csvOf(["position"], isAngle),
       children: <ProgressedTable groups={[{ id: "angles", label: "", rows: angles }]} selectedId={selectedId} onSelect={onSelect} />,
     },
     {
@@ -115,6 +126,7 @@ export function ProgressionsTable({
       hint: modesWord(locale, "hintMoon"),
       terms: ["moonPhase"],
       copyText: partText("moon"),
+      table: csvOf(["moonPhase"]),
       children: <MoonPart sky={sky} chart={chart} />,
     },
   ];
@@ -125,6 +137,7 @@ export function ProgressionsTable({
         name="progressions"
         label={t("tableSections")}
         parts={parts}
+        fileStem={`${name} progressions`}
         actions={
           <TableActions text={() => joinParts(text())} csv={() => progressionTableCsv(sky, chart, locale)} fileName={`${name} progressions`} />
         }

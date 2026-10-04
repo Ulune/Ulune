@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { partRows } from "@/lib/csv";
+import type { CrossAspectRow } from "@/lib/chart/cross-table";
 import { chartNameOf } from "@/lib/chart/library";
 import {
   bothGroups,
@@ -10,16 +12,16 @@ import {
   type BothRow,
   type OverlayRow,
 } from "@/lib/chart/cross-table";
-import { joinParts, ofName, overlaysTitle, personSide, synastryTableCsv, synastryTextParts } from "@/lib/chart/cross-export";
+import { gridParts, joinParts, ofName, overlaysTitle, personSide, synastryTableCsv, synastryTextParts } from "@/lib/chart/cross-export";
 import { synastryRowTestId } from "@/lib/chart/synastry";
 import { pointSelectId } from "@/lib/chart/table-cells";
 import type { NatalChart, SynastryPair } from "@/lib/chart/types";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
 import { synastryTableEmpty } from "@/lib/i18n/synastry-ui";
-import { aspectsWord, modesWord, pointsGroupLabel, pointsText } from "@/lib/i18n/table-ui";
+import { modesWord, pointsGroupLabel, pointsText } from "@/lib/i18n/table-ui";
 import { cn } from "@/lib/utils";
-import { Body, CrossAspects, CrossGrid, Maybe, Position, ToolCheck, UnknownNote } from "@/studio/tables/cross-parts";
+import { Body, CrossAspects, CrossGrid, Maybe, Position, ToolCheck, UnknownNote, shownKeep } from "@/studio/tables/cross-parts";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
@@ -60,14 +62,6 @@ export function SynastryTable({
   const all = useMemo(() => synastryAspectRows(pair, a, b), [pair, a, b]);
   const rows = minor ? all : all.filter((r) => isMainPair(r.link));
   const total = pair.majors.length;
-  const shown = minor ? total : pair.majors.filter(isMainPair).length;
-  const folded = rows.reduce((n, r) => n + r.twins.length, 0);
-  const count = [
-    shown === total ? aspectsWord(locale, "countAll", { total: String(total) }) : aspectsWord(locale, "countSome", { shown: String(shown), total: String(total) }),
-    folded === 1 ? aspectsWord(locale, "foldedOne") : folded > 1 ? aspectsWord(locale, "folded", { n: String(folded) }) : "",
-  ]
-    .filter(Boolean)
-    .join(" · ");
   const aInB = useMemo(() => overlayRows(a, b), [a, b]);
   const bInA = useMemo(() => overlayRows(b, a), [a, b]);
   const both = useMemo(() => bothGroups(a, b), [a, b]);
@@ -80,6 +74,12 @@ export function SynastryTable({
   ) : null;
   const ids = (chart: NatalChart) => [...GRID_BODIES.filter((id) => chart.planets.some((p) => p.id === id)), "ascendant", "midheaven"];
 
+  // Each part as its own table (review 3 Oct, B2, B3); the aspects as filtered on screen.
+  const shown = useRef<CrossAspectRow[] | null>(null);
+  const csvOf = (kinds: string[], keep?: (r: Record<string, string>) => boolean) => () => partRows(synastryTableCsv(pair, a, b, names), kinds, keep);
+  // The grid had no Copy (review 3 Oct, B6).
+  const grid = () => gridParts(pair.aspects, ids(a), ids(b), modesWord(locale, "partGrid"), locale);
+
   const parts: TablePart[] = [
     {
       id: "aspects",
@@ -87,17 +87,10 @@ export function SynastryTable({
       hint: modesWord(locale, "hintSynAspects"),
       terms: ["synastry", "aspect", "orb", "applying"],
       copyText: partText("aspects"),
+      table: csvOf(["aspect"], shownKeep(shown)),
       children: (
         <>
           {note}
-          <div className="ulune-part-tools" data-testid="synastry-tools">
-            <ToolCheck checked={minor} onChange={setMinor} testId="synastry-minor-bodies">
-              {modesWord(locale, "minorBodies")}
-            </ToolCheck>
-          </div>
-          <p className="ulune-part-count" data-testid="synastry-count" aria-live="polite">
-            {count}
-          </p>
           <CrossAspects
             rows={rows}
             columns={{ a: { key: "a", label: aName }, b: { key: "b", label: bName } }}
@@ -106,9 +99,16 @@ export function SynastryTable({
             rowTestId={synastryRowTestId}
             rowData={(l) => ({ "data-a": l.a, "data-aspect": l.type, "data-b": l.b })}
             colTestPrefix="synastry"
+            shownRef={shown}
             empty={synastryTableEmpty(locale)}
             selectedId={selectedId}
             onSelect={onSelect}
+            totalAll={total}
+            tools={
+              <ToolCheck checked={minor} onChange={setMinor} testId="synastry-minor-bodies">
+                {modesWord(locale, "minorBodies")}
+              </ToolCheck>
+            }
           />
         </>
       ),
@@ -119,6 +119,7 @@ export function SynastryTable({
       hint: modesWord(locale, "hintOverlays"),
       terms: ["house"],
       copyText: partText("overlays"),
+      table: csvOf(["overlay"]),
       children: (
         <>
           {note}
@@ -133,6 +134,7 @@ export function SynastryTable({
       hint: modesWord(locale, "hintBoth"),
       terms: ["sign", "house"],
       copyText: partText("both"),
+      table: csvOf(["both"]),
       children: <BothTable groups={both} names={names} selectedId={selectedId} onSelect={onSelect} />,
     },
     {
@@ -140,6 +142,8 @@ export function SynastryTable({
       label: modesWord(locale, "partGrid"),
       hint: modesWord(locale, "hintSynGrid", { a: aName, b: bName }),
       terms: ["aspect", "orb", "applying"],
+      copyText: () => grid().lines.join("\n"),
+      table: () => grid().table,
       children: (
         <CrossGrid
           links={pair.aspects}
@@ -162,6 +166,7 @@ export function SynastryTable({
         name="synastry"
         label={t("tableSections")}
         parts={parts}
+        fileStem={`${aName} ${bName} synastry`}
         actions={<TableActions text={() => joinParts(text())} csv={() => synastryTableCsv(pair, a, b, names)} fileName={`${aName} ${bName} synastry`} />}
       />
     </div>

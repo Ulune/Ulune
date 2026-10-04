@@ -8,6 +8,7 @@ import { hydratePatterns } from "./patterns";
 import { aspectOrb, CLASSIC_BODIES } from "./constants";
 import { isRough, signsHold } from "./day-checks";
 import {
+  ASPECT_CSV_HEAD,
   aspectTableRow,
   aspectTableRows,
   aspectTableRowText,
@@ -36,7 +37,7 @@ import {
 import { armcOf, declinationOf, localSiderealHours, moonPhase, nearestAngle, outOfBoundsBy, separation } from "./table-facts";
 import { dispositorsOf, dignityRows, dignitiesText, mutualReceptions } from "./table-dignities";
 import { houseRows, houseRowText } from "./table-houses";
-import { midpointRows, starRows, type Contact } from "./table-stars";
+import { midpointList, starRows, type Contact } from "./table-stars";
 import { mergedShapes } from "./table-patterns";
 import type { NatalChart } from "./types";
 import { bodyBare, signName } from "@/lib/i18n/astro";
@@ -134,7 +135,8 @@ export function chartTextParts(chart: NatalChart, locale: AppLocale): ChartTextP
     push(`${starsWord(locale, r.id)} · ${formatDegreeSeconds(r.ecliptic)} ${signName(r.sign, locale)} · ${starsWord(locale, "on")}${colon(locale)}${on(r.contacts)}`);
   }
   push(starsWord(locale, "midpointsHead"));
-  for (const r of midpointRows(chart)) {
+  // Of the full list (review 3 Oct, B7), the midpoints with a body on them; the CSV has them all.
+  for (const r of midpointList(chart).filter((x) => x.contacts.length)) {
     push(
       `${bodyBare(r.a, locale)}/${bodyBare(r.b, locale)} · ${r.uncertain ? "~" : ""}${formatDegreeSeconds(r.ecliptic)} ${signName(r.sign, locale)} · ${starsWord(locale, "on")}${colon(locale)}${on(r.contacts)}`,
     );
@@ -354,7 +356,8 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale, scope:
   }
 
   add([]);
-  add(["aspect", "a", "b", "type", "level", "orb", "applying", "uncertain", "allowedOrb", "strength", "outOfSign", "mirrorOf"]);
+  // One column order for every aspects table, here and in the modes' (review 3 Oct, B2).
+  add([...ASPECT_CSV_HEAD]);
   const mirrorOf = new Map<string, string>();
   for (const [head, ...rest] of twinGroups(chart.aspects)) for (const t of rest) if (head) mirrorOf.set(t.id, head.id);
   const lonOf = new Map(chartPoints(chart).map((p) => [p.id as string, p.ecliptic]));
@@ -366,14 +369,16 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale, scope:
     add([
       "aspect",
       a.a,
-      a.b,
       a.type,
+      a.b,
       a.level,
       a.orb.toFixed(4),
-      chart.meta.time === "midpoint" ? "" : a.applying === true ? "applying" : a.applying === false ? "separating" : "",
-      bit(row.uncertain),
       String(aspectOrb(a.type, a.a, a.b)),
       row.strength.toFixed(4),
+      chart.meta.time === "midpoint" ? "" : a.applying === true ? "applying" : a.applying === false ? "separating" : "",
+      "",
+      bit(row.uncertain),
+      "",
       out == null ? "" : bit(out),
       mirrorOf.get(a.id) ?? "",
     ]);
@@ -514,7 +519,7 @@ export function formatChartTableCsv(chart: NatalChart, locale: AppLocale, scope:
   }
   add([]);
   add(["midpoint", "id", "longitude", "sign", "contacts", "uncertain"]);
-  for (const r of midpointRows(chart)) {
+  for (const r of midpointList(chart)) {
     add([
       "midpoint",
       r.id,

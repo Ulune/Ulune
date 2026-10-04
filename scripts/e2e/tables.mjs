@@ -172,9 +172,15 @@ async function checkHousesAspects(page, width) {
   }
   // The grid: orbs in the cells; A or S on a wide grid; the parallels above the diagonal.
   const cell = page.locator("[data-testid=aspect-grid] button[aria-label^='Jupiter Conjunction Chiron']");
-  const cellText = (await cell.locator(".ob-agrid-orb").innerText()).replace(/\s+/g, "");
-  const wide = (await page.getByTestId("aspect-grid").evaluate((el) => el.clientWidth)) >= 600;
-  if (cellText !== (wide ? "0°11'A" : "0°11")) throw new Error(`${label}: the Jupiter–Chiron cell reads "${cellText}"`);
+  if (width < 640) {
+    // On a phone the symbols stand alone (review 3 Oct, B5): the orb is in the cell's name and its reading.
+    if (await cell.locator(".ob-agrid-orb").isVisible()) throw new Error(`${label}: the orb shows in a phone's grid`);
+    if (!/0°11'/.test((await cell.getAttribute("aria-label")) ?? "")) throw new Error(`${label}: the Jupiter–Chiron cell's name has no orb`);
+  } else {
+    const cellText = (await cell.locator(".ob-agrid-orb").innerText()).replace(/\s+/g, "");
+    const wide = (await page.getByTestId("aspect-grid").evaluate((el) => el.clientWidth)) >= 600;
+    if (cellText !== (wide ? "0°11'A" : "0°11")) throw new Error(`${label}: the Jupiter–Chiron cell reads "${cellText}"`);
+  }
   if (await page.locator("[data-testid=aspect-grid] td.ob-agrid-par").count()) throw new Error(`${label}: parallels before the switch`);
   await page.getByTestId("grid-parallels").check();
   const par = await page.locator("[data-testid=aspect-grid] td.ob-agrid-par[data-kind]").count();
@@ -230,17 +236,24 @@ async function checkStars(page, width) {
   const label = `${width} stars`;
   const stars = await page.locator("[data-testid=stars-fixed] tbody tr").count();
   const midpoints = await page.locator("[data-testid=stars-midpoints] tbody tr").count();
-  if (stars !== 6 || midpoints !== 5) throw new Error(`${label}: ${stars} stars, ${midpoints} midpoints`);
+  // Every midpoint of the planets, the node and the two angles (review 3 Oct, B7).
+  if (stars !== 6 || midpoints !== 78) throw new Error(`${label}: ${stars} stars, ${midpoints} midpoints`);
   const sunMoon = await page.locator("[data-testid=stars-midpoints] tr[data-midpoint=sun-moon]").innerText();
   if (!/Vesta\s*0°38'/.test(sunMoon)) throw new Error(`${label}: the Sun/Moon midpoint reads "${sunMoon}"`);
   const earth = await page.locator("[data-testid=table-balance] .ob-bal[data-group=elements] li[data-row=earth] .ob-bal-bodies [data-body]").count();
   if (earth !== 6) throw new Error(`${label}: ${earth} bodies in earth, expected 6`);
   const course = await page.locator("[data-testid=table-patterns] [data-pattern=voc]").innerText();
   if (!/next aspect: trine Pluto, 15 Jun 1990, 12:04 UT/.test(course)) throw new Error(`${label}: the Moon's course reads "${course}"`);
-  // A part's words fold open under its hint.
+  // A part's words fold open under its hint; on a phone both wait behind the ⓘ (review 3 Oct, B4).
+  const info = page.getByTestId("table-info-stars");
+  if (width < 640) {
+    if (await page.getByTestId("table-terms-stars").isVisible()) throw new Error(`${label}: the part's words show before the ⓘ`);
+    await info.click();
+  } else if (await info.isVisible()) throw new Error(`${label}: an ⓘ on a wide page`);
   await page.getByTestId("table-terms-stars").locator("summary").click();
   await page.locator("[data-testid=table-terms-stars] [data-term=fixedStar]").waitFor({ timeout: 8000 });
   await page.getByTestId("table-terms-stars").locator("summary").click();
+  if (width < 640) await info.click();
 }
 
 async function runViewport(width) {
@@ -276,10 +289,19 @@ async function runViewport(width) {
     const chunks = [];
     for await (const chunk of stream) chunks.push(chunk);
     const csv = Buffer.concat(chunks).toString("utf8");
-    const firstLine = csv.split(/\r?\n/)[0];
+    // For spreadsheets (review 3 Oct, B2): a byte-order mark, then the table.
+    if (!csv.startsWith("\uFEFF")) throw new Error("CSV without its byte-order mark");
+    const firstLine = csv.slice(1).split(/\r?\n/)[0];
     if (firstLine !== "section,field,value") {
       throw new Error(`CSV first line expected section,field,value got "${firstLine}"`);
     }
+    // A part's own CSV: one table, one header (the aspects' columns as everywhere).
+    const [partDl] = await Promise.all([page.waitForEvent("download", { timeout: 8000 }), page.getByTestId("table-csv-aspects").click()]);
+    const partChunks = [];
+    for await (const chunk of await partDl.createReadStream()) partChunks.push(chunk);
+    const partLines = Buffer.concat(partChunks).toString("utf8").slice(1).split(/\r?\n/).filter(Boolean);
+    if (partLines[0] !== "a,type,b,level,orb,allowedOrb,strength,applying,exactUtc,uncertain,exactUncertain,outOfSign,mirrorOf") throw new Error(`aspects CSV header: ${partLines[0]}`);
+    if (partLines.length < 20 || partLines.some((l) => !l.includes(","))) throw new Error(`aspects CSV: ${partLines.length} lines`);
 
     await checkNoSideways(page, `${width}`);
     await noDecimalDegree(page, `${width}`);

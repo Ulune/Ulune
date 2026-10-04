@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { partRows } from "@/lib/csv";
 import { SegmentedToggle } from "@/components/segmented-toggle";
 import { chartDisplayName, type SavedChart } from "@/lib/chart/library";
 import { castNumerology, numerologyOptionsOf, type NumerologyChart, type NumerologyName } from "@/lib/chart/numerology";
@@ -88,6 +89,9 @@ export function NumerologyTable({
   const pick = { selectedId, onSelect };
   const gate = chart.names.birth ? null : <NameGate locale={locale} openBirth={openBirth} />;
 
+  // Each part as its own table (review 3 Oct, B2, B3).
+  const csvOf = (kinds: string[]) => () => partRows(numerologyTableCsv(chart, { wholeLife }), kinds);
+
   const parts: TablePart[] = [
     {
       id: "core",
@@ -96,6 +100,7 @@ export function NumerologyTable({
       hint: p(locale, "hint_core"),
       terms: ["lifePath", "nameNumbers", "birthday", "maturity", "masterNumbers", "karmicDebt"],
       copyText: partText("core"),
+      table: csvOf(["core"]),
       children: (
         <>
           {gate}
@@ -110,6 +115,7 @@ export function NumerologyTable({
       hint: p(locale, "hint_name"),
       terms: ["nameNumbers", "karmicLesson", "hiddenPassion", "finerNumbers", "planes", "stones", "chaldean"],
       copyText: partText("name"),
+      table: csvOf(["letter"]),
       children: gate ?? <NamePart chart={chart} locale={locale} nameFrom={nameFrom} openBirth={openBirth} {...pick} />,
     },
     {
@@ -119,6 +125,7 @@ export function NumerologyTable({
       hint: p(locale, "hint_grid"),
       terms: ["birthGrid"],
       copyText: partText("grid"),
+      table: csvOf(["grid"]),
       children: <GridPart chart={chart} locale={locale} layout={layout} setLayout={setLayout} />,
     },
     {
@@ -128,6 +135,7 @@ export function NumerologyTable({
       hint: p(locale, "hint_cycles"),
       terms: ["periodCycle", "pinnacle", "challenge"],
       copyText: partText("cycles"),
+      table: csvOf(["cycle"]),
       children: <CyclesPart chart={chart} locale={locale} {...pick} />,
     },
     {
@@ -137,6 +145,7 @@ export function NumerologyTable({
       hint: p(locale, "hint_years"),
       terms: ["personalCycles", "letterCycle"],
       copyText: partText("years"),
+      table: csvOf(["year"]),
       children: <YearsPart chart={chart} locale={locale} wholeLife={wholeLife} setWholeLife={setWholeLife} {...pick} />,
     },
     {
@@ -146,6 +155,7 @@ export function NumerologyTable({
       hint: p(locale, "hint_bridges"),
       terms: ["bridge"],
       copyText: partText("bridges"),
+      table: csvOf(["bridge"]),
       children: (
         <BridgesPart
           chart={chart}
@@ -177,6 +187,7 @@ export function NumerologyTable({
         name="numerology"
         label={t("tableSections")}
         parts={parts}
+        fileStem={p(locale, "fileName", { name: name || "ulune" })}
         intro={
           <details className="ob-rc-about ulune-num-method" data-testid="numerology-method">
             <summary>{p(locale, "methodTitle")}</summary>

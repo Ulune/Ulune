@@ -84,6 +84,18 @@
       "en": "Copy {part}",
       "fr": "Copier {part}"
     },
+    "aboutPart": {
+      "en": "About {part}",
+      "fr": "À propos de {part}"
+    },
+    "csvPart": {
+      "en": "This part as a spreadsheet file (CSV), as shown",
+      "fr": "Cette partie en fichier tableur (CSV), telle qu’affichée"
+    },
+    "csvPartNamed": {
+      "en": "Download {part} as CSV",
+      "fr": "Télécharger {part} en CSV"
+    },
     "wordsHere": {
       "en": "Words used here",
       "fr": "Mots employés ici"
@@ -516,6 +528,18 @@
       "en": "Aspect",
       "fr": "Aspect"
     },
+    "orbLimit": {
+      "en": "Orb",
+      "fr": "Orbe"
+    },
+    "orbAll": {
+      "en": "All",
+      "fr": "Tous"
+    },
+    "orbWithin": {
+      "en": "≤{n}°",
+      "fr": "≤{n}°"
+    },
     "minors": {
       "en": "Minor aspects",
       "fr": "Aspects mineurs"
@@ -827,6 +851,18 @@
     "midpointsHead": {
       "en": "Midpoints",
       "fr": "Mi-points"
+    },
+    "midpointsOf": {
+      "en": "Midpoints of",
+      "fr": "Mi-points de"
+    },
+    "midpointsAll": {
+      "en": "every body",
+      "fr": "tous les corps"
+    },
+    "midpointsCount": {
+      "en": "{n} midpoints, in zodiac order; the bodies within 1°30′ of one, or of its opposite point",
+      "fr": "{n} mi-points, dans l’ordre du zodiaque\u202f; les corps à moins de 1°30′ de l’un d’eux, ou de son point opposé"
     },
     "star": {
       "en": "Star",

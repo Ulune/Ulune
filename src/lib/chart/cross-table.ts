@@ -18,7 +18,8 @@ import { houseFromCusps } from "./anatomy";
 import { ASPECT_META, aspectOrb, MEAN_SPEED } from "./constants";
 import { isProgressionTablePair } from "./progressions";
 import { houseRing } from "./synastry";
-import { crossTwinKey, twinRank } from "./table-aspects";
+import { bodyRank, crossTwinKey, twinRank } from "./table-aspects";
+import { ASPECT_IDS } from "./types";
 import { chartPoints, motionOf, POINT_GROUPS, type Cell, type Motion, type PointGroupId } from "./table-cells";
 import { MOON_PHASES, moonPhase, type MoonPhaseId } from "./table-facts";
 import { isTransitTablePair, motionFlags, TRANSIT_TABLE_NATAL } from "./transit-exact";
@@ -129,6 +130,36 @@ function crossRows(
     rows.push({ link: head, orb, allowed, strength: Math.max(0, Math.min(1, 1 - orb / allowed)), twins, ...check(head) });
   }
   return rows.sort((x, y) => x.orb - y.orb);
+}
+
+/** How an aspects table between two charts is sorted (review 3 Oct, B1): by orb, either side's body, or aspect. */
+export type CrossSort = "orb" | "a" | "b" | "aspect";
+
+export type CrossOptions = {
+  sort: CrossSort;
+  /** Only within this orb (degrees); null: all. */
+  orbMax: number | null;
+  /** The minor aspects too. */
+  minors: boolean;
+};
+
+export const DEFAULT_CROSS_OPTIONS: CrossOptions = { sort: "orb", orbMax: null, minors: true };
+
+/** The rows a table shows under its options: filtered, then sorted (ties by orb). */
+export function crossView(rows: readonly CrossAspectRow[], opts: CrossOptions): CrossAspectRow[] {
+  const rank = bodyRank();
+  const r = (id: string) => rank.get(id) ?? 999;
+  const kept = rows.filter((x) => (opts.minors || x.link.level !== "minor") && (opts.orbMax == null || x.orb <= opts.orbMax));
+  const byOrb = (x: CrossAspectRow, y: CrossAspectRow) => x.orb - y.orb;
+  const cmp =
+    opts.sort === "a"
+      ? (x: CrossAspectRow, y: CrossAspectRow) => r(x.link.a) - r(y.link.a) || r(x.link.b) - r(y.link.b) || byOrb(x, y)
+      : opts.sort === "b"
+        ? (x: CrossAspectRow, y: CrossAspectRow) => r(x.link.b) - r(y.link.b) || r(x.link.a) - r(y.link.a) || byOrb(x, y)
+        : opts.sort === "aspect"
+          ? (x: CrossAspectRow, y: CrossAspectRow) => ASPECT_IDS.indexOf(x.link.type) - ASPECT_IDS.indexOf(y.link.type) || byOrb(x, y)
+          : byOrb;
+  return [...kept].sort(cmp);
 }
 
 /** A birth chart's own facts: nothing moves with the hour when its time is known. */
