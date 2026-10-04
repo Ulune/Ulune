@@ -26,7 +26,17 @@ export type AspectFilter = {
   toAsteroids: boolean;
   /** Draw aspect lines to Mercury through Pluto. Default on. */
   toPlanets: boolean;
+  /**
+   * An orb of its own for an aspect type (review 3 Oct, C3), in place of
+   * maxOrb for that type; the Max orb slider sets them all at once.
+   */
+  orbs: Partial<Record<AspectId, number>>;
+  /** Two degrees more for an aspect to the Sun or the Moon, as many traditions give the lights. */
+  lumBonus: boolean;
 };
+
+/** How much wider the lights' aspects are when lumBonus is on (degrees). */
+export const LUMINARY_BONUS = 2;
 
 export const DEFAULT_ASPECT_FILTER: AspectFilter = {
   types: new Set(MAJOR_ASPECT_IDS),
@@ -37,6 +47,8 @@ export const DEFAULT_ASPECT_FILTER: AspectFilter = {
   toLuminaries: true,
   toAsteroids: true,
   toPlanets: true,
+  orbs: {},
+  lumBonus: false,
 };
 
 function isAspectId(id: unknown): id is AspectId {
@@ -67,7 +79,16 @@ export function cloneAspectFilter(filter: AspectFilter): AspectFilter {
     toLuminaries: filter.toLuminaries,
     toAsteroids: filter.toAsteroids,
     toPlanets: filter.toPlanets,
+    orbs: { ...(filter.orbs ?? {}) },
+    lumBonus: filter.lumBonus === true,
   };
+}
+
+/** The widest a given aspect is drawn under a filter (degrees). */
+export function orbCap(filter: AspectFilter, type: AspectId, a?: BodyId, b?: BodyId): number {
+  const base = filter.orbs?.[type] ?? filter.maxOrb;
+  const lights = filter.lumBonus && (LUMINARY_SET.has(a ?? "") || LUMINARY_SET.has(b ?? ""));
+  return base + (lights ? LUMINARY_BONUS : 0);
 }
 
 export function loadAspectFilter(): AspectFilter {
@@ -101,6 +122,8 @@ export function loadAspectFilter(): AspectFilter {
       toLuminaries: boolOr(parsed.toLuminaries, true),
       toAsteroids: boolOr(parsed.toAsteroids, true),
       toPlanets: boolOr(parsed.toPlanets, true),
+      orbs: {},
+      lumBonus: false,
     };
   } catch {
     return cloneAspectFilter(DEFAULT_ASPECT_FILTER);
@@ -138,9 +161,25 @@ function endpointBlocked(id: BodyId, filter: AspectFilter): boolean {
   return false;
 }
 
+export type TargetKey = "toAngles" | "toNodes" | "toPoints" | "toLuminaries" | "toAsteroids" | "toPlanets";
+
+/** The switch for a kind of point that keeps this aspect off the wheel, if one does. */
+export function blockedTarget(link: AspectLink, filter: AspectFilter): TargetKey | null {
+  for (const id of [link.a, link.b]) {
+    if (!endpointBlocked(id, filter)) continue;
+    if (LUMINARY_SET.has(id)) return "toLuminaries";
+    if (PLANET_SET.has(id)) return "toPlanets";
+    if (ASTEROID_SET.has(id)) return "toAsteroids";
+    if (ANGLE_SET.has(id)) return "toAngles";
+    if (NODE_SET.has(id)) return "toNodes";
+    return "toPoints";
+  }
+  return null;
+}
+
 export function aspectVisible(link: AspectLink, filter: AspectFilter): boolean {
   if (!filter.types.has(link.type)) return false;
-  if (link.orb > filter.maxOrb) return false;
+  if (link.orb > orbCap(filter, link.type, link.a, link.b)) return false;
   if (endpointBlocked(link.a, filter) || endpointBlocked(link.b, filter)) return false;
   return true;
 }

@@ -5,6 +5,9 @@ import { useI18n } from "@/lib/i18n/locale";
 import { importWithRetry } from "@/lib/lazy-retry";
 import { toast } from "@/lib/toast";
 import { useStudioStore } from "@/studio/store";
+import { HOUSE_SYSTEM_LABEL } from "@/lib/chart/constants";
+import { formatEuropeanDate } from "@/lib/chart/parse-birth";
+import type { NatalChart } from "@/lib/chart/types";
 
 /*
  * The export code is its own download, fetched when the menu is pointed at,
@@ -38,6 +41,21 @@ function slugName(name: string) {
   return name.trim().replace(/\s+/g, "-").replace(/[^\p{L}\p{N}-]/gu, "").toLowerCase() || "chart";
 }
 
+const CAPTION_KEY = "ulune.export.caption";
+
+/** The band under an exported image: the name, then the birth's date, time, place and houses. */
+function figureCaption(chart: NatalChart, locale: string, timeUnknown: boolean, t: ReturnType<typeof useI18n>["t"]) {
+  const m = chart.meta;
+  const line = [
+    formatEuropeanDate(m.date) || m.date,
+    timeUnknown || m.timeUnknown ? t("timeUnknown") : m.time,
+    m.placeLabel,
+    HOUSE_SYSTEM_LABEL[m.houseSystem] ? t(HOUSE_SYSTEM_LABEL[m.houseSystem]) : "",
+  ].filter(Boolean);
+  void locale;
+  return { title: m.name || "Ulune", line: line.join(" · ") };
+}
+
 /** Stage footer: download the figure, print a chart sheet, copy a summary. */
 export function ExportMenu() {
   const { locale, t } = useI18n();
@@ -47,6 +65,15 @@ export function ExportMenu() {
   const page = useStudioStore((s) => s.page);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  // Whose chart and which moment, in a band under the image (on by default; off for privacy).
+  const [withCaption, setWithCaption] = useState(() => {
+    try {
+      // Off until asked for: an image is often shared, and birth details are personal.
+      return typeof window !== "undefined" && window.localStorage.getItem(CAPTION_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
   const ref = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => setOpen(false), []);
   if (!chart) return null;
@@ -75,12 +102,11 @@ export function ExportMenu() {
         return;
       }
       const size = 1600;
-      const text = await serializeFigure(svgEl, size);
+      const text = await serializeFigure(svgEl, size, withCaption ? figureCaption(chart, locale, timeUnknown, t) : null);
       if (kind === "svg") {
         saveBlob(`${name}.svg`, new Blob([text], { type: "image/svg+xml" }));
       } else {
-        const vb = svgEl.viewBox.baseVal;
-        const h = vb && vb.width ? Math.round((size * vb.height) / vb.width) : size;
+        const h = Number(/^<svg[^>]*\sheight="(\d+)"/.exec(text)?.[1]) || size;
         const png = await figurePng(text, size, h);
         if (!png) throw new Error("png");
         saveBlob(`${name}.png`, png);
@@ -132,6 +158,22 @@ export function ExportMenu() {
         <div role="menu" aria-label={t("exportMenu")} className="ob-menu" data-testid="export-panel">
           {item("png", <FileImage className="size-4" strokeWidth={1.75} aria-hidden />, t("exportPng"), !hasFigure)}
           {item("svg", <Download className="size-4" strokeWidth={1.75} aria-hidden />, t("exportSvg"), !hasFigure)}
+          <label className="ob-menu-item ob-menu-check" data-testid="export-caption">
+            <input
+              type="checkbox"
+              checked={withCaption}
+              disabled={!hasFigure}
+              onChange={(e) => {
+                setWithCaption(e.target.checked);
+                try {
+                  window.localStorage.setItem(CAPTION_KEY, e.target.checked ? "1" : "0");
+                } catch {
+                  /* this visit only */
+                }
+              }}
+            />
+            <span>{t("exportCaption")}</span>
+          </label>
           {item("print", <Printer className="size-4" strokeWidth={1.75} aria-hidden />, t("exportPrint"))}
           {item("copy", <Copy className="size-4" strokeWidth={1.75} aria-hidden />, t("exportCopy"))}
         </div>

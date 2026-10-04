@@ -1,3 +1,4 @@
+import { useOverflowFade } from "@/lib/overflow-fade";
 import { Check, Copy, Download } from "lucide-react";
 import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { prefersReducedMotion } from "@/lib/depth/env";
@@ -71,6 +72,8 @@ export function TablePage({
   const root = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLElement>(null);
   const list = useRef<HTMLOListElement>(null);
+  // The parts' row scrolls: its far edge fades while parts are past it (review 3 Oct, C13).
+  useOverflowFade(list);
   const ids = parts.map((p) => p.id).join("|");
   const [active, setActive] = useState(() => {
     const last = lastRead.get(name);

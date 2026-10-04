@@ -1,4 +1,5 @@
-import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { useOverflowFade } from "@/lib/overflow-fade";
+import { useCallback, useLayoutEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { BodyMixer } from "@/components/body-mixer";
 import { PlanetStrip } from "@/components/planet-strip";
@@ -85,6 +86,9 @@ export function BodiesTab() {
     ],
   );
 
+  const tabsRef = useRef<HTMLDivElement>(null);
+  useOverflowFade(tabsRef, Boolean(chart));
+
   if (!chart) {
     return (
       <section data-testid="bodies-empty" className="px-[var(--stage-pad)] py-10">
@@ -106,6 +110,7 @@ export function BodiesTab() {
       className="ulune-dock-scroll flex min-h-0 min-w-0 flex-col gap-[var(--space-3)] px-[var(--stage-pad)] py-[var(--space-3)]"
     >
       <div
+        ref={tabsRef}
         className="ulune-wrap-tabs min-w-0"
         role="tablist"
         aria-label={t("dockBodies")}

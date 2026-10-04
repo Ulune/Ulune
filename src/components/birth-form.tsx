@@ -203,6 +203,8 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
   const [hint, setHint] = useState<string | null>(null);
   // The field the message is about (marked and described), if any.
   const [hintField, setHintField] = useState<FieldId | null>(null);
+  /** What is wrong with each field, under that field (review 3 Oct, C11): all of them at once, not one by one. */
+  const [fieldErr, setFieldErr] = useState<Partial<Record<FieldId, string>>>({});
   const [status, setStatus] = useState<string | null>(null);
   const [looking, setLooking] = useState(false);
   const [active, setActive] = useState(0);
@@ -262,6 +264,12 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
   /** Typing in a field clears the message about it. */
   function clearFlag(field: FieldId) {
     if (hintField === field) flag(null);
+    setFieldErr((cur) => {
+      if (!cur[field]) return cur;
+      const next = { ...cur };
+      delete next[field];
+      return next;
+    });
   }
 
   function markEdit() {
@@ -440,45 +448,36 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
   async function submit() {
     flag(null);
     const next: BirthInput = { ...draftRef.current, placeLabel: query.trim() || draftRef.current.placeLabel };
+    // Every field is read before anything is said: each one's trouble shows
+    // under it, and the first is focused.
+    const errs: Partial<Record<FieldId, string>> = {};
     if (!next.date.trim()) {
-      flag(t("err_birth_date_missing"), "birth-date");
-      focusControl("birth-date");
-      return;
-    }
-    if (!isCompleteBirthDate(next.date)) {
+      errs["birth-date"] = t("err_birth_date_missing");
+    } else if (!isCompleteBirthDate(next.date)) {
       // A month in words or another way of writing it: read it, or say
       // precisely what is wrong (a 31 February, a year out of range).
       const read = readDate(next.date);
-      if ("error" in read) {
-        flag(localizeError(read.error, locale, "err_birth_date_format"), "birth-date");
-        focusControl("birth-date");
-        return;
-      }
-      next.date = read.ok;
-      commitDraft(next);
+      if ("error" in read) errs["birth-date"] = localizeError(read.error, locale, "err_birth_date_format");
+      else next.date = read.ok;
     }
     // No time and the box not ticked: ask, never cast for an unknown time
     // without being told (a time that did not register made a wrong chart).
     if (!noTime && !next.time.trim()) {
-      flag(t("err_birth_time_missing"), "birth-time");
-      focusControl("birth-time");
-      return;
-    }
-    if (!noTime && next.time.trim() && !isValidBirthTime(next.time)) {
+      errs["birth-time"] = t("err_birth_time_missing");
+    } else if (!noTime && next.time.trim() && !isValidBirthTime(next.time)) {
       const read = readTime(next.time);
-      if ("error" in read) {
-        flag(localizeError(read.error, locale, "err_birth_time_format"), "birth-time");
-        focusControl("birth-time");
-        return;
-      }
-      next.time = read.ok;
-      commitDraft(next);
+      if ("error" in read) errs["birth-time"] = localizeError(read.error, locale, "err_birth_time_format");
+      else next.time = read.ok;
     }
-    if (!next.placeLabel.trim() && !Number.isFinite(next.latitude)) {
-      flag(t("addCity"), "birth-place");
-      focusControl("birth-place");
+    if (!next.placeLabel.trim() && !Number.isFinite(next.latitude)) errs["birth-place"] = t("addCity");
+    setFieldErr(errs);
+    const first = (["birth-date", "birth-time", "birth-place"] as const).find((f) => errs[f]);
+    if (first) {
+      setHintField(first);
+      focusControl(first);
       return;
     }
+    if (next.date !== draftRef.current.date || next.time !== draftRef.current.time) commitDraft(next);
     const coords = parseCoords(next.placeLabel);
     if (coords) {
       next.latitude = coords.latitude;
@@ -667,8 +666,8 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           placeholder={t("datePlaceholder")}
           calendarLabel={t("openCalendar")}
           locale={locale}
-          invalid={hintField === "birth-date"}
-          describedBy={hintField === "birth-date" ? "birth-form-hint" : undefined}
+          invalid={hintField === "birth-date" || Boolean(fieldErr["birth-date"])}
+          describedBy={fieldErr["birth-date"] ? "err-birth-date" : hintField === "birth-date" ? "birth-form-hint" : undefined}
           onTyped={onDateTyped}
           onBlur={() => {
             // "15 juin 1990" becomes 15/06/1990 on leaving the field: what was read, as the form writes it.
@@ -683,6 +682,11 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
             pushParent();
           }}
         />
+        {fieldErr["birth-date"] ? (
+          <p id="err-birth-date" className="ulune-field-err" data-testid="err-birth-date" role="alert">
+            {fieldErr["birth-date"]}
+          </p>
+        ) : null}
       </div>
       <div className="ulune-birth-when min-w-0">
         <Label htmlFor="birth-time">{t("time")}</Label>
@@ -700,11 +704,16 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           value={noTime ? "" : draft.time}
           disabled={noTime}
           mask={maskBirthTime}
-          aria-invalid={hintField === "birth-time" || undefined}
-          aria-describedby={hintField === "birth-time" ? "birth-form-hint" : undefined}
+          aria-invalid={hintField === "birth-time" || Boolean(fieldErr["birth-time"]) || undefined}
+          aria-describedby={fieldErr["birth-time"] ? "err-birth-time" : hintField === "birth-time" ? "birth-form-hint" : undefined}
           onTyped={onTimeTyped}
           onBlur={pushParent}
         />
+        {fieldErr["birth-time"] ? (
+          <p id="err-birth-time" className="ulune-field-err" data-testid="err-birth-time" role="alert">
+            {fieldErr["birth-time"]}
+          </p>
+        ) : null}
       </div>
       <label className="ob-check col-span-2" htmlFor="time-unknown">
         <input
@@ -743,8 +752,8 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           aria-expanded={open && !picked}
           aria-controls="birth-place-list"
           aria-activedescendant={open && !picked && hits[active] ? `birth-place-opt-${active}` : undefined}
-          aria-describedby={hint ? "birth-form-hint" : undefined}
-          aria-invalid={hintField === "birth-place" || undefined}
+          aria-describedby={fieldErr["birth-place"] ? "err-birth-place" : hint ? "birth-form-hint" : undefined}
+          aria-invalid={hintField === "birth-place" || Boolean(fieldErr["birth-place"]) || undefined}
           onChange={(e) => {
             markEdit();
             const next: BirthInput = {
@@ -759,6 +768,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
             setQuery(e.target.value);
             setPicked(false);
             flag(null);
+            clearFlag("birth-place");
             setDraft(next);
           }}
           onBlur={() =>
@@ -790,6 +800,11 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
             }
           }}
         />
+        {fieldErr["birth-place"] ? (
+          <p id="err-birth-place" className="ulune-field-err" data-testid="err-birth-place" role="alert">
+            {fieldErr["birth-place"]}
+          </p>
+        ) : null}
         <AnchoredPopover
           open={open && !picked && (looking || hits.length > 0 || Boolean(hint))}
           anchorRef={inputRef}

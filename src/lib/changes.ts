@@ -35,6 +35,11 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "Switching pages no longer flashes dark or freezes for a moment: the bar answers the press at once and the page eases in.",
           "Synastry, transits and progressions open on the aspects between the two charts (each page keeps its own choice); with one person only, synastry asks for the second.",
           "Fixes: a coloured Human Design channel opens its own reading; 3D turns off with a second press; the calendar file and the table's Copy and CSV wait until the period has loaded; a void of course ending on another day says which; the calendar's UTC offset is the period's; on a phone the day and year views open at their top; a composite keeps Mercury and Venus beside its Sun and shows no motion or dignity of its own; the first-time hint no longer covers the chart.",
+          "On the chart: an orb of its own for each aspect, with two degrees more for the Sun and the Moon if you like; anything you pick that the chart's filters hide says why, with one press to show it; a planet's reading lists its aspects on the wheel first and the others under their own heading, without angle-to-angle repeats, major ones first, each saying whether it is applying or separating.",
+          "The search finds planets with their sign, degree and house, aspects, signs, houses, chart presets, 3D and the glossary's words.",
+          "The birth form says everything that is missing at once, each under its field; the date and time show how to write them.",
+          "Images of the chart can carry the name and birth details in a band below, if you tick it (off by default); dates are written day/month/year everywhere.",
+          "Smaller things: the aspect grid beside the chart lists every planet shown; tab rows that do not fit fade at the edge to say there is more; Look opens on its first page; French names of the true node and true Lilith.",
         ],
       },
       {
@@ -90,6 +95,11 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "Changer de page ne fait plus d’éclair sombre ni de pause\u202f: la barre répond à l’instant et la page apparaît en douceur.",
           "La synastrie, les transits et les progressions s’ouvrent sur les aspects entre les deux thèmes (chaque page garde son choix)\u202f; avec une seule personne, la synastrie demande la seconde.",
           "Corrections\u202f: un canal coloré du Human Design ouvre sa propre lecture\u202f; la 3D se coupe d’un second appui\u202f; le fichier agenda, la copie et le CSV du tableau attendent que la période soit chargée\u202f; une Lune vide de course qui finit un autre jour dit lequel\u202f; le décalage UTC du calendrier est celui de la période\u202f; sur téléphone, les vues jour et année s’ouvrent en haut\u202f; un composite garde Mercure et Vénus près de son Soleil et n’affiche ni mouvement ni dignité propres\u202f; l’astuce de départ ne cache plus le thème.",
+          "Sur le thème : un orbe propre à chaque aspect, avec deux degrés de plus pour le Soleil et la Lune si vous le souhaitez ; ce que vous choisissez et que les filtres du thème cachent dit pourquoi, avec un appui pour le montrer ; la lecture d’une planète donne d’abord ses aspects tracés sur la roue, puis les autres sous leur propre titre, sans doublons d’axe, les majeurs d’abord, chacun applicatif ou séparatif.",
+          "La recherche trouve les planètes avec leur signe, leur degré et leur maison, les aspects, les signes, les maisons, les préréglages, la 3D et les mots du glossaire.",
+          "Le formulaire de naissance dit tout ce qui manque d’un coup, sous chaque champ ; la date et l’heure montrent comment les écrire.",
+          "Les images du thème peuvent porter le nom et les données de naissance dans un bandeau, si vous cochez la case (décochée par défaut) ; les dates s’écrivent jour/mois/année partout.",
+          "Plus discret : la grille d’aspects à côté du thème liste toutes les planètes affichées ; les rangées d’onglets trop longues s’estompent au bord pour dire qu’il y en a d’autres ; Style s’ouvre sur sa première page ; les noms français du nœud vrai et de la Lilith vraie.",
         ],
       },
       {

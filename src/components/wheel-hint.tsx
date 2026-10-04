@@ -30,16 +30,13 @@ function remember() {
   }
 }
 
-export function WheelHint({ selection }: { selection: SelectionStore }) {
-  const { t } = useI18n();
-  const [open, setOpen] = useState(false);
-  const [touch, setTouch] = useState(false);
-  const pinned = useSyncExternalStore(selection.subscribe, selection.get, () => null);
-  const touring = useTour((s) => s.active);
-  // Off the chart (review 3 Oct, C5: it sat on the MC until closed). It is
-  // drawn in the wheel's port, not on the zoomed wheel: in the free band above
-  // the wheel where the stage is taller than wide (a phone), else in the
-  // port's top-left corner, outside the round of the wheel.
+/**
+ * Where a note over the wheel goes, off the chart: in the free band above
+ * the wheel where the stage is taller than wide (a phone), else in the
+ * port's top-left corner, outside the round of the wheel. `anchor` sits in
+ * the wheel's stage; the note is drawn into the port (`port`).
+ */
+export function usePortPlace(open: boolean, extra: unknown = null) {
   const anchor = useRef<HTMLSpanElement>(null);
   const ref = useRef<HTMLDivElement>(null);
   const [port, setPort] = useState<HTMLElement | null>(null);
@@ -55,8 +52,19 @@ export function WheelHint({ selection }: { selection: SelectionStore }) {
     const p = port.getBoundingClientRect();
     const above = s.top - p.top;
     if (above >= el.offsetHeight + 12) setPlace({ top: `${Math.round((above - el.offsetHeight) / 2)}px` });
-    else setPlace({ top: "8px", left: "8px", transform: "none", maxWidth: "200px" });
-  }, [open, touring, port]);
+    else setPlace({ top: "8px", left: "8px", transform: "none", maxWidth: "220px" });
+  }, [open, port, extra]);
+  return { anchor, ref, port, place };
+}
+
+export function WheelHint({ selection }: { selection: SelectionStore }) {
+  const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const [touch, setTouch] = useState(false);
+  const pinned = useSyncExternalStore(selection.subscribe, selection.get, () => null);
+  const touring = useTour((s) => s.active);
+  // Off the chart (review 3 Oct, C5: it sat on the MC until closed).
+  const { anchor, ref, port, place } = usePortPlace(open, touring);
   useEffect(() => {
     if (seen()) return;
     setTouch(typeof window.matchMedia === "function" && window.matchMedia("(hover: none)").matches);

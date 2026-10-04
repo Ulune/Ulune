@@ -6,7 +6,7 @@ export const birth = {
   casting: ["Casting…", "Calcul en cours…"],
   castingSky: ["Casting the sky…", "Calcul du ciel…"],
   date: ["Date", "Date"],
-  datePlaceholder: ["15/06/1990", "15/06/1990"],
+  datePlaceholder: ["DD/MM/YYYY", "JJ/MM/AAAA"],
   houseAlcabitius: ["Alcabitius", "Alcabitius"],
   houseCampanus: ["Campanus", "Campanus"],
   houseEqual: ["Equal", "Maisons égales"],
@@ -26,7 +26,7 @@ export const birth = {
   ],
   placePlaceholder: ["City, or lat, lng", "Ville, ou lat., long."],
   time: ["Time", "Heure"],
-  timePlaceholder: ["12:00", "12:00"],
+  timePlaceholder: ["HH:MM", "HH:MM"],
   timeUnknown: ["Time unknown — houses approximate", "Heure inconnue — maisons approximatives"],
   timeUnknownCheck: ["I don’t know the time", "Je ne connais pas l’heure"],
   timeUnknownHint: [

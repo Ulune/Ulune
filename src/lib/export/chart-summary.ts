@@ -1,3 +1,4 @@
+import { formatEuropeanDate } from "@/lib/chart/parse-birth";
 import { HOUSE_SYSTEM_LABEL } from "@/lib/chart/constants";
 import { aspectHolds, isRough } from "@/lib/chart/day-checks";
 import type { NatalChart, Placement } from "@/lib/chart/types";
@@ -32,7 +33,8 @@ function esc(s: string) {
 
 function when(chart: NatalChart, locale: AppLocale, timeUnknown: boolean) {
   const m = chart.meta;
-  return [m.date, timeUnknown ? translate(locale, "timeUnknown") : m.time, m.placeLabel].filter(Boolean).join(" · ");
+  // The date as the app writes it, 15/06/1990 (review 3 Oct, C8: the summary wrote 1990-06-15).
+  return [formatEuropeanDate(m.date) || m.date, timeUnknown ? translate(locale, "timeUnknown") : m.time, m.placeLabel].filter(Boolean).join(" · ");
 }
 
 function bigThree(chart: NatalChart, locale: AppLocale, timeUnknown: boolean) {

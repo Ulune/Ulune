@@ -10,17 +10,18 @@ async function run(width) {
     await gotoApp(page);
     await page.waitForSelector("#birth-date", { timeout: 20000 });
 
-    // A date that doesn't exist: said precisely, the field marked, described and focused.
+    // A date that doesn't exist: said precisely under the field, which is marked, described and focused.
     await page.locator("#birth-date").fill("31/02/1990");
     await page.getByTestId("cast-submit").click();
     await page.waitForTimeout(250);
     const bad = await page.evaluate(() => ({
-      hint: document.querySelector("#birth-form-hint")?.textContent ?? "",
+      hint: document.querySelector("#err-birth-date")?.textContent ?? "",
       invalid: document.querySelector("#birth-date")?.getAttribute("aria-invalid"),
       described: document.querySelector("#birth-date")?.getAttribute("aria-describedby"),
+      timeToo: Boolean(document.querySelector("#err-birth-time")),
       focus: document.activeElement?.id,
     }));
-    if (!/doesn.t exist/i.test(bad.hint) || bad.invalid !== "true" || bad.described !== "birth-form-hint" || bad.focus !== "birth-date") {
+    if (!/doesn.t exist/i.test(bad.hint) || bad.invalid !== "true" || bad.described !== "err-birth-date" || !bad.timeToo || bad.focus !== "birth-date") {
       throw new Error(`31 February: ${JSON.stringify(bad)}`);
     }
     // A month in words is read, and written back as the form writes dates.
@@ -34,7 +35,7 @@ async function run(width) {
     await page.getByTestId("cast-submit").click();
     await page.waitForTimeout(250);
     const noPlace = await page.evaluate(() => ({
-      hint: document.querySelector("#birth-form-hint")?.textContent ?? "",
+      hint: document.querySelector("#err-birth-place")?.textContent ?? "",
       invalid: document.querySelector("#birth-place")?.getAttribute("aria-invalid"),
       focus: document.activeElement?.id,
     }));
@@ -78,7 +79,7 @@ async function run(width) {
     await setLang(p, "fr");
     await p.waitForSelector("#birth-date", { timeout: 20000 });
     await p.getByTestId("cast-submit").click();
-    const fr = await p.locator("#birth-form-hint").innerText();
+    const fr = await p.getByTestId("err-birth-date").innerText();
     if (!/date/i.test(fr)) throw new Error(`French validation missing: "${fr}"`);
     await p.getByTestId("sample-chart").click();
     await p.getByTestId("studio-natal").waitFor({ timeout: 45000 });

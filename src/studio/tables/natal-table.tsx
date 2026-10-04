@@ -1115,7 +1115,7 @@ function BarGroup({ group }: { group: BalanceGroup }) {
       </p>
       <ul className="ob-bal-rows">
         {group.rows.map((r) => (
-          <li key={r.id} className="ob-bal-row" data-row={r.id} aria-label={`${r.label}: ${weightText(r.value, locale)}${r.bodies.length ? ` (${r.bodies.map((id) => bodyLabel(id, locale)).join(", ")})` : ""}`}>
+          <li key={r.id} className="ob-bal-row" data-row={r.id} aria-label={`${r.label}: ${weightText(r.value, locale)}${r.bodies.length ? ` (${r.bodies.map((id) => bodyBare(id, locale)).join(", ")})` : ""}`}>
             <span className="ob-bal-label">{r.label}</span>
             <span className="ob-bal-track" aria-hidden>
               <span

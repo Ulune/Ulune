@@ -12,6 +12,9 @@ import { MoonGlyph } from "./moon-glyph";
 import { ASPECT_IDS } from "@/lib/chart/types";
 import { SIGN_IDS, decanOf } from "@/lib/chart/constants";
 import { previewProps } from "@/lib/depth/preview-bus";
+import { aspectVisible } from "@/lib/chart/aspect-filter";
+import { useChartView } from "@/lib/chart/use-chart-view";
+import type { ReadingLink } from "@/lib/chart/types";
 
 
 function aspectTypeFromReadingId(id: string): AspectId | null {
@@ -176,6 +179,18 @@ export function ReadingCard({
   const { t } = useI18n();
   const color = useMarkColor(reading, chart);
   const full = depth === "full";
+  // A body's aspects, as the wheel draws them (review 3 Oct, C2): those on the
+  // wheel first, then the ones its filters leave off, under their own heading.
+  const view = useChartView();
+  const offWheel = (row: ReadingLink) => {
+    if (!chart || !row.ref.startsWith("aspect:") || (reading.kind !== "planet" && reading.kind !== "angle")) return false;
+    const a = chart.aspects.find((x) => `aspect:${x.id}` === row.ref);
+    if (!a) return false;
+    return !(view.visible.has(a.a) && view.visible.has(a.b) && aspectVisible(a, view.aspectFilter));
+  };
+  const linkRows = reading.links?.rows ?? [];
+  const shownRows = linkRows.filter((r) => !offWheel(r));
+  const offRows = linkRows.filter(offWheel);
   const structured = reading.lead != null || Boolean(reading.sections?.length);
   // Without a birth time, what hangs on the hour says so first (interpret-local.ts).
   const timeNote = reading.sections?.find((s) => s.id === "time");
@@ -327,27 +342,34 @@ export function ReadingCard({
       {reading.links?.rows.length ? (
         <section className="ob-rc-sec" data-testid="reading-links">
           <h3 className="ob-rc-h">{reading.links.title}</h3>
-          <ul className="ob-rc-rows">
-            {reading.links.rows.map((row) => (
-              <li key={`${row.ref}-${row.label}`}>
-                <button
-                  type="button"
-                  className="ob-rc-row"
-                  data-ref={row.ref}
-                  disabled={!onGo || !row.ref}
-                  onClick={() => onGo?.(row.ref)}
-                  {...previewProps(row.ref)}
-                >
-                  <span className="ob-rc-row-main">
-                    <span className="ob-rc-row-label">{row.label}</span>
-                    {row.detail ? <span className="ob-rc-row-detail">{row.detail}</span> : null}
-                  </span>
-                  {full && row.text ? <span className="ob-rc-row-text">{row.text}</span> : null}
-                  <ChevronRight className="ob-rc-row-go size-4" strokeWidth={1.75} aria-hidden />
-                </button>
-              </li>
-            ))}
-          </ul>
+          {[shownRows, offRows].map((rows, gi) =>
+            rows.length ? (
+              <div key={gi} data-group={gi ? "off-wheel" : "on-wheel"}>
+                {gi ? <p className="ob-rc-subh" data-testid="reading-links-off">{t("readingOffWheel")}</p> : null}
+                <ul className="ob-rc-rows">
+                  {rows.map((row) => (
+                    <li key={`${row.ref}-${row.label}`}>
+                      <button
+                        type="button"
+                        className="ob-rc-row"
+                        data-ref={row.ref}
+                        disabled={!onGo || !row.ref}
+                        onClick={() => onGo?.(row.ref)}
+                        {...previewProps(row.ref)}
+                      >
+                        <span className="ob-rc-row-main">
+                          <span className="ob-rc-row-label">{row.label}</span>
+                          {row.detail ? <span className="ob-rc-row-detail">{row.detail}</span> : null}
+                        </span>
+                        {full && row.text ? <span className="ob-rc-row-text">{row.text}</span> : null}
+                        <ChevronRight className="ob-rc-row-go size-4" strokeWidth={1.75} aria-hidden />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null,
+          )}
         </section>
       ) : null}
 

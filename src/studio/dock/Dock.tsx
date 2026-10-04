@@ -155,6 +155,9 @@ export function Dock() {
         toggleDock();
         return;
       }
+      // On a phone the birth form opens the sheet whole (review 3 Oct, C12): at
+      // half height its button sat over the date field.
+      if (!isWide() && id === "birth") setFull(true);
       // Another tab of the open panel: its pane cross-fades in place.
       if (s.dockOpen && s.dock !== id) {
         swapTransition(() => openDock(id), { part: "pane" });

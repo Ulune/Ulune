@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import {
   ASPECT_COLOR,
+  ASPECT_ORBS,
   MAJOR_ASPECT_IDS,
   MIDPOINT_DEFS,
   ORB_MAX,
@@ -13,6 +14,7 @@ import {
 } from "@/lib/chart/constants";
 import {
   cloneAspectFilter,
+  LUMINARY_BONUS,
   isAllAspects,
   isMajorPreset,
   type AspectFilter,
@@ -39,7 +41,7 @@ import { ASPECT_IDS, MIDPOINT_IDS, STAR_IDS } from "@/lib/chart/types";
 import { LookProfiles } from "@/components/look-profiles";
 import { mixerPlanetPaint, type PlanetPaints } from "@/lib/look";
 import { useLookShape } from "@/lib/look-provider";
-import { aspectName, bodyLabel, formatOrb, planetAbbr, planetName } from "@/lib/i18n/astro";
+import { aspectName, bodyBare, formatOrb, planetAbbr } from "@/lib/i18n/astro";
 import { useI18n, type Locale } from "@/lib/i18n/locale";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { AspectGlyph, MidpointGlyph, PlanetGlyph, StarGlyph } from "./glyphs";
@@ -454,32 +456,16 @@ export function BodyMixer({
   }
 
   function setAspectTypes(ids: readonly AspectId[]) {
-    commitAspects({
-      types: new Set(ids),
-      maxOrb: aspectFilter.maxOrb,
-      toAngles: aspectFilter.toAngles,
-      toNodes: aspectFilter.toNodes,
-      toPoints: aspectFilter.toPoints,
-      toLuminaries: aspectFilter.toLuminaries,
-      toAsteroids: aspectFilter.toAsteroids,
-      toPlanets: aspectFilter.toPlanets,
-    });
+    const next = cloneAspectFilter(aspectFilter);
+    next.types = new Set(ids);
+    commitAspects(next);
   }
 
   function toggleAspectType(id: AspectId) {
-    const types = new Set(aspectFilter.types);
-    if (types.has(id)) types.delete(id);
-    else types.add(id);
-    commitAspects({
-      types,
-      maxOrb: aspectFilter.maxOrb,
-      toAngles: aspectFilter.toAngles,
-      toNodes: aspectFilter.toNodes,
-      toPoints: aspectFilter.toPoints,
-      toLuminaries: aspectFilter.toLuminaries,
-      toAsteroids: aspectFilter.toAsteroids,
-      toPlanets: aspectFilter.toPlanets,
-    });
+    const next = cloneAspectFilter(aspectFilter);
+    if (next.types.has(id)) next.types.delete(id);
+    else next.types.add(id);
+    commitAspects(next);
   }
 
 
@@ -492,6 +478,8 @@ export function BodyMixer({
   function setMaxOrb(n: number) {
     const next = cloneAspectFilter(aspectFilter);
     next.maxOrb = n;
+    // The slider sets every aspect's orb at once.
+    next.orbs = {};
     if (next.types.size === 0) next.types = new Set(ASPECT_IDS);
     commitAspects(next);
   }
@@ -534,6 +522,26 @@ export function BodyMixer({
     if (orbDraft != null && !orbRef.current.timer && aspectFilter.maxOrb === orbDraft) setOrbDraft(null);
   }, [aspectFilter.maxOrb, orbDraft]);
 
+  /** One aspect's own orb (review 3 Oct, C3): up to the widest the chart computes for it. */
+  function setTypeOrb(id: AspectId, n: number) {
+    const next = cloneAspectFilter(aspectFilter);
+    const max = ASPECT_ORBS[id];
+    next.orbs = { ...next.orbs, [id]: Math.min(max, Math.max(ORB_MIN, Math.round(n * 2) / 2)) };
+    commitAspects(next);
+  }
+  function resetTypeOrbs() {
+    const next = cloneAspectFilter(aspectFilter);
+    next.orbs = {};
+    commitAspects(next);
+  }
+  function toggleLumBonus() {
+    const next = cloneAspectFilter(aspectFilter);
+    next.lumBonus = !next.lumBonus;
+    commitAspects(next);
+  }
+  const typeOrb = (id: AspectId) => aspectFilter.orbs[id] ?? Math.min(aspectFilter.maxOrb, ASPECT_ORBS[id]);
+  const ownOrbs = Object.keys(aspectFilter.orbs).length > 0;
+
   const allAspectsOn = isAllAspects(aspectFilter);
   const majorOn = isMajorPreset(aspectFilter);
   const noneOn = aspectFilter.types.size === 0;
@@ -573,7 +581,8 @@ export function BodyMixer({
         {bodies.map((id) => {
           const on = visible.has(id);
           const name =
-            id in PLANET_META ? planetName(id as PlanetId, locale) : bodyLabel(id, locale);
+            // The name alone on a chip (review 3 Oct, C14: "Le Soleil", "La Lune" beside "Mercure").
+            bodyBare(id, locale);
           const abbr =
             id in PLANET_META ? planetAbbr(id as PlanetId, locale) : (ANGLE_ABBR[id] ?? id);
           return (
@@ -875,6 +884,48 @@ export function BodyMixer({
               </div>
             </div>
           </div>
+          <details className="ulune-orbs mb-3 rounded-md border border-border bg-bg px-3 py-2" data-testid="orbs-by-aspect" open={ownOrbs || aspectFilter.lumBonus || undefined}>
+            <summary className="ulune-kicker cursor-pointer text-fg-subtle">{t("orbsByAspect")}</summary>
+            <p className="mt-1 text-xs text-fg-muted">{t("orbsByAspectHint")}</p>
+            <ul className="mt-2 grid gap-1">
+              {ASPECT_IDS.filter((id) => aspectFilter.types.has(id)).map((id) => {
+                const v = typeOrb(id);
+                const name = aspectName(id, locale);
+                return (
+                  <li key={id} className="flex items-center justify-between gap-2" data-orb-type={id}>
+                    <span className="inline-flex min-w-0 items-center gap-1.5 text-sm text-fg">
+                      <span style={{ color: ASPECT_COLOR[id] }} className="grid size-5 shrink-0 place-items-center">
+                        <AspectGlyph id={id} size={15} />
+                      </span>
+                      <span className="truncate">{name}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <button type="button" className="ob-icon-btn ob-icon-btn--quiet" aria-label={t("orbNarrower", { name })} disabled={v <= ORB_MIN} onClick={() => setTypeOrb(id, v - 0.5)}>
+                        −
+                      </button>
+                      <span className="w-12 text-center font-mono text-xs tabular-nums text-fg" data-testid={`orb-${id}`}>
+                        {formatOrb(v, locale)}°
+                      </span>
+                      <button type="button" className="ob-icon-btn ob-icon-btn--quiet" aria-label={t("orbWider", { name })} disabled={v >= ASPECT_ORBS[id]} onClick={() => setTypeOrb(id, v + 0.5)}>
+                        +
+                      </button>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+              <label className="inline-flex items-center gap-2 text-sm text-fg">
+                <input type="checkbox" data-testid="orb-lights" checked={aspectFilter.lumBonus} onChange={toggleLumBonus} />
+                {t("orbLights", { n: String(LUMINARY_BONUS) })}
+              </label>
+              {ownOrbs ? (
+                <button type="button" className="text-xs text-fg-muted underline" onClick={resetTypeOrbs}>
+                  {t("orbsReset")}
+                </button>
+              ) : null}
+            </div>
+          </details>
           <ul className="flex flex-wrap gap-1.5">
             {ASPECT_IDS.map((id) => {
               const on = aspectFilter.types.has(id);

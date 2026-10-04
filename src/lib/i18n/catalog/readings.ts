@@ -52,6 +52,7 @@ export const readings = {
   readingDepthLabel: ["Reading depth", "Niveau de détail"],
   readingFull: ["Full", "Complet"],
   readingMore: ["{n} more", "{n} de plus"],
+  readingOffWheel: ["Not drawn on the wheel (its filters)", "Non tracés sur la roue (ses filtres)"],
   readingOpen: ["Open its reading", "Ouvrir sa lecture"],
   readingShort: ["Short", "Court"],
   rewritingReading: ["Rewriting your reading in this language…", "Réécriture de votre lecture dans cette langue…"],

@@ -104,14 +104,48 @@ function faceIndex(ecliptic: number) {
   return Math.floor((((ecliptic % 30) + 30) % 30) / 10);
 }
 
+/** The two ends of an axis: an aspect to one end mirrors one to the other. */
+const AXES: readonly (readonly [string, string, string, string])[] = [
+  ["ascendant", "descendant", "ASC–DSC", "ASC–DSC"],
+  ["midheaven", "ic", "MC–IC", "MC–FC"],
+  ["northnode", "southnode", "☊–☋", "☊–☋"],
+  ["vertex", "antivertex", "Vx–AVx", "Vx–AVx"],
+];
+const ANGLE_IDS_LOCAL = new Set(["ascendant", "descendant", "midheaven", "ic"]);
+
+/**
+ * A body's aspects as the reading lists them (review 3 Oct, C2/R2): an axis
+ * once (the aspect to its first end, marked with the axis, not one row per
+ * end), no angle-to-angle pairs on an angle, majors first, then the planets
+ * before the points, lots and asteroids, each by orb; applying or separating
+ * beside the orb.
+ */
 function aspectRows(chart: NatalChart, id: BodyId, locale: Locale, limit: number): Rows {
-  const asp = aspectsFor(chart, id);
-  const major = asp.filter((a) => a.level === "major").sort((a, b) => a.orb - b.orb);
-  const minor = asp.filter((a) => a.level === "minor").sort((a, b) => a.orb - b.orb);
-  return [...major, ...minor].slice(0, limit).map((a) => ({
+  const other = (a: AspectLink) => (a.a === id ? a.b : a.a);
+  let asp = aspectsFor(chart, id);
+  if (ANGLE_IDS_LOCAL.has(id)) asp = asp.filter((a) => !ANGLE_IDS_LOCAL.has(other(a)));
+  const axisOf = new Map<string, string>();
+  for (const [first, second, en, fr] of AXES) {
+    if (id === first || id === second) continue;
+    const toFirst = asp.find((a) => other(a) === first);
+    const toSecond = asp.find((a) => other(a) === second);
+    if (toFirst && toSecond) {
+      asp = asp.filter((a) => a !== toSecond);
+      axisOf.set(toFirst.id, locale === "fr" ? `axe ${fr}` : `${en} axis`);
+    }
+  }
+  const rank = (a: AspectLink) => [a.level === "major" ? 0 : 1, CLASSIC_IDS.includes(other(a)) ? 0 : 1, a.orb] as const;
+  asp.sort((x, y) => {
+    const rx = rank(x);
+    const ry = rank(y);
+    return rx[0] - ry[0] || rx[1] - ry[1] || rx[2] - ry[2];
+  });
+  const phase = (a: AspectLink) =>
+    a.applying === true ? (locale === "fr" ? "applicatif" : "applying") : a.applying === false ? (locale === "fr" ? "séparatif" : "separating") : "";
+  return asp.slice(0, limit).map((a) => ({
     ref: `aspect:${a.id}`,
     label: aspectLinkPhrase(a.a, a.type, a.b, locale),
-    detail: `${formatArc(a.orb)}`,
+    detail: [formatArc(a.orb), phase(a), axisOf.get(a.id) ?? ""].filter(Boolean).join(" · "),
     text: aspectSentence(chart, a, id, locale),
   }));
 }

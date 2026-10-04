@@ -55,7 +55,8 @@ export function coerceLookPage(value: unknown): LookPage | undefined {
 }
 
 export function loadLookPage(): LookPage {
-  if (typeof window === "undefined") return "profiles";
+  // A first visit opens on the look itself (review 3 Oct, C13): Profiles is empty until one is saved.
+  if (typeof window === "undefined") return "type";
   try {
     const raw = window.localStorage.getItem(KEY);
     const page = coerceLookPage(raw);
@@ -63,7 +64,7 @@ export function loadLookPage(): LookPage {
   } catch {
     /* ignore */
   }
-  return "profiles";
+  return "type";
 }
 
 export function saveLookPage(page: LookPage) {

@@ -1494,7 +1494,7 @@ html.theme-switching::view-transition-new(root) {
     max-height: calc(100% - var(--ob-peek-h));
   }
   /* The sheet open leaves a small wheel above it: the first-run hint waits. */
-  .ob-body:has(.ob-panel:not([data-detent="peek"])) .ulune-wheel-hint {
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) .ulune-wheel-hint:not(.ulune-wheel-note) {
     display: none;
   }
 }
@@ -1674,6 +1674,9 @@ html.theme-switching::view-transition-new(root) {
   .ob-foot-ctrls {
     flex: 0 0 auto;
     justify-content: flex-end;
+    /* At the row's end in every view (review 3 Oct, C6): a wrapped footer
+       (the wheel's strip on a row of its own) used to bring it to the left. */
+    margin-left: auto;
   }
   /* A strip in the footer (no room beside the wheel) takes a row of its own. */
   .ob-foot:has(> .ob-aspect-slot:not(:empty)) {
@@ -2275,8 +2278,8 @@ html.theme-switching::view-transition-new(root) {
   transform: translate(-100%, -100%);
 }
 .ob-wgrid {
-  /* Cells as big as the margin allows (13–21 px). */
-  --cell: clamp(13px, calc((var(--aside-room, 240px) - 12px) / var(--n, 12)), 21px);
+  /* Cells as big as the margin allows (16–24 px; review 3 Oct, C7: 13 px read as specks). */
+  --cell: clamp(16px, calc((var(--aside-room, 240px) - 12px) / var(--n, 12)), 24px);
   display: grid;
   gap: 1px;
   font: 500 9px/1 var(--font-mono);
@@ -2373,6 +2376,41 @@ html.theme-switching::view-transition-new(root) {
     background: var(--color-bg-subtle);
     color: var(--color-fg);
   }
+}
+/* A switch inside a menu (the export's caption band). */
+.ob-menu-check {
+  cursor: pointer;
+}
+.ob-menu-check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--color-fg);
+}
+
+/* What you picked, hidden by the filters (wheel-hidden-note.tsx): a note and its one fix. */
+.ulune-wheel-note {
+  color: var(--color-fg);
+}
+.ulune-wheel-note-fix {
+  pointer-events: auto;
+  flex: none;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-fg);
+  font: 500 12px/1 var(--font-ui);
+}
+@media (hover: hover) {
+  .ulune-wheel-note-fix:hover {
+    background: var(--color-bg-subtle);
+  }
+}
+.ulune-wheel-note-fix:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 1px;
 }
 .ulune-wheel-hint-close:focus-visible {
   outline: 2px solid var(--color-ring);

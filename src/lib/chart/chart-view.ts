@@ -56,6 +56,10 @@ export type ChartView = {
   toLuminaries: boolean;
   toAsteroids: boolean;
   toPlanets: boolean;
+  /** An orb of its own for an aspect type (aspect-filter.ts orbCap); absent: maxOrb. */
+  orbs?: Partial<Record<AspectId, number>>;
+  /** Two degrees more for the Sun's and Moon's aspects. */
+  lumBonus?: boolean;
   overlays: OverlayId[];
   readingDepth: ReadingDepth;
   folds: Partial<FoldState>;
@@ -118,6 +122,8 @@ function view(
     toLuminaries: partial.toLuminaries,
     toAsteroids: partial.toAsteroids,
     toPlanets: partial.toPlanets,
+    ...(partial.orbs && Object.keys(partial.orbs).length ? { orbs: { ...partial.orbs } } : {}),
+    ...(partial.lumBonus ? { lumBonus: true } : {}),
     overlays: [...partial.overlays],
     readingDepth: partial.readingDepth,
     folds: { ...partial.folds },
@@ -252,6 +258,8 @@ function canonical(v: ChartView) {
     toLuminaries: v.toLuminaries,
     toAsteroids: v.toAsteroids,
     toPlanets: v.toPlanets,
+    orbs: Object.fromEntries(Object.entries(v.orbs ?? {}).sort(([a], [b]) => a.localeCompare(b))),
+    lumBonus: v.lumBonus === true,
     overlays: sorted(v.overlays),
     readingDepth: v.readingDepth,
   };
@@ -308,6 +316,15 @@ function isReadingDepth(id: unknown): id is ReadingDepth {
   return id === "brief" || id === "standard" || id === "full";
 }
 
+function parseOrbs(raw: unknown): Partial<Record<AspectId, number>> {
+  const out: Partial<Record<AspectId, number>> = {};
+  if (!raw || typeof raw !== "object") return out;
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (isAspectId(k) && typeof v === "number" && Number.isFinite(v) && v > 0 && v <= 20) out[k] = v;
+  }
+  return out;
+}
+
 function parseView(raw: unknown): ChartView | null {
   if (!raw || typeof raw !== "object") return null;
   const o = raw as Record<string, unknown>;
@@ -336,6 +353,8 @@ function parseView(raw: unknown): ChartView | null {
     toLuminaries,
     toAsteroids,
     toPlanets,
+    orbs: parseOrbs(o.orbs),
+    lumBonus: o.lumBonus === true,
     overlays,
     readingDepth: isReadingDepth(o.readingDepth) ? o.readingDepth : "standard",
     folds:
@@ -477,6 +496,8 @@ export function viewToAspectFilter(v: ChartView): AspectFilter {
     toLuminaries: v.toLuminaries,
     toAsteroids: v.toAsteroids,
     toPlanets: v.toPlanets,
+    orbs: v.orbs ?? {},
+    lumBonus: v.lumBonus === true,
   });
 }
 
@@ -509,6 +530,8 @@ export function partsToView(
     toLuminaries: aspects.toLuminaries,
     toAsteroids: aspects.toAsteroids,
     toPlanets: aspects.toPlanets,
+    orbs: aspects.orbs,
+    lumBonus: aspects.lumBonus,
     overlays: [...overlays.on],
     readingDepth,
     folds,

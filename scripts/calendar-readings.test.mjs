@@ -159,7 +159,7 @@ test("sign changes, sky aspects, stations and near misses read right in both lan
   const node = s.events.find((e) => e.k === "ingress" && e.body === "northnode");
   assert.ok(node, "a North Node sign change");
   assert.match(read(node, "en").lead, /^The North Node changes sign\. The lunar nodes move backwards/);
-  assert.match(read(node, "fr").lead, /^Le Nœud Nord réel change de signe\. Les nœuds lunaires reculent/);
+  assert.match(read(node, "fr").lead, /^Le Nœud Nord vrai change de signe\. Les nœuds lunaires reculent/);
   for (const locale of ["en", "fr"]) assert.doesNotMatch(all(read(node, locale)), /last review|dernière révision/);
   // A body keeps its article ("the Sun", "le Soleil" mid-sentence); the French sign keywords take no "de".
   const sun = s.events.find((e) => e.k === "ingress" && e.body === "sun" && seasonOf(e) == null);

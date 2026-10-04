@@ -2,6 +2,8 @@ import { markSeen, seenBefore } from "@/lib/seen-once";
 import { settleIn } from "@/lib/settle";
 import {
   memo,
+  Suspense,
+  useSyncExternalStore,
   useCallback,
   useEffect,
   useId,
@@ -58,7 +60,7 @@ import { planetPaint } from "@/lib/look";
 import { useLookPaintRev, useLookShape } from "@/lib/look-provider";
 import { quietChartMotionEvents } from "@/lib/quiet-motion-events";
 import { captureFirstView, claimFirstView } from "@/lib/first-view";
-import { whenIdle } from "@/lib/lazy-component";
+import { lazyNamed, whenIdle } from "@/lib/lazy-component";
 import { fanAnglesBy } from "@/lib/chart/fan-angles";
 import { GLYPH_INK } from "@/lib/chart/glyph-ink";
 import {
@@ -85,7 +87,26 @@ import { aspectLook, ink, lineInk, turn, yokeLanes, yokeSpan, type YokeSpan } fr
 import { taperGeo, tipsPath } from "@/lib/chart/aspect-taper";
 import { hideWheelTip, showWheelTip } from "./wheel-tip";
 import { AspectStrip } from "./aspect-strip";
-import { WheelAspectGrid, type GridRow } from "./wheel-aspect-grid";
+import type { GridRow } from "./wheel-aspect-grid";
+
+// The aspect grid beside the wheel shows on wide stages only, once the margin
+// is measured: it loads then, after the wheel's first paint.
+const LazyAspectGrid = lazyNamed(() => import("./wheel-aspect-grid"), "WheelAspectGrid");
+import type { WheelHiddenNote as HiddenNoteType } from "@/components/wheel-hidden-note";
+
+// The note for a hidden pick (C1) loads with the first pick: most visits never need it.
+const loadHiddenNote = () => import("@/components/wheel-hidden-note");
+const LazyHiddenNote = lazyNamed(loadHiddenNote, "WheelHiddenNote");
+
+function HiddenNoteGate(props: Parameters<typeof HiddenNoteType>[0]) {
+  const pinned = useSyncExternalStore(props.selection.subscribe, props.selection.get, () => null);
+  if (!pinned) return null;
+  return (
+    <Suspense fallback={null}>
+      <LazyHiddenNote {...props} />
+    </Suspense>
+  );
+}
 import { WheelHint } from "./wheel-hint";
 import { WheelKeys } from "./wheel-keys";
 import { arcSpan, boxesOverlap, placeBadges, placeBeside, placeLabels, type Disc, type LabelPlace, type OBox } from "@/lib/chart/wheel-layout";
@@ -1369,6 +1390,7 @@ const ChartWheelView = memo(function ChartWheelView({
   );
   /** The aspects the wheel draws, for the count strip. */
   const stripRows = useMemo(() => chords.map((r) => ({ id: r.a.id, type: r.a.type })), [chords]);
+  const shownBodyIds = useMemo(() => [...visible], [visible]);
   /** The natal aspects the wheel draws, for the grid beside it on wide stages. */
   const gridRows = useMemo<GridRow[]>(
     () =>
@@ -2244,10 +2266,17 @@ const ChartWheelView = memo(function ChartWheelView({
       tools={<WheelToggles in3d={depthView === "3d"} />}
       onFit={setFit}
       legend={<AspectStrip rows={stripRows} hidden={hiddenTypes} ctx={focusCtx} selection={selection} />}
-      aside={biWheel ? null : <WheelAspectGrid rows={gridRows} ctx={focusCtx} selection={selection} onSelect={onSelect} />}
+      aside={
+        biWheel ? null : (
+          <Suspense fallback={null}>
+            <LazyAspectGrid rows={gridRows} shown={shownBodyIds} ctx={focusCtx} selection={selection} onSelect={onSelect} />
+          </Suspense>
+        )
+      }
     >
     <div className="ulune-wheel-stage relative mx-auto w-full" data-chart-pick>
       <WheelHint selection={selection} />
+      {biWheel ? null : <HiddenNoteGate selection={selection} chart={chart} visible={visible} filter={filter} />}
       <div
         ref={sceneRef}
         className="ulune-depth"

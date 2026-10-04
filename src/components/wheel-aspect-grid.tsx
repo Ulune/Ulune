@@ -25,11 +25,14 @@ const ORDER = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "
 
 export function WheelAspectGrid({
   rows,
+  shown = [],
   ctx,
   selection,
   onSelect,
 }: {
   rows: GridRow[];
+  /** The bodies on the wheel: the lights and planets among them have a row even with no aspect drawn (review 3 Oct, C7). */
+  shown?: readonly string[];
   ctx: WheelFocusCtx;
   selection: SelectionStore;
   onSelect: (id: string) => void;
@@ -90,6 +93,7 @@ export function WheelAspectGrid({
   });
   const bodies = useMemo(() => {
     const seen = new Set<BodyId>();
+    for (const id of shown) if (ORDER.includes(id)) seen.add(id as BodyId);
     for (const r of rows) {
       seen.add(r.a);
       seen.add(r.b);
@@ -99,7 +103,7 @@ export function WheelAspectGrid({
       return k < 0 ? ORDER.length : k;
     };
     return [...seen].sort((x, y) => rank(x) - rank(y));
-  }, [rows]);
+  }, [rows, shown]);
   const byPair = useMemo(() => {
     const m = new Map<string, GridRow>();
     for (const r of rows) {
@@ -123,7 +127,7 @@ export function WheelAspectGrid({
     <div
       ref={gridRef}
       className="ob-wgrid"
-      role="grid"
+      role="group"
       aria-label={t("tableGrid")}
       data-testid="wheel-aspect-grid"
       data-focus={focus?.id ? "" : undefined}
@@ -137,7 +141,7 @@ export function WheelAspectGrid({
           if (c === r) {
             const lit = focus?.bodies?.has(row) ? "1" : undefined;
             return (
-              <span key={key} className="ob-wgrid-cell ob-wgrid-diag" data-lit={lit} data-body={row} role="rowheader" title={`${bodyLabel(row, locale)} · ${counts.get(row) ?? 0}`}>
+              <span key={key} className="ob-wgrid-cell ob-wgrid-diag" data-lit={lit} data-body={row} title={`${bodyLabel(row, locale)} · ${counts.get(row) ?? 0}`}>
                 <PlanetGlyph id={row} size={14} />
                 <span className="ob-wgrid-count" aria-hidden="true">
                   {counts.get(row) ?? 0}

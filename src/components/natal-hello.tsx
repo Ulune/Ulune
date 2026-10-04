@@ -13,6 +13,7 @@ import {
   houseName,
   modalityName,
   signName,
+  bodyBare,
 } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
 import { cn, formatArc } from "@/lib/utils";
@@ -113,7 +114,7 @@ export function NatalGlance({
     highlights.push({
       key: "pattern",
       label: t("glancePattern"),
-      value: `${CONFIG_LABEL[d.type][locale === "fr" ? "fr" : "en"]} · ${d.members.map((m) => bodyLabel(m, locale)).join(", ")}`,
+      value: `${CONFIG_LABEL[d.type][locale === "fr" ? "fr" : "en"]} · ${d.members.map((m) => bodyBare(m, locale)).join(", ")}`,
       ref: d.apex ? refFor(d.apex) : undefined,
       uncertain: unknown,
     });
@@ -124,7 +125,7 @@ export function NatalGlance({
     highlights.push({
       key: `stellium-${st.place}`,
       label: t("glanceStellium"),
-      value: `${houseN ? houseName(Number(houseN), locale) : sign ? signName(sign, locale) : st.place} · ${st.members.map((m) => bodyLabel(m, locale)).join(", ")}`,
+      value: `${houseN ? houseName(Number(houseN), locale) : sign ? signName(sign, locale) : st.place} · ${st.members.map((m) => bodyBare(m, locale)).join(", ")}`,
       ref: houseN ? `house:${houseN}` : sign ? `sign:${sign}` : undefined,
       uncertain:
         unknown &&

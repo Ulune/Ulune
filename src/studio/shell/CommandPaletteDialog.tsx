@@ -4,7 +4,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { chartDisplayName } from "@/lib/chart/library";
 import { formatEuropeanDate } from "@/lib/chart/parse-birth";
-import { bodyLabel } from "@/lib/i18n/astro";
+import { aspectLinkPhrase, bodyLabel, houseName, signName } from "@/lib/i18n/astro";
+import { SIGN_IDS } from "@/lib/chart/constants";
+import { formatArc } from "@/lib/utils";
+import { GLOSSARY_ORDER, glossaryBody, glossaryTerm } from "@/lib/i18n/glossary";
+import { PRESET_ORDER, type NamedPresetId } from "@/lib/chart/chart-view";
+import { useChartView } from "@/lib/chart/use-chart-view";
+import { setDepthPrefs, useDepthPrefs } from "@/lib/depth/prefs";
+import type { MessageKey } from "@/lib/i18n/messages";
 import { useI18n } from "@/lib/i18n/locale";
 import { useLookProfiles } from "@/lib/look-provider";
 import { useTheme } from "@/lib/theme";
@@ -13,7 +20,16 @@ import { useStudioStore } from "@/studio/store";
 import { MODE_GROUPS, type StudioPage } from "@/studio/url";
 import { useStudioUrl } from "@/studio/use-studio-url";
 
-type Cmd = { id: string; section: string; label: string; hint?: string; keys?: string; run: () => void };
+/** `find`: listed only once something is typed (aspects, signs, houses, words: too many to show at rest). */
+type Cmd = { id: string; section: string; label: string; hint?: string; keys?: string; find?: boolean; run: () => void };
+
+const PRESET_LABEL: Record<NamedPresetId, MessageKey> = {
+  minimal: "presetMinimal",
+  classic: "presetClassic",
+  advanced: "presetAdvanced",
+  all: "presetAll",
+  clear: "presetNone",
+};
 
 /**
  * The palette itself (CommandPalette.tsx opens it): every mode, chart, body,
@@ -30,6 +46,8 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
   const rows = useStudioStore((s) => s.rows);
   const chart = useStudioStore((s) => s.chart);
   const view = useStudioStore((s) => s.view);
+  const chartView = useChartView();
+  const depth = useDepthPrefs();
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -81,7 +99,8 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
           id: `body:${p.id}`,
           section: secBodies,
           label: bodyLabel(p.id, locale),
-          hint: `${p.formatted} · ${p.house}`,
+          // Where it stands, in words (review 3 Oct, C9): "18°43′ Aries · 9th house".
+          hint: `${p.formatted} ${signName(p.sign, locale)} · ${houseName(p.house, locale)}`,
           run: () => {
             setPage("natal");
             useStudioStore.setState({ selectedId: `planet:${p.id}`, dock: "reading", dockOpen: true });
@@ -89,16 +108,70 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
         });
       }
       for (const a of ["ascendant", "midheaven"] as const) {
+        const at = chart.angles[a];
         list.push({
           id: `body:${a}`,
           section: secBodies,
           label: bodyLabel(a, locale),
+          hint: at ? `${at.formatted} ${signName(at.sign, locale)}` : undefined,
           run: () => {
             setPage("natal");
             useStudioStore.setState({ selectedId: `angle:${a}`, dock: "reading", dockOpen: true });
           },
         });
       }
+    }
+    const pick = (id: string) => {
+      setPage("natal");
+      useStudioStore.setState({ selectedId: id, dock: "reading", dockOpen: true });
+    };
+    if (chart) {
+      // The chart's aspects, signs and houses, found by name ("venus trine", "scorpio", "house 7").
+      const secAspects = t("paletteAspects");
+      for (const a of chart.aspects) {
+        list.push({ id: `aspect:${a.id}`, section: secAspects, label: aspectLinkPhrase(a.a, a.type, a.b, locale), hint: formatArc(a.orb), find: true, run: () => pick(`aspect:${a.id}`) });
+      }
+      const secPlaces = t("palettePlaces");
+      for (const s of SIGN_IDS) list.push({ id: `sign:${s}`, section: secPlaces, label: signName(s, locale), find: true, run: () => pick(`sign:${s}`) });
+      for (let h = 1; h <= 12; h += 1) {
+        const cusp = chart.houses[h - 1];
+        list.push({ id: `house:${h}`, section: secPlaces, label: houseName(h, locale), hint: cusp ? `${cusp.formatted} ${signName(cusp.sign, locale)}` : undefined, find: true, run: () => pick(`house:${h}`) });
+      }
+      // What the wheel shows, as actions.
+      const secView = t("paletteView");
+      for (const id of PRESET_ORDER) {
+        list.push({ id: `preset:${id}`, section: secView, label: t(PRESET_LABEL[id]), hint: t("paletteDetail"), find: true, run: () => chartView.applyPreset(id) });
+      }
+      list.push({
+        id: "view:3d",
+        section: secView,
+        label: depth.view === "3d" ? t("palette2d") : t("palette3d"),
+        run: () => {
+          setPage("natal");
+          setDepthPrefs({ view: depth.view === "3d" ? "flat" : "3d" });
+        },
+      });
+    }
+    // The glossary's words, each with the start of its sentence.
+    const secWords = t("glossaryTitle");
+    for (const id of GLOSSARY_ORDER) {
+      const body = glossaryBody(id, locale);
+      list.push({
+        id: `word:${id}`,
+        section: secWords,
+        label: glossaryTerm(id, locale),
+        hint: body.length > 72 ? `${body.slice(0, 70)}…` : body,
+        find: true,
+        run: () => {
+          void navigate({ to: "/guide" }).then(() => {
+            window.setTimeout(() => {
+              const box = document.querySelector<HTMLDetailsElement>("[data-testid=guide-glossary]");
+              if (box) box.open = true;
+              window.setTimeout(() => document.querySelector(`[data-term="${id}"]`)?.scrollIntoView({ block: "center" }), 250);
+            }, 150);
+          });
+        },
+      });
     }
     const secLook = t("dockLook");
     for (const p of look.profiles) {
@@ -113,11 +186,11 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
       { id: "set:open", section: secSettings, label: t("shellSettings"), run: () => void navigate({ to: "/settings" }) },
     );
     return list;
-  }, [t, locale, rows, chart, view, look, setPage, setView, setTheme, setLocale, navigate]);
+  }, [t, locale, rows, chart, view, look, setPage, setView, setTheme, setLocale, navigate, chartView, depth.view]);
 
   const results = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    if (!needle) return cmds;
+    if (!needle) return cmds.filter((c) => !c.find);
     const words = needle.split(/\s+/);
     return cmds.filter((c) => {
       const hay = `${c.label} ${c.hint ?? ""} ${c.section}`.toLowerCase();

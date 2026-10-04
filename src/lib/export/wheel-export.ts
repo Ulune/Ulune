@@ -105,7 +105,12 @@ async function loadFontFaces(families: Set<string>): Promise<string> {
   return rules.join("\n");
 }
 
-export async function serializeFigure(svg: SVGSVGElement, size = 1600): Promise<string> {
+/** A band under an exported wheel saying whose chart and which moment (review 3 Oct, C8). */
+export type FigureCaption = { title: string; line: string };
+/** The band's height, in the wheel's own units (its viewBox is about 760 wide). */
+const CAPTION_BAND = 64;
+
+export async function serializeFigure(svg: SVGSVGElement, size = 1600, caption: FigureCaption | null = null): Promise<string> {
   // Pieces lifted in 3D are hidden on the base while their copies float; the
   // export is the flat chart, so show them for the length of the copy.
   const lifted = [...svg.querySelectorAll("[data-depth-hidden]")];
@@ -123,7 +128,9 @@ export async function serializeFigure(svg: SVGSVGElement, size = 1600): Promise<
     if (m) for (const f of m[1].split(",")) families.add(f.replace(/["']/g, "").trim());
   });
   const vb = svg.viewBox.baseVal;
-  const ratio = vb && vb.width ? vb.height / vb.width : 1;
+  const band = caption && vb && vb.width ? CAPTION_BAND * (vb.width / 760) : 0;
+  const ratio = vb && vb.width ? (vb.height + band) / vb.width : 1;
+  if (band && vb) clone.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.width} ${vb.height + band}`);
   clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   clone.setAttribute("width", String(size));
   clone.setAttribute("height", String(Math.round(size * ratio)));
@@ -134,13 +141,35 @@ export async function serializeFigure(svg: SVGSVGElement, size = 1600): Promise<
     rect.setAttribute("x", String(vb.x));
     rect.setAttribute("y", String(vb.y));
     rect.setAttribute("width", String(vb.width));
-    rect.setAttribute("height", String(vb.height));
+    rect.setAttribute("height", String(vb.height + band));
   } else {
     rect.setAttribute("width", "100%");
     rect.setAttribute("height", "100%");
   }
   rect.setAttribute("fill", bg);
   clone.insertBefore(rect, clone.firstChild);
+  if (band && vb && caption) {
+    const body = getComputedStyle(document.body);
+    const ink = body.color || "#111";
+    const family = body.fontFamily || "sans-serif";
+    families.add(family.split(",")[0].replace(/["']/g, "").trim());
+    const k = vb.width / 760;
+    const cx = vb.x + vb.width / 2;
+    const top = vb.y + vb.height;
+    const text = (words: string, y: number, sizeU: number, weight: number, opacity: number) => {
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", String(cx));
+      t.setAttribute("y", String(y));
+      t.setAttribute("text-anchor", "middle");
+      t.setAttribute("fill", ink);
+      t.setAttribute("opacity", String(opacity));
+      t.setAttribute("style", `font-family:${family};font-size:${sizeU}px;font-weight:${weight}`);
+      t.textContent = words;
+      clone.appendChild(t);
+    };
+    text(caption.title, top + 26 * k, 20 * k, 600, 1);
+    text(caption.line, top + 48 * k, 13 * k, 400, 0.72);
+  }
   const css = await fontFaces(families);
   if (css) {
     const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
