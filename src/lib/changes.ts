@@ -6,7 +6,7 @@
  */
 import type { LegalText } from "@/lib/legal/pages";
 
-export const CHANGES_UPDATED = "2026-10-02";
+export const CHANGES_UPDATED = "2026-10-04";
 
 export const CHANGES: Record<"en" | "fr", LegalText> = {
   en: {
@@ -50,6 +50,7 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "In the month, on a computer, each of your transits shows both planets with a card on hover, and screen readers hear them by name; the Moon's void of course and sign change are marked with their times. The table opens on the week with today; the day's void label stays inside its band; the year's lines name the angles ASC, MC, DSC and IC.",
           "Human Design: the Incarnation Cross by its name (“Right Angle Cross of Eden 2”), for all 192, in the facts, its reading and the table, whose Keys also give the signature and not-self theme and the Variable; a centre with active gates but no channel is undefined, one with none open; open centres have a firmer outline; each card's About is about its own subject, a hanging gate names its partner gate or gates, and the layer's line sits under the facts.",
           "Numerology: “How it's worked out” uses your own date and this year, with a karmic debt said; steps name their parts (“6 (June) + 6 (15th) + 1 (2026)”); the wheel's marks read “month” and “day” and the hidden passion's arc is named; the first read is a list like Human Design's, and the wheel stays whole until you point at a step.",
+          "You stay signed in: closing Ulune or restarting no longer locks your private space (on a shared computer, choose to lock it when Ulune closes). Add another device sends a sealed copy of your space straight to your phone or another computer, by AirDrop or a file, and it opens there with your passkey or passphrase; nothing goes through Ulune.",
         ],
       },
       {
@@ -120,6 +121,7 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "Dans le mois, sur ordinateur, chacun de vos transits montre les deux planètes avec une carte au survol, et les lecteurs d’écran les entendent par leur nom ; la Lune vide de course et son changement de signe sont marqués avec leur heure. Le tableau s’ouvre sur la semaine du jour ; le mot « vide » du jour reste dans sa bande ; les lignes de l’année nomment les angles ASC, MC, DSC et IC.",
           "Human Design : la Croix d’incarnation par son nom (« Croix de l’angle droit de l’Éden 2 »), pour les 192, dans les données, sa lecture et le tableau, dont les Clés donnent aussi la signature, le thème du non-soi et la Variable ; un centre aux portes actives sans canal est non défini, un centre sans aucune est ouvert ; les centres ouverts ont un contour plus net ; l’À propos de chaque carte parle de son sujet, une porte suspendue nomme sa ou ses portes partenaires, et la ligne de la couche se place sous les données.",
           "Numérologie : « Comment c’est calculé » part de votre date et de l’année en cours, en signalant une dette karmique ; les étapes nomment leurs parties (« 6 (juin) + 6 (le 15) + 1 (2026) ») ; les repères de la roue disent « mois » et « jour » et l’arc de la passion cachée est nommé ; la première lecture est une liste comme celle du Human Design, et la roue reste entière tant que vous ne désignez pas une étape.",
+          "Vous restez connecté\u202f: fermer Ulune ou redémarrer ne verrouille plus votre espace privé (sur un ordinateur partagé, choisissez de le verrouiller à la fermeture d’Ulune). Ajouter un autre appareil envoie une copie scellée de votre espace directement à votre téléphone ou à un autre ordinateur, par AirDrop ou un fichier, et elle s’y ouvre avec votre clé d’accès ou votre phrase secrète\u202f; rien ne passe par Ulune.",
         ],
       },
       {

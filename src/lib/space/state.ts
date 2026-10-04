@@ -38,7 +38,9 @@ export type SpaceSheet =
   | "new-code"
   /** A backup file: made this browser's space (none here), or its charts added to the open one. */
   | "restore"
-  | "import";
+  | "import"
+  /** The space sent to another device of the reader's (a sealed copy through the share sheet). */
+  | "add-device";
 
 export type SpaceView = {
   status: SpaceStatus;

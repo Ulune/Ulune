@@ -8,7 +8,7 @@
 export type NoticeBlock = { h?: string; p?: string; list?: string[] };
 export type Notice = { title: string; updated: string; blocks: NoticeBlock[]; who: { h: string; p: string } };
 
-export const PRIVACY_UPDATED = "2026-09-30";
+export const PRIVACY_UPDATED = "2026-10-04";
 
 export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
   en: {
@@ -22,8 +22,9 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         h: "Kept on your device",
         list: [
           "Display settings (appearance, language, looks, views, the hints and the tour you closed), in your browser’s storage, in the clear.",
-          "If you sign in: your charts, the partners you pair them with and, if you choose to stay unlocked, a copy of the last chart for a quick start. They are sealed in your browser’s database with AES-256-GCM, under a key that only your passphrase, a passkey or your recovery code opens. Ulune never receives them.",
-          "Backups you download are sealed the same way. A readable copy, if you ask for one, is not: keep it private.",
+          "If you sign in: your charts, the partners you pair them with and a copy of the last chart for a quick start. They are sealed in your browser’s database with AES-256-GCM, under a key that only your passphrase, a passkey or your recovery code opens. Ulune never receives them.",
+          "You stay signed in on your device: the browser keeps the key so it can’t be read out of it, and anyone using that browser can open your space. On a shared computer, choose to lock it when Ulune closes; then nothing but the sealed space is kept.",
+          "Backups you download, and the copy you send to another device of yours (Add another device), are sealed the same way and go only where you send them, by AirDrop, a file or a message of your choosing; Ulune never receives them. A readable copy, if you ask for one, is not sealed: keep it private.",
           "While you are just looking, charts stay in the open tab and go when it closes.",
           "If you keep Ulune on this device to open it offline (asked once, off until you say yes): Ulune’s own files, its page and the sky of the dates you opened, the same for everyone. Nothing about you.",
         ],
@@ -64,8 +65,9 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         h: "Gardé sur votre appareil",
         list: [
           "Les réglages d’affichage (apparence, langue, styles, vues, les astuces et la visite que vous avez fermées), dans le stockage de votre navigateur, en clair.",
-          "Si vous vous connectez\u202f: vos thèmes, les partenaires que vous leur associez et, si vous choisissez de rester déverrouillé, une copie du dernier thème pour un démarrage rapide. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
-          "Les sauvegardes que vous téléchargez sont scellées de la même façon. Une copie lisible, si vous en demandez une, ne l’est pas\u202f: gardez-la pour vous.",
+          "Si vous vous connectez\u202f: vos thèmes, les partenaires que vous leur associez et une copie du dernier thème pour un démarrage rapide. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
+          "Vous restez connecté sur votre appareil\u202f: le navigateur garde la clé sans qu’on puisse l’en extraire, et toute personne utilisant ce navigateur peut ouvrir votre espace. Sur un ordinateur partagé, choisissez de le verrouiller à la fermeture d’Ulune\u202f; seul l’espace scellé est alors gardé.",
+          "Les sauvegardes que vous téléchargez, et la copie que vous envoyez à un autre de vos appareils (Ajouter un autre appareil), sont scellées de la même façon et ne vont que là où vous les envoyez, par AirDrop, un fichier ou un message de votre choix\u202f; Ulune ne les reçoit jamais. Une copie lisible, si vous en demandez une, n’est pas scellée\u202f: gardez-la pour vous.",
           "Tant que vous regardez sans vous connecter, les thèmes restent dans l’onglet ouvert et sont effacés à sa fermeture.",
           "Si vous gardez Ulune sur cet appareil pour l’ouvrir hors ligne (demandé une fois, désactivé tant que vous ne dites pas oui)\u202f: les fichiers d’Ulune, sa page et le ciel des dates ouvertes, les mêmes pour tous. Rien sur vous.",
         ],

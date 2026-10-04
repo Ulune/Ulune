@@ -9,7 +9,7 @@ import {
   parseRecoveryCode,
 } from "../src/lib/space/crypto.ts";
 import { memoryStore } from "../src/lib/space/store.ts";
-import { Vault, WrongSecret, adoptBackup, checkBackupWay, openBackup, parseBackup } from "../src/lib/space/vault.ts";
+import { Vault, WrongSecret, adoptBackup, checkBackupWay, movesToStay, newSpaceSeed, openBackup, parseBackup } from "../src/lib/space/vault.ts";
 
 const PASS = "correct horse battery staple";
 const CHART = { id: "c1", input: { name: "Sample B", date: "03/11/1987" }, savedAt: 1 };
@@ -35,7 +35,8 @@ test("round trip: create, write, lock, unlock with the passphrase, read", async 
 
 test("a wrong passphrase, or one too short to create with, is refused", async () => {
   const store = memoryStore();
-  await Vault.create(store, { passphrase: PASS });
+  // A shared computer's space: nothing kept on the device, before or after a wrong passphrase.
+  await Vault.create(store, { passphrase: PASS }, newSpaceSeed(), "close", true);
   await assert.rejects(() => Vault.create(store, { passphrase: PASS }), /space-exists/);
   await assert.rejects(() => Vault.unlock(store, { passphrase: "correct horse battery stapler" }), WrongSecret);
   await assert.rejects(() => Vault.create(memoryStore(), { passphrase: "short one" }), /passphrase-too-short/);
@@ -158,7 +159,7 @@ test("the charts' mark changes with any chart sealed again, added or removed, an
 
 test("stay unlocked keeps the key on the device; choosing another lock takes it away", async () => {
   const store = memoryStore();
-  const { vault } = await Vault.create(store, { passphrase: PASS });
+  const { vault } = await Vault.create(store, { passphrase: PASS }, newSpaceSeed(), "close", true);
   await vault.put("chart/c1", CHART);
   assert.equal(await Vault.unlockOnDevice(store), null);
   await vault.setLockMode("stay");
@@ -187,7 +188,48 @@ test("a backup opens elsewhere with the passphrase or the recovery code, and onl
   await adoptBackup(elsewhere, backup);
   const there = await Vault.unlock(elsewhere, { recovery: recoveryCode });
   assert.deepEqual(await there.get("chart/c1"), CHART);
+  // Adopted as it would be on a new device: locking only until it is opened there (then it stays signed in).
   assert.equal(there.meta.lock, "close");
+  assert.equal(movesToStay(there.meta), true);
+});
+
+test("staying signed in (4 Oct 2026): the default for a new space, and for older spaces nobody chose a lock for", async () => {
+  // A new space stays signed in: the key is kept on the device, and the space opens by itself.
+  const store = memoryStore();
+  const { vault } = await Vault.create(store, { passphrase: PASS });
+  await vault.put("chart/c1", CHART);
+  assert.equal(vault.meta.lock, "stay");
+  assert.equal(vault.meta.lockSet, undefined);
+  assert.deepEqual(await (await Vault.unlockOnDevice(store)).get("chart/c1"), CHART);
+
+  // A shared computer's space locks when Ulune closes, and keeps that choice.
+  const shared = memoryStore();
+  const made = await Vault.create(shared, { passphrase: PASS }, newSpaceSeed(), "close", true);
+  assert.equal(made.vault.meta.lockSet, true);
+  assert.equal(shared.dump().device, null);
+  assert.equal(movesToStay(made.vault.meta), false);
+
+  // An older space, locking when Ulune closes only because that was the default, moves; chosen locks don't.
+  assert.equal(movesToStay({ lock: "close" }), true);
+  assert.equal(movesToStay({ lock: "close", lockSet: true }), false);
+  assert.equal(movesToStay({ lock: "idle" }), false);
+  assert.equal(movesToStay({ lock: "stay" }), false);
+  // Moving by itself doesn't count as a choice; choosing in Settings does.
+  await made.vault.setLockMode("stay", false);
+  assert.equal(made.vault.meta.lockSet, true);
+  const older = memoryStore();
+  const old = await Vault.create(older, { passphrase: PASS }, newSpaceSeed(), "close");
+  await old.vault.setLockMode("stay", false);
+  assert.equal(old.vault.meta.lockSet, undefined);
+  await old.vault.setLockMode("close");
+  assert.equal(old.vault.meta.lockSet, true);
+
+  // A copy for another device carries neither: that device chooses for itself.
+  const copy = JSON.stringify(await old.vault.backup());
+  assert.ok(!copy.includes("lockSet") && !copy.includes('"lock"'));
+  const there = memoryStore();
+  await adoptBackup(there, parseBackup(copy), true);
+  assert.equal((await Vault.unlock(there, { passphrase: PASS })).meta.lockSet, true);
 });
 
 test("a backup is checked before it is used: its way in on the file first, and no wrap asking for too much work", async () => {

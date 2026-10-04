@@ -4,15 +4,18 @@
  *   1. Just looking: two charts cast, every mode visited, an AI key typed;
  *      the browser's storage holds nothing personal (only display settings),
  *      there is no database, and a reload finds nothing kept.
- *   2. Signing in: a chart cast while just looking joins the new space; a
- *      reload asks to unlock; a wrong passphrase is refused; the charts and
+ *   2. Signing in: a chart cast while just looking joins the new space, which
+ *      stays signed in (a reload opens it by itself); locking when Ulune
+ *      closes, a reload asks to unlock; a wrong passphrase is refused; the charts and
  *      the AI key come back, numerology's two names with their chart; what is
  *      stored is sealed (no name, date or place anywhere in the database, as
  *      bytes).
  *   3. Lock now empties the page; the recovery code opens the space and a new
  *      passphrase replaces the old one.
- *   4. Stay unlocked on this device: a reload opens the space by itself; back
- *      to "when Ulune is closed", it asks again.
+ *   4. Stay signed in on this device: a reload opens the space by itself; back
+ *      to "when Ulune is closed", it asks again. A space from before staying
+ *      signed in was the default moves to it at its next unlock; the browser
+ *      closed and opened again (same profile) still has it open.
  *   5. "Just look, without it" leaves the space locked and the studio empty.
  *   6. Charts kept in the clear by versions before: kept in a new space (then
  *      erased from the clear), or erased.
@@ -25,8 +28,9 @@
  *      the passphrase, each after confirming with a way in.
  *   8. Backups: a space with charts and no backup says so (a dot, a line in
  *      its menu); the backup downloads as one sealed file (no name, date or
- *      place in it) and the reminder goes, until a new chart. The file
- *      restores the space in another browser (a wrong passphrase refused, a
+ *      place in it) and the reminder goes, until a new chart. Add another
+ *      device saves the same sealed copy (no share sheet here). The file
+ *      restores the space in another browser, which stays signed in (a wrong passphrase refused, a
  *      file that isn't a backup refused), and its charts join another space
  *      opened with the backup's own recovery code, once.
  *   9. Your data: the readable copy (the charts in the clear while the space
@@ -59,7 +63,8 @@ import {
   unlockSpace,
 } from "./_lib.mjs";
 import { join } from "node:path";
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 
 /** The second chart of the space also gets numerology's two names (part 64), sealed with it. */
 const B_NAMED = { ...FIXTURE_B, birthName: "Quintessa Marie Aurelia", currentName: "Quintessa Vale" };
@@ -271,10 +276,18 @@ async function run() {
       assertNothingPersonal(dump, "private space");
       const extra = Object.keys(dump.local).filter((k) => !/^ulune\.(look|boot|studio|dock|depth|wheel|reading|numerology|bodies|chart\.view|scrub|offline|hint|theme|locale|space)/.test(k));
       if (extra.length) throw new Error(`unexpected keys: ${extra.join(", ")}`);
-      if (dump.local["ulune.space"] !== "locked") throw new Error(`flag ${dump.local["ulune.space"]}`);
+      if (dump.local["ulune.space"] !== "stay") throw new Error(`flag ${dump.local["ulune.space"]}`);
       console.log("signed in: the chart cast before joined, nothing readable stored");
 
-      // A reload asks to unlock.
+      // It stays signed in: a reload opens it by itself, with both charts.
+      await page.reload({ waitUntil: "load" });
+      await page.getByTestId("studio-natal").waitFor({ timeout: 30000 });
+      if (await page.getByTestId("space-sheet").count()) throw new Error("asked to unlock a space that stays signed in");
+      if ((await libraryNames(page)).length !== 2) throw new Error("the charts after a reload, signed in");
+      console.log("stays signed in after a reload");
+
+      // Locking when Ulune closes (a shared computer): a reload asks to unlock.
+      await setSpaceLock(page, "close");
       await page.reload({ waitUntil: "load" });
       await page.getByTestId("space-sheet").waitFor({ timeout: 30000 });
       if ((await page.getByTestId("space-sheet").getAttribute("data-step")) !== "unlock") throw new Error("no unlock step on return");
@@ -331,7 +344,41 @@ async function run() {
       await setSpaceLock(page, "close");
       await page.reload({ waitUntil: "load" });
       await page.getByTestId("space-sheet").waitFor({ timeout: 30000 });
-      console.log("stay unlocked on and off OK");
+      console.log("stay signed in on and off OK");
+
+      // A space from before (locking when Ulune closes only because that was the default): its next unlock keeps it signed in.
+      await page.evaluate(
+        () =>
+          new Promise((resolve, reject) => {
+            const r = indexedDB.open("ulune-space");
+            r.onsuccess = () => {
+              const db = r.result;
+              const tx = db.transaction("meta", "readwrite");
+              const store = tx.objectStore("meta");
+              const get = store.get("space");
+              get.onsuccess = () => {
+                const meta = { ...get.result, lock: "close" };
+                delete meta.lockSet;
+                store.put(meta, "space");
+              };
+              tx.oncomplete = () => {
+                db.close();
+                resolve(null);
+              };
+              tx.onerror = () => reject(tx.error);
+            };
+          }),
+      );
+      await unlockSpace(page, "a brand new passphrase");
+      await page.waitForFunction(() => localStorage.getItem("ulune.space") === "stay", null, { timeout: 8000 });
+      await page.reload({ waitUntil: "load" });
+      await page.getByTestId("studio-natal").waitFor({ timeout: 30000 });
+      if (await page.getByTestId("space-sheet").count()) throw new Error("a space from before still asks after its unlock");
+      // Back to locking, chosen this time: kept.
+      await setSpaceLock(page, "close");
+      await page.reload({ waitUntil: "load" });
+      await page.getByTestId("space-sheet").waitFor({ timeout: 30000 });
+      console.log("a space from before stays signed in from its next unlock; a chosen lock is kept");
 
       // 5. Just look, without it.
       await page.getByTestId("space-just-look").click();
@@ -343,6 +390,40 @@ async function run() {
       if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
       await context.close();
       console.log("just look with a locked space OK");
+    }
+
+    // 4b. The browser closed and opened again, as after a restart: still signed in.
+    {
+      const profile = await mkdtemp(join(tmpdir(), "ulune-profile-"));
+      const open = async () => {
+        const context = await chromium.launchPersistentContext(profile, {
+          headless: true,
+          args: ["--no-sandbox", "--disable-dev-shm-usage"],
+          viewport: VIEWPORTS[1280],
+        });
+        const page = context.pages()[0] ?? (await context.newPage());
+        page.setDefaultTimeout(20000);
+        return { context, page };
+      };
+      try {
+        let { context, page } = await open();
+        await gotoApp(page);
+        await castFixture(page, FIXTURE_A);
+        await createSpace(page);
+        await page.waitForTimeout(800);
+        await context.close();
+        ({ context, page } = await open());
+        await gotoApp(page);
+        await page.getByTestId("studio-natal").waitFor({ timeout: 30000 });
+        if (await page.getByTestId("space-sheet").count()) throw new Error("asked to sign in again after the browser was closed");
+        if ((await page.getByTestId("space-button").getAttribute("data-space")) !== "open") throw new Error("the space is not open after a restart");
+        if ((await chipText(page)).indexOf(FIXTURE_A.name) < 0) throw new Error("the chart after a restart");
+        await page.screenshot({ path: join(SHOTS, "space-after-restart-1280.png") });
+        await context.close();
+        console.log("still signed in after closing and opening the browser");
+      } finally {
+        await rm(profile, { recursive: true, force: true });
+      }
     }
 
     // 6. Charts from before, in the clear.
@@ -374,7 +455,7 @@ async function run() {
       await page.waitForFunction(() => !Object.keys(localStorage).some((k) => /^(orbis|ulune)\.(charts|synastry|composite|firstview|account)/.test(k)), null, { timeout: 8000 });
       assertNothingPersonal(await storageDump(page), "kept from before");
       await page.reload({ waitUntil: "load" });
-      await unlockSpace(page);
+      await page.getByTestId("studio-natal").waitFor({ timeout: 30000 });
       if ((await chipText(page)).indexOf(FIXTURE_A.name) < 0) throw new Error("the chart from before is not in the space");
       if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
       await context.close();
@@ -417,7 +498,8 @@ async function run() {
       if ((await databases(page)).includes("ulune-space")) throw new Error("a refused passkey made a space");
       await alterPasskeys(page, "real");
 
-      // The passkey makes the space: a passkey and the recovery code open it, nothing else.
+      // The passkey makes the space (on a shared computer, so it locks): a passkey and the recovery code open it, nothing else.
+      await page.getByTestId("space-shared").check();
       await page.getByTestId("space-use-passkey").click();
       await page.getByTestId("space-code").waitFor({ timeout: 30000 });
       const code = (await page.getByTestId("space-code").innerText()).trim();
@@ -528,6 +610,7 @@ async function run() {
     // 8. Backups.
     {
       const file = join(SHOTS, "space-backup.json");
+      const deviceFile = join(SHOTS, "space-device-copy.json");
       const notBackup = join(SHOTS, "not-a-backup.json");
       await writeFile(notBackup, JSON.stringify({ app: "ulune", data: {} }));
       let code;
@@ -560,6 +643,20 @@ async function run() {
         const line = (await page.getByTestId("space-backup-line").innerText()).trim();
         if (!/^Last backup .+\. Your charts have changed since\.$/.test(line)) throw new Error(`the backup line: "${line}"`);
         await page.getByTestId("settings-space").screenshot({ path: join(SHOTS, "settings-backup-1280.png") });
+        // Add another device: the same sealed copy, saved here (headless Chromium has no share sheet).
+        await page.getByTestId("space-add-device").click();
+        await page.getByTestId("space-add-device-steps").waitFor({ timeout: 20000 });
+        if ((await page.getByTestId("space-add-device-send").getAttribute("data-via")) !== "file") throw new Error("a share sheet in headless Chromium?");
+        await page.screenshot({ path: join(SHOTS, "space-add-device-1280.png") });
+        const [sent] = await Promise.all([page.waitForEvent("download"), page.getByTestId("space-add-device-send").click()]);
+        if (!/^ulune-private-space-\d{4}-\d{2}-\d{2}\.json$/.test(sent.suggestedFilename())) throw new Error(`device copy name ${sent.suggestedFilename()}`);
+        await sent.saveAs(deviceFile);
+        const sentText = await readFile(deviceFile, "utf8");
+        for (const w of PERSONAL) if (sentText.includes(w)) throw new Error(`the device copy holds "${w}" in the clear`);
+        if (sentText.includes('"lock"') || sentText.includes("lockSet")) throw new Error("the device copy carries this device's lock");
+        await page.getByTestId("space-add-device-done").waitFor({ timeout: 8000 });
+        await page.getByTestId("space-add-device-close").click();
+        await sheetGone(page);
         if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
         await context.close();
         console.log("backup: reminded, downloaded sealed, reminded again after a new chart");
@@ -571,6 +668,7 @@ async function run() {
         await page.waitForFunction(() => document.querySelector("[data-testid=space-button]")?.getAttribute("data-space") === "none", null, { timeout: 20000 });
         await page.getByTestId("space-button").click();
         await page.getByTestId("space-restore").click({ timeout: 45000 });
+        await page.screenshot({ path: join(SHOTS, "space-from-device-390.png") });
         await page.getByTestId("space-backup-file").setInputFiles(notBackup);
         const refused = await sheetAlert(page);
         if (!/isn’t a backup from Ulune/.test(refused)) throw new Error(`a file that isn't a backup: "${refused}"`);
@@ -588,9 +686,36 @@ async function run() {
         const names = await libraryNames(page);
         if (names.length !== 1 || !names[0].includes(FIXTURE_A.name)) throw new Error(`restored charts: ${names.join(", ")}`);
         if (await page.locator("[data-testid=space-button][data-due]").count()) throw new Error("a backup is due right after restoring it");
+        // It stays signed in on the new device too.
+        if ((await page.evaluate(() => localStorage.getItem("ulune.space"))) !== "stay") throw new Error("a restored space doesn't stay signed in");
+        await page.reload({ waitUntil: "load" });
+        await page.getByTestId("studio-natal").waitFor({ timeout: 30000 });
+        if (await page.getByTestId("space-sheet").count()) throw new Error("a restored space asks to unlock");
         if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
         await context.close();
-        console.log("backup: restored in another browser");
+        console.log("backup: restored in another browser, signed in there too");
+      }
+      {
+        // Another device, from the copy Add another device made: both charts, on a shared computer (it locks).
+        const { context, page, errors } = await newPage(browser, 390);
+        await gotoApp(page);
+        await page.waitForFunction(() => document.querySelector("[data-testid=space-button]")?.getAttribute("data-space") === "none", null, { timeout: 20000 });
+        await page.getByTestId("space-button").click();
+        await page.getByTestId("space-restore").click({ timeout: 45000 });
+        await page.getByTestId("space-shared").check();
+        await page.getByTestId("space-backup-file").setInputFiles(deviceFile);
+        await page.getByTestId("space-backup-pass").fill(PASSPHRASE, { timeout: 20000 });
+        await page.getByTestId("space-backup-open").click();
+        await sheetGone(page);
+        await page.getByTestId("studio-natal").waitFor({ timeout: 20000 });
+        const names = await libraryNames(page);
+        if (names.length !== 2) throw new Error(`charts from the other device: ${names.join(", ")}`);
+        if ((await page.evaluate(() => localStorage.getItem("ulune.space"))) !== "locked") throw new Error("a shared computer's space stays signed in");
+        await page.reload({ waitUntil: "load" });
+        await page.getByTestId("space-sheet").waitFor({ timeout: 30000 });
+        if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
+        await context.close();
+        console.log("another device: opened from the sealed copy; a shared computer locks");
       }
       {
         // Another space: the backup's charts join it, opened with the backup's own recovery code.

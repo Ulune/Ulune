@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Download, Lock, Settings } from "lucide-react";
+import { Download, Lock, Send, Settings } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { AnchoredPopover } from "@/components/anchored-popover";
 import { useI18n } from "@/lib/i18n/locale";
@@ -81,6 +81,19 @@ export function SpaceButton() {
               >
                 <Lock className="size-4" strokeWidth={1.75} aria-hidden />
                 <span>{t("spaceLockNow")}</span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="ob-menu-item"
+                data-testid="space-add-device-now"
+                onClick={() => {
+                  close();
+                  openSpaceSheet("add-device");
+                }}
+              >
+                <Send className="size-4" strokeWidth={1.75} aria-hidden />
+                <span>{t("spaceAddDevice")}</span>
               </button>
               <button
                 type="button"

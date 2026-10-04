@@ -42,8 +42,8 @@ export const space = {
   spaceCodeKept: ["I’ve kept this code somewhere safe", "J’ai gardé ce code en lieu sûr"],
   spaceDone: ["Done", "Terminé"],
   spaceLocksWhen: [
-    "It locks when you close Ulune. You can change that in Settings, under Private space.",
-    "Il se verrouille quand vous fermez Ulune. Vous pouvez changer cela dans Réglages, sous Espace privé.",
+    "It locks when you close Ulune, as on a shared computer. You can change that in Settings, under Private space.",
+    "Il se verrouille quand vous fermez Ulune, comme sur un ordinateur partagé. Vous pouvez changer cela dans Réglages, sous Espace privé.",
   ],
   spaceCreated: ["Your private space is ready", "Votre espace privé est prêt"],
   spaceUnlockTitle: ["Unlock your private space", "Déverrouiller votre espace privé"],
@@ -127,10 +127,13 @@ export const space = {
   spaceLockTitle: ["When it locks", "Quand il se verrouille"],
   spaceLockClose: ["When Ulune is closed", "À la fermeture d’Ulune"],
   spaceLockIdle: ["After 15 minutes away", "Après 15 minutes d’absence"],
-  spaceLockStay: ["Stay unlocked on this device", "Rester déverrouillé sur cet appareil"],
+  spaceLockStay: [
+    "Stay signed in on this device",
+    "Rester connecté sur cet appareil",
+  ],
   spaceLockStayWarn: [
-    "Anyone using this browser can then open it.",
-    "Toute personne utilisant ce navigateur peut alors l’ouvrir.",
+    "for your own devices: anyone using this browser can open it",
+    "pour vos propres appareils\u202f: toute personne utilisant ce navigateur peut l’ouvrir",
   ],
   spaceLockSaved: ["Saved", "Enregistré"],
   spaceUsePasskey: ["Use a passkey", "Utiliser une clé d’accès"],
@@ -231,16 +234,25 @@ export const space = {
     "Passkeys can’t open your space in this browser.",
     "Les clés d’accès ne peuvent pas ouvrir votre espace dans ce navigateur.",
   ],
-  spaceRestore: ["Restore a backup", "Restaurer une sauvegarde"],
-  spaceRestoreHave: ["I have a backup file", "J’ai un fichier de sauvegarde"],
-  spaceImport: ["Add charts from a backup", "Ajouter les thèmes d’une sauvegarde"],
+  spaceRestore: [
+    "Bring your space here",
+    "Apporter votre espace ici",
+  ],
+  spaceRestoreHave: [
+    "I already have a space on another device",
+    "J’ai déjà un espace sur un autre appareil",
+  ],
+  spaceImport: [
+    "Add charts from another device",
+    "Ajouter les thèmes d’un autre appareil",
+  ],
   spaceRestoreBody: [
-    "Choose the backup file you downloaded. It becomes this browser’s private space, and opens with the passphrase, a passkey or the recovery code it had.",
-    "Choisissez le fichier de sauvegarde que vous avez téléchargé. Il devient l’espace privé de ce navigateur, et s’ouvre avec la phrase secrète, une clé d’accès ou le code de récupération qu’il avait.",
+    "Choose the file your other device sent you (Add another device), or a backup you downloaded. It becomes this browser’s private space and opens with the passkey, passphrase or recovery code it already has.",
+    "Choisissez le fichier envoyé par votre autre appareil (Ajouter un autre appareil), ou une sauvegarde téléchargée. Il devient l’espace privé de ce navigateur et s’ouvre avec la clé d’accès, la phrase secrète ou le code de récupération qu’il a déjà.",
   ],
   spaceImportBody: [
-    "Choose a backup file. The charts in it that your space doesn’t have yet are added to it; nothing else changes.",
-    "Choisissez un fichier de sauvegarde. Les thèmes qu’il contient et que votre espace n’a pas encore y sont ajoutés\u202f; rien d’autre ne change.",
+    "Choose a file sent from another device, or a backup. The charts in it that this space doesn’t have yet are added; nothing else changes.",
+    "Choisissez un fichier envoyé par un autre appareil, ou une sauvegarde. Les thèmes qu’il contient et que cet espace n’a pas encore y sont ajoutés\u202f; rien d’autre ne change.",
   ],
   spaceChooseFile: ["Choose the file", "Choisir le fichier"],
   spaceNotBackup: ["That file isn’t a backup from Ulune.", "Ce fichier n’est pas une sauvegarde d’Ulune."],
@@ -279,4 +291,8 @@ export const space = {
   ],
   spaceBackupDue: ["Changed since the last backup", "Modifié depuis la dernière sauvegarde"],
   spaceBackupNone: ["No backup yet", "Pas encore de sauvegarde"],
+  spaceAddDevice: [
+    "Add another device",
+    "Ajouter un autre appareil",
+  ],
 } as const satisfies Record<string, readonly [string, string]>;

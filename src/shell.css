@@ -2824,6 +2824,24 @@ html[data-first-view] .ulune-wheel[data-entering] > [data-kind="aspect-marks"] {
 .ob-space-check {
   padding-top: 0;
 }
+.ob-space-shared {
+  font-size: 13px;
+  color: var(--color-fg-muted);
+}
+.ob-space-steps {
+  margin: 0;
+  padding-left: 1.3em;
+  list-style: decimal;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-fg);
+}
+.ob-space-steps > li::marker {
+  color: var(--color-fg-subtle);
+}
 .ob-space-busy {
   display: flex;
   align-items: center;

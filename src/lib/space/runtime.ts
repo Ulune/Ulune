@@ -16,6 +16,7 @@ import {
   Vault,
   adoptBackup,
   checkBackupWay,
+  movesToStay,
   openBackup,
   parseBackup,
   type PasskeySecret,
@@ -116,7 +117,17 @@ export function recheckSpace(): Promise<void> {
   return bootSpace();
 }
 
+/** An older space that locks only because that was the default stays signed in from now on (vault.ts, movesToStay). */
+async function staySignedIn(vault: Vault): Promise<void> {
+  if (!movesToStay(vault.meta)) return;
+  await vault.setLockMode("stay", false).catch(() => {
+    /* kept as it was: it asks again next time */
+  });
+}
+
 async function opened(vault: Vault, how: "created" | "unlocked"): Promise<void> {
+  await staySignedIn(vault);
+  writeSpaceFlag(flagFor(vault.meta.lock));
   setOpenVault(vault);
   const stored = await vault.get<AiKeys>(AI_RECORD).catch(() => null);
   keepAiKeysIn((next) => {
@@ -146,9 +157,10 @@ function keepStorage(): void {
 export async function createSpace(
   first: { passphrase?: string; passkey?: PasskeySecret & { prfSalt: string } },
   seed?: SpaceSeed,
+  /** A shared computer: it locks when Ulune closes. Otherwise it stays signed in on this device. */
+  shared = false,
 ): Promise<string> {
-  const { vault, recoveryCode } = await Vault.create(theStore(), first, seed);
-  writeSpaceFlag("locked");
+  const { vault, recoveryCode } = await Vault.create(theStore(), first, seed, shared ? "close" : "stay", shared);
   booted = Promise.resolve();
   await opened(vault, "created");
   return recoveryCode;
@@ -231,8 +243,8 @@ function checkBackup(): Promise<void> {
   return backupCheck;
 }
 
-function saveFile(name: string, text: string): void {
-  const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+function saveBlob(name: string, blob: Blob): void {
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = name;
@@ -244,10 +256,16 @@ function saveFile(name: string, text: string): void {
   window.setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
-function backupName(): string {
+function backupName(ext = "json"): string {
   const d = new Date();
   const two = (n: number) => String(n).padStart(2, "0");
-  return `ulune-private-space-${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}.json`;
+  return `ulune-private-space-${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}.${ext}`;
+}
+
+/** The open space as it is stored, sealed (what waits to be written is sealed first). */
+async function sealedCopy(vault: Vault): Promise<string> {
+  await spaceBridge()?.beforeLock().catch(() => {});
+  return JSON.stringify(await vault.backup());
 }
 
 /**
@@ -263,9 +281,30 @@ export async function downloadBackup(): Promise<void> {
   const { mark } = await vault.mark(CHART_RECORD);
   const note: BackupRecord = { at: Date.now(), mark };
   await vault.put(BACKUP_RECORD, note);
-  const backup = await vault.backup();
-  saveFile(backupName(), JSON.stringify(backup));
+  saveBlob(backupName(), new Blob([await sealedCopy(vault)], { type: "application/json" }));
   await checkBackup();
+}
+
+/**
+ * The space for another device (Settings → Add another device): the same
+ * sealed copy as a backup, as files the system's share sheet may take
+ * (AirDrop, Nearby Share, Files). Some browsers share only some kinds of
+ * file, so it comes as JSON and as plain text; both open the same way.
+ * Nothing of it goes through Ulune.
+ */
+export async function spaceCopyFiles(): Promise<{ json: File; text: File }> {
+  const vault = openVault();
+  if (!vault) throw new Error("space-locked");
+  const sealed = await sealedCopy(vault);
+  return {
+    json: new File([sealed], backupName(), { type: "application/json" }),
+    text: new File([sealed], backupName("txt"), { type: "text/plain" }),
+  };
+}
+
+/** The copy for another device, saved where downloads go (no share sheet here). */
+export function saveSpaceCopy(file: File): void {
+  saveBlob(file.name, file);
 }
 
 /** A chosen file, read as a backup; null when it isn't one (or is far too big to be one). */
@@ -282,13 +321,13 @@ export async function readBackupFile(file: File): Promise<SpaceBackup | null> {
  * A backup made this browser's space (there is none here), opened with one of
  * the backup's ways in. A way that doesn't open it leaves nothing behind.
  */
-export async function restoreSpace(backup: SpaceBackup, way: WayIn): Promise<void> {
+export async function restoreSpace(backup: SpaceBackup, way: WayIn, shared = false): Promise<void> {
   if (await Vault.find(theStore())) throw new Error("space-exists");
   let vault: Vault;
   try {
     // The way in is tried on the file first: a wrong one answers at once, whatever the backup's size.
     await checkBackupWay(backup, way);
-    await adoptBackup(theStore(), backup);
+    await adoptBackup(theStore(), backup, shared);
     vault = await Vault.unlock(theStore(), way);
   } catch (err) {
     // Nothing is left behind, not even the empty database the check above opened.
@@ -297,7 +336,6 @@ export async function restoreSpace(backup: SpaceBackup, way: WayIn): Promise<voi
       .catch(() => {});
     throw err;
   }
-  writeSpaceFlag(flagFor(vault.meta.lock));
   booted = Promise.resolve();
   await opened(vault, "unlocked");
 }

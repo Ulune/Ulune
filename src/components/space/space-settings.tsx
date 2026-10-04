@@ -1,19 +1,45 @@
-import { Download, KeyRound, Lock, Upload } from "lucide-react";
+import { Download, KeyRound, Lock, Send, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/locale";
-import type { MessageKey } from "@/lib/i18n/messages";
+import type { AppLocale, MessageKey } from "@/lib/i18n/messages";
+import { devicesText, type DevicesKey } from "@/lib/i18n/space-devices";
 import { dateFormat } from "@/lib/intl-cache";
+import { inSafariTab } from "@/lib/space/home-screen";
 import { passkeyPrfLikely } from "@/lib/space/passkey-support";
 import { openSpaceSheet, useSpace } from "@/lib/space/state";
 import type { LockMode } from "@/lib/space/store";
 import { toast } from "@/lib/toast";
 import { loadSpaceRuntime } from "@/lib/space/load";
 
-const LOCKS: { id: LockMode; label: MessageKey; hint?: MessageKey }[] = [
-  { id: "close", label: "spaceLockClose" },
+const LOCKS: { id: LockMode; label: MessageKey; hint?: (t: Translate, locale: AppLocale) => string }[] = [
+  { id: "stay", label: "spaceLockStay", hint: (t) => t("spaceLockStayWarn") },
   { id: "idle", label: "spaceLockIdle" },
-  { id: "stay", label: "spaceLockStay", hint: "spaceLockStayWarn" },
+  { id: "close", label: "spaceLockClose", hint: (_t, locale) => devicesText(locale, "lockCloseHint") },
 ];
+
+type Translate = ReturnType<typeof useI18n>["t"];
+
+/** Your other devices: the space sent to one of them, sealed, through the share sheet (nothing goes through Ulune). */
+function OtherDevices() {
+  const { t, locale } = useI18n();
+  const d = (key: DevicesKey) => devicesText(locale, key);
+  return (
+    <div className="ob-space-ways" data-testid="space-devices">
+      <h3 className="ob-menu-label ob-space-ways-h">{d("devicesTitle")}</h3>
+      <p className="ob-data-body">{d("devicesBody")}</p>
+      <div className="ob-data-actions">
+        <button type="button" className="ob-btn ob-btn--ghost" data-testid="space-add-device" onClick={() => openSpaceSheet("add-device")}>
+          <Send className="size-4" strokeWidth={1.75} aria-hidden />
+          {t("spaceAddDevice")}
+        </button>
+        <button type="button" className="ob-btn ob-btn--ghost" data-testid="space-backup-import" onClick={() => openSpaceSheet("import")}>
+          <Upload className="size-4" strokeWidth={1.75} aria-hidden />
+          {t("spaceImport")}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 /**
  * What opens the open space: its passphrase, its passkeys, its recovery code.
@@ -112,16 +138,6 @@ function WaysIn() {
   );
 }
 
-/** Safari in a tab, where a site's data may go after a week away (not once it is in the Dock or on the Home Screen). */
-function inSafariTab(): boolean {
-  if (typeof navigator === "undefined") return false;
-  const ua = navigator.userAgent;
-  const safari = /Safari\//.test(ua) && !/(Chrome|Chromium|CriOS|FxiOS|EdgiOS|Edg|OPR|Firefox)\//.test(ua);
-  const standalone =
-    window.matchMedia?.("(display-mode: standalone)").matches || (navigator as { standalone?: boolean }).standalone === true;
-  return safari && !standalone;
-}
-
 /**
  * The space as one encrypted file: when the last was made, whether the charts
  * changed since, a download, charts added from another backup, and whether
@@ -184,10 +200,6 @@ function Backup() {
           <Download className="size-4" strokeWidth={1.75} aria-hidden />
           {t("spaceBackupDownload")}
         </button>
-        <button type="button" className="ob-btn ob-btn--ghost" data-testid="space-backup-import" onClick={() => openSpaceSheet("import")}>
-          <Upload className="size-4" strokeWidth={1.75} aria-hidden />
-          {t("spaceImport")}
-        </button>
       </div>
       <p className="ob-space-note">{t("spaceBackupHint")}</p>
       {kept === null ? null : (
@@ -206,7 +218,7 @@ function Backup() {
 
 /** Settings → the private space: what it is now, when it locks, its backup, and what opens it. */
 export function SpaceSettings() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const status = useSpace((s) => s.status);
   const lock = useSpace((s) => s.lock);
   // The choice shows at once; the space takes it a moment later.
@@ -275,7 +287,7 @@ export function SpaceSettings() {
                 />
                 <span>
                   {t(option.label)}
-                  {option.hint ? <span className="ob-check-hint"> — {t(option.hint)}</span> : null}
+                  {option.hint ? <span className="ob-check-hint"> — {option.hint(t, locale)}</span> : null}
                 </span>
               </label>
             ))}
@@ -295,6 +307,7 @@ export function SpaceSettings() {
               {t("spaceLockNow")}
             </button>
           </div>
+          <OtherDevices />
           <Backup />
           <WaysIn />
         </>

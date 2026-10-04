@@ -279,11 +279,14 @@ export async function ensureShotsDir() {
 export const PASSPHRASE = "correct horse battery staple";
 
 /** Sign in for the first time with a passphrase; returns the recovery code shown. */
-export async function createSpace(page, pass = PASSPHRASE) {
+export async function createSpace(page, pass = PASSPHRASE, { shared = false } = {}) {
   await page.getByTestId("space-button").waitFor({ timeout: 20000 });
   await page.waitForFunction(() => document.querySelector("[data-testid=space-button]")?.getAttribute("data-space") === "none", null, { timeout: 20000 });
   await page.getByTestId("space-button").click();
-  await page.getByTestId("space-use-passphrase").click({ timeout: 45000 });
+  await page.getByTestId("space-use-passphrase").waitFor({ timeout: 45000 });
+  // Unticked, the space stays signed in on this device (part 88); ticked, it locks when Ulune closes.
+  if (shared) await page.getByTestId("space-shared").check();
+  await page.getByTestId("space-use-passphrase").click();
   await page.getByTestId("space-pass").fill(pass);
   await page.getByTestId("space-pass-again").fill(pass);
   await page.getByTestId("space-create").click();

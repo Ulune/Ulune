@@ -171,13 +171,22 @@ async function nonExtractable(dataKey: CryptoKey): Promise<CryptoKey> {
   }
 }
 
+/**
+ * A space made before staying signed in was the default (4 Oct 2026), still
+ * locking when Ulune closes because nobody chose otherwise: it stays signed
+ * in from its next unlock. One whose lock was chosen keeps it.
+ */
+export function movesToStay(meta: Pick<SpaceMeta, "lock" | "lockSet">): boolean {
+  return meta.lock === "close" && !meta.lockSet;
+}
+
 /** A backup file: the space as stored, sealed; unreadable without a way in. */
 export type SpaceBackup = {
   app: "ulune";
   type: "private-space";
   v: 1;
   exported: string;
-  meta: Omit<SpaceMeta, "lock">;
+  meta: Omit<SpaceMeta, "lock" | "lockSet">;
   items: [string, { iv: string; ct: string }][];
 };
 
@@ -208,7 +217,8 @@ export class Vault {
     store: SpaceStore,
     first: { passphrase?: string; passkey?: PasskeySecret & { prfSalt: string } },
     seed: SpaceSeed = newSpaceSeed(),
-    lock: LockMode = "close",
+    lock: LockMode = "stay",
+    lockSet = false,
   ): Promise<{ vault: Vault; recoveryCode: string }> {
     if (!first.passphrase && !first.passkey) throw new Error("no-way-in");
     // One space per browser: a new one never replaces one that exists.
@@ -219,7 +229,15 @@ export class Vault {
     if (first.passphrase) wraps.push(await passphraseWrap(dataKey, seed.id, first.passphrase));
     if (first.passkey) wraps.push(await passkeyWrap(dataKey, seed.id, first.passkey));
     wraps.push(await recoveryWrap(dataKey, seed.id, recoveryCode));
-    const meta: SpaceMeta = { v: 1, id: seed.id, created: Date.now(), lock, passkeyUser: seed.passkeyUser, wraps };
+    const meta: SpaceMeta = {
+      v: 1,
+      id: seed.id,
+      created: Date.now(),
+      lock,
+      ...(lockSet ? { lockSet: true } : {}),
+      passkeyUser: seed.passkeyUser,
+      wraps,
+    };
     const key = await nonExtractable(dataKey);
     const check = await seal(key, itemAad(meta.id, CHECK_KEY), { space: meta.id });
     await store.replaceAll(meta, [[CHECK_KEY, check]]);
@@ -338,9 +356,10 @@ export class Vault {
     await this.write([], keys);
   }
 
-  async setLockMode(lock: LockMode): Promise<void> {
+  /** When it locks; `chosen`: the reader's own choice (otherwise it may still change by itself, see SpaceMeta.lockSet). */
+  async setLockMode(lock: LockMode, chosen = true): Promise<void> {
     const key = this.need();
-    const meta = { ...this.metaNow, lock };
+    const meta: SpaceMeta = { ...this.metaNow, lock, ...(chosen ? { lockSet: true } : {}) };
     await this.store.putMeta(meta);
     await this.store.putDeviceKey(lock === "stay" ? key : null);
     this.metaNow = meta;
@@ -419,8 +438,10 @@ export class Vault {
   async backup(): Promise<SpaceBackup> {
     this.need();
     const items = await this.store.listItems("");
-    const { lock: _lock, ...meta } = this.metaNow;
+    // When it locks belongs to this device: the device a copy goes to chooses for itself.
+    const { lock: _lock, lockSet: _set, ...meta } = this.metaNow;
     void _lock;
+    void _set;
     return {
       app: "ulune",
       type: "private-space",
@@ -483,7 +504,6 @@ export async function openBackup(backup: SpaceBackup, way: WayIn): Promise<Map<s
   return out;
 }
 
-/** Make a backup this browser's space (there is none here): it opens with the backup's ways in. */
 /**
  * WrongSecret unless this way in opens the backup. Checked on the file itself,
  * before anything of it is written here: a wrong passphrase answers as fast
@@ -493,8 +513,16 @@ export async function checkBackupWay(backup: SpaceBackup, way: WayIn): Promise<v
   await unwrapWith({ ...backup.meta, lock: "close" }, way, false);
 }
 
-export async function adoptBackup(store: SpaceStore, backup: SpaceBackup): Promise<void> {
-  const meta: SpaceMeta = { ...backup.meta, lock: "close" };
+/**
+ * Make a backup this browser's space (there is none here): it opens with the
+ * backup's ways in. `shared`: this is a shared computer, the space locks when Ulune closes; otherwise
+ * it stays signed in once it is opened here (lib/space/runtime.ts).
+ */
+export async function adoptBackup(store: SpaceStore, backup: SpaceBackup, shared = false): Promise<void> {
+  const { lock: _lock, lockSet: _set, ...rest } = backup.meta as SpaceMeta;
+  void _lock;
+  void _set;
+  const meta: SpaceMeta = { ...rest, lock: "close", ...(shared ? { lockSet: true } : {}) };
   await store.replaceAll(
     meta,
     backup.items.map(([name, sealed]) => [name, sealedFromJson(sealed)] as const),

@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Lock, X } from "lucide-react";
+import { Eye, EyeOff, Lock, Send, X } from "lucide-react";
 import {
   useEffect,
   useId,
@@ -13,6 +13,7 @@ import {
 import { createPortal } from "react-dom";
 import { useI18n } from "@/lib/i18n/locale";
 import type { MessageKey } from "@/lib/i18n/messages";
+import { devicesText, type DevicesKey } from "@/lib/i18n/space-devices";
 import { dateFormat } from "@/lib/intl-cache";
 import { MIN_PASSPHRASE, formatRecoveryCode, newSpaceSeed, normalizePassphrase } from "@/lib/space/crypto";
 import { eraseLegacyData, legacyChartCount } from "@/lib/space/legacy";
@@ -27,6 +28,7 @@ import {
   type PasskeyRef,
   type PasskeySecretRead,
 } from "@/lib/space/passkey";
+import { inSafariTab } from "@/lib/space/home-screen";
 import { passkeyPrfLikely, passkeysPossible } from "@/lib/space/passkey-support";
 import { closeSpaceSheet, useSpace, type SpaceSheet as SheetKind } from "@/lib/space/state";
 import type { SpaceBackup, WayIn } from "@/lib/space/vault";
@@ -75,7 +77,25 @@ type Step =
   /** The chosen backup, opened with one of its own ways in. */
   | { kind: "backup"; purpose: BackupUse; backup: SpaceBackup }
   | { kind: "backup-code"; purpose: BackupUse; backup: SpaceBackup }
+  /** The space for another device: the sealed copy being made, then sent (or saved). */
+  | { kind: "send"; files: SpaceCopy | null; done: "sent" | "saved" | null }
   | { kind: "legacy" };
+
+/** The sealed copy for another device, as JSON and as plain text (lib/space/runtime.ts). */
+type SpaceCopy = { json: File; text: File };
+
+/** The copy the system's share sheet takes here, or null (then it is saved as a file). */
+function shareable(files: SpaceCopy): File | null {
+  if (typeof navigator === "undefined" || typeof navigator.share !== "function" || typeof navigator.canShare !== "function") return null;
+  for (const file of [files.json, files.text]) {
+    try {
+      if (navigator.canShare({ files: [file] })) return file;
+    } catch {
+      /* not this kind */
+    }
+  }
+  return null;
+}
 
 type BackupUse = "restore" | "import";
 
@@ -114,6 +134,7 @@ function firstStep(sheet: SheetKind): Step {
   if (sheet === "unlock") return { kind: "unlock" };
   if (sheet === "legacy") return { kind: "legacy" };
   if (sheet === "restore" || sheet === "import") return { kind: "file", purpose: sheet };
+  if (sheet === "add-device") return { kind: "send", files: null, done: null };
   if (isManage(sheet)) return { kind: "confirm" };
   return { kind: "choose" };
 }
@@ -203,6 +224,7 @@ function ManagerHint() {
 
 export function SpaceSheet() {
   const { t, locale } = useI18n();
+  const d = (key: DevicesKey) => devicesText(locale, key);
   const sheet = useSpace((s) => s.sheet);
   const sheetFor = useSpace((s) => s.sheetFor);
   const status = useSpace((s) => s.status);
@@ -217,6 +239,8 @@ export function SpaceSheet() {
   const [code, setCode] = useState("");
   const [shown, setShown] = useState(false);
   const [kept, setKept] = useState(false);
+  // "This is a shared computer": the new (or restored) space locks when Ulune closes instead of staying signed in.
+  const [shared, setShared] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Whether a new passkey would open the space in this browser (known a moment after the sheet mounts).
@@ -241,10 +265,33 @@ export function SpaceSheet() {
 
   useEffect(() => () => dropHeld(held), []);
 
-  // A change to the ways in, or charts added from a backup, needs the space open: if it locks meanwhile, the sheet goes.
+  // A change to the ways in, charts added from a backup, or a copy for another device need the space open: if it locks meanwhile, the sheet goes.
   useEffect(() => {
-    if ((manage || sheet === "import") && status !== "open") closeSpaceSheet();
+    if ((manage || sheet === "import" || sheet === "add-device") && status !== "open") closeSpaceSheet();
   }, [manage, sheet, status]);
+
+  // The copy for another device is made as the sheet opens, so the share sheet can open straight from the click.
+  const preparing = step.kind === "send" && step.files === null;
+  useEffect(() => {
+    if (!preparing) return;
+    let on = true;
+    void loadSpaceRuntime()
+      .then((m) => m.spaceCopyFiles())
+      .then(
+        (files) => {
+          if (on) setStep({ kind: "send", files, done: null });
+        },
+        () => {
+          if (on) {
+            toast(t("spaceFailed"), "error");
+            closeSpaceSheet();
+          }
+        },
+      );
+    return () => {
+      on = false;
+    };
+  }, [preparing, t]);
 
   // A new step: its first field or button has the focus.
   useEffect(() => {
@@ -326,7 +373,7 @@ export function SpaceSheet() {
     setStep({ kind: "busy", label: "spaceCreating" });
     try {
       const runtime = await loadSpaceRuntime();
-      const recovery = await runtime.createSpace({ passphrase: pass });
+      const recovery = await runtime.createSpace({ passphrase: pass }, undefined, shared);
       setPass("");
       setAgain("");
       setStep({ kind: "code", code: recovery, fresh: true });
@@ -353,7 +400,7 @@ export function SpaceSheet() {
     setStep({ kind: "busy", label: "spaceCreating" });
     try {
       const runtime = await loadSpaceRuntime();
-      const recovery = await runtime.createSpace({ passkey: made }, seed);
+      const recovery = await runtime.createSpace({ passkey: made }, seed, shared);
       setStep({ kind: "code", code: recovery, fresh: true });
     } catch (err) {
       forgetUnusedPasskey(made.credId);
@@ -575,7 +622,7 @@ export function SpaceSheet() {
     try {
       const runtime = await loadSpaceRuntime();
       if (purpose === "restore") {
-        await runtime.restoreSpace(backup, way);
+        await runtime.restoreSpace(backup, way, shared);
         toast(t("spaceRestored"));
       } else {
         const n = await runtime.importBackup(backup, way);
@@ -728,6 +775,17 @@ export function SpaceSheet() {
     return { title: hasPassphrase ? "spaceChangePassphraseTitle" : "spaceAddPassphraseTitle", warn: null };
   }
 
+  /** "This is a shared computer": unticked, the space stays signed in on this device. */
+  const sharedBox = (
+    <label className="ob-check ob-space-check ob-space-shared" htmlFor="space-shared">
+      <input id="space-shared" type="checkbox" data-testid="space-shared" checked={shared} onChange={(e) => setShared(e.target.checked)} />
+      <span>
+        {d("shared")}
+        <span className="ob-check-hint"> — {d("sharedHint")}</span>
+      </span>
+    </label>
+  );
+
   let title: MessageKey = "spaceTitle";
   let body: ReactNode = null;
   if (step.kind === "choose") {
@@ -759,12 +817,13 @@ export function SpaceSheet() {
             {t("spaceUsePassphrase")}
           </button>
           {canMake ? <p className="ob-space-note">{t("spacePasskeyHint")}</p> : null}
+          {sharedBox}
           <button type="button" className="ob-space-link" data-testid="space-not-now" onClick={leave}>
             {t("spaceNotNow")}
           </button>
           <button
             type="button"
-            className="ob-space-link ob-space-link--small"
+            className="ob-space-link"
             data-testid="space-restore"
             onClick={() => go({ kind: "file", purpose: "restore" })}
           >
@@ -851,7 +910,12 @@ export function SpaceSheet() {
           />
           <span>{t("spaceCodeKept")}</span>
         </label>
-        {fresh ? <p className="ob-space-note">{t("spaceLocksWhen")}</p> : null}
+        {fresh ? (
+          <p className="ob-space-note" data-testid="space-lock-note">
+            {shared ? t("spaceLocksWhen") : d("staysSignedIn")}
+            {!shared && inSafariTab() ? ` ${d("homeScreen")}` : ""}
+          </p>
+        ) : null}
         <div className="ob-space-actions">
           <button
             type="button"
@@ -962,13 +1026,14 @@ export function SpaceSheet() {
         <input
           ref={fileRef}
           type="file"
-          accept=".json,application/json"
+          accept=".json,.txt,application/json,text/plain"
           className="sr-only"
           tabIndex={-1}
           aria-hidden
           data-testid="space-backup-file"
           onChange={(e) => void pickBackup(e, purpose)}
         />
+        {purpose === "restore" ? sharedBox : null}
         {errorLine}
         <div className="ob-space-actions">
           <button
@@ -1022,6 +1087,68 @@ export function SpaceSheet() {
             },
             intro,
           );
+  } else if (step.kind === "send") {
+    title = "spaceAddDevice";
+    const files = step.files;
+    const viaShare = files ? shareable(files) : null;
+    body = files ? (
+      <>
+        <p id={bodyId} className="ob-space-p">
+          {d("addDeviceBody")}
+        </p>
+        <ol className="ob-space-steps" data-testid="space-add-device-steps">
+          <li>{d(viaShare ? "addDeviceStep1Share" : "addDeviceStep1Save")}</li>
+          <li>{d("addDeviceStep2")}</li>
+          <li>{d("addDeviceStep3")}</li>
+        </ol>
+        {step.done ? (
+          <p className="ob-space-note" role="status" data-testid="space-add-device-done">
+            {d(step.done === "sent" ? "addDeviceSent" : "addDeviceSaved")}
+          </p>
+        ) : null}
+        <div className="ob-space-actions">
+          <button
+            type="button"
+            className={step.done ? "ob-btn ob-btn--ghost" : "ob-btn ob-btn--primary"}
+            data-testid="space-add-device-send"
+            data-via={viaShare ? "share" : "file"}
+            data-autofocus
+            onClick={() => {
+              if (viaShare) {
+                // Straight from the click: the share sheet opens only then.
+                navigator.share({ files: [viaShare], title: "Ulune" }).then(
+                  () => setStep({ kind: "send", files, done: "sent" }),
+                  (err: unknown) => {
+                    if (err instanceof Error && err.name === "AbortError") return;
+                    void loadSpaceRuntime().then((m) => {
+                      m.saveSpaceCopy(files.json);
+                      setStep({ kind: "send", files, done: "saved" });
+                    });
+                  },
+                );
+                return;
+              }
+              void loadSpaceRuntime().then((m) => {
+                m.saveSpaceCopy(files.json);
+                setStep({ kind: "send", files, done: "saved" });
+              });
+            }}
+          >
+            <Send className="size-4" strokeWidth={1.75} aria-hidden />
+            {d(viaShare ? "addDeviceShare" : "addDeviceSave")}
+          </button>
+          <p className="ob-space-note">{d("addDeviceNote")}</p>
+          <button type="button" className="ob-space-link" data-testid="space-add-device-close" onClick={leave}>
+            {t(step.done ? "spaceDone" : "spaceCancel")}
+          </button>
+        </div>
+      </>
+    ) : (
+      <p className="ob-space-p ob-space-busy" aria-live="polite" data-testid="space-busy">
+        <span className="ob-space-spin" aria-hidden />
+        {d("addDevicePreparing")}
+      </p>
+    );
   } else if (step.kind === "newpass") {
     const after = step.after;
     title = after === "add" ? "spaceAddPassphraseTitle" : after === "change" ? "spaceChangePassphraseTitle" : "spaceNewPassTitle";

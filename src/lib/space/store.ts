@@ -44,6 +44,12 @@ export type SpaceMeta = {
   id: string;
   created: number;
   lock: LockMode;
+  /**
+   * The reader chose when it locks (Settings, or "This is a shared computer").
+   * A space without it that locks when Ulune closes was made before staying
+   * signed in was the default, and stays signed in from its next unlock.
+   */
+  lockSet?: boolean;
   /** The user id passkeys were made with (base64url, random): one per space. */
   passkeyUser: string;
   wraps: Wrap[];
