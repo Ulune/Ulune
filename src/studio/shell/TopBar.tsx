@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { AccountMenu } from "@/studio/shell/AccountMenu";
 import { SpaceButton } from "@/components/space/space-button";
 import { ChartPicker } from "@/studio/shell/ChartPicker";
-import { UluneMark } from "@/studio/shell/PageTopBar";
+import { UluneMark } from "@/studio/shell/ulune-mark";
 
 /** Studio top bar, left half: wordmark (wide) + chart switcher. */
 export function TopLeft() {

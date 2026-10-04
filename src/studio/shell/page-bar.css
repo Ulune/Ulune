@@ -1,0 +1,60 @@
+/* The pages outside the studio: their top bar (PageTopBar.tsx). */
+.ob-pagebar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  height: var(--ob-top-h);
+  padding: 0 8px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  font-family: var(--font-ui);
+}
+.ob-brand--page {
+  display: inline-flex;
+  justify-self: start;
+  padding: 0 8px;
+  border-radius: var(--radius-md);
+  color: var(--color-fg);
+}
+/* The studio's four pages, as on its own top bar (part 97): words with a
+   computer, icons on a phone. */
+.ob-pagebar-nav {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+}
+.ob-pagebar-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: var(--ctl-icon);
+  padding: 0 14px;
+  color: var(--color-fg-muted);
+  font-size: 14px;
+  font-weight: 500;
+  transition: color var(--dur-hover) var(--ease-out);
+}
+@media (hover: hover) {
+  .ob-pagebar-link:hover {
+    color: var(--color-fg);
+  }
+}
+@media (max-width: 639.98px) {
+  .ob-pagebar-word,
+  .ob-brand--page .ob-brand-word {
+    display: none;
+  }
+  .ob-pagebar-link {
+    padding: 0 10px;
+  }
+}
+.ob-pagebar-r {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+}
+

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { createPortal } from "react-dom";
 import { AnchoredPopover } from "@/components/anchored-popover";
 import { useI18n } from "@/lib/i18n/locale";
-import { useRingsSlot } from "@/studio/stage/stage-slots";
+import { useMoreSlots, useRingsSlot } from "@/studio/stage/stage-slots";
 import "./rings-menu.css";
 
 export type RingsOption<T extends string> = { value: T; label: string; line: string };
@@ -40,6 +40,7 @@ export function RingsMenu<T extends string>({
 }) {
   const { t } = useI18n();
   const slot = useRingsSlot();
+  const more = useMoreSlots();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => setOpen(false), []);
@@ -128,7 +129,45 @@ export function RingsMenu<T extends string>({
       </AnchoredPopover>
     </div>
   );
-  return slot ? createPortal(body, slot) : body;
+  // On a phone the choices stand at the top of the toolbar's ⋯ menu (part 96).
+  const inMore = more.rings
+    ? createPortal(
+        <div role="group" aria-label={ariaLabel} className="ulune-rings-more" data-testid={`${testId}-more`}>
+          <p className="ob-menu-head">{ariaLabel}</p>
+          {head}
+          {options.map((o) => {
+            const on = o.value === value;
+            return (
+              <button
+                key={o.value}
+                type="button"
+                role="menuitemradio"
+                aria-checked={on}
+                className="ob-menu-item ulune-rings-item"
+                data-testid={`${testId}-more-${o.value}`}
+                onClick={() => {
+                  onChange(o.value);
+                  more.close();
+                }}
+              >
+                <Check className="ulune-rings-check" strokeWidth={2} aria-hidden style={{ visibility: on ? "visible" : "hidden" }} />
+                <span className="ulune-rings-words">
+                  <span className="ulune-rings-name">{o.label}</span>
+                  <span className="ulune-rings-line">{o.line}</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>,
+        more.rings,
+      )
+    : null;
+  return (
+    <>
+      {slot ? createPortal(body, slot) : body}
+      {inMore}
+    </>
+  );
 }
 
 /**

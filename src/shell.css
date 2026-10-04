@@ -938,14 +938,7 @@ html.theme-switching::view-transition-new(root) {
   margin-top: 2px;
   color: var(--color-fg-muted);
 }
-.ob-foot-ctrls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  flex: 1 1 100%;
-  min-width: 0;
-}
+
 .ob-zoom-slot {
   display: flex;
   flex: 0 0 auto;
@@ -1508,7 +1501,7 @@ html.theme-switching::view-transition-new(root) {
   }
   .ob-panel-head {
     height: var(--ob-peek-h);
-    padding: 4px 4px 0 8px;
+    padding: 0 4px 0 8px;
     touch-action: none;
     border-bottom: 1px solid transparent;
   }
@@ -1767,13 +1760,7 @@ html.theme-switching::view-transition-new(root) {
   .ulune-method-note {
     justify-content: flex-start;
   }
-  .ob-foot-ctrls {
-    flex: 0 0 auto;
-    justify-content: flex-end;
-    /* At the row's end in every view (review 3 Oct, C6): a wrapped footer
-       (the wheel's strip on a row of its own) used to bring it to the left. */
-    margin-left: auto;
-  }
+
   /* A strip in the footer (no room beside the wheel) takes a row of its own. */
   .ob-foot:has(> .ob-aspect-slot:not(:empty)) {
     flex-wrap: wrap;
@@ -1847,78 +1834,12 @@ html.theme-switching::view-transition-new(root) {
   background: var(--color-bg);
   font-family: var(--font-ui);
 }
-.ob-pagebar {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  height: var(--ob-top-h);
-  padding: 0 8px;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg);
-  font-family: var(--font-ui);
-}
-.ob-back {
-  justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: var(--ctl-h);
-  padding: 0 12px;
-  border-radius: var(--radius-md);
-  color: var(--color-fg-muted);
-  font-size: 14px;
-  font-weight: 500;
-  transition:
-    background-color var(--dur-hover) var(--ease-out),
-    color var(--dur-hover) var(--ease-out);
-}
-@media (hover: hover) {
-  .ob-back:hover {
-    color: var(--color-fg);
-    background: var(--color-bg-subtle);
-  }
-}
-.ob-brand--page {
-  display: inline-flex;
-  justify-self: center;
-}
-.ob-pagebar-r {
-  justify-self: end;
-  display: flex;
-  align-items: center;
-}
-
-.ulune-settings {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-  max-width: 560px;
-  margin: 0 auto;
-  padding: 24px 16px 48px;
-}
-.ob-settings-card {
-  padding: 20px;
-}
 .ob-settings-h {
   margin: 0 0 8px;
   font-family: var(--font-ui);
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0;
-}
-.ob-settings-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 52px;
-}
-.ob-settings-row .ulune-seg {
-  width: 180px;
 }
 
 /* ------------------------------------------------------- reduced motion */
@@ -2912,10 +2833,7 @@ html[data-first-view] .ulune-wheel[data-entering] > [data-kind="aspect-marks"] {
     color: var(--color-fg);
   }
 }
-.ob-space-link--small {
-  font-size: 13px;
-  color: var(--color-fg-subtle);
-}
+
 .ob-space-code {
   margin: 0;
   padding: 14px 10px;
@@ -3487,7 +3405,6 @@ html[data-tour-done] .ob-tour-link {
   }
 }
 
-
 /* Disclosures open and close in height (the motion plan): where the browser
    can animate to the content's own height (interpolate-size), the content
    grows in on the glide curve; elsewhere it opens at once, as before. */
@@ -3509,5 +3426,91 @@ html[data-tour-done] .ob-tour-link {
     details::details-content {
       transition: none;
     }
+  }
+}
+
+/* ─── The phone's toolbar (UI plan, part 96) ─────────────────────────────
+   One row: the sub-modes (or the chart's details) and ⋯, which holds the
+   rings, Wheel / Table, Export, 3D and the pointer tools. A second row only
+   where the page has its own controls (Pair, Calendar, Human Design,
+   Numerology). Zoom is a pinch; Fit shows in the corner while zoomed. */
+.ob-more {
+  display: none;
+}
+.ob-more-part:empty {
+  display: none;
+}
+.ob-more-part + .ob-more-part {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--color-border);
+}
+.ob-more-menu .ob-menu-extra {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.ulune-more-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 6px;
+}
+.ulune-more-tools:empty {
+  display: none;
+}
+@media (max-width: 1023.98px) {
+  .ob-more {
+    display: inline-flex;
+  }
+  .ob-strip-end > :not(.ob-more) {
+    display: none;
+  }
+  .ob-strip {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+  }
+  .ob-strip > .ob-submodes,
+  .ob-strip > .ob-strip-cap {
+    grid-column: 1;
+    grid-row: 1;
+    width: auto;
+  }
+  .ob-strip > .ob-strip-end {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+  }
+  .ob-strip > .ob-strip-extra {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .ob-strip > .ob-strip-extra:empty,
+  .ob-strip > .ob-strip-fill {
+    display: none;
+  }
+  .ob-zoom-corner .ulune-wheel-zoom-bar:not([data-zoomed]) {
+    display: none;
+  }
+  .ob-zoom-corner .ulune-wheel-zoom-bar > :not(.ulune-wheel-zoom-fit) {
+    display: none;
+  }
+}
+/* A phone: the two-ring wheel under the toolbar, its dial right under it;
+   what room is left goes below (part 96: the wheel started 47 px lower,
+   centred in a taller box). */
+@media (max-width: 1023.98px) and (orientation: portrait) {
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ob-figure .ulune-biwheel .ulune-wheel-port {
+    flex-grow: 0;
+  }
+}
+/* A page with neither sub-modes nor details (the Chart's table): its own
+   controls share the first row with ⋯. */
+@media (max-width: 1023.98px) {
+  .ob-strip:not(:has(> .ob-submodes)):not(:has(> .ob-strip-cap)) > .ob-strip-extra {
+    grid-column: 1;
+    grid-row: 1;
   }
 }

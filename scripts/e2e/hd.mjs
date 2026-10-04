@@ -15,7 +15,7 @@
  */
 import { join } from "node:path";
 import { chromium } from "playwright";
-import { DEV, SHOTS, ensureShotsDir, goStudioPage, gotoApp } from "./_lib.mjs";
+import { DEV, SHOTS, ensureShotsDir, goStudioPage, gotoApp, setView } from "./_lib.mjs";
 
 function watch(page) {
   const errors = [];
@@ -254,7 +254,7 @@ async function desktop() {
     await page.getByTestId("hd-col-head-design").click();
 
     // The Table view: the 26 activations, then the defined channels.
-    await page.getByTestId("view-table").click();
+    await setView(page, "table");
     await page.getByTestId("hd-acts").waitFor({ timeout: 8000 });
     const table = await page.evaluate(() => ({
       acts: document.querySelectorAll("[data-testid=hd-acts] tbody tr").length,
@@ -265,7 +265,7 @@ async function desktop() {
     await page.getByTestId("hd-act-design-mars").click();
     await page.waitForTimeout(400);
     if (!/Design Mars 26\.6/.test(await page.getByTestId("click-note").innerText())) throw new Error("a table row's reading");
-    await page.getByTestId("view-wheel").click();
+    await setView(page, "wheel");
 
     if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
     console.log("hd-1280 OK");

@@ -14,7 +14,7 @@ import { requestDepthReset, setDepthPrefs, useDepthPrefs } from "@/lib/depth/pre
 import { supportsWebGL } from "./depth/gl/support";
 import { preloadView3D } from "./depth/load-view3d";
 import { whenIdle } from "@/lib/lazy-component";
-import { useAspectSlot, useZoomSlot } from "@/studio/stage/stage-slots";
+import { useAspectSlot, useMoreSlots, useZoomSlot } from "@/studio/stage/stage-slots";
 
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 2.5;
@@ -215,6 +215,7 @@ export function WheelZoom({
   lensRef.current = lens;
   const lensOn = lens !== null;
   const zoomSlot = useZoomSlot();
+  const more = useMoreSlots();
   const depth = useDepthPrefs();
   /**
    * The 3D view needs WebGL: checked once the page is idle (the server cannot
@@ -509,41 +510,9 @@ export function WheelZoom({
     requestDepthReset();
   };
 
-  const bar = (
-    <div
-      className="ulune-wheel-zoom-bar"
-      data-testid="wheel-zoom-bar"
-      onPointerDown={(e) => e.stopPropagation()}
-    >
-      <button
-        type="button"
-        className="ulune-wheel-zoom-btn"
-        data-testid="wheel-zoom-out"
-        aria-label={t("zoomOut")}
-        disabled={lens ? lens.zoom <= lens.min + 0.001 : zoom <= ZOOM_MIN + 0.001}
-        onClick={() => (lens ? lens.step(-1) : setZoomNow(roundZoom(zoomRef.current - ZOOM_STEP), "glide"))}
-      >
-        <Minus className="size-4" strokeWidth={1.75} />
-      </button>
-      <button
-        type="button"
-        className="ulune-wheel-zoom-fit"
-        data-testid="wheel-zoom-fit"
-        aria-label={t("zoomFit")}
-        onClick={fit}
-      >
-        <span className="ulune-wheel-zoom-fit-label">{t("zoomFit")}</span>
-      </button>
-      <button
-        type="button"
-        className="ulune-wheel-zoom-btn"
-        data-testid="wheel-zoom-in"
-        aria-label={t("zoomIn")}
-        disabled={lens ? lens.zoom >= lens.max - 0.001 : zoom >= ZOOM_MAX - 0.001}
-        onClick={() => (lens ? lens.step(1) : setZoomNow(roundZoom(zoomRef.current + ZOOM_STEP), "glide"))}
-      >
-        <Plus className="size-4" strokeWidth={1.75} />
-      </button>
+  // 3D and its camera angle: in the bar on a computer, in the ⋯ menu on a phone (part 96).
+  const depthButtons = (
+    <>
       {can3d ? (
       <button
         type="button"
@@ -577,6 +546,47 @@ export function WheelZoom({
           <AngleIcon at={lens.angle.at} />
         </button>
       ) : null}
+    </>
+  );
+  const zoomed = lens ? lens.zoom > lens.min + 0.001 : zoom > ZOOM_MIN + 0.001;
+
+  const bar = (
+    <div
+      className="ulune-wheel-zoom-bar"
+      data-testid="wheel-zoom-bar"
+      data-zoomed={zoomed ? "" : undefined}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
+      <button
+        type="button"
+        className="ulune-wheel-zoom-btn"
+        data-testid="wheel-zoom-out"
+        aria-label={t("zoomOut")}
+        disabled={lens ? lens.zoom <= lens.min + 0.001 : zoom <= ZOOM_MIN + 0.001}
+        onClick={() => (lens ? lens.step(-1) : setZoomNow(roundZoom(zoomRef.current - ZOOM_STEP), "glide"))}
+      >
+        <Minus className="size-4" strokeWidth={1.75} />
+      </button>
+      <button
+        type="button"
+        className="ulune-wheel-zoom-fit"
+        data-testid="wheel-zoom-fit"
+        aria-label={t("zoomFit")}
+        onClick={fit}
+      >
+        <span className="ulune-wheel-zoom-fit-label">{t("zoomFit")}</span>
+      </button>
+      <button
+        type="button"
+        className="ulune-wheel-zoom-btn"
+        data-testid="wheel-zoom-in"
+        aria-label={t("zoomIn")}
+        disabled={lens ? lens.zoom >= lens.max - 0.001 : zoom >= ZOOM_MAX - 0.001}
+        onClick={() => (lens ? lens.step(1) : setZoomNow(roundZoom(zoomRef.current + ZOOM_STEP), "glide"))}
+      >
+        <Plus className="size-4" strokeWidth={1.75} />
+      </button>
+      {depthButtons}
       {tools}
     </div>
   );
@@ -623,6 +633,15 @@ export function WheelZoom({
         </div>
       </div>
       {zoomSlot ? createPortal(bar, zoomSlot) : bar}
+      {more.tools && (can3d || tools)
+        ? createPortal(
+            <div className="ulune-more-tools" data-testid="wheel-more-tools" onClick={(e) => (e.target as HTMLElement).closest("button") && more.close()}>
+              {depthButtons}
+              {tools}
+            </div>,
+            more.tools,
+          )
+        : null}
       {legendEl}
       {aside && asideAt ? (
         <div

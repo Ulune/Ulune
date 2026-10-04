@@ -12,6 +12,8 @@ import {
   keepCharts,
   launch,
   pickPlace,
+  setView,
+  openExport,
 } from "./_lib.mjs";
 
 /*
@@ -35,7 +37,9 @@ async function pageState(page) {
       sideways: fig ? fig.scrollWidth - fig.clientWidth : -1,
       figTop: fig ? fig.getBoundingClientRect().top : 0,
       barTop: bar ? bar.getBoundingClientRect().top : -1,
-      barBottom: bar ? bar.getBoundingClientRect().bottom : -1,
+      // The links stand in the stage's toolbar (part 97): parts land at the scroller's top.
+      barBottom: bar ? Math.max(bar.getBoundingClientRect().bottom, fig ? fig.getBoundingClientRect().top : 0) : -1,
+      barInScroll: Boolean(bar && fig && fig.contains(bar)),
       current: document.querySelector("[data-testid=table-bar] [aria-current=true]")?.getAttribute("data-part") ?? null,
       focus: document.activeElement?.id ?? "",
     };
@@ -64,7 +68,7 @@ async function checkLinks(page, label) {
     const s = await pageState(page);
     if (s.current !== id) throw new Error(`${label}: ${id} link: marked ${s.current}`);
     if (s.focus !== `table-part-${id}-h`) throw new Error(`${label}: ${id} link: focus on "${s.focus}"`);
-    if (Math.abs(s.barTop - s.figTop) > 1) throw new Error(`${label}: bar not pinned (${s.barTop} vs ${s.figTop})`);
+    if (s.barInScroll || s.barTop > s.figTop) throw new Error(`${label}: the links are not in the toolbar (${s.barTop} vs ${s.figTop})`);
     // The part lands just under the bar, unless the page ends first. On a busy machine the glide can
     // start late, after the scroll looked settled: allow it up to 3 s to arrive.
     let top = await headTop(page, id);
@@ -87,7 +91,7 @@ async function checkFollow(page, label) {
     const fig = document.querySelector(".ob-stage--table .ob-figure");
     const bar = document.querySelector("[data-testid=table-bar]");
     const part = document.getElementById("table-part-houses");
-    fig.scrollTop += part.getBoundingClientRect().top - bar.getBoundingClientRect().bottom + 30;
+    fig.scrollTop += part.getBoundingClientRect().top - Math.max(bar.getBoundingClientRect().bottom, fig.getBoundingClientRect().top) + 30;
   });
   await settle(page);
   let s = await pageState(page);
@@ -283,7 +287,7 @@ async function runViewport(width) {
 
     const [download] = await Promise.all([
       page.waitForEvent("download", { timeout: 8000 }),
-      page.getByTestId("table-csv").click(),
+      openExport(page).then(() => page.getByTestId("table-csv").click()),
     ]);
     const stream = await download.createReadStream();
     const chunks = [];
@@ -330,7 +334,10 @@ async function runViewport(width) {
       await settle(page);
       const pin = await page.evaluate(() => ({
         th: document.querySelector("[data-testid=table-aspects] thead th").getBoundingClientRect().top,
-        bar: document.querySelector("[data-testid=table-bar]").getBoundingClientRect().bottom,
+        bar: Math.max(
+          document.querySelector("[data-testid=table-bar]").getBoundingClientRect().bottom,
+          document.querySelector(".ob-stage--table .ob-figure").getBoundingClientRect().top,
+        ),
       }));
       if (Math.abs(pin.th - pin.bar) > 1) throw new Error(`1280: aspect headers at ${pin.th}, bar bottom ${pin.bar}`);
       // With the side panel folded away the stage is wider: still nothing sideways.
@@ -364,9 +371,9 @@ async function runViewport(width) {
     // The part last read comes back after a trip to the wheel.
     await page.getByTestId("table-section-balance").click();
     await settle(page);
-    await page.getByTestId("view-wheel").click();
+    await setView(page, "wheel");
     await page.getByTestId("studio-natal").waitFor({ timeout: 20000 });
-    await page.getByTestId("view-table").click();
+    await setView(page, "table");
     await page.getByTestId("table-points").waitFor({ timeout: 8000 });
     await settle(page);
     const back = await pageState(page);
@@ -445,7 +452,7 @@ async function openTable(page, fixture) {
   await page.getByTestId("cast-submit").click();
   // A cast from the table's own new-chart form comes back to the table.
   await page.locator("[data-testid=studio-natal], [data-testid=table-points]").first().waitFor({ timeout: 45000 });
-  if (!(await page.getByTestId("table-points").count())) await page.getByTestId("view-table").click();
+  if (!(await page.getByTestId("table-points").count())) await setView(page, "table");
   await page.getByTestId("table-points").waitFor({ timeout: 15000 });
   await page.waitForFunction((name) => document.querySelector("[data-testid=table-fact-name]")?.textContent?.includes(name), fixture.name, { timeout: 15000 });
   await settle(page);

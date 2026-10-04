@@ -171,7 +171,12 @@ export function FigureZoom({ children, testId }: { children: ReactNode; testId: 
   };
 
   const bar = (
-    <div className="ulune-wheel-zoom-bar" data-testid={`${testId}-bar`} onPointerDown={(e) => e.stopPropagation()}>
+    <div
+      className="ulune-wheel-zoom-bar"
+      data-testid={`${testId}-bar`}
+      data-zoomed={zoom > ZOOM_MIN + 0.001 ? "" : undefined}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
       <button
         type="button"
         className="ulune-wheel-zoom-btn"

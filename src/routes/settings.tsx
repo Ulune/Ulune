@@ -1,6 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { LangSwitch } from "@/components/lang-switch";
-import { ThemeSwitch } from "@/components/theme-switch";
 import { PageTopBar } from "@/studio/shell/PageTopBar";
 import { Toaster } from "@/components/toaster";
 import { APP_VERSION, SOURCE_URL } from "@/lib/app-identity";
@@ -11,6 +9,7 @@ import { LegalNav } from "@/components/legal-page";
 import { keepWhole } from "@/components/keep-whole";
 import { pageHead } from "@/lib/page-head";
 import { problemMailto } from "@/lib/contact";
+import "@/components/settings-page.css";
 
 export const Route = createFileRoute("/settings")({
   // Nothing here for a search engine: the page is about this browser.
@@ -24,19 +23,12 @@ function Settings() {
     <div className="min-w-0" data-testid="settings-page">
       <PageTopBar />
       <Toaster />
-      <main className="ulune-settings">
-        <section className="ulune-panel ob-settings-card" data-testid="settings-prefs">
-          {/* The page's title (the same look as the other cards' headings). */}
-          <h1 className="ob-settings-h">{t("shellSettings")}</h1>
-          <div className="ob-settings-row">
-            <span className="ob-menu-label">{t("language")}</span>
-            <LangSwitch />
-          </div>
-          <div className="ob-settings-row">
-            <span className="ob-menu-label">{t("theme")}</span>
-            <ThemeSwitch />
-          </div>
-        </section>
+      <main className="ulune-settings ulune-settings--grid">
+        {/* Language and appearance live in the account menu (UI plan, decision 3): one line says where. */}
+        <header className="ob-settings-top" data-testid="settings-prefs">
+          <h1 className="ob-settings-title">{t("shellSettings")}</h1>
+          <p className="ob-data-body">{t("settingsLangHint")}</p>
+        </header>
         <SpaceSettings />
         <YourData />
         <section className="ulune-panel ob-settings-card" data-testid="settings-legal">

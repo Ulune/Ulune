@@ -1,7 +1,7 @@
 /** Export: PNG and SVG downloads of the wheel, copy summary, print sheet builds, the calendar's CSV and .ics. */
 import { copyFile, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { FIXTURE_A, SHOTS, castFixture, ensureShotsDir, goStudioPage, gotoApp, launch } from "./_lib.mjs";
+import { FIXTURE_A, SHOTS, castFixture, ensureShotsDir, goStudioPage, gotoApp, launch, setView, openExport } from "./_lib.mjs";
 
 await ensureShotsDir();
 const { browser, page } = await launch(1280);
@@ -37,11 +37,11 @@ try {
   const [mainDl] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.getByTestId("calendar-export-main").click()]);
   if (!mainDl.suggestedFilename().endsWith(".ics")) throw new Error(`calendar file from Export: ${mainDl.suggestedFilename()}`);
   await page.getByTestId("export-panel").waitFor({ state: "detached", timeout: 4000 });
-  await page.getByTestId("view-table").click();
+  await setView(page, "table");
   await page.getByTestId("timing-table").waitFor({ timeout: 20000 });
   await page.locator("[data-testid=calendar-table-row-sky]").first().waitFor({ timeout: 20000 });
   const shownRows = await page.locator("[data-testid^=calendar-table-row-]").count();
-  const [csvDl] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.getByTestId("table-csv").click()]);
+  const [csvDl] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), openExport(page).then(() => page.getByTestId("table-csv").click())]);
   const csv = await readFile(await csvDl.path(), "utf8");
   if (!csv.startsWith("\uFEFF")) throw new Error("calendar CSV without its byte-order mark");
   const lines = csv.slice(1).trim().split(/\r?\n/);
@@ -49,8 +49,9 @@ try {
   if (!/\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(lines[1])) throw new Error(`CSV row without UT: ${lines[1]}`);
   if (lines.length - 1 < shownRows) throw new Error(`CSV ${lines.length - 1} rows, table ${shownRows}`);
   // The file's choice (review 3 Oct, T5): everything shown, here.
-  await page.getByTestId("calendar-ics").click();
-  if ((await page.locator("[data-testid=calendar-ics-menu] [role=menuitem]").count()) !== 3) throw new Error("the calendar file's three choices");
+  // In Export with the table's text and CSV (part 97).
+  await openExport(page);
+  if ((await page.locator("[data-testid=calendar-ics] [role=menuitem]").count()) !== 3) throw new Error("the calendar file's three choices");
   const [icsDl] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.getByTestId("calendar-ics-all").click()]);
   if (!/^ulune-traceqa-/.test(icsDl.suggestedFilename())) throw new Error(`calendar file name without the person: ${icsDl.suggestedFilename()}`);
   const ics = await readFile(await icsDl.path(), "utf8");

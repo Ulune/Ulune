@@ -6,7 +6,7 @@ import { chartDisplayName } from "@/lib/chart/library";
 import { formatEuropeanDate } from "@/lib/chart/parse-birth";
 import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
-import { UluneMark } from "@/studio/shell/PageTopBar";
+import { UluneMark } from "@/studio/shell/ulune-mark";
 import { useStudioStore } from "@/studio/store";
 import { toast } from "@/lib/toast";
 

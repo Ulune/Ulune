@@ -80,6 +80,11 @@ export const shell = {
   viewCalendar: ["Calendar", "Calendrier"],
   viewBodygraph: ["Bodygraph", "Bodygraph"],
   exportMenu: ["Export and share", "Exporter et partager"],
+  stageMore: ["More options", "Plus d’options"],
+  settingsLangHint: [
+    "Language and appearance are in the account menu, at the top right.",
+    "La langue et l’apparence sont dans le menu du compte, en haut à droite.",
+  ],
   exportPng: ["Download image (PNG)", "Télécharger l’image (PNG)"],
   exportSvg: ["Download vector image (SVG)", "Télécharger l’image vectorielle (SVG)"],
   exportPrint: ["Print a chart sheet", "Imprimer une fiche du thème"],

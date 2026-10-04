@@ -14,7 +14,10 @@ import type { NatalChart } from "@/lib/chart/types";
  * focused or opened, so it is there by the time an item is picked (copying
  * must happen within the click in Safari).
  */
-type ExportCode = [typeof import("@/lib/export/chart-summary"), typeof import("@/lib/export/wheel-export")];
+type ExportCode = [
+  typeof import("@/lib/export/chart-summary"),
+  typeof import("@/lib/export/wheel-export"),
+];
 let exportCode: ExportCode | null = null;
 let exportLoading: Promise<ExportCode> | null = null;
 
@@ -38,13 +41,24 @@ function exportAhead() {
 }
 
 function slugName(name: string) {
-  return name.trim().replace(/\s+/g, "-").replace(/[^\p{L}\p{N}-]/gu, "").toLowerCase() || "chart";
+  return (
+    name
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^\p{L}\p{N}-]/gu, "")
+      .toLowerCase() || "chart"
+  );
 }
 
 const CAPTION_KEY = "ulune.export.caption";
 
 /** The band under an exported image: the name, then the birth's date, time, place and houses. */
-function figureCaption(chart: NatalChart, locale: string, timeUnknown: boolean, t: ReturnType<typeof useI18n>["t"]) {
+function figureCaption(
+  chart: NatalChart,
+  locale: string,
+  timeUnknown: boolean,
+  t: ReturnType<typeof useI18n>["t"],
+) {
   const m = chart.meta;
   const line = [
     formatEuropeanDate(m.date) || m.date,
@@ -56,14 +70,24 @@ function figureCaption(chart: NatalChart, locale: string, timeUnknown: boolean, 
   return { title: m.name || "Ulune", line: line.join(" · ") };
 }
 
-/** Stage footer: download the figure, print a chart sheet, copy a summary. */
-export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null) => void } = {}) {
+/**
+ * The ways out, as menu items: download the figure, print a chart sheet,
+ * copy a summary, then what the page adds (the Calendar's file, a table's
+ * text and CSV) in `extraSlot`. Drawn in the Export menu on a computer and
+ * in the toolbar's ⋯ menu on a phone (UI plan, part 96).
+ */
+export function ExportItems({
+  close,
+  extraSlot,
+}: {
+  close: () => void;
+  extraSlot?: (el: HTMLElement | null) => void;
+}) {
   const { locale, t } = useI18n();
   const chart = useStudioStore((s) => s.chart);
   const timeUnknown = useStudioStore((s) => s.timeUnknown);
   const view = useStudioStore((s) => s.view);
   const page = useStudioStore((s) => s.page);
-  const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   // Whose chart and which moment, in a band under the image (on by default; off for privacy).
   const [withCaption, setWithCaption] = useState(() => {
@@ -74,19 +98,22 @@ export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null)
       return false;
     }
   });
-  const ref = useRef<HTMLButtonElement>(null);
-  const close = useCallback(() => setOpen(false), []);
   // A page's own items, drawn into the menu's end: picking one closes it too.
   const [extra, setExtra] = useState<HTMLElement | null>(null);
   useEffect(() => {
     extraSlot?.(extra);
     if (!extra) return;
     const picked = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest("[role=menuitem]:not(:disabled)")) setOpen(false);
+      // After the item's own click has run (React handles it at the root, later in the bubble).
+      if ((e.target as HTMLElement).closest("[role=menuitem]:not(:disabled)")) window.setTimeout(close, 0);
     };
     extra.addEventListener("click", picked);
-    return () => extra.removeEventListener("click", picked);
-  }, [extra, extraSlot]);
+    return () => {
+      extra.removeEventListener("click", picked);
+      extraSlot?.(null);
+    };
+  }, [extra, extraSlot, close]);
+  useEffect(exportAhead, []);
   if (!chart) return null;
   const name = slugName(`${chart.meta.name || "ulune"}-${page}`);
   const hasFigure = view === "wheel";
@@ -95,8 +122,10 @@ export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null)
     if (!chart) return;
     setBusy(true);
     try {
-      const [{ chartSheetHtml, chartSummaryText, printHtml }, { figurePng, findFigureSvg, saveBlob, serializeFigure }] =
-        exportCode ?? (await loadExportCode());
+      const [
+        { chartSheetHtml, chartSummaryText, printHtml },
+        { figurePng, findFigureSvg, saveBlob, serializeFigure },
+      ] = exportCode ?? (await loadExportCode());
       if (kind === "copy") {
         await navigator.clipboard.writeText(chartSummaryText(chart, locale, timeUnknown));
         toast(t("exportCopied"));
@@ -113,7 +142,11 @@ export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null)
         return;
       }
       const size = 1600;
-      const text = await serializeFigure(svgEl, size, withCaption ? figureCaption(chart, locale, timeUnknown, t) : null);
+      const text = await serializeFigure(
+        svgEl,
+        size,
+        withCaption ? figureCaption(chart, locale, timeUnknown, t) : null,
+      );
       if (kind === "svg") {
         saveBlob(`${name}.svg`, new Blob([text], { type: "image/svg+xml" }));
       } else {
@@ -127,11 +160,16 @@ export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null)
       toast(t("exportFailed"), "error");
     } finally {
       setBusy(false);
-      setOpen(false);
+      close();
     }
   }
 
-  const item = (kind: "png" | "svg" | "print" | "copy", icon: React.ReactNode, label: string, disabled = false) => (
+  const item = (
+    kind: "png" | "svg" | "print" | "copy",
+    icon: React.ReactNode,
+    label: string,
+    disabled = false,
+  ) => (
     <button
       type="button"
       role="menuitem"
@@ -145,6 +183,59 @@ export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null)
     </button>
   );
 
+  return (
+    <>
+      {/* The picture's ways out only where there is a picture (part 97: no greyed items on a table). */}
+      {hasFigure
+        ? item(
+            "png",
+            <FileImage className="size-4" strokeWidth={1.75} aria-hidden />,
+            t("exportPng"),
+          )
+        : null}
+      {hasFigure
+        ? item(
+            "svg",
+            <Download className="size-4" strokeWidth={1.75} aria-hidden />,
+            t("exportSvg"),
+          )
+        : null}
+      {hasFigure ? (
+        <label className="ob-menu-item ob-menu-check" data-testid="export-caption">
+          <input
+            type="checkbox"
+            checked={withCaption}
+            onChange={(e) => {
+              setWithCaption(e.target.checked);
+              try {
+                window.localStorage.setItem(CAPTION_KEY, e.target.checked ? "1" : "0");
+              } catch {
+                /* this visit only */
+              }
+            }}
+          />
+          <span>{t("exportCaption")}</span>
+        </label>
+      ) : null}
+      {item(
+        "print",
+        <Printer className="size-4" strokeWidth={1.75} aria-hidden />,
+        t("exportPrint"),
+      )}
+      {item("copy", <Copy className="size-4" strokeWidth={1.75} aria-hidden />, t("exportCopy"))}
+      {extraSlot ? <div ref={setExtra} className="ob-menu-extra" /> : null}
+    </>
+  );
+}
+
+/** The toolbar's Export: the ways out in a menu under its button. */
+export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null) => void } = {}) {
+  const { t } = useI18n();
+  const chart = useStudioStore((s) => s.chart);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLButtonElement>(null);
+  const close = useCallback(() => setOpen(false), []);
+  if (!chart) return null;
   return (
     <>
       <button
@@ -165,29 +256,22 @@ export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null)
       >
         <Share2 className="size-4" strokeWidth={1.75} aria-hidden />
       </button>
-      <AnchoredPopover open={open} anchorRef={ref} onClose={close} hideLabel={t("hidePanel")} align="end" width={248} backdrop={false}>
-        <div role="menu" aria-label={t("exportMenu")} className="ob-menu" data-testid="export-panel">
-          {item("png", <FileImage className="size-4" strokeWidth={1.75} aria-hidden />, t("exportPng"), !hasFigure)}
-          {item("svg", <Download className="size-4" strokeWidth={1.75} aria-hidden />, t("exportSvg"), !hasFigure)}
-          <label className="ob-menu-item ob-menu-check" data-testid="export-caption">
-            <input
-              type="checkbox"
-              checked={withCaption}
-              disabled={!hasFigure}
-              onChange={(e) => {
-                setWithCaption(e.target.checked);
-                try {
-                  window.localStorage.setItem(CAPTION_KEY, e.target.checked ? "1" : "0");
-                } catch {
-                  /* this visit only */
-                }
-              }}
-            />
-            <span>{t("exportCaption")}</span>
-          </label>
-          {item("print", <Printer className="size-4" strokeWidth={1.75} aria-hidden />, t("exportPrint"))}
-          {item("copy", <Copy className="size-4" strokeWidth={1.75} aria-hidden />, t("exportCopy"))}
-          {extraSlot ? <div ref={setExtra} className="ob-menu-extra" /> : null}
+      <AnchoredPopover
+        open={open}
+        anchorRef={ref}
+        onClose={close}
+        hideLabel={t("hidePanel")}
+        align="end"
+        width={248}
+        backdrop={false}
+      >
+        <div
+          role="menu"
+          aria-label={t("exportMenu")}
+          className="ob-menu"
+          data-testid="export-panel"
+        >
+          <ExportItems close={close} extraSlot={extraSlot} />
         </div>
       </AnchoredPopover>
     </>

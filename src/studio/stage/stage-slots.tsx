@@ -31,3 +31,26 @@ export const ExportSlotContext = createContext<HTMLElement | null>(null);
 export function useExportSlot(): HTMLElement | null {
   return useContext(ExportSlotContext);
 }
+
+/**
+ * The phone's ⋯ menu (UI plan, part 96), while it is open: room at its top
+ * for the rings' choices and, after Export, for 3D and the pointer tools,
+ * which stand in the toolbar and the figure's corner on a computer.
+ */
+export type MoreSlots = { rings: HTMLElement | null; tools: HTMLElement | null; close: () => void };
+export const MoreSlotsContext = createContext<MoreSlots>({ rings: null, tools: null, close: () => {} });
+
+export function useMoreSlots(): MoreSlots {
+  return useContext(MoreSlotsContext);
+}
+
+/**
+ * The table's part links in the stage's toolbar (UI plan, part 97): the
+ * sections follow the scroll from there instead of a bar of their own over
+ * the table.
+ */
+export const TableTabsSlotContext = createContext<HTMLElement | null>(null);
+
+export function useTableTabsSlot(): HTMLElement | null {
+  return useContext(TableTabsSlotContext);
+}

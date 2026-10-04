@@ -10,6 +10,8 @@
  *   - Both: no visible button smaller than 24 × 24 px (inline text links
  *     excepted, as WCAG allows).
  *
+ *   - A phone: the Transits wheel starts within 110 px of the top (part 96).
+ *
  * Pages: Chart, Transits, Calendar, Synastry, Human Design, Numerology.
  */
 import { chromium } from "playwright";
@@ -123,6 +125,11 @@ async function run() {
           }
         }
         for (const s of await tooSmall(page)) problems.push(`${device.name} ${mode}: under 24 × 24: ${s}`);
+        // The phone's one toolbar row (part 96): the Transits wheel starts right under it.
+        if (device.name === "finger" && mode === "transits") {
+          const top = await page.evaluate(() => document.querySelector(".ob-figure svg")?.getBoundingClientRect().top ?? 999);
+          if (top > 110) problems.push(`finger transits: the wheel starts at ${Math.round(top)} px (≤ 110)`);
+        }
         console.log(`${device.name} ${mode}: ${list.length} controls checked`);
       }
       await context.close();

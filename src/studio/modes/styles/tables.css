@@ -1210,3 +1210,31 @@ button.ulune-glyph-pick {
     display: none;
   }
 }
+
+/* ─── In the stage's toolbar (UI plan, part 97) ──────────────────────────
+   The parts' links stand in the toolbar, underlined as they follow the
+   scroll; Copy and CSV moved into Export. */
+.ob-strip-tabs {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ob-strip-tabs:empty {
+  display: none;
+}
+.ob-strip .ulune-tbar {
+  position: static;
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border-bottom: 0;
+}
+.ob-strip .ulune-tbar-link {
+  min-height: var(--ctl-h);
+  padding: 0 10px;
+}
+.ob-menu-table {
+  display: flex;
+  flex-direction: column;
+}

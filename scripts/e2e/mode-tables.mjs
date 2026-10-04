@@ -12,6 +12,7 @@ import {
   launch,
   pickPlace,
   openTimePicker,
+  openExport,
 } from "./_lib.mjs";
 
 /*
@@ -87,7 +88,7 @@ async function checkPage(page, mode, label) {
 }
 
 async function csvOf(page) {
-  const [download] = await Promise.all([page.waitForEvent("download", { timeout: 8000 }), page.getByTestId("table-csv").click()]);
+  const [download] = await Promise.all([page.waitForEvent("download", { timeout: 8000 }), openExport(page).then(() => page.getByTestId("table-csv").click())]);
   const stream = await download.createReadStream();
   const chunks = [];
   for await (const chunk of stream) chunks.push(chunk);
@@ -98,6 +99,7 @@ async function csvOf(page) {
 }
 
 async function copied(page) {
+  await openExport(page);
   await page.getByTestId("table-copy").click();
   await page.waitForTimeout(300);
   return page.evaluate(() => navigator.clipboard.readText());

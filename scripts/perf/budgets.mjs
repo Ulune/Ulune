@@ -118,7 +118,11 @@ if (want.has("bundle")) {
   // aspect grid already load later).
   // TanStack Start 1.168.60, the fix for CVE-2026-102989 (4 Oct 2026): its router is a little
   // larger, 266.5-267.0 → 267.4; limit 268.
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 268, "KB gz");
+  // UI plan, parts 96-97 (4-5 Oct 2026): the phone's ⋯ menu, the table's links in the toolbar,
+  // the other pages' bar with the studio's four pages: 268.3-269.0 depending on where Rolldown
+  // puts the shared icons and menus (the Settings page's styles and the not-found page's bar
+  // left the first load to make room); limit 269.5.
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 269.5, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's
@@ -133,7 +137,8 @@ if (want.has("bundle")) {
   // calendar's month marks and file menu, the pair switch: limit 52.)
   check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 52, "KB gz");
   const largest = Math.max(...home.files.filter((f) => f.type === "script").map((f) => f.gz ?? 0));
-  check("bundle", "largest script", largest / 1024, 80, "KB gz");
+  // (The natal wheel's chunk: 79.4-80.2 since parts 96-97, as shared modules land in it or not; limit 81.)
+  check("bundle", "largest script", largest / 1024, 81, "KB gz");
 }
 
 if (want.has("scrub")) {

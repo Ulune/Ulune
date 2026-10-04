@@ -30,7 +30,7 @@
  */
 import { join } from "node:path";
 import { chromium } from "playwright";
-import { DEV, SHOTS, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, serverFnName, setLang, openCalendarView } from "./_lib.mjs";
+import { DEV, SHOTS, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, serverFnName, setLang, openCalendarView, setView, openExport } from "./_lib.mjs";
 
 const CAMILLE = { name: "Camille Marie Laurent", date: "15/06/1990", time: "12:00", place: "Paris, France" };
 const YOLANDA = { name: "Yolanda Mary Kyle", date: "29/11/1984", time: "12:00", place: "Paris, France" };
@@ -155,11 +155,11 @@ async function calendar(page, thisYear) {
   if (!/^3 Personal day 3 Personal month 6 · Personal year 9 1 Pinnacle 3 begins: 1 after 7, at 41 5 Challenge 3 begins: 5 after 5, at 41$/.test(day)) throw new Error(`the day's numerology: ${day}`);
   // The events table of that month: the two changes, yours.
   await page.getByTestId("timing-scope-month").click();
-  await page.getByTestId("view-table").click();
+  await setView(page, "table");
   await page.locator('[data-testid="calendar-table-row-num"]').first().waitFor({ timeout: 15000 });
   const rows = await page.locator('[data-testid="calendar-table-row-num"]').allInnerTexts();
   if (rows.length !== 2 || !/birthday/.test(rows[0]) || !/Pinnacle 3 begins: 1/.test(rows[0])) throw new Error(`the table's changes ${JSON.stringify(rows)}`);
-  await page.getByTestId("view-wheel").click();
+  await setView(page, "wheel");
   console.log("numerology in the calendar OK");
 }
 
@@ -305,7 +305,7 @@ async function desktop() {
     await page.screenshot({ path: join(SHOTS, "numerology-1280.png") });
 
     // The Table view: one scroll under the bar, the parts in order.
-    await page.getByTestId("view-table").click();
+    await setView(page, "table");
     await page.getByTestId("numerology-table").waitFor({ timeout: 10000 });
     await page.waitForTimeout(800);
     const order = await page.evaluate(() =>
@@ -371,7 +371,7 @@ async function desktop() {
     await page.getByTestId("num-years-life").click();
     if ((await page.locator('[data-testid="num-years"] tr').count()) !== 91) throw new Error("the whole life's years");
     // The CSV, the same in every language.
-    const [download] = await Promise.all([page.waitForEvent("download", { timeout: 8000 }), page.getByTestId("table-csv").click()]);
+    const [download] = await Promise.all([page.waitForEvent("download", { timeout: 8000 }), openExport(page).then(() => page.getByTestId("table-csv").click())]);
     const chunks = [];
     for await (const chunk of await download.createReadStream()) chunks.push(chunk);
     // For spreadsheets (review 3 Oct, B2): a byte-order mark and CRLF lines; ";" in French.
@@ -407,7 +407,7 @@ async function desktop() {
     if (life.spans.join(" ") !== wantLife.join(" ") || life.starts !== 8 || !life.now || life.caption !== `${thisYear} · age ${age} · personal year ${personalYear(thisYear)}`) {
       throw new Error(`the life line ${JSON.stringify(life)} want ${wantLife.join(" ")}`);
     }
-    await page.getByTestId("view-wheel").click();
+    await setView(page, "wheel");
     await page.getByTestId("numerology-ring").waitFor({ timeout: 10000 });
 
     // The Calendar (part 62): the personal month in a month's title and each day's personal day,
@@ -439,7 +439,7 @@ async function desktop() {
     await page.waitForTimeout(400);
     if (!/^19\/1/.test(await page.getByTestId("numerology-tile-soulurge").innerText())) throw new Error("the Y did not switch back");
     // The same Y, switched from the name's letters in the Table view.
-    await page.getByTestId("view-table").click();
+    await setView(page, "table");
     await page.getByTestId("num-y-0").waitFor({ timeout: 10000 });
     await page.getByTestId("num-y-0").click();
     await page.waitForTimeout(400);
@@ -447,7 +447,7 @@ async function desktop() {
     if (!/^Soul Urge 8 /.test(suRow)) throw new Error(`the table's Y switch: ${suRow}`);
     await page.getByTestId("num-y-0").click();
     await page.waitForTimeout(300);
-    await page.getByTestId("view-wheel").click();
+    await setView(page, "wheel");
 
     // Without a name: the birth date's numbers only, no letters and no lessons.
     await goStudioPage(page, "natal");
@@ -464,7 +464,7 @@ async function desktop() {
     // birth; typed there (Enter goes on to the name used now), the name numbers come at once, with the
     // name used now's minor numbers, and the chart keeps them without a new cast.
     const castsBefore = castCalls.length;
-    await page.getByTestId("view-table").click();
+    await setView(page, "table");
     await page.getByTestId("numerology-add-birth-name").first().click();
     await page.waitForFunction(() => document.activeElement?.id === "birth-full-name", null, { timeout: 10000 });
     await page.keyboard.type("Camille Marie Laurent");
@@ -514,10 +514,10 @@ async function desktop() {
     await page.locator('[data-testid="dock-tab-reading"][aria-selected="true"]').waitFor({ timeout: 20000 });
     await page.unroute("**/_serverFn/**");
     const currentHead = async () => {
-      await page.getByTestId("view-table").click();
+      await setView(page, "table");
       await page.getByTestId("num-current").waitFor({ timeout: 10000 });
       const head = await page.locator(".ulune-num-subhead").filter({ hasText: "Name used now" }).first().innerText();
-      await page.getByTestId("view-wheel").click();
+      await setView(page, "wheel");
       return head;
     };
     if (!/Camille Rivière/.test(await currentHead())) throw new Error("the name typed during the cast was lost");
@@ -535,7 +535,7 @@ async function desktop() {
     // In French, the wheel and the Table view: no English left.
     await setLang(page, "fr");
     await page.waitForTimeout(800);
-    await page.getByTestId("view-table").click();
+    await setView(page, "table");
     await page.getByTestId("numerology-table").waitFor({ timeout: 10000 });
     await page.waitForTimeout(600);
     const frTable = await page.getByTestId("numerology-table").innerText();
@@ -543,7 +543,7 @@ async function desktop() {
     const left = english.filter((w) => frTable.includes(w));
     if (left.length) throw new Error(`English in the French table: ${left.join(", ")}`);
     if (!/^Lu dans le nom complet de naissance, Camille Marie Laurent\./.test(await page.getByTestId("num-name-from").innerText())) throw new Error("the French name line");
-    await page.getByTestId("view-wheel").click();
+    await setView(page, "wheel");
     await page.getByTestId("numerology-ring").waitFor({ timeout: 10000 });
     const fr = await page.evaluate(() => ({
       say: document.querySelector('[data-testid="num-say"]').textContent,
@@ -575,11 +575,12 @@ async function phone() {
       return {
         wheel: zoom.width,
         square: Math.abs(zoom.width - zoom.height),
-        tilesScroll: tiles.scrollWidth > tiles.clientWidth + 1,
+        // Three by two since part 96: no tile runs off the edge.
+        tilesFit: tiles.scrollWidth <= tiles.clientWidth + 1 && getComputedStyle(tiles).gridTemplateColumns.split(" ").length === 3,
         sideways: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       };
     });
-    if (layout.wheel < 340 || layout.square > 1 || !layout.tilesScroll || layout.sideways > 1) throw new Error(`phone layout ${JSON.stringify(layout)}`);
+    if (layout.wheel < 340 || layout.square > 1 || !layout.tilesFit || layout.sideways > 1) throw new Error(`phone layout ${JSON.stringify(layout)}`);
     await page.getByTestId("numerology-digit-3").tap();
     // The wheel stays whole: the reading waits behind the card's Read (review 3 Oct, R3).
     await page.waitForTimeout(300);

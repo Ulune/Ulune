@@ -1,5 +1,5 @@
 import { CalendarDays, CalendarSearch, ChevronDown, ChevronLeft, ChevronRight, LoaderCircle, SlidersHorizontal } from "lucide-react";
-import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+import { Suspense, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { IcsKind } from "@/lib/i18n/calendar-export";
 import { AnchoredPopover } from "@/components/anchored-popover";
@@ -72,93 +72,12 @@ function periodOffset(zone: string, scope: TimingScope, civil: CivilDate): strin
   return from === to ? from : `${from} → ${to}`;
 }
 
-/**
- * The calendar file and what it holds (review 3 Oct, T5): the sky's main
- * events, with your transits from Mars outwards, or everything shown.
- */
-export function IcsMenu({
-  onExport,
-  loading = false,
-  className,
-  testId,
-  children,
-}: {
-  onExport: (kind: IcsKind) => void;
-  loading?: boolean;
-  className: string;
-  testId: string;
-  children: ReactNode;
-}) {
+/** The calendar file's three choices as menu items (in an Export menu). */
+export function IcsItems({ onExport, loading, testId }: { onExport: (kind: IcsKind) => void; loading: boolean; testId: string }) {
   const { locale } = useI18n();
-  const [open, setOpen] = useState(false);
-  const box = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const off = (e: PointerEvent) => {
-      if (!box.current?.contains(e.target as Node)) setOpen(false);
-    };
-    const esc = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("pointerdown", off);
-    document.addEventListener("keydown", esc);
-    return () => {
-      document.removeEventListener("pointerdown", off);
-      document.removeEventListener("keydown", esc);
-    };
-  }, [open]);
-  const hint = pick(loading ? CALENDAR_UI.switches.fileWait : CALENDAR_UI.switches.fileHint, locale);
   const kinds: IcsKind[] = ["main", "mine", "all"];
   return (
-    <span ref={box} className="ulune-ics-menu">
-      <button
-        type="button"
-        data-testid={testId}
-        className={className}
-        onClick={() => setOpen((x) => !x)}
-        disabled={loading}
-        aria-busy={loading || undefined}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        title={hint}
-        aria-label={hint}
-      >
-        {children}
-      </button>
-      {open ? (
-        <span role="menu" className="ob-menu ulune-ics-pop" data-testid={`${testId}-menu`}>
-          {kinds.map((k) => (
-            <button
-              key={k}
-              type="button"
-              role="menuitem"
-              className="ob-menu-item"
-              data-testid={`${testId}-${k}`}
-              onClick={() => {
-                setOpen(false);
-                onExport(k);
-              }}
-            >
-              {pick(CALENDAR_UI.switches.icsKind[k], locale)}
-            </button>
-          ))}
-        </span>
-      ) : null}
-    </span>
-  );
-}
-
-/**
- * The calendar file's three choices at the end of the stage's Export menu
- * (UI plan, part 93): every way to save or share is in that one menu.
- */
-function IcsExportItems({ onExport, loading }: { onExport: (kind: IcsKind) => void; loading: boolean }) {
-  const { locale } = useI18n();
-  const slot = useExportSlot();
-  if (!slot) return null;
-  const kinds: IcsKind[] = ["main", "mine", "all"];
-  return createPortal(
-    <div role="group" aria-label={pick(CALENDAR_UI.switches.file, locale)} data-testid="calendar-export" aria-busy={loading || undefined}>
+    <div role="group" aria-label={pick(CALENDAR_UI.switches.file, locale)} data-testid={testId} aria-busy={loading || undefined}>
       <p className="ob-menu-head">
         {pick(CALENDAR_UI.switches.file, locale)}
         {loading ? <LoaderCircle className="size-3.5 animate-spin" aria-label={pick(CALENDAR_UI.switches.fileWait, locale)} /> : null}
@@ -169,7 +88,7 @@ function IcsExportItems({ onExport, loading }: { onExport: (kind: IcsKind) => vo
           type="button"
           role="menuitem"
           className="ob-menu-item"
-          data-testid={`calendar-export-${k}`}
+          data-testid={`${testId}-${k}`}
           disabled={loading}
           title={pick(loading ? CALENDAR_UI.switches.fileWait : CALENDAR_UI.switches.fileHint, locale)}
           onClick={() => onExport(k)}
@@ -178,9 +97,18 @@ function IcsExportItems({ onExport, loading }: { onExport: (kind: IcsKind) => vo
           <span>{pick(CALENDAR_UI.switches.icsKind[k], locale)}</span>
         </button>
       ))}
-    </div>,
-    slot,
+    </div>
   );
+}
+
+/**
+ * The calendar file's choices at the end of the stage's Export menu (UI
+ * plan, part 93): every way to save or share is in that one menu.
+ */
+function IcsExportItems({ onExport, loading }: { onExport: (kind: IcsKind) => void; loading: boolean }) {
+  const slot = useExportSlot();
+  if (!slot) return null;
+  return createPortal(<IcsItems onExport={onExport} loading={loading} testId="calendar-export" />, slot);
 }
 
 // The month picker the birth form uses (its own download).

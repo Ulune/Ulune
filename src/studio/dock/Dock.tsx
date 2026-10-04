@@ -206,7 +206,7 @@ export function Dock() {
   };
 
   const visibleFor = useCallback((d: SheetDetent, h: number) => {
-    const peek = 52;
+    const peek = 44;
     if (d === "peek") return peek;
     // As shell.css shows it (--ob-vis: 50%): a drag starts where the sheet is.
     if (d === "half") return Math.round(h * 0.5);
@@ -229,7 +229,7 @@ export function Dock() {
       d.y = e.clientY;
       e.currentTarget.setPointerCapture(e.pointerId);
     }
-    const vis = Math.max(52, Math.min(d.h, d.start + d.y - e.clientY));
+    const vis = Math.max(44, Math.min(d.h, d.start + d.y - e.clientY));
     const now = e.timeStamp || performance.now();
     d.trail.push({ t: now, v: vis });
     while (d.trail.length > 2 && now - d.trail[0].t > 100) d.trail.shift();

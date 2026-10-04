@@ -1,4 +1,3 @@
-import { CalendarDays } from "lucide-react";
 import { startTransition, useEffect, useMemo, useState } from "react";
 import { PairIcon, SkyEventIcon } from "@/components/calendar-icons";
 import { SegmentedToggle } from "@/components/segmented-toggle";
@@ -18,7 +17,7 @@ import { cn, formatDegree } from "@/lib/utils";
 import { downloadText } from "@/lib/download-text";
 import { DataTable } from "@/studio/tables/DataTable";
 import { PartAbout, TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
-import { IcsMenu } from "@/components/calendar-bar";
+import { IcsItems } from "@/components/calendar-bar";
 import type { IcsKind } from "@/lib/i18n/calendar-export";
 
 const FIRST_ROWS = 250;
@@ -283,12 +282,7 @@ export function CalendarTable({
             csv={csv}
             fileName={`ulune-${fileName}`}
             disabled={loading}
-            extra={
-              <IcsMenu onExport={exportIcs} loading={loading} className="ob-table-export-btn" testId="calendar-ics">
-                <CalendarDays className="size-3.5" aria-hidden />
-                <span className="ulune-tbar-act-label">{pick(T.ics, locale)}</span>
-              </IcsMenu>
-            }
+            extra={<IcsItems onExport={exportIcs} loading={loading} testId="calendar-ics" />}
           />
         }
       />

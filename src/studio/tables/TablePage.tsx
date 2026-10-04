@@ -1,4 +1,6 @@
 import { useOverflowFade } from "@/lib/overflow-fade";
+import { useExportSlot, useTableTabsSlot } from "@/studio/stage/stage-slots";
+import { createPortal } from "react-dom";
 import { Check, Copy, Download, Info } from "lucide-react";
 import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { prefersReducedMotion } from "@/lib/depth/env";
@@ -83,6 +85,11 @@ export function TablePage({
 }) {
   const root = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLElement>(null);
+  // In the studio the links stand in the stage's toolbar and Copy / CSV in its
+  // Export menu (UI plan, part 97); elsewhere the page keeps its own bar.
+  const tabsSlot = useTableTabsSlot();
+  const exportSlot = useExportSlot();
+  const inBar = tabsSlot != null;
   const list = useRef<HTMLOListElement>(null);
   // The parts' row scrolls: its far edge fades while parts are past it (review 3 Oct, C13).
   useOverflowFade(list);
@@ -110,16 +117,17 @@ export function TablePage({
     const b = bar.current;
     if (!el || !b) return;
     const apply = () => {
-      const h = Math.round(b.getBoundingClientRect().height);
+      // Out in the toolbar the bar takes no room over the parts.
+      const h = inBar ? 0 : Math.round(b.getBoundingClientRect().height);
       state.current.barH = h;
       el.style.setProperty("--tbar-h", `${h}px`);
     };
     apply();
-    if (typeof ResizeObserver === "undefined") return;
+    if (inBar || typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(apply);
     ro.observe(b);
     return () => ro.disconnect();
-  }, []);
+  }, [inBar]);
 
   // Follow the scroll.
   useEffect(() => {
@@ -220,6 +228,8 @@ export function TablePage({
 
   return (
     <div ref={root} className="ulune-tpage" data-testid="table-page">
+      {(() => {
+        const nav = (
       <nav ref={bar} className="ulune-tbar" aria-label={label} data-testid="table-bar">
         <ol ref={list} className="ulune-tbar-list">
           {parts.map((p) => (
@@ -237,8 +247,19 @@ export function TablePage({
             </li>
           ))}
         </ol>
-        {actions ? <div className="ulune-tbar-act">{actions}</div> : null}
+        {actions && !inBar ? <div className="ulune-tbar-act">{actions}</div> : null}
       </nav>
+        );
+        return tabsSlot ? createPortal(nav, tabsSlot) : nav;
+      })()}
+      {actions && inBar && exportSlot
+        ? createPortal(
+            <div role="group" aria-label={label} className="ob-menu-table" data-testid="table-export">
+              {actions}
+            </div>,
+            exportSlot,
+          )
+        : null}
       {intro}
       {parts.map((p) => (
         <section
@@ -401,7 +422,8 @@ export function TableActions({
     <>
       <button
         type="button"
-        className="ob-table-export-btn"
+        role="menuitem"
+        className="ob-menu-item"
         data-testid="table-copy"
         disabled={disabled}
         onClick={async () => {
@@ -420,7 +442,14 @@ export function TableActions({
           {copied ? t("tableCopied") : t("tableCopy")}
         </span>
       </button>
-      <button type="button" className="ob-table-export-btn" data-testid="table-csv" disabled={disabled} onClick={() => downloadText(`${slug}.csv`, encodeCsv(parseCsv(csv()), locale))}>
+      <button
+        type="button"
+        role="menuitem"
+        className="ob-menu-item"
+        data-testid="table-csv"
+        disabled={disabled}
+        onClick={() => downloadText(`${slug}.csv`, encodeCsv(parseCsv(csv()), locale))}
+      >
         <Download className="size-3.5" aria-hidden />
         <span className="ulune-tbar-act-label">{t("tableExportCsv")}</span>
       </button>

@@ -640,8 +640,9 @@ async function phone() {
     if ((await liveRelief(page)).length) throw new Error("phone: the tap lifted something");
     if (await page.getByTestId("wheel-hover-switch").isVisible()) throw new Error("phone: a switch for pointing on a touch screen");
     if ((await sceneState(page)).stack) throw new Error("phone: chart transformed without the 3D view");
-    const btn = page.getByTestId("wheel-depth-3d");
-    await btn.scrollIntoViewIfNeeded();
+    // On a phone 3D is in the toolbar's ⋯ menu (part 96).
+    await page.getByTestId("stage-more").tap();
+    const btn = page.getByTestId("wheel-more-tools").getByTestId("wheel-depth-3d");
     await btn.tap();
     await page.waitForFunction(() => document.querySelector(".ob-figure svg[data-depth-base]")?.getAttribute("data-view3d") === "gl", null, { timeout: 20000 });
     await page.waitForTimeout(1900);
@@ -658,6 +659,7 @@ async function phone() {
     if (Math.abs(rzPhone) < 5) throw new Error(`phone: touch orbit did not turn the chart (${rzPhone})`);
     if ((await page.evaluate(() => window.scrollY)) !== scroll0) throw new Error("phone: orbit scrolled the page");
     await page.screenshot({ path: join(SHOTS, "depth-3d-390.png") });
+    await page.getByTestId("stage-more").tap();
     await btn.tap();
     await page.waitForTimeout(1600);
     console.log("depth-390 OK");

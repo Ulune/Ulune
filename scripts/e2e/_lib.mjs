@@ -169,13 +169,13 @@ export async function pointsTableText(page) {
 export async function clickDockTab(page, id) {
   // The Data tab merged into the stage's Table view.
   if (id === "data") {
-    await page.getByTestId("view-table").click();
+    await setView(page, "table");
     return;
   }
   // Leaving "data" returns the stage to the wheel, as the old dock tab did.
   const table = page.getByTestId("view-table");
   if ((await table.count()) && (await table.getAttribute("aria-pressed")) === "true") {
-    await page.getByTestId("view-wheel").click();
+    await setView(page, "wheel");
   }
   // New charts and partners fill in on the stage; the panel is hidden then.
   if (id === "birth" && (await page.locator("[data-on-stage]").count())) return;
@@ -212,7 +212,7 @@ export async function goStudioPage(page, id) {
   // Wheel/table is a sticky preference now; mode tests start from the wheel.
   const table = page.getByTestId("view-table");
   if ((await table.count()) && (await table.getAttribute("aria-pressed")) === "true") {
-    await page.getByTestId("view-wheel").click();
+    await setView(page, "wheel");
   }
   const groupId = `mode-group-${MODE_GROUP[id]}`;
   const pageId = `studio-page-${id}`;
@@ -257,7 +257,7 @@ function positionAfter(text, label) {
 
 export async function assertFixtureA(page) {
   const wasWheel = (await page.getByTestId("view-table").getAttribute("aria-pressed")) !== "true";
-  if (wasWheel) await page.getByTestId("view-table").click();
+  if (wasWheel) await setView(page, "table");
   const text = (await pointsTableText(page)).replace(/\s+/g, " ");
   const miss = [];
   // The QA reading is to the minute; the table prints seconds (Moon 14°14′45″ ≈ 14°15′).
@@ -267,7 +267,7 @@ export async function assertFixtureA(page) {
   if (!within(positionAfter(text, /\b(ASC|Ascendant)\b/), 5, 9) || !/Virgo/.test(text)) miss.push("ASC 5°09′ Virgo");
   if (miss.length)
     throw new Error(`Fixture A missing: ${miss.join("; ")} in ${text.slice(0, 400)}`);
-  if (wasWheel) await page.getByTestId("view-wheel").click();
+  if (wasWheel) await setView(page, "wheel");
 }
 
 export async function ensureShotsDir() {
@@ -442,6 +442,9 @@ export async function openTimePicker(page, dial = "transit-scrubber", picker = "
     });
     await page.waitForFunction(() => document.querySelector(".ob-panel")?.getAttribute("data-detent") === "peek", null, { timeout: 4000 });
   }
+  // The sheet takes a moment to fold; the dial's head comes back once it has.
+  await page.getByTestId(`${dial}-readout`).waitFor({ state: "visible", timeout: 8000 });
+  await page.waitForFunction(() => !document.querySelector(".ob-panel[data-moving]"), null, { timeout: 4000 }).catch(() => {});
   await page.getByTestId(`${dial}-readout`).click();
   await page.getByTestId(picker).waitFor({ timeout: 8000 });
 }
@@ -451,4 +454,29 @@ export async function openCalendarView(page) {
   if (await page.getByTestId("calendar-view-pop").isVisible().catch(() => false)) return;
   await page.getByTestId("calendar-view").click();
   await page.getByTestId("calendar-view-pop").waitFor({ timeout: 8000 });
+}
+
+/** Wheel or Table: the toolbar's switch on a computer, the ⋯ menu's on a phone (part 96). */
+export async function setView(page, view) {
+  const direct = page.getByTestId(`view-${view}`);
+  if (await direct.isVisible().catch(() => false)) {
+    await direct.click();
+    return;
+  }
+  await page.getByTestId("stage-more").click();
+  await page.getByTestId(`more-view-${view}`).click();
+  await page.getByTestId("stage-more-menu").waitFor({ state: "detached", timeout: 4000 }).catch(() => {});
+}
+
+/** Opens Export (a computer) or ⋯ (a phone), where the page's ways out are (parts 93, 96, 97). */
+export async function openExport(page) {
+  const menu = page.getByTestId("export-menu");
+  const more = page.getByTestId("stage-more");
+  const open = async (el) => (await el.getAttribute("aria-expanded").catch(() => null)) === "true";
+  if ((await open(menu)) || (await open(more))) return;
+  // A menu just closed may still be fading out: let it go first.
+  await page.getByTestId("export-panel").waitFor({ state: "detached", timeout: 4000 }).catch(() => {});
+  if (await menu.isVisible().catch(() => false)) await menu.click();
+  else await page.getByTestId("stage-more").click();
+  await page.getByTestId("export-panel").waitFor({ timeout: 8000 });
 }

@@ -1,10 +1,12 @@
-import { CalendarDays, Circle, Shapes, Table2 } from "lucide-react";
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { Ellipsis, Table2 } from "lucide-react";
+import { useDrawnView } from "@/studio/stage/drawn-view";
+import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { lazyNamed } from "@/lib/lazy-component";
 import { SegmentedToggle } from "@/components/segmented-toggle";
 import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
 import { SubModeSwitch } from "@/studio/shell/SubModeSwitch";
-import { AspectSlotContext, ExportSlotContext, RingsSlotContext, ZoomSlotContext } from "@/studio/stage/stage-slots";
+import { AspectSlotContext, ExportSlotContext, MoreSlotsContext, RingsSlotContext, TableTabsSlotContext, ZoomSlotContext, type MoreSlots } from "@/studio/stage/stage-slots";
 import { MODE_GROUPS, groupOf } from "@/studio/url";
 import { ExportMenu } from "@/studio/stage/ExportMenu";
 import { KeepOffer } from "@/components/space/keep-offer";
@@ -14,15 +16,8 @@ import { useStudioUrl } from "@/studio/use-studio-url";
 function ViewToggle() {
   const { t } = useI18n();
   const view = useStudioStore((s) => s.view);
-  const studioPage = useStudioStore((s) => s.page);
   const { setView } = useStudioUrl({ hydrate: false });
-  // The drawn view is named for what it draws: the calendar and the bodygraph are no wheels.
-  const drawn =
-    studioPage === "timing"
-      ? { name: t("viewCalendar"), Icon: CalendarDays, switch: t("viewSwitchCalendar") }
-      : studioPage === "design"
-        ? { name: t("viewBodygraph"), Icon: Shapes, switch: t("viewSwitchBodygraph") }
-        : { name: t("viewWheel"), Icon: Circle, switch: t("viewSwitch") };
+  const drawn = useDrawnView();
   return (
     <SegmentedToggle
       ariaLabel={drawn.switch}
@@ -57,6 +52,45 @@ function ViewToggle() {
     />
   );
 }
+
+/** The phone's toolbar end (UI plan, part 96): ⋯, its menu loaded when first opened (MorePanel.tsx). */
+function MoreButton({
+  open,
+  setOpen,
+  viewIntent,
+  anchor,
+}: {
+  open: boolean;
+  setOpen: (next: boolean) => void;
+  viewIntent?: () => void;
+  anchor: RefObject<HTMLButtonElement | null>;
+}) {
+  const { t } = useI18n();
+  return (
+    <span className="ob-more">
+      <button
+        ref={anchor}
+        type="button"
+        className="ob-icon-btn ob-more-btn"
+        data-testid="stage-more"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={t("stageMore")}
+        title={t("stageMore")}
+        onPointerDown={() => {
+          viewIntent?.();
+          void loadMore();
+        }}
+        onClick={() => setOpen(!open)}
+      >
+        <Ellipsis className="size-5" strokeWidth={1.75} aria-hidden />
+      </button>
+    </span>
+  );
+}
+
+const loadMore = () => import("@/studio/stage/MorePanel");
+const MorePanel = lazyNamed(loadMore, "MorePanel");
 
 /**
  * Stage frame (UI plan, part 93): one toolbar (the page's sub-mode or, on a
@@ -98,6 +132,13 @@ export function Stage({
   const [aspectSlot, setAspectSlot] = useState<HTMLElement | null>(null);
   const [ringsSlot, setRingsSlot] = useState<HTMLElement | null>(null);
   const [exportSlot, setExportSlot] = useState<HTMLElement | null>(null);
+  const [tabsSlot, setTabsSlot] = useState<HTMLElement | null>(null);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [moreRings, setMoreRings] = useState<HTMLElement | null>(null);
+  const [moreTools, setMoreTools] = useState<HTMLElement | null>(null);
+  const closeMore = useCallback(() => setMoreOpen(false), []);
+  const moreRef = useRef<HTMLButtonElement>(null);
+  const moreSlots: MoreSlots = useMemo(() => ({ rings: moreRings, tools: moreTools, close: closeMore }), [moreRings, moreTools, closeMore]);
   const view = useStudioStore((s) => s.view);
   const page = useStudioStore((s) => s.navPage ?? s.page);
   // A page with no sub-mode (the Chart) shows the chart's details where the switch would be.
@@ -157,6 +198,8 @@ export function Stage({
     <AspectSlotContext.Provider value={aspectSlot}>
     <RingsSlotContext.Provider value={ringsSlot}>
     <ExportSlotContext.Provider value={exportSlot}>
+    <MoreSlotsContext.Provider value={moreSlots}>
+    <TableTabsSlotContext.Provider value={table ? tabsSlot : null}>
       <section
         ref={stageRef}
         className={cn("ob-stage", table && "ob-stage--table", form && "ob-stage--form")}
@@ -172,7 +215,15 @@ export function Stage({
             ) : (
               <SubModeSwitch />
             )}
-            {tools && extraControls ? <div className="ob-strip-extra">{extraControls}</div> : <span className="ob-strip-fill" />}
+            {tools && (extraControls || table) ? (
+              <div className="ob-strip-extra">
+                {extraControls}
+                {/* A table's part links, from TablePage (part 97). */}
+                {table ? <div ref={setTabsSlot} className="ob-strip-tabs" /> : null}
+              </div>
+            ) : (
+              <span className="ob-strip-fill" />
+            )}
             {tools ? (
               <div className="ob-strip-end">
                 <div ref={setRingsSlot} className="ob-rings-slot" />
@@ -180,6 +231,18 @@ export function Stage({
                   <ViewToggle />
                 </span>
                 <ExportMenu extraSlot={setExportSlot} />
+                <MoreButton open={moreOpen} setOpen={setMoreOpen} viewIntent={viewIntent} anchor={moreRef} />
+                {moreOpen ? (
+                  <Suspense fallback={null}>
+                    <MorePanel
+                      anchor={moreRef}
+                      close={closeMore}
+                      setRings={setMoreRings}
+                      setTools={setMoreTools}
+                      setExportSlot={setExportSlot}
+                    />
+                  </Suspense>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -205,6 +268,8 @@ export function Stage({
           </div>
         )}
       </section>
+    </TableTabsSlotContext.Provider>
+    </MoreSlotsContext.Provider>
     </ExportSlotContext.Provider>
     </RingsSlotContext.Provider>
     </AspectSlotContext.Provider>

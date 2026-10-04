@@ -14,6 +14,7 @@ import {
   goStudioPage,
   gotoApp,
   launch,
+  setView,
 } from "./_lib.mjs";
 
 const MODES = ["natal", "transits", "timing", "synastry", "composite", "progressions", "numerology", "design"];
@@ -266,7 +267,7 @@ async function runNatalLayout(width) {
     await page.locator("section[data-testid=studio-table]").waitFor({ timeout: 8000 });
     const tableWide = await page.locator("section[data-testid=studio-table]").evaluate((el) => el.getBoundingClientRect().width);
     if (tableWide < width * 0.7) throw new Error(`table width ${tableWide} not full`);
-    await page.getByTestId("view-wheel").click({ force: true });
+    await setView(page, "wheel");
     try {
       await page.getByTestId("wheel-zoom").waitFor({ timeout: 5000 });
     } catch {
