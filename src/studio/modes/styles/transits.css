@@ -58,6 +58,20 @@
   height: 44px;
   white-space: nowrap;
 }
+/* The clock the date and time are in (the Calendar's choice, review 3 Oct T4). */
+.ulune-transit-zone {
+  display: inline-flex;
+  flex-shrink: 1;
+  align-items: center;
+  align-self: flex-end;
+  min-width: 0;
+  height: 44px;
+  overflow: hidden;
+  color: var(--color-fg-muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .ulune-transit-clock {
   min-width: 0;
   width: 100%;
@@ -131,6 +145,13 @@
     background: var(--color-halo);
     box-shadow: 0 0 8px color-mix(in oklab, var(--color-halo) 60%, transparent);
     animation: ulune-live 1.618s ease-in-out infinite;
+  }
+  /* Under the fields on a phone, on its own short line. */
+  .ob-strip .ulune-transit-zone {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: auto;
+    margin-top: -2px;
   }
   .ob-strip .ulune-transit-live {
     position: absolute;

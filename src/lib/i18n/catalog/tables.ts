@@ -11,6 +11,7 @@ export const tables = {
   noConfigs: ["No major configurations.", "Pas de configuration majeure."],
   noPartner: ["None", "Aucun"],
   pairSwap: ["Swap the two people", "Échanger les deux personnes"],
+  calendarJump: ["Go to a date", "Aller à une date"],
   relKind: ["Relationship chart", "Thème de la relation"],
   relComposite: ["Composite", "Composite"],
   relDavison: ["Davison", "Davison"],

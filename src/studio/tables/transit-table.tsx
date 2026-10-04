@@ -14,6 +14,7 @@ import { Body, CrossAspects, CrossGrid, Maybe, Position, UnknownNote, shownKeep 
 import type { CrossAspectRow } from "@/lib/chart/cross-table";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
+import { useClockZone } from "@/studio/modes/hooks/useClockZone";
 
 /**
  * The Transits table (part 52 of the launch plan): the moving planets'
@@ -33,6 +34,8 @@ export function TransitTable({
   onSelect: (id: string) => void;
 }) {
   const { locale, t } = useI18n();
+  // The Exact column in the Calendar's clock (review 3 Oct, T4); the CSV and the text keep UT.
+  const clockZone = useClockZone(Date.now()).tz;
   const unknown = chart.meta.timeUnknown === true;
   const name = chartNameOf(chart, t("untitled"));
   const rows = useMemo(() => transitAspectRows(sky, chart), [sky, chart]);
@@ -71,7 +74,7 @@ export function TransitTable({
             rows={rows}
             columns={{ a: { key: "transit", label: modesWord(locale, "transit") }, b: { key: "natal", label: modesWord(locale, "natal") } }}
             sides={{ a: transitSide(locale), b: natalSide(locale) }}
-            exact={{ kind: "moment", pending: Boolean(sky.meta.provisional) }}
+            exact={{ kind: "moment", pending: Boolean(sky.meta.provisional), zone: clockZone }}
             selectPrefix="taspect:"
             rowTestId={transitRowTestId}
             rowData={(l) => ({ "data-transit": l.a, "data-aspect": l.type, "data-natal": l.b })}

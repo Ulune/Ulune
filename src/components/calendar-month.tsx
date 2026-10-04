@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, type KeyboardEvent } from "react";
-import { SignMark, SkyEventIcon } from "@/components/calendar-icons";
+import { PairIcon, SignMark, SkyEventIcon } from "@/components/calendar-icons";
 import { PlanetGlyph } from "@/components/glyphs";
 import { MoonGlyph } from "@/components/moon-glyph";
 import { headlineRank, isHeadline, moonAt } from "@/lib/chart/calendar-sky";
@@ -9,7 +9,8 @@ import { seasonOf, skyEventId, type PhaseIndex, type SkyEvent } from "@/lib/char
 import type { SkyWindow } from "@/lib/chart/sky-window";
 import { civilKey, daysInMonth, mondayIndex, utcFromCivil, type CivilDate } from "@/lib/chart/timing-window";
 import type { TimingHit } from "@/lib/chart/types";
-import { CALENDAR_UI, dailyPhaseWord, fill, numChangeShort, numChangeTitle, signWord, skyEventShort, skyEventTitle } from "@/lib/i18n/calendar-words";
+import { CALENDAR_UI, dailyPhaseWord, fill, numChangeShort, numChangeTitle, signWord, skyEventShort, skyEventTitle, yourAspectWords } from "@/lib/i18n/calendar-words";
+import type { SkyAspect } from "@/lib/chart/sky-events";
 import { dateFormat } from "@/lib/intl-cache";
 import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
@@ -28,6 +29,8 @@ type Day = {
   moonIngress: Extract<SkyEvent, { k: "ingress" }> | null;
   phase: PhaseIndex | null;
   mine: TimingHit[];
+  /** When the Moon goes void of course that day (review 3 Oct, T8). */
+  voidFrom: number | null;
 };
 
 export function CalendarMonth({
@@ -69,7 +72,7 @@ export function CalendarMonth({
       const k = key.format(new Date(ms));
       let d = map.get(k);
       if (!d) {
-        d = { headlines: [], moonIngress: null, phase: null, mine: [] };
+        d = { headlines: [], moonIngress: null, phase: null, mine: [], voidFrom: null };
         map.set(k, d);
       }
       return d;
@@ -78,6 +81,8 @@ export function CalendarMonth({
       if (ev.k === "ingress" && ev.body === "moon") day(ev.t).moonIngress = ev;
       if (ev.k === "phase") day(ev.t).phase = ev.phase;
       if (isHeadline(ev)) day(ev.t).headlines.push(ev);
+      // The day a void of course begins, as Moon calendars mark it.
+      if (ev.k === "void") day(ev.t).voidFrom = ev.t;
     }
     for (const h of hits) if (h.moving !== "moon") day(Date.parse(h.exactUtc)).mine.push(h);
     for (const d of map.values()) d.headlines.sort((a, b) => headlineRank(a) - headlineRank(b) || a.t - b.t);
@@ -212,7 +217,8 @@ export function CalendarMonth({
             dayName.format(Date.UTC(date.year, date.month - 1, date.day, 12)),
             moonWords,
             ...heads.map((ev) => `${skyEventTitle(ev, locale, time)}, ${time(ev.t)}`),
-            mine.length ? fill(CALENDAR_UI.yours.count, locale, { n: mine.length }) : "",
+            // Your transits by name (review 3 Oct, T7), not only how many.
+            ...mine.map((h) => `${yourAspectWords(h.moving, h.type as SkyAspect, h.natal, locale)}, ${time(Date.parse(h.exactUtc))}`),
             pd != null ? fill(CALENDAR_UI.num.cellDay, locale, { n: pd }) : "",
             ...turns.map((c) => numChangeTitle(c, locale)),
           ]
@@ -244,6 +250,21 @@ export function CalendarMonth({
                   {moon ? <MoonGlyph elong={moon.elong} size={17} /> : null}
                 </span>
               </span>
+              {/* On a computer, as Moon calendars show them: when the Moon goes void of course, and when it changes sign (review 3 Oct, T8). */}
+              {(d?.voidFrom != null && showSky) || ingress ? (
+                <span className="ulune-cal-moonline">
+                  {d?.voidFrom != null && showSky ? (
+                    <span className="ulune-cal-vc" data-testid={`calendar-vc-${key}`}>
+                      v/c {time(d.voidFrom)}
+                    </span>
+                  ) : null}
+                  {ingress ? (
+                    <span className="ulune-cal-ingress-time">
+                      <SignMark sign={ingress.sign} size={10} /> {time(ingress.t)}
+                    </span>
+                  ) : null}
+                </span>
+              ) : null}
               {heads.length ? (
                 <span className="ulune-cal-sky">
                   {heads.slice(0, 3).map((ev) => (
@@ -269,13 +290,25 @@ export function CalendarMonth({
                 </span>
               ) : null}
               {mine.length ? (
-                <span className="ulune-cal-yours" aria-hidden>
+                <span
+                  className="ulune-cal-yours"
+                  aria-hidden
+                  // A pointer's card (review 3 Oct, T7): each transit with its time.
+                  title={mine.map((h) => `${yourAspectWords(h.moving, h.type as SkyAspect, h.natal, locale)} · ${time(Date.parse(h.exactUtc))}`).join("\n")}
+                >
                   {mine.slice(0, 4).map((h) => (
                     <span key={h.id} className="ulune-cal-you" data-family={FAMILY[h.type] ?? "minor"} style={{ ["--c" as string]: ASPECT_COLOR[h.type] }}>
-                      <PlanetGlyph id={h.moving} size={12} />
+                      <span className="ulune-cal-you-one">
+                        <PlanetGlyph id={h.moving} size={12} />
+                      </span>
+                      <span className="ulune-cal-you-pair">
+                        <PairIcon a={h.moving} type={h.type as SkyAspect} b={h.natal} size={12} />
+                      </span>
                     </span>
                   ))}
-                  {mine.length > 4 ? <span className="ulune-cal-more">+{mine.length - 4}</span> : null}
+                  {/* A computer shows two pairs, a phone four glyphs; the rest as a count (timing.css). */}
+                  {mine.length > 2 ? <span className="ulune-cal-more ulune-cal-more-wide">+{mine.length - 2}</span> : null}
+                  {mine.length > 4 ? <span className="ulune-cal-more ulune-cal-more-narrow">+{mine.length - 4}</span> : null}
                 </span>
               ) : null}
             </button>

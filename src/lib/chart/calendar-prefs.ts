@@ -9,7 +9,12 @@ export type CalendarPrefs = { zone: CalendarZone; sky: boolean; yours: boolean }
 const KEY = "ulune.calendar.v1";
 export const CALENDAR_DEFAULTS: CalendarPrefs = { zone: "device", sky: true, yours: true };
 
+/** Sent when the calendar's settings change, so the other Time pages follow at once. */
+export const PREFS_EVENT = "ulune:calendar-prefs";
+let lastPrefs: CalendarPrefs | null = null;
+
 export function loadCalendarPrefs(): CalendarPrefs {
+  if (lastPrefs) return lastPrefs;
   try {
     const raw = JSON.parse(window.localStorage.getItem(KEY) ?? "null") as Partial<CalendarPrefs> | null;
     if (!raw || typeof raw !== "object") return CALENDAR_DEFAULTS;
@@ -28,6 +33,13 @@ export function saveCalendarPrefs(prefs: CalendarPrefs): void {
     window.localStorage.setItem(KEY, JSON.stringify(prefs));
   } catch {
     /* private window, full or blocked storage: the choice lasts the visit */
+  }
+  // Transits follow the same clock (review 3 Oct, T4): tell them it changed.
+  lastPrefs = prefs;
+  try {
+    window.dispatchEvent(new Event(PREFS_EVENT));
+  } catch {
+    /* no window */
   }
 }
 

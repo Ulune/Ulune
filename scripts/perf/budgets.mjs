@@ -127,7 +127,9 @@ if (want.has("bundle")) {
   const cssUpFront = home.files.filter((f) => f.type === "stylesheet" && !f.later).reduce((n, f) => n + (f.gz ?? 0), 0);
   // (The review's improvements, parts 87f-g, the field errors, tab fades and the pick card: limit 32.5.)
   check("bundle", '"/" style sheets up front', cssUpFront / 1024, 32.5, "KB gz");
-  check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 51, "KB gz");
+  // (The review's improvements, parts 87f–j: the tables' phone layout, the
+  // calendar's month marks and file menu, the pair switch: limit 52.)
+  check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 52, "KB gz");
   const largest = Math.max(...home.files.filter((f) => f.type === "script").map((f) => f.gz ?? 0));
   check("bundle", "largest script", largest / 1024, 80, "KB gz");
 }

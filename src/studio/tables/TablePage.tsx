@@ -66,6 +66,7 @@ export function TablePage({
   actions,
   intro,
   fileStem,
+  startAt,
 }: {
   /** Which table (one memory of the part last read per table). */
   name: string;
@@ -77,6 +78,8 @@ export function TablePage({
   intro?: ReactNode;
   /** The start of each part's file name (the chart's name). */
   fileStem?: string;
+  /** The part to open on when none was read yet this visit (the calendar's: the one with today, review 3 Oct T10). */
+  startAt?: string;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLElement>(null);
@@ -85,7 +88,7 @@ export function TablePage({
   useOverflowFade(list);
   const ids = parts.map((p) => p.id).join("|");
   const [active, setActive] = useState(() => {
-    const last = lastRead.get(name);
+    const last = lastRead.get(name) ?? startAt;
     return last && parts.some((p) => p.id === last) ? last : (parts[0]?.id ?? "");
   });
   // barH: the bar's height; gliding: a link's scroll is under way; pinned: the
@@ -154,7 +157,7 @@ export function TablePage({
     target.addEventListener("scrollend", endGlide);
     // The part last read comes back with the table (after the stage has
     // put its scroll back to the top).
-    const want = lastRead.get(name);
+    const want = lastRead.get(name) ?? startAt;
     let restore = 0;
     if (want && want !== order[0] && order.includes(want)) {
       restore = requestAnimationFrame(() => {
@@ -181,7 +184,7 @@ export function TablePage({
       window.clearTimeout(s.endTimer);
       s.gliding = false;
     };
-  }, [ids, name, mark]);
+  }, [ids, name, mark, startAt]);
 
   // On a narrow bar, slide it sideways to keep the marked link in view.
   useEffect(() => {

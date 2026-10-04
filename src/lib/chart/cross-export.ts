@@ -83,13 +83,35 @@ export function crossPhrase(l: Pick<AspectLink, "a" | "b" | "type">, a: SideOf, 
 }
 
 /** How a table gives its exact moments; a progression exact before birth has been separating all life. */
-export type ExactKind = { kind: "moment" | "day"; pending: boolean; birthMs?: number };
+export type ExactKind = {
+  kind: "moment" | "day";
+  pending: boolean;
+  birthMs?: number;
+  /** The clock the moment is shown in (the Calendar's choice, review 3 Oct T4); universal time without it. */
+  zone?: string;
+};
+
+/** A moment in a zone's clock with the zone's short name: "4 Oct 2026, 13:18 CEST"; in UT as the tables write it. */
+export function zonedMoment(utc: string, locale: AppLocale, zone: string): string {
+  if (zone === "UTC" || zone === "Etc/UTC") return stationMoment(utc, locale);
+  const minute = Math.floor(Date.parse(utc) / 60_000) * 60_000;
+  return dateFormat(locale === "fr" ? "fr-FR" : "en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: zone,
+    timeZoneName: "short",
+  }).format(new Date(minute));
+}
 
 /** The exact moment's words, or null to say it is not in reach. */
 export function exactWhen(utc: string | null | undefined, how: ExactKind, locale: AppLocale): string | null {
   if (!utc) return null;
   if (how.birthMs != null && Date.parse(utc) < how.birthMs) return modesWord(locale, "beforeBirth");
-  return how.kind === "moment" ? stationMoment(utc, locale) : dayText(utc, locale);
+  if (how.kind === "moment") return how.zone ? zonedMoment(utc, locale, how.zone) : stationMoment(utc, locale);
+  return dayText(utc, locale);
 }
 
 /** When it is exact, in words: "exact 12 Oct 2026, 14:02 UT"; null when the table has no such column. */

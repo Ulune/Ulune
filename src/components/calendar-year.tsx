@@ -9,7 +9,7 @@ import { utcFromCivil } from "@/lib/chart/timing-window";
 import { ASPECT_COLOR, ELEMENT_COLOR, SIGN_META } from "@/lib/chart/constants";
 import { skyEventId, type SkyAspect, type SkyEvent } from "@/lib/chart/sky-events";
 import { SIGN_IDS } from "@/lib/chart/types";
-import { bodyLabel } from "@/lib/i18n/astro";
+import { bodyLabel, bodyTableLabel } from "@/lib/i18n/astro";
 import { CALENDAR_UI, fill, numChangeDetail, numChangeTitle, phaseWord, signWord, skyEventTitle, yourAspectWords } from "@/lib/i18n/calendar-words";
 import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
@@ -352,8 +352,9 @@ function TransitRow({
     <div className="ulune-cal-tl-row is-yours">
       <button type="button" className={cn("ulune-cal-tl-label ulune-cal-tl-you", on && "is-on")} aria-pressed={on} aria-label={`${words}, ${exact}`} onClick={() => onSelect(id)} data-testid={`calendar-year-transit-${t.moving}-${t.type}-${t.natal}`}>
         <PairIcon a={t.moving} type={t.type as SkyAspect} b={t.natal} size={12} />
-        <span>
-          {bodyLabel(t.moving, locale)} · {bodyLabel(t.natal, locale)}
+        {/* The angles by their short names, so the key word fits (review 3 Oct, T12); the full words on hover. */}
+        <span title={`${bodyLabel(t.moving, locale)} · ${bodyLabel(t.natal, locale)}`}>
+          {bodyTableLabel(t.moving, locale)} · {bodyTableLabel(t.natal, locale)}
         </span>
       </button>
       <span className="ulune-cal-tl-track" aria-hidden>

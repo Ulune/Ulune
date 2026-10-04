@@ -64,6 +64,7 @@ function TimingBar({ table = false }: { table?: boolean }) {
       num={timing.numTitle}
       numOn={!!timing.numTitle && selectedId === timing.numTitle.id}
       onNum={pick}
+      onJump={timing.setCivil}
     />
   );
 }
@@ -192,6 +193,7 @@ function TimingHelloEmpty() {
 function TimingData() {
   const w = useWheelView();
   const timing = useModeData("timing");
+  const chartName = useStudioStore((s) => s.chart?.meta.name ?? "");
   if (!timing?.cast) return null;
   return (
     <div className="ulune-cal-tableview">
@@ -212,6 +214,7 @@ function TimingData() {
           onSelect={w.pick}
           num={timing.prefs.yours ? timing.numRows : NO_ROWS}
           loading={timing.loading}
+          who={chartName}
         />
       </Suspense>
     </div>

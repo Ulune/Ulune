@@ -1,4 +1,9 @@
-import { CalendarDays, ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
+import { CalendarDays, CalendarSearch, ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
+import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+import type { IcsKind } from "@/lib/i18n/calendar-export";
+import { AnchoredPopover } from "@/components/anchored-popover";
+import { LoadingLines } from "@/components/loading-lines";
+import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { SegmentedToggle } from "@/components/segmented-toggle";
 import { zoneCity, zoneOffset, type CalendarZone } from "@/lib/chart/calendar-prefs";
 import { scopeBounds, utcFromCivil, type CivilDate } from "@/lib/chart/timing-window";
@@ -64,6 +69,143 @@ function periodOffset(zone: string, scope: TimingScope, civil: CivilDate): strin
   return from === to ? from : `${from} → ${to}`;
 }
 
+/**
+ * The calendar file and what it holds (review 3 Oct, T5): the sky's main
+ * events, with your transits from Mars outwards, or everything shown.
+ */
+export function IcsMenu({
+  onExport,
+  loading = false,
+  className,
+  testId,
+  children,
+}: {
+  onExport: (kind: IcsKind) => void;
+  loading?: boolean;
+  className: string;
+  testId: string;
+  children: ReactNode;
+}) {
+  const { locale } = useI18n();
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const off = (e: PointerEvent) => {
+      if (!box.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const esc = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", off);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("pointerdown", off);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+  const hint = pick(loading ? CALENDAR_UI.switches.fileWait : CALENDAR_UI.switches.fileHint, locale);
+  const kinds: IcsKind[] = ["main", "mine", "all"];
+  return (
+    <span ref={box} className="ulune-ics-menu">
+      <button
+        type="button"
+        data-testid={testId}
+        className={className}
+        onClick={() => setOpen((x) => !x)}
+        disabled={loading}
+        aria-busy={loading || undefined}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        title={hint}
+        aria-label={hint}
+      >
+        {children}
+      </button>
+      {open ? (
+        <span role="menu" className="ob-menu ulune-ics-pop" data-testid={`${testId}-menu`}>
+          {kinds.map((k) => (
+            <button
+              key={k}
+              type="button"
+              role="menuitem"
+              className="ob-menu-item"
+              data-testid={`${testId}-${k}`}
+              onClick={() => {
+                setOpen(false);
+                onExport(k);
+              }}
+            >
+              {pick(CALENDAR_UI.switches.icsKind[k], locale)}
+            </button>
+          ))}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+// The month picker the birth form uses (its own download).
+const loadPicker = () => import("./birth-calendar");
+const BirthCalendar = lazyNamed(loadPicker, "BirthCalendar");
+
+/** Any date, straight away (review 3 Oct, T9): the same calendar as the birth form's, with its month and year lists. */
+function DateJump({ civil, onJump, label, locale }: { civil: CivilDate; onJump: (next: CivilDate) => void; label: string; locale: "en" | "fr" }) {
+  const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const day = new Date(civil.year, civil.month - 1, civil.day);
+  const [month, setMonth] = useState(day);
+  return (
+    <>
+      <button
+        ref={trigger}
+        type="button"
+        data-testid="calendar-jump"
+        aria-label={label}
+        title={label}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        className="ob-icon-btn ob-icon-btn--quiet"
+        onPointerEnter={() => prefetch(loadPicker)}
+        onFocus={() => prefetch(loadPicker)}
+        onClick={() => {
+          setMonth(day);
+          setOpen((x) => !x);
+        }}
+      >
+        <CalendarSearch className="size-4" aria-hidden />
+      </button>
+      <AnchoredPopover
+        open={open}
+        anchorRef={trigger}
+        onClose={() => setOpen(false)}
+        id="calendar-jump-pop"
+        testId="calendar-jump-pop"
+        role="dialog"
+        aria-label={label}
+        hideLabel={label}
+        align="start"
+        width={21 * 16}
+      >
+        <div className="rounded-md border border-border bg-bg-elevated p-[var(--space-3)] shadow-lg">
+          <Suspense fallback={<LoadingLines lines={5} />}>
+            <BirthCalendar
+              locale={locale}
+              month={month}
+              onMonthChange={setMonth}
+              selected={day}
+              onPick={(d) => {
+                onJump({ year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() });
+                setOpen(false);
+              }}
+            />
+          </Suspense>
+        </div>
+      </AnchoredPopover>
+    </>
+  );
+}
+
 export function CalendarBar({
   scope,
   civil,
@@ -83,6 +225,7 @@ export function CalendarBar({
   num = null,
   numOn = false,
   onNum,
+  onJump,
 }: {
   scope: TimingScope;
   civil: CivilDate;
@@ -97,8 +240,8 @@ export function CalendarBar({
   showYours: boolean;
   onSky: (on: boolean) => void;
   onYours: (on: boolean) => void;
-  /** Save the period shown as a calendar file (.ics). */
-  onExport: () => void;
+  /** Save the period shown as a calendar file (.ics), holding the main events, with your transits, or everything. */
+  onExport: (kind: IcsKind) => void;
   /** The period is still arriving: the file waits for it. */
   loading?: boolean;
   /** Over the table, which has its own filters and export: the period and the clock only. */
@@ -107,6 +250,8 @@ export function CalendarBar({
   num?: { id: string; text: string } | null;
   numOn?: boolean;
   onNum?: (id: string) => void;
+  /** Go to any date, keeping the view (day, month or year). */
+  onJump?: (next: CivilDate) => void;
 }) {
   const { locale, t } = useI18n();
   const z = CALENDAR_UI.zone;
@@ -139,6 +284,7 @@ export function CalendarBar({
         <button type="button" data-testid="timing-next" aria-label={t("periodNext")} onClick={() => onShift(1)} className="ob-icon-btn ob-icon-btn--quiet">
           <ChevronRight className="size-4" />
         </button>
+        {onJump ? <DateJump civil={civil} onJump={onJump} label={t("calendarJump")} locale={locale} /> : null}
         <button type="button" data-testid="calendar-today" onClick={onToday} className="ulune-cal-chip ulune-cal-today">
           {pick(CALENDAR_UI.switches.today, locale)}
         </button>
@@ -171,19 +317,10 @@ export function CalendarBar({
             <i className="ulune-cal-dot" style={{ background: "var(--aspect-soft)" }} />
             {pick(CALENDAR_UI.switches.yours, locale)}
           </button>
-          <button
-            type="button"
-            data-testid="calendar-export"
-            className="ulune-cal-chip"
-            onClick={onExport}
-            disabled={loading}
-            aria-busy={loading || undefined}
-            title={pick(loading ? CALENDAR_UI.switches.fileWait : CALENDAR_UI.switches.fileHint, locale)}
-            aria-label={pick(loading ? CALENDAR_UI.switches.fileWait : CALENDAR_UI.switches.fileHint, locale)}
-          >
+          <IcsMenu onExport={onExport} loading={loading} className="ulune-cal-chip" testId="calendar-export">
             {loading ? <LoaderCircle className="size-3.5 animate-spin" aria-hidden /> : <CalendarDays className="size-3.5" aria-hidden />}
             <span className="ulune-cal-file-word">.ics</span>
-          </button>
+          </IcsMenu>
         </div>
       </div>
     </div>

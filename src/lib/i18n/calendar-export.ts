@@ -4,6 +4,9 @@
  * whole days they stay within 1°.
  */
 import { buildIcs, type IcsItem } from "@/lib/chart/calendar-ics";
+import { isHeadline } from "@/lib/chart/calendar-sky";
+import { MEAN_SPEED } from "@/lib/chart/constants";
+import type { BodyId } from "@/lib/chart/types";
 import type { CalRow } from "@/lib/chart/calendar-rows";
 import type { TransitWindow } from "@/lib/chart/personal-transits";
 import type { SkyAspect } from "@/lib/chart/sky-events";
@@ -15,18 +18,44 @@ import { pick } from "./pick";
 
 const ymd = (ms: number, tz: string) => dateFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(ms));
 
+/**
+ * What a calendar file holds (review 3 Oct, T5): the sky's main events (and
+ * numerology's turns), those with your transits from Mars outwards and their
+ * days within 1°, or everything the calendar shows (the fast planets' too).
+ */
+export type IcsKind = "main" | "mine" | "all";
+
+/** Your transits worth a calendar's day: the slow movers' (the Sun, Mercury and Venus pass in a day or two). */
+const SLOW_MOVERS = new Set<string>(["mars", "jupiter", "saturn", "uranus", "neptune", "pluto", "chiron", "northnode", "truenode"]);
+
+export function icsKeeps(r: CalRow, kind: IcsKind): boolean {
+  if (kind === "all") return true;
+  if (r.kind === "num") return true;
+  if (r.kind === "sky") return isHeadline(r.ev);
+  return kind === "mine" && SLOW_MOVERS.has(r.hit.moving);
+}
+
 export function calendarIcs(
   rows: readonly CalRow[],
   windows: readonly TransitWindow[],
   locale: AppLocale,
   tz: string,
   name: string,
+  opts: {
+    /** Where a moving body stands at a moment (the chunks at hand), for your transits' descriptions. */
+    lonAt?: (body: string, t: number) => number | null;
+    kind?: IcsKind;
+    /** A transit's one line of meaning, once the calendar's reading text is here. */
+    meaning?: (hit: Extract<CalRow, { kind: "you" }>["hit"]) => string;
+  } = {},
 ): string {
+  const { lonAt, kind = "all", meaning } = opts;
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
   const time = (ms: number) => dateFormat(loc, { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(ms));
   const shortDay = (ms: number) => dateFormat(loc, { timeZone: tz, weekday: "short", day: "numeric", month: "short" }).format(new Date(ms));
   const degree = (lon: number) => `${formatDegree(lon)} ${signWord(Math.floor((((lon % 360) + 360) % 360) / 30), locale)}`;
-  const items: IcsItem[] = rows.map((r) => {
+  const kept = rows.filter((r) => icsKeeps(r, kind));
+  const items: IcsItem[] = kept.map((r) => {
     if (r.kind === "sky") {
       const ev = r.ev;
       const detail = skyEventDetail(ev, locale, degree);
@@ -52,14 +81,25 @@ export function calendarIcs(
       };
     }
     const h = r.hit;
+    // Where the planet stands, about when it is within 1° (from its mean speed), and what it is about.
+    const lon = lonAt?.(h.moving, r.t) ?? null;
+    const speed = MEAN_SPEED[h.moving as BodyId];
+    const half = speed ? (1 / speed) * 86_400_000 : 0;
+    const span = half >= 36 * 3_600_000 ? fill(CALENDAR_UI.yours.window, locale, { from: shortDay(r.t - half), to: shortDay(r.t + half) }) : "";
     return {
       uid: `${r.id.slice(7)}@ulune.app`,
       start: r.t,
       summary: yourAspectWords(h.moving, h.type as SkyAspect, h.natal, locale),
-      description: pick(CALENDAR_UI.day.you, locale),
+      description: [
+        [pick(CALENDAR_UI.day.you, locale), lon != null ? degree(lon) : ""].filter(Boolean).join(" · "),
+        span,
+        meaning?.(h) ?? "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
     };
   });
-  for (const w of windows) {
+  for (const w of kind === "main" ? [] : windows) {
     // The whole days it stays within 1°, the last one included.
     const last = ymd(w.to, tz);
     const next = new Date(`${last}T12:00:00Z`);

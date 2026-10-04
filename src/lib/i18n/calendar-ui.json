@@ -6,7 +6,12 @@
     "yours": { "en": "For you", "fr": "Pour vous" },
     "today": { "en": "Today", "fr": "Aujourd’hui" },
     "fileHint": { "en": "Save as a calendar file (.ics), made on this device", "fr": "Enregistrer en fichier agenda (.ics), créé sur cet appareil" },
-    "fileWait": { "en": "The period is still loading; the calendar file waits for it", "fr": "La période se charge encore ; le fichier agenda l’attend" }
+    "fileWait": { "en": "The period is still loading; the calendar file waits for it", "fr": "La période se charge encore ; le fichier agenda l’attend" },
+    "icsKind": {
+      "main": { "en": "The sky’s main events", "fr": "Les grands événements du ciel" },
+      "mine": { "en": "+ my transits (Mars and beyond)", "fr": "+ mes transits (de Mars à Pluton)" },
+      "all": { "en": "Everything shown", "fr": "Tout ce qui est affiché" }
+    }
   },
   "zone": {
     "cityTime": { "en": "{city} time", "fr": "Heure locale ({city})" },

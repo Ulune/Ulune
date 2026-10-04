@@ -21,6 +21,7 @@ import { useWheelView } from "@/studio/modes/wheel-view";
 import { WheelPort } from "@/studio/stage/WheelPort";
 import { TimeDial } from "@/studio/modes/time-dial";
 import { useStudioStore } from "@/studio/store";
+import { useClockZone } from "@/studio/modes/hooks/useClockZone";
 import "@/studio/modes/styles/transits.css";
 
 /** The dates the ephemeris files cover (calculate.server.ts). */
@@ -38,15 +39,17 @@ function TransitsControls() {
   const live = useStudioStore((s) => s.time.live);
   const pin = useStudioStore((s) => s.pin);
   const now = useStudioStore((s) => s.now);
-  const date = euroFromMs(at);
-  const time = timeFromMs(at);
+  // In the Calendar's clock, said beside the time (review 3 Oct, T4).
+  const clock = useClockZone(at);
+  const date = euroFromMs(at, clock.tz);
+  const time = timeFromMs(at, clock.tz);
 
   function pinDate(nextDate: string) {
-    const ms = msFromEuro(nextDate, time);
+    const ms = msFromEuro(nextDate, time, clock.tz);
     if (ms != null) pin(ms);
   }
   function pinTime(nextTime: string) {
-    const ms = msFromEuro(date, nextTime);
+    const ms = msFromEuro(date, nextTime, clock.tz);
     if (ms != null) pin(ms);
   }
 
@@ -81,6 +84,9 @@ function TransitsControls() {
           className="h-11 w-full min-w-0"
         />
       </label>
+      <span className="ulune-transit-zone" data-testid="transit-zone" title={clock.label}>
+        {clock.label}
+      </span>
       <button type="button" data-testid="transit-now" onClick={() => now()} className="ulune-transit-now">
         {/* On a phone the live dot sits here and the Live / Pinned word is for screen readers only. */}
         <span className={cn("ulune-transit-now-dot", live && "is-live")} aria-hidden />
@@ -102,6 +108,7 @@ function TransitsControls() {
 function TransitsFigure() {
   const { locale, t } = useI18n();
   const w = useWheelView();
+  const clockZone = useClockZone(Date.now()).tz;
   const transits = useModeData("transits");
   const pin = useStudioStore((s) => s.pin);
   if (!w.chart || !transits) return null;
@@ -130,6 +137,7 @@ function TransitsFigure() {
           testId="transit-scrubber"
           label={t("scrubSky")}
           smooth={transits.smooth}
+          timeZone={clockZone}
         />
       }
     >

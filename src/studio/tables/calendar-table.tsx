@@ -18,6 +18,8 @@ import { cn, formatDegree } from "@/lib/utils";
 import { downloadText } from "@/lib/download-text";
 import { DataTable } from "@/studio/tables/DataTable";
 import { PartAbout, TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
+import { IcsMenu } from "@/components/calendar-bar";
+import type { IcsKind } from "@/lib/i18n/calendar-export";
 
 const FIRST_ROWS = 250;
 const MORE_ROWS = 250;
@@ -53,6 +55,7 @@ export function CalendarTable({
   onSelect,
   num = [],
   loading = false,
+  who = "",
 }: {
   events: readonly SkyEvent[];
   hits: readonly TimingHit[];
@@ -73,21 +76,27 @@ export function CalendarTable({
   num?: readonly NumRow[];
   /** The period is still arriving: Copy, CSV and the file wait for it. */
   loading?: boolean;
+  /** Whose calendar, for the file and its name (it stays on this device). */
+  who?: string;
 }) {
   const { locale, t } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
-  const [who, setWho] = useState<Who>("all");
+  const [filterWho, setFilterWho] = useState<Who>("all");
   const [moon, setMoon] = useState(scope === "day");
   useEffect(() => setMoon(scope === "day"), [scope]);
   const rows = useMemo(
-    () => calendarRows(events, hits, from, to, { sky: who !== "yours", yours: who !== "sky", moon }, num),
-    [events, hits, from, to, who, moon, num],
+    () => calendarRows(events, hits, from, to, { sky: filterWho !== "yours", yours: filterWho !== "sky", moon }, num),
+    [events, hits, from, to, filterWho, moon, num],
   );
   const columns = timingTableColumns(locale);
   const time = (ms: number) => dateFormat(loc, { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(ms));
   const when = (ms: number) =>
     scope === "day" ? time(ms) : `${dateFormat(loc, { timeZone: tz, weekday: "short", day: "numeric", month: "short" }).format(new Date(ms))} ${time(ms)}`;
   const degree = (lon: number) => `${formatDegree(lon)} ${signWord(Math.floor((((lon % 360) + 360) % 360) / 30), locale)}`;
+  const lonAtWins = (body: string, t: number) => {
+    const w = wins.find((x) => t >= x.t0 && t <= x.t0 + (x.n - 1) * x.step * 3_600_000);
+    return w ? (bodyAt(w, body as Parameters<typeof bodyAt>[1], t)?.lon ?? null) : null;
+  };
   const where = (r: CalRow): string => {
     if (r.kind === "num") return "";
     // Where a moving body stands at a moment, from the chunks at hand.
@@ -150,13 +159,18 @@ export function CalendarTable({
     return out;
   }, [rows, scope, tz, locale, to]);
 
+  // The table opens on the part with today when the period holds it (review 3 Oct, T10).
+  const todayPart = nowMs >= from && nowMs < to ? groups.find((g) => g.id === periodOf(nowMs, scope, tz, locale, to - 1).id)?.id : undefined;
+
   const line = (r: CalRow) => [whenOf(r), what(r), where(r), forWho(r)].filter(Boolean).join(" · ");
   const csv = () => [[...columns], ...rows.map((r) => [whenOf(r), what(r), where(r), forWho(r), ut(r.t)])].map((r) => r.map(csvCell).join(",")).join("\n");
   const text = () => [timingTableTitle(locale), ...groups.map((g) => [g.heading, ...g.rows.map((x) => line(x.row))].join("\n"))].join("\n\n");
-  const exportIcs = () => {
-    const spans = who === "sky" ? [] : windows.filter((w) => w.from < to && w.to >= from);
-    const name = `Ulune ${fileName}`;
-    downloadText(`ulune-${fileName}.ics`, calendarIcs(rows, spans, locale, tz, name), "text/calendar;charset=utf-8");
+  const exportIcs = (kind: IcsKind) => {
+    const spans = filterWho === "sky" ? [] : windows.filter((w) => w.from < to && w.to >= from);
+    const person = who.trim();
+    const slug = person.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "");
+    const name = `Ulune · ${person ? `${person} · ` : ""}${fileName}`;
+    downloadText(`ulune-${slug ? `${slug}-` : ""}${fileName}.ics`, calendarIcs(rows, spans, locale, tz, name, { lonAt: lonAtWins, kind }), "text/calendar;charset=utf-8");
   };
 
   const table = (list: { row: CalRow; index: number }[]) => (
@@ -241,8 +255,8 @@ export function CalendarTable({
       <div className="ulune-cal-table-filters">
         <SegmentedToggle
           ariaLabel={pick(T.filter.label, locale)}
-          value={who}
-          onChange={setWho}
+          value={filterWho}
+          onChange={setFilterWho}
           options={(["all", "sky", "yours"] as const).map((id) => ({ value: id, testId: `calendar-table-${id}`, label: pick(T.filter[id], locale) }))}
         />
         <label className="ulune-cal-table-moon">
@@ -259,6 +273,7 @@ export function CalendarTable({
         key={fileName}
         name={`calendar-${fileName}`}
         fileStem={`ulune-${fileName}`}
+        startAt={todayPart}
         label={t("tableSections")}
         parts={parts}
         intro={intro}
@@ -269,10 +284,10 @@ export function CalendarTable({
             fileName={`ulune-${fileName}`}
             disabled={loading}
             extra={
-              <button type="button" className="ob-table-export-btn" data-testid="calendar-ics" title={pick(T.icsHint, locale)} onClick={exportIcs} disabled={loading} aria-busy={loading || undefined}>
+              <IcsMenu onExport={exportIcs} loading={loading} className="ob-table-export-btn" testId="calendar-ics">
                 <CalendarDays className="size-3.5" aria-hidden />
                 <span className="ulune-tbar-act-label">{pick(T.ics, locale)}</span>
-              </button>
+              </IcsMenu>
             }
           />
         }

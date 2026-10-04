@@ -40,7 +40,11 @@ try {
   if (lines[0] !== "When,What,Where,For,UT") throw new Error(`CSV header: ${lines[0]}`);
   if (!/\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(lines[1])) throw new Error(`CSV row without UT: ${lines[1]}`);
   if (lines.length - 1 < shownRows) throw new Error(`CSV ${lines.length - 1} rows, table ${shownRows}`);
-  const [icsDl] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.getByTestId("calendar-ics").click()]);
+  // The file's choice (review 3 Oct, T5): everything shown, here.
+  await page.getByTestId("calendar-ics").click();
+  if ((await page.locator("[data-testid=calendar-ics-menu] [role=menuitem]").count()) !== 3) throw new Error("the calendar file's three choices");
+  const [icsDl] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.getByTestId("calendar-ics-all").click()]);
+  if (!/^ulune-traceqa-/.test(icsDl.suggestedFilename())) throw new Error(`calendar file name without the person: ${icsDl.suggestedFilename()}`);
   const ics = await readFile(await icsDl.path(), "utf8");
   if (!icsDl.suggestedFilename().endsWith(".ics")) throw new Error(`calendar file name ${icsDl.suggestedFilename()}`);
   const events = ics.split("BEGIN:VEVENT").length - 1;
