@@ -116,7 +116,9 @@ if (want.has("bundle")) {
   // The review's improvements (parts 87f-g: orbs by aspect, the hidden pick's note, the
   // phones' pick card, the links between systems): 265.4, limit 267 (the note and the
   // aspect grid already load later).
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 267, "KB gz");
+  // TanStack Start 1.168.60, the fix for CVE-2026-102989 (4 Oct 2026): its router is a little
+  // larger, 266.5-267.0 → 267.4; limit 268.
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 268, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's

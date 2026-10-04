@@ -14,6 +14,8 @@ import { recoverFromStaleChunk } from "@/lib/stale-chunks";
  */
 export function AppErrorComponent({ error }: ErrorComponentProps) {
   const { t } = useI18n();
+  // The router types the error loosely (anything can be thrown): its message, if it has one.
+  const message = error instanceof Error ? error.message : typeof error === "string" ? error : "";
   useEffect(() => {
     if (!recoverFromStaleChunk(error)) reportError("render", error);
   }, [error]);
@@ -47,10 +49,10 @@ export function AppErrorComponent({ error }: ErrorComponentProps) {
           {t("reportProblem")}
         </a>
       </div>
-      {error?.message ? (
+      {message ? (
         <details className="mt-2 max-w-md text-xs text-fg-subtle">
           <summary className="cursor-pointer">{t("appErrorDetails")}</summary>
-          <p className="mt-1 font-mono break-words">{error.message}</p>
+          <p className="mt-1 font-mono break-words">{message}</p>
         </details>
       ) : null}
     </main>
