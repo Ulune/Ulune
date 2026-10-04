@@ -3,6 +3,8 @@
  * note (what the thing is), lead (what it means in this chart), sections,
  * linked rows and an "About" block. Wording comes from src/lib/content.
  */
+import { eclipticToGate } from "./human-design";
+
 import { SIGN_IDS, SIGN_META, decanOf, signFromEcliptic } from "./constants";
 import { aspectHolds, dignityHolds } from "./day-checks";
 import { signDignity } from "./dignities";
@@ -70,6 +72,9 @@ import type {
   SignId,
 } from "./types";
 import { formatArc, formatDegree } from "@/lib/utils";
+
+/** The birth chart's planets that the bodygraph also reads (the nodes there are its own). */
+const HD_PLANETS = new Set<string>(["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]);
 
 type HouseNo = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 type Rows = NonNullable<ElementReading["links"]>["rows"];
@@ -224,6 +229,11 @@ function planetReading(chart: NatalChart, p: Placement, locale: Locale): Element
   ];
   if (dignity && dignity !== "peregrine") facts.push({ label: c.factDignity, value: dignityName(dignity, locale) });
   if (p.retrograde) facts.push({ label: c.factMotion, value: c.factRetro });
+  // The same planet in the bodygraph (review 3 Oct, R4): its Personality gate and line.
+  if (HD_PLANETS.has(p.id)) {
+    const { gate, line } = eclipticToGate(p.ecliptic);
+    facts.push({ label: "Human Design", value: `${locale === "fr" ? "Porte" : "Gate"} ${gate}.${line}`, ref: `go:design:act:personality:${p.id}` });
+  }
   const about = [bodyExample(p.id, locale), bodyCycle(p.id, locale)];
   if (dignity) about.push(pickBi(DIGNITY_TEXT[dignityKey(dignity)], locale));
   if (p.retrograde) about.push(pickBi(RETROGRADE_TEXT.general, locale));

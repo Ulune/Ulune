@@ -704,3 +704,18 @@ export function tightestApplyingMajors(aspects: AspectLink[], n = 3): AspectLink
   }
   return out;
 }
+
+/**
+ * About when a transit is within `orb` of exact on this pass (review 3 Oct,
+ * R1): the moving body's speed at the moment shown carried both ways from
+ * the exact moment. Null near a station or for a crawl that one span would
+ * misstate (more than four months each side).
+ */
+export function inOrbSpan(exactUtc: string | null | undefined, speed: number | undefined, orb = 1): { from: number; to: number } | null {
+  if (!exactUtc || speed == null || !Number.isFinite(speed) || Math.abs(speed) < 0.005) return null;
+  const at = Date.parse(exactUtc);
+  if (!Number.isFinite(at)) return null;
+  const half = (orb / Math.abs(speed)) * 86_400_000;
+  if (half > 120 * 86_400_000) return null;
+  return { from: at - half, to: at + half };
+}

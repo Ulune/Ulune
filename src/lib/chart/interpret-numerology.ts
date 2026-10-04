@@ -130,6 +130,11 @@ function numberSections(value: NumerologyValue, locale: AppLocale): ReadingSecti
   ];
 }
 
+/** The year in the Calendar (review 3 Oct, R4): its sky and your transits, with the personal year beside them. */
+function calendarFact(year: number, locale: AppLocale) {
+  return { label: locale === "fr" ? "Calendrier" : "Calendar", value: String(year), ref: `calendar-year:${year}` };
+}
+
 /** A core number in its place: what it asks of that place first, then the number, its debt or master note. */
 function coreReading(chart: NumerologyChart, core: NumerologyCoreId, locale: AppLocale): ElementReading | null {
   const value = valueOfCore(chart, core);
@@ -155,7 +160,7 @@ function coreReading(chart: NumerologyChart, core: NumerologyCoreId, locale: App
     note: role,
     lead: place || keywordsOf(n, locale),
     paragraphs: [place, role, ...sections.flatMap((s) => s.paragraphs)].filter(Boolean),
-    facts: numberFacts(value, locale),
+    facts: core === "personalYear" ? [...numberFacts(value, locale), calendarFact(chart.calendarYear, locale)] : numberFacts(value, locale),
     sections,
     links: others.length
       ? {
@@ -603,6 +608,7 @@ function yearReading(chart: NumerologyChart, year: number, locale: AppLocale): E
       { label: r(locale, "steps"), value: stepsText(row.personalYear) },
       ...(uy != null ? [{ label: p(locale, "universalYear"), value: String(uy) }] : []),
       ...(essence ? [{ label: numerologyWheelText(locale, "essence"), value: wholeText(essence) }] : []),
+      calendarFact(year, locale),
     ],
     sections: [
       ...(essence ? [{ id: "essence", title: r(locale, "essenceTitle", { n: wholeText(essence) }), paragraphs: [essenceText, t(ESSENCE_ABOUT, locale)] }] : []),

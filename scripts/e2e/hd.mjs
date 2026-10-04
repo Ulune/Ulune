@@ -347,7 +347,8 @@ async function phone() {
     if (!/Gate 34/.test(await card.innerText())) throw new Error("the card does not name gate 34");
     const cardBox = await card.boundingBox();
     const sheet = await page.locator(".ob-panel").boundingBox();
-    if (cardBox.y + cardBox.height > sheet.y + 1) throw new Error("the card is under the sheet");
+    // In the closed sheet's row (review 3 Oct, R3): it covers none of the chart.
+    if (cardBox.y < sheet.y - 1 || cardBox.y + cardBox.height > sheet.y + sheet.height + 1) throw new Error("the card is not in the sheet's row");
     const w1 = (await page.getByTestId("hd-graph").boundingBox()).width;
     if (Math.abs(w1 - w0) > 1) throw new Error(`the chart shrank after a tap (${w0} → ${w1})`);
     if ((await page.locator(".ob-panel").getAttribute("data-detent")) !== "peek") throw new Error("a tap raised the sheet");

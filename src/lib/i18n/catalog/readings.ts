@@ -58,4 +58,7 @@ export const readings = {
   rewritingReading: ["Rewriting your reading in this language…", "Réécriture de votre lecture dans cette langue…"],
   synastryGlanceTitle: ["Where your charts meet", "Là où vos thèmes se rencontrent"],
   transitGlanceTitle: ["Closest transits", "Les transits les plus serrés"],
+  pickRead: ["Read", "Lire"],
+  pickClose: ["Close", "Fermer"],
+  transitExactOn: ["exact {when}", "exact le {when}"],
 } as const satisfies Record<string, readonly [string, string]>;

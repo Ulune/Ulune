@@ -576,10 +576,12 @@ async function phone() {
     });
     if (layout.wheel < 340 || layout.square > 1 || !layout.tilesScroll || layout.sideways > 1) throw new Error(`phone layout ${JSON.stringify(layout)}`);
     await page.getByTestId("numerology-digit-3").tap();
-    // The wheel stays whole: the reading waits behind the Reading tab.
+    // The wheel stays whole: the reading waits behind the card's Read (review 3 Oct, R3).
     await page.waitForTimeout(300);
     if ((await page.getByTestId("dock").getAttribute("data-dock-open")) === "true") throw new Error("a tap on the wheel opened the sheet");
-    await page.getByTestId("dock-tab-reading").tap();
+    const numCard = await page.getByTestId("pick-card").innerText();
+    if (!/3/.test(numCard)) throw new Error(`the card does not name the 3: "${numCard}"`);
+    await page.getByTestId("pick-card-read").tap();
     await page.getByTestId("click-note").waitFor({ timeout: 8000 });
     await page.waitForTimeout(700);
     const half = await page.evaluate(() => {

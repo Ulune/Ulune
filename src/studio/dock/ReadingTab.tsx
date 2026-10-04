@@ -63,6 +63,25 @@ export function ReadingTab() {
       setStudioPage("transits");
       return;
     }
+    // Another system's reading of the same thing (review 3 Oct, R4):
+    // "go:design:act:personality:sun" opens it on that page.
+    const across = /^go:(natal|design|numerology):(.+)$/.exec(ref);
+    if (across) {
+      const [, target, id] = across as unknown as [string, StudioPage, string];
+      rememberGroupPage(target);
+      useStudioStore.setState({ selectedId: id, dock: "reading", dockOpen: true });
+      setStudioPage(target);
+      return;
+    }
+    // "calendar-year:2027": the Calendar's year view on that year.
+    if (ref.startsWith("calendar-year:")) {
+      const year = Number(ref.slice("calendar-year:".length));
+      if (!Number.isInteger(year)) return;
+      useStudioStore.setState({ calendarAt: { year }, selectedId: null });
+      rememberGroupPage("timing");
+      setStudioPage("timing");
+      return;
+    }
     internal.current = true;
     setTrail((tr) => [...tr, { id: reading.id, title: reading.title }].slice(-12));
     useStudioStore.setState({ selectedId: ref, dock: "reading", dockOpen: true });

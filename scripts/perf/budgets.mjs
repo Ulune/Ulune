@@ -113,7 +113,10 @@ if (want.has("bundle")) {
   const out = node([join(ROOT, "scripts/perf/load/chunks.mjs"), "/", "--returning", "--json"]);
   const [home] = JSON.parse(out.slice(out.indexOf("[")));
   // Part 86 (the glyphs laid out by their own widths, their degrees under the yokes): 263, limit 265.
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 265, "KB gz");
+  // The review's improvements (parts 87f-g: orbs by aspect, the hidden pick's note, the
+  // phones' pick card, the links between systems): 265.4, limit 267 (the note and the
+  // aspect grid already load later).
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 267, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's
@@ -122,7 +125,8 @@ if (want.has("bundle")) {
   // 1.0.2: hover only where there is a pointer, exits, view transitions, the
   // Human Design build: limit 51).
   const cssUpFront = home.files.filter((f) => f.type === "stylesheet" && !f.later).reduce((n, f) => n + (f.gz ?? 0), 0);
-  check("bundle", '"/" style sheets up front', cssUpFront / 1024, 32, "KB gz");
+  // (The review's improvements, parts 87f-g, the field errors, tab fades and the pick card: limit 32.5.)
+  check("bundle", '"/" style sheets up front', cssUpFront / 1024, 32.5, "KB gz");
   check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 51, "KB gz");
   const largest = Math.max(...home.files.filter((f) => f.type === "script").map((f) => f.gz ?? 0));
   check("bundle", "largest script", largest / 1024, 80, "KB gz");

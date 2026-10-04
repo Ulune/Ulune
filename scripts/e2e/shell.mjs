@@ -205,16 +205,23 @@ async function runNatalLayout(width) {
       const selected = await page.locator("[data-testid^=dock-tab-][aria-selected=true]").count();
       if (selected !== 1) throw new Error(`expected 1 dock tab selected, got ${selected}`);
       // A tap on the chart keeps it whole: the sheet stays as it is, and its
-      // Reading tab carries the name of what was chosen, to open when wanted.
+      // card (review 3 Oct, R3) names what was chosen, to read when wanted.
       const foldedBefore = (await page.getByTestId("dock").getAttribute("data-dock-open")) !== "true";
       await page.locator("[data-body=sun]").first().click({ force: true });
       await page.waitForTimeout(260);
       if (foldedBefore) {
         if ((await page.getByTestId("dock").getAttribute("data-dock-open")) === "true") throw new Error("a wheel tap opened the sheet");
-        const named = await page.getByTestId("dock-tab-reading").innerText();
+        const named = await page.getByTestId("pick-card").innerText();
         // (Its name: the Sun, or the house the tap found under it.)
-        if (!named.trim() || /^reading$/i.test(named.trim())) throw new Error(`the Reading tab does not name what was chosen: "${named}"`);
-        await page.getByTestId("dock-tab-reading").click();
+        if (!/Sun|house/i.test(named)) throw new Error(`the card does not name what was chosen: "${named}"`);
+        // The card lies in the closed sheet's row: nothing on the stage is covered.
+        const inRow = await page.evaluate(() => {
+          const c = document.querySelector("[data-testid=pick-card]").getBoundingClientRect();
+          const d = document.querySelector("[data-testid=dock]").getBoundingClientRect();
+          return c.top >= d.top - 1 && c.bottom <= d.bottom + 1;
+        });
+        if (!inRow) throw new Error("the card is not in the sheet's row");
+        await page.getByTestId("pick-card-read").click();
         await page.waitForTimeout(400);
       }
       const clashOpen = await page.evaluate(() => {

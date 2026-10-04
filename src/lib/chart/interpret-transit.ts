@@ -5,7 +5,10 @@
 import { TIGHT_ORB } from "./constants";
 import { applyingWord, aspectFamily, aspectInPractice, aspectIs, bodyAs, bodyIs, bodyKeywords, houseArea, minorAspectNote, pairTheme, signKeywords } from "./plain";
 import type { Locale } from "@/lib/i18n/locale";
-import { aspectLinkPhrase, bodyAgree, bodyInline, bodyLabel, bodyThe, houseInline, inSign, lowerLead, signName } from "@/lib/i18n/astro";
+import { bodyAgree, bodyInline, bodyLabel, bodyThe, houseInline, inSign, signName, transitLinkPhrase } from "@/lib/i18n/astro";
+import { dateFormat } from "@/lib/intl-cache";
+import { stationMoment } from "./table-cells";
+import { inOrbSpan } from "./transit-exact";
 import { pickBi } from "@/lib/content/types";
 import { ORB_ABOUT, TRANSIT_ABOUT, TRANSIT_FAMILY, TRANSIT_PACE } from "@/lib/content/astro-time";
 import type { AspectLink, BodyId, ElementReading, LocalDossier, NatalChart, Placement, TransitSky } from "./types";
@@ -22,6 +25,39 @@ function natalBody(chart: NatalChart, id: BodyId): Placement | undefined {
 
 function natalRef(id: BodyId) {
   return id === "ascendant" || id === "midheaven" || id === "descendant" || id === "ic" ? `angle:${id}` : `planet:${id}`;
+}
+
+/** "5 Oct" (with the year when the span crosses one), in universal time like the exact moment. */
+function shortDay(ms: number, locale: Locale, year: boolean): string {
+  return dateFormat(locale === "fr" ? "fr-FR" : "en-GB", { day: "numeric", month: "short", ...(year ? { year: "numeric" } : {}), timeZone: "UTC" }).format(new Date(ms));
+}
+
+/**
+ * When a transit is exact and about how long it is within a degree (review 3
+ * Oct, R1): "Exact on 5 Oct 2026, 14:20 UT; within 1° from about 3 to 7 Oct."
+ */
+export function transitWhen(link: AspectLink, speed: number | undefined, locale: Locale): { sentence: string; exact: string; span: string | null } | null {
+  if (!link.exactUtc) return null;
+  const fr = locale === "fr";
+  const exact = stationMoment(link.exactUtc, locale);
+  const span = inOrbSpan(link.exactUtc, speed, 1);
+  let tail = "";
+  let spanText: string | null = null;
+  if (span) {
+    const hours = (span.to - span.from) / 3_600_000;
+    if (hours < 36) {
+      const h = Math.max(1, Math.round(hours));
+      spanText = fr ? `environ ${h}\u00a0h` : `about ${h} hour${h === 1 ? "" : "s"}`;
+      tail = fr ? `\u202f; à moins de 1° pendant ${spanText}` : `; within 1° for ${spanText}`;
+    } else {
+      const crosses = new Date(span.from).getUTCFullYear() !== new Date(span.to).getUTCFullYear();
+      const from = shortDay(span.from, locale, crosses);
+      const to = shortDay(span.to, locale, crosses);
+      spanText = fr ? `du ${from} au ${to} environ` : `about ${from} – ${to}`;
+      tail = fr ? `\u202f; à moins de 1° ${spanText}` : `; within 1° from about ${from} to ${to}`;
+    }
+  }
+  return { sentence: fr ? `Exact le ${exact}${tail}.` : `Exact on ${exact}${tail}.`, exact, span: spanText };
 }
 
 /** The family sentence: "{moving} puts pressure on {natal}". */
@@ -73,8 +109,8 @@ export function transitReading(
   if (tight) {
     inChart.push(
       fr
-        ? `Son contact le plus serré\u202f: ${lowerLead(aspectLinkPhrase(tight.a, tight.type, tight.b, locale))} ${bodyAgree(tight.b, "natal", "natale")}, à ${formatArc(tight.orb)}. C’est là que le transit se fait le plus sentir en ce moment.`
-        : `Its tightest contact is ${aspectLinkPhrase(tight.a, tight.type, tight.b, locale)} (natal), at ${formatArc(tight.orb)}: that is where this transit is felt most right now.`,
+        ? `Son contact le plus serré\u202f: ${transitLinkPhrase(tight.a, tight.type, tight.b, locale)}, à ${formatArc(tight.orb)}. C’est là que le transit se fait le plus sentir en ce moment.`
+        : `Its tightest contact is ${transitLinkPhrase(tight.a, tight.type, tight.b, locale)}, at ${formatArc(tight.orb)}: that is where this transit is felt most right now.`,
     );
   } else if (!hits.length) {
     inChart.push(
@@ -85,7 +121,7 @@ export function transitReading(
   }
   const rows = hits.map((a) => ({
     ref: `taspect:${a.id}`,
-    label: fr ? `${aspectLinkPhrase(a.a, a.type, a.b, locale)} ${bodyAgree(a.b, "natal", "natale")}` : `${aspectLinkPhrase(a.a, a.type, a.b, locale)} (natal)`,
+    label: transitLinkPhrase(a.a, a.type, a.b, locale),
     detail: `${formatArc(a.orb)}${applyingWord(a.applying, locale) ? ` · ${applyingWord(a.applying, locale)}` : ""}`,
     text: movingFamilyText(TRANSIT_FAMILY, a.a, a.b, a.type, locale),
   }));
@@ -125,8 +161,9 @@ export function transitAspectReading(
   const fr = locale === "fr";
   const moving = sky.planets.find((p) => p.id === link.a);
   const natalP = natalBody(natal, link.b);
-  const phrase = aspectLinkPhrase(link.a, link.type, link.b, locale);
+  const phrase = transitLinkPhrase(link.a, link.type, link.b, locale);
   const orb = formatArc(link.orb);
+  const when = transitWhen(link, moving?.speed, locale);
   const app = applyingWord(link.applying, locale);
   const lead = movingFamilyText(TRANSIT_FAMILY, link.a, link.b, link.type, locale);
   const theme = pairTheme(link.a, link.b, locale);
@@ -144,20 +181,25 @@ export function transitAspectReading(
       ? `Orbe ${orb}${app ? `, ${app}` : ""}\u202f: ${link.applying ? "le contact se rapproche encore de l’exactitude" : link.applying === false ? "le point exact est passé, l’effet diminue" : "le contact est actif"}.`
       : `Orb ${orb}${app ? `, ${app}` : ""}: ${link.applying ? "the contact is still getting closer to exact" : link.applying === false ? "the exact point has passed and the effect is fading" : "the contact is active"}.`,
   );
+  if (when) inChart.push(when.sentence);
   const pace = pickBi(TRANSIT_PACE[link.a], locale);
   if (pace) inChart.push(pace);
   const note = aspectIs(link.type, locale);
   return {
     id: `taspect:${link.id}`,
     kind: "aspect",
-    title: fr ? `Transit · ${phrase}` : `Transit · ${phrase}`,
+    title: phrase,
     kicker: fr
-      ? `${link.level === "major" ? "Majeur" : "Mineur"} · orbe ${orb}${app ? ` · ${app}` : ""}`
-      : `${link.level === "major" ? "Major" : "Minor"} · orb ${orb}${app ? ` · ${app}` : ""}`,
+      ? `Transit · ${link.level === "major" ? "majeur" : "mineur"} · orbe ${orb}${app ? ` · ${app}` : ""}`
+      : `Transit · ${link.level === "major" ? "major" : "minor"} · orb ${orb}${app ? ` · ${app}` : ""}`,
     paragraphs: [note, lead, ...inChart],
     note,
     lead,
-    facts: [{ label: fr ? "Orbe" : "Orb", value: `${orb}${app ? ` · ${app}` : ""}` }],
+    facts: [
+      { label: fr ? "Orbe" : "Orb", value: `${orb}${app ? ` · ${app}` : ""}` },
+      ...(when ? [{ label: fr ? "Exact" : "Exact", value: when.exact }] : []),
+      ...(when?.span ? [{ label: fr ? "À moins de 1°" : "Within 1°", value: when.span }] : []),
+    ],
     sections: [{ id: "chart", title: fr ? "Dans votre thème" : "In your chart", paragraphs: inChart }],
     links: {
       title: fr ? "Les deux points" : "The two points",

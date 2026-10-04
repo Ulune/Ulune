@@ -159,6 +159,8 @@ type NavSlice = {
    * bars show it at once, so the press answers before the page is drawn.
    */
   navPage: StudioPage | null;
+  /** A year for the Calendar to open on (a reading's "Calendar" link), taken once by useTiming. */
+  calendarAt: { year: number } | null;
   view: StudioView;
   dock: DockTab;
   dockOpen: boolean;
@@ -238,6 +240,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   selectedId: null,
   page: "natal",
   navPage: null,
+  calendarAt: null,
   view: loadStudioView(),
   dock: "birth",
   dockOpen: loadDockOpen(),

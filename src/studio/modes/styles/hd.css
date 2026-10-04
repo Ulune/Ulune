@@ -645,50 +645,6 @@ html.light .ulune-hd-gate[data-tone="both"] text {
   }
 }
 
-/* The phone's card: the chosen piece in one line, above the reading sheet. */
-.ulune-hd-card {
-  position: absolute;
-  z-index: 15;
-  left: var(--space-3);
-  right: var(--space-3);
-  bottom: calc(var(--ob-peek-h) + var(--space-2));
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  max-width: 34rem;
-  margin: 0 auto;
-  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
-  border-radius: 14px;
-  background: var(--color-bg-elevated);
-  box-shadow:
-    0 0 0 1px var(--color-border),
-    0 10px 28px -12px color-mix(in oklab, var(--color-fg) 22%, transparent);
-  font-size: 13px;
-  line-height: 1.3;
-  color: var(--color-fg);
-}
-.ulune-hd-card-text {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.ulune-hd-card-read {
-  flex: none;
-  min-height: 36px;
-  padding: 0 var(--space-3);
-  border-radius: 10px;
-  background: var(--color-fg);
-  color: var(--color-bg);
-  font-weight: 600;
-}
-.ulune-hd-card-close {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  color: var(--color-fg-muted);
-}
 /* The facts, the column headers and rows, the first read's steps: one
    focus ring and the same short fades. */
 .ulune-hd-fact,

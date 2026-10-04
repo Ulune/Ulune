@@ -6,7 +6,8 @@
  * from src/lib/content/hd.ts, src/lib/content/hd-first.ts and
  * src/lib/i18n/hd-prose.ts.
  */
-import type { ElementReading, ReadingLink } from "./types";
+import type { ElementReading, NatalChart, ReadingLink } from "./types";
+import { bodyBare, signName } from "@/lib/i18n/astro";
 import type { AppLocale } from "@/lib/i18n/messages";
 import {
   bodiesOnGate,
@@ -177,8 +178,9 @@ export function hdReading(
   pickId: string | null,
   locale: AppLocale,
   view: HdView = "both",
+  natal?: NatalChart | null,
 ): ElementReading | null {
-  const reading = hdReadingOf(chart, pickId, locale, view);
+  const reading = withAstrology(hdReadingOf(chart, pickId, locale, view), pickId, natal ?? null, locale);
   if (!reading || !chart.uncertain || !pickId) return reading;
   // Without a birth time, what could differ at another hour of that day says so first.
   const u = chart.uncertain;
@@ -192,6 +194,23 @@ export function hdReading(
   if (!kind) return reading;
   const section = unknownSection(locale, kind);
   return { ...reading, sections: [section, ...(reading.sections ?? [])], paragraphs: [...reading.paragraphs, ...section.paragraphs] };
+}
+
+/**
+ * A Personality activation is the birth chart's own planet (review 3 Oct,
+ * R4): "Astrology · Sun 24°03′ Gemini · 10th house", opening the planet on
+ * the chart.
+ */
+function withAstrology(reading: ElementReading | null, pickId: string | null, natal: NatalChart | null, locale: AppLocale): ElementReading | null {
+  const act = parseHdActId(pickId);
+  if (!reading || !act || act.layer !== "personality" || !natal) return reading;
+  const p = natal.planets.find((x) => x.id === act.body);
+  if (!p) return reading;
+  const fr = locale === "fr";
+  const value = fr
+    ? `${bodyBare(p.id, locale)} ${p.formatted} ${signName(p.sign, locale)} · maison ${p.house}`
+    : `${bodyBare(p.id, locale)} ${p.formatted} ${signName(p.sign, locale)} · house ${p.house}`;
+  return { ...reading, facts: [...(reading.facts ?? []), { label: fr ? "Astrologie" : "Astrology", value, ref: `go:natal:planet:${p.id}` }] };
 }
 
 function hdReadingOf(

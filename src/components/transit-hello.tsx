@@ -3,7 +3,8 @@ import { tightestApplyingMajors } from "@/lib/chart/transit-exact";
 import { planetPaint } from "@/lib/look";
 import { useLookShape } from "@/lib/look-provider";
 import { TRANSITS_HELLO, transitHelloEmpty, transitHelloLine } from "@/lib/i18n/transits-hello";
-import { aspectLinkPhrase, bodyLabel } from "@/lib/i18n/astro";
+import { bodyLabel, signName, transitLinkPhrase } from "@/lib/i18n/astro";
+import { stationMoment } from "@/lib/chart/table-cells";
 import { useI18n } from "@/lib/i18n/locale";
 import { cn, formatArc } from "@/lib/utils";
 import { previewProps } from "@/lib/depth/preview-bus";
@@ -57,7 +58,9 @@ export function TransitHello({
             const active = selectedId === selectId;
             const color = moving ? planetPaint(moving.id, moving.sign, look.planets) : "var(--color-fg-muted)";
             const sentence = transitHelloLine(locale, link.type, link.b);
-            const label = aspectLinkPhrase(link.a, link.type, link.b, locale);
+            const label = transitLinkPhrase(link.a, link.type, link.b, locale);
+            // When it is exact, as the table says it (review 3 Oct, R1).
+            const exact = link.exactUtc ? stationMoment(link.exactUtc, locale) : null;
             return (
               <button
                 key={link.id}
@@ -69,7 +72,7 @@ export function TransitHello({
                 {...previewProps(selectId)}
                 data-previewed={chartHover === selectId ? "1" : undefined}
                 aria-pressed={active}
-                aria-label={`${label}, ${formatArc(link.orb)}. ${sentence}`}
+                aria-label={`${label}, ${formatArc(link.orb)}${exact ? `, ${t("transitExactOn", { when: exact })}` : ""}. ${sentence}`}
                 className={cn("ob-glance-cell", active && "is-on")}
               >
                 <span className="ob-glance-glyph" style={{ color }} aria-hidden>
@@ -84,9 +87,10 @@ export function TransitHello({
                       {formatArc(link.orb)}
                       {moving ? (
                         <span className="ob-glance-house">
-                          · {bodyLabel(link.a, locale)} {moving.formatted}
+                          · {bodyLabel(link.a, locale)} {moving.formatted} {signName(moving.sign, locale)}
                         </span>
                       ) : null}
+                      {exact ? <span className="ob-glance-house" data-testid={`transits-hello-exact-${i}`}> · {t("transitExactOn", { when: exact })}</span> : null}
                     </span>
                   </span>
                   <span data-hello-copy className="ob-glance-copy">

@@ -189,8 +189,9 @@ test("Every reading the page opens works, with its own words spaced in French", 
             assert.ok(frenchSpacing(s), `${who} ${id}: «${s}»`);
           }
         }
-        // Links and facts lead to readings that exist.
+        // Links and facts lead to readings that exist (or to the Calendar's year, review 3 Oct R4).
         for (const ref of [...(r.facts ?? []).map((f) => f.ref), ...(r.links?.rows ?? []).map((x) => x.ref)].filter(Boolean)) {
+          if (/^calendar-year:\d{4}$/.test(ref)) continue;
           assert.ok(numerologyReading(chart, ref, locale), `${who} ${id} → ${ref}`);
         }
       }

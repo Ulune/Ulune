@@ -20,6 +20,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { LoadingLines } from "@/components/loading-lines";
+import { PickCard, useWideLayout } from "@/components/pick-card";
 import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { cn } from "@/lib/utils";
@@ -82,6 +83,12 @@ export function Dock() {
   const selectedId = useStudioStore((s) => s.selectedId);
   const reading = useModeReading();
   const waiting = !dockOpen && selectedId && reading ? reading.title : null;
+  // On a phone, the same card as Human Design's (review 3 Oct, R3): the name
+  // and one key fact, and Read. Human Design writes its own (hd-card.tsx).
+  const wideLayout = useWideLayout();
+  // The first fact the title does not already say ("Expression 11/2" needs no "11/2" after it).
+  const keyFact = reading?.facts?.find((f) => f.value && !reading.title.includes(f.value))?.value;
+  const pickText = reading ? (keyFact ? `${reading.title} · ${keyFact}` : reading.title) : null;
 
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -301,6 +308,7 @@ export function Dock() {
       data-ready={ready ? "1" : undefined}
       onFocus={onFocusIn}
     >
+      {wideLayout || studioPage === "design" ? null : <PickCard text={pickText} />}
       <div
         className="ob-panel-head"
         onPointerDown={onHeadDown}

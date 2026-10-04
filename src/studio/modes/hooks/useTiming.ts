@@ -328,6 +328,16 @@ export function useTiming() {
     [pick],
   );
 
+  // A reading's "Calendar · 2027" (review 3 Oct, R4): the year view on that year.
+  const calendarAt = useStudioStore((st) => st.calendarAt);
+  useEffect(() => {
+    if (!calendarAt) return;
+    const now = civilFromUtc(new Date(), tz);
+    setCivil(calendarAt.year === now.year ? { year: now.year, month: now.month, day: now.day } : { year: calendarAt.year, month: 1, day: 1 });
+    setScope("year");
+    useStudioStore.setState({ calendarAt: null });
+  }, [calendarAt, tz]);
+
   const todayCivil = useCallback((): CivilDate => {
     const now = civilFromUtc(new Date(), tz);
     return { year: now.year, month: now.month, day: now.day };

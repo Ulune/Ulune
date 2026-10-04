@@ -43,7 +43,7 @@ function NumerologyFigure() {
     <div className="ulune-num-stage">
       <NumerologyWheel chart={numbers} isNow={isNow} selectedId={w.selectedId} onSelect={w.choose} onClear={clear} />
       <NumerologyYSwitch numbers={numbers} selectedId={w.selectedId} locale={locale} />
-      <NumerologyYearStepper numbers={numbers} locale={locale} selectedId={w.selectedId} onSelect={w.pick} />
+      <NumerologyYearStepper numbers={numbers} locale={locale} selectedId={w.selectedId} onSelect={w.choose} />
       <div className="ulune-num-tiles" role="group" aria-label={numerologyWheelText(locale, "tiles")} data-testid="num-tiles">
         {WHEEL_CORES.map((id) => {
           const value = valueOfCore(numbers, id);
@@ -55,7 +55,7 @@ function NumerologyFigure() {
               data-testid={`numerology-tile-${id}`}
               aria-pressed={on}
               disabled={value.number == null}
-              onClick={() => w.pick(`core:${id}`)}
+              onClick={() => w.choose(`core:${id}`)}
               {...previewProps(`core:${id}`)}
               className={cn("ulune-num-tile", on && "is-on")}
             >

@@ -40,6 +40,8 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "The birth form says everything that is missing at once, each under its field; the date and time show how to write them.",
           "Images of the chart can carry the name and birth details in a band below, if you tick it (off by default); dates are written day/month/year everywhere.",
           "Smaller things: the aspect grid beside the chart lists every planet shown; tab rows that do not fit fade at the edge to say there is more; Look opens on its first page; French names of the true node and true Lilith.",
+          "Readings: a transit's card starts with what it means for you (the textbook part moves to About), is named as it is felt, “Venus sextile your Uranus”, and says when it is exact and about when it is within a degree; the closest transits give the sign and the exact moment. On a phone, anything you tap on a chart, the bodygraph or the numerology wheel shows the same card in the closed sheet, with Read, and covers nothing.",
+          "The systems point at each other: a planet's reading gives its Human Design gate and opens it there; a Personality activation gives the planet's place in your chart; the personal year opens that year in the Calendar.",
         ],
       },
       {
@@ -100,6 +102,8 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
           "Le formulaire de naissance dit tout ce qui manque d’un coup, sous chaque champ ; la date et l’heure montrent comment les écrire.",
           "Les images du thème peuvent porter le nom et les données de naissance dans un bandeau, si vous cochez la case (décochée par défaut) ; les dates s’écrivent jour/mois/année partout.",
           "Plus discret : la grille d’aspects à côté du thème liste toutes les planètes affichées ; les rangées d’onglets trop longues s’estompent au bord pour dire qu’il y en a d’autres ; Style s’ouvre sur sa première page ; les noms français du nœud vrai et de la Lilith vraie.",
+          "Lectures : la carte d’un transit commence par ce qu’il signifie pour vous (la partie de manuel passe dans À propos), se nomme comme il se vit, « Vénus en sextile à votre Uranus », et dit quand il est exact et à peu près quand il est à moins d’un degré ; les transits les plus serrés donnent le signe et le moment exact. Sur téléphone, ce que vous touchez sur un thème, le bodygraph ou la roue de numérologie montre la même carte dans le panneau fermé, avec Lire, sans rien cacher.",
+          "Les systèmes se répondent : la lecture d’une planète donne sa porte du Human Design et l’y ouvre ; une activation de la Personnalité donne la place de la planète dans votre thème ; l’année personnelle ouvre cette année dans le Calendrier.",
         ],
       },
       {

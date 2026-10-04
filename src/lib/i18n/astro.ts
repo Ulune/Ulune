@@ -494,6 +494,20 @@ export function bodyPrep(id: string, prep: "à" | "avec" | "de"): string {
   return prepA(nom);
 }
 
+/**
+ * A transit to the birth chart, said as it is felt (review 3 Oct, R1):
+ * "Venus sextile your Uranus", "Sun opposite your Mars" /
+ * "Vénus en sextile à votre Uranus", "Mars en conjonction avec votre Soleil".
+ */
+export function transitLinkPhrase(moving: string, type: AspectId, natal: string, locale: Locale): string {
+  if (locale !== "fr") {
+    const word = type === "conjunction" ? "conjunct" : type === "opposition" ? "opposite" : ASPECT_EN[type].toLowerCase();
+    return `${bodyLabel(moving, locale)} ${word} your ${bodyLabel(natal, locale)}`;
+  }
+  const word = ASPECT_FR[type].toLowerCase();
+  return `${bodyBare(moving, locale)} en ${word} ${type === "conjunction" ? "avec" : "à"} votre ${bodyBare(natal, locale)}`;
+}
+
 /** "Le Soleil en opposition à la Lune" / "Sun Opposition Moon" */
 export function aspectLinkPhrase(a: string, type: AspectId, b: string, locale: Locale): string {
   if (locale !== "fr") {

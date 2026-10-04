@@ -49,8 +49,8 @@ export function useHumanDesign() {
   // The readings come with the Human Design text (its own download).
   const pack = usePack("hd", locale, enabled);
   const reading = useMemo(
-    () => (hd && pack ? pack.hdReading(hd, selectedId, locale, view) : null),
-    [hd, pack, selectedId, locale, view],
+    () => (hd && pack ? pack.hdReading(hd, selectedId, locale, view, chart) : null),
+    [hd, pack, selectedId, locale, view, chart],
   );
   const retry = useCallback(() => setTick((n) => n + 1), []);
 
