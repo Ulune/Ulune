@@ -97,7 +97,7 @@ export function BirthDateField({
           aria-label={calendarLabel}
           aria-expanded={open}
           aria-haspopup="dialog"
-          className="grid h-11 w-11 shrink-0 place-items-center text-fg-muted hover:text-fg"
+          className="ulune-date-cal grid w-[var(--btn-h)] shrink-0 self-stretch place-items-center text-fg-muted hover:text-fg"
           onPointerEnter={calendarAhead}
           onFocus={calendarAhead}
           onClick={() => {

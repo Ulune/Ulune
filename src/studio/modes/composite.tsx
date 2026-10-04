@@ -111,7 +111,7 @@ function CompositeFigure() {
           data-testid="composite-add-second-wheel"
           onClick={composite.addSecond}
           className={cn(
-            "inline-flex min-h-11 items-center justify-center rounded-md px-4",
+            "inline-flex min-h-[var(--btn-h)] items-center justify-center rounded-md px-4",
             "font-display text-2xl leading-none text-fg hover:text-fg-muted",
           )}
         >

@@ -32,7 +32,7 @@ export function PlanetStrip({
               type="button"
               data-strip={p.id}
               onClick={() => onSelect(id)}
-              className={`inline-flex h-11 min-w-11 items-center justify-center gap-2 ulune-chip-radius border leading-none px-2.5 text-left text-xs transition-[border-color,background-color,color,transform] duration-[var(--motion-ui)] ease-[var(--ease-out)] active:scale-[0.96] ${
+              className={`inline-flex h-[var(--ctl-h)] min-w-[var(--ctl-h)] items-center justify-center gap-2 ulune-chip-radius border leading-none px-2.5 text-left text-xs transition-[border-color,background-color,color,transform] duration-[var(--motion-ui)] ease-[var(--ease-out)] active:scale-[0.96] ${
                 active
                   ? "border-border-strong bg-bg-subtle text-fg"
                   : "border-border bg-bg-elevated text-fg-muted hover:text-fg"

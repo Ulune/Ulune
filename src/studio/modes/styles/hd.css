@@ -74,8 +74,8 @@ html.light {
 .ulune-hd-control {
   min-width: 0;
   width: 100%;
-  height: 44px;
-  max-height: 44px;
+  height: var(--ctl-h);
+  max-height: var(--ctl-h);
 }
 
 /* The five keys and the cross above the chart (hd-facts.tsx): one row of

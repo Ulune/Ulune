@@ -198,7 +198,7 @@ export function AskGrokBox({
               data-testid="ask-grok-submit"
               disabled={pending}
               onClick={() => void submit()}
-              className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-md bg-accent px-4 text-sm font-medium text-accent-fg transition-[opacity,transform] duration-[var(--motion-press)] ease-[var(--ease-out)] hover:opacity-90 active:scale-[0.98] disabled:opacity-40 sm:w-auto"
+              className="mt-3 inline-flex h-[var(--btn-h)] w-full items-center justify-center rounded-md bg-accent px-4 text-sm font-medium text-accent-fg transition-[opacity,transform] duration-[var(--motion-press)] ease-[var(--ease-out)] hover:opacity-90 active:scale-[0.98] disabled:opacity-40 sm:w-auto"
             >
               {cta}
             </button>

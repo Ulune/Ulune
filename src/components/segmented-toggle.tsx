@@ -67,7 +67,7 @@ export function SegmentedToggle<T extends string>({
               if (opt.value !== value) onChange(opt.value);
             }}
             className={cn(
-              "ulune-seg-btn relative z-[1] flex h-11 min-w-11 items-center justify-center px-3",
+              "ulune-seg-btn relative z-[1] flex h-[var(--ctl-h)] min-w-[var(--ctl-h)] items-center justify-center px-[var(--ctl-pad)]",
               active ? "is-on" : undefined,
             )}
           >

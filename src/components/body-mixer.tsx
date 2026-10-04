@@ -98,7 +98,7 @@ const CHIP_ON = "border-border-strong bg-bg-subtle text-fg";
 const CHIP_OFF = "border-border bg-bg text-fg-subtle hover:text-fg-muted";
 const CHIP_MIXED = "border-border-strong text-fg";
 const BODY_CHIP =
-  "inline-flex h-11 min-w-11 items-center justify-center gap-1.5 ulune-chip-radius border px-2 leading-none text-xs transition-[border-color,background-color,opacity,color,transform] duration-[var(--motion-press)] ease-[var(--ease-out)] active:scale-[0.97]";
+  "inline-flex h-[var(--ctl-h)] min-w-[var(--ctl-h)] items-center justify-center gap-1.5 ulune-chip-radius border px-2 leading-none text-xs transition-[border-color,background-color,opacity,color,transform] duration-[var(--motion-press)] ease-[var(--ease-out)] active:scale-[0.97]";
 const PRESET_CHIP =
   "inline-flex h-8 items-center ulune-chip-radius border px-2.5 text-xs transition-colors duration-[var(--motion-ui)]";
 

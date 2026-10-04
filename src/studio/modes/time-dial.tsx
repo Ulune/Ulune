@@ -181,7 +181,7 @@ export function TimeDial({
     const canvas = canvasRef.current;
     if (!canvas || !width) return;
     const dpr = Math.min(3, window.devicePixelRatio || 1);
-    const h = 40; // .ulune-time-tape's height (reading it would force a layout on every frame)
+    const h = 32; // .ulune-time-tape's height (reading it would force a layout on every frame)
     if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(h * dpr)) {
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(h * dpr);
@@ -245,7 +245,7 @@ export function TimeDial({
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(mid, 0);
-    ctx.lineTo(mid, h - 18);
+    ctx.lineTo(mid, h - 16);
     ctx.stroke();
     ctx.fillStyle = fg;
     ctx.beginPath();

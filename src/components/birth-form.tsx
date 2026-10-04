@@ -63,7 +63,7 @@ function offsetLabel(value: string): string {
 }
 
 const SELECT_CLASS = cn(
-  "block h-11 w-full min-w-0 rounded-md border border-border-field bg-bg px-3 text-base text-fg transition-[border-color,box-shadow] duration-[var(--motion-ui)] md:text-sm",
+  "block h-[var(--btn-h)] w-full min-w-0 rounded-md border border-border-field bg-bg px-3 text-base text-fg transition-[border-color,box-shadow] duration-[var(--motion-ui)] md:text-sm",
   "focus-visible:outline-none focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-ring",
   "disabled:opacity-50",
 );
@@ -832,7 +832,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
                   type="button"
                   tabIndex={-1}
                   className={cn(
-                    "flex min-h-11 w-full flex-col items-start justify-center px-3 py-2 text-left text-sm text-fg hover:bg-bg-subtle",
+                    "flex min-h-[var(--row-h)] w-full flex-col items-start justify-center px-3 py-2 text-left text-sm text-fg hover:bg-bg-subtle",
                     i === active && "bg-bg-subtle",
                   )}
                   onPointerEnter={() => setActive(i)}
@@ -981,7 +981,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
         type="submit"
         data-testid="cast-submit"
         disabled={busy}
-        className="col-span-2 h-11 w-full max-md:sticky max-md:bottom-2 max-md:z-10"
+        className="col-span-2 h-[var(--btn-h)] w-full max-md:sticky max-md:bottom-2 max-md:z-10"
       >
         {busy || status ? status ?? t("casting") : submitLabel ?? t("castChart")}
       </Button>

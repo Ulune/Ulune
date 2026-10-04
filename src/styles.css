@@ -313,13 +313,24 @@ html.light {
   --motion-slow: var(--dur-sheet);
 
   --wheel-stroke: 1;
-  --control-h: 44px;
-  --control-h-sm: 32px;
-  --header-control-h: 44px;
+  /* Control sizes by pointer, not by screen width (UI plan, part 92): a mouse
+     or trackpad gets compact controls, a finger the larger ones (below). */
+  --ctl-h: 28px; /* a switch, a field or a button in a bar */
+  --ctl-icon: 28px; /* an icon button */
+  --ctl-text: 13px;
+  --ctl-pad: 10px; /* a segment's side padding */
+  --ctl-gap: 4px; /* between controls in a group */
+  --tab-h: 32px; /* page tabs, panel tabs, table sections */
+  --btn-h: 36px; /* a standalone button or a form field */
+  --row-h: 32px; /* a row in a menu or a list of choices */
+  --row-key: 24px; /* a row of the aspect key */
+  --control-h: var(--btn-h);
+  --control-h-sm: var(--ctl-h);
+  --header-control-h: var(--ctl-h);
   --stage-pad: 12px;
 
   /* Shell metrics (px so Look text-scale never reflows chrome). */
-  --ob-top-h: 56px;
+  --ob-top-h: 48px;
   --ob-group-h: 56px;
   --ob-peek-h: 52px;
   --ob-strip-h: 52px;
@@ -336,6 +347,19 @@ html.light {
 @media (min-width: 1024px) {
   :root {
     --stage-pad: 16px;
+  }
+}
+@media (pointer: coarse) {
+  :root {
+    --ctl-h: 40px;
+    --ctl-icon: 40px;
+    --ctl-text: 14px;
+    --ctl-pad: 12px;
+    --ctl-gap: 6px;
+    --tab-h: 44px;
+    --btn-h: 44px;
+    --row-h: 44px;
+    --row-key: 28px;
   }
 }
 
@@ -1411,7 +1435,7 @@ html.light .ulune-wheel [data-cfg-type] {
 .ulune-wheel-zoom {
   --wheel-fit-inset: 28px;
   --wheel-zoom-gap: 8px;
-  --wheel-zoom-hit: 44px;
+  --wheel-zoom-hit: var(--ctl-h);
   --wheel-zoom-inset: 12px;
   position: relative;
   isolation: isolate;
@@ -1473,9 +1497,9 @@ html.light .ulune-wheel [data-cfg-type] {
 
 .ulune-sky-read-ai {
   margin-left: auto;
-  flex: 0 0 44px;
-  width: 44px;
-  height: 44px;
+  flex: 0 0 var(--ctl-icon);
+  width: var(--ctl-icon);
+  height: var(--ctl-icon);
   display: grid;
   place-items: center;
   padding: 0;
@@ -1810,9 +1834,9 @@ html.light .ulune-wheel [data-cfg-type] {
   [data-testid="composite-person-b"] {
     flex: 1 1 auto;
     width: 100%;
-    min-width: 44px;
-    min-height: 44px;
-    height: 44px;
+    min-width: var(--ctl-icon);
+    min-height: var(--ctl-h);
+    height: var(--ctl-h);
     max-height: none;
     box-sizing: border-box;
     margin: 0;
@@ -1828,9 +1852,9 @@ html.light .ulune-wheel [data-cfg-type] {
 /* MOBILE_PAIR_NO_CLIP — beat sticky max-height:44 from the tablet rule */
 @media (max-width: 767px) {
   [data-testid="synastry-person-a"] {
-    min-width: 44px !important;
-    min-height: 44px !important;
-    height: 44px !important;
+    min-width: var(--ctl-icon) !important;
+    min-height: var(--ctl-h) !important;
+    height: var(--ctl-h) !important;
     max-height: none !important;
     box-sizing: border-box !important;
   }
@@ -1931,7 +1955,7 @@ html.light .ulune-wheel [data-cfg-type] {
 }
 .ob-rc-depth button {
   min-width: 56px;
-  height: 44px;
+  height: var(--ctl-h);
   padding: 0 12px;
   border: 3px solid transparent;
   border-radius: var(--radius-md);
@@ -2491,7 +2515,7 @@ html.light .ulune-wheel [data-cfg-type] {
 }
 .ob-seg3 button {
   min-width: 56px;
-  height: 44px;
+  height: var(--ctl-h);
   padding: 0 12px;
   border: 3px solid transparent;
   border-radius: var(--radius-md);
@@ -2512,7 +2536,7 @@ html.light .ulune-wheel [data-cfg-type] {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  min-height: 44px;
+  min-height: var(--row-h);
   padding: 10px 0 4px;
   font: 400 14px/1.4 var(--font-ui);
   color: var(--color-fg);

@@ -85,7 +85,7 @@ export function LookTab() {
               tabIndex={on ? 0 : -1}
               onClick={() => setPage(id)}
               className={cn(
-                "inline-flex min-h-11 items-center justify-center px-3 text-sm",
+                "inline-flex min-h-[var(--ctl-h)] items-center justify-center px-3 text-sm",
                 on
                   ? "ob-subtab-on"
                   : "text-fg-muted",
@@ -113,7 +113,7 @@ export function LookTab() {
                 type="button"
                 data-look-reset
                 onClick={resetLook}
-                className="inline-flex min-h-11 items-center ulune-chip-radius border border-border px-2.5 text-xs text-fg-muted hover:border-border-strong hover:text-fg"
+                className="inline-flex min-h-[var(--ctl-h)] items-center ulune-chip-radius border border-border px-2.5 text-xs text-fg-muted hover:border-border-strong hover:text-fg"
               >
                 {t("lookReset")}
               </button>

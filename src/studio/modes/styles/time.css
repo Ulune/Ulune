@@ -80,7 +80,7 @@
   color: var(--color-fg-muted);
 }
 .ulune-time-unit select {
-  height: 44px;
+  height: var(--ctl-h);
   padding: 0 28px 0 10px;
   border: 1px solid var(--color-border-field);
   border-radius: var(--radius-md);
@@ -135,7 +135,7 @@
 }
 .ulune-time-tape {
   position: relative;
-  height: 40px;
+  height: 32px;
   width: 100%;
   min-width: 0;
   border-radius: var(--radius-md);

@@ -60,7 +60,7 @@ class ErrorSlotBoundary extends Component<
               <button
                 type="button"
                 data-testid="error-slot-reload"
-                className="inline-flex min-h-11 items-center rounded-md border border-border-strong px-3 text-sm text-fg hover:border-fg"
+                className="inline-flex min-h-[var(--btn-h)] items-center rounded-md border border-border-strong px-3 text-sm text-fg hover:border-fg"
                 onClick={() => window.location.reload()}
               >
                 {this.props.reloadLabel}
@@ -69,7 +69,7 @@ class ErrorSlotBoundary extends Component<
             <button
               type="button"
               data-testid="error-slot-retry"
-              className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-sm text-fg hover:border-border-strong"
+              className="inline-flex min-h-[var(--btn-h)] items-center rounded-md border border-border px-3 text-sm text-fg hover:border-border-strong"
               onClick={() => {
                 this.props.onRetry();
                 this.setState({ error: null, suppress: true });

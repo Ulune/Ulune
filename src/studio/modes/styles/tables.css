@@ -99,7 +99,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 44px;
+  min-height: var(--ctl-h);
   padding: 0 12px;
   border: 0;
   border-radius: var(--radius-md);
@@ -274,7 +274,7 @@
 .ulune-tbar-link {
   display: flex;
   align-items: center;
-  min-height: 44px;
+  min-height: var(--tab-h);
   padding: 0 12px;
   color: var(--color-fg-muted);
   font: 500 13px/1 var(--font-ui);
@@ -356,8 +356,8 @@
   display: grid;
   flex: 0 0 auto;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: var(--ctl-icon);
+  height: var(--ctl-icon);
   border: 0;
   border-radius: var(--radius-md);
   background: transparent;
@@ -632,7 +632,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 44px;
+  min-height: var(--ctl-h);
   color: var(--color-fg-muted);
   font: 400 13px/1.3 var(--font-ui);
   cursor: pointer;
@@ -1133,7 +1133,7 @@ button.ulune-glyph-pick {
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  min-height: 44px;
+  min-height: var(--ctl-h);
   margin: -6px -8px;
   padding: 6px 8px;
   border: 0;

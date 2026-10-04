@@ -71,7 +71,7 @@ html.light .ulune-moon {
 .ulune-cal-title {
   min-width: 0;
   font-family: var(--font-display);
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   line-height: 1.1;
   color: var(--color-fg);
   white-space: nowrap;
@@ -99,7 +99,7 @@ html.light .ulune-moon {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  min-height: 32px;
+  min-height: var(--ctl-h);
   padding: 0 0.7rem;
   border-radius: 999px;
   border: 1px solid var(--color-border);
@@ -1211,6 +1211,8 @@ html.light .ulune-moon {
 }
 .ulune-cal-title-num {
   margin-left: 0.75rem;
+  /* Tall enough to hit (WCAG's 24 px), still a word beside the title. */
+  padding: 5px 0;
   font: 500 13px/1.2 var(--font-ui);
   color: var(--color-fg-muted);
   vertical-align: 0.3em;

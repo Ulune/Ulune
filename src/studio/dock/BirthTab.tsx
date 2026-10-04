@@ -135,7 +135,7 @@ export function BirthTab({ onStage = false, modeLine = null }: { onStage?: boole
           type="button"
           data-testid="birth-discard"
           onClick={() => discardDraft()}
-          className="min-h-11 w-full px-3 text-sm text-fg-muted hover:text-fg"
+          className="min-h-[var(--row-h)] w-full px-3 text-sm text-fg-muted hover:text-fg"
         >
           {t("discardDraft")}
         </button>

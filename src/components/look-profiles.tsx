@@ -130,7 +130,7 @@ export function LookProfiles({ compact = false }: { compact?: boolean }) {
               if (e.key !== "Enter") return;
               (e.target as HTMLInputElement).blur();
             }}
-            className="block h-11 w-full min-w-0 rounded-md border border-border-field bg-bg px-3 text-sm text-fg"
+            className="block h-[var(--btn-h)] w-full min-w-0 rounded-md border border-border-field bg-bg px-3 text-sm text-fg"
           />
         </label>
       ) : null}

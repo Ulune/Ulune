@@ -81,7 +81,7 @@ function TransitsControls() {
           value={time}
           mask={maskBirthTime}
           onTyped={pinTime}
-          className="h-11 w-full min-w-0"
+          className="h-[var(--ctl-h)] w-full min-w-0"
         />
       </label>
       <span className="ulune-transit-zone" data-testid="transit-zone" title={clock.label}>

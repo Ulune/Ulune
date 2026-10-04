@@ -15,12 +15,12 @@ const buttonVariants = cva(
         ghost: "text-fg-muted hover:bg-bg-subtle hover:text-fg",
       },
       size: {
-        default: "h-11 rounded-md px-[var(--space-4)] text-sm",
+        default: "h-[var(--btn-h)] rounded-md px-[var(--space-4)] text-sm",
         sm: "h-9 rounded-sm px-[var(--space-3)] text-sm",
         /** Small, at a full 44 px touch height. */
-        compact: "h-11 rounded-sm px-[var(--space-3)] text-sm",
+        compact: "h-[var(--ctl-h)] rounded-sm px-[var(--space-3)] text-sm",
         lg: "h-12 rounded-lg px-[var(--space-5)] text-base",
-        icon: "size-11 rounded-md",
+        icon: "size-[var(--ctl-icon)] rounded-md",
       },
     },
     defaultVariants: { variant: "primary", size: "default" },

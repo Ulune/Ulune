@@ -4,15 +4,15 @@
   box-sizing: border-box;
   min-width: 0;
   width: 100%;
-  height: 44px;
-  max-height: 44px;
+  height: var(--ctl-h);
+  max-height: var(--ctl-h);
   flex-shrink: 0;
 }
 .ulune-composite-pair {
   box-sizing: border-box;
   min-width: 0;
   width: 100%;
-  height: 44px;
+  height: var(--ctl-h);
 }
 .ulune-synastry-caption {
   display: flex;
@@ -40,15 +40,15 @@
   box-sizing: border-box;
   min-width: 0;
   width: 100%;
-  height: 44px;
-  max-height: 44px;
+  height: var(--ctl-h);
+  max-height: var(--ctl-h);
 }
 .ulune-synastry-pair-slot,
 .ulune-composite-pair-slot {
   display: flex;
   min-width: 0;
   flex: 1 1 0;
-  height: 44px;
+  height: var(--ctl-h);
 }
 .ulune-synastry-select,
 .ulune-synastry-add,
@@ -58,9 +58,9 @@
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  height: 44px;
-  min-height: 44px;
-  max-height: 44px;
+  height: var(--ctl-h);
+  min-height: var(--ctl-h);
+  max-height: var(--ctl-h);
   padding: 0 var(--space-3);
   border: 1px solid var(--color-border-field);
   border-radius: var(--radius-md);
@@ -99,8 +99,8 @@
 }
 /* The ⇄ between the two names: a press swaps them. */
 .ulune-pair-swap {
-  width: 36px;
-  height: 36px;
+  width: var(--ctl-icon);
+  height: var(--ctl-icon);
   border: 0;
   border-radius: 999px;
   background: transparent;
@@ -128,8 +128,8 @@
       position: sticky;
       top: calc(var(--ulune-header-h, 6.75rem) + var(--ulune-nav-h, 4.125rem));
       z-index: 21;
-      height: 44px;
-      max-height: 44px;
+      height: var(--ctl-h);
+      max-height: var(--ctl-h);
       flex-shrink: 0;
       margin-inline: calc(-1 * var(--natal-sky-pad));
       padding: 0 var(--natal-sky-pad);
@@ -140,15 +140,15 @@
       position: sticky;
       top: calc(var(--ulune-header-h, 6.75rem) + var(--ulune-nav-h, 4.125rem));
       z-index: 21;
-      height: 44px;
-      max-height: 44px;
+      height: var(--ctl-h);
+      max-height: var(--ctl-h);
       margin-inline: calc(-1 * var(--natal-sky-pad));
       padding: 0 var(--natal-sky-pad);
       background: var(--color-bg-elevated);
     }
   .ulune-synastry-sky .ulune-synastry-pair .ulune-synastry-pair-bar {
-      height: 44px;
-      max-height: 44px;
+      height: var(--ctl-h);
+      max-height: var(--ctl-h);
     }
   .ulune-synastry-sky .ulune-synastry-wheel {
       display: flex;
@@ -158,7 +158,7 @@
   .ulune-synastry-sky .ulune-synastry-caption {
       order: -1;
       position: sticky;
-      top: calc(var(--ulune-header-h, 6.75rem) + var(--ulune-nav-h, 4.125rem) + 44px);
+      top: calc(var(--ulune-header-h, 6.75rem) + var(--ulune-nav-h, 4.125rem) + var(--ctl-h));
       z-index: 20;
       margin-inline: calc(-1 * var(--natal-sky-pad));
       padding: var(--space-2) var(--natal-sky-pad);
@@ -224,8 +224,8 @@
     .ulune-composite-pair,
     .ulune-synastry-pair-bar,
     .ulune-composite-pair-bar {
-      height: 44px;
-      min-height: 44px;
+      height: var(--ctl-h);
+      min-height: var(--ctl-h);
       max-height: none;
     }
   .ulune-synastry-select,
@@ -233,9 +233,9 @@
     .ulune-composite-select,
     .ulune-composite-add {
       width: 100%;
-      min-width: 44px;
-      height: 44px;
-      min-height: 44px;
+      min-width: var(--ctl-h);
+      height: var(--ctl-h);
+      min-height: var(--ctl-h);
       max-height: none;
       box-sizing: border-box;
       appearance: none;
@@ -245,9 +245,9 @@
     .ulune-composite-pair-slot {
       display: flex;
       align-items: stretch;
-      height: 44px;
-      min-height: 44px;
-      min-width: 44px;
+      height: var(--ctl-h);
+      min-height: var(--ctl-h);
+      min-width: var(--ctl-h);
       max-height: none;
     }
   .ulune-synastry-sky .ulune-synastry-pair,
@@ -259,8 +259,8 @@
     .ulune-composite-sky .ulune-composite-pair,
     .ulune-synastry-sky .ulune-synastry-pair .ulune-synastry-pair-bar,
     .ulune-composite-sky .ulune-composite-pair .ulune-composite-pair-bar {
-      height: 44px;
-      min-height: 44px;
+      height: var(--ctl-h);
+      min-height: var(--ctl-h);
       max-height: none !important;
     }
 }

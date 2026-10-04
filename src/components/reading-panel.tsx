@@ -153,7 +153,7 @@ export function ComposeToolbar({
           type="button"
           data-testid="compose-grok"
           onClick={() => setShowKeys((v) => !v)}
-          className="min-h-11 rounded-md bg-accent px-3 text-xs font-medium text-accent-fg md:px-5 md:text-sm"
+          className="min-h-[var(--btn-h)] rounded-md bg-accent px-3 text-xs font-medium text-accent-fg md:px-5 md:text-sm"
         >
           {t("aiOpenAccounts")}
         </button>
@@ -178,7 +178,7 @@ export function ComposeToolbar({
       type="button"
       data-testid="compose-grok"
       onClick={onCompose}
-      className="min-h-11 rounded-md bg-accent px-3 text-xs font-medium text-accent-fg md:px-5 md:text-sm"
+      className="min-h-[var(--btn-h)] rounded-md bg-accent px-3 text-xs font-medium text-accent-fg md:px-5 md:text-sm"
     >
       {error
         ? t("retryCompose")

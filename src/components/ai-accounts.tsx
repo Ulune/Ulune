@@ -171,7 +171,7 @@ export function AiAccountsPanel({ compose }: { compose?: ReactNode }) {
                     value={drafts[id] ?? ""}
                     onChange={(e) => setDrafts((prev) => ({ ...prev, [id]: e.target.value }))}
                     placeholder={t("aiKeyPlaceholder")}
-                    className="h-11 w-full rounded-md border border-border bg-bg-elevated px-3 text-sm text-fg placeholder:text-fg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="h-[var(--btn-h)] w-full rounded-md border border-border bg-bg-elevated px-3 text-sm text-fg placeholder:text-fg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
                   <div className="flex items-center justify-between gap-2">
                     <a
