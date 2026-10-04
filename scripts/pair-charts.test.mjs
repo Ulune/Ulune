@@ -48,3 +48,21 @@ test("synastry's orbs: tighter than a birth chart's, the lights a degree wider",
   const pair = buildSynastry(await calculateNatal(CAMILLE), await calculateNatal(YOLANDA));
   for (const l of pair.aspects) assert.ok(l.orb <= synastryOrb(l.type, l.a, l.b) + 1e-9, l.id);
 });
+
+test("the 192 Incarnation Crosses are named, in both languages (H3)", async () => {
+  const { hdCrossName, hdCrossTable } = await import("../src/lib/chart/hd-cross-names.ts");
+  const table = hdCrossTable();
+  assert.equal(Object.keys(table).length, 64);
+  for (let g = 1; g <= 64; g += 1) {
+    for (const angle of ["right", "juxtaposition", "left"]) {
+      const en = hdCrossName({ angle, personality: [g, 0] }, "en");
+      const fr = hdCrossName({ angle, personality: [g, 0] }, "fr");
+      assert.ok(en && /Cross of/.test(en), `${g} ${angle}`);
+      assert.ok(fr && /^Croix /.test(fr), `${g} ${angle} fr`);
+    }
+  }
+  assert.equal(hdCrossName({ angle: "right", personality: [1, 2] }, "en"), "Right Angle Cross of the Sphinx 4");
+  assert.equal(hdCrossName({ angle: "juxtaposition", personality: [2, 1] }, "en"), "Juxtaposition Cross of the Driver");
+  assert.equal(hdCrossName({ angle: "left", personality: [2, 1] }, "en"), "Left Angle Cross of Defiance 1");
+  assert.equal(hdCrossName({ angle: null, personality: [2, 1] }, "en"), null);
+});

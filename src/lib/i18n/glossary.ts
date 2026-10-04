@@ -31,6 +31,7 @@ export type GlossaryId =
   | "hdStrategy"
   | "hdAuthority"
   | "hdCentres"
+  | "hdUndefinedOpen"
   | "hdGate"
   | "hdChannel"
   | "hdLine"
@@ -254,6 +255,13 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
     body: [
       "The bodygraph’s nine centres hold 64 gates, one for each hexagram of the I Ching, coloured by the planets. A channel joins two gates; with both coloured, it defines the two centres it joins.",
       "Les neuf centres du bodygraph portent 64 portes, une par hexagramme du Yi King, colorées par les planètes. Un canal relie deux portes\u202f; quand les deux sont colorées, il définit les deux centres qu’il relie.",
+    ],
+  },
+  hdUndefinedOpen: {
+    term: ["Undefined and open centres", "Centres non définis et ouverts"],
+    body: [
+      "A centre no defined channel reaches is undefined: it takes in and amplifies what others bring. When some of its gates are active, it does so in those gates’ themes; when none is, it is called open, and takes in whatever comes.",
+      "Un centre qu’aucun canal défini n’atteint est non défini\u202f: il reçoit et amplifie ce que les autres apportent. Quand certaines de ses portes sont actives, il le fait dans les thèmes de ces portes\u202f; quand aucune ne l’est, on le dit ouvert, et il reçoit tout ce qui vient.",
     ],
   },
   hdGate: {
@@ -634,7 +642,7 @@ export function glossaryFor(page: string, selectedId: string | null): GlossaryId
     if (selectedId && /^act:(design|personality):(sun|northnode)$/.test(selectedId)) add("hdVariable");
     if (prefix === "act") add("hdLayers");
     if (prefix === "channel") add("hdChannel", "hdHanging", "hdGate");
-    if (prefix === "center") add("hdCentres", "hdChannel");
+    if (prefix === "center") add("hdCentres", "hdUndefinedOpen", "hdChannel");
     if (selectedId === "hello:type") add("hdType", "hdNotSelf");
     if (selectedId === "hello:profile") add("hdProfile", "hdLine");
     if (selectedId === "hello:definition") add("hdDefinition", "hdCentres");

@@ -1,3 +1,4 @@
+import "@/studio/modes/styles/first-read.css";
 import { hdHelloCells, HD_HELLO } from "@/lib/i18n/hd-hello";
 import {
   hdAuthorityLabel,

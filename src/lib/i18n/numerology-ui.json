@@ -129,12 +129,16 @@
       "fr": "Jour personnel {n}, {date}"
     },
     "monthMark": {
-      "en": "M",
-      "fr": "M"
+      "en": "month",
+      "fr": "mois"
     },
     "dayMark": {
-      "en": "D",
-      "fr": "J"
+      "en": "day",
+      "fr": "jour"
+    },
+    "passionArc": {
+      "en": "Hidden passion: the number that comes most often in the name",
+      "fr": "Passion cachée\u202f: le nombre qui revient le plus dans le nom"
     },
     "yearLabel": {
       "en": "Year",

@@ -73,8 +73,21 @@ export function hdChannelCentersLine(locale: AppLocale, a: HdCenterId, b: HdCent
     .replaceAll("{b}", hdCenterLabel(locale, b));
 }
 
-export function hdCenterState(locale: AppLocale, defined: boolean): string {
-  return pick(defined ? source.copy.centerDefined : source.copy.centerOpen, locale);
+/**
+ * A centre's state in a word (review 3 Oct, H4): defined; undefined when
+ * some of its gates are active (it takes in what others bring, in those
+ * themes); open when none is.
+ */
+export function hdCentreStateWord(locale: AppLocale, defined: boolean, activeGates: number): string {
+  if (defined) return hdGraphText(locale, "defined");
+  return activeGates > 0 ? hdGraphText(locale, "undefinedState") : hdGraphText(locale, "open");
+}
+
+export function hdCenterState(locale: AppLocale, defined: boolean, activeGates?: number): string {
+  if (defined) return pick(source.copy.centerDefined, locale);
+  // Undefined with active gates, or open with none (review 3 Oct, H4).
+  if (activeGates == null) return pick(source.copy.centerOpen, locale);
+  return pick(activeGates > 0 ? source.copy.centerUndefined : source.copy.centerOpenNone, locale);
 }
 
 export function hdLayerLabel(locale: AppLocale, layer: "personality" | "design"): string {

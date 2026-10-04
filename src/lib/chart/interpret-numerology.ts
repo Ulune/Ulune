@@ -109,11 +109,76 @@ const CORE_KICKER: Partial<Record<NumerologyCoreId, Bi>> = {
 /** The number's own facts: its value (a link to what the number means), its root, its steps. */
 function numberFacts(value: NumerologyValue, locale: AppLocale): ReadingFact[] {
   const n = value.number!;
+  const steps = labelledSteps(value, locale);
   return [
     { label: r(locale, "number"), value: wholeText(value), ...(NUMBER_TEXT[n as NumberKey] ? { ref: `number:${n}` } : {}) },
     ...(value.digit != null && value.digit !== n && !value.debt ? [{ label: r(locale, "root"), value: String(value.digit) }] : []),
-    ...(stepsText(value) !== String(n) ? [{ label: r(locale, "steps"), value: stepsText(value) }] : []),
+    ...(steps !== String(n) ? [{ label: r(locale, "steps"), value: steps }] : []),
   ];
+}
+
+const MONTHS: Record<AppLocale, string[]> = {
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  fr: ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
+};
+
+/**
+ * A date's steps with each part named (review 3 Oct, N5), so a Personal
+ * Year and a Life Path that add the same digits read apart:
+ * "6 (June) + 6 (15th) + 1 (2026) = 13 → 4".
+ */
+export function labelledSteps(value: NumerologyValue, locale: AppLocale): string {
+  const terms = value.terms ?? [];
+  if (terms.length < 2 || !terms.every((t) => t.key === "month" || t.key === "day" || t.key === "year")) return stepsText(value);
+  const name = (t: (typeof terms)[number]) =>
+    t.key === "month" ? MONTHS[locale][t.raw - 1] ?? String(t.raw) : t.key === "day" ? (locale === "fr" ? `le ${t.raw}` : `${t.raw}${ordinal(t.raw)}`) : String(t.raw);
+  return `${terms.map((t) => `${t.value} (${name(t)})`).join(" + ")} = ${(value.chain ?? []).join(" → ")}`;
+}
+
+function ordinal(n: number): string {
+  const tens = n % 100;
+  if (tens >= 11 && tens <= 13) return "th";
+  return n % 10 === 1 ? "st" : n % 10 === 2 ? "nd" : n % 10 === 3 ? "rd" : "th";
+}
+
+/** One part's reduction, "1990 → 19 → 10 → 1", or the number alone. */
+function partChain(t: { raw: number; chain: readonly number[] }): string {
+  return t.chain.length > 1 ? t.chain.join(" → ") : String(t.raw);
+}
+
+/**
+ * How it is worked out, with the person's own date (review 3 Oct, N1), the
+ * same way as the steps: each part reduced, then added; a karmic debt said.
+ */
+function reductionExample(chart: NumerologyChart, locale: AppLocale): string {
+  const lp = chart.lifePath;
+  const terms = lp.terms ?? [];
+  const part = (k: string) => terms.find((t) => t.key === k);
+  const m = part("month");
+  const d = part("day");
+  const y = part("year");
+  if (lp.number == null || !m || !d || !y) return t(NUMEROLOGY_ABOUT.reduction, locale);
+  const date = locale === "fr" ? `${d.raw} ${MONTHS.fr[m.raw - 1]} ${y.raw}` : `${d.raw} ${MONTHS.en[m.raw - 1]} ${y.raw}`;
+  const sum = `${terms.map((x) => x.value).join(" + ")} = ${(lp.chain ?? []).join(" → ")}`;
+  const debt = lp.debt
+    ? locale === "fr"
+      ? `, et le ${lp.debt} est gardé comme dette karmique`
+      : `, and the ${lp.debt} is kept as a karmic debt`
+    : "";
+  return locale === "fr"
+    ? `On réduit un nombre en additionnant ses chiffres jusqu’à n’en garder qu’un (11, 22 et 33 sont gardés). Pour votre naissance, le ${date}, chaque partie est réduite à part\u202f: le mois donne ${partChain(m)}, le jour ${partChain(d)}, l’année ${partChain(y)}\u202f; puis ${sum}, un Chemin de vie ${wholeText(lp)}${debt}. Les noms suivent le même principe, chaque lettre recevant une valeur de A = 1 à I = 9, puis J = 1 de nouveau.`
+    : `Numbers are reduced by adding their digits until one is left (11, 22 and 33 are kept). For your birth, ${date}, each part is reduced on its own: the month gives ${partChain(m)}, the day ${partChain(d)}, the year ${partChain(y)}; then ${sum}, a Life Path of ${wholeText(lp)}${debt}. Names work the same way, with each letter given a value from A = 1 to I = 9, then J = 1 again.`;
+}
+
+/** The Personal Year worked out for this year and the next, with the person's own date (N1). */
+function cycleExample(chart: NumerologyChart, locale: AppLocale): string {
+  const year = chart.calendarYear;
+  const now = numerologyYear(chart, year).personalYear;
+  const next = numerologyYear(chart, year + 1).personalYear;
+  if (now.number == null || next.number == null) return t(NUMEROLOGY_ABOUT.cycle, locale);
+  return locale === "fr"
+    ? `Les Années personnelles suivent un cycle de neuf ans, de 1 (commencement) à 9 (achèvement), puis recommencent. La vôtre additionne votre mois et votre jour de naissance, chacun réduit, à l’année en cours, réduite elle aussi\u202f: en ${year}, ${labelledSteps(now, locale)}. En ${year + 1}, ce sera une Année personnelle ${next.number}.`
+    : `Personal Years run in a nine-year cycle, from 1 (beginnings) to 9 (completion), and then start again. Yours adds your birth month and birth day, each reduced, to the current year, reduced too: in ${year}, ${labelledSteps(now, locale)}. ${year + 1} will be a Personal Year ${next.number}.`;
 }
 
 /** What a number is in general, and when it is a master or went through a karmic debt. */
@@ -171,7 +236,7 @@ function coreReading(chart: NumerologyChart, core: NumerologyCoreId, locale: App
     about: howAbout(
       locale,
       numerologyCoreHow(locale, core),
-      t(core === "personalYear" ? NUMEROLOGY_ABOUT.cycle : NUMEROLOGY_ABOUT.reduction, locale),
+      core === "personalYear" ? cycleExample(chart, locale) : reductionExample(chart, locale),
     ),
   };
 }
@@ -208,7 +273,7 @@ function numberReading(chart: NumerologyChart, n: number, locale: AppLocale): El
       { id: "number", title: r(locale, "strengthsTitle"), paragraphs: general.slice(1) },
       ...(n === 11 || n === 22 || n === 33 ? [{ id: "master", title: r(locale, "masterTitle"), paragraphs: [t(NUMEROLOGY_ABOUT.masters, locale)] }] : []),
     ],
-    about: { title: r(locale, "aboutNumerology"), paragraphs: [t(NUMEROLOGY_ABOUT.system, locale), t(NUMEROLOGY_ABOUT.reduction, locale)] },
+    about: { title: r(locale, "aboutNumerology"), paragraphs: [t(NUMEROLOGY_ABOUT.system, locale), reductionExample(chart, locale)] },
     links: hits.length
       ? {
           title: r(locale, "inChart"),
@@ -306,7 +371,7 @@ function timeReading(chart: NumerologyChart, pickId: "time:month" | "time:day", 
       { label: r(locale, "number"), value: String(value.number), ref: `number:${value.number}` },
       { label: r(locale, "steps"), value: stepsText(value) },
     ],
-    about: howAbout(locale, t(NUMEROLOGY_ABOUT.cycle, locale)),
+    about: howAbout(locale, cycleExample(chart, locale)),
   };
 }
 
@@ -616,7 +681,7 @@ function yearReading(chart: NumerologyChart, year: number, locale: AppLocale): E
       ...(uy != null ? [{ id: "universal", title: r(locale, "universalOf", { n: uy }), paragraphs: [t(UNIVERSAL_YEAR_TEXT[uy as Digit], locale)] }] : []),
     ],
     links: rows.length ? { title: r(locale, "inEffect"), rows } : undefined,
-    about: howAbout(locale, t(NUMEROLOGY_ABOUT.cycle, locale), ...(c?.letters ? [t(ESSENCE_ABOUT, locale), ...LETTER_CYCLE_IDS.map((id) => t(LETTER_CYCLE_ABOUT[id], locale))] : [])),
+    about: howAbout(locale, cycleExample(chart, locale), ...(c?.letters ? [t(ESSENCE_ABOUT, locale), ...LETTER_CYCLE_IDS.map((id) => t(LETTER_CYCLE_ABOUT[id], locale))] : [])),
   };
 }
 

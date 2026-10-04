@@ -154,7 +154,8 @@ export function NumerologyWheel({
     const a = sectorAngle(n) + side * 10;
     const p0 = polar(WHEEL.rTickIn, a);
     const p1 = polar(WHEEL.rTickOut, a);
-    const label = polar(WHEEL.rTickOut + 9, a);
+    // Its word, not a letter (review 3 Oct, N2: a 9 px "M" or "J" read as an I).
+    const label = polar(WHEEL.rTickOut + 12, a);
     return (
       <g
         key={id}
@@ -236,8 +237,11 @@ export function NumerologyWheel({
                     {counts && passion.has(n) ? (
                       <path
                         className="num-sector-mark"
+                        data-testid={`numerology-passion-${n}`}
                         d={sectorPath(n, 3, WHEEL.rOut + 3, WHEEL.rOut + 5)}
-                      />
+                      >
+                        <title>{numerologyWheelText(locale, "passionArc")}</title>
+                      </path>
                     ) : null}
                     <text
                       className="num-sector-n"

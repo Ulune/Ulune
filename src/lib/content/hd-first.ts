@@ -190,8 +190,8 @@ export const HD_DEFINITION_STEP: Record<HdDefinition, Bi> = {
 
 /** After the five steps. */
 export const HD_NEXT: Bi = {
-  en: "Then the chart itself: coloured centres are where you are consistent, white ones where you take in others, and each coloured line is a lasting trait. Choose any piece to read it.",
-  fr: "Puis le schéma lui-même\u202f: les centres colorés sont vos constantes, les blancs ce que vous captez des autres, et chaque ligne colorée est un trait durable. Choisissez n’importe quel élément pour le lire.",
+  en: "Then the chart itself: coloured centres are where you are consistent, the uncoloured ones where you take in others, and each coloured line is a lasting trait. Choose any piece to read it.",
+  fr: "Puis le schéma lui-même\u202f: les centres colorés sont vos constantes, ceux sans couleur ce que vous captez des autres, et chaque ligne colorée est un trait durable. Choisissez n’importe quel élément pour le lire.",
 };
 
 /** The Incarnation Cross: what it is, and its three angles. */

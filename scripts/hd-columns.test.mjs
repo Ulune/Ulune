@@ -142,8 +142,9 @@ test("readings start with this chart; what a gate is in general waits in About",
   assert.equal(row.facts[0].value, "48 · Depth");
 
   const cross = hdReading(hd, "hello:cross", "en");
-  assert.equal(cross.title, "Incarnation Cross");
-  assert.equal(cross.kicker, "38/39 | 48/21");
+  // Named (review 3 Oct, H3): gate 38's Right Angle cross, in the fourth quarter.
+  assert.equal(cross.title, "Right Angle Cross of Tension 4");
+  assert.equal(cross.kicker, "Incarnation Cross · 38/39 | 48/21");
   assert.deepEqual(cross.links.rows.map((r) => r.ref), ["gate:38", "gate:39", "gate:48", "gate:21"]);
   assert.match(cross.sections[0].paragraphs[0], /^A Right Angle cross/);
 

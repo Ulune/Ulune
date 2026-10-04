@@ -1,0 +1,102 @@
+/* The first reads' list (humandesign-hello.tsx and numerology-first.tsx,
+   review 3 Oct N4: one pattern for both): numbered steps, each lighting its
+   part of the figure when pointed at and opening its reading. */
+.ulune-hd-step {
+  transition:
+    background 150ms var(--chart-ease),
+    box-shadow 150ms var(--chart-ease),
+    opacity 180ms var(--chart-ease);
+}
+.ulune-hd-step:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: -2px;
+}
+/* The first read (humandesign-hello.tsx), in the side panel before anything
+   is chosen: five numbered steps, then where to look next. */
+.ulune-hd-first {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ulune-hd-first-title {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--color-fg-subtle);
+}
+.ulune-hd-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-hd-step {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 10px;
+  width: 100%;
+  padding: 10px 10px 11px 8px;
+  border-radius: 12px;
+  text-align: left;
+  color: var(--color-fg);
+}
+.ulune-hd-step[data-previewed],
+.ulune-hd-step.is-on {
+  background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  .ulune-hd-step:hover {
+    background: var(--color-bg-subtle);
+  }
+}
+.ulune-hd-step-n {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-fg-muted);
+}
+.ulune-hd-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.ulune-hd-step-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+.ulune-hd-step-k {
+  font-size: 10.5px;
+  color: var(--color-fg-subtle);
+}
+.ulune-hd-step-v {
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.2;
+}
+.ulune-hd-step-text,
+.ulune-hd-step-extra {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-fg-muted);
+}
+.ulune-hd-step-extra {
+  color: var(--color-fg);
+}
+.ulune-hd-first-next {
+  margin: var(--space-1) 0 0;
+  padding: 0 10px 0 40px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-fg-muted);
+}

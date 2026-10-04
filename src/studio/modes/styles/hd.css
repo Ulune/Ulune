@@ -434,11 +434,13 @@ html.light {
   stroke-linecap: butt;
 }
 
-/* Centres: open ones in the page's colour, defined ones gold. */
+/* Centres: open ones in the page's colour, defined ones gold. The open
+   ones' edge is drawn heavier than a channel (review 3 Oct, H2), so they
+   read as centres, not as more lines. */
 .ulune-hd-center {
   fill: var(--color-bg);
-  stroke: color-mix(in oklab, var(--color-fg) 34%, transparent);
-  stroke-width: 1.2;
+  stroke: color-mix(in oklab, var(--color-fg) 50%, transparent);
+  stroke-width: 2.2;
   stroke-linejoin: round;
   cursor: pointer;
   transition:
@@ -675,97 +677,6 @@ html.light .ulune-hd-gate[data-tone="both"] text {
   }
 }
 
-/* The first read (humandesign-hello.tsx), in the side panel before anything
-   is chosen: five numbered steps, then where to look next. */
-.ulune-hd-first {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-.ulune-hd-first-title {
-  margin: 0;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: var(--color-fg-subtle);
-}
-.ulune-hd-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.ulune-hd-step {
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr);
-  gap: 10px;
-  width: 100%;
-  padding: 10px 10px 11px 8px;
-  border-radius: 12px;
-  text-align: left;
-  color: var(--color-fg);
-}
-.ulune-hd-step[data-previewed],
-.ulune-hd-step.is-on {
-  background: var(--color-bg-subtle);
-}
-@media (hover: hover) {
-  .ulune-hd-step:hover {
-    background: var(--color-bg-subtle);
-  }
-}
-.ulune-hd-step-n {
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  margin-top: 1px;
-  border-radius: 999px;
-  box-shadow: inset 0 0 0 1px var(--color-border-strong);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--color-fg-muted);
-}
-.ulune-hd-step-body {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-.ulune-hd-step-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px 8px;
-}
-.ulune-hd-step-k {
-  font-size: 10.5px;
-  color: var(--color-fg-subtle);
-}
-.ulune-hd-step-v {
-  font-family: var(--font-display);
-  font-size: 17px;
-  line-height: 1.2;
-}
-.ulune-hd-step-text,
-.ulune-hd-step-extra {
-  font-size: 13px;
-  line-height: 1.45;
-  color: var(--color-fg-muted);
-}
-.ulune-hd-step-extra {
-  color: var(--color-fg);
-}
-.ulune-hd-first-next {
-  margin: var(--space-1) 0 0;
-  padding: 0 10px 0 40px;
-  font-size: 13px;
-  line-height: 1.45;
-  color: var(--color-fg-muted);
-}
-
-
 /* The Table view's layer mark: a dot in the layer's colour. */
 .ulune-hd-layer-dot {
   display: inline-block;
@@ -776,4 +687,13 @@ html.light .ulune-hd-gate[data-tone="both"] text {
 }
 .ulune-hd-layer-dot[data-layer="design"] {
   background: var(--hd-design-ink);
+}
+
+/* The layer's line sits under the facts, in the flow, not over them. */
+.ulune-wheel-hint.ulune-hd-layer-hint {
+  position: static;
+  margin: 6px auto 0;
+  transform: none;
+  box-shadow: none;
+  border: 1px solid var(--color-border);
 }

@@ -139,7 +139,8 @@ async function runViewport(width) {
         const orb = await rows.first().locator("td[data-col=orb]").innerText();
         if (!/\d+°\d\d'\s*of \d+°/.test(orb)) throw new Error(`${label}: orb cell "${orb}"`);
         const exact = await rows.first().locator("td[data-col=exact]").innerText();
-        if (!/\d{4}, \d\d:\d\d UT$/.test(exact.trim())) throw new Error(`${label}: exact cell "${exact}"`);
+        // In the Calendar's clock, with its zone (review 3 Oct, T4): this device's here.
+        if (!/\d{4}, \d\d:\d\d (UT|[A-Z]{3,5}|GMT[+−-]\d+)$/.test(exact.trim())) throw new Error(`${label}: exact cell "${exact}"`);
         if ((await wrap.locator("#table-part-sky tr[data-body]").count()) < 12) throw new Error(`${label}: the Sky rows`);
         if ((await wrap.locator("[data-testid=cross-grid] tbody tr").count()) < 10) throw new Error(`${label}: the grid rows`);
         const id = await rows.first().getAttribute("data-testid");

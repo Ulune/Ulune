@@ -21,6 +21,7 @@ import {
   type HumanDesignChart,
 } from "./human-design";
 import { hdCrossGates, hdCrossOf } from "./hd-cross";
+import { hdCrossName } from "./hd-cross-names";
 import { hdActId, hdActivationOf, parseHdActId } from "./hd-rows";
 import { hdArrowsOf } from "./hd-variable";
 import { hdHelloCells } from "@/lib/i18n/hd-hello";
@@ -32,6 +33,7 @@ import {
   hdUnknownText,
   hdCenterLabel,
   hdCenterState,
+  hdCentreStateWord,
   hdChannelCentersLine,
   hdDefinitionLabel,
   hdFactLabel,
@@ -224,6 +226,8 @@ function hdReadingOf(
   const fr = locale === "fr";
   const inDesign = fr ? "Dans votre schéma" : "In your chart";
   const aboutTitle = fr ? "À propos du Human Design" : "About Human Design";
+  // Each card's About by its subject (review 3 Oct, H5): the system's own words stay on the Type's.
+  const aboutOf = (en: string, frTitle: string, paragraphs: string[]) => ({ title: fr ? frTitle : en, paragraphs });
   const cross = hdCrossOf(chart);
   const crossFact = cross
     ? [{ label: hdFactLabel(locale, "cross"), value: hdCrossGates(cross), ref: "hello:cross" }]
@@ -252,7 +256,8 @@ function hdReadingOf(
         ...crossFact,
       ],
       sections: [
-        ...(signposts ? [{ id: "signposts", title: hdGraphText(locale, "signposts"), paragraphs: [signposts] }] : []),
+        // Under its own heading, without its "Signposts:" again.
+        ...(signposts ? [{ id: "signposts", title: hdGraphText(locale, "signposts"), paragraphs: [signposts.replace(/^[^:]+?\s*:\s*/, "").replace(/^./, (c) => c.toUpperCase())] }] : []),
         {
           id: "chart",
           title: inDesign,
@@ -271,10 +276,13 @@ function hdReadingOf(
       kicker: cell?.sentence ?? "",
       note: cell?.sentence,
       lead: hdStrategyProse(locale, chart.strategy),
-      paragraphs: [hdStrategyProse(locale, chart.strategy), hdTypeProse(locale, chart.type)],
-      facts: [{ label: hdFactLabel(locale, "type"), value: hdTypeLabel(locale, chart.type), ref: "hello:type" }],
-      sections: [{ id: "chart", title: inDesign, paragraphs: [hdTypeProse(locale, chart.type)] }],
-      about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
+      paragraphs: [hdStrategyProse(locale, chart.strategy), hdAuthorityProse(locale, chart.authority)],
+      facts: [
+        { label: hdFactLabel(locale, "type"), value: hdTypeLabel(locale, chart.type), ref: "hello:type" },
+        { label: hdFactLabel(locale, "authority"), value: hdAuthorityLabel(locale, chart.authority), ref: "hello:authority" },
+      ],
+      // Not the Type's paragraph again: how the strategy meets this chart's authority.
+      sections: [{ id: "chart", title: inDesign, paragraphs: [hdAuthorityProse(locale, chart.authority)] }],
     };
   }
   if (pickId === "hello:authority") {
@@ -291,7 +299,6 @@ function hdReadingOf(
         { label: hdFactLabel(locale, "type"), value: hdTypeLabel(locale, chart.type), ref: "hello:type" },
         { label: hdFactLabel(locale, "strategy"), value: hdStrategyLabel(locale, chart.strategy), ref: "hello:strategy" },
       ],
-      about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
     };
   }
   if (pickId === "hello:profile") {
@@ -314,7 +321,7 @@ function hdReadingOf(
       lead: pickBi(p?.what, locale),
       paragraphs: [pickBi(p?.what, locale), ...lines.map((l) => l.text)].filter(Boolean),
       links: { title: fr ? "Les deux lignes" : "The two lines", rows: lines },
-      about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
+      about: aboutOf("About profiles", "À propos des profils", []),
     };
   }
   if (pickId === "hello:definition") {
@@ -326,7 +333,7 @@ function hdReadingOf(
       note: pickBi(HD_ABOUT.definition, locale),
       lead: pickBi(HD_DEFINITION_TEXT[chart.definition], locale),
       paragraphs: [pickBi(HD_DEFINITION_TEXT[chart.definition], locale)],
-      about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
+      about: aboutOf("About definition", "À propos de la définition", []),
     };
   }
   if (pickId === "hello:layers") {
@@ -341,7 +348,7 @@ function hdReadingOf(
       lead: pickBi(HD_ABOUT.personalityDesign, locale),
       paragraphs: [pickBi(HD_ABOUT.personalityDesign, locale)],
       facts: suns.map((r) => ({ label: hdWhoLabel(locale, r), value: `${r.gate}.${r.line}`, ref: hdActId(r.layer, r.body) })),
-      about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
+      about: aboutOf("About Personality and Design", "À propos de la Personnalité et du Design", []),
     };
   }
   if (pickId === "hello:cross") {
@@ -363,8 +370,9 @@ function hdReadingOf(
     return {
       id: pickId,
       kind: "house",
-      title: hdGraphText(locale, "crossTitle"),
-      kicker: hdCrossGates(cross),
+      // Its name (review 3 Oct, H3), the gates under it.
+      title: hdCrossName(cross, locale) ?? hdGraphText(locale, "crossTitle"),
+      kicker: `${hdGraphText(locale, "crossTitle")} · ${hdCrossGates(cross)}`,
       lead,
       paragraphs: [lead, cross.angle ? pickBi(HD_CROSS_TEXT.angle[cross.angle], locale) : ""].filter(Boolean),
       facts: [
@@ -377,7 +385,7 @@ function hdReadingOf(
         title: fr ? "Les quatre portes" : "The four gates",
         rows: four.map((r) => ({ ref: `gate:${r.gate}`, label: gateLabel(locale, r.gate), detail: hdWhoLabel(locale, r) })),
       },
-      about: { title: aboutTitle, paragraphs: [pickBi(HD_CROSS_TEXT.what, locale), pickBi(HD_ABOUT.system, locale)] },
+      about: aboutOf("About the Incarnation Cross", "À propos de la Croix d’incarnation", [pickBi(HD_CROSS_TEXT.what, locale)]),
     };
   }
 
@@ -428,10 +436,7 @@ function hdReadingOf(
         ...(variable ? [variable] : []),
       ],
       links: { title: hdGraphText(locale, "channelsWord"), rows: channelsThrough(chart, n, view, locale) },
-      about: {
-        title: aboutTitle,
-        paragraphs: [pickBi(HD_ABOUT.personalityDesign, locale), pickBi(HD_ABOUT.system, locale)],
-      },
+      about: aboutOf("About Personality and Design", "À propos de la Personnalité et du Design", [pickBi(HD_ABOUT.personalityDesign, locale)]),
     };
   }
 
@@ -496,7 +501,7 @@ function hdReadingOf(
           ...ch.centers.map((c) => ({ ref: `center:${c}`, label: hdCenterLabel(locale, c) })),
         ],
       },
-      about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
+      about: aboutOf("About channels", "À propos des canaux", []),
     };
   }
 
@@ -508,14 +513,24 @@ function hdReadingOf(
     const centerId = HD_GATE_CENTER[n];
     const graph = graphForView(chart, view);
     const channels = graph.channels.filter((ch) => ch.gates.includes(n));
+    // The gate or gates across its channels (review 3 Oct, H5): 10, 20, 34 and 57 have two or three.
+    const partners = HD_CHANNELS.filter((ch) => ch.gates.includes(n)).map((ch) => (ch.gates[0] === n ? ch.gates[1] : ch.gates[0]));
+    const partnerWords =
+      partners.length > 1
+        ? fr
+          ? `une porte partenaire (${partners.join(", ").replace(/, (\d+)$/, " ou $1")})`
+          : `a partner gate (${partners.join(", ").replace(/, (\d+)$/, " or $1")})`
+        : fr
+          ? `la porte partenaire, la ${partners[0]}`
+          : `the partner gate, ${partners[0]}`;
     const state = rows.length
       ? channels.length
         ? fr
           ? "Cette porte est activée et fait partie d’un canal défini\u202f: son thème s’exprime de façon constante."
           : "This gate is activated and part of a defined channel: its theme is expressed consistently."
         : fr
-          ? "Cette porte est activée, sans canal complet\u202f: son thème est présent chez vous, et se renforce quand quelqu’un active la porte opposée."
-          : "This gate is activated but not part of a complete channel: its theme is present in you, and grows stronger when someone else activates the opposite gate."
+          ? `Cette porte est activée, sans canal complet\u202f: son thème est présent chez vous, et se renforce quand quelqu’un active ${partnerWords}.`
+          : `This gate is activated but not part of a complete channel: its theme is present in you, and grows stronger when someone else activates ${partnerWords}.`
       : fr
         ? "Cette porte n’est pas activée dans votre schéma\u202f; vous pouvez en vivre le thème à travers d’autres personnes ou des transits."
         : "This gate is not activated in your chart; you can experience its theme through other people or transits.";
@@ -550,7 +565,7 @@ function hdReadingOf(
         },
       ],
       links: { title: hdGraphText(locale, "channelsWord"), rows: channelsThrough(chart, n, view, locale) },
-      about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
+      about: aboutOf("About gates", "À propos des portes", []),
     };
   }
 
@@ -569,12 +584,12 @@ function hdReadingOf(
       id: pickId,
       kind: "house",
       title: hdCenterLabel(locale, id),
-      kicker: hdCenterState(locale, defined),
+      kicker: hdCentreStateWord(locale, defined, active.length),
       note: prose.role,
       lead: prose.state,
-      paragraphs: [prose.state, prose.role],
+      paragraphs: [prose.state, prose.role, hdCenterState(locale, defined, active.length)],
       facts: [
-        { label: fr ? "État" : "State", value: hdCenterState(locale, defined) },
+        { label: fr ? "État" : "State", value: hdCentreStateWord(locale, defined, active.length) },
         { label: hdGraphText(locale, "gatesWord"), value: hdGraphText(locale, "gatesActive", { n: active.length, m: gates.length }) },
       ],
       links:
@@ -597,7 +612,7 @@ function hdReadingOf(
               ],
             }
           : undefined,
-      about: { title: aboutTitle, paragraphs: [pickBi(HD_ABOUT.system, locale)] },
+      about: aboutOf("About centres", "À propos des centres", []),
     };
   }
 

@@ -210,7 +210,9 @@ test("The readings say what the plan said: Camille's Life Path, lessons, corners
   assert.equal(lp.lead, PLACE_TEXT.lifepath[4].en);
   assert.deepEqual(lp.sections.map((s) => s.id), ["debt", "number"]);
   assert.equal(lp.sections[0].title, "Karmic debt 13");
-  assert.deepEqual(lp.facts.map((f) => f.value), ["13/4", "6 + 6 + 1 = 13 → 4"]);
+  // Each part named (review 3 Oct, N5).
+  assert.deepEqual(lp.facts.map((f) => f.value), ["13/4", "6 (June) + 6 (15th) + 1 (1990) = 13 → 4"]);
+  assert.match(lp.about.paragraphs.join(" "), /For your birth, 15 June 1990, each part is reduced on its own: the month gives 6, the day 15 → 6, the year 1990 → 19 → 10 → 1; then 6 \+ 6 \+ 1 = 13 → 4, a Life Path of 13\/4, and the 13 is kept as a karmic debt/);
   const lessons = numerologyReading(c, "detail:lessons", "en");
   assert.equal(lessons.title, "Karmic lessons 6, 7, 8");
   assert.equal(numerologyReading(c, "detail:cornerstone", "fr").title, "Pierre angulaire · C");

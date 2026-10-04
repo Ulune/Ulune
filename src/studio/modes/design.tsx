@@ -149,6 +149,8 @@ function DesignFigure() {
       style={{ opacity: hd.busy ? 0.7 : 1 }}
     >
       <HdFacts chart={chart} selectedId={w.selectedId} onSelect={w.pick} />
+      {/* Under the facts, in the flow (review 3 Oct, H7: it covered four of them). */}
+      <HdLayerHint view={hd.view} />
       {chart.uncertain ? (
         <p className="ulune-hd-unknown" data-testid="hd-unknown" role="note">
           {hdUnknownText(locale, "line")}
@@ -162,7 +164,6 @@ function DesignFigure() {
         onClear={() => useStudioStore.getState().clear()}
         moments={moments}
       />
-      <HdLayerHint view={hd.view} />
       {wide ? null : <HdCard chart={chart} view={hd.view} />}
     </div>
   );

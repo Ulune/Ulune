@@ -6,7 +6,7 @@ const pick = (p: Pair, locale: AppLocale) => (locale === "fr" ? p.fr : p.en);
 
 /**
  * What each centre governs, and how it tends to work defined or open.
- * Defined = coloured in the bodygraph, a consistent trait. Open = white,
+ * Defined = coloured in the bodygraph, a consistent trait. Open = uncoloured,
  * receptive to (and amplifying) the people around you.
  */
 const CENTER: Record<HdCenterId, { role: Pair; defined: Pair; open: Pair }> = {

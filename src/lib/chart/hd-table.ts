@@ -6,10 +6,11 @@
  * above the chart).
  */
 import type { AppLocale } from "@/lib/i18n/messages";
-import { hdBodyLabel, hdCenterLabel, hdGraphText, hdLayerLabel, hdUnknownText } from "@/lib/i18n/hd-ui";
+import { hdBodyLabel, hdCenterLabel, hdCentreStateWord, hdGraphText, hdLayerLabel, hdUnknownText } from "@/lib/i18n/hd-ui";
 import { modesWord } from "@/lib/i18n/table-ui";
 import { hdCrossGates, hdCrossOf } from "./hd-cross";
-import { hdKeyRows, type HdKey } from "./hd-keys";
+import { hdKeyExtraRows, hdKeyRows, type HdKey } from "./hd-keys";
+import { hdCrossName } from "./hd-cross-names";
 import { hdActId, hdColumnRows } from "./hd-rows";
 import { graphForView, HD_CENTER_IDS, HD_CHANNELS, HD_GATE_CENTER, type HdActivation, type HdCenterId, type HdView, type HumanDesignChart } from "./human-design";
 
@@ -56,6 +57,7 @@ export function hdTextParts(chart: HumanDesignChart, view: HdView, locale: AppLo
   if (chart.uncertain) keys.push(hdUnknownText(locale, "line"));
   const colon = locale === "fr" ? "\u202f: " : ": ";
   for (const k of hdKeyRows(chart, locale)) keys.push(`${k.label}${colon}${mark(k.uncertain)}${k.sub ? `${k.sub} · ` : ""}${k.value}`);
+  for (const k of hdKeyExtraRows(chart, locale)) keys.push(`${k.label}${colon}${mark(k.uncertain)}${k.value}`);
 
   const graph = graphForView(chart, view);
   const acts: string[] = [modesWord(locale, "partActivations")];
@@ -86,7 +88,7 @@ export function hdTextParts(chart: HumanDesignChart, view: HdView, locale: AppLo
   const centres: string[] = [modesWord(locale, "partCentres")];
   for (const c of hdCentreRows(chart, view)) {
     centres.push(
-      `${hdCenterLabel(locale, c.id)}${colon}${mark(c.uncertain)}${hdGraphText(locale, c.defined ? "defined" : "open")} · ${
+      `${hdCenterLabel(locale, c.id)}${colon}${mark(c.uncertain)}${hdCentreStateWord(locale, c.defined, c.gates.length)} · ${
         c.gates.length ? modesWord(locale, "gatesIn", { list: c.gates.join(", ") }) : modesWord(locale, "noGates")
       }`,
     );
@@ -123,7 +125,10 @@ export function hdTableCsv(chart: HumanDesignChart, view: HdView): string {
   if (cross) {
     rows.push(["key", "cross", hdCrossGates(cross), maybe("cross")]);
     if (cross.angle) rows.push(["key", "crossAngle", cross.angle, maybe("cross")]);
+    const name = hdCrossName(cross, "en");
+    if (name) rows.push(["key", "crossName", name, maybe("cross")]);
   }
+  for (const k of hdKeyExtraRows(chart, "en")) rows.push(["key", k.key, k.value, bit(k.uncertain)]);
   rows.push([]);
   const graph = graphForView(chart, view);
   rows.push(["activation", "layer", "body", "gate", "line", "longitude", "centre", "channels", "uncertain"]);

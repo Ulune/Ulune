@@ -3,12 +3,14 @@ import type { HdView, HumanDesignChart } from "@/lib/chart/human-design";
 import { graphForView, HD_GATE_CENTER } from "@/lib/chart/human-design";
 import { hdActId } from "@/lib/chart/hd-rows";
 import { hdActivationRows, hdCentreRows, hdKeyRows, hdTableCsv, hdTextParts } from "@/lib/chart/hd-table";
+import { hdKeyExtraRows } from "@/lib/chart/hd-keys";
 import {
   HD_ACTIVATION_COLUMN_KEYS,
   HD_TABLE_COLUMN_KEYS,
   hdActivationColumns,
   hdBodyLabel,
   hdCenterLabel,
+  hdCentreStateWord,
   hdEmptyChannels,
   hdGraphText,
   hdLayerLabel,
@@ -92,7 +94,7 @@ export function HumanDesignTable({
       id: "centres",
       label: modesWord(locale, "partCentres"),
       hint: modesWord(locale, "hintCentres"),
-      terms: ["hdCentres", "hdGate"],
+      terms: ["hdCentres", "hdUndefinedOpen", "hdGate"],
       copyText: partText("centres"),
       table: csvOf(["centre"]),
       children: <CentresPart chart={chart} view={view} selectedId={selectedId} onSelect={onSelect} />,
@@ -148,6 +150,33 @@ function KeysPart({ chart, selectedId, onSelect }: { chart: HumanDesignChart } &
               </td>
               <td data-col="value">
                 <span className={cn(k.uncertain && "ulune-uncertain", (k.key === "profile" || k.key === "cross") && "font-mono")}>
+                  {k.uncertain ? "~" : ""}
+                  {k.value}
+                </span>
+                {k.sub ? <span className="ulune-cell-sub">{k.sub}</span> : null}
+              </td>
+            </tr>
+          );
+        })}
+        {hdKeyExtraRows(chart, locale).map((k) => {
+          const on = selectedId === k.ref;
+          return (
+            <tr
+              key={k.key}
+              data-testid={`hd-key-${k.key}`}
+              data-selected={on ? "1" : undefined}
+              data-uncertain={k.uncertain ? "1" : undefined}
+              className={cn("cursor-pointer", on && "bg-bg-subtle")}
+              onClick={() => onSelect(k.ref)}
+              {...previewProps(k.ref)}
+            >
+              <td data-col="key">
+                <button type="button" className="ulune-row-pick" aria-pressed={on}>
+                  {k.label}
+                </button>
+              </td>
+              <td data-col="value">
+                <span className={cn(k.uncertain && "ulune-uncertain", k.key === "variable" && "font-mono")}>
                   {k.uncertain ? "~" : ""}
                   {k.value}
                 </span>
@@ -347,7 +376,7 @@ function CentresPart({ chart, view, selectedId, onSelect }: { chart: HumanDesign
               <td data-col="state">
                 <span className={cn(c.uncertain && "ulune-uncertain")}>
                   {c.uncertain ? "~" : ""}
-                  {upper(hdGraphText(locale, c.defined ? "defined" : "open"))}
+                  {upper(hdCentreStateWord(locale, c.defined, c.gates.length))}
                 </span>
               </td>
               <td data-col="gates" className="font-mono tabular-nums">

@@ -89,6 +89,14 @@
       "en": "Open — no defined channel lands here.",
       "fr": "Ouvert — aucun canal défini n’aboutit ici."
     },
+    "centerUndefined": {
+      "en": "Undefined — no defined channel lands here, but some of its gates are active: it takes in what others bring, in those gates’ themes.",
+      "fr": "Non défini — aucun canal défini n’aboutit ici, mais certaines de ses portes sont actives\u202f: il reçoit ce que les autres apportent, dans les thèmes de ces portes."
+    },
+    "centerOpenNone": {
+      "en": "Open — none of its gates is active: it takes in whatever others bring.",
+      "fr": "Ouvert — aucune de ses portes n’est active\u202f: il reçoit tout ce que les autres apportent."
+    },
     "personality": { "en": "Personality", "fr": "Personnalité" },
     "design": { "en": "Design", "fr": "Design" }
   },
@@ -119,6 +127,7 @@
     "keysClosed": { "en": "Closed: {name}", "fr": "Lecture fermée : {name}" },
     "defined": { "en": "defined", "fr": "défini" },
     "open": { "en": "open", "fr": "ouvert" },
+    "undefinedState": { "en": "undefined", "fr": "non défini" },
     "gatesActive": { "en": "{n} of {m} gates active", "fr": "portes actives : {n} sur {m}" },
     "notActivated": { "en": "not activated", "fr": "non activée" },
     "channelDefined": { "en": "defined", "fr": "défini" },

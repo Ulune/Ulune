@@ -204,30 +204,25 @@ async function desktop() {
     });
     if (touching) throw new Error(`${touching} discs overlap`);
 
-    // The first read (part 63): five steps by keyboard, each lighting its part of the wheel, then the Life Path's reading.
+    // The first read (part 63; a list like Human Design's since the review of 3 Oct, N3 and N4):
+    // the five steps in view, the wheel whole until one is pointed at, each lighting its part.
     await page.getByTestId("numerology-first").waitFor({ timeout: 15000 });
-    const firstSteps = [];
-    await page.getByTestId("numerology-first-next").focus();
-    for (let i = 0; i < 5; i++) {
-      await page.waitForTimeout(250);
-      firstSteps.push(
-        await page.evaluate(() => ({
-          step: document.querySelector('[data-testid="numerology-first"]')?.getAttribute("data-step"),
-          count: document.querySelector('[data-testid="numerology-first-count"]')?.textContent,
-          text: document.querySelector(".ulune-num-first-text")?.textContent ?? "",
-          vowelsLit: [...document.querySelectorAll(".num-letter[data-vowel]")].every((g) => g.hasAttribute("data-lit")),
-          consonantsLit: [...document.querySelectorAll(".num-letter:not([data-vowel])")].some((g) => g.hasAttribute("data-lit")),
-          focused: document.activeElement?.getAttribute("data-testid"),
-        })),
-      );
-      await page.keyboard.press("Enter");
-    }
     const wantSteps = ["lifepath", "expression", "soulurge", "personality", "personalYear"];
-    if (firstSteps.map((x) => x.step).join() !== wantSteps.join() || firstSteps[4].count !== "5 of 5" || firstSteps.some((x) => x.focused !== "numerology-first-next" || x.text.length < 40)) {
-      throw new Error(`the first read ${JSON.stringify(firstSteps)}`);
-    }
-    if (!firstSteps[2].vowelsLit || firstSteps[2].consonantsLit) throw new Error("the Soul Urge step does not light the vowels alone");
-    if (!/^A Soul Urge 3 wants to express itself/.test(firstSteps[2].text)) throw new Error(`the Soul Urge step: ${firstSteps[2].text}`);
+    const listed = await page.evaluate(() =>
+      [...document.querySelectorAll("[data-testid=numerology-first] [data-step]")].map((el) => ({ step: el.getAttribute("data-step"), text: el.querySelector(".ulune-num-first-text")?.textContent ?? "" })),
+    );
+    if (listed.map((x) => x.step).join() !== wantSteps.join() || listed.some((x) => x.text.length < 40)) throw new Error(`the first read ${JSON.stringify(listed)}`);
+    if (await page.evaluate(() => document.querySelector('[data-testid="numerology-ring"]')?.hasAttribute("data-focus"))) throw new Error("the wheel is dimmed before anything is pointed at");
+    if (!/^A Soul Urge 3 wants to express itself/.test(listed[2].text)) throw new Error(`the Soul Urge step: ${listed[2].text}`);
+    await page.getByTestId("numerology-first-soulurge").hover();
+    await page.waitForFunction(() => document.querySelector('[data-testid="numerology-ring"]')?.getAttribute("data-focus") === "hover");
+    const soul = await page.evaluate(() => ({
+      vowelsLit: [...document.querySelectorAll(".num-letter[data-vowel]")].every((g) => g.hasAttribute("data-lit")),
+      consonantsLit: [...document.querySelectorAll(".num-letter:not([data-vowel])")].some((g) => g.hasAttribute("data-lit")),
+    }));
+    if (!soul.vowelsLit || soul.consonantsLit) throw new Error("the Soul Urge step does not light the vowels alone");
+    await page.mouse.move(0, 0);
+    await page.getByTestId("numerology-first-done").click();
     await page.getByTestId("click-note").waitFor({ timeout: 8000 });
     if (await page.getByTestId("numerology-first").count()) throw new Error("the first read stayed after Done");
     if (!/^Life Path 13\/4/.test(await page.locator("[data-testid=click-note] h2").first().innerText())) throw new Error("Done did not open the Life Path");

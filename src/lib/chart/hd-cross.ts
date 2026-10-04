@@ -1,8 +1,7 @@
 /**
  * The Incarnation Cross: the gates of the Sun and the Earth at birth
  * (Personality) and in the Design, written "38/39 | 48/21", with its angle
- * set by the profile. The traditional names of the 192 crosses are not here:
- * they wait for a checked table (the Human Design plan, decision 7).
+ * set by the profile. The names of the 192 crosses: hd-cross-names.ts.
  */
 import type { HumanDesignChart } from "./human-design";
 
