@@ -7,7 +7,7 @@ import {
 } from "./chart-view";
 import type { AspectLink, NatalChart, SignId } from "./types";
 import { houseOfLongitude } from "./wheel-rank";
-import { tipsPath, type Pt } from "./aspect-taper";
+import { casingPath, tipsPath, type Pt } from "./aspect-taper";
 import type { LineTheme } from "./wheel-style";
 
 export type WheelFocus = {
@@ -539,7 +539,12 @@ export type WheelPaintCache = {
   roots: { el: Element; kind: string | null; id: string | null }[];
   /** The page's theme the lines' opacities were last written for. */
   theme: LineTheme | null;
+  /** The major lines' casings (chart-wheel.tsx), cut again when the wheel's scale moves. */
+  cases: CaseNode[];
 };
+
+/** A major line's casing (aspect-taper.ts casingPath): its width in px, cut for the wheel's scale. */
+type CaseNode = { el: SVGElement; taper: NonNullable<LineNode["taper"]>; w: string; k: string | null };
 
 /** The page's theme, as the lines' opacities follow it (theme.tsx sets the class). */
 function pageTheme(el: Element): LineTheme {
@@ -561,8 +566,8 @@ function placeAfter(parent: Element, el: Element, after: Element | null) {
   if (next !== el) parent.insertBefore(el, next);
 }
 
-function parseTaper(el: Element): LineNode["taper"] {
-  const v = (el.getAttribute("data-taper") ?? "").split(" ").map(Number);
+function parseTaper(el: Element, attr = "data-taper"): LineNode["taper"] {
+  const v = (el.getAttribute(attr) ?? "").split(" ").map(Number);
   if (v.length !== 5 || !v.every(Number.isFinite)) return null;
   return { p1: { x: v[0], y: v[1] }, p2: { x: v[2], y: v[3] }, t: v[4], d: new Map() };
 }
@@ -613,8 +618,13 @@ function makeTop(a: AspectNode, theme: LineTheme): Element {
     ink.append(
       svgEl(doc, "line", { ...at, stroke: a.color, "stroke-width": w, "stroke-dasharray": a.line.getAttribute("stroke-dasharray"), "stroke-linecap": a.line.getAttribute("stroke-linecap") ?? "round" }),
     );
-    if (a.tips?.taper) ink.append(svgEl(doc, "path", { d: tipsFor(a.tips.taper, a.litW, a.tips.k ?? "1"), fill: a.color }));
-    g.append(svgEl(doc, "line", { ...at, stroke: ground, "stroke-width": w + 2.2, "stroke-linecap": "round" }), ink);
+    if (a.tips?.taper) {
+      // Its band narrows with the tapered ends to the point (5 Oct): the outline follows the tip.
+      const kk = a.tips.k ?? "1";
+      ink.append(svgEl(doc, "path", { d: tipsFor(a.tips.taper, a.litW, kk), fill: a.color }));
+      const t = a.tips.taper;
+      g.append(svgEl(doc, "path", { d: casingPath(t.p1, t.p2, t.t, w + 2.2, Number(kk)), fill: ground }), ink);
+    } else g.append(svgEl(doc, "line", { ...at, stroke: ground, "stroke-width": w + 2.2, "stroke-linecap": "round" }), ink);
   }
   if (a.dir) {
     const c = a.dir.cloneNode(true) as Element;
@@ -763,6 +773,11 @@ export function cacheWheelPaint(svg: SVGSVGElement, extra: Element[] = []): Whee
     signsDone: false,
     roots: rootEls.map((el) => ({ el, kind: el.getAttribute("data-focus-kind"), id: el.getAttribute("data-focus-id") })),
     theme: null,
+    cases: all<SVGElement>("[data-case-taper]").flatMap((el) => {
+      const taper = parseTaper(el, "data-case-taper");
+      const w = el.getAttribute("data-case-w");
+      return taper && w ? [{ el, taper, w, k: null }] : [];
+    }),
   };
 }
 
@@ -880,6 +895,13 @@ export function paintWheelFocus(
   }
   const lit = new Set<string>();
   const k = unitsPerPx(svg);
+  // The casings' ends follow the wheel's scale like the lines' own.
+  for (const c of cache.cases) {
+    if (c.k === k) continue;
+    c.k = k;
+    const d = casingPath(c.taper.p1, c.taper.p2, c.taper.t, Number(c.w), Number(k));
+    if (c.el.getAttribute("d") !== d) c.el.setAttribute("d", d);
+  }
   for (const l of cache.lines) {
     const mode: Emphasis = !kind ? "base" : l.node.inFocus === "1" ? "lit" : "dim";
     if (mode === "lit" && l.isLine && l.node.hl) lit.add(l.node.hl);

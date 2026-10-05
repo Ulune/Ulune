@@ -62,3 +62,24 @@ export function tipsPath(p1: Pt, p2: Pt, taper: number, w: number, k = 1): strin
   }
   return d;
 }
+
+/**
+ * A major line's casing (the band of the ground's colour that parts crossing
+ * lines) as one filled shape: `w` px wide along the line proper, narrowing
+ * with the tapered ends to a point on each body's degree, so its outline
+ * follows the tips' shape (5 Oct). `k` is the wheel's units per screen px.
+ */
+export function casingPath(p1: Pt, p2: Pt, taper: number, w: number, k = 1): string {
+  const len = Math.hypot(p2.x - p1.x, p2.y - p1.y) || 1;
+  const t = Math.min(taper, len / 4);
+  const ux = (p2.x - p1.x) / len;
+  const uy = (p2.y - p1.y) / len;
+  const h = (Math.max(0.5, w) * k) / 2;
+  const ox = -uy * h;
+  const oy = ux * h;
+  const ax = p1.x + ux * t;
+  const ay = p1.y + uy * t;
+  const bx = p2.x - ux * t;
+  const by = p2.y - uy * t;
+  return `M${f(p1.x)} ${f(p1.y)}L${f(ax + ox)} ${f(ay + oy)}L${f(bx + ox)} ${f(by + oy)}L${f(p2.x)} ${f(p2.y)}L${f(bx - ox)} ${f(by - oy)}L${f(ax - ox)} ${f(ay - oy)}Z`;
+}

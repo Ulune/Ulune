@@ -84,7 +84,7 @@ import { prefersReducedMotion } from "@/lib/depth/env";
 import { announceChartHover, onChartPreview } from "@/lib/depth/preview-bus";
 import { onThemeApplied } from "@/lib/theme";
 import { aspectLook, ink, lineInk, turn, yokeLanes, yokeSpan, type YokeSpan } from "@/lib/chart/wheel-style";
-import { taperGeo, tipsPath } from "@/lib/chart/aspect-taper";
+import { casingPath, taperGeo, tipsPath } from "@/lib/chart/aspect-taper";
 import { hideWheelTip, showWheelTip } from "./wheel-tip";
 import { AspectStrip } from "./aspect-strip";
 import type { GridRow } from "./wheel-aspect-grid";
@@ -2900,17 +2900,17 @@ const ChartWheelView = memo(function ChartWheelView({
               ) : (
                 <>
                   {/* Casing: a band of the disc's colour under a major line, so
-                      crossing and near-parallel lines part cleanly (not over
-                      the tapered ends: it would cut the lines meeting there). */}
+                      crossing and near-parallel lines part cleanly. Over the
+                      tapered ends it narrows with them to the point (one
+                      shape, cut again for the wheel's scale by wheel-focus.ts),
+                      so the outline follows the tip's shape and never notches
+                      the lines meeting at the body (5 Oct). */}
                   {a.level === "major" ? (
-                    <line
-                      x1={taper.a.x}
-                      y1={taper.a.y}
-                      x2={taper.b.x}
-                      y2={taper.b.y}
-                      stroke="var(--color-bg)"
-                      strokeWidth={visLit.width + 2.2}
-                      strokeLinecap="round"
+                    <path
+                      d={casingPath(p1, p2, TAPER[fit], visLit.width + 2.2, TAPER_K_GUESS[fit])}
+                      fill="var(--color-bg)"
+                      data-case-taper={`${p1.x} ${p1.y} ${p2.x} ${p2.y} ${TAPER[fit]}`}
+                      data-case-w={visLit.width + 2.2}
                       className="ulune-aspect-case pointer-events-none"
                     />
                   ) : null}
