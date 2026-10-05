@@ -51,6 +51,7 @@ try {
   // The file's choice (review 3 Oct, T5): everything shown, here.
   // In Export with the table's text and CSV (part 97).
   await openExport(page);
+  await page.getByTestId("calendar-ics-all").waitFor({ timeout: 8000 });
   if ((await page.locator("[data-testid=calendar-ics] [role=menuitem]").count()) !== 3) throw new Error("the calendar file's three choices");
   const [icsDl] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.getByTestId("calendar-ics-all").click()]);
   if (!/^ulune-traceqa-/.test(icsDl.suggestedFilename())) throw new Error(`calendar file name without the person: ${icsDl.suggestedFilename()}`);

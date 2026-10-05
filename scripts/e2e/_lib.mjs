@@ -471,10 +471,8 @@ export async function setView(page, view) {
 /** Opens Export (a computer) or ⋯ (a phone), where the page's ways out are (parts 93, 96, 97). */
 export async function openExport(page) {
   const menu = page.getByTestId("export-menu");
-  const more = page.getByTestId("stage-more");
-  const open = async (el) => (await el.getAttribute("aria-expanded").catch(() => null)) === "true";
-  if ((await open(menu)) || (await open(more))) return;
-  // A menu just closed may still be fading out: let it go first.
+  // A menu just used closes a moment after its item's click (ExportMenu.tsx): let it go first.
+  await page.waitForTimeout(60);
   await page.getByTestId("export-panel").waitFor({ state: "detached", timeout: 4000 }).catch(() => {});
   if (await menu.isVisible().catch(() => false)) await menu.click();
   else await page.getByTestId("stage-more").click();

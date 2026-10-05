@@ -125,3 +125,22 @@
 .ulune-composite-pair-slot {
   min-width: 7.5rem;
 }
+
+/* The two people in the stage's toolbar (moved from shell.css, 5 Oct: they load with these pages). */
+.ob-strip .ulune-synastry-pair-bar,
+.ob-strip .ulune-composite-pair-bar {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+@media (min-width: 1024px) {
+  .ob-strip .ulune-synastry-pair-bar,
+  .ob-strip .ulune-composite-pair-bar {
+    flex: 0 1 auto;
+  }
+  .ob-strip .ulune-synastry-pair-slot,
+  .ob-strip .ulune-composite-pair-slot {
+    flex: 0 1 12rem;
+    width: 12rem;
+  }
+}

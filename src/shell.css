@@ -737,6 +737,8 @@ html.theme-switching::view-transition-new(root) {
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
+  /* The toolbar reads the stage's width, not the window's (a narrow window with the panel open). */
+  container: stage / inline-size;
 }
 
 /* The stage's toolbar (UI plan, part 93): what you look at, this page's own
@@ -800,12 +802,6 @@ html.theme-switching::view-transition-new(root) {
   /* A phone: the details share their row with Wheel / Table and Export. */
   .ob-strip-cap {
     flex: 1 1 0;
-  }
-  /* Over a dial (Transits, Progressions) the zoom cluster stands in the
-     figure's top corner, where the wheel's circle leaves room. */
-  .ob-figure:has(.ulune-biwheel-footer) > .ob-zoom-corner {
-    top: 8px;
-    bottom: auto;
   }
 }
 /* Numerology's tiles run under the wheel to the stage's edge on a narrow
@@ -1258,18 +1254,6 @@ html.theme-switching::view-transition-new(root) {
   flex: 1 1 auto;
 }
 
-/* Mode controls living in the strip. */
-.ob-strip .ulune-synastry-pair-bar,
-.ob-strip .ulune-composite-pair-bar,
-.ob-strip .ulune-hd-control {
-  flex: 1 1 auto;
-  min-width: 0;
-  width: auto;
-}
-.ulune-hd-control .ulune-seg {
-  height: var(--ctl-h);
-  width: 100%;
-}
 
 .ulune-dock-scroll {
   flex: 1 1 auto;
@@ -1734,21 +1718,6 @@ html.theme-switching::view-transition-new(root) {
   .ob-strip-extra {
     flex: 1 1 auto;
   }
-  .ob-strip .ulune-synastry-pair-bar,
-  .ob-strip .ulune-composite-pair-bar {
-    flex: 0 1 auto;
-    width: auto;
-  }
-  .ob-strip .ulune-synastry-pair-slot,
-  .ob-strip .ulune-composite-pair-slot {
-    flex: 0 1 12rem;
-    width: 12rem;
-  }
-  .ob-strip .ulune-hd-control {
-    flex: 0 1 19.5rem;
-    width: auto;
-    min-width: 0;
-  }
   .ob-foot {
     flex-wrap: nowrap;
     padding-bottom: 12px;
@@ -1916,8 +1885,10 @@ html.theme-switching::view-transition-new(root) {
     color var(--dur-hover) var(--ease-out),
     box-shadow var(--dur-move) var(--ease-out);
 }
+/* Only a tab not chosen lightens under the pointer: the chosen one keeps its
+   own colour (the sub-mode pill's dark words went white on it, 5 Oct). */
 @media (hover: hover) {
-  [role="tab"]:hover {
+  [role="tab"]:not([aria-selected="true"]):hover {
     color: var(--color-fg);
   }
 }
@@ -3513,4 +3484,39 @@ html[data-tour-done] .ob-tour-link {
     grid-column: 1;
     grid-row: 1;
   }
+}
+
+/* A computer with a narrow stage (a small window, the side panel open): the
+   page's own controls (the two people, the layers) take a second row rather
+   than run under Rings and the view switch (5 Oct). */
+@media (min-width: 1024px) {
+  @container stage (max-width: 760px) {
+    .ob-strip {
+      grid-template-columns: minmax(0, 1fr) auto;
+      row-gap: 6px;
+    }
+    .ob-strip > .ob-submodes,
+    .ob-strip > .ob-strip-cap {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .ob-strip > .ob-strip-end {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .ob-strip > .ob-strip-extra {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .ob-strip > .ob-strip-fill {
+      display: none;
+    }
+  }
+}
+/* Over a dial (Transits, Progressions) the zoom cluster stands in the
+   figure's top corner at every width: at the bottom it ran over the tape on
+   a narrow stage (5 Oct). */
+.ob-figure:has(.ulune-biwheel-footer) > .ob-zoom-corner {
+  top: 8px;
+  bottom: auto;
 }

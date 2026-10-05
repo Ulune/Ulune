@@ -712,3 +712,19 @@ html.light .ulune-hd-gate[data-tone="both"] text {
   box-shadow: none;
   border: 1px solid var(--color-border);
 }
+
+/* The layers in the stage's toolbar (moved from shell.css, 5 Oct: they load with this page). */
+.ob-strip .ulune-hd-control {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+.ulune-hd-control .ulune-seg {
+  height: var(--ctl-h);
+  width: 100%;
+}
+@media (min-width: 1024px) {
+  .ob-strip .ulune-hd-control {
+    flex: 0 1 19.5rem;
+  }
+}
