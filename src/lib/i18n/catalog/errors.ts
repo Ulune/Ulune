@@ -11,8 +11,8 @@ export const errors = {
     "La lecture n’a pas pu être rédigée. Réessayez dans un instant.",
   ],
   couldNotFind: [
-    "Couldn’t find “{query}”. Try another city, or paste coordinates.",
-    "Impossible de trouver «\u202f{query}\u202f». Essayez une autre ville, ou collez des coordonnées.",
+    "Couldn’t find “{query}”. Check the spelling, or add the country (Paris, France), or paste coordinates.",
+    "Impossible de trouver «\u202f{query}\u202f». Vérifiez l’orthographe, ajoutez le pays (Paris, France), ou collez des coordonnées.",
   ],
   couldNotSaveLocal: [
     "Couldn’t save this chart in the browser. Storage may be full or blocked: free some space or allow storage for this site, then try again.",

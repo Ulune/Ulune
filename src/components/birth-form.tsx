@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { searchPlaces } from "@/lib/chart/functions";
-import { isAbortError } from "@/lib/chart/geocode";
+import { isAbortError } from "@/lib/chart/abort";
 import {
   formatEuropeanDate,
   isCompleteBirthDate,
@@ -88,7 +88,15 @@ const NEXT_FIELD: Record<string, string> = {
  * reader's address; the server keeps nothing (lib/chart/functions.ts).
  */
 async function lookupPlaces(q: string, locale: "en" | "fr", signal?: AbortSignal): Promise<PlaceHit[]> {
-  return await searchPlaces({ data: { q, locale }, signal });
+  try {
+    return await searchPlaces({ data: { q, locale }, signal });
+  } catch (err) {
+    if (signal?.aborted || isAbortError(err)) throw err;
+    // A phone's network blinks: once more before saying so.
+    await new Promise((resolve) => window.setTimeout(resolve, 350));
+    if (signal?.aborted) throw err;
+    return await searchPlaces({ data: { q, locale }, signal });
+  }
 }
 
 function focusControl(id: string) {
@@ -390,7 +398,13 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
     return () => document.removeEventListener("pointerdown", onDoc);
   }, []);
 
-  const pick = (hit: PlaceHit) => {
+  // The option chosen with the arrow keys stays in view.
+  useEffect(() => {
+    if (!open) return;
+    document.getElementById(`birth-place-opt-${active}`)?.scrollIntoView({ block: "nearest" });
+  }, [active, open, hits]);
+
+  const pick = (hit: PlaceHit): BirthInput => {
     markEdit();
     const current = draftRef.current;
     const next: BirthInput = {
@@ -405,9 +419,13 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
     setOpen(false);
     setPicked(true);
     flag(null);
+    clearFlag("birth-place");
     setDraft(next);
     draftRef.current = next;
     onChange(next);
+    // On a phone the keyboard goes once the place is chosen: the button to cast is behind it.
+    if (window.matchMedia("(pointer: coarse)").matches) window.setTimeout(() => inputRef.current?.blur(), 0);
+    return next;
   };
 
   function commitDraft(next: BirthInput) {
@@ -497,6 +515,12 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
       try {
         const rows = await lookupPlaces(query.trim(), locale);
         setStatus(null);
+        // The words name one place exactly ("Paris, France", a label as listed): nothing to ask.
+        if (rows?.[0]?.sure) {
+          const chosen = pick(rows[0]);
+          castOnce(withTime(chosen), { placeConfirmed: true });
+          return;
+        }
         setHits(rows ?? []);
         setActive(0);
         setOpen(true);
@@ -739,7 +763,10 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
         <Input
           ref={inputRef}
           id="birth-place"
-          name="ulune-place"
+          // A search field, named as one: a phone offers the reader's contacts' addresses
+          // (and their keyboard fills them in) to anything that looks like an address.
+          type="search"
+          name="ulune-search"
           value={query}
           placeholder={t("placePlaceholder")}
           autoComplete="off"
@@ -747,6 +774,10 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           autoCapitalize="words"
           spellCheck={false}
           enterKeyHint="search"
+          data-lpignore="true"
+          data-1p-ignore="true"
+          data-bwignore="true"
+          data-form-type="other"
           role="combobox"
           aria-autocomplete="list"
           aria-expanded={open && !picked}
@@ -771,19 +802,14 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
             clearFlag("birth-place");
             setDraft(next);
           }}
-          onBlur={() =>
-            onChange({
-              ...draftRef.current,
-              placeLabel: query,
-              latitude: picked ? draftRef.current.latitude : Number.NaN,
-              longitude: picked ? draftRef.current.longitude : Number.NaN,
-            })
-          }
+          onBlur={pushParent}
           onFocus={() => {
             if (!picked && (hits.length > 0 || looking || hint)) setOpen(true);
           }}
           onKeyDown={(e) => {
             if (e.key === "Escape") {
+              // A search field wipes its text on Escape; here it only closes the list.
+              e.preventDefault();
               setOpen(false);
               return;
             }
@@ -816,7 +842,8 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
           <ul
             id="birth-place-list"
             role="listbox"
-            className="max-h-56 overflow-auto rounded-md border border-border bg-bg-elevated py-1 shadow-lg"
+            // As tall as the room the popover found (anchored-popover.tsx), scrolling inside it.
+            className="ulune-place-list max-h-[inherit] overflow-auto overscroll-contain rounded-md border border-border bg-bg-elevated py-1 shadow-lg"
           >
             {looking && hits.length === 0 ? (
               <li className="px-3 py-2 text-sm text-fg-muted">{t("lookingUpPlace")}</li>
@@ -835,18 +862,16 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
                     "flex min-h-[var(--row-h)] w-full flex-col items-start justify-center px-3 py-2 text-left text-sm text-fg hover:bg-bg-subtle",
                     i === active && "bg-bg-subtle",
                   )}
-                  onPointerEnter={() => setActive(i)}
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    pick(hit);
+                  onPointerEnter={(e) => {
+                    if (e.pointerType === "mouse") setActive(i);
                   }}
+                  // The field keeps its focus (and the keyboard) while a mouse presses here.
+                  onMouseDown={(e) => e.preventDefault()}
+                  // A tap, not a touch: a finger starting to scroll the list picks nothing.
+                  onClick={() => pick(hit)}
                 >
-                  <span>{hit.label}</span>
-                  {hit.country || hit.timezone ? (
-                    <span className="text-xs text-fg-subtle">
-                      {[hit.country, hit.timezone].filter(Boolean).join(" · ")}
-                    </span>
-                  ) : null}
+                  <span className="min-w-0 max-w-full break-words">{hit.label}</span>
+                  {hit.detail ? <span className="text-xs text-fg-subtle">{hit.detail}</span> : null}
                 </button>
               </li>
             ))}

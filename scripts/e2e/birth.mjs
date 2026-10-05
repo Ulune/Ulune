@@ -51,6 +51,8 @@ async function run(width) {
     await page.locator("#birth-place").fill("Paris");
     await page.locator("#birth-place-list [role=option]").first().waitFor({ timeout: 12000 });
     await page.locator("#birth-place").press("Escape");
+    // Escape closes the list; it never wipes what was typed (a search field would).
+    if ((await page.locator("#birth-place").inputValue()) !== "Paris") throw new Error("Escape cleared the place field");
     await page.getByTestId("cast-submit").click();
     await page.locator("#birth-place-list [role=option]").first().waitFor({ timeout: 12000 });
     await page.waitForTimeout(300);

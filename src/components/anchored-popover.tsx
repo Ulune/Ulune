@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
-import { popoverPlacement } from "@/lib/popover-place";
+import { popoverPlacement, type PopoverPlacement } from "@/lib/popover-place";
 import { usePresence } from "@/lib/presence";
 
 const FOCUSABLE =
@@ -48,7 +48,7 @@ export function AnchoredPopover({
   takeFocus?: boolean;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
-  const [place, setPlace] = useState<{ top: number; left: number; width: number; above: boolean } | null>(null);
+  const [place, setPlace] = useState<PopoverPlacement | null>(null);
   // Closing, it stays where it is for its exit (lib/presence.ts), then goes.
   const { shown, leaving } = usePresence(open);
 
@@ -58,28 +58,37 @@ export function AnchoredPopover({
 
   useLayoutEffect(() => {
     if (!open) return;
+    let last = "";
     const placeNow = () => {
       const node = anchorRef.current;
       if (!node) return;
       const rect = node.getBoundingClientRect();
-      const panel = panelRef.current?.getBoundingClientRect();
+      // Its own height (not the squeezed one it has now), so it can come back to full size.
+      const panel = panelRef.current;
       const next = popoverPlacement(rect, {
         width: width ?? Math.max(rect.width, 16 * 16),
-        height: panel?.height,
+        height: panel?.scrollHeight,
         align,
       });
-      setPlace({ ...next, above: next.top + (panel?.height ?? 0) <= rect.top + 1 });
+      const key = `${next.top}|${next.left}|${next.width}|${next.maxHeight}|${next.above}`;
+      if (key === last) return;
+      last = key;
+      setPlace(next);
     };
     placeNow();
+    // It stays with its trigger wherever that goes: a sheet sliding up while the keyboard
+    // opens, a page scrolled inside the visible screen. No event says so for a transition,
+    // so the trigger is looked at every frame while the panel is open.
+    let frame = window.requestAnimationFrame(function follow() {
+      placeNow();
+      frame = window.requestAnimationFrame(follow);
+    });
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    window.addEventListener("resize", placeNow);
-    window.addEventListener("scroll", placeNow, true);
     document.addEventListener("keydown", onKey);
     return () => {
-      window.removeEventListener("resize", placeNow);
-      window.removeEventListener("scroll", placeNow, true);
+      window.cancelAnimationFrame(frame);
       document.removeEventListener("keydown", onKey);
     };
   }, [open, anchorRef, align, width, onClose]);
@@ -172,6 +181,8 @@ export function AnchoredPopover({
                 top: place.top,
                 left: place.left,
                 width: place.width,
+                // It never runs past the visible screen: it scrolls inside the room it has.
+                maxHeight: place.maxHeight,
                 // It grows from the button that opened it.
                 ["--pop-origin" as string]: `${align === "end" ? "right" : "left"} ${place.above ? "bottom" : "top"}`,
                 ["--pop-dy" as string]: place.above ? "4px" : "-4px",

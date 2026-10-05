@@ -2856,3 +2856,19 @@ svg[data-depth-base][data-view3d="gl"] > :not([data-backdrop]) {
 .ob-panel-head:has(> .ulune-pick-card) > :not(.ulune-pick-card, .ob-sheet-grip) {
   visibility: hidden;
 }
+
+/* The place field is a search field (so a phone does not offer contacts' addresses in it) drawn as any other:
+   no built-in rounded look, no clear cross; the list under it keeps a finger's scrolling to itself. */
+#birth-place {
+  -webkit-appearance: none;
+  appearance: none;
+}
+#birth-place::-webkit-search-cancel-button,
+#birth-place::-webkit-search-decoration {
+  -webkit-appearance: none;
+  display: none;
+}
+.ulune-place-list {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}

@@ -24,7 +24,7 @@ export const birth = {
     "Couldn’t look up the place. Try again, or paste coordinates.",
     "La recherche du lieu a échoué. Réessayez, ou collez des coordonnées.",
   ],
-  placePlaceholder: ["City, or lat, lng", "Ville, ou lat., long."],
+  placePlaceholder: ["City, country — or lat, lng", "Ville, pays — ou lat., long."],
   time: ["Time", "Heure"],
   timePlaceholder: ["HH:MM", "HH:MM"],
   timeUnknown: ["Time unknown — houses approximate", "Heure inconnue — maisons approximatives"],

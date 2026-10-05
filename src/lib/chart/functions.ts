@@ -24,7 +24,7 @@ function locOf(value: unknown): AppLocale {
 }
 
 /** The place search's own limit, so a slow geocoder never holds the form. */
-const PLACE_TIMEOUT_MS = 6000;
+const PLACE_TIMEOUT_MS = 8000;
 
 /**
  * Place search, relayed so the geocoder (Open-Meteo) sees Ulune's server

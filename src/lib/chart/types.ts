@@ -390,6 +390,10 @@ export type PlaceHit = {
   longitude: number;
   timezone: string;
   country: string;
+  /** What tells it from another place of the name (county, how many live there). */
+  detail?: string;
+  /** The one place the typed words name exactly: the form may take it without asking. */
+  sure?: boolean;
 };
 
 /** A short labelled fact at the top of a reading; `ref` jumps to that reading. */

@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { RecentCache } from "../src/lib/chart/recent-cache.ts";
-import { PLACE_CACHE, geocodePlace, placeCacheKey } from "../src/lib/chart/geocode.ts";
+import { PLACE_CACHE, UPSTREAM_CACHE, geocodePlace, placeCacheKey } from "../src/lib/chart/geocode.ts";
 
 test("an entry lasts its time, then is gone", () => {
   let now = 0;
@@ -54,6 +54,7 @@ const PARIS = {
 
 test("a repeated search is answered from memory", async () => {
   PLACE_CACHE.clear();
+  UPSTREAM_CACHE.clear();
   const geo = fakeGeocoder(() => new Response(JSON.stringify(PARIS), { status: 200 }));
   try {
     const first = await geocodePlace("Paris", "en");
@@ -67,21 +68,59 @@ test("a repeated search is answered from memory", async () => {
   } finally {
     geo.restore();
     PLACE_CACHE.clear();
+    UPSTREAM_CACHE.clear();
   }
 });
 
 test("a failed search is not kept: the next one asks again", async () => {
   PLACE_CACHE.clear();
+  UPSTREAM_CACHE.clear();
   const geo = fakeGeocoder(() => new Response("busy", { status: 503 }));
   try {
     // Open-Meteo is down: the major cities still answer, but only for now.
     const local = await geocodePlace("Paris", "en");
     assert.ok(local.length > 0);
     await geocodePlace("Paris", "en");
-    assert.equal(geo.calls.length, 2);
+    // Each search tried twice (a busy geocoder often answers the second time).
+    assert.equal(geo.calls.length, 4);
     assert.equal(PLACE_CACHE.size, 0);
+    assert.equal(UPSTREAM_CACHE.size, 0);
   } finally {
     geo.restore();
     PLACE_CACHE.clear();
+    UPSTREAM_CACHE.clear();
+  }
+});
+
+test("a busy geocoder is asked again once, and the second answer is used", async () => {
+  PLACE_CACHE.clear();
+  UPSTREAM_CACHE.clear();
+  let n = 0;
+  const geo = fakeGeocoder(() => (++n === 1 ? new Response("busy", { status: 503 }) : new Response(JSON.stringify(PARIS), { status: 200 })));
+  try {
+    const hits = await geocodePlace("Paris", "en");
+    assert.equal(geo.calls.length, 2);
+    assert.equal(hits[0].label, "Paris, Île-de-France, France");
+    assert.equal(PLACE_CACHE.size, 1);
+  } finally {
+    geo.restore();
+    PLACE_CACHE.clear();
+    UPSTREAM_CACHE.clear();
+  }
+});
+
+test("Paris and Paris, France share one call to the geocoder", async () => {
+  PLACE_CACHE.clear();
+  UPSTREAM_CACHE.clear();
+  const geo = fakeGeocoder(() => new Response(JSON.stringify(PARIS), { status: 200 }));
+  try {
+    await geocodePlace("Paris", "en");
+    const hits = await geocodePlace("Paris, France", "en");
+    assert.equal(geo.calls.length, 1);
+    assert.equal(hits[0].sure, true);
+  } finally {
+    geo.restore();
+    PLACE_CACHE.clear();
+    UPSTREAM_CACHE.clear();
   }
 });
