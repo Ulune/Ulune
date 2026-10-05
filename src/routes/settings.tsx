@@ -9,7 +9,6 @@ import { LegalNav } from "@/components/legal-page";
 import { keepWhole } from "@/components/keep-whole";
 import { pageHead } from "@/lib/page-head";
 import { problemMailto } from "@/lib/contact";
-import "@/components/settings-page.css";
 
 export const Route = createFileRoute("/settings")({
   // Nothing here for a search engine: the page is about this browser.

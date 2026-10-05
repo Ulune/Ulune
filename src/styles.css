@@ -2806,7 +2806,8 @@ svg[data-depth-base][data-view3d="gl"] > :not([data-backdrop]) {
 .ulune-pick-card {
   position: absolute;
   z-index: 3;
-  inset: 12px 6px 6px 6px;
+  /* The whole closed row (44 px since part 96): the tabs under it hide while it shows. */
+  inset: 9px 6px 3px 6px;
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -2818,20 +2819,27 @@ svg[data-depth-base][data-view3d="gl"] > :not([data-backdrop]) {
   line-height: 1.25;
   color: var(--color-fg);
   touch-action: manipulation;
+  /* It rises into the row rather than popping in (5 Oct). */
+  --pop-dy: 4px;
+  animation: ob-pop-in 180ms var(--ease-out) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ulune-pick-card {
+    animation: none;
+  }
 }
 .ulune-pick-card-text {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .ulune-pick-card-read {
   flex: none;
-  min-height: 36px;
+  min-height: 28px;
   padding: 0 var(--space-3);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--color-fg);
   color: var(--color-bg);
   font-weight: 600;
@@ -2840,8 +2848,11 @@ svg[data-depth-base][data-view3d="gl"] > :not([data-backdrop]) {
   flex: none;
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   color: var(--color-fg-muted);
+}
+.ob-panel-head:has(> .ulune-pick-card) > :not(.ulune-pick-card, .ob-sheet-grip) {
+  visibility: hidden;
 }

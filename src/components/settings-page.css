@@ -49,3 +49,97 @@
 .ob-settings-card {
   padding: 20px;
 }
+
+/* The card headings, the notices and the legal links (moved from shell.css, 5 Oct: they load with these pages). */
+.ob-settings-h {
+  margin: 0 0 8px;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.ob-notice {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-fg-muted);
+}
+.ob-notice-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--color-fg);
+}
+.ob-notice-date {
+  margin: 4px 0 16px;
+  font-size: 13px;
+  color: var(--color-fg-subtle);
+}
+.ob-notice-block {
+  margin-top: 18px;
+}
+.ob-notice-block p {
+  margin: 0;
+  text-wrap: pretty;
+}
+.ob-notice-block ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding-left: 1.1em;
+  list-style: disc;
+}
+.ob-notice-block li {
+  text-wrap: pretty;
+}
+.ob-notice-link {
+  color: var(--color-fg);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+@media (hover: hover) {
+  .ob-notice-link:hover {
+    text-decoration-color: currentColor;
+  }
+}
+/* The links between the legal pages (components/legal-page.tsx). */
+/* A line of words, so its rows balance: no link left alone on the last one. */
+.ob-legal-nav {
+  display: block;
+  margin-top: 28px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  font-size: 14px;
+  line-height: 36px;
+  text-wrap: balance;
+}
+/* Settings' "About Ulune" card: the links under its title, no rule. */
+.ob-settings-card:not(.ob-notice) > .ob-legal-nav {
+  margin-top: 4px;
+  padding-top: 0;
+  border-top: 0;
+}
+.ob-legal-nav-link {
+  display: inline-block;
+  margin-inline-end: 18px;
+  line-height: 32px;
+  vertical-align: middle;
+  color: var(--color-fg-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+@media (hover: hover) {
+  .ob-legal-nav-link:hover {
+    color: var(--color-fg);
+  }
+}
+.ob-legal-nav-link[aria-current="page"] {
+  color: var(--color-fg);
+  text-decoration: none;
+}
+

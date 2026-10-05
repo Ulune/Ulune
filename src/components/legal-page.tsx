@@ -1,7 +1,7 @@
+import "@/components/settings-page.css";
 import { Fragment, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { PageTopBar } from "@/studio/shell/PageTopBar";
-import "@/components/settings-page.css";
 import { useI18n } from "@/lib/i18n/locale";
 import { dateFormat } from "@/lib/intl-cache";
 import { OPERATOR } from "@/lib/legal/operator";

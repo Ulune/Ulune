@@ -87,7 +87,10 @@ export function Dock() {
   // and one key fact, and Read. Human Design writes its own (hd-card.tsx).
   const wideLayout = useWideLayout();
   // The first fact the title does not already say ("Expression 11/2" needs no "11/2" after it).
-  const keyFact = reading?.facts?.find((f) => f.value && !reading.title.includes(f.value))?.value;
+  // A short one only: a long sum ("6 (June) + 6 (15th) + …") would end cut off in the row (5 Oct).
+  const keyFact = reading?.facts?.find(
+    (f) => f.value && f.value.length <= 18 && !reading.title.includes(f.value),
+  )?.value;
   const pickText = reading ? (keyFact ? `${reading.title} · ${keyFact}` : reading.title) : null;
 
   const [ready, setReady] = useState(false);

@@ -1,3 +1,4 @@
+import "@/components/settings-page.css";
 import { Link } from "@tanstack/react-router";
 import { Download, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";

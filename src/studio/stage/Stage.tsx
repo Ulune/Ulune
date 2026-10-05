@@ -66,6 +66,14 @@ function MoreButton({
   anchor: RefObject<HTMLButtonElement | null>;
 }) {
   const { t } = useI18n();
+  // On a phone the menu's code comes once the page is idle, so its first
+  // opening shows it at once rather than after a fetch (5 Oct).
+  useEffect(() => {
+    if (!window.matchMedia("(max-width: 1023.98px)").matches) return;
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1500));
+    const id = idle(() => void loadMore());
+    return () => (window.cancelIdleCallback ?? window.clearTimeout)(id as number);
+  }, []);
   return (
     <span className="ob-more">
       <button

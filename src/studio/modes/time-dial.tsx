@@ -487,7 +487,7 @@ export function TimeDial({
         </button>
         <button
           type="button"
-          className="ob-icon-btn ob-icon-btn--quiet"
+          className="ob-icon-btn ob-icon-btn--quiet ulune-time-play-fwd"
           data-testid={`${testId}-play`}
           aria-pressed={playing === 1}
           aria-label={playing === 1 ? t("scrubPause") : t("scrubPlay")}

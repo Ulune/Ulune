@@ -236,14 +236,36 @@
   .ulune-time-dial .ulune-time-readout--pick .ulune-time-readout-note::before {
     content: none;
   }
-  /* Room for the date beside Now (part 95): play backward goes, the arrows
-     narrow (still 40 px tall to tap). */
-  .ulune-time-dial .ulune-time-play-back {
+  /* Room for the date beside Now (parts 95, 5 Oct): play goes both ways (the
+     tape is dragged with a finger), the arrows narrow (still 40 px tall to
+     tap), the readout keeps its words whole and the step menu gives way. */
+  .ulune-time-dial :is(.ulune-time-play-back, .ulune-time-play-fwd) {
     display: none;
   }
+  .ulune-time-dial .ulune-time-readout--pick {
+    flex: 0 0 auto;
+    width: min-content;
+    padding-inline: 8px;
+  }
+  .ulune-time-dial .ulune-time-unit {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  .ulune-time-dial .ulune-time-unit select {
+    width: 100%;
+    min-width: 3.75rem;
+    padding-left: 8px;
+    padding-right: 22px;
+    background-position: right 8px center;
+  }
+  .ulune-time-dial .ulune-time-reset {
+    gap: 5px;
+    margin-left: 2px;
+    padding-inline: 9px;
+  }
   .ulune-time-dial .ulune-time-scrub-head > .ob-icon-btn {
-    width: 32px;
-    min-width: 32px;
+    width: 28px;
+    min-width: 28px;
   }
   /* No room for the caret: an outline says it opens instead. */
   .ulune-time-dial .ulune-time-readout--pick {
