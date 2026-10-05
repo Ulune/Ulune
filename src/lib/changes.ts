@@ -6,13 +6,29 @@
  */
 import type { LegalText } from "@/lib/legal/pages";
 
-export const CHANGES_UPDATED = "2026-10-04";
+export const CHANGES_UPDATED = "2026-10-05";
 
 export const CHANGES: Record<"en" | "fr", LegalText> = {
   en: {
     title: "What’s new",
     updated: "Updated {date}",
     blocks: [
+      {
+        h: "Ulune 1.0.3",
+        p: "Simpler controls, and a better fit on phones:",
+        list: [
+          "One toolbar on every page: its sub-modes or the chart’s details, then its own controls, then what the chart draws, Wheel or Table, and Export and share; zoom, Fit, 3D and the pointer tools sit together in a corner of the figure.",
+          "What the chart draws is one button that shows the current choice, with a menu saying what each choice adds (keys 1 to 4 on a computer); the key to the inner and outer rings is at its top.",
+          "Transits and progressions keep time in one place, the dial: press its date to type a date and time, and Now is at its end; progressions give the age there too.",
+          "The calendar shows the period in large type with ‹ › and Today, and its calendar file joins the other ways out in Export and share.",
+          "Controls sized for how you point: compact under a mouse, big enough for a finger on a touch screen. On a computer the page tabs are words with a line under the chosen one, and the chart gets more room.",
+          "Fewer words on the stage: how-to lines show once per device, and labels that said what was already visible are gone.",
+          "On a phone: one row of controls, with ⋯ for the rings, Wheel or Table, Export and share, 3D and the pointer tools; Fit appears only once you have zoomed (pinch to zoom); taller tabs and page bar for the thumb; the numerology numbers in three columns.",
+          "Tables: links to each part in the toolbar, following as you scroll; Copy, CSV and the calendar file are in Export and share.",
+          "Settings, privacy, the legal pages and What’s new keep Ulune’s mark and its four pages at the top; on a wide screen Settings sets its cards side by side.",
+          "Fixes: on a phone, the card for what you tap fits its row and names one short fact; the time dial no longer overlaps on a narrow phone, in French too; “Progressions” is no longer cut off; the chosen sub-mode keeps its words under the pointer; a pair’s names no longer run under the other controls on a narrow screen; the zoom buttons no longer cover the time dial; ⋯ opens at once; the dark edge that parts crossing aspect lines now narrows with their pointed ends instead of notching the lines meeting there.",
+        ],
+      },
       {
         h: "Ulune 1.0.2",
         p: "The chart’s look, and motion throughout:",
@@ -85,6 +101,22 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
     title: "Nouveautés",
     updated: "Mis à jour le {date}",
     blocks: [
+      {
+        h: "Ulune 1.0.3",
+        p: "Des commandes plus simples, et un téléphone mieux servi\u202f:",
+        list: [
+          "Une seule barre d’outils par page\u202f: ses sous-modes ou les détails du thème, puis ses propres commandes, puis ce que le thème trace, Roue ou Tableau, et Exporter et partager\u202f; le zoom, Ajuster, la 3D et les outils de pointage se regroupent dans un coin de la figure.",
+          "Ce que le thème trace tient en un bouton qui montre le choix en cours, avec un menu qui dit ce qu’ajoute chaque choix (touches 1 à 4 sur ordinateur)\u202f; la légende des anneaux intérieur et extérieur est en haut de ce menu.",
+          "Les transits et les progressions gardent le temps en un seul endroit, le cadran\u202f: un appui sur sa date permet de taper une date et une heure, et Maintenant est à son bout\u202f; les progressions y donnent aussi l’âge.",
+          "Le calendrier affiche la période en grand avec ‹ › et Aujourd’hui, et son fichier agenda rejoint les autres sorties dans Exporter et partager.",
+          "Des commandes à la taille de votre façon de pointer\u202f: compactes à la souris, assez grandes pour un doigt sur un écran tactile. Sur ordinateur, les onglets de page sont des mots soulignés d’un trait pour la page choisie, et le thème gagne de la place.",
+          "Moins de mots sur la scène\u202f: les phrases d’aide n’apparaissent qu’une fois par appareil, et les mentions qui répétaient ce qui se voyait déjà sont parties.",
+          "Sur téléphone\u202f: une seule rangée de commandes, avec ⋯ pour les anneaux, Roue ou Tableau, Exporter et partager, la 3D et les outils de pointage\u202f; Ajuster n’apparaît qu’une fois le thème agrandi (pincez pour zoomer)\u202f; des onglets et une barre de pages plus hauts pour le pouce\u202f; les nombres de la numérologie sur trois colonnes.",
+          "Tableaux\u202f: des liens vers chaque partie dans la barre d’outils, qui suivent le défilement\u202f; Copier, le CSV et le fichier agenda sont dans Exporter et partager.",
+          "Les Réglages, la confidentialité, les pages légales et les Nouveautés gardent en haut la marque d’Ulune et ses quatre pages\u202f; sur grand écran, les Réglages placent leurs cartes côte à côte.",
+          "Corrections\u202f: sur téléphone, la carte de ce que vous touchez tient dans sa rangée et donne un seul fait court\u202f; le cadran du temps ne se chevauche plus sur un téléphone étroit, en français aussi\u202f; «\u202fProgressions\u202f» n’est plus coupé\u202f; le sous-mode choisi garde ses mots sous le pointeur\u202f; les noms d’un duo ne passent plus sous les autres commandes sur un écran étroit\u202f; les boutons de zoom ne couvrent plus le cadran\u202f; ⋯ s’ouvre aussitôt\u202f; le liseré sombre qui sépare les lignes d’aspect qui se croisent s’affine avec leurs pointes au lieu d’entailler les lignes qui s’y rejoignent.",
+        ],
+      },
       {
         h: "Ulune 1.0.2",
         p: "L’allure du thème, et le mouvement partout\u202f:",

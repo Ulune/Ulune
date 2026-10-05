@@ -1,6 +1,6 @@
 /** Product identity. */
 export const APP_MARK = "Ulune";
-export const APP_VERSION = "1.0.2";
+export const APP_VERSION = "1.0.3";
 export const APP_NAME = APP_MARK;
 
 /** The public address: share cards need absolute links. */
