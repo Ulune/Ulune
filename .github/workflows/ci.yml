@@ -1,4 +1,4 @@
-# Checks on every push to main and every pull request: types, lint, the unit
+# Checks on every push to main or v2 (the 2.0 line) and every pull request: types, lint, the unit
 # and precision tests, the build and a run of the built server (the deploy
 # check). The end-to-end suites run nightly and on demand: they drive a
 # browser through the whole site for about twenty minutes.
@@ -6,7 +6,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, v2]
   pull_request:
   schedule:
     - cron: "17 3 * * *"

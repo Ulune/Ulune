@@ -7,7 +7,7 @@ How ulune.app runs, for whoever deploys it. Nothing here is secret: Ulune needs 
 - **Build:** set by `vercel.json` (install `npm ci`, build `npm run build`); the build writes `.vercel/output` with Nitro's Vercel preset, and copies the engine, the ephemeris and the time zone map next to the server function (about 41 MB).
 - **Node.js:** 22.x.
 - **Functions:** Paris (`cdg1`) and a 90-second limit, both set in `vite.config.ts`.
-- **Git:** this repository; `main` is production, other branches get previews.
+- **Git:** this repository; `main` is production, other branches (including `v2`, see Branches and releases) get previews.
 - **Skew Protection:** on, so a page and its files always come from the same deploy.
 - **Deployment Protection:** previews behind Vercel Authentication (the standard setting).
 
@@ -37,6 +37,23 @@ How ulune.app runs, for whoever deploys it. Nothing here is secret: Ulune needs 
 ## Watching it
 
 - `/api/health` answers 200 with the state of the engine and the time zone map; an uptime monitor may call it a few times an hour.
+
+## Branches and releases
+
+Two lines run side by side, so a bug fix never waits for 2.0.
+
+- **`main`** is what ulune.app serves: the 1.x line. Every release is made here (1.0.5, 1.1.0, …), tagged `v1.0.5`, and deployed by Vercel on push.
+- **`v2`** carries the 2.0 work (new languages, the encyclopedia, the new page layout). It is never deployed to production; each push gets a Vercel preview behind Vercel Authentication, and CI runs its checks like `main`'s.
+
+How a fix travels:
+
+1. Fix it on `main` (a short-lived branch or straight on `main`), bump the version, tag, push: released.
+2. Bring it into `v2` at once: `git switch v2 && git merge main`. Merge, never cherry-pick, so the two lines never disagree about what has been fixed.
+3. `v2` leaves the version in `src/lib/app-identity.ts`, `package.json` and the top of `src/lib/changes.ts` alone while it is being built, so those merges stay free of conflicts. The 2.0.0 What's new entry and version are written on `v2` only when 2.0 is ready.
+
+Rules for `v2` work that touches what people have saved: everything a 1.x private space, backup or settings file holds must still open in 2.0, and a 2.0 file is never written in a form 1.x would choke on while both lines are live.
+
+Releasing 2.0: merge `main` into `v2` one last time, run every check (the unit tests, all the end-to-end suites, the budgets, the deploy check, a Vercel preview), then merge `v2` into `main` (a fast-forward, since `main` is already inside it), tag `v2.0.0` and push. `v2` is kept for 2.0.x fixes if 1.x is retired, or deleted.
 
 ## At each release
 
