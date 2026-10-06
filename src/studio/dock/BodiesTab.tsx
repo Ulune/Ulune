@@ -47,9 +47,13 @@ export function BodiesTab() {
     if (urlBodies && urlBodies !== page) setPageState(urlBodies);
   }, [urlBodies, page]);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const setPage = useCallback(
     (next: BodiesPage) => {
       setPageState(next);
+      // The new page starts at its top, tabs and all (the old offset left a shorter page scrolled past them).
+      if (scrollRef.current) scrollRef.current.scrollTop = 0;
       saveBodiesPage(next);
       void navigate({
         to: "/",
@@ -105,48 +109,52 @@ export function BodiesTab() {
 
   return (
     <div
+      ref={scrollRef}
       data-testid="bodies-tab"
       data-bodies-page={page}
       className="ulune-dock-scroll flex min-h-0 min-w-0 flex-col gap-[var(--space-3)] px-[var(--stage-pad)] py-[var(--space-3)]"
     >
-      <div
-        ref={tabsRef}
-        className="ulune-wrap-tabs min-w-0"
-        role="tablist"
-        aria-label={t("dockBodies")}
-        onKeyDown={(e) => onTablistKeyDown(e, true)}
-      >
-        {BODIES_PAGES.map((id) => {
-          const on = page === id;
-          const badge = bodiesPageBadge(id, badgeOpts);
-          return (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              data-testid={`bodies-page-${id}`}
-              aria-selected={on}
-              tabIndex={on ? 0 : -1}
-              onClick={() => setPage(id)}
-              className={cn(
-                "inline-flex min-h-[var(--ctl-h)] items-center justify-center gap-1 px-3 text-sm",
-                on
-                  ? "ob-subtab-on"
-                  : "text-fg-muted",
-              )}
-            >
-              <span>{t(BODIES_PAGE_LABEL[id])}</span>
-              {badge ? (
-                <span
-                  data-testid={`bodies-badge-${id}`}
-                  className="shrink-0 ulune-micro tabular-nums text-fg-subtle"
-                >
-                  {badge.on}/{badge.total}
-                </span>
-              ) : null}
-            </button>
-          );
-        })}
+      {/* Stuck to the top of the scrolling panel: switching pages never leaves the pages out of sight. */}
+      <div className="ulune-dock-tabs">
+        <div
+          ref={tabsRef}
+          className="ulune-wrap-tabs min-w-0"
+          role="tablist"
+          aria-label={t("dockBodies")}
+          onKeyDown={(e) => onTablistKeyDown(e, true)}
+        >
+          {BODIES_PAGES.map((id) => {
+            const on = page === id;
+            const badge = bodiesPageBadge(id, badgeOpts);
+            return (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                data-testid={`bodies-page-${id}`}
+                aria-selected={on}
+                tabIndex={on ? 0 : -1}
+                onClick={() => setPage(id)}
+                className={cn(
+                  "inline-flex min-h-[var(--ctl-h)] items-center justify-center gap-1 px-3 text-sm",
+                  on
+                    ? "ob-subtab-on"
+                    : "text-fg-muted",
+                )}
+              >
+                <span>{t(BODIES_PAGE_LABEL[id])}</span>
+                {badge ? (
+                  <span
+                    data-testid={`bodies-badge-${id}`}
+                    className="shrink-0 ulune-micro tabular-nums text-fg-subtle"
+                  >
+                    {badge.on}/{badge.total}
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
 

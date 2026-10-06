@@ -37,9 +37,13 @@ export function LookTab() {
     if (urlLook && urlLook !== page) setPageState(urlLook);
   }, [urlLook, page]);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const setPage = useCallback(
     (next: LookPage) => {
       setPageState(next);
+      // The new page starts at its top, tabs and all (the old offset left a shorter page scrolled past them).
+      if (scrollRef.current) scrollRef.current.scrollTop = 0;
       saveLookPage(next);
       void navigate({
         to: "/",
@@ -62,39 +66,43 @@ export function LookTab() {
   useOverflowFade(tabsRef);
   return (
     <div
+      ref={scrollRef}
       data-testid="look-tab"
       data-look-page={page}
       className="ulune-dock-scroll flex min-h-0 min-w-0 flex-col gap-[var(--space-3)] px-[var(--stage-pad)] py-[var(--space-3)]"
     >
-      <div
-        ref={tabsRef}
-        className="ulune-wrap-tabs min-w-0"
-        role="tablist"
-        aria-label={t("dockLook")}
-        onKeyDown={(e) => onTablistKeyDown(e, true)}
-      >
-        {LOOK_PAGES.map((id) => {
-          const on = page === id;
-          return (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              data-testid={`look-page-${id}`}
-              aria-selected={on}
-              tabIndex={on ? 0 : -1}
-              onClick={() => setPage(id)}
-              className={cn(
-                "inline-flex min-h-[var(--ctl-h)] items-center justify-center px-3 text-sm",
-                on
-                  ? "ob-subtab-on"
-                  : "text-fg-muted",
-              )}
-            >
-              <span>{t(LOOK_PAGE_LABEL[id])}</span>
-            </button>
-          );
-        })}
+      {/* Stuck to the top of the scrolling panel: switching pages never leaves the pages out of sight. */}
+      <div className="ulune-dock-tabs">
+        <div
+          ref={tabsRef}
+          className="ulune-wrap-tabs min-w-0"
+          role="tablist"
+          aria-label={t("dockLook")}
+          onKeyDown={(e) => onTablistKeyDown(e, true)}
+        >
+          {LOOK_PAGES.map((id) => {
+            const on = page === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                data-testid={`look-page-${id}`}
+                aria-selected={on}
+                tabIndex={on ? 0 : -1}
+                onClick={() => setPage(id)}
+                className={cn(
+                  "inline-flex min-h-[var(--ctl-h)] items-center justify-center px-3 text-sm",
+                  on
+                    ? "ob-subtab-on"
+                    : "text-fg-muted",
+                )}
+              >
+                <span>{t(LOOK_PAGE_LABEL[id])}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <header className="flex flex-col gap-1">
