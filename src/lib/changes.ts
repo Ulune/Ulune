@@ -6,13 +6,22 @@
  */
 import type { LegalText } from "@/lib/legal/pages";
 
-export const CHANGES_UPDATED = "2026-10-05";
+export const CHANGES_UPDATED = "2026-10-06";
 
 export const CHANGES: Record<"en" | "fr", LegalText> = {
   en: {
     title: "What’s new",
     updated: "Updated {date}",
     blocks: [
+      {
+        h: "Ulune 1.0.4",
+        p: "Fixes to the place search, the aspect grid and the phone panel:",
+        list: [
+          "Place of birth: the exact name you type comes first; “City, Country” works (“Paris, France”), country names are understood in English and French, and “St” and “Saint” are the same place. On a phone the list follows the field instead of sitting behind the keyboard, and the phone’s contact suggestions no longer cover it. Escape closes the list and keeps what you typed.",
+          "The aspect grid beside the chart is placed from the room that is free: one cell size on every screen, never over the wheel, the zoom buttons or the time dial.",
+          "On a phone, the page tabs of Bodies and Look stay in view when you scroll or change page, instead of disappearing.",
+        ],
+      },
       {
         h: "Ulune 1.0.3",
         p: "Simpler controls, and a better fit on phones:",
@@ -101,6 +110,15 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
     title: "Nouveautés",
     updated: "Mis à jour le {date}",
     blocks: [
+      {
+        h: "Ulune 1.0.4",
+        p: "Des corrections pour la recherche du lieu, la grille des aspects et le panneau du téléphone\u202f:",
+        list: [
+          "Lieu de naissance\u202f: le nom exact que vous tapez passe en premier\u202f; « Ville, Pays » fonctionne (« Paris, France »), les noms de pays sont compris en français et en anglais, et « St » et « Saint » désignent le même lieu. Sur téléphone, la liste suit le champ au lieu de passer derrière le clavier, et les suggestions de contacts du téléphone ne la recouvrent plus. Échap ferme la liste et garde ce que vous avez tapé.",
+          "La grille des aspects à côté du thème se place selon la place libre\u202f: une seule taille de cellule sur tous les écrans, jamais sur la roue, les boutons de zoom ou le cadran du temps.",
+          "Sur téléphone, les onglets de page de Corps et d’Apparence restent visibles quand vous faites défiler ou changez de page, au lieu de disparaître.",
+        ],
+      },
       {
         h: "Ulune 1.0.3",
         p: "Des commandes plus simples, et un téléphone mieux servi\u202f:",
