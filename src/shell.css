@@ -2176,13 +2176,25 @@ html.theme-switching::view-transition-new(root) {
 
 /* The aspect grid beside a wide stage's wheel (wheel-zoom.tsx places it). */
 .ulune-wheel-aside {
+  /* The whole stage, as a layer the grid places itself in (wheel-aspect-grid.tsx); only the grid takes the pointer. */
   position: absolute;
+  inset: 0;
   z-index: 3;
-  transform: translate(-100%, -100%);
+  pointer-events: none;
+  transition: opacity 180ms var(--ease-out, ease-out);
+}
+/* The zoomed wheel covers its place: it steps aside rather than being drawn over the chart. */
+.ulune-wheel-aside[data-away] {
+  opacity: 0;
+}
+.ulune-wheel-aside[data-away] .ob-wgrid {
+  pointer-events: none;
 }
 .ob-wgrid {
-  /* Cells as big as the margin allows (16–24 px; review 3 Oct, C7: 13 px read as specks). */
-  --cell: clamp(16px, calc((var(--aside-room, 240px) - 12px) / var(--n, 12)), 24px);
+  /* The cell size is set by the grid from the room it is given (wheel-aspect-grid.tsx; 24–26 px, never under the 24 px target). */
+  --cell: 18px;
+  position: absolute;
+  pointer-events: auto;
   display: grid;
   gap: 1px;
   font: 500 9px/1 var(--font-mono);

@@ -61,7 +61,7 @@ for (const presetId of ["classic", "advanced", "all"]) {
     const shownPlanets = a.planets.filter((p) => visible.has(p.id));
     const ctx = { chart: a, visible, filter: aspectFilter, bodies: [...shownPlanets, ...Object.values(a.angles).filter((x) => visible.has(x.id))], shownPlanets, shownStars: [], shownMids: [], configMembers: null, crossAspects: null, outerAspects: null, outerKind: "transit", aspectLayer: "natal", outerBodies: [] };
     const selection = createSelectionStore(null);
-    bench("WheelAspectGrid (re-renders per wheel hover change)", () => renderToString(h(WheelAspectGrid, { rows, ctx, selection, onSelect: () => {} })), 200);
+    bench("WheelAspectGrid (re-renders per wheel hover change)", () => renderToString(h(WheelAspectGrid, { rows, ctx, selection, onSelect: () => {}, room: { top: 8, right: 1100, bottom: 800, maxSize: 600, circle: { cx: 450, cy: 400, r: 400 }, bar: null, report: () => {} } })), 200);
   } catch (e) {
     console.log("WheelAspectGrid failed:", e.message.split("\n")[0]);
   }

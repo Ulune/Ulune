@@ -2268,11 +2268,13 @@ const ChartWheelView = memo(function ChartWheelView({
       onFit={setFit}
       legend={<AspectStrip rows={stripRows} hidden={hiddenTypes} ctx={focusCtx} selection={selection} />}
       aside={
-        biWheel ? null : (
-          <Suspense fallback={null}>
-            <LazyAspectGrid rows={gridRows} shown={shownBodyIds} ctx={focusCtx} selection={selection} onSelect={onSelect} />
-          </Suspense>
-        )
+        biWheel
+          ? null
+          : (room) => (
+              <Suspense fallback={null}>
+                <LazyAspectGrid rows={gridRows} shown={shownBodyIds} room={room} ctx={focusCtx} selection={selection} onSelect={onSelect} />
+              </Suspense>
+            )
       }
     >
     <div className="ulune-wheel-stage relative mx-auto w-full" data-chart-pick>

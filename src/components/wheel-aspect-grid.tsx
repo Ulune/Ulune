@@ -7,6 +7,8 @@
  * column or cell here.
  */
 import { useEffect, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from "react";
+import type { AsideRoom } from "./wheel-zoom";
+import { placeGrid } from "./wheel-grid-place";
 import { ASPECT_COLOR } from "@/lib/chart/constants";
 import type { SelectionStore } from "@/lib/chart/selection-store";
 import type { AspectId, BodyId } from "@/lib/chart/types";
@@ -26,6 +28,7 @@ const ORDER = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "
 export function WheelAspectGrid({
   rows,
   shown = [],
+  room,
   ctx,
   selection,
   onSelect,
@@ -33,6 +36,8 @@ export function WheelAspectGrid({
   rows: GridRow[];
   /** The bodies on the wheel: the lights and planets among them have a row even with no aspect drawn (review 3 Oct, C7). */
   shown?: readonly string[];
+  /** What it may fill and must keep clear of (wheel-zoom.tsx): the cells are as big as that allows, one size for every row and column. */
+  room: AsideRoom;
   ctx: WheelFocusCtx;
   selection: SelectionStore;
   onSelect: (id: string) => void;
@@ -121,8 +126,27 @@ export function WheelAspectGrid({
     return m;
   }, [rows]);
   const focus = useMemo(() => (pinned ? resolveWheelFocus(pinned, ctx) : null), [pinned, ctx]);
-  if (bodies.length < 2 || bodies.length > 16) return null;
   const n = bodies.length;
+  const placed = useMemo(
+    () => (n >= 2 && n <= 16 ? placeGrid(n, room) : null),
+    // The room's numbers, not its identity: the layer re-renders with a new object each time.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [n, room.top, room.right, room.bottom, room.maxSize, room.circle.cx, room.circle.cy, room.circle.r, room.bar?.l, room.bar?.t, room.bar?.r, room.bar?.b],
+  );
+  const { report } = room;
+  const placedLeft = placed?.left;
+  const placedTop = placed?.top;
+  const placedSize = placed?.size;
+  // Say where the grid stands, for the zoomed wheel to know whether it covers it.
+  useLayoutEffect(() => {
+    if (placedLeft === undefined || placedTop === undefined || placedSize === undefined) {
+      report(null);
+      return;
+    }
+    report({ l: placedLeft, t: placedTop, r: placedLeft + placedSize, b: placedTop + placedSize });
+    return () => report(null);
+  }, [report, placedLeft, placedTop, placedSize]);
+  if (!placed) return null;
   return (
     <div
       ref={gridRef}
@@ -132,12 +156,19 @@ export function WheelAspectGrid({
       data-testid="wheel-aspect-grid"
       data-focus={focus?.id ? "" : undefined}
       data-chart-pick
-      style={{ ["--n" as string]: n, gridTemplateColumns: `repeat(${n}, var(--cell))` }}
+      style={{
+        ["--n" as string]: n,
+        ["--cell" as string]: `${placed.cell}px`,
+        gridTemplateColumns: `repeat(${n}, ${placed.cell}px)`,
+        left: placed.left,
+        top: placed.top,
+      }}
     >
       {bodies.map((row, r) =>
         bodies.map((col, c) => {
           const key = `${row}|${col}`;
-          if (c > r) return <span key={key} className="ob-wgrid-cell" data-empty aria-hidden="true" />;
+          // The upper triangle: the staircase of bodies (the diagonal) faces the wheel (placeGrid).
+          if (c < r) return <span key={key} className="ob-wgrid-cell" data-empty aria-hidden="true" />;
           if (c === r) {
             const lit = focus?.bodies?.has(row) ? "1" : undefined;
             return (

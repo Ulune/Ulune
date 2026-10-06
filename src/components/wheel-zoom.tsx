@@ -39,8 +39,25 @@ const LEGEND_NAMES_MIN = 176;
  * in a shorter box (a phone with the sheet open) it went above the stage.
  */
 const LEGEND_SIDE_MIN_H = 320;
-/** The aside (the aspect grid) needs this much free margin right of the wheel, px. */
-const ASIDE_SIDE_MIN = 196;
+/** The aside is never taller than this share of the wheel: a companion, not a second chart. */
+const ASIDE_SHARE = 0.72;
+/** A rectangle in the stage box's own coordinates (what scrolling leaves alone). */
+export type AsideRect = { l: number; t: number; r: number; b: number };
+/**
+ * What the aside is given, all in the stage box's coordinates: the stage's edges it may use, the
+ * wheel's disc it must stay clear of, the zoom bar (when it stands in the stage) it must not
+ * touch, and `report`, by which it says where it finally stands (so the zoomed wheel can tell
+ * whether it covers it).
+ */
+export type AsideRoom = {
+  top: number;
+  right: number;
+  bottom: number;
+  maxSize: number;
+  circle: { cx: number; cy: number; r: number };
+  bar: AsideRect | null;
+  report: (rect: AsideRect | null) => void;
+};
 
 function clamp(n: number, lo: number, hi: number) {
   return Math.min(hi, Math.max(lo, n));
@@ -195,8 +212,12 @@ export function WheelZoom({
   tools?: ReactNode;
   /** The wheel's legend (the aspect count strip): beside the wheel when there is room, else in the stage footer. */
   legend?: ReactNode;
-  /** A companion for wide stages (the aspect grid): right of the wheel when the margin fits it, else not shown. */
-  aside?: ReactNode;
+  /**
+   * A companion for wide stages (the aspect grid), drawn in the free room right of the wheel,
+   * clear of the wheel, the zoom bar and the stage's edge: it is handed that room and sizes itself
+   * to it. It stands aside (fades out) while the zoomed wheel covers its place.
+   */
+  aside?: ((room: AsideRoom) => ReactNode) | null;
   /** The wheel's detail band changed: "sm" under FINE_TICK_D px (labels get shorter and bigger), else "lg". */
   onFit?: (fit: "sm" | "lg") => void;
 }) {
@@ -209,7 +230,13 @@ export function WheelZoom({
   /** Where the legend goes: a column in the free margin left of the wheel, or the footer. */
   const [legendAt, setLegendAt] = useState<{ x: number; y: number; names: boolean } | null>(null);
   /** Where the aside goes: the free margin right of the wheel, bottom corner (null: no room). */
-  const [asideAt, setAsideAt] = useState<{ x: number; y: number; room: number } | null>(null);
+  const [asideRoom, setAsideRoom] = useState<Omit<AsideRoom, "report"> | null>(null);
+  const asideElRef = useRef<HTMLDivElement | null>(null);
+  /** Where the aside stands (it reports it), in the stage box's coordinates. */
+  const asideRectRef = useRef<AsideRect | null>(null);
+  const barElRef = useRef<HTMLDivElement | null>(null);
+  /** The wheel's place in the outer box's own coordinates (not the screen's: scrolling leaves them as they are). */
+  const geomRef = useRef<{ cx: number; cy: number; d: number; top: number; right: number; bottom: number } | null>(null);
   const outerRef = useRef<HTMLDivElement>(null);
   const lensRef = useRef(lens);
   lensRef.current = lens;
@@ -237,6 +264,66 @@ export function WheelZoom({
   const fitRef = useRef<Pt>({ x: 0, y: 0 });
 
   const glideTimer = useRef(0);
+
+  /**
+   * Is the aside's place free? The zoomed wheel (or the 3D lens) can cover it: then it steps
+   * aside (fades, ignores the pointer) rather than being drawn over the chart.
+   */
+  const syncAside = useCallback(() => {
+    const el = asideElRef.current;
+    const port = portRef.current;
+    const inner = innerRef.current;
+    const outer = outerRef.current;
+    const at = asideRectRef.current;
+    if (!el || !port || !inner || !outer || !at) return;
+    let clear = true;
+    const l = lensRef.current;
+    if (l) {
+      clear = l.zoom <= l.min + 0.001;
+    } else if (zoomRef.current > ZOOM_MIN + 0.001) {
+      const or = outer.getBoundingClientRect();
+      const pr = port.getBoundingClientRect();
+      const { x: fx, y: fy } = fitRef.current;
+      const { x: px, y: py } = panRef.current;
+      const cx = pr.left + pr.width / 2 + fx + px - or.left;
+      const cy = pr.top + pr.height / 2 + fy + py - or.top;
+      const R = (inner.offsetWidth * zoomRef.current) / 2 + 10;
+      clear = Math.hypot(clamp(cx, at.l, at.r) - cx, clamp(cy, at.t, at.b) - cy) >= R;
+    }
+    if (clear) el.removeAttribute("data-away");
+    else el.setAttribute("data-away", "");
+  }, []);
+
+  const reportAside = useCallback(
+    (rect: AsideRect | null) => {
+      asideRectRef.current = rect;
+      syncAside();
+    },
+    [syncAside],
+  );
+
+  /**
+   * The aside's room (what it may fill and must keep clear of), from where the wheel stands and
+   * where the zoom bar is (a bar in the corner or one in the stage's own slot).
+   */
+  const placeAside = useCallback(() => {
+    const g = geomRef.current;
+    const outer = outerRef.current;
+    if (!g || !outer) return;
+    const or = outer.getBoundingClientRect();
+    const b = barElRef.current?.getBoundingClientRect();
+    const bar = b && b.width > 0 && b.height > 0 ? { l: Math.round(b.left - or.left), t: Math.round(b.top - or.top), r: Math.round(b.right - or.left), b: Math.round(b.bottom - or.top) } : null;
+    const next = {
+      top: Math.round(g.top),
+      right: Math.round(g.right),
+      bottom: Math.round(g.bottom),
+      maxSize: Math.round(g.d * ASIDE_SHARE),
+      circle: { cx: Math.round(g.cx), cy: Math.round(g.cy), r: Math.round(g.d / 2) },
+      bar,
+    };
+    setAsideRoom((cur) => (cur && JSON.stringify(cur) === JSON.stringify(next) ? cur : next));
+  }, []);
+
   /**
    * Place the wheel. "glide" eases there (the zoom buttons and Fit: a
    * cinematic move); "direct" follows at once (pinch, pan, wheel), cutting any
@@ -259,7 +346,8 @@ export function WheelZoom({
       el.style.transition = "";
     }
     el.style.transform = `translate3d(${x + fit.x}px, ${y + fit.y}px, 0) scale(${zoomRef.current})`;
-  }, []);
+    syncAside();
+  }, [syncAside]);
 
   const setZoomNow = useCallback(
     (next: number, how: "glide" | "direct" = "direct") => {
@@ -342,13 +430,23 @@ export function WheelZoom({
         const next = { x: Math.round(box.l - or.left + 12), y: Math.round(foot - or.top - 8), names: side >= LEGEND_NAMES_MIN };
         return cur && cur.x === next.x && cur.y === next.y && cur.names === next.names ? cur : next;
       });
-      // The aside mirrors it bottom-right, where a margin that wide is free.
-      setAsideAt((cur) => {
-        if (!or || side < (cur ? ASIDE_SIDE_MIN - 8 : ASIDE_SIDE_MIN)) return null;
+      // The aside mirrors it on the right: its room is worked out from where the wheel
+      // stands (placeAside), clear of the bar and the edges.
+      if (or) {
         const foot = Math.min(box.b, (box.t + box.b) / 2 + d / 2);
-        const next = { x: Math.round(box.r - or.left - 12), y: Math.round(foot - or.top - 8), room: Math.round(side - 24) };
-        return cur && cur.x === next.x && cur.y === next.y && cur.room === next.room ? cur : next;
-      });
+        geomRef.current = {
+          cx: (box.l + box.r) / 2 - or.left,
+          cy: (box.t + box.b) / 2 - or.top,
+          d,
+          top: box.t - or.top + 8,
+          right: box.r - or.left - 12,
+          bottom: foot - or.top - 8,
+        };
+        placeAside();
+      } else {
+        geomRef.current = null;
+        setAsideRoom(null);
+      }
       // Detail band for the wheel: below this the 1° ticks are closer together
       // than they are wide, so styles.css drops them.
       const fitBand = d < FINE_TICK_D ? "sm" : "lg";
@@ -381,7 +479,13 @@ export function WheelZoom({
       window.removeEventListener("resize", schedule);
       port.removeEventListener("ulune:refit", applySize);
     };
-  }, [paint]);
+  }, [paint, placeAside]);
+
+  // The bar or the lens changed (a render): the aside's room and whether it is covered are asked again.
+  useEffect(() => {
+    placeAside();
+    syncAside();
+  });
 
   useEffect(() => {
     const el = portRef.current;
@@ -552,6 +656,7 @@ export function WheelZoom({
 
   const bar = (
     <div
+      ref={barElRef}
       className="ulune-wheel-zoom-bar"
       data-testid="wheel-zoom-bar"
       data-zoomed={zoomed ? "" : undefined}
@@ -643,13 +748,9 @@ export function WheelZoom({
           )
         : null}
       {legendEl}
-      {aside && asideAt ? (
-        <div
-          className="ulune-wheel-aside"
-          style={{ left: `${asideAt.x}px`, top: `${asideAt.y}px`, ["--aside-room" as string]: `${asideAt.room}px` }}
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          {aside}
+      {aside && asideRoom ? (
+        <div ref={asideElRef} className="ulune-wheel-aside" data-testid="wheel-aside" onPointerDown={(e) => e.stopPropagation()}>
+          {aside({ ...asideRoom, report: reportAside })}
         </div>
       ) : null}
     </div>
