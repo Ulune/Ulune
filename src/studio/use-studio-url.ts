@@ -16,7 +16,7 @@ import { coerceBodiesPage } from "@/studio/bodies-pages";
 import { coerceLookPage } from "@/studio/look-pages";
 import { loadMode, modeReady } from "@/studio/modes/registry";
 import { swapTransition } from "@/lib/swap-transition";
-import { PAGE_ORDER, pageFromPath, rememberPage } from "@/studio/map";
+import { PAGE_ORDER, isStudioPath, pageFromPath, rememberPage } from "@/studio/map";
 import { useI18n } from "@/lib/i18n/locale";
 
 /** A switch comes from the side it moves toward, in the order of the bars (src/studio/map.ts). */
@@ -61,11 +61,17 @@ export function useStudioUrl(opts?: { hydrate?: boolean }) {
       pendingNav.current = null;
     }
     const s = useStudioStore.getState();
-    const page = urlPage ?? (hydrated.current ? s.page : loadStudioPage());
+    // `/` once the studio is on screen is the first screen, Natal: only Natal keeps that
+    // address (studioHref), so Back to it from another page means Natal again (R7: the first
+    // screen's links to the Calendar and the encyclopedia, then Back). On opening, `/`
+    // restores the page last used, which then takes its own address. An address outside the
+    // studio (the moment before it is taken down, on the way to another page) changes nothing.
+    const atRoot = isStudioPath(pathname);
+    const page = urlPage ?? (!hydrated.current ? loadStudioPage() : atRoot ? "natal" : s.page);
     const view = urlView ?? (hydrated.current ? s.view : loadStudioView());
     if (s.page !== page) s.setPage(page);
     if (s.view !== view) s.setView(view);
-  }, [urlPage, urlView, hydrate]);
+  }, [urlPage, urlView, hydrate, pathname]);
 
   useEffect(() => {
     if (!hydrate) return;

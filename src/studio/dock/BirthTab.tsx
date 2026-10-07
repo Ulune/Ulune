@@ -9,6 +9,8 @@ import { startTour } from "@/lib/tour/state";
 import { cn } from "@/lib/utils";
 import { useStudioStore } from "@/studio/store";
 import { useSpace } from "@/lib/space/state";
+import { PathLink } from "@/components/path-link";
+import { ENCYCLOPEDIA_PATHS, pagePath } from "@/studio/map";
 
 /**
  * The birth form: on the stage for a new chart or a second person, in the
@@ -167,6 +169,13 @@ export function BirthTab({
           <button type="button" data-testid="first-tour" className="ob-sample-link ob-tour-link" onClick={startTour}>
             {t("firstTour")}
           </button>
+          {/* Two other ways in, without a chart (page reorganisation, R7). */}
+          <PathLink href={locale === "fr" ? ENCYCLOPEDIA_PATHS.fr : ENCYCLOPEDIA_PATHS.en} className="ob-sample-link" data-testid="first-encyclopedia">
+            {t("firstEncyclopedia")}
+          </PathLink>
+          <PathLink href={pagePath("timing", locale)} className="ob-sample-link" data-testid="first-calendar">
+            {t("firstCalendar")}
+          </PathLink>
         </div>
       ) : null}
       {error && !composing ? (

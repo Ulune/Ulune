@@ -11,6 +11,11 @@
  *     and the mode opens after the cast;
  *   - the tour starts only from its links, walks eight steps, ends with Done,
  *     Skip or Escape, and remembers one value; its link then goes;
+ *   - under the form, besides the sample and the tour, two ways in without a
+ *     chart (R7): the encyclopedia and today's sky in the Calendar, at each
+ *     language's address;
+ *   - the account menu in its order: the private space, Settings, the guide,
+ *     the tour, What's new, then the language and the theme;
  *   - "New chart" after a cast is the plain form, without the guide;
  *   - /guide stays out of search and sends the tour back to the studio.
  */
@@ -58,6 +63,18 @@ async function firstVisit(width) {
     if (heads.h1.length !== 1 || heads.h1[0] !== "Cast a birth chart") throw new Error(`h1: ${JSON.stringify(heads.h1)}`);
     if (JSON.stringify(heads.h2) !== JSON.stringify(SECTIONS_EN)) throw new Error(`guide sections: ${JSON.stringify(heads.h2)}`);
     if (heads.firstField !== "native-name") throw new Error(`first field: ${heads.firstField}`);
+    // Two ways in without a chart, under the form (R7).
+    const ways = await page.evaluate(() =>
+      ["first-encyclopedia", "first-calendar"].map((id) => {
+        const a = document.querySelector(`[data-testid=${id}]`);
+        return a ? { href: a.getAttribute("href"), text: a.textContent.trim(), shown: a.getClientRects().length > 0 } : null;
+      }),
+    );
+    const wantWays = [
+      { href: "/encyclopedia", text: "Browse the encyclopedia", shown: true },
+      { href: "/calendar", text: "See today’s sky in the Calendar", shown: true },
+    ];
+    if (JSON.stringify(ways) !== JSON.stringify(wantWays)) throw new Error(`the ways in under the form: ${JSON.stringify(ways)}`);
     // The first Tab stop goes straight to the form.
     await page.keyboard.press("Tab");
     const skip = await page.evaluate(() => ({ id: document.activeElement?.getAttribute("data-testid"), text: document.activeElement?.textContent }));
@@ -175,9 +192,21 @@ async function otherStates() {
     if (await page.getByTestId("guide").count()) throw new Error("the guide shows under New chart");
     const title = (await page.getByTestId("birth-title").innerText()).trim();
     if (title !== "New chart") throw new Error(`New chart title: "${title}"`);
-    // The menu has the guide and the tour.
+    // The menu, in its order (R7): the private space, Settings, the guide, the tour, What's new, then the language and the theme.
     await openMenu(page);
-    for (const id of ["menu-guide", "menu-tour"]) if (!(await page.getByTestId(id).count())) throw new Error(`${id} missing`);
+    const order = await page.evaluate(() =>
+      [...document.querySelectorAll("[data-testid=account-menu-panel] [data-testid^=menu-], [data-testid=account-menu-panel] .ob-menu-row .ob-menu-label")]
+        .map((el) => el.getAttribute("data-testid") ?? el.textContent.trim())
+        .filter((id) => id !== "menu-kept"),
+    );
+    const want = ["menu-space", "menu-settings", "menu-guide", "menu-tour", "menu-changes", "Language", "Appearance"];
+    if (JSON.stringify(order) !== JSON.stringify(want)) throw new Error(`menu order: ${JSON.stringify(order)}`);
+    if ((await page.getByTestId("menu-changes").getAttribute("href")) !== "/changes") throw new Error("What's new does not lead to /changes");
+    // The private space item opens the way in (here: sign in, nothing kept yet).
+    await page.getByTestId("menu-space").click();
+    await page.getByTestId("space-sheet").waitFor({ timeout: 10000 });
+    await page.keyboard.press("Escape");
+    await page.getByTestId("space-sheet").waitFor({ state: "detached", timeout: 10000 });
     // /guide: out of search; its tour link brings the tour to the studio, not in the address.
     await gotoApp(page, "/guide");
     const robots = await page.locator('meta[name="robots"]').getAttribute("content");
@@ -193,8 +222,35 @@ async function otherStates() {
   }
 }
 
+/** The ways in without a chart, in French and at work: their addresses, and the Calendar's sky. */
+async function waysIn() {
+  const { browser, page } = await launch(1280);
+  const errors = watch(page);
+  try {
+    await gotoApp(page);
+    await page.waitForSelector("#native-name", { timeout: 20000 });
+    await setLang(page, "fr");
+    const fr = await page.evaluate(() => ["first-encyclopedia", "first-calendar"].map((id) => document.querySelector(`[data-testid=${id}]`)?.getAttribute("href")));
+    if (JSON.stringify(fr) !== JSON.stringify(["/encyclopedie", "/calendrier"])) throw new Error(`French addresses: ${JSON.stringify(fr)}`);
+    await setLang(page, "en");
+    await page.getByTestId("first-calendar").click();
+    await page.waitForURL(/\/calendar$/, { timeout: 15000 });
+    await page.getByTestId("timing-caption").waitFor({ timeout: 20000 });
+    await page.goBack();
+    await page.waitForSelector("#native-name", { timeout: 20000 });
+    await page.getByTestId("first-encyclopedia").click();
+    await page.waitForURL(/\/encyclopedia$/, { timeout: 15000 });
+    await page.getByTestId("enc-home").waitFor({ timeout: 20000 });
+    if (errors.length) throw new Error(`console: ${errors.join(" | ")}`);
+    console.log("ways in OK");
+  } finally {
+    await browser.close();
+  }
+}
+
 await ensureShotsDir();
 for (const w of [1280, 390, { width: 320, height: 640 }]) await firstVisit(w);
+await waysIn();
 for (const w of [1280, 390]) await tour(w);
 await otherStates();
 console.log("FIRST SCREEN OK", DEV);

@@ -23,6 +23,9 @@ export const guide = {
     "Voir un thème d’exemple (1er janv. 2000, midi, Greenwich)",
   ],
   firstTour: ["Take the tour (1 min)", "Faire la visite (1 min)"],
+  // Under the first screen's form, two ways in without a chart (page reorganisation, R7).
+  firstEncyclopedia: ["Browse the encyclopedia", "Parcourir l’encyclopédie"],
+  firstCalendar: ["See today’s sky in the Calendar", "Voir le ciel du jour dans le calendrier"],
   noScript: ["Ulune needs JavaScript to draw charts.", "Ulune a besoin de JavaScript pour tracer les thèmes."],
   skipToForm: ["Skip to the form", "Aller au formulaire"],
   skipToChart: ["Skip to the chart", "Aller au thème"],
