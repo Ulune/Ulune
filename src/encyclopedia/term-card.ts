@@ -41,6 +41,8 @@ let openTimer = 0;
 let closeTimer = 0;
 /** Each request to show a card; an older one still loading is dropped. */
 let ticket = 0;
+/** Each click (follow); only a newer click drops an older one. */
+let follows = 0;
 
 async function entryOf(id: string, lang: Lang): Promise<Entry | null> {
   const index = await loadIndex();
@@ -82,9 +84,12 @@ export function blur(): void {
 /** A click on a computer: the page when there is one, else the card, kept open. */
 export async function follow(o: TermOpts): Promise<void> {
   const t = ++ticket;
+  // A click is only overtaken by another click: a hover that starts while
+  // the index loads (the row under the word redrawn, say) must not swallow it.
+  const f = ++follows;
   window.clearTimeout(openTimer);
   const e = await entryOf(o.id, o.lang).catch(() => null);
-  if (t !== ticket) return;
+  if (f !== follows) return;
   if (!e) {
     // The index could not be read (offline): the address the link names.
     if (o.slug !== null) o.go(ENC_BASE[o.lang] + "/" + (o.slug ?? o.id));
@@ -93,7 +98,7 @@ export async function follow(o: TermOpts): Promise<void> {
   if (e.href) {
     close();
     o.go(e.href);
-  } else void show(o, t, "pinned", e);
+  } else if (t === ticket) void show(o, t, "pinned", e);
 }
 
 /** A tap on a phone: the card as a sheet. */

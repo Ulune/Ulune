@@ -76,6 +76,11 @@
   font-size: 56px;
   line-height: 1;
 }
+.ob-enc-glyph--long {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-variant-numeric: tabular-nums;
+}
 .ob-enc-hero {
   max-width: 720px;
   margin: 4px 0 24px;
@@ -291,6 +296,12 @@
   font-family: var(--font-glyphs);
   font-size: 18px;
   line-height: 1;
+}
+.ob-enc-mark--long {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 .ob-enc-mark--letter {
   color: var(--color-fg-muted);

@@ -144,10 +144,15 @@ export function Licence({ lang }: { lang: Lang }) {
   );
 }
 
-/** A glyph, or the name's first letter where the entry has none. */
+/**
+ * A glyph, or the name's first letter where the entry has none. A glyph of
+ * more than two characters (a profile "1/3", a channel "64–47") is set
+ * smaller so it fits the square.
+ */
 export function Mark({ glyph, title }: { glyph: string; title: string }) {
+  const cls = !glyph ? "ob-enc-mark ob-enc-mark--letter" : [...glyph].length > 2 ? "ob-enc-mark ob-enc-mark--long" : "ob-enc-mark";
   return (
-    <span className={glyph ? "ob-enc-mark" : "ob-enc-mark ob-enc-mark--letter"} aria-hidden="true">
+    <span className={cls} aria-hidden="true">
       {glyph || title.charAt(0)}
     </span>
   );

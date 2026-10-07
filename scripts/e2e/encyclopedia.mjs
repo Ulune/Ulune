@@ -100,7 +100,7 @@ await ensureShotsDir();
     const rows = await page.locator("[data-testid=enc-az] li[data-entry]").count();
     if (rows < 69) fail(`A–Z lists ${rows} entries`);
     if ((await page.locator('[data-testid=enc-az] li[data-entry="retrograde"] a').getAttribute("href")) !== "/encyclopedia/retrograde") fail("A–Z: Retrograde is not a link to its page");
-    if ((await page.locator('[data-testid=enc-az] li[data-entry="hd-gate"] button[data-term="hd-gate"]').count()) !== 1) fail("A–Z: Gate (Human Design) is not a card");
+    if ((await page.locator('[data-testid=enc-az] li[data-entry="master-numbers"] button[data-term="master-numbers"]').count()) !== 1) fail("A–Z: Master numbers (numerology) is not a card");
     await page.locator("[data-testid=enc-letters] a", { hasText: /^D$/ }).click();
     await page.waitForFunction(() => location.hash === "#az-d", null, { timeout: 4000 });
     const top = await page.locator("#az-d").evaluate((el) => el.getBoundingClientRect().top);
@@ -166,11 +166,11 @@ await ensureShotsDir();
     if ((await word.getAttribute("aria-describedby")) !== "ob-term-card-text") fail("card: the word is not described by it");
     await page.mouse.move(5, 5);
     await card.waitFor({ state: "detached", timeout: 4000 });
-    // A card only (a Human Design word linked from the Transit page): the card, without "Read the full page".
+    // A card only (a numerology word linked from the Transit page): the card, without "Read the full page".
     {
       const other = await page.context().browser().newPage({ viewport: { width: 1280, height: 900 } });
       await gotoApp(other, "/encyclopedia/transit");
-      const cardOnly = other.locator('[data-section=traditions] [data-term="hd-gate"]').first();
+      const cardOnly = other.locator('[data-section=traditions] [data-term="personal-cycles"]').first();
       await cardOnly.scrollIntoViewIfNeeded();
       await cardOnly.hover();
       const otherCard = other.getByTestId("term-card");
@@ -281,7 +281,7 @@ await ensureShotsDir();
     await page.goto(`${DEV}/encyclopedia?q=retrogarde`, { waitUntil: "load" });
     if ((await page.locator('[data-testid=enc-results] [data-entry="retrograde"]').count()) !== 1) fail("no JavaScript: the search did not answer");
     // A card only, and an unknown address: not found, 404.
-    for (const p of ["/encyclopedia/gate", "/encyclopedie/nothing-here"]) {
+    for (const p of ["/encyclopedia/master-numbers", "/encyclopedie/nothing-here"]) {
       const lost = await page.goto(`${DEV}${p}`, { waitUntil: "load" });
       if (lost?.status() !== 404) fail(`${p}: ${lost?.status()}, not 404`);
       if ((await page.locator('meta[name="robots"]').getAttribute("content")) !== "noindex") fail(`${p}: not kept out of search`);

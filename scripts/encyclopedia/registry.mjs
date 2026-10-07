@@ -223,9 +223,54 @@ export const FAMILIES = {
       ],
     },
     {
+      id: "types",
+      name: { en: "Types", fr: "Types" },
+      order: ["hd-manifestor", "hd-generator", "hd-manifesting-generator", "hd-projector", "hd-reflector"],
+    },
+    {
+      id: "authorities",
+      name: { en: "Authorities", fr: "Autorités" },
+      order: ["hd-authority-emotional", "hd-authority-sacral", "hd-authority-splenic", "hd-authority-ego", "hd-authority-self-projected", "hd-authority-mental", "hd-authority-lunar"],
+    },
+    {
+      id: "profiles",
+      name: { en: "Lines and profiles", fr: "Lignes et profils" },
+      order: ["hd-line-1", "hd-line-2", "hd-line-3", "hd-line-4", "hd-line-5", "hd-line-6", "hd-profile-1-3", "hd-profile-1-4", "hd-profile-2-4", "hd-profile-2-5", "hd-profile-3-5", "hd-profile-3-6", "hd-profile-4-6", "hd-profile-4-1", "hd-profile-5-1", "hd-profile-5-2", "hd-profile-6-2", "hd-profile-6-3"],
+    },
+    {
       id: "bodygraph",
       name: { en: "The bodygraph", fr: "Le bodygraph" },
       order: ["hd-layers", "hd-centres", "hd-undefined-open", "hd-gate", "hd-line", "hd-channel", "hd-hanging"],
+    },
+    {
+      id: "centres",
+      name: { en: "Centres", fr: "Centres" },
+      order: ["hd-centre-head", "hd-centre-ajna", "hd-centre-throat", "hd-centre-g", "hd-centre-heart", "hd-centre-sacral", "hd-centre-solar-plexus", "hd-centre-spleen", "hd-centre-root"],
+    },
+    {
+      id: "gates",
+      name: { en: "Gates", fr: "Portes" },
+      order: ["hd-gate-1", "hd-gate-2", "hd-gate-3", "hd-gate-4", "hd-gate-5", "hd-gate-6", "hd-gate-7", "hd-gate-8", "hd-gate-9", "hd-gate-10", "hd-gate-11", "hd-gate-12", "hd-gate-13", "hd-gate-14", "hd-gate-15", "hd-gate-16", "hd-gate-17", "hd-gate-18", "hd-gate-19", "hd-gate-20", "hd-gate-21", "hd-gate-22", "hd-gate-23", "hd-gate-24", "hd-gate-25", "hd-gate-26", "hd-gate-27", "hd-gate-28", "hd-gate-29", "hd-gate-30", "hd-gate-31", "hd-gate-32", "hd-gate-33", "hd-gate-34", "hd-gate-35", "hd-gate-36", "hd-gate-37", "hd-gate-38", "hd-gate-39", "hd-gate-40", "hd-gate-41", "hd-gate-42", "hd-gate-43", "hd-gate-44", "hd-gate-45", "hd-gate-46", "hd-gate-47", "hd-gate-48", "hd-gate-49", "hd-gate-50", "hd-gate-51", "hd-gate-52", "hd-gate-53", "hd-gate-54", "hd-gate-55", "hd-gate-56", "hd-gate-57", "hd-gate-58", "hd-gate-59", "hd-gate-60", "hd-gate-61", "hd-gate-62", "hd-gate-63", "hd-gate-64"],
+    },
+    {
+      id: "channels",
+      name: { en: "Channels", fr: "Canaux" },
+      order: ["hd-channel-64-47", "hd-channel-61-24", "hd-channel-63-4", "hd-channel-17-62", "hd-channel-43-23", "hd-channel-11-56", "hd-channel-16-48", "hd-channel-20-57", "hd-channel-34-20", "hd-channel-10-20", "hd-channel-31-7", "hd-channel-8-1", "hd-channel-33-13", "hd-channel-45-21", "hd-channel-12-22", "hd-channel-35-36", "hd-channel-10-57", "hd-channel-10-34", "hd-channel-25-51", "hd-channel-15-5", "hd-channel-2-14", "hd-channel-46-29", "hd-channel-44-26", "hd-channel-40-37", "hd-channel-50-27", "hd-channel-32-54", "hd-channel-28-38", "hd-channel-18-58", "hd-channel-34-57", "hd-channel-59-6", "hd-channel-9-52", "hd-channel-3-60", "hd-channel-42-53", "hd-channel-19-49", "hd-channel-39-55", "hd-channel-41-30"],
+    },
+    {
+      id: "circuits",
+      name: { en: "Circuits", fr: "Circuits" },
+      order: ["hd-circuit-individual", "hd-circuit-knowing", "hd-circuit-centering", "hd-circuit-collective", "hd-circuit-logic", "hd-circuit-sensing", "hd-circuit-tribal", "hd-circuit-ego", "hd-circuit-defense", "hd-circuit-integration"],
+    },
+    {
+      id: "variables",
+      name: { en: "Variables", fr: "Variables" },
+      order: ["hd-arrow-determination", "hd-arrow-environment", "hd-arrow-perspective", "hd-arrow-motivation"],
+    },
+    {
+      id: "crosses",
+      name: { en: "Crosses", fr: "Croix" },
+      order: ["hd-cross-right-angle", "hd-cross-juxtaposition", "hd-cross-left-angle"],
     },
   ],
   numerology: [

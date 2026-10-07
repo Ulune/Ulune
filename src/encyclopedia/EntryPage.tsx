@@ -77,7 +77,7 @@ export function EntryPage({ page }: { page: PageData }) {
       <article className="ob-enc-article" data-entry={page.id}>
         <header className="ob-enc-head">
           {page.glyph ? (
-            <span className="ob-enc-glyph" aria-hidden="true">
+            <span className={[...page.glyph].length > 2 ? "ob-enc-glyph ob-enc-glyph--long" : "ob-enc-glyph"} aria-hidden="true">
               {page.glyph}
             </span>
           ) : null}
