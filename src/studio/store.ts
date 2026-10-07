@@ -22,8 +22,8 @@ import { aiFailureText } from "@/lib/ai/failure-text";
 import { personalWords, type Hidden } from "@/lib/ai/scrub";
 import { translate, type AppLocale } from "@/lib/i18n/messages";
 import { errorForState } from "@/lib/i18n/errors";
-import { loadDockOpen, saveDockOpen } from "@/studio/dock/dock-layout";
-import { loadStudioView, type StudioPage, type StudioView } from "@/studio/url";
+import { saveDockOpen } from "@/studio/dock/dock-layout";
+import type { StudioPage, StudioView } from "@/studio/url";
 
 export type DockTab = "reading" | "bodies" | "look" | "birth";
 
@@ -243,9 +243,14 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   page: "natal",
   navPage: null,
   calendarAt: null,
-  view: loadStudioView(),
+  // The server's defaults: the server draws the wheel with the panel open, and
+  // the first render here must match it or React throws the page's HTML away
+  // (a reader who left the table view or the panel closed saw the page drawn
+  // twice). The saved view is applied after the first render by useStudioUrl,
+  // the panel's state by useLibraryBoot, both before the page is painted.
+  view: "wheel",
   dock: "birth",
-  dockOpen: loadDockOpen(),
+  dockOpen: true,
   time: { at: Date.now(), live: true, spanOrigin: Date.now(), progressionTarget: Date.now() },
   pair: { partnerId: null, compositePartnerId: null, addingPartnerFor: null, anchorId: null, compositeKind: "composite" },
 

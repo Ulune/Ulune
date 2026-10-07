@@ -5,6 +5,7 @@ import { hasLegacyData } from "@/lib/space/legacy";
 import { useSpace } from "@/lib/space/state";
 import { finishLibraryBoot, joinSpace } from "@/studio/space-sync";
 import { hydratePair, studioFlags, useStudioStore } from "@/studio/store";
+import { loadDockOpen } from "@/studio/dock/dock-layout";
 
 /**
  * The studio's library as the page opens, before the first paint so a
@@ -19,6 +20,9 @@ export function useLibraryBoot() {
   const activeId = useStudioStore((s) => s.activeId);
 
   useLayoutEffect(() => {
+    // The panel as the reader left it, once the server's page is hydrated (store.ts starts it open, as the server draws it).
+    const open = loadDockOpen();
+    if (useStudioStore.getState().dockOpen !== open) useStudioStore.setState({ dockOpen: open });
     let restored = loadLocalLibrary();
     if (!restored.rows.length && hasLegacyData()) {
       const legacy = readLegacyLibrary();
