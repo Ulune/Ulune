@@ -196,8 +196,8 @@ export const HD_GATE_TEXT: Record<number, HdText> = {
   27: {
     name: { en: "Caring", fr: "Prendre soin" },
     what: {
-      en: "Gate 27 sits in the Sacral centre (hexagram 27, Nourishment). It is the energy to care for, feed and protect others. Defined, it often shows as the person who cooks for everyone, looks after an ageing parent or checks that colleagues are coping. It works best when they also count themselves among the people who need looking after.",
-      fr: "La porte 27 se trouve dans le centre Sacral et correspond à l’hexagramme 27, La Nourriture. C’est l’énergie de prendre soin des autres, de les nourrir et de les protéger. Définie, elle se voit souvent chez la personne qui cuisine pour tout le monde, s’occupe d’un parent âgé ou vérifie que ses collègues tiennent le coup. Elle fonctionne mieux quand cette personne se compte aussi parmi ceux dont il faut s’occuper.",
+      en: "Gate 27 sits in the Sacral centre (hexagram 27, The Corners of the Mouth, or Providing Nourishment). It is the energy to care for, feed and protect others. Defined, it often shows as the person who cooks for everyone, looks after an ageing parent or checks that colleagues are coping. It works best when they also count themselves among the people who need looking after.",
+      fr: "La porte 27 se trouve dans le centre Sacral et correspond à l’hexagramme 27, Les Commissures des lèvres, ou La Nourriture. C’est l’énergie de prendre soin des autres, de les nourrir et de les protéger. Définie, elle se voit souvent chez la personne qui cuisine pour tout le monde, s’occupe d’un parent âgé ou vérifie que ses collègues tiennent le coup. Elle fonctionne mieux quand cette personne se compte aussi parmi ceux dont il faut s’occuper.",
     },
   },
   28: {

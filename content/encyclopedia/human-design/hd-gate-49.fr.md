@@ -51,7 +51,7 @@ Un Plexus solaire défini donne dans Ulune une [[hd-authority-emotional|autorit�
 - La porte 49 est la 4e, de 18°52′30″ à 24°30′00″ Verseau (de 318,875° à 324,5°). Ses six lignes mesurent 0°56′15″ et commencent à 18°52′30″, 19°48′45″, 20°45′00″, 21°41′15″, 22°37′30″ et 23°33′45″ Verseau.
 - Ulune lit treize corps à la naissance, puis quand le Soleil se trouvait exactement 88° en arrière. Le Soleil, la Terre, la Lune, les vrais Nœuds et les planètes de Mercure à Pluton colorent chacun la porte où ils se trouvent.
 - Quand la porte 19 est colorée elle aussi, à l’un ou l’autre moment, le canal 19–49 est défini. Ulune indique si ses portes viennent de la Personnalité, du Design ou des deux.
-- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit de l’explication 1. Le profil 4/1 donne la Croix de juxtaposition des principes. Les profils 5/1 à 6/3 donnent la Croix de l’angle ouvert de la révolution 1.
+- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit de l’explication 1. Le profil 4/1 donne la Croix de juxtaposition des principes. Les profils 5/1 à 6/3 donnent la Croix de l’angle gauche de la révolution 1.
 
 ## Correspondances
 

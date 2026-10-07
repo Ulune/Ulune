@@ -10,6 +10,7 @@ import { hdActId } from "./hd-rows";
 import { HD_BODY_IDS, type HdUncertain, type HumanDesignChart } from "./human-design";
 
 const KEYS = ["type", "strategy", "authority", "profile", "definition"] as const;
+const PROFILE_ORDER = ["1/3", "1/4", "2/4", "2/5", "3/5", "3/6", "4/6", "4/1", "5/1", "5/2", "6/2", "6/3"];
 
 export function hdUncertainOf(main: HumanDesignChart, others: readonly HumanDesignChart[], spanMinutes: number): HdUncertain {
   const rows = new Set<string>();
@@ -37,10 +38,14 @@ export function hdUncertainOf(main: HumanDesignChart, others: readonly HumanDesi
     }
   }
   const order = (list: Set<string>, all: readonly string[]) => all.filter((x) => list.has(x));
+  // The profiles of the day in the order the Sun brings them (1/3 → 1/4 → 2/4 …), the noon one first.
+  const otherProfiles = [...new Set(others.map((o) => o.profile))].filter((p) => p !== main.profile && p !== "—");
+  otherProfiles.sort((a, b) => PROFILE_ORDER.indexOf(a) - PROFILE_ORDER.indexOf(b));
   return {
     spanMinutes,
     rows: [...rows],
     keys: order(keys, [...KEYS, "cross"]),
     channels: [...channels].sort(),
+    profiles: [main.profile, ...otherProfiles],
   };
 }

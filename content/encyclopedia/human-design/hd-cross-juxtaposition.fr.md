@@ -44,7 +44,7 @@ Ulune lit le profil : la ligne du Soleil de la Personnalité, puis celle du So
 
 L’arc de 88° vaut environ 93,87 lignes. La ligne du Design ne tombe trois rangs après celle de la Personnalité que dans les derniers 0,125° d’une ligne. Dans la ligne 4, ce dernier tronçon donne le 4/1. Il représente environ trois heures de la course du Soleil dans chaque porte, à peu près 2 % de sa course.
 
-Dans ce même tronçon, le Soleil du Design vient de passer dans la porte suivante. Il se tient quinze rangs en arrière de celle du Soleil de la Personnalité, au lieu de seize. Ses quatre portes sont donc celles d’une croix d’angle gauche. La croix de juxtaposition de l’expression de soi, 1/2 | 4/49, partage ses portes avec la croix de l’angle ouvert du défi 2. Seul le profil les distingue.
+Dans ce même tronçon, le Soleil du Design vient de passer dans la porte suivante. Il se tient quinze rangs en arrière de celle du Soleil de la Personnalité, au lieu de seize. Ses quatre portes sont donc celles d’une croix d’angle gauche. La croix de juxtaposition de l’expression de soi, 1/2 | 4/49, partage ses portes avec la croix de l’angle gauche du défi 2. Seul le profil les distingue.
 
 Il y a 64 croix de juxtaposition, une par porte du Soleil de la Personnalité, et chacune a son propre nom. Ce nom fait souvent écho à celui de la porte. Ainsi, le moment présent pour la [[hd-gate-20|porte 20]], le pouvoir pour la [[hd-gate-34|porte 34]], l’expression de soi pour la [[hd-gate-1|porte 1]]. D’autres s’en écartent, comme le conducteur pour la [[hd-gate-2|porte 2]]. Les noms français d’Ulune suivent les sources françaises du Human Design, comme « Croix de juxtaposition du conducteur ».
 

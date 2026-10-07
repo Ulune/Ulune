@@ -51,7 +51,7 @@ Quand ce canal est le seul du thème, Ulune trouve un [[hd-generator|Générateu
 - La porte 50 est la 48e, de 26°22′30″ Balance à 2°00′00″ Scorpion (de 206,375° à 212°). Ses six lignes mesurent 0°56′15″ et commencent à 26°22′30″ Balance, 27°18′45″ Balance, 28°15′00″ Balance, 29°11′15″ Balance, 0°07′30″ Scorpion et 1°03′45″ Scorpion. Le changement de signe tombe dans la ligne 4.
 - Ulune lit treize corps à la naissance, puis quand le Soleil se trouvait exactement 88° en arrière. Le Soleil, la Terre, la Lune, les vrais Nœuds et les planètes de Mercure à Pluton colorent chacun la porte où ils se trouvent.
 - Quand la porte 27 est colorée elle aussi, à l’un ou l’autre moment, le canal 50–27 est défini. Ulune indique si ses portes viennent de la Personnalité, du Design ou des deux.
-- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit des lois 3. Le profil 4/1 donne la Croix de juxtaposition des valeurs. Les profils 5/1 à 6/3 donnent la Croix de l’angle ouvert des souhaits 2.
+- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit des lois 3. Le profil 4/1 donne la Croix de juxtaposition des valeurs. Les profils 5/1 à 6/3 donnent la Croix de l’angle gauche des souhaits 2.
 
 ## Correspondances
 

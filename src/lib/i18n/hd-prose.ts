@@ -157,8 +157,8 @@ const TYPE: Record<HdType, Pair> = {
     fr: "Les Projecteurs ont un Sacral indéfini et aucun moteur relié à la Gorge\u202f: ils n’ont donc pas d’énergie de travail régulière qui leur soit propre\u202f; environ une personne sur cinq est Projecteur. Leur force est de voir comment fonctionnent les personnes et les systèmes, ce qui en fait des guides, des conseillers et des managers naturels. Ce regard porte quand il est reconnu et invité. Le Human Design voit le succès comme le signe qu’ils sont sur la bonne voie, et l’amertume comme le signe inverse.",
   },
   Reflector: {
-    en: "Reflectors have no defined centres at all, which makes them the rarest type, about one person in a hundred. They take in and reflect the energy of the people and places around them, so their environment matters more than for anyone else. Big decisions ripen over a full lunar cycle of about 29 days. Human Design names surprise as the sign they are on track, and disappointment as the sign they are not.",
-    fr: "Les Réflecteurs n’ont aucun centre défini, ce qui en fait le type le plus rare, environ une personne sur cent. Ils absorbent et reflètent l’énergie des personnes et des lieux qui les entourent\u202f: leur environnement compte plus que pour quiconque. Les grandes décisions mûrissent sur un cycle lunaire complet, environ 29 jours. Le Human Design voit la surprise comme le signe qu’ils sont sur la bonne voie, et la déception comme le signe inverse.",
+    en: "Reflectors have no defined centres at all, which makes them the rarest type, about one person in a hundred. They take in and reflect the energy of the people and places around them, so their environment matters more than for anyone else. Big decisions ripen over a full lunar cycle of about four weeks, the time the Moon takes to pass through all 64 gates. Human Design names surprise as the sign they are on track, and disappointment as the sign they are not.",
+    fr: "Les Réflecteurs n’ont aucun centre défini, ce qui en fait le type le plus rare, environ une personne sur cent. Ils absorbent et reflètent l’énergie des personnes et des lieux qui les entourent\u202f: leur environnement compte plus que pour quiconque. Les grandes décisions mûrissent sur un cycle lunaire complet, environ quatre semaines, le temps que met la Lune à traverser les 64 portes. Le Human Design voit la surprise comme le signe qu’ils sont sur la bonne voie, et la déception comme le signe inverse.",
   },
 };
 
@@ -189,14 +189,21 @@ const AUTHORITY: Record<HdAuthority, Pair> = {
     fr: "Autorité mentale, ou environnementale (Projecteurs dont la définition se limite à la Tête, à l’Ajna et à la Gorge)\u202f: il n’y a pas d’autorité intérieure, la clarté vient donc de l’extérieur — du bon lieu et de personnes de confiance avec qui en parler. Exemple\u202f: remarquer que vous réfléchissez plus clairement à une grande décision dans tel café, ou avec tel ami.",
   },
   Lunar: {
-    en: "Lunar authority (Reflectors, no defined centres): take about 29 days, one full Moon cycle, before an important decision. Over that month the Moon passes through every gate in turn, so you get to feel the decision from every angle. Example: talking about a possible move with different people through the month and noting what stays constant.",
-    fr: "Autorité lunaire (Réflecteurs, aucun centre défini)\u202f: prenez environ 29 jours, un cycle lunaire complet, avant une décision importante. Pendant ce mois, la Lune traverse tour à tour chaque porte\u202f: vous ressentez ainsi la décision sous tous les angles. Exemple\u202f: parler d’un éventuel déménagement à différentes personnes au fil du mois, et noter ce qui reste constant.",
+    en: "Lunar authority (Reflectors, no defined centres): take about four weeks, one full lunar cycle, before an important decision. Over those weeks the Moon passes through every gate in turn, so you get to feel the decision from every angle. Example: talking about a possible move with different people through the month and noting what stays constant.",
+    fr: "Autorité lunaire (Réflecteurs, aucun centre défini)\u202f: prenez environ quatre semaines, un cycle lunaire complet, avant une décision importante. Pendant ces semaines, la Lune traverse tour à tour chaque porte\u202f: vous ressentez ainsi la décision sous tous les angles. Exemple\u202f: parler d’un éventuel déménagement à différentes personnes au fil du mois, et noter ce qui reste constant.",
   },
 };
 
-export function hdCenterProse(locale: AppLocale, id: HdCenterId, defined: boolean) {
+/**
+ * A centre's role and how it works in this chart. Not defined, the text is
+ * the open one; with some of its gates active it is undefined rather than
+ * open (review 3 Oct, H4), and its first word says so.
+ */
+export function hdCenterProse(locale: AppLocale, id: HdCenterId, defined: boolean, activeGates = 0) {
   const c = CENTER[id];
-  return { role: pick(c.role, locale), state: pick(defined ? c.defined : c.open, locale) };
+  let state = pick(defined ? c.defined : c.open, locale);
+  if (!defined && activeGates > 0) state = state.replace(/^Open,/, "Undefined,").replace(/^Ouvert,/, "Non défini,");
+  return { role: pick(c.role, locale), state };
 }
 export function hdTypeProse(locale: AppLocale, type: HdType) {
   return pick(TYPE[type], locale);
@@ -219,8 +226,8 @@ const STRATEGY: Record<HdStrategy, Pair> = {
     fr: "Attendre l’invitation\u202f: vos conseils portent le mieux quand quelqu’un les a reconnus et demandés, surtout pour les grandes choses — travail, relations, lieu de vie. Un conseil non sollicité est souvent ignoré, même juste. Exemple\u202f: un collègue qui vous demande votre avis sur un problème s’en servira vraiment\u202f; le même avis lancé en réunion passe souvent à la trappe.",
   },
   "Wait a lunar cycle": {
-    en: "Wait a lunar cycle: for important decisions, take about 29 days — one full Moon cycle — before committing. Talking the decision over with different people during that month lets you see it from every angle. Example: living with the idea of a move for a month before signing a lease.",
-    fr: "Attendre un cycle lunaire\u202f: pour les décisions importantes, prenez environ 29 jours — un cycle complet de la Lune — avant de vous engager. En parler à différentes personnes pendant ce mois permet de la voir sous tous les angles. Exemple\u202f: vivre un mois avec l’idée d’un déménagement avant de signer un bail.",
+    en: "Wait a lunar cycle: for important decisions, take about four weeks — the Moon’s full round of the 64 gates — before committing. Talking the decision over with different people during that month lets you see it from every angle. Example: living with the idea of a move for a month before signing a lease.",
+    fr: "Attendre un cycle lunaire\u202f: pour les décisions importantes, prenez environ quatre semaines — le tour complet des 64 portes par la Lune — avant de vous engager. En parler à différentes personnes pendant ce mois permet de la voir sous tous les angles. Exemple\u202f: vivre un mois avec l’idée d’un déménagement avant de signer un bail.",
   },
 };
 

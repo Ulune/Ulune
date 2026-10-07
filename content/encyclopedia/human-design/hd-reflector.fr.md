@@ -39,7 +39,7 @@ L’[[hd-authority|autorité]] de tout Réflecteur est [[hd-authority-lunar|luna
 
 ## D’une tradition à l’autre
 
-L’astrologie suit elle aussi le mois de la Lune, au fil de ses [[moon-phase|phases]], d’une nouvelle Lune à la suivante, environ 29 jours et demi. La Lune fait le tour complet du zodiaque, et donc des 64 portes, un peu plus vite, en un peu plus de 27 jours. Les textes d’Ulune donnent pour l’attente du Réflecteur environ 29 jours, un cycle lunaire complet.
+L’astrologie suit elle aussi le mois de la Lune, au fil de ses [[moon-phase|phases]], d’une nouvelle Lune à la suivante, environ 29 jours et demi. La Lune fait le tour complet du zodiaque, et donc des 64 portes, un peu plus vite, en un peu plus de 27 jours. Les textes d’Ulune donnent pour l’attente du Réflecteur environ quatre semaines, le tour complet des portes par la Lune.
 
 ## Origine et histoire
 

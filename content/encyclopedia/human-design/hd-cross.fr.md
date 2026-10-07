@@ -52,7 +52,7 @@ Ulune lit quatre lignes : le Soleil et la Terre de la Personnalité, à la nai
 
 L’angle vient du seul profil. Une ligne de Personnalité de 1 à 4 donne l’angle droit, sauf le 4/1, qui donne la juxtaposition. Une ligne de Personnalité de 5 ou 6 donne l’angle gauche.
 
-Le nom vient de la porte du Soleil de la Personnalité et de l’angle, d’après une table des 192 croix vérifiée sur des sources publiées. Les croix d’angle droit se partagent 16 noms, suivis chacun de leur quart, de 1 à 4. Les croix de juxtaposition ont 64 noms bien à elles. Les croix d’angle gauche se partagent 32 noms, suivis de 1 ou de 2. En français, les noms d’Ulune suivent les sources françaises du Human Design. Elles disent « angle ouvert » pour l’angle gauche, comme dans « croix de l’angle ouvert du défi 1 ».
+Le nom vient de la porte du Soleil de la Personnalité et de l’angle, d’après une table des 192 croix vérifiée sur des sources publiées. Les croix d’angle droit se partagent 16 noms, suivis chacun de leur quart, de 1 à 4. Les croix de juxtaposition ont 64 noms bien à elles. Les croix d’angle gauche se partagent 32 noms, suivis de 1 ou de 2. En français, Ulune dit « angle gauche » partout, comme dans « croix de l’angle gauche du défi 1 ».
 
 L’arc de 88° explique ces nombres. Avec un profil d’angle droit, le Soleil du Design se tient toujours dans la porte située seize rangs avant celle du Soleil de la Personnalité. Cela fait un quart de la roue. Les quatre portes forment un carré, et le même carré sert à quatre croix. Dès que le profil devient 4/1, le Soleil du Design est passé dans la porte suivante, quinze rangs en arrière. Voilà pourquoi chaque croix de juxtaposition partage ses quatre portes avec une croix d’angle gauche : seul le profil les distingue.
 

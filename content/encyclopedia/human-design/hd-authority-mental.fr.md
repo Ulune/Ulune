@@ -41,7 +41,7 @@ Dans l’enseignement de Ra Uru Hu, les Projecteurs définis seulement au-dessus
 
 L’autorité mentale est la dernière règle d’Ulune : quand aucune des règles précédentes ne s’applique et que le type n’est pas Réflecteur, l’autorité est mentale. En pratique, cela veut dire ni Plexus solaire, ni Sacral, ni Rate, ni Cœur définis, et pas de centre G défini non plus, puisqu’un G défini avec la Gorge donne l’[[hd-authority-self-projected|autorité auto-projetée]]. Il reste une définition entre la Tête, l’Ajna et la Gorge, par les canaux [[hd-channel-64-47|64–47]], [[hd-channel-61-24|61–24]] et [[hd-channel-63-4|63–4]] entre la Tête et l’Ajna, et [[hd-channel-17-62|17–62]], [[hd-channel-43-23|43–23]] et [[hd-channel-11-56|11–56]] entre l’Ajna et la Gorge.
 
-Aucun moteur n’est défini, si bien que le type est toujours Projecteur. Cette autorité n’a pas de siège dans Ulune : la choisir sur le bodygraph n’éclaire aucun centre. Sans heure de naissance, Ulune signale l’autorité comme pouvant différer si elle change à une autre heure de la journée.
+Aucun moteur n’est défini, si bien que le type est toujours Projecteur. Cette autorité n’a pas de siège dans Ulune : la choisir sur le bodygraph n’éclaire aucun centre, et « sans autorité intérieure » s’écrit sous son nom. Sans heure de naissance, Ulune signale l’autorité comme pouvant différer si elle change à une autre heure de la journée.
 
 ## Correspondances
 

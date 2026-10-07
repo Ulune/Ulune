@@ -39,7 +39,7 @@ The [[hd-authority|authority]] of every Reflector is [[hd-authority-lunar|lunar]
 
 ## Across traditions
 
-Astrology also follows the Moon’s month, through its [[moon-phase|phases]] from one new Moon to the next, about 29½ days. The Moon goes round the whole zodiac, and so round all 64 gates, a little faster, in a little over 27 days. Ulune’s texts give the Reflector’s wait as about 29 days, a full lunar cycle.
+Astrology also follows the Moon’s month, through its [[moon-phase|phases]] from one new Moon to the next, about 29½ days. The Moon goes round the whole zodiac, and so round all 64 gates, a little faster, in a little over 27 days. Ulune’s texts give the Reflector’s wait as about four weeks, the Moon’s full round of the gates.
 
 ## Origin and history
 

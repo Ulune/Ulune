@@ -41,7 +41,7 @@ In Ra Uru Hu’s teaching, Reflectors stand apart from the other four types: ope
 
 Rule 6 of Ulune’s order: when no rule above applies and the type is Reflector, the authority is Lunar. In Ulune the type is Reflector exactly when no centre is defined, that is, when no [[hd-channel|channel]] has both its gates active, from the Personality or the Design. No rule above can apply to such a chart, so every Reflector has Lunar authority, and no other type does.
 
-This authority has no seat in Ulune: choosing it on the bodygraph lights no centre. Ulune’s own texts suggest about 29 days, a full cycle of the Moon’s phases. The Moon’s return to the same gate is a little shorter, about 27 days and 8 hours, so the two cycles differ by about two days. Without a birth time, Ulune marks the authority as one that could differ if it changes at another hour of that day.
+This authority has no seat in Ulune: choosing it on the bodygraph lights no centre. Ulune’s own texts suggest about four weeks: the Moon returns to the same gate after about 27 days and 8 hours, a little less than the 29½ days of its cycle of phases. Without a birth time, Ulune marks the authority as one that could differ if it changes at another hour of that day.
 
 ## Correspondences
 

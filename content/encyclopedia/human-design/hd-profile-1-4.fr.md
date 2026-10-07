@@ -45,7 +45,7 @@ Le premier nombre est la ligne du Soleil de la Personnalité, à la naissance 
 
 88° valent environ 93,87 lignes. La ligne du Design tombe donc en général deux rangs après celle de la Personnalité, en repartant de 1 après 6. Elle ne tombe trois rangs après que dans les derniers 0,125° d’une ligne. Ce dernier tronçon, environ trois heures de la course du Soleil, donne le 1/4. C’est l’un des six profils rares, qui couvrent chacun environ 2,2 % du zodiaque contre 14,4 % pour un profil courant. Ce sont exactement les six dont les lignes forment une paire harmonique. Dans l’ordre que suit le Soleil, il vient entre le [[hd-profile-1-3|1/3]] et le [[hd-profile-2-4|2/4]].
 
-Sans heure de naissance, Ulune calcule le schéma à midi et à chaque heure de ce jour-là. Le Soleil avance d’environ un degré par jour, plus qu’une ligne : le profil est donc toujours marqué ~. Une autre heure donne un voisin, en général le 1/3 ou le 2/4. La [[hd-cross|croix]] est marquée elle aussi quand son angle ou ses portes pourraient changer.
+Sans heure de naissance, Ulune calcule le schéma à midi et à chaque heure de ce jour-là. Le Soleil avance d’environ un degré par jour, plus qu’une ligne : le profil est donc toujours marqué ~. Une autre heure donne un voisin, en général le 1/3 ou le 2/4. Ulune nomme sous le profil ceux que ce jour peut donner, comme « ce jour-là aussi 2/4 ». La [[hd-cross|croix]] est marquée elle aussi quand son angle ou ses portes pourraient changer.
 
 ## Correspondances
 

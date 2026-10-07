@@ -41,7 +41,7 @@ In Ra Uru Hu’s order of authorities, the Heart comes fourth, after the Solar P
 
 Rule 4 of Ulune’s order: when the Solar Plexus, the Sacral and the Spleen are undefined and the Heart is defined, the authority is Ego. The Heart has four channels. Two of them define a higher centre too: [[hd-channel-44-26|44–26]] the Spleen, so the authority is Splenic, and [[hd-channel-40-37|40–37]] the Solar Plexus, so it is Emotional. Ego authority therefore comes from 21–45 or 25–51.
 
-Ulune shows a single label, Ego, and does not tell the manifested and projected forms apart; the chart shows which one applies. With 21–45, a motor reaches the Throat and the type is Manifestor. With 25–51 alone, the type is Projector, unless the G centre also reaches the Throat; then the Heart reaches it through the G, and the type is Manifestor. The Heart outranks the G, so such a chart reads Ego, never [[hd-authority-self-projected|Self-Projected]].
+Ulune names the form under the label: “Ego manifested” for a Manifestor, “Ego projected” for a Projector. With 21–45, a motor reaches the Throat and the type is Manifestor. With 25–51 alone, the type is Projector, unless the G centre also reaches the Throat; then the Heart reaches it through the G, and the type is Manifestor. The Heart outranks the G, so such a chart reads Ego, never [[hd-authority-self-projected|Self-Projected]].
 
 Choosing the authority on the bodygraph lights the Heart. Without a birth time, Ulune marks the authority as one that could differ if it changes at another hour of that day.
 

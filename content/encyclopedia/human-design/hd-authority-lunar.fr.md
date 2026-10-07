@@ -41,7 +41,7 @@ Dans l’enseignement de Ra Uru Hu, les Réflecteurs se tiennent à part des qua
 
 Sixième règle de l’ordre d’Ulune : quand aucune règle précédente ne s’applique et que le type est Réflecteur, l’autorité est lunaire. Dans Ulune, le type est Réflecteur exactement quand aucun centre n’est défini, c’est-à-dire quand aucun [[hd-channel|canal]] n’a ses deux portes actives, du côté Personnalité ou du côté Design. Aucune règle précédente ne peut s’appliquer à un tel thème : tout Réflecteur a donc l’autorité lunaire, et aucun autre type ne l’a.
 
-Cette autorité n’a pas de siège dans Ulune : la choisir sur le bodygraph n’éclaire aucun centre. Les textes d’Ulune parlent d’environ 29 jours, un cycle complet des phases de la Lune. Le retour de la Lune à la même porte est un peu plus court, environ 27 jours et 8 heures : les deux cycles diffèrent donc d’environ deux jours. Sans heure de naissance, Ulune signale l’autorité comme pouvant différer si elle change à une autre heure de la journée.
+Cette autorité n’a pas de siège dans Ulune : la choisir sur le bodygraph n’éclaire aucun centre. Les textes d’Ulune parlent d’environ quatre semaines : la Lune revient à la même porte au bout d’environ 27 jours et 8 heures, un peu moins que les 29 jours et demi du cycle de ses phases. Sans heure de naissance, Ulune signale l’autorité comme pouvant différer si elle change à une autre heure de la journée.
 
 ## Correspondances
 

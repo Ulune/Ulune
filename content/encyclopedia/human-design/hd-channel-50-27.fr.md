@@ -45,7 +45,7 @@ Ulune place 26 activations : 13 corps à la naissance pour la Personnalité, 1
 
 Pris comme seul canal du schéma, la logique d’Ulune donne un [[hd-generator|Générateur]] : le Sacral est défini et aucun moteur n’atteint la [[hd-centre-throat|Gorge]]. L’autorité est [[hd-authority-sacral|sacrale]], puisque le Plexus solaire n’est pas défini, et la définition est simple.
 
-Sur le bodygraph, chaque moitié du canal prend la couleur de sa porte : l’encre pour la Personnalité, le rouge pour le Design, l’encre tiretée de rouge pour les deux. Défini, le trait est plus épais qu’une moitié suspendue, et les deux centres sont remplis d’or. La lecture indique la couche : Personnalité, Design, ou Personnalité + Design quand aucune couche ne tient seule les deux portes. Dans la vue Personnalité ou Design, seuls les corps de cette couche comptent.
+Sur le bodygraph, chaque moitié du canal prend la couleur de sa porte : l’encre pour la Personnalité, le rouge pour le Design, l’encre tiretée de rouge pour les deux. Défini, le trait est plus épais qu’une moitié suspendue, et les deux centres sont remplis d’or. La lecture indique la couche : Personnalité, Design, ou Personnalité + Design quand les deux couches se partagent le canal. Dans la vue Personnalité ou Design, seuls les corps de cette couche comptent.
 
 ## Correspondances
 

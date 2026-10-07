@@ -58,9 +58,9 @@ Chacune de ses six [[hd-line|lignes]] couvre 0°56′15″ :
 
 Treize corps sont lus deux fois : à la naissance, et au moment du Design, quand le Soleil se trouvait exactement 88° plus tôt. Ce sont le Soleil et la Terre, la Lune, le Nœud Nord vrai et le Nœud Sud, puis de Mercure à Pluton. Chacun d’eux, dans cet intervalle, colore la porte avec sa ligne. Quand le Soleil de la Personnalité s’y trouve, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le [[hd-profile|profil]] :
 
-- de 1/3 à 4/6, la [[hd-cross-right-angle|Croix de l’angle droit de maya 3]] ;
+- de 1/3 à 4/6, la [[hd-cross-right-angle|Croix de l’angle droit de Maya 3]] ;
 - en 4/1, la [[hd-cross-juxtaposition|Croix de juxtaposition de la conservation]] ;
-- de 5/1 à 6/3, la [[hd-cross-left-angle|Croix de l’angle ouvert de la limitation 2]].
+- de 5/1 à 6/3, la [[hd-cross-left-angle|Croix de l’angle gauche de la limitation 2]].
 
 ## Correspondances
 

@@ -5,9 +5,12 @@
 import {
   hdAngleLabel,
   hdAuthorityLabel,
+  hdAuthorityNote,
   hdDefinitionLabel,
   hdFactLabel,
+  hdProfileNote,
   hdStrategyLabel,
+  hdStrategyNote,
   hdTypeLabel,
 } from "@/lib/i18n/hd-ui";
 import type { AppLocale } from "@/lib/i18n/messages";
@@ -22,7 +25,7 @@ export type HdKeyRow = {
   key: HdKey;
   label: string;
   value: string;
-  /** The cross's angle (Right Angle, Juxtaposition, Left Angle). */
+  /** The cross's name or angle; the strategy's or the authority's note ("then inform", "manifested"). */
   sub?: string;
   /** Without a birth time: it could differ at another hour of that day. */
   uncertain: boolean;
@@ -32,9 +35,27 @@ export function hdKeyRows(chart: HumanDesignChart, locale: AppLocale): HdKeyRow[
   const maybe = (key: HdKey) => chart.uncertain?.keys.includes(key) ?? false;
   const rows: HdKeyRow[] = [
     { key: "type", label: hdFactLabel(locale, "type"), value: hdTypeLabel(locale, chart.type), uncertain: maybe("type") },
-    { key: "strategy", label: hdFactLabel(locale, "strategy"), value: hdStrategyLabel(locale, chart.strategy), uncertain: maybe("strategy") },
-    { key: "authority", label: hdFactLabel(locale, "authority"), value: hdAuthorityLabel(locale, chart.authority), uncertain: maybe("authority") },
-    { key: "profile", label: hdFactLabel(locale, "profile"), value: chart.profile, uncertain: maybe("profile") },
+    {
+      key: "strategy",
+      label: hdFactLabel(locale, "strategy"),
+      value: hdStrategyLabel(locale, chart.strategy),
+      sub: hdStrategyNote(locale, chart) ?? undefined,
+      uncertain: maybe("strategy"),
+    },
+    {
+      key: "authority",
+      label: hdFactLabel(locale, "authority"),
+      value: hdAuthorityLabel(locale, chart.authority),
+      sub: hdAuthorityNote(locale, chart) ?? undefined,
+      uncertain: maybe("authority"),
+    },
+    {
+      key: "profile",
+      label: hdFactLabel(locale, "profile"),
+      value: chart.profile,
+      sub: hdProfileNote(locale, chart) ?? undefined,
+      uncertain: maybe("profile"),
+    },
     { key: "definition", label: hdFactLabel(locale, "definition"), value: hdDefinitionLabel(locale, chart.definition), uncertain: maybe("definition") },
   ];
   const cross = hdCrossOf(chart);

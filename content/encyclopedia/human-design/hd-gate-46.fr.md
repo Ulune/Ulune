@@ -49,7 +49,7 @@ Avec le Sacral défini, le thème est celui d’un [[hd-generator|Générateur]]
 - La porte 46 est la 43e, de 28°15′00″ Vierge à 3°52′30″ Balance (de 178,25° à 183,875°). Ses six lignes mesurent 0°56′15″ et commencent à 28°15′00″ Vierge, 29°11′15″ Vierge, 0°07′30″ Balance, 1°03′45″ Balance, 2°00′00″ Balance et 2°56′15″ Balance. Le changement de signe tombe dans la ligne 2.
 - Ulune lit treize corps à la naissance, puis quand le Soleil se trouvait exactement 88° en arrière. Le Soleil, la Terre, la Lune, les vrais Nœuds et les planètes de Mercure à Pluton colorent chacun la porte où ils se trouvent.
 - Quand la porte 29 est colorée elle aussi, à l’un ou l’autre moment, le canal 46–29 est défini. Ulune indique si ses portes viennent de la Personnalité, du Design ou des deux.
-- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit du vaisseau de l’amour 3. Le profil 4/1 donne la Croix de juxtaposition de la coïncidence. Les profils 5/1 à 6/3 donnent la Croix de l’angle ouvert de la guérison 2.
+- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit du vaisseau de l’amour 3. Le profil 4/1 donne la Croix de juxtaposition de la coïncidence. Les profils 5/1 à 6/3 donnent la Croix de l’angle gauche de la guérison 2.
 
 ## Correspondances
 

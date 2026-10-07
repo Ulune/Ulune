@@ -59,7 +59,7 @@ Each of its six [[hd-line|lines]] spans 0°56′15″:
 Thirteen bodies are read twice: at birth, and at the Design moment, when the Sun stood exactly 88° earlier. They are the Sun and the Earth, the Moon, the true North Node and the South Node, and Mercury to Pluto. Any of them in this span colours the gate, with its line. With the Personality Sun here, Ulune names the [[hd-cross|incarnation cross]] by [[hd-profile|profile]]:
 
 - from 1/3 to 4/6, the [[hd-cross-right-angle|Right Angle Cross of the Four Ways 1]];
-- in 4/1, the [[hd-cross-juxtaposition|Juxtaposition Cross of Rationalization]];
+- in 4/1, the [[hd-cross-juxtaposition|Juxtaposition Cross of Rationalisation]];
 - from 5/1 to 6/3, the [[hd-cross-left-angle|Left Angle Cross of Incarnation 1]].
 
 ## Correspondences

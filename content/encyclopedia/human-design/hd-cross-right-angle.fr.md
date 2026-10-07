@@ -73,7 +73,7 @@ Chaque case donne la porte du Soleil de la Personnalité pour cette croix.
 | du vaisseau de l’amour | [[hd-gate-25|25]] | [[hd-gate-15|15]] | [[hd-gate-46|46]] | [[hd-gate-10|10]] |
 | du service | [[hd-gate-17|17]] | [[hd-gate-52|52]] | [[hd-gate-18|18]] | [[hd-gate-58|58]] |
 | des quatre chemins | [[hd-gate-24|24]] | [[hd-gate-33|33]] | [[hd-gate-44|44]] | [[hd-gate-19|19]] |
-| du phoenix dormant | [[hd-gate-55|55]] | [[hd-gate-20|20]] | [[hd-gate-59|59]] | [[hd-gate-34|34]] |
+| du phénix dormant | [[hd-gate-55|55]] | [[hd-gate-20|20]] | [[hd-gate-59|59]] | [[hd-gate-34|34]] |
 | de la tension | [[hd-gate-21|21]] | [[hd-gate-39|39]] | [[hd-gate-48|48]] | [[hd-gate-38|38]] |
 | de la dominance | [[hd-gate-22|22]] | [[hd-gate-45|45]] | [[hd-gate-47|47]] | [[hd-gate-26|26]] |
 | de l’imprévu | [[hd-gate-27|27]] | [[hd-gate-31|31]] | [[hd-gate-28|28]] | [[hd-gate-41|41]] |

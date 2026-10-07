@@ -45,7 +45,7 @@ The first number is the line of the Personality Sun, at birth; the second, the l
 
 88° is about 93.87 lines. So the Design line usually falls two places after the Personality line, counting on from 6 to 1. It falls three places after only in the last 0.125° of a line. The 4/6 is one of the six common profiles, each about 14.4% of the zodiac, against 2.2% for each rare one. As the Sun moves, the profile steps through the twelve in a fixed order: [[hd-profile-3-6|3/6]], then the 4/6 for about 20 hours, then [[hd-profile-4-1|4/1]] for about three.
 
-Without a birth time, Ulune casts the chart at noon and at every hour of that day. The Sun moves about a degree a day, more than a line, so the profile is always marked ~: another hour gives a neighbour, usually the 3/6 or the 4/1. The [[hd-cross|cross]] is marked too when its angle or gates could change.
+Without a birth time, Ulune casts the chart at noon and at every hour of that day. The Sun moves about a degree a day, more than a line, so the profile is always marked ~: another hour gives a neighbour, usually the 3/6 or the 4/1. Ulune names the profiles that day can give under the profile, as in “that day also 4/1”. The [[hd-cross|cross]] is marked too when its angle or gates could change.
 
 ## Correspondences
 

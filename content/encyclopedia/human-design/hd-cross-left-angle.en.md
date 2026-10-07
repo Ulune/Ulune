@@ -49,7 +49,7 @@ Lines 5 and 6 are the last third of every gate, so the Left Angle covers exactly
 
 The Earth stands opposite the Sun in both layers. So two crosses share the same four gates, their Sun and Earth swapped: 2/1 | 49/4 and 1/2 | 4/49. Ulune gives the pair one name, followed by 1 or 2. Number 1 goes to the cross whose Personality Sun stands in the half of the wheel from [[hd-gate-13|gate 13]] to gate 33. Number 2 goes to the half from gate 7 to gate 19. So 2/1 | 49/4 is the Left Angle Cross of Defiance 1, and 1/2 | 4/49 is Defiance 2.
 
-That gives 64 Left Angle crosses with 32 names. Each shares its four gates with a [[hd-cross-juxtaposition|Juxtaposition]] cross; only the profile tells them apart. In French, Ulune follows the French Human Design sources, which name this angle the “angle ouvert”, as in “Croix de l’angle ouvert du défi 1”. For the Cross of Upheaval, which has no published French name that Ulune could find, it gives its own translation. Without a birth time, Ulune casts the chart at every hour of that day. The cross is marked ~ when its gates or angle could differ.
+That gives 64 Left Angle crosses with 32 names. Each shares its four gates with a [[hd-cross-juxtaposition|Juxtaposition]] cross; only the profile tells them apart. In French, Ulune calls it the “angle gauche”, as in “Croix de l’angle gauche du défi 1”; some French texts say “angle ouvert”. For the Cross of Upheaval, which has no published French name that Ulune could find, it gives its own translation. Without a birth time, Ulune casts the chart at every hour of that day. The cross is marked ~ when its gates or angle could differ.
 
 ## Correspondences
 
@@ -70,7 +70,7 @@ Each cell gives the gate of the Personality Sun for that cross.
 | Upheaval | [[hd-gate-17|17]] | [[hd-gate-18|18]] |
 | Refinement | [[hd-gate-33|33]] | [[hd-gate-19|19]] |
 | Duality | [[hd-gate-20|20]] | [[hd-gate-34|34]] |
-| Endeavor | [[hd-gate-21|21]] | [[hd-gate-48|48]] |
+| Endeavour | [[hd-gate-21|21]] | [[hd-gate-48|48]] |
 | Informing | [[hd-gate-22|22]] | [[hd-gate-47|47]] |
 | Dedication | [[hd-gate-23|23]] | [[hd-gate-43|43]] |
 | Incarnation | [[hd-gate-24|24]] | [[hd-gate-44|44]] |

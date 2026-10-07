@@ -28,7 +28,7 @@ import { hdHelloCells } from "@/lib/i18n/hd-hello";
 import {
   hdAngleLabel,
   hdArrowLabel,
-  hdAuthorityLabel,
+  hdAuthorityFull,
   hdColorLabel,
   hdUnknownText,
   hdCenterLabel,
@@ -40,7 +40,7 @@ import {
   hdGateTitle,
   hdGraphText,
   hdLayerLabel,
-  hdStrategyLabel,
+  hdStrategyFull,
   hdTypeLabel,
   hdWhoLabel,
 } from "@/lib/i18n/hd-ui";
@@ -65,6 +65,7 @@ import {
   HD_SIGNPOSTS,
   HD_SIGNPOSTS_LINE,
   HD_STRATEGY_STEP,
+  HD_STRATEGY_THEN_INFORM,
   HD_TYPE_STEP,
   HD_UNKNOWN_TEXT,
   HD_VARIABLE_TEXT,
@@ -163,7 +164,12 @@ export function hdFirstRead(chart: HumanDesignChart, locale: AppLocale) {
           ? fillBi(HD_SIGNPOSTS_LINE, locale, { notSelf: pickBi(signs.notSelf, locale), signature: pickBi(signs.signature, locale) })
           : undefined,
       },
-      { id: "strategy" as const, text: pickBi(HD_STRATEGY_STEP[chart.strategy], locale) },
+      {
+        id: "strategy" as const,
+        text: [pickBi(HD_STRATEGY_STEP[chart.strategy], locale), chart.type === "Manifesting Generator" ? pickBi(HD_STRATEGY_THEN_INFORM, locale) : ""]
+          .filter(Boolean)
+          .join(" "),
+      },
       { id: "authority" as const, text: pickBi(HD_AUTHORITY_STEP[chart.authority], locale) },
       {
         id: "profile" as const,
@@ -251,8 +257,8 @@ function hdReadingOf(
       facts: [
         { label: hdFactLabel(locale, "profile"), value: chart.profile, ref: "hello:profile" },
         { label: hdFactLabel(locale, "definition"), value: hdDefinitionLabel(locale, chart.definition), ref: "hello:definition" },
-        { label: hdFactLabel(locale, "strategy"), value: hdStrategyLabel(locale, chart.strategy), ref: "hello:strategy" },
-        { label: hdFactLabel(locale, "authority"), value: hdAuthorityLabel(locale, chart.authority), ref: "hello:authority" },
+        { label: hdFactLabel(locale, "strategy"), value: hdStrategyFull(locale, chart), ref: "hello:strategy" },
+        { label: hdFactLabel(locale, "authority"), value: hdAuthorityFull(locale, chart), ref: "hello:authority" },
         ...crossFact,
       ],
       sections: [
@@ -272,14 +278,14 @@ function hdReadingOf(
     return {
       id: pickId,
       kind: "house",
-      title: hdStrategyLabel(locale, chart.strategy),
+      title: hdStrategyFull(locale, chart),
       kicker: cell?.sentence ?? "",
       note: cell?.sentence,
       lead: hdStrategyProse(locale, chart.strategy),
       paragraphs: [hdStrategyProse(locale, chart.strategy), hdAuthorityProse(locale, chart.authority)],
       facts: [
         { label: hdFactLabel(locale, "type"), value: hdTypeLabel(locale, chart.type), ref: "hello:type" },
-        { label: hdFactLabel(locale, "authority"), value: hdAuthorityLabel(locale, chart.authority), ref: "hello:authority" },
+        { label: hdFactLabel(locale, "authority"), value: hdAuthorityFull(locale, chart), ref: "hello:authority" },
       ],
       // Not the Type's paragraph again: how the strategy meets this chart's authority.
       sections: [{ id: "chart", title: inDesign, paragraphs: [hdAuthorityProse(locale, chart.authority)] }],
@@ -290,14 +296,14 @@ function hdReadingOf(
     return {
       id: pickId,
       kind: "house",
-      title: hdAuthorityLabel(locale, chart.authority),
+      title: hdAuthorityFull(locale, chart),
       kicker: cell?.sentence ?? "",
       note: cell?.sentence,
       lead: hdAuthorityProse(locale, chart.authority),
       paragraphs: [hdAuthorityProse(locale, chart.authority)],
       facts: [
         { label: hdFactLabel(locale, "type"), value: hdTypeLabel(locale, chart.type), ref: "hello:type" },
-        { label: hdFactLabel(locale, "strategy"), value: hdStrategyLabel(locale, chart.strategy), ref: "hello:strategy" },
+        { label: hdFactLabel(locale, "strategy"), value: hdStrategyFull(locale, chart), ref: "hello:strategy" },
       ],
     };
   }
@@ -464,7 +470,7 @@ function hdReadingOf(
       ? aBodies.length || bBodies.length
         ? hdGraphText(locale, "channelHalfShort")
         : hdGraphText(locale, "channelOpen")
-      : live.mixed
+      : live.mixed || (live.personality && live.design)
         ? `${hdLayerLabel(locale, "personality")} + ${hdLayerLabel(locale, "design")}`
         : live.personality
           ? hdLayerLabel(locale, "personality")
@@ -575,11 +581,11 @@ function hdReadingOf(
     const graph = graphForView(chart, view);
     const defined = graph.centers.includes(id);
     const channels = graph.channels.filter((ch) => ch.centers.includes(id));
-    const prose = hdCenterProse(locale, id, defined);
     const gates = Object.entries(HD_GATE_CENTER)
       .filter(([, c]) => c === id)
       .map(([g]) => Number(g));
     const active = gates.filter((g) => graph.gates.has(g));
+    const prose = hdCenterProse(locale, id, defined, active.length);
     return {
       id: pickId,
       kind: "house",

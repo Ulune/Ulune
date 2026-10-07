@@ -48,7 +48,7 @@ Ra Uru Hu presented the nine centres from 1987, as a change from seven chakras t
 
 Ulune colours a gate when any of the 26 activations stands in it, the 13 bodies of the Personality and the 13 of the Design. A channel is defined when both of its gates are coloured, and a centre is defined when a defined channel touches it.
 
-The Heart is defined exactly when channel [[hd-channel-45-21|45–21]], [[hd-channel-25-51|25–51]], [[hd-channel-44-26|44–26]] or [[hd-channel-40-37|40–37]] is defined. Otherwise it is undefined when any of its four gates is coloured, open when none is. Ulune counts it among its four motors. For type, it looks for any motor reached from the Throat along defined channels. For authority, it gives ego authority when the Heart is defined and the Solar Plexus, the Sacral and the Spleen are not. Ulune names one ego authority, without the tradition’s split into manifested and projected forms.
+The Heart is defined exactly when channel [[hd-channel-45-21|45–21]], [[hd-channel-25-51|25–51]], [[hd-channel-44-26|44–26]] or [[hd-channel-40-37|40–37]] is defined. Otherwise it is undefined when any of its four gates is coloured, open when none is. Ulune counts it among its four motors. For type, it looks for any motor reached from the Throat along defined channels. For authority, it gives ego authority when the Heart is defined and the Solar Plexus, the Sacral and the Spleen are not. Ulune names its two forms as the tradition does: manifested for a Manifestor, projected for a Projector.
 
 ## Correspondences
 

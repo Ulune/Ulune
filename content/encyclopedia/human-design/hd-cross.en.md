@@ -52,7 +52,7 @@ Ulune reads four rows: the Sun and the Earth of the Personality, at birth, and o
 
 The angle comes from the profile alone. A Personality line of 1 to 4 gives Right Angle, except the 4/1, which gives Juxtaposition. A Personality line of 5 or 6 gives Left Angle.
 
-The name comes from the Personality Sun’s gate and the angle, from a table of the 192 crosses checked against published sources. Right Angle crosses use 16 names, each followed by its quarter, 1 to 4. Juxtaposition crosses have 64 names of their own. Left Angle crosses use 32 names, each followed by 1 or 2. In French, Ulune’s names follow the French Human Design sources, which call the Left Angle the “angle ouvert”.
+The name comes from the Personality Sun’s gate and the angle, from a table of the 192 crosses checked against published sources. Right Angle crosses use 16 names, each followed by its quarter, 1 to 4. Juxtaposition crosses have 64 names of their own. Left Angle crosses use 32 names, each followed by 1 or 2. In French, Ulune calls the Left Angle the “angle gauche”, the name used across the app.
 
 The 88° arc explains these numbers. With a Right Angle profile, the Design Sun always stands in the gate sixteen places behind the Personality Sun’s, a quarter of the wheel. The four gates form a square, and the same square serves four crosses. Once the profile turns 4/1, the Design Sun has crossed into the next gate, fifteen places behind. That is why each Juxtaposition cross shares its four gates with a Left Angle cross: only the profile tells them apart.
 

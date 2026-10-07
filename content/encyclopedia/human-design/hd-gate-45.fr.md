@@ -49,7 +49,7 @@ Le Cœur est un moteur. Un moteur relié à la Gorge fait un [[hd-manifestor|Man
 - La porte 45 est la 25e, de 17°00′00″ à 22°37′30″ Gémeaux (de 77° à 82,625°). Ses six lignes mesurent 0°56′15″ et commencent à 17°00′00″, 17°56′15″, 18°52′30″, 19°48′45″, 20°45′00″ et 21°41′15″ Gémeaux.
 - Ulune lit treize corps à la naissance, puis quand le Soleil se trouvait exactement 88° en arrière. Le Soleil, la Terre, la Lune, les vrais Nœuds et les planètes de Mercure à Pluton colorent chacun la porte où ils se trouvent.
 - Quand la porte 21 est colorée elle aussi, à l’un ou l’autre moment, le canal 45–21 est défini. Ulune indique si ses portes viennent de la Personnalité, du Design ou des deux.
-- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit de la dominance 2. Le profil 4/1 donne la Croix de juxtaposition de la possession. Les profils 5/1 à 6/3 donnent la Croix de l’angle ouvert de la confrontation 1.
+- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit de la dominance 2. Le profil 4/1 donne la Croix de juxtaposition de la possession. Les profils 5/1 à 6/3 donnent la Croix de l’angle gauche de la confrontation 1.
 
 ## Correspondances
 

@@ -52,7 +52,7 @@ Ulune casts the [[hd-layers|Personality and the Design]], colours their gates an
 
 The motor that reaches the Throat need not be the Sacral. A chart with a defined Sacral and the channel [[hd-channel-35-36|35–36]], from the Solar Plexus to the Throat, is a Manifesting Generator too.
 
-The strategy shown is “Wait to respond”, and the Keys table adds “Satisfaction · Frustration and anger”. Without a birth time, the chart is cast at noon and at every hour of the day. If another hour gives another type, the type is marked ~.
+The strategy shown is “Wait to respond”, with “then inform” beneath it, and the Keys table adds “Satisfaction · Frustration and anger”. Without a birth time, the chart is cast at noon and at every hour of the day. If another hour gives another type, the type is marked ~.
 
 ## Correspondences
 

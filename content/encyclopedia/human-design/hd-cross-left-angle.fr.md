@@ -47,15 +47,15 @@ Ulune lit le profil : la ligne du Soleil de la Personnalité, puis celle du So
 
 Les lignes 5 et 6 forment le dernier tiers de chaque porte : l’angle gauche couvre donc exactement un tiers de la course du Soleil. Le Soleil du Design est alors passé dans la porte suivante. Il se tient quinze rangs en arrière de celle du Soleil de la Personnalité, au lieu de seize. Les quatre portes ne forment plus un carré.
 
-La Terre se tient en face du Soleil dans les deux couches. Deux croix partagent donc les mêmes quatre portes, Soleil et Terre échangés : 2/1 | 49/4 et 1/2 | 4/49. Ulune donne à la paire un seul nom, suivi de 1 ou de 2. Le 1 va à la croix dont le Soleil de la Personnalité se trouve entre la [[hd-gate-13|porte 13]] et la porte 33. C’est la première moitié de la roue. Le 2 va à l’autre moitié, de la porte 7 à la porte 19. Ainsi, 2/1 | 49/4 est la croix de l’angle ouvert du défi 1, et 1/2 | 4/49 celle du défi 2.
+La Terre se tient en face du Soleil dans les deux couches. Deux croix partagent donc les mêmes quatre portes, Soleil et Terre échangés : 2/1 | 49/4 et 1/2 | 4/49. Ulune donne à la paire un seul nom, suivi de 1 ou de 2. Le 1 va à la croix dont le Soleil de la Personnalité se trouve entre la [[hd-gate-13|porte 13]] et la porte 33. C’est la première moitié de la roue. Le 2 va à l’autre moitié, de la porte 7 à la porte 19. Ainsi, 2/1 | 49/4 est la croix de l’angle gauche du défi 1, et 1/2 | 4/49 celle du défi 2.
 
-Cela fait 64 croix d’angle gauche pour 32 noms. Chacune partage ses quatre portes avec une croix de [[hd-cross-juxtaposition|juxtaposition]] ; seul le profil les distingue. En français, Ulune suit les sources françaises du Human Design. Elles nomment cet angle « angle ouvert », comme dans « Croix de l’angle ouvert du défi 1 ». Pour la croix du bouleversement, Ulune n’a trouvé aucun nom français publié et propose sa propre traduction. Sans heure de naissance, Ulune calcule le schéma à chaque heure de ce jour-là. La croix est marquée ~ quand ses portes ou son angle pourraient différer.
+Cela fait 64 croix d’angle gauche pour 32 noms. Chacune partage ses quatre portes avec une croix de [[hd-cross-juxtaposition|juxtaposition]] ; seul le profil les distingue. En français, Ulune dit « angle gauche », comme dans « Croix de l’angle gauche du défi 1 » ; certains textes français disent « angle ouvert ». Pour la croix du bouleversement, Ulune n’a trouvé aucun nom français publié et propose sa propre traduction. Sans heure de naissance, Ulune calcule le schéma à chaque heure de ce jour-là. La croix est marquée ~ quand ses portes ou son angle pourraient différer.
 
 ## Correspondances
 
 Chaque case donne la porte du Soleil de la Personnalité pour cette croix.
 
-| Croix de l’angle ouvert… | 1 | 2 |
+| Croix de l’angle gauche… | 1 | 2 |
 | --- | --- | --- |
 | du défi | [[hd-gate-2|2]] | [[hd-gate-1|1]] |
 | des souhaits | [[hd-gate-3|3]] | [[hd-gate-50|50]] |
@@ -88,4 +88,4 @@ Chaque case donne la porte du Soleil de la Personnalité pour cette croix.
 | de l’état d’âme | [[hd-gate-55|55]] | [[hd-gate-59|59]] |
 | de la distraction | [[hd-gate-56|56]] | [[hd-gate-60|60]] |
 | de l’obscurantisme | [[hd-gate-62|62]] | [[hd-gate-61|61]] |
-| de dominion | [[hd-gate-63|63]] | [[hd-gate-64|64]] |
+| de la domination | [[hd-gate-63|63]] | [[hd-gate-64|64]] |

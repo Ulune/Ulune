@@ -45,7 +45,7 @@ Ulune casts 26 activations: 13 bodies at birth for the Personality, 13 for the D
 
 Run as the chart’s only channel, Ulune’s logic gives a [[hd-generator|Generator]]: the Sacral is defined and no motor reaches the [[hd-centre-throat|Throat]]. The authority is [[hd-authority-sacral|sacral]], since the Solar Plexus is not defined, and the definition is single.
 
-On the bodygraph, each half of the channel takes the colour of its gate. It is ink for the Personality, red for the Design, and ink dashed with red when both layers stand in that gate. A defined channel is drawn thicker than a hanging half, and its two centres are filled in gold. The reading names the layer: Personality, Design, or Personality + Design when no single layer holds both gates. In the Personality or Design view, only that layer’s bodies count.
+On the bodygraph, each half of the channel takes the colour of its gate. It is ink for the Personality, red for the Design, and ink dashed with red when both layers stand in that gate. A defined channel is drawn thicker than a hanging half, and its two centres are filled in gold. The reading names the layer: Personality, Design, or Personality + Design when both layers share the channel. In the Personality or Design view, only that layer’s bodies count.
 
 ## Correspondences
 

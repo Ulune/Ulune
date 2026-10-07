@@ -45,7 +45,7 @@ The first number is the line of the Personality Sun, at birth; the second, the l
 
 88° is about 93.87 lines. So the Design line usually falls two places after the Personality line, counting on from 6 to 1. It falls three places after only in the last 0.125° of a line. That last stretch, about three hours of the Sun’s motion, gives the 6/3. It is one of the six rare profiles, each about 2.2% of the zodiac against 14.4% for a common one. They are exactly the six whose lines form a harmonic pair. In the Sun’s order it comes between [[hd-profile-6-2|6/2]] and [[hd-profile-1-3|1/3]].
 
-Without a birth time, Ulune casts the chart at noon and at every hour of that day. The Sun moves about a degree a day, more than a line, so the profile is always marked ~: another hour gives a neighbour, usually the 6/2 or the 1/3. The [[hd-cross|cross]] is marked too when its angle or gates could change.
+Without a birth time, Ulune casts the chart at noon and at every hour of that day. The Sun moves about a degree a day, more than a line, so the profile is always marked ~: another hour gives a neighbour, usually the 6/2 or the 1/3. Ulune names the profiles that day can give under the profile, as in “that day also 1/3”. The [[hd-cross|cross]] is marked too when its angle or gates could change.
 
 ## Correspondences
 

@@ -44,7 +44,7 @@ Ulune lit les portes sur le zodiaque tropical, à partir de la porte 41 à 302°
 
 Ulune place treize corps sur la roue : le Soleil et la Terre opposée, la Lune, les Nœuds vrais, et Mercure à Pluton. Il le fait à la naissance et au moment du Design, quand le Soleil se trouvait exactement 88° en arrière. L’une de ces 26 positions dans l’intervalle suffit à colorer la porte. Sans heure de naissance, le schéma est dressé à midi. Ulune signale alors tout corps dont la porte ou la ligne pourrait changer à une autre heure.
 
-Quand le Soleil de la Personnalité se trouve ici, Ulune nomme la [[hd-cross|croix d’incarnation]] d’après la porte 21. Le [[hd-profile|profil]] fixe son angle : [[hd-cross-right-angle|angle droit]], [[hd-cross-juxtaposition|juxtaposition]] ou [[hd-cross-left-angle|angle ouvert]]. Les trois noms figurent dans le tableau ci-dessous.
+Quand le Soleil de la Personnalité se trouve ici, Ulune nomme la [[hd-cross|croix d’incarnation]] d’après la porte 21. Le [[hd-profile|profil]] fixe son angle : [[hd-cross-right-angle|angle droit]], [[hd-cross-juxtaposition|juxtaposition]] ou [[hd-cross-left-angle|angle gauche]]. Les trois noms figurent dans le tableau ci-dessous.
 
 ## Correspondances
 
@@ -55,6 +55,6 @@ Quand le Soleil de la Personnalité se trouve ici, Ulune nomme la [[hd-cross|cro
 | Porte partenaire | [[hd-gate-45]] |
 | Circuit | [[hd-circuit-ego]] ([[hd-circuit-tribal]]) |
 | Porte opposée (Soleil et Terre) | [[hd-gate-48]] |
-| Croix d’incarnation (Soleil de la Personnalité) | Croix de l’angle droit de la tension 1 ; Croix de juxtaposition du contrôle ; Croix de l’angle ouvert de l’effort 1 |
+| Croix d’incarnation (Soleil de la Personnalité) | Croix de l’angle droit de la tension 1 ; Croix de juxtaposition du contrôle ; Croix de l’angle gauche de l’effort 1 |
 | Yi King | Hexagramme 21, Mordre au travers (le feu sur le tonnerre) |
 | Zodiaque | De 9°30′00″ à 15°07′30″ [[aries]] |

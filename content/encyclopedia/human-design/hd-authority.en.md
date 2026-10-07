@@ -59,7 +59,7 @@ Ulune reads the authority from the defined centres, testing these rules in order
 
 A centre is defined when one of its channels has both gates active, from any of the thirteen bodies of the Personality or of the Design. A chart with no defined centre is a Reflector, so rule 6 applies exactly when no centre is defined; rule 7 then covers [[hd-projector|Projectors]] defined only in the Head, the Ajna and the Throat.
 
-When the authority is selected, Ulune lights the centre it comes from: the Solar Plexus, the Sacral, the Spleen, the Heart or the G. Mental and Lunar authority light none. Ulune does not split an authority into the finer kinds some teachers name, such as the manifested and projected forms of the Ego. Without a birth time, the chart is cast at noon and again at every hour of that day; if the authority differs at any hour, Ulune marks it as one that could differ.
+When the authority is selected, Ulune lights the centre it comes from: the Solar Plexus, the Sacral, the Spleen, the Heart or the G. Mental and Lunar authority light none. Ulune names the Ego’s two forms, manifested for a Manifestor and projected for a Projector, and adds “no inner authority” beneath Mental; it does not split the other authorities into finer kinds. Without a birth time, the chart is cast at noon and again at every hour of that day; if the authority differs at any hour, Ulune marks it as one that could differ.
 
 ## Correspondences
 

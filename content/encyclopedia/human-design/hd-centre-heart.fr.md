@@ -48,7 +48,7 @@ Ra Uru Hu a présenté les neuf centres à partir de 1987, comme un changement p
 
 Ulune colore une porte quand l’une des 26 activations s’y trouve, les 13 corps de la Personnalité et les 13 du Design. Un canal est défini quand ses deux portes sont colorées, et un centre est défini quand un canal défini le touche.
 
-Le Cœur est donc défini exactement quand le canal [[hd-channel-45-21|45–21]], [[hd-channel-25-51|25–51]], [[hd-channel-44-26|44–26]] ou [[hd-channel-40-37|40–37]] l’est. Sinon, il est non défini si l’une de ses quatre portes est colorée, ouvert si aucune ne l’est. Ulune le compte parmi ses quatre moteurs. Pour le type, il cherche tout moteur atteint depuis la Gorge en suivant des canaux définis. Il donne l’autorité de l’Ego quand le Cœur est défini, mais ni le Plexus solaire, ni le Sacral, ni la Rate. Ulune ne nomme qu’une autorité de l’Ego, sans la distinction de la tradition entre ses formes manifestée et projetée.
+Le Cœur est donc défini exactement quand le canal [[hd-channel-45-21|45–21]], [[hd-channel-25-51|25–51]], [[hd-channel-44-26|44–26]] ou [[hd-channel-40-37|40–37]] l’est. Sinon, il est non défini si l’une de ses quatre portes est colorée, ouvert si aucune ne l’est. Ulune le compte parmi ses quatre moteurs. Pour le type, il cherche tout moteur atteint depuis la Gorge en suivant des canaux définis. Il donne l’autorité de l’Ego quand le Cœur est défini, mais ni le Plexus solaire, ni le Sacral, ni la Rate. Ulune en nomme les deux formes comme la tradition : manifestée pour un Manifesteur, projetée pour un Projecteur.
 
 ## Correspondances
 

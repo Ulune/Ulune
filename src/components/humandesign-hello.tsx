@@ -1,12 +1,12 @@
 import "@/studio/modes/styles/first-read.css";
 import { hdHelloCells, HD_HELLO } from "@/lib/i18n/hd-hello";
 import {
-  hdAuthorityLabel,
+  hdAuthorityFull,
   hdCenterLabel,
   hdDefinitionLabel,
   hdFactLabel,
   hdGraphText,
-  hdStrategyLabel,
+  hdStrategyFull,
   hdTypeLabel,
 } from "@/lib/i18n/hd-ui";
 import { hdAuthoritySeat } from "@/lib/chart/hd-focus";
@@ -45,9 +45,9 @@ export function HumanDesignHello({
 
   const valueOf = (id: StepId): string => {
     if (id === "type") return hdTypeLabel(locale, chart.type);
-    if (id === "strategy") return hdStrategyLabel(locale, chart.strategy);
+    if (id === "strategy") return hdStrategyFull(locale, chart);
     if (id === "authority") {
-      const label = hdAuthorityLabel(locale, chart.authority);
+      const label = hdAuthorityFull(locale, chart);
       const center = seat ? hdCenterLabel(locale, seat) : "";
       // "Sacral · Sacral" says nothing more: the centre only when its name differs.
       const same = center && label.toLowerCase().startsWith(center.toLowerCase().slice(0, 5));

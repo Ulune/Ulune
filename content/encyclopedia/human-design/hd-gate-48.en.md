@@ -51,7 +51,7 @@ When this is a chart’s only channel, Ulune finds a [[hd-projector|Projector]] 
 - Gate 48 is the 45th, from 9°30′00″ to 15°07′30″ Libra (189.5° to 195.125°). Its six lines are 0°56′15″ wide and begin at 9°30′00″, 10°26′15″, 11°22′30″, 12°18′45″, 13°15′00″ and 14°11′15″ Libra.
 - Ulune reads thirteen bodies at birth and again when the Sun stood exactly 88° earlier. The Sun, the Earth, the Moon, the true Nodes and Mercury to Pluto each colour the gate they stand in.
 - When gate 16 is coloured too, at either moment, the channel 16–48 is defined. Ulune notes whether its gates come from the Personality, the Design or both.
-- With the Personality Sun here, Ulune names the [[hd-cross|incarnation cross]] by the profile. Profiles 1/3 to 4/6 give the Right Angle Cross of Tension 3. Profile 4/1 gives the Juxtaposition Cross of Depth. Profiles 5/1 to 6/3 give the Left Angle Cross of Endeavor 2.
+- With the Personality Sun here, Ulune names the [[hd-cross|incarnation cross]] by the profile. Profiles 1/3 to 4/6 give the Right Angle Cross of Tension 3. Profile 4/1 gives the Juxtaposition Cross of Depth. Profiles 5/1 to 6/3 give the Left Angle Cross of Endeavour 2.
 
 ## Correspondences
 

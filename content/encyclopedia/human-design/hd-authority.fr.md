@@ -59,7 +59,7 @@ Ulune déduit l’autorité des centres définis, en essayant ces règles dans l
 
 Un centre est défini quand l’un de ses canaux a ses deux portes actives, par l’un des treize corps de la Personnalité ou du Design. Un thème sans centre défini est un Réflecteur : la règle 6 s’applique donc exactement quand aucun centre n’est défini, et la règle 7 couvre alors les [[hd-projector|Projecteurs]] définis seulement dans la Tête, l’Ajna et la Gorge.
 
-Quand l’autorité est choisie, Ulune éclaire le centre d’où elle vient : le Plexus solaire, le Sacral, la Rate, le Cœur ou le G. Les autorités mentale et lunaire n’en éclairent aucun. Ulune ne divise pas une autorité en sous-catégories plus fines que nomment certains enseignants, comme les formes manifestée et projetée de l’ego. Sans heure de naissance, le thème est calculé à midi puis à chaque heure de la journée ; si l’autorité change à l’une de ces heures, Ulune la signale comme pouvant différer.
+Quand l’autorité est choisie, Ulune éclaire le centre d’où elle vient : le Plexus solaire, le Sacral, la Rate, le Cœur ou le G. Les autorités mentale et lunaire n’en éclairent aucun. Ulune nomme les deux formes de l’ego, manifestée pour un Manifesteur et projetée pour un Projecteur, et ajoute « sans autorité intérieure » sous l’autorité mentale ; il ne divise pas les autres autorités en sous-catégories plus fines. Sans heure de naissance, le thème est calculé à midi puis à chaque heure de la journée ; si l’autorité change à l’une de ces heures, Ulune la signale comme pouvant différer.
 
 ## Correspondances
 

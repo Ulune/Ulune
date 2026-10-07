@@ -51,7 +51,7 @@ Quand ce canal est le seul du thème, Ulune trouve un [[hd-generator|Générateu
 - La porte 53 est la 30e, de 15°07′30″ à 20°45′00″ Cancer (de 105,125° à 110,75°). Ses six lignes mesurent 0°56′15″ et commencent à 15°07′30″, 16°03′45″, 17°00′00″, 17°56′15″, 18°52′30″ et 19°48′45″ Cancer.
 - Ulune lit treize corps à la naissance, puis quand le Soleil se trouvait exactement 88° en arrière. Le Soleil, la Terre, la Lune, les vrais Nœuds et les planètes de Mercure à Pluton colorent chacun la porte où ils se trouvent.
 - Quand la porte 42 est colorée elle aussi, à l’un ou l’autre moment, le canal 42–53 est défini. Ulune indique si ses portes viennent de la Personnalité, du Design ou des deux.
-- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit de la pénétration 2. Le profil 4/1 donne la Croix de juxtaposition des commencements. Les profils 5/1 à 6/3 donnent la Croix de l’angle ouvert des cycles 1.
+- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit de la pénétration 2. Le profil 4/1 donne la Croix de juxtaposition des commencements. Les profils 5/1 à 6/3 donnent la Croix de l’angle gauche des cycles 1.
 
 ## Correspondances
 

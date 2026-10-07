@@ -52,7 +52,7 @@ Ulune calcule la [[hd-layers|Personnalité et le Design]], colore leurs portes e
 
 Le moteur qui atteint la Gorge n’est pas forcément le Sacral. Un schéma au Sacral défini qui possède le canal [[hd-channel-35-36|35–36]], du Plexus solaire à la Gorge, est lui aussi celui d’un Générateur manifesteur.
 
-La stratégie affichée est « Attendre pour répondre », et le tableau des clés ajoute « Satisfaction · Frustration et colère ». Sans heure de naissance, le schéma est calculé à midi et à chaque heure de la journée. Si une autre heure donne un autre type, le type est marqué ~.
+La stratégie affichée est « Attendre pour répondre », avec « puis informer » en dessous, et le tableau des clés ajoute « Satisfaction · Frustration et colère ». Sans heure de naissance, le schéma est calculé à midi et à chaque heure de la journée. Si une autre heure donne un autre type, le type est marqué ~.
 
 ## Correspondances
 

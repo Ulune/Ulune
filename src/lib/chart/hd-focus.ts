@@ -15,7 +15,7 @@ import {
   type HumanDesignChart,
 } from "./human-design";
 import type { AppLocale } from "@/lib/i18n/messages";
-import { hdActivationLabel, hdCenterLabel, hdChannelCentersLine, hdGateTitle, hdGraphText } from "@/lib/i18n/hd-ui";
+import { hdActivationLabel, hdCenterLabel, hdCentreStateWord, hdChannelCentersLine, hdGateTitle, hdGraphText } from "@/lib/i18n/hd-ui";
 
 /** Gate and channel names, from the reading pack once it has loaded. */
 export type HdNames = { gate: (n: number) => string; channel: (id: string) => string };
@@ -190,7 +190,7 @@ export function hdSay(chart: HumanDesignChart, view: HdView, id: string, locale:
     const active = gates.filter((g) => graph.gates.has(g)).length;
     return [
       hdCenterLabel(locale, cid),
-      hdGraphText(locale, graph.centers.includes(cid) ? "defined" : "open"),
+      hdCentreStateWord(locale, graph.centers.includes(cid), active),
       hdGraphText(locale, "gatesActive", { n: active, m: gates.length }),
     ].join(" · ");
   }

@@ -49,7 +49,7 @@ La stratégie fait partie du système que Ra Uru Hu dit avoir reçu à Ibiza en 
 
 ## Comment Ulune le calcule
 
-Ulune tire la stratégie directement du type. Un Manifesteur reçoit « Informer avant d’agir », un Projecteur « Attendre l’invitation », un Réflecteur « Attendre un cycle lunaire ». Générateurs et Générateurs manifesteurs reçoivent « Attendre pour répondre ». C’est la deuxième carte au-dessus du bodygraph, après le type. Sans heure de naissance, la stratégie est marquée ~ chaque fois qu’une autre heure de ce jour-là donnerait un type à la stratégie différente.
+Ulune tire la stratégie directement du type. Un Manifesteur reçoit « Informer avant d’agir », un Projecteur « Attendre l’invitation », un Réflecteur « Attendre un cycle lunaire ». Générateurs et Générateurs manifesteurs reçoivent « Attendre pour répondre », avec « puis informer » en plus pour un Générateur manifesteur. C’est la deuxième carte au-dessus du bodygraph, après le type. Sans heure de naissance, la stratégie est marquée ~ chaque fois qu’une autre heure de ce jour-là donnerait un type à la stratégie différente.
 
 ## Correspondances
 

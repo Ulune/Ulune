@@ -258,6 +258,8 @@ export type HdUncertain = {
   keys: string[];
   /** Channels that could be defined or not. */
   channels: string[];
+  /** Every profile that day can give, the noon one first (the Sun crosses more than a line a day). */
+  profiles?: string[];
 };
 
 export type HumanDesignChart = {

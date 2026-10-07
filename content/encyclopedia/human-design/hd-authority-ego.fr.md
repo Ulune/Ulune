@@ -41,7 +41,7 @@ Dans l’ordre des autorités de Ra Uru Hu, le Cœur vient en quatrième, après
 
 Quatrième règle de l’ordre d’Ulune : quand le Plexus solaire, le Sacral et la Rate ne sont pas définis et que le Cœur l’est, l’autorité est celle de l’ego. Le Cœur a quatre canaux. Deux d’entre eux définissent aussi un centre placé plus haut dans l’ordre : le [[hd-channel-44-26|44–26]] la Rate, d’où une autorité splénique, et le [[hd-channel-40-37|40–37]] le Plexus solaire, d’où une autorité émotionnelle. L’autorité de l’ego vient donc du 21–45 ou du 25–51.
 
-Ulune affiche une seule étiquette, Ego, et ne distingue pas la forme manifestée de la forme projetée ; le thème montre laquelle s’applique. Avec le 21–45, un moteur atteint la Gorge et le type est Manifesteur. Avec le 25–51 seul, le type est Projecteur, sauf si le centre G atteint aussi la Gorge ; le Cœur l’atteint alors à travers le G, et le type est Manifesteur. Le Cœur passe avant le G, si bien qu’un tel thème donne l’ego, jamais l’[[hd-authority-self-projected|autorité auto-projetée]].
+Ulune nomme la forme sous l’étiquette : « Ego manifestée » pour un Manifesteur, « Ego projetée » pour un Projecteur. Avec le 21–45, un moteur atteint la Gorge et le type est Manifesteur. Avec le 25–51 seul, le type est Projecteur, sauf si le centre G atteint aussi la Gorge ; le Cœur l’atteint alors à travers le G, et le type est Manifesteur. Le Cœur passe avant le G, si bien qu’un tel thème donne l’ego, jamais l’[[hd-authority-self-projected|autorité auto-projetée]].
 
 Choisir l’autorité sur le bodygraph éclaire le Cœur. Sans heure de naissance, Ulune signale l’autorité comme pouvant différer si elle change à une autre heure de la journée.
 

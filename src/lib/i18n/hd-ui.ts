@@ -54,6 +54,45 @@ export function hdAuthorityLabel(locale: AppLocale, authority: HdAuthority): str
   return pick(source.authority[authority], locale);
 }
 
+/**
+ * What the tradition adds to a key's bare name for this chart (review of the
+ * encyclopedia's Human Design pages, 7 Oct): a Manifesting Generator responds,
+ * then informs; Ego authority is "manifested" with the Heart joined to the
+ * Throat (a Manifestor) and "projected" with it joined to the G (a Projector);
+ * Mental authority is no inner authority. Null when there is nothing to add.
+ */
+export function hdStrategyNote(locale: AppLocale, chart: { type: HdType }): string | null {
+  return chart.type === "Manifesting Generator" ? pick(source.note.thenInform, locale) : null;
+}
+
+export function hdAuthorityNote(locale: AppLocale, chart: { type: HdType; authority: HdAuthority }): string | null {
+  if (chart.authority === "Ego") {
+    if (chart.type === "Manifestor") return pick(source.note.egoManifested, locale);
+    if (chart.type === "Projector") return pick(source.note.egoProjected, locale);
+    return null;
+  }
+  return chart.authority === "Mental" ? pick(source.note.noInner, locale) : null;
+}
+
+/** Without a birth time: the other profiles that day can give ("that day also 1/4, 2/4"). */
+export function hdProfileNote(locale: AppLocale, chart: { profile: string; uncertain?: { profiles?: string[] } }): string | null {
+  const others = (chart.uncertain?.profiles ?? []).filter((p) => p !== chart.profile);
+  return others.length ? `${pick(source.note.alsoPossible, locale)} ${others.join(", ")}` : null;
+}
+
+/** The strategy with its note: "Wait to respond, then inform". */
+export function hdStrategyFull(locale: AppLocale, chart: { type: HdType; strategy: HdStrategy }): string {
+  const note = hdStrategyNote(locale, chart);
+  return note ? `${hdStrategyLabel(locale, chart.strategy)}, ${note}` : hdStrategyLabel(locale, chart.strategy);
+}
+
+/** The authority with its note: "Ego manifested", "Mental (no inner authority)". */
+export function hdAuthorityFull(locale: AppLocale, chart: { type: HdType; authority: HdAuthority }): string {
+  const note = hdAuthorityNote(locale, chart);
+  if (!note) return hdAuthorityLabel(locale, chart.authority);
+  return chart.authority === "Ego" ? `${hdAuthorityLabel(locale, chart.authority)} ${note}` : `${hdAuthorityLabel(locale, chart.authority)} (${note})`;
+}
+
 export function hdDefinitionLabel(locale: AppLocale, definition: string): string {
   const row = (source.definition as Record<string, { en: string; fr: string }>)[definition];
   return row ? pick(row, locale) : definition;

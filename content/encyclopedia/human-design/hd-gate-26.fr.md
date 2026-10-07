@@ -60,7 +60,7 @@ Treize corps sont lus deux fois : à la naissance, et au moment du Design, qua
 
 - de 1/3 à 4/6, la [[hd-cross-right-angle|Croix de l’angle droit de la dominance 4]] ;
 - en 4/1, la [[hd-cross-juxtaposition|Croix de juxtaposition du tricheur]] ;
-- de 5/1 à 6/3, la [[hd-cross-left-angle|Croix de l’angle ouvert de la confrontation 2]].
+- de 5/1 à 6/3, la [[hd-cross-left-angle|Croix de l’angle gauche de la confrontation 2]].
 
 ## Correspondances
 

@@ -95,7 +95,7 @@ export const HD_SIGNPOSTS: Record<HdType, { notSelf: Bi; signature: Bi }> = {
   Generator: { notSelf: { en: "frustration", fr: "la frustration" }, signature: { en: "satisfaction", fr: "la satisfaction" } },
   "Manifesting Generator": {
     notSelf: { en: "frustration and anger", fr: "la frustration et la colère" },
-    signature: { en: "satisfaction and peace", fr: "la satisfaction et la paix" },
+    signature: { en: "satisfaction", fr: "la satisfaction" },
   },
   Projector: { notSelf: { en: "bitterness", fr: "l’amertume" }, signature: { en: "success", fr: "le succès" } },
   Reflector: { notSelf: { en: "disappointment", fr: "la déception" }, signature: { en: "surprise", fr: "la surprise" } },
@@ -121,9 +121,15 @@ export const HD_STRATEGY_STEP: Record<HdStrategy, Bi> = {
     fr: "Attendez d’être reconnu et invité, surtout pour le travail, l’amour et le lieu de vie. Exemple\u202f: un conseil demandé est suivi\u202f; non sollicité, il est souvent ignoré.",
   },
   "Wait a lunar cycle": {
-    en: "Give important decisions a full Moon cycle, about 29 days. Example: living with the idea of a move for a month before signing a lease.",
-    fr: "Donnez aux décisions importantes un cycle lunaire complet, environ 29 jours. Exemple\u202f: vivre un mois avec l’idée d’un déménagement avant de signer un bail.",
+    en: "Give important decisions a full lunar cycle, about four weeks: the time the Moon takes to pass through all 64 gates. Example: living with the idea of a move for a month before signing a lease.",
+    fr: "Donnez aux décisions importantes un cycle lunaire complet, environ quatre semaines\u202f: le temps que met la Lune à traverser les 64 portes. Exemple\u202f: vivre un mois avec l’idée d’un déménagement avant de signer un bail.",
   },
+};
+
+/** Step 2, for a Manifesting Generator: the second half of its strategy. */
+export const HD_STRATEGY_THEN_INFORM: Bi = {
+  en: "Then, once your gut has answered, tell the people it affects before you move fast.",
+  fr: "Puis, une fois que votre ventre a répondu, prévenez les personnes concernées avant d’aller vite.",
 };
 
 /** Step 3: how to use the authority. */
@@ -153,8 +159,8 @@ export const HD_AUTHORITY_STEP: Record<HdAuthority, Bi> = {
     fr: "Il n’y a pas d’autorité intérieure\u202f: parlez-en avec des personnes de confiance, dans des lieux qui vous conviennent, et laissez la clarté venir de l’extérieur.",
   },
   Lunar: {
-    en: "Take a full Moon cycle, about 29 days, over big decisions, and notice what stays the same.",
-    fr: "Prenez un cycle lunaire complet, environ 29 jours, pour les grandes décisions, et observez ce qui reste constant.",
+    en: "Take a full lunar cycle, about four weeks, over big decisions, and notice what stays the same.",
+    fr: "Prenez un cycle lunaire complet, environ quatre semaines, pour les grandes décisions, et observez ce qui reste constant.",
   },
 };
 
@@ -245,7 +251,7 @@ export const HD_IN_CHART: {
   and: { en: " and ", fr: " et " },
 };
 
-/** Variable: the four arrows, read from the tones of the Suns and the Nodes. */
+/** Variable: the four arrows, read from the colours and tones of the Suns and the Nodes. */
 export const HD_VARIABLE_TEXT: {
   arrow: Record<HdArrowId, Bi>;
   left: Bi;
@@ -284,8 +290,8 @@ export const HD_VARIABLE_TEXT: {
     fr: "Dans la demi-heure qui précède ou suit votre heure de naissance, cette flèche change\u202f: elle pourrait pointer de l’autre côté ou prendre une autre couleur.",
   },
   about: {
-    en: "Variable is the finest layer of a bodygraph, read from four arrows: the tones of the Sun and of the Nodes, in the Design and in the Personality. Each arrow points left (tones 1 to 3) or right (tones 4 to 6). Teachers suggest living by type, strategy and authority for a long while before working with it.",
-    fr: "La Variable est la couche la plus fine d’un bodygraph, lue sur quatre flèches\u202f: les tons du Soleil et des Nœuds, dans le Design et dans la Personnalité. Chaque flèche pointe à gauche (tons 1 à 3) ou à droite (tons 4 à 6). Les enseignants conseillent de vivre longtemps selon son type, sa stratégie et son autorité avant de s’y intéresser.",
+    en: "Variable is the finest layer of a bodygraph, read from four arrows: the Sun and the Nodes, in the Design and in the Personality. The colour of each names the arrow; its tone points it left (tones 1 to 3) or right (tones 4 to 6). Teachers suggest living by type, strategy and authority for a long while before working with it.",
+    fr: "La Variable est la couche la plus fine d’un bodygraph, lue sur quatre flèches\u202f: le Soleil et les Nœuds, dans le Design et dans la Personnalité. La couleur de chacun nomme la flèche\u202f; son ton la tourne à gauche (tons 1 à 3) ou à droite (tons 4 à 6). Les enseignants conseillent de vivre longtemps selon son type, sa stratégie et son autorité avant de s’y intéresser.",
   },
 };
 

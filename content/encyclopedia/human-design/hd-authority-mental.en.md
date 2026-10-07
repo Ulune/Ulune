@@ -41,7 +41,7 @@ In Ra Uru Hu’s teaching, Projectors defined only above the Throat are describe
 
 Mental authority is Ulune’s last rule: when none of the rules above applies and the type is not Reflector, the authority is Mental. In practice that means no defined Solar Plexus, Sacral, Spleen or Heart, and no defined G centre, since a G defined with the Throat gives [[hd-authority-self-projected|Self-Projected authority]]. What remains is definition among the Head, the Ajna and the Throat, through the channels [[hd-channel-64-47|64–47]], [[hd-channel-61-24|61–24]] and [[hd-channel-63-4|63–4]] between Head and Ajna, and [[hd-channel-17-62|17–62]], [[hd-channel-43-23|43–23]] and [[hd-channel-11-56|11–56]] between Ajna and Throat.
 
-No motor is defined, so the type is always Projector. This authority has no seat in Ulune: choosing it on the bodygraph lights no centre. Without a birth time, Ulune marks the authority as one that could differ if it changes at another hour of that day.
+No motor is defined, so the type is always Projector. This authority has no seat in Ulune: choosing it on the bodygraph lights no centre, and “no inner authority” is written beneath its name. Without a birth time, Ulune marks the authority as one that could differ if it changes at another hour of that day.
 
 ## Correspondences
 

@@ -330,8 +330,8 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
   hdVariable: {
     term: ["Variable (the arrows)", "Variable (les flèches)"],
     body: [
-      "Four arrows read from the tones of the Suns and the Nodes: Determination and Environment from the Design, Motivation and Perspective from the Personality. Each points left (tones 1 to 3) or right (4 to 6); they need an exact birth time.",
-      "Quatre flèches lues sur les tons des Soleils et des Nœuds\u202f: Détermination et Environnement pour le Design, Motivation et Perspective pour la Personnalité. Chacune pointe à gauche (tons 1 à 3) ou à droite (4 à 6)\u202f; il leur faut une heure de naissance exacte.",
+      "Four arrows read from the colour and tone of the Suns and the Nodes: Determination and Environment from the Design, Motivation and Perspective from the Personality. The colour names each one; its tone points it left (1 to 3) or right (4 to 6). They need an exact birth time.",
+      "Quatre flèches lues sur la couleur et le ton des Soleils et des Nœuds\u202f: Détermination et Environnement pour le Design, Motivation et Perspective pour la Personnalité. La couleur nomme chacune\u202f; son ton la tourne à gauche (1 à 3) ou à droite (4 à 6). Il leur faut une heure de naissance exacte.",
     ],
   },
   lifePath: {

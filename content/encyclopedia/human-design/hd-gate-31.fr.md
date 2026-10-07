@@ -60,7 +60,7 @@ Treize corps sont lus deux fois : à la naissance, et au moment du Design, qua
 
 - de 1/3 à 4/6, la [[hd-cross-right-angle|Croix de l’angle droit de l’imprévu 2]] ;
 - en 4/1, la [[hd-cross-juxtaposition|Croix de juxtaposition de l’influence]] ;
-- de 5/1 à 6/3, la [[hd-cross-left-angle|Croix de l’angle ouvert de l’alpha 1]].
+- de 5/1 à 6/3, la [[hd-cross-left-angle|Croix de l’angle gauche de l’alpha 1]].
 
 ## Correspondances
 

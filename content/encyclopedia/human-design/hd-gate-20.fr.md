@@ -48,7 +48,7 @@ Ulune place treize corps sur la roue : le Soleil et la Terre opposée, la Lune
 
 Avec le Soleil en porte 20, la Terre de la même couche se trouve en porte 34, exactement en face, et inversement. Le Charisme est alors toujours défini, et Ulune trouve un Générateur manifesteur.
 
-Quand le Soleil de la Personnalité se trouve ici, Ulune nomme la [[hd-cross|croix d’incarnation]] d’après la porte 20. Le [[hd-profile|profil]] fixe son angle : [[hd-cross-right-angle|angle droit]], [[hd-cross-juxtaposition|juxtaposition]] ou [[hd-cross-left-angle|angle ouvert]]. Les trois noms figurent dans le tableau ci-dessous.
+Quand le Soleil de la Personnalité se trouve ici, Ulune nomme la [[hd-cross|croix d’incarnation]] d’après la porte 20. Le [[hd-profile|profil]] fixe son angle : [[hd-cross-right-angle|angle droit]], [[hd-cross-juxtaposition|juxtaposition]] ou [[hd-cross-left-angle|angle gauche]]. Les trois noms figurent dans le tableau ci-dessous.
 
 ## Correspondances
 
@@ -59,6 +59,6 @@ Quand le Soleil de la Personnalité se trouve ici, Ulune nomme la [[hd-cross|cro
 | Portes partenaires | [[hd-gate-10]], [[hd-gate-34]], [[hd-gate-57]] |
 | Circuits | [[hd-circuit-integration]] ; [[hd-circuit-knowing]] (avec la porte 57) |
 | Porte opposée (Soleil et Terre) | [[hd-gate-34]] |
-| Croix d’incarnation (Soleil de la Personnalité) | Croix de l’angle droit du phoenix dormant 2 ; Croix de juxtaposition du moment présent ; Croix de l’angle ouvert de la dualité 1 |
+| Croix d’incarnation (Soleil de la Personnalité) | Croix de l’angle droit du phénix dormant 2 ; Croix de juxtaposition du moment présent ; Croix de l’angle gauche de la dualité 1 |
 | Yi King | Hexagramme 20, La Contemplation (le vent sur la terre) |
 | Zodiaque | De 0°07′30″ à 5°45′00″ [[gemini]] |

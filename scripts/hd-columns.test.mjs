@@ -13,6 +13,8 @@ import { hdFocusOf, hdSay } from "../src/lib/chart/hd-focus.ts";
 import { hdFirstRead, hdReading } from "../src/lib/chart/interpret-humandesign.ts";
 import { HD_BODY_IDS } from "../src/lib/chart/human-design.ts";
 import { glossaryFor, GLOSSARY } from "../src/lib/i18n/glossary.ts";
+import { hdAuthorityFull, hdAuthorityNote, hdProfileNote, hdStrategyFull, hdStrategyNote } from "../src/lib/i18n/hd-ui.ts";
+import { hdCenterProse } from "../src/lib/i18n/hd-prose.ts";
 
 const sample = () => calculateHumanDesign({ natalUtc: new Date("2000-01-01T12:00:00Z") });
 
@@ -116,7 +118,9 @@ test("the first read: five steps in Human Design's order, in both languages", as
   }
   const en = hdFirstRead(hd, "en");
   assert.equal(en.profileName, "Investigator / Opportunist");
-  assert.match(en.steps[0].extra, /frustration and anger when you are off track \(the not-self theme\), satisfaction and peace/);
+  assert.match(en.steps[0].extra, /frustration and anger when you are off track \(the not-self theme\), satisfaction when you are on it/);
+  // A Manifesting Generator responds, then informs (review of 7 Oct).
+  assert.match(en.steps[1].text, /Then, once your gut has answered, tell the people it affects/);
   assert.equal(en.steps[3].text, "The 1 is the line of your Personality Sun (Investigator), the 4 the line of your Design Sun (Opportunist).");
 });
 
@@ -161,5 +165,30 @@ test("the glossary starts with the words the chosen piece uses", () => {
   assert.equal(glossaryFor("design", "hello:type")[1], "hdNotSelf");
   for (const id of ["hdGate", "hdChannel", "hdLine", "hdHanging", "hdNotSelf", "hdProfile", "hdDefinition", "hdCross"]) {
     assert.ok(GLOSSARY[id].term[0] && GLOSSARY[id].term[1] && GLOSSARY[id].body[0] && GLOSSARY[id].body[1], id);
+  }
+});
+
+/* The review of the encyclopedia's Human Design pages (7 Oct). */
+
+test("what the tradition adds to a key: then inform, the Ego's two forms, no inner authority", () => {
+  assert.equal(hdStrategyFull("en", { type: "Manifesting Generator", strategy: "Wait to respond" }), "Wait to respond, then inform");
+  assert.equal(hdStrategyNote("en", { type: "Generator" }), null);
+  assert.equal(hdAuthorityFull("en", { type: "Manifestor", authority: "Ego" }), "Ego manifested");
+  assert.equal(hdAuthorityFull("fr", { type: "Projector", authority: "Ego" }), "Ego projetée");
+  assert.equal(hdAuthorityFull("en", { type: "Projector", authority: "Mental" }), "Mental (no inner authority)");
+  assert.equal(hdAuthorityNote("en", { type: "Generator", authority: "Sacral" }), null);
+  assert.equal(hdProfileNote("en", { profile: "2/4", uncertain: { profiles: ["2/4", "1/4", "2/5"] } }), "that day also 1/4, 2/5");
+  assert.equal(hdProfileNote("en", { profile: "2/4" }), null);
+});
+
+test("a centre with active gates is undefined, not open, in its text and its line", async () => {
+  assert.match(hdCenterProse("en", "head", false, 1).state, /^Undefined,/);
+  assert.match(hdCenterProse("fr", "head", false, 1).state, /^Non défini,/);
+  assert.match(hdCenterProse("en", "head", false, 0).state, /^Open,/);
+  const hd = await sample();
+  for (const id of ["head", "ajna", "throat", "g", "heart", "sacral", "solarPlexus", "spleen", "root"]) {
+    const line = hdSay(hd, "both", `center:${id}`, "en", null);
+    assert.match(line, / · (defined|undefined|open) · /, line);
+    if (/ · open · /.test(line)) assert.match(line, / · 0 of /, `${line}: open with active gates`);
   }
 });

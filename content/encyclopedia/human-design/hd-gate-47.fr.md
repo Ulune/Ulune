@@ -51,7 +51,7 @@ Ni la Tête ni l’Ajna ne sont des moteurs. Quand ce canal est le seul du thèm
 - La porte 47 est la 41e, de 17°00′00″ à 22°37′30″ Vierge (de 167° à 172,625°). Ses six lignes mesurent 0°56′15″ et commencent à 17°00′00″, 17°56′15″, 18°52′30″, 19°48′45″, 20°45′00″ et 21°41′15″ Vierge.
 - Ulune lit treize corps à la naissance, puis quand le Soleil se trouvait exactement 88° en arrière. Le Soleil, la Terre, la Lune, les vrais Nœuds et les planètes de Mercure à Pluton colorent chacun la porte où ils se trouvent.
 - Quand la porte 64 est colorée elle aussi, à l’un ou l’autre moment, le canal 64–47 est défini. Ulune indique si ses portes viennent de la Personnalité, du Design ou des deux.
-- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit de la dominance 3. Le profil 4/1 donne la Croix de juxtaposition de l’oppression. Les profils 5/1 à 6/3 donnent la Croix de l’angle ouvert de la divulgation 2.
+- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit de la dominance 3. Le profil 4/1 donne la Croix de juxtaposition de l’oppression. Les profils 5/1 à 6/3 donnent la Croix de l’angle gauche de la divulgation 2.
 
 ## Correspondances
 

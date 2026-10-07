@@ -55,6 +55,6 @@ When the Personality Sun stands here, Ulune names the [[hd-cross|incarnation cro
 | Partner gate | [[hd-gate-45]] |
 | Circuit | [[hd-circuit-ego]] ([[hd-circuit-tribal]]) |
 | Opposite gate (Sun and Earth) | [[hd-gate-48]] |
-| Incarnation crosses (Personality Sun) | Right Angle Cross of Tension 1; Juxtaposition Cross of Control; Left Angle Cross of Endeavor 1 |
+| Incarnation crosses (Personality Sun) | Right Angle Cross of Tension 1; Juxtaposition Cross of Control; Left Angle Cross of Endeavour 1 |
 | I Ching | Hexagram 21, Biting Through (fire over thunder) |
 | Zodiac | 9°30′00″ to 15°07′30″ [[aries]] |

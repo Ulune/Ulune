@@ -45,7 +45,7 @@ Le premier nombre est la ligne du Soleil de la Personnalité, à la naissance 
 
 88° valent environ 93,87 lignes. La ligne du Design tombe donc en général deux rangs après celle de la Personnalité, en repartant de 1 après 6. Elle ne tombe trois rangs après que dans les derniers 0,125° d’une ligne. Le 3/5 est l’un des six profils courants, qui couvrent chacun environ 14,4 % du zodiaque, contre 2,2 % pour chaque profil rare. À mesure que le Soleil avance, le profil passe par les douze dans un ordre fixe : le [[hd-profile-2-5|2/5]], puis le 3/5 pendant une vingtaine d’heures, puis le [[hd-profile-3-6|3/6]] pendant trois heures environ.
 
-Sans heure de naissance, Ulune calcule le schéma à midi et à chaque heure de ce jour-là. Le Soleil avance d’environ un degré par jour, plus qu’une ligne : le profil est donc toujours marqué ~. Une autre heure donne un voisin, en général le 2/5 ou le 3/6. La [[hd-cross|croix]] est marquée elle aussi quand son angle ou ses portes pourraient changer.
+Sans heure de naissance, Ulune calcule le schéma à midi et à chaque heure de ce jour-là. Le Soleil avance d’environ un degré par jour, plus qu’une ligne : le profil est donc toujours marqué ~. Une autre heure donne un voisin, en général le 2/5 ou le 3/6. Ulune nomme sous le profil ceux que ce jour peut donner, comme « ce jour-là aussi 3/6 ». La [[hd-cross|croix]] est marquée elle aussi quand son angle ou ses portes pourraient changer.
 
 ## Correspondances
 

@@ -217,5 +217,12 @@
       "en": ["Layer", "Body", "Gate", "Line", "Centre", "Channel"],
       "fr": ["Couche", "Corps", "Porte", "Ligne", "Centre", "Canal"]
     }
+  },
+  "note": {
+    "thenInform": { "en": "then inform", "fr": "puis informer" },
+    "egoManifested": { "en": "manifested", "fr": "manifestée" },
+    "egoProjected": { "en": "projected", "fr": "projetée" },
+    "noInner": { "en": "no inner authority", "fr": "sans autorité intérieure" },
+    "alsoPossible": { "en": "that day also", "fr": "ce jour-là aussi" }
   }
 }

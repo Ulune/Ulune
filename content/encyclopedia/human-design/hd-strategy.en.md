@@ -49,7 +49,7 @@ Strategy is part of the system Ra Uru Hu said he received on Ibiza in 1987. He s
 
 ## How Ulune calculates it
 
-Ulune sets the strategy straight from the type. A Manifestor gets “Inform before acting”, a Projector “Wait for the invitation”, a Reflector “Wait a lunar cycle”. Generators and Manifesting Generators get “Wait to respond”. It is the second card above the bodygraph, after the type. Without a birth time, the strategy is marked ~ whenever another hour of that day would give a type with another strategy.
+Ulune sets the strategy straight from the type. A Manifestor gets “Inform before acting”, a Projector “Wait for the invitation”, a Reflector “Wait a lunar cycle”. Generators and Manifesting Generators get “Wait to respond”, with “then inform” added for a Manifesting Generator. It is the second card above the bodygraph, after the type. Without a birth time, the strategy is marked ~ whenever another hour of that day would give a type with another strategy.
 
 ## Correspondences
 

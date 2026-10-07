@@ -51,7 +51,7 @@ Quand ce canal est le seul du thème, Ulune trouve un [[hd-projector|Projecteur]
 - La porte 48 est la 45e, de 9°30′00″ à 15°07′30″ Balance (de 189,5° à 195,125°). Ses six lignes mesurent 0°56′15″ et commencent à 9°30′00″, 10°26′15″, 11°22′30″, 12°18′45″, 13°15′00″ et 14°11′15″ Balance.
 - Ulune lit treize corps à la naissance, puis quand le Soleil se trouvait exactement 88° en arrière. Le Soleil, la Terre, la Lune, les vrais Nœuds et les planètes de Mercure à Pluton colorent chacun la porte où ils se trouvent.
 - Quand la porte 16 est colorée elle aussi, à l’un ou l’autre moment, le canal 16–48 est défini. Ulune indique si ses portes viennent de la Personnalité, du Design ou des deux.
-- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit de la tension 3. Le profil 4/1 donne la Croix de juxtaposition de la profondeur. Les profils 5/1 à 6/3 donnent la Croix de l’angle ouvert de l’effort 2.
+- Avec le Soleil de la Personnalité ici, Ulune nomme la [[hd-cross|croix d’incarnation]] selon le profil. Les profils 1/3 à 4/6 donnent la Croix de l’angle droit de la tension 3. Le profil 4/1 donne la Croix de juxtaposition de la profondeur. Les profils 5/1 à 6/3 donnent la Croix de l’angle gauche de l’effort 2.
 
 ## Correspondances
 
