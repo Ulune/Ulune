@@ -31,6 +31,7 @@ export type ModeData = {
   composite: CompositeState;
   design: DesignState;
   numerology: NumerologyState;
+  "numerology-cycles": NumerologyState;
 };
 
 const slots: Partial<Record<StudioPage, ModeRuntime>> = {};

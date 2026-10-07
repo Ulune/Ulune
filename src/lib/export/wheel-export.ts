@@ -32,7 +32,9 @@ export function findFigureSvg(root: ParentNode = document): SVGSVGElement | null
   return (
     root.querySelector<SVGSVGElement>(".ob-figure svg.ulune-wheel:not([data-depth-plane], .ulune-wheel-ghost)") ??
     root.querySelector<SVGSVGElement>(".ob-figure svg.ulune-hd-svg:not([data-depth-plane])") ??
-    root.querySelector<SVGSVGElement>(".ob-figure svg:not([data-depth-plane])")
+    root.querySelector<SVGSVGElement>(".ob-figure svg.ulune-num-svg") ??
+    // Never a glyph or an icon inside the figure (the Calendar's saved a 12-px sign glyph).
+    root.querySelector<SVGSVGElement>(".ob-figure svg:not([data-depth-plane], .ulune-glyph, .lucide)")
   );
 }
 

@@ -25,7 +25,18 @@ function exactAge(chart: NumerologyChart): number {
  * new nine-year round, and a line at the year shown. The table under it
  * holds the same in words, so the drawing is one picture for a screen reader.
  */
-export function NumerologyLifeLine({ chart, locale }: { chart: NumerologyChart; locale: AppLocale }) {
+export function NumerologyLifeLine({
+  chart,
+  locale,
+  selectedId = null,
+  onSelect,
+}: {
+  chart: NumerologyChart;
+  locale: AppLocale;
+  /** On the Cycles page each cycle is a button that opens its reading; in the table, one picture. */
+  selectedId?: string | null;
+  onSelect?: (id: string) => void;
+}) {
   const age = exactAge(chart);
   const end = Math.max(75, Math.ceil((chart.age + 6) / 5) * 5);
   const at = (a: number) => Math.min(1, Math.max(0, a / end));
@@ -45,7 +56,13 @@ export function NumerologyLifeLine({ chart, locale }: { chart: NumerologyChart; 
   });
   const nowShown = chart.age >= 0 && chart.age <= end;
   return (
-    <figure className="ulune-num-life" data-testid="num-lifeline" role="img" aria-label={aria}>
+    <figure
+      className="ulune-num-life"
+      data-testid="num-lifeline"
+      data-pick={onSelect ? "1" : undefined}
+      role={onSelect ? "group" : "img"}
+      aria-label={onSelect ? p(locale, "cyclesLifeGroup") : aria}
+    >
       {nowShown ? (
         <div className="ulune-num-life-row is-caption">
           <span />
@@ -71,19 +88,37 @@ export function NumerologyLifeLine({ chart, locale }: { chart: NumerologyChart; 
                   ages: agesText(locale, r.span),
                   years: spanYearsText(locale, chart.year, r.span),
                 });
-                return (
-                  <span
-                    key={r.index}
-                    className="ulune-num-life-span"
-                    data-testid={`num-life-${r.kind}-${r.index}`}
-                    data-now={within(r.span, chart.age) ? "1" : undefined}
-                    data-main={r.main ? "1" : undefined}
-                    data-open={r.span.toAge == null ? "1" : undefined}
-                    style={{ left: pct(from), width: pct(Math.max(0.004, to - from)) }}
-                    title={title}
-                  >
+                const props = {
+                  className: "ulune-num-life-span",
+                  "data-testid": `num-life-${r.kind}-${r.index}`,
+                  "data-now": within(r.span, chart.age) ? "1" : undefined,
+                  "data-main": r.main ? "1" : undefined,
+                  "data-open": r.span.toAge == null ? "1" : undefined,
+                  style: { left: pct(from), width: pct(Math.max(0.004, to - from)) },
+                  title,
+                };
+                const body = (
+                  <>
                     <b>{n}</b>
                     {r.main ? <small>{p(locale, "main")}</small> : null}
+                  </>
+                );
+                const ref = `cycle:${r.kind}:${r.index}`;
+                return onSelect && r.value.number != null ? (
+                  <button
+                    key={r.index}
+                    type="button"
+                    {...props}
+                    aria-label={title}
+                    aria-pressed={selectedId === ref}
+                    data-on={selectedId === ref ? "1" : undefined}
+                    onClick={() => onSelect(ref)}
+                  >
+                    {body}
+                  </button>
+                ) : (
+                  <span key={r.index} {...props}>
+                    {body}
                   </span>
                 );
               })}

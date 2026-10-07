@@ -139,7 +139,9 @@ async function computer() {
     check((await page.getByTestId("lang-chip-human-design").innerText()).trim() === "HD", `the Human Design chip reads "${await page.getByTestId("lang-chip-human-design").innerText()}"`);
     await page.getByTestId("lang-chip-numerology").click();
     await waitStudioPage(page, "numerology");
-    check(!(await page.locator("[data-testid^=lens-]").count()), "numerology shows lens tabs");
+    // Numerology has two lenses (its numbers, its cycles): Natal and Cycles, nothing else.
+    const numLenses = await page.locator("[data-testid^=lens-]").evaluateAll((els) => els.map((e) => e.dataset.testid));
+    check(JSON.stringify(numLenses) === JSON.stringify(["lens-natal", "lens-cycles"]), `numerology's lenses ${JSON.stringify(numLenses)}`);
     const after = await page.locator("[data-testid^=lang-chip-]").evaluateAll((els) => els.map((e) => e.dataset.testid));
     check(JSON.stringify(after) === JSON.stringify(["lang-chip-astrology", "lang-chip-human-design"]), `chips on numerology ${JSON.stringify(after)}`);
     console.log("chips OK");
@@ -152,6 +154,14 @@ async function computer() {
     await waitStudioPage(page, "composite");
     await clickTestId(page, "lang-chip-human-design");
     await waitStudioPage(page, "design");
+    await clickTestId(page, "lang-chip-astrology");
+    await waitStudioPage(page, "composite");
+    await goStudioPage(page, "numerology-cycles");
+    check(new URL(page.url()).pathname === "/numerology/cycles", `numerology's Cycles at ${new URL(page.url()).pathname}`);
+    await clickTestId(page, "lang-chip-astrology");
+    await waitStudioPage(page, "composite");
+    await clickTestId(page, "lang-chip-numerology");
+    await waitStudioPage(page, "numerology-cycles");
     await clickTestId(page, "lang-chip-astrology");
     await waitStudioPage(page, "composite");
     console.log("memory OK");
@@ -341,7 +351,7 @@ async function french() {
 
 /** No page wider than the screen, and no toolbar wider than its row, from 360 to 1440 px, in both languages. */
 async function overflow() {
-  const pages = ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "timing"];
+  const pages = ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", "timing"];
   for (const lang of ["en", "fr"]) {
     for (const width of [360, 390, 768, 1024, 1280, 1440]) {
       const touch = width < 1024;

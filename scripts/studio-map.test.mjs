@@ -39,7 +39,7 @@ test("every studio page has one path, and the path leads back to it", () => {
 });
 
 test("the studio's paths, and nothing else, draw the studio", () => {
-  for (const path of ["/", "/astrology", "/astrology/transits", "/human-design", "/numerology", "/calendar", "/calendrier"]) {
+  for (const path of ["/", "/astrology", "/astrology/transits", "/human-design", "/numerology", "/numerology/cycles", "/calendar", "/calendrier"]) {
     assert.ok(isStudioPath(path), path);
   }
   for (const path of ["/settings", "/guide", "/privacy", "/astrology/nope", "/encyclopedia"]) {
@@ -63,6 +63,8 @@ test("every page belongs to one language and one lens, except the Calendar, a se
   }
   assert.deepEqual(lensesOf("astrology"), ["natal", "cycles", "relationship"]);
   assert.deepEqual(lensesOf("human-design"), ["natal"], "a lens a language lacks is not there");
+  assert.deepEqual(lensesOf("numerology"), ["natal", "cycles"], "numerology's cycles (from R3)");
+  assert.equal(pagePath("numerology-cycles"), "/numerology/cycles");
 });
 
 test("every 1.x address lands on its 2.0 page", () => {
@@ -76,7 +78,9 @@ test("every 1.x address lands on its 2.0 page", () => {
     design: "/human-design",
     numerology: "/numerology",
   };
-  assert.deepEqual(Object.keys(cases).sort(), [...STUDIO_PAGES].sort(), "every 1.0.4 name is covered");
+  // 2.0's own pages have no 1.x name to carry.
+  const NEW_IN_2 = ["numerology-cycles"];
+  assert.deepEqual(Object.keys(cases).sort(), STUDIO_PAGES.filter((p) => !NEW_IN_2.includes(p)).sort(), "every 1.0.4 name is covered");
   for (const [studio, path] of Object.entries(cases)) {
     assert.deepEqual(legacyStudioPath({ studio }), { path, view: undefined }, studio);
   }

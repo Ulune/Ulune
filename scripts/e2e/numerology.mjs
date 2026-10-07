@@ -288,30 +288,9 @@ async function desktop() {
     const letter = await page.getByTestId("click-note").innerText();
     if (!/C = 3/.test(letter) || !/consonant of Camille/.test(letter) || !/cornerstone/.test(letter)) throw new Error(`letter C: ${letter.slice(0, 200)}`);
 
-    // The year stepper: the disc moves, the cycles follow, and the year comes back.
-    await page.getByTestId("num-year-next").click();
-    await page.waitForTimeout(400);
-    const next = await page.evaluate(() => ({
-      year: document.querySelector('[data-testid="num-year"]').textContent,
-      disc: document.querySelector('[data-testid="numerology-year-disc"]').textContent,
-      now: document.querySelector('[data-testid="numerology-year-disc"]').hasAttribute("data-now"),
-      ticks: document.querySelectorAll(".num-tick").length,
-      chip: document.querySelector('[data-testid="num-chip-year"]').textContent,
-    }));
-    const py1 = String(personalYear(thisYear + 1));
-    if (next.year !== String(thisYear + 1) || next.disc !== py1 || next.now || next.ticks !== 0 || !next.chip.endsWith(py1)) {
-      throw new Error(`next year ${JSON.stringify(next)}`);
-    }
-    for (let i = 0; i < 4; i++) await page.getByTestId("num-year-prev").click();
-    const back3 = await page.getByTestId("num-year").innerText();
-    if (back3 !== String(thisYear - 3)) throw new Error(`three years back: ${back3}`);
-    await page.getByTestId("num-year").click();
-    await page.waitForTimeout(300);
-    if ((await page.getByTestId("num-year").innerText()) !== String(thisYear)) throw new Error("the year did not come back");
-    // Each chip under the stepper opens its reading (part 63).
-    await page.getByTestId("num-chip-challenge").click();
-    await page.waitForTimeout(400);
-    if (!/^Challenge \d · \d/.test(await page.locator("[data-testid=click-note] h2").first().innerText())) throw new Error("the challenge chip's reading");
+    // The wheel shows this year only: the year's steps and its cycles are the Cycles page's (2.0).
+    if (await page.getByTestId("num-year-prev").count()) throw new Error("the numbers wheel still steps through the years");
+    if (await page.getByTestId("num-year-line").count()) throw new Error("the numbers wheel still lists the year's cycles");
     await page.screenshot({ path: join(SHOTS, "numerology-1280.png") });
 
     // The Table view: one scroll under the bar, the parts in order.
@@ -418,6 +397,86 @@ async function desktop() {
       throw new Error(`the life line ${JSON.stringify(life)} want ${wantLife.join(" ")}`);
     }
     await setView(page, "wheel");
+    await page.getByTestId("numerology-ring").waitFor({ timeout: 10000 });
+
+    // Numerology's Cycles (2.0, /numerology/cycles): the year's steps in the toolbar, the year's
+    // cycles, its twelve personal months and today's day, the life line; each opens its reading.
+    await goStudioPage(page, "numerology-cycles");
+    await page.getByTestId("num-cycles").waitFor({ timeout: 20000 });
+    if (new URL(page.url()).pathname !== "/numerology/cycles") throw new Error(`the Cycles page at ${page.url()}`);
+    const h2 = () => page.locator("[data-testid=click-note] h2").first().innerText();
+    // With nothing chosen, the dock reads the year shown.
+    await page.waitForFunction((y) => document.querySelector("[data-testid=click-note] h2")?.textContent.startsWith(`${y} ·`), thisYear, { timeout: 10000 });
+    const monthsOf = (y) => Array.from({ length: 12 }, (_, i) => String(((personalYear(y) + i) % 9) + 1)).join(" ");
+    const cyclesNow = () =>
+      page.evaluate(() => ({
+        year: document.querySelector('[data-testid="num-year"]').textContent,
+        chip: document.querySelector('[data-testid="num-chip-year"]').textContent,
+        months: [...document.querySelectorAll('[data-testid^="num-month-"]')].map((b) => b.querySelector("b").textContent).join(" "),
+        nowMonths: [...document.querySelectorAll('[data-testid^="num-month-"][data-now]')].map((b) => b.dataset.testid),
+        today: Boolean(document.querySelector('[data-testid="num-today"]')),
+        caption: document.querySelector(".ulune-num-life-caption")?.textContent ?? "",
+        lifeButtons: document.querySelectorAll('[data-testid="num-lifeline"] button[data-testid^="num-life-"]').length,
+      }));
+    const c0 = await cyclesNow();
+    const nowMonth = `num-month-${new Date().getMonth() + 1}`;
+    if (
+      c0.year !== String(thisYear) ||
+      !c0.chip.endsWith(String(personalYear(thisYear))) ||
+      c0.months !== monthsOf(thisYear) ||
+      c0.nowMonths.join() !== nowMonth ||
+      !c0.today ||
+      c0.lifeButtons !== 11
+    ) {
+      throw new Error(`the Cycles page ${JSON.stringify(c0)}`);
+    }
+    // The year steps: the year's numbers and months follow, and the year comes back.
+    await page.getByTestId("num-year-next").click();
+    await page.waitForTimeout(400);
+    const c1 = await cyclesNow();
+    if (c1.year !== String(thisYear + 1) || !c1.chip.endsWith(String(personalYear(thisYear + 1))) || c1.months !== monthsOf(thisYear + 1) || c1.nowMonths.length || c1.today) {
+      throw new Error(`next year ${JSON.stringify(c1)}`);
+    }
+    // The wheel keeps this year meanwhile.
+    await goStudioPage(page, "numerology");
+    await page.getByTestId("numerology-ring").waitFor({ timeout: 10000 });
+    if ((await page.getByTestId("numerology-year-disc").textContent()).trim() !== String(personalYear(thisYear))) throw new Error("the wheel followed the Cycles page's year");
+    await goStudioPage(page, "numerology-cycles");
+    await page.getByTestId("num-cycles").waitFor({ timeout: 20000 });
+    if ((await page.getByTestId("num-year").innerText()) !== String(thisYear + 1)) throw new Error("the Cycles page did not keep its year");
+    for (let i = 0; i < 4; i++) await page.getByTestId("num-year-prev").click();
+    if ((await page.getByTestId("num-year").innerText()) !== String(thisYear - 3)) throw new Error("three years back");
+    await page.getByTestId("num-year").click();
+    await page.waitForTimeout(300);
+    if ((await page.getByTestId("num-year").innerText()) !== String(thisYear)) throw new Error("the year did not come back");
+    // Each number opens its reading: a cycle of the year, a month, today, a cycle of the life line.
+    for (const [id, title] of [
+      ["num-chip-challenge", /^Challenge \d · \d/],
+      ["num-month-3", new RegExp(`^Personal month ${((personalYear(thisYear) + 2) % 9) + 1}$`)],
+      ["num-today", /^Personal day \d$/],
+      ["num-life-pinnacle-2", /^Pinnacle 2 · 7$/],
+    ]) {
+      await page.getByTestId(id).click();
+      await page.waitForTimeout(450);
+      const got = (await h2()).replace(/\s+/g, " ");
+      if (!title.test(got)) throw new Error(`${id} opened «${got}»`);
+      if ((await page.getByTestId(id).getAttribute("aria-pressed")) !== "true") throw new Error(`${id} not shown as chosen`);
+    }
+    await page.screenshot({ path: join(SHOTS, "numerology-cycles-1280.png") });
+    // Its Table view: the cycles and the years, nothing else; no picture to export.
+    await setView(page, "table");
+    await page.getByTestId("numerology-table").waitFor({ timeout: 10000 });
+    await page.waitForTimeout(600);
+    const cycOrder = await page.evaluate(() =>
+      [...document.querySelectorAll('[data-testid="numerology-table"] [data-testid="table-page"] > section')].map((e) => e.getAttribute("data-testid")).join(","),
+    );
+    if (cycOrder !== "table-cycles,table-years") throw new Error(`the Cycles table's parts ${cycOrder}`);
+    await setView(page, "wheel");
+    await page.getByTestId("num-cycles").waitFor({ timeout: 10000 });
+    await openExport(page);
+    if (await page.getByTestId("export-png").count()) throw new Error("the Cycles page offers a picture");
+    await page.keyboard.press("Escape");
+    await goStudioPage(page, "numerology");
     await page.getByTestId("numerology-ring").waitFor({ timeout: 10000 });
 
     // The Calendar (part 62): the personal month in a month's title and each day's personal day,
@@ -557,11 +616,18 @@ async function desktop() {
     await page.getByTestId("numerology-ring").waitFor({ timeout: 10000 });
     const fr = await page.evaluate(() => ({
       say: document.querySelector('[data-testid="num-say"]').textContent,
-      chips: document.querySelector('[data-testid="num-year-line"]').textContent,
       aria: document.querySelector('[data-testid="numerology-ring"]').getAttribute("aria-label"),
     }));
     // The how-to line shows until the wheel has been pointed at once (part 95); after that the line waits empty.
-    if (!(/^Touchez|^Pointez/.test(fr.say) || !fr.say.trim()) || !/Réalisation/.test(fr.chips) || !/^Roue de numérologie/.test(fr.aria)) throw new Error(`French ${JSON.stringify(fr)}`);
+    if (!(/^Touchez|^Pointez/.test(fr.say) || !fr.say.trim()) || !/^Roue de numérologie/.test(fr.aria)) throw new Error(`French ${JSON.stringify(fr)}`);
+    // The Cycles page in French.
+    await goStudioPage(page, "numerology-cycles");
+    await page.getByTestId("num-cycles").waitFor({ timeout: 20000 });
+    const frCycles = await page.getByTestId("num-cycles").innerText();
+    for (const w of ["Réalisation", "Mois personnels de", "Aujourd’hui\u202f: jour personnel", "Vos cycles au fil de la vie"]) {
+      if (!frCycles.includes(w)) throw new Error(`the French Cycles page lacks «${w}»`);
+    }
+    if (/Personal|Pinnacle|Challenge|Today/.test(frCycles)) throw new Error("English on the French Cycles page");
     await setLang(page, "en");
 
     if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
@@ -607,6 +673,17 @@ async function phone() {
     });
     if (half.bottom > half.sheet + 1 || half.w < 120) throw new Error(`the wheel above the sheet ${JSON.stringify(half)}`);
     await page.screenshot({ path: join(SHOTS, "numerology-390.png") });
+    // The Cycles page on a phone: nothing sideways, the months in two rows, the life line's cycles big enough for a finger.
+    await goStudioPage(page, "numerology-cycles");
+    await page.getByTestId("num-cycles").waitFor({ timeout: 20000 });
+    await page.waitForTimeout(600);
+    const cyc = await page.evaluate(() => ({
+      sideways: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      columns: getComputedStyle(document.querySelector("[data-testid=num-months]")).gridTemplateColumns.split(" ").length,
+      lowest: Math.min(...[...document.querySelectorAll("[data-testid=num-lifeline] button, [data-testid^=num-month-]")].map((b) => b.getBoundingClientRect().height)),
+    }));
+    if (cyc.sideways > 1 || cyc.columns !== 6 || cyc.lowest < 44) throw new Error(`the Cycles page on a phone ${JSON.stringify(cyc)}`);
+    await page.screenshot({ path: join(SHOTS, "numerology-cycles-390.png") });
     if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
     console.log("numerology-390 OK");
   } finally {

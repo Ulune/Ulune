@@ -43,7 +43,7 @@ for (const lang of ["en", "fr"]) {
     if (lang === "fr") await setLang(page, "fr");
     await castFixture(page, FIXTURE_A);
     const fr = lang === "fr";
-    for (const mode of ["natal", "transits", "timing", "synastry", "design", "numerology"]) {
+    for (const mode of ["natal", "transits", "timing", "synastry", "design", "numerology", "numerology-cycles"]) {
       await goStudioPage(page, mode).catch(() => {});
       await page.waitForTimeout(700);
       for (const tab of ["reading", "bodies", "look", "birth"]) {

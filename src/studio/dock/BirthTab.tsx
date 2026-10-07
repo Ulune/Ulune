@@ -41,7 +41,7 @@ export function BirthTab({
   const addingPartnerFor = useStudioStore((s) => s.pair.addingPartnerFor);
   const setInput = useStudioStore((s) => s.setInput);
   const setNumerologyNames = useStudioStore((s) => s.setNumerologyNames);
-  const onNumerology = useStudioStore((s) => s.page === "numerology");
+  const onNumerology = useStudioStore((s) => s.page === "numerology" || s.page === "numerology-cycles");
   const cast = useStudioStore((s) => s.cast);
   const beginEdit = useStudioStore((s) => s.beginEdit);
   const discardDraft = useStudioStore((s) => s.discardDraft);

@@ -50,8 +50,8 @@ export const guide = {
     "Les nombres de votre date de naissance et de votre nom complet de naissance, et leurs cycles au fil de la vie.",
   ],
   guideDoLenses: [
-    "The tabs beside the language: Natal, the birth chart itself; Cycles, the chart through time (transits, progressions); Relationship, beside a second person’s (synastry, composite).",
-    "Les onglets à côté du langage\u202f: Natal, le thème natal lui-même\u202f; Cycles, le thème au fil du temps (transits, progressions)\u202f; Relation, à côté de celui d’une autre personne (synastrie, composite).",
+    "The tabs beside the language: Natal, the birth chart itself; Cycles, the chart through time (transits, progressions; numerology’s years and life cycles); Relationship, beside a second person’s (synastry, composite).",
+    "Les onglets à côté du langage\u202f: Natal, le thème natal lui-même\u202f; Cycles, le thème au fil du temps (transits, progressions\u202f; les années et les cycles de vie de la numérologie)\u202f; Relation, à côté de celui d’une autre personne (synastrie, composite).",
   ],
   guideDoCalendar: [
     "The sky day by day, with the dates your transits are exact and your personal year, month and day. It works without a chart too.",

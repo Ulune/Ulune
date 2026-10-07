@@ -70,7 +70,7 @@ export function Dock() {
   // Human Design and numerology read their own bodies, all of them: the Bodies tab (the
   // wheels' bodies, aspects and stars) is left out there, and comes back with the wheels.
   const studioPage = useStudioStore((s) => s.page);
-  const noBodies = studioPage === "design" || studioPage === "numerology";
+  const noBodies = studioPage === "design" || studioPage === "numerology" || studioPage === "numerology-cycles";
   // The Calendar without a chart (reorganisation plan, R5): the sky's readings only; the
   // birth form comes on the stage when asked for, as for a new chart.
   const skyOnly = useStudioStore((s) => !s.chart && s.page === "timing");

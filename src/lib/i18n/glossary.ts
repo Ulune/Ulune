@@ -650,11 +650,11 @@ export function glossaryFor(page: string, selectedId: string | null): GlossaryId
     if (selectedId === "hello:layers") add("hdLayers");
     add("hdType", "hdStrategy", "hdAuthority", "hdProfile", "hdDefinition", "hdCentres", "hdLayers");
   }
-  if (page === "numerology") {
+  if (page === "numerology" || page === "numerology-cycles") {
     // The words the chosen reading uses first (part 63), then the four keys.
     const sub = selectedId?.split(":")[1] ?? "";
     if (selectedId === "core:maturity") add("maturity");
-    if (selectedId === "core:personalYear" || prefix === "time" || prefix === "year") add("personalCycles");
+    if (selectedId === "core:personalYear" || prefix === "time" || prefix === "month" || prefix === "year") add("personalCycles");
     if (prefix === "year") add("letterCycle", "pinnacle", "challenge", "periodCycle");
     if (prefix === "cycle") add(sub === "pinnacle" ? "pinnacle" : sub === "challenge" ? "challenge" : "periodCycle", "pinnacle", "challenge", "periodCycle");
     if (prefix === "core" || prefix === "number") add("karmicDebt");

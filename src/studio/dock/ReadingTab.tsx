@@ -120,7 +120,7 @@ export function ReadingTab() {
             onGo={go}
             back={trail.length ? trail[trail.length - 1].title : null}
             onBack={back}
-            mode={page}
+            mode={page === "numerology-cycles" ? "numerology" : page}
           />
         </div>
       ) : (
@@ -151,7 +151,7 @@ export function ReadingTab() {
 
 function packKindOf(page: StudioPage): PackKind {
   if (page === "design") return "hd";
-  if (page === "numerology") return "num";
+  if (page === "numerology" || page === "numerology-cycles") return "num";
   if (page === "timing") return "cal";
   return "astro";
 }

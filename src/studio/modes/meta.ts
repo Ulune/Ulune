@@ -12,6 +12,8 @@ export type ModeMeta = {
   needsChart: boolean;
   stageTestId: string;
   emptyTestId?: string;
+  /** Its figure is not one drawing (the Calendar's days, numerology's cycles): no picture to export. */
+  noPicture?: boolean;
 };
 
 export const MODE_META: Record<StudioPage, ModeMeta> = {
@@ -34,6 +36,7 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
     needsChart: true,
     stageTestId: "studio-timing",
     emptyTestId: "studio-timing-empty",
+    noPicture: true,
   },
   progressions: {
     id: "progressions",
@@ -70,6 +73,14 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
     stageTestId: "studio-numerology",
     emptyTestId: "studio-numerology-empty",
   },
+  "numerology-cycles": {
+    id: "numerology-cycles",
+    labelKey: "pageNumerologyCycles",
+    needsChart: true,
+    stageTestId: "studio-numerology-cycles",
+    emptyTestId: "studio-numerology-cycles-empty",
+    noPicture: true,
+  },
 };
 
 export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
@@ -80,5 +91,6 @@ export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
   composite: "pageComposite",
   progressions: "pageProgressions",
   numerology: "pageNumerology",
+  "numerology-cycles": "pageNumerologyCycles",
   design: "pageDesign",
 };

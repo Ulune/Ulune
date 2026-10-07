@@ -11,10 +11,11 @@
  *     everyone, asked for by date and version only, never changing for a
  *     given address; kept so the calendar's months open offline.
  *   - The studio's pages ("/" and its paths: /astrology…, /human-design,
- *     /numerology, /calendar, /calendrier): from the network as always (checked with the
- *     server, never an older copy from the browser's cache), and the last copy
- *     is kept, so saved charts still open without a connection. It is the same
- *     page for everyone; no other page (sign-in above all) is ever kept.
+ *     /numerology, /numerology/cycles, /calendar, /calendrier): from the
+ *     network as always (checked with the server, never an older copy from
+ *     the browser's cache), and the last copy is kept, so saved charts still
+ *     open without a connection. It is the same page for everyone; no other
+ *     page (sign-in above all) is ever kept.
  * A new deploy needs nothing from here: its pages name new files, which are
  * fetched and kept in turn; the oldest files are let go past a limit.
  */
@@ -25,7 +26,7 @@ const MAX_FILES = 300;
 const MAX_PAGES = 12;
 const MAX_SKY = 120;
 /** The studio's paths (src/studio/map.ts): the same page, each kept under its own address. */
-const STUDIO = /^\/(?:astrology(?:\/(?:transits|progressions|synastry|composite))?|human-design|numerology|calendar|calendrier)?\/?$/;
+const STUDIO = /^\/(?:astrology(?:\/(?:transits|progressions|synastry|composite))?|human-design|numerology(?:\/cycles)?|calendar|calendrier)?\/?$/;
 
 self.addEventListener("install", () => {
   self.skipWaiting();

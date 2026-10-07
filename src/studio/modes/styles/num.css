@@ -880,3 +880,126 @@
     overflow: visible;
   }
 }
+
+/* Numerology's Cycles (/numerology/cycles): the year's line, its twelve
+   personal months, then the life line, in one column that scrolls when the
+   stage is short. */
+.ulune-numc {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--space-5, 28px);
+  width: 100%;
+  max-width: 62rem;
+  min-width: 0;
+  min-height: 0;
+  margin-inline: auto;
+  padding: var(--space-3, 16px) var(--stage-pad) var(--space-5, 28px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.ulune-numc > .ulune-num-year {
+  align-items: flex-start;
+  padding-inline: 0;
+}
+.ulune-numc .ulune-num-year-line {
+  justify-content: flex-start;
+  margin-inline-start: -6px;
+  font-size: 13px;
+}
+.ulune-numc-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.ulune-numc-h {
+  margin: 0;
+  font: 600 13px/1.3 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-numc-months {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 6px;
+}
+.ulune-numc-month {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 52px;
+  padding: 6px 2px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: color-mix(in oklab, var(--color-fg) 5%, transparent);
+  color: var(--color-fg);
+  transition: background-color var(--dur-hover) var(--ease-out);
+}
+.ulune-numc-month-k {
+  font: 500 11.5px/1.1 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-numc-month b {
+  font: 650 17px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.ulune-numc-month[data-now] {
+  box-shadow: inset 0 0 0 1.5px var(--color-halo);
+}
+.ulune-numc-month.is-on {
+  background: var(--color-bg-subtle);
+  box-shadow: inset 0 -2px 0 var(--color-fg);
+}
+.ulune-numc-month[data-now].is-on {
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-halo),
+    inset 0 -2px 0 var(--color-fg);
+}
+@media (hover: hover) {
+  .ulune-numc-month:hover {
+    background: color-mix(in oklab, var(--color-fg) 10%, transparent);
+  }
+}
+.ulune-numc-today {
+  align-self: flex-start;
+  font-size: 12.5px;
+  color: var(--color-fg-muted);
+}
+/* The life line's cycles as buttons: a taller track, each opening its reading. */
+.ulune-num-life[data-pick] .ulune-num-life-track {
+  height: 34px;
+}
+button.ulune-num-life-span {
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  transition: background-color var(--dur-hover) var(--ease-out);
+}
+@media (hover: hover) {
+  button.ulune-num-life-span:hover {
+    background: color-mix(in oklab, var(--color-fg) 14%, transparent);
+  }
+}
+button.ulune-num-life-span[data-on] {
+  box-shadow:
+    inset 0 -2px 0 var(--color-fg),
+    0 0 0 1.5px var(--color-bg);
+}
+button.ulune-num-life-span[data-now][data-on] {
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-halo),
+    inset 0 -2px 0 var(--color-fg),
+    0 0 0 1.5px var(--color-bg);
+}
+@media (pointer: coarse) {
+  .ulune-num-life[data-pick] .ulune-num-life-track {
+    height: 44px;
+  }
+}
+@media (max-width: 639.98px) {
+  .ulune-numc-months {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}

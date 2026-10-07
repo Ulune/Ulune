@@ -38,6 +38,7 @@ import { Route as StudioAstrologyProgressionsRouteImport } from './routes/_studi
 import { Route as StudioAstrologySynastryRouteImport } from './routes/_studio.astrology.synastry'
 import { Route as StudioAstrologyTransitsRouteImport } from './routes/_studio.astrology.transits'
 import { Route as StudioNumerologyIndexRouteImport } from './routes/_studio.numerology.index'
+import { Route as StudioNumerologyCyclesRouteImport } from './routes/_studio.numerology.cycles'
 
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
@@ -185,6 +186,11 @@ const StudioNumerologyIndexRoute = StudioNumerologyIndexRouteImport.update({
   path: '/numerology/',
   getParentRoute: () => StudioRoute,
 } as any)
+const StudioNumerologyCyclesRoute = StudioNumerologyCyclesRouteImport.update({
+  id: '/numerology/cycles',
+  path: '/numerology/cycles',
+  getParentRoute: () => StudioRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/$': typeof SplatRoute
@@ -213,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/astrology/progressions': typeof StudioAstrologyProgressionsRoute
   '/astrology/synastry': typeof StudioAstrologySynastryRoute
   '/astrology/transits': typeof StudioAstrologyTransitsRoute
+  '/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/astrology/': typeof StudioAstrologyIndexRoute
   '/numerology/': typeof StudioNumerologyIndexRoute
 }
@@ -243,6 +250,7 @@ export interface FileRoutesByTo {
   '/astrology/progressions': typeof StudioAstrologyProgressionsRoute
   '/astrology/synastry': typeof StudioAstrologySynastryRoute
   '/astrology/transits': typeof StudioAstrologyTransitsRoute
+  '/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/astrology': typeof StudioAstrologyIndexRoute
   '/numerology': typeof StudioNumerologyIndexRoute
 }
@@ -275,6 +283,7 @@ export interface FileRoutesById {
   '/_studio/astrology/progressions': typeof StudioAstrologyProgressionsRoute
   '/_studio/astrology/synastry': typeof StudioAstrologySynastryRoute
   '/_studio/astrology/transits': typeof StudioAstrologyTransitsRoute
+  '/_studio/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/_studio/astrology/': typeof StudioAstrologyIndexRoute
   '/_studio/numerology/': typeof StudioNumerologyIndexRoute
 }
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/astrology/progressions'
     | '/astrology/synastry'
     | '/astrology/transits'
+    | '/numerology/cycles'
     | '/astrology/'
     | '/numerology/'
   fileRoutesByTo: FileRoutesByTo
@@ -337,6 +347,7 @@ export interface FileRouteTypes {
     | '/astrology/progressions'
     | '/astrology/synastry'
     | '/astrology/transits'
+    | '/numerology/cycles'
     | '/astrology'
     | '/numerology'
   id:
@@ -368,6 +379,7 @@ export interface FileRouteTypes {
     | '/_studio/astrology/progressions'
     | '/_studio/astrology/synastry'
     | '/_studio/astrology/transits'
+    | '/_studio/numerology/cycles'
     | '/_studio/astrology/'
     | '/_studio/numerology/'
   fileRoutesById: FileRoutesById
@@ -599,6 +611,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudioNumerologyIndexRouteImport
       parentRoute: typeof StudioRoute
     }
+    '/_studio/numerology/cycles': {
+      id: '/_studio/numerology/cycles'
+      path: '/numerology/cycles'
+      fullPath: '/numerology/cycles'
+      preLoaderRoute: typeof StudioNumerologyCyclesRouteImport
+      parentRoute: typeof StudioRoute
+    }
   }
 }
 
@@ -611,6 +630,7 @@ interface StudioRouteChildren {
   StudioAstrologyProgressionsRoute: typeof StudioAstrologyProgressionsRoute
   StudioAstrologySynastryRoute: typeof StudioAstrologySynastryRoute
   StudioAstrologyTransitsRoute: typeof StudioAstrologyTransitsRoute
+  StudioNumerologyCyclesRoute: typeof StudioNumerologyCyclesRoute
   StudioAstrologyIndexRoute: typeof StudioAstrologyIndexRoute
   StudioNumerologyIndexRoute: typeof StudioNumerologyIndexRoute
 }
@@ -624,6 +644,7 @@ const StudioRouteChildren: StudioRouteChildren = {
   StudioAstrologyProgressionsRoute: StudioAstrologyProgressionsRoute,
   StudioAstrologySynastryRoute: StudioAstrologySynastryRoute,
   StudioAstrologyTransitsRoute: StudioAstrologyTransitsRoute,
+  StudioNumerologyCyclesRoute: StudioNumerologyCyclesRoute,
   StudioAstrologyIndexRoute: StudioAstrologyIndexRoute,
   StudioNumerologyIndexRoute: StudioNumerologyIndexRoute,
 }

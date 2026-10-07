@@ -67,7 +67,7 @@ import { numerologyCoreHow, numerologyCoreRole, numerologyMasterNote } from "@/l
 import { numerologyNumberParagraphs } from "@/lib/i18n/numerology-text";
 import { numerologyCoreLabel, numerologyPageText as p, numerologyReadingText as r, numerologyWheelText } from "@/lib/i18n/numerology-ui";
 import { numerologyYear, valueOfCore, type NumerologyChart, type NumerologyCoreId } from "./numerology";
-import { LETTER_CYCLE_IDS, type AgeSpan, type CycleKind } from "./numerology-cycles";
+import { LETTER_CYCLE_IDS, personalMonthOf, type AgeSpan, type CycleKind } from "./numerology-cycles";
 import { PLANE_IDS, type NameLetter, type PlaneId } from "./numerology-name";
 import { stepsText, wholeText, type NumerologyValue } from "./numerology-reduce";
 import type { ElementReading, ReadingFact, ReadingLink, ReadingSection } from "./types";
@@ -371,6 +371,43 @@ function timeReading(chart: NumerologyChart, pickId: "time:month" | "time:day", 
       { label: r(locale, "number"), value: String(value.number), ref: `number:${value.number}` },
       { label: r(locale, "steps"), value: stepsText(value) },
     ],
+    about: howAbout(locale, cycleExample(chart, locale)),
+  };
+}
+
+/**
+ * A personal month of the year shown (the Cycles page's months, `month:3`):
+ * the personal year plus the month, its text, and the other months of that
+ * year one press away.
+ */
+function monthReading(chart: NumerologyChart, month: number, locale: AppLocale): ElementReading | null {
+  if (!Number.isInteger(month) || month < 1 || month > 12) return null;
+  const py = chart.personalYear.number;
+  if (py == null) return null;
+  const value = personalMonthOf(py, month);
+  if (value.digit == null) return null;
+  const fmt = (m: number, style: "long" | "short") =>
+    new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-GB", { timeZone: "UTC", month: style, ...(style === "long" ? { year: "numeric" } : {}) }).format(
+      new Date(Date.UTC(chart.calendarYear, m - 1, 1)),
+    );
+  const text = t(PERSONAL_MONTH_TEXT[value.digit as CycleKey], locale);
+  const rows: ReadingLink[] = Array.from({ length: 12 }, (_, i) => i + 1)
+    .filter((m) => m !== month)
+    .map((m) => ({ ref: `month:${m}`, label: fmt(m, "long"), detail: String(personalMonthOf(py, m).number) }));
+  return {
+    id: `month:${month}`,
+    kind: "house",
+    title: `${p(locale, "personalMonth")} ${value.number}`,
+    kicker: fmt(month, "long"),
+    mark: String(value.number),
+    lead: text,
+    paragraphs: [text],
+    facts: [
+      { label: r(locale, "number"), value: String(value.number), ref: `number:${value.number}` },
+      { label: r(locale, "steps"), value: stepsText(value) },
+      { label: numerologyCoreLabel(locale, "personalYear"), value: String(py), ref: `year:${chart.calendarYear}` },
+    ],
+    links: { title: p(locale, "monthsOf", { year: chart.calendarYear }), rows },
     about: howAbout(locale, cycleExample(chart, locale)),
   };
 }
@@ -699,6 +736,8 @@ export function numerologyReading(chart: NumerologyChart, pickId: string | null,
       return letterReading(chart, pickId, locale);
     case "time":
       return pickId === "time:month" || pickId === "time:day" ? timeReading(chart, pickId, locale) : null;
+    case "month":
+      return monthReading(chart, Number(a), locale);
     case "detail":
       return detailReading(chart, a, locale);
     case "plane":

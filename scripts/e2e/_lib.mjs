@@ -210,6 +210,7 @@ export const PAGE_PLACE = {
   composite: ["astrology", "relationship"],
   design: ["human-design", "natal"],
   numerology: ["numerology", "natal"],
+  "numerology-cycles": ["numerology", "cycles"],
 };
 
 /** Clicks an element by its test id, drawn or not (a folded sub-mode, a chip a phone hides); false when it is not there. */

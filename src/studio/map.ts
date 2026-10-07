@@ -58,7 +58,7 @@ export const LANGUAGES: readonly Language[] = [
     id: "numerology",
     path: "/numerology",
     home: { en: "numerology", fr: "numerologie" },
-    lenses: { natal: ["numerology"] },
+    lenses: { natal: ["numerology"], cycles: ["numerology-cycles"] },
   },
 ];
 
@@ -104,6 +104,7 @@ export const PAGE_PATHS: Readonly<Record<StudioPage, string>> = {
   composite: "/astrology/composite",
   design: "/human-design",
   numerology: "/numerology",
+  "numerology-cycles": "/numerology/cycles",
   timing: CALENDAR_PATHS.en,
 };
 
@@ -139,6 +140,11 @@ export function sectionOf(page: StudioPage): SectionId {
 
 export function languageOf(page: StudioPage): LanguageId | undefined {
   return LANGUAGES.find((l) => Object.values(l.lenses).some((pages) => pages?.includes(page)))?.id;
+}
+
+/** Numerology's pages (its numbers wheel, its cycles): they share its data, its texts and its dock. */
+export function isNumerologyPage(page: StudioPage): boolean {
+  return languageOf(page) === "numerology";
 }
 
 export function lensOf(page: StudioPage): LensId | undefined {

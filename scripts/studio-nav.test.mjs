@@ -64,7 +64,7 @@ test("each language's ⓘ leads to its home in the encyclopedia, in the reader's
 });
 
 test("the bars' order: each language's lenses and sub-modes, then the Calendar", () => {
-  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "timing"]);
+  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", "timing"]);
   assert.deepEqual([...PAGE_ORDER].sort(), [...STUDIO_PAGES].sort(), "every page once");
 });
 
@@ -146,7 +146,8 @@ test("a lens a language lacks is never offered", () => {
   for (const l of LANGUAGES) {
     for (const lens of lensesOf(l.id)) assert.ok((l.lenses[lens]?.length ?? 0) > 0, `${l.id} ${lens}`);
   }
-  assert.deepEqual(lensesOf("numerology"), ["natal"], "one lens: no lens tabs (ChartsNav.tsx)");
+  assert.deepEqual(lensesOf("human-design"), ["natal"], "one lens: no lens tabs (ChartsNav.tsx)");
+  assert.deepEqual(lensesOf("numerology"), ["natal", "cycles"]);
 });
 
 test("the language button's hint: a reader of 1.x gets it until it is done, a new reader never", () => {

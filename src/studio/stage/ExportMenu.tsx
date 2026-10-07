@@ -4,6 +4,7 @@ import { AnchoredPopover } from "@/components/anchored-popover";
 import { useI18n } from "@/lib/i18n/locale";
 import { importWithRetry } from "@/lib/lazy-retry";
 import { toast } from "@/lib/toast";
+import { MODE_META } from "@/studio/modes/meta";
 import { useStudioStore } from "@/studio/store";
 import { HOUSE_SYSTEM_LABEL } from "@/lib/chart/constants";
 import { formatEuropeanDate } from "@/lib/chart/parse-birth";
@@ -117,7 +118,8 @@ export function ExportItems({
   // No chart (the Calendar's sky alone, reorganisation plan R5): only the page's own items, its file and its table.
   if (!chart) return extraSlot ? <div ref={setExtra} className="ob-menu-extra" style={{ marginTop: 0, paddingTop: 0, borderTop: 0 }} /> : null;
   const name = slugName(`${chart.meta.name || "ulune"}-${page}`);
-  const hasFigure = view === "wheel";
+  // A picture of the figure, where it is one drawing: not the Calendar's days nor numerology's cycles.
+  const hasFigure = view === "wheel" && !MODE_META[page].noPicture;
 
   async function run(kind: "png" | "svg" | "print" | "copy") {
     if (!chart) return;

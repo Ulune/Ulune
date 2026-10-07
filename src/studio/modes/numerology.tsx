@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
 import { useNumerology } from "@/studio/modes/hooks/useNumerology";
 import { MODE_META } from "@/studio/modes/meta";
-import { NumerologyYSwitch, NumerologyYearStepper, NumerologyYearSteps } from "@/studio/modes/numerology-controls";
+import { NumerologyYSwitch } from "@/studio/modes/numerology-controls";
 import { NumerologyWheel } from "@/studio/modes/numerology-wheel";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
@@ -37,12 +37,11 @@ function NumerologyFigure() {
   const numerology = useModeData("numerology");
   const numbers = numerology?.numbers ?? null;
   if (!numbers || numbers.lifePath.number == null) return null;
-  const isNow = numbers.calendarYear === new Date().getFullYear();
+  // This year, always: other years are the Cycles page's (its year steps).
   return (
     <div className="ulune-num-stage">
-      <NumerologyWheel chart={numbers} isNow={isNow} selectedId={w.selectedId} onSelect={w.choose} onClear={clear} />
+      <NumerologyWheel chart={numbers} isNow selectedId={w.selectedId} onSelect={w.choose} onClear={clear} />
       <NumerologyYSwitch numbers={numbers} selectedId={w.selectedId} locale={locale} />
-      <NumerologyYearStepper numbers={numbers} locale={locale} selectedId={w.selectedId} onSelect={w.choose} stepper={false} />
       <div className="ulune-num-tiles" role="group" aria-label={numerologyWheelText(locale, "tiles")} data-testid="num-tiles">
         {WHEEL_CORES.map((id) => {
           const value = valueOfCore(numbers, id);
@@ -66,15 +65,6 @@ function NumerologyFigure() {
       </div>
     </div>
   );
-}
-
-/** The year the wheel shows, in the stage's toolbar (UI plan, part 93). */
-function NumerologyControls() {
-  const { locale } = useI18n();
-  const numerology = useModeData("numerology");
-  const numbers = numerology?.numbers ?? null;
-  if (!numbers || numbers.lifePath.number == null) return null;
-  return <NumerologyYearSteps year={numbers.calendarYear} locale={locale} />;
 }
 
 /**
@@ -118,14 +108,13 @@ function NumerologyData() {
 }
 
 function useNumerologyRuntime(): ModeRuntime<NumerologyState> {
-  const numerology = useNumerology();
+  const numerology = useNumerology("numerology");
   return useMemo(() => ({ data: numerology, reading: numerology.reading }), [numerology]);
 }
 
 export const numerologyMode: ModeDef = {
   ...MODE_META.numerology,
   emptyText: numerologyNoNatal,
-  Controls: NumerologyControls,
   Figure: NumerologyFigure,
   HelloEmpty: NumerologyHelloEmpty,
   Data: NumerologyData,

@@ -218,6 +218,30 @@
     }
   },
   "page": {
+    "monthsOf": {
+      "en": "The months of {year}",
+      "fr": "Les mois de {year}"
+    },
+    "cyclesMonthsHead": {
+      "en": "Personal months of {year}",
+      "fr": "Mois personnels de {year}"
+    },
+    "cyclesLifeHead": {
+      "en": "Your cycles through life",
+      "fr": "Vos cycles au fil de la vie"
+    },
+    "cyclesToday": {
+      "en": "Today: personal day {n}",
+      "fr": "Aujourd’hui : jour personnel {n}"
+    },
+    "cyclesLifeGroup": {
+      "en": "Your cycles through life: choose one to read it",
+      "fr": "Vos cycles au fil de la vie : choisissez-en un pour le lire"
+    },
+    "cyclesMonthsGroup": {
+      "en": "Personal months of {year}: choose one to read it",
+      "fr": "Mois personnels de {year} : choisissez-en un pour le lire"
+    },
     "part_core": {
       "en": "Core",
       "fr": "Principaux"

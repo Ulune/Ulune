@@ -55,6 +55,7 @@ export function NumerologyTable({
   selectedId,
   onSelect,
   openBirth,
+  only,
 }: {
   chart: NumerologyChart;
   /** The chart's name, for the copied text and the file. */
@@ -67,6 +68,8 @@ export function NumerologyTable({
   selectedId: string | null;
   onSelect: (id: string) => void;
   openBirth: () => void;
+  /** Only these parts (the Cycles page's table: its cycles and years). */
+  only?: readonly string[];
 }) {
   const { locale, t } = useI18n();
   const [layout, setLayout] = useState<GridLayoutId>("phillips");
@@ -92,7 +95,7 @@ export function NumerologyTable({
   // Each part as its own table (review 3 Oct, B2, B3).
   const csvOf = (kinds: string[]) => () => partRows(numerologyTableCsv(chart, { wholeLife }), kinds);
 
-  const parts: TablePart[] = [
+  const allParts: TablePart[] = [
     {
       id: "core",
       label: p(locale, "part_core"),
@@ -181,10 +184,11 @@ export function NumerologyTable({
     },
   ];
 
+  const parts = only ? allParts.filter((x) => only.includes(x.id)) : allParts;
   return (
     <div data-testid="numerology-table" data-chart-pick data-selected={selectedId ?? ""} className="min-w-0">
       <TablePage
-        name="numerology"
+        name={only ? "numerology-cycles" : "numerology"}
         label={t("tableSections")}
         parts={parts}
         fileStem={p(locale, "fileName", { name: name || "ulune" })}

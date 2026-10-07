@@ -6,7 +6,12 @@ import { useNumerologyFirstPending } from "@/studio/numerology-first";
 import { useNumerologyYear } from "@/studio/numerology-year";
 import { useStudioStore } from "@/studio/store";
 
-export function useNumerology() {
+/**
+ * Numerology's data for one of its pages: the numbers wheel (`numerology`,
+ * always this year) or its Cycles (`numerology-cycles`, the year the toolbar's
+ * steps are on; page reorganisation, numerology's Cycles lens).
+ */
+export function useNumerology(target: "numerology" | "numerology-cycles" = "numerology") {
   const { locale } = useI18n();
   const chart = useStudioStore((s) => s.chart);
   const name = useStudioStore((s) => s.input.name);
@@ -15,10 +20,12 @@ export function useNumerology() {
   const numerologyY = useStudioStore((s) => s.input.numerologyY);
   const selectedId = useStudioStore((s) => s.selectedId);
   const page = useStudioStore((s) => s.page);
-  const year = useNumerologyYear();
-  const enabled = page === "numerology" && Boolean(chart);
-  // Worked out while the numerology page is shown (and kept for the way back),
-  // for the year the wheel's stepper is on.
+  const stepped = useNumerologyYear();
+  const cycles = target === "numerology-cycles";
+  const year = cycles ? stepped : null;
+  const enabled = page === target && Boolean(chart);
+  // Worked out while its page is shown (and kept for the way back): the wheel
+  // for this year, the Cycles for the year stepped to.
   const numbers = useMemo(
     () =>
       enabled && chart
@@ -38,11 +45,13 @@ export function useNumerology() {
   // The readings come with the numerology text (its own download).
   const pack = usePack("num", locale, enabled);
   // With nothing chosen: the first read for a newcomer (part 63), then the Life Path's reading.
+  // On the Cycles page, the year shown is read when nothing is chosen.
   const firstPending = useNumerologyFirstPending();
-  const first = Boolean(numbers) && firstPending && selectedId == null;
+  const first = !cycles && Boolean(numbers) && firstPending && selectedId == null;
+  const fallback = cycles ? (numbers ? `year:${numbers.calendarYear}` : null) : first ? null : "core:lifepath";
   const reading = useMemo(
-    () => (numbers && pack ? pack.numerologyReading(numbers, selectedId ?? (first ? null : "core:lifepath"), locale) : null),
-    [numbers, pack, selectedId, locale, first],
+    () => (numbers && pack ? pack.numerologyReading(numbers, selectedId ?? fallback, locale) : null),
+    [numbers, pack, selectedId, locale, fallback],
   );
   return useMemo(
     () => ({ numbers, named, nameFrom, reading, enabled, first }),

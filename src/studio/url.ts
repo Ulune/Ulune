@@ -9,6 +9,8 @@ export const STUDIO_PAGES = [
   "progressions",
   "numerology",
   "design",
+  // 2.0: numerology's Cycles lens (page reorganisation, from R3).
+  "numerology-cycles",
 ] as const;
 
 export type StudioPage = (typeof STUDIO_PAGES)[number];

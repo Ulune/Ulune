@@ -23,9 +23,14 @@ const LOADERS: Record<LazyPage, () => Promise<ModeDef>> = {
   composite: () => import("@/studio/modes/composite").then((m) => m.compositeMode),
   design: () => import("@/studio/modes/design").then((m) => m.designMode),
   numerology: () => import("@/studio/modes/numerology").then((m) => m.numerologyMode),
+  "numerology-cycles": () => import("@/studio/modes/numerology-cycles").then((m) => m.numerologyCyclesMode),
 };
 
-/** Idle prefetch order on a good connection: time modes first, then pair, then systems. */
+/**
+ * Idle prefetch order on a good connection: time modes first, then pair, then
+ * systems. Numerology's Cycles waits for its lens tab to be pointed at or
+ * focused (its own chunk is small; the first load's budget is tight).
+ */
 const AHEAD: LazyPage[] = ["transits", "timing", "progressions", "synastry", "composite", "design", "numerology"];
 
 const defs = new Map<StudioPage, ModeDef>([["natal", natalMode]]);
