@@ -124,13 +124,15 @@ for (const lang of ["en", "fr"]) {
     if (dock.focus !== "dock-tab-bodies" || dock.chosen !== "true" || dock.stops !== 1) fail(`dock tabs ${JSON.stringify(dock)}`);
     await page.keyboard.press("ArrowLeft");
 
-    await page.getByTestId("mode-group-chart").focus();
+    await page.getByTestId("lens-natal").focus();
     await page.keyboard.press("ArrowRight");
-    const group = await page.evaluate(() => ({
+    const lens = await page.evaluate(() => ({
       focus: document.activeElement?.getAttribute("data-testid"),
-      chosen: document.querySelector("[data-testid=mode-group-time]")?.getAttribute("aria-selected"),
+      chosen: document.querySelector("[data-testid=lens-cycles]")?.getAttribute("aria-selected"),
+      stops: [...document.querySelectorAll("[data-testid^=lens-]")].filter((t) => t.tabIndex === 0).length,
     }));
-    if (group.focus !== "mode-group-time" || group.chosen === "true") fail(`modes ${JSON.stringify(group)}`);
+    if (lens.focus !== "lens-cycles" || lens.chosen === "true" || lens.stops !== 1) fail(`lenses ${JSON.stringify(lens)}`);
+    await page.keyboard.press("ArrowLeft");
 
     const list = page.getByTestId("wheel-keys");
     await list.focus();

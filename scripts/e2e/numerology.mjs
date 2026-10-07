@@ -94,8 +94,14 @@ async function calendar(page, thisYear) {
   const month = today.getMonth() + 1;
   const pm = root(personalYear(thisYear) + month);
   const key = `${thisYear}-${String(month).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-  // The key to the symbols is in View (part 95).
+  // Numerology is a layer of its own in View, off until switched on (reorganisation plan, R5).
   await openCalendarView(page);
+  if (await page.locator(".ulune-cal-pd, [data-testid=calendar-num]").count()) throw new Error("numerology in the calendar before its layer");
+  const layer = page.getByTestId("calendar-layer-numerology");
+  if ((await layer.getAttribute("aria-checked")) !== "false") throw new Error("numerology's layer on by default");
+  await layer.click();
+  await page.waitForFunction(() => document.querySelectorAll("[data-testid^=calendar-day-] .ulune-cal-pd").length >= 28, null, { timeout: 8000 });
+  // The key to the symbols is in View (part 95).
   const monthView = await page.evaluate((k) => ({
     title: document.querySelector('[data-testid="calendar-num"]')?.textContent ?? "",
     pd: document.querySelector(`[data-testid="calendar-day-${k}"] .ulune-cal-pd`)?.textContent ?? "",
@@ -108,12 +114,16 @@ async function calendar(page, thisYear) {
   await page.getByTestId("calendar-num").click();
   await page.getByTestId("reading-card").waitFor({ timeout: 10000 });
   if (!/Personal month/.test(await page.getByTestId("reading-card").innerText())) throw new Error("the personal month's reading");
-  // Your transits off: numerology goes with them, and comes back.
+  // Its layer off: the personal days go, and come back; your transits' layer leaves them be.
   await openCalendarView(page);
-  await page.getByTestId("calendar-switch-yours").click();
+  await page.getByTestId("calendar-layer-numerology").click();
   await page.waitForFunction(() => !document.querySelector(".ulune-cal-pd") && !document.querySelector('[data-testid="calendar-num"]'), null, { timeout: 4000 });
-  await page.getByTestId("calendar-switch-yours").click();
+  await page.getByTestId("calendar-layer-numerology").click();
   await page.waitForFunction(() => Boolean(document.querySelector(".ulune-cal-pd")), null, { timeout: 4000 });
+  await page.getByTestId("calendar-layer-transits").click();
+  await page.waitForFunction(() => !document.querySelector(".ulune-cal-you"), null, { timeout: 4000 });
+  if (!(await page.locator(".ulune-cal-pd").count())) throw new Error("numerology went with your transits");
+  await page.getByTestId("calendar-layer-transits").click();
   await page.keyboard.press("Escape");
   // The year: its personal year in the title, a band per personal month.
   await page.getByTestId("timing-scope-year").click();

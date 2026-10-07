@@ -1,7 +1,7 @@
 // Static import graph of the source (no build): which files an entry pulls in
 // eagerly (dynamic import() and `import type` excluded), their gzip sizes, and
 // why a file is there (the shortest import chain from the entry).
-// node scripts/perf/load/graph.mjs src/routes/index.tsx [--why src/lib/content/hd.ts] [--top 40]
+// node scripts/perf/load/graph.mjs src/routes/_studio.tsx [--why src/lib/content/hd.ts] [--top 40]
 // Several entries: separate them with commas. Sizes are of the source, gzip -9:
 // a rough guide to what a chunk will weigh, not the build's own numbers.
 import { existsSync, readFileSync, statSync } from "node:fs";
@@ -10,7 +10,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { ROOT } from "../paths.mjs";
 
 const args = process.argv.slice(2);
-const entries = (args.find((a) => !a.startsWith("--")) ?? "src/routes/index.tsx").split(",");
+const entries = (args.find((a) => !a.startsWith("--")) ?? "src/routes/_studio.tsx").split(",");
 const opt = (name) => {
   const i = args.indexOf(name);
   return i >= 0 ? args[i + 1] : null;

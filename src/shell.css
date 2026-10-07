@@ -59,13 +59,13 @@ html.theme-switching::view-transition-new(root) {
 :where(button, [role="tab"], a, summary, label):is(:active, [data-pressed]) {
   --dur-press: var(--dur-press-in);
 }
-:where(.ob-chip, .ob-menu-item, .ob-aspect-chip, .ob-panel-tab, .ob-submode, .ulune-seg-btn):is(:active, [data-pressed]):not(:disabled) {
+:where(.ob-chip, .ob-menu-item, .ob-aspect-chip, .ob-panel-tab, .ob-submode, .ulune-seg-btn, .ob-lang, .ob-lang-chip, .ob-lens):is(:active, [data-pressed]):not(:disabled) {
   transform: scale(0.97);
 }
 :where(.ob-icon-btn, .ob-btn, .ulune-wheel-zoom-btn, .ulune-wheel-zoom-fit):is([data-pressed]):not(:disabled) {
   transform: scale(0.96);
 }
-.ob-group[data-pressed] .ob-group-icon {
+.ob-section:is(:active, [data-pressed]) .ob-section-icon {
   transform: scale(0.94);
 }
 /* A tap answers at once (no double-tap wait) and draws no grey flash of its own. */
@@ -615,52 +615,54 @@ html.theme-switching::view-transition-new(root) {
   }
 }
 
-/* ----------------------------------------------------------- group bar */
+/* ------------------------------------------------------------ sections */
 
-.ob-groups {
+/* Charts, Calendar, Encyclopedia (SectionBar.tsx): a phone's bottom tab bar,
+   icon and word, room for five; the computer's top bar is further down. */
+.ob-sections {
   grid-area: nav;
   min-width: 0;
   padding-bottom: var(--ob-safe-b);
   border-top: 1px solid var(--color-border);
   background: var(--color-bg);
 }
-.ob-groups-track {
+.ob-sections-track {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--ob-n, 3), minmax(0, 1fr));
   height: var(--ob-group-h);
 }
-.ob-groups-ind {
+.ob-sections-ind {
   position: absolute;
   z-index: 2;
   top: 0;
   bottom: 0;
   left: 0;
-  width: 25%;
+  width: calc(100% / var(--ob-n, 3));
   transform: translateX(calc(var(--ob-i, 0) * 100%));
   transition: transform var(--dur-move) var(--ease-glide);
   pointer-events: none;
-  /* The pill's shape: its copy of the buttons shows only inside it. */
+  /* The pill's shape: its copy of the bar shows only inside it. */
   clip-path: inset(6px calc(50% - 26px) calc(100% - 32px) calc(50% - 26px) round 13px);
 }
-/* The four buttons again, in the pill's colour, held still while the pill
-   slides (GroupBar.tsx): each changes colour where the pill's edge passes. */
-.ob-groups-ink {
+/* The bar again, in the pill's colour, held still while the pill slides
+   (SectionBar.tsx): each section changes colour where the pill's edge passes. */
+.ob-sections-ink {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  width: 400%;
-  transform: translateX(calc(var(--ob-i, 0) * -25%));
+  grid-template-columns: repeat(var(--ob-n, 3), minmax(0, 1fr));
+  width: calc(var(--ob-n, 3) * 100%);
+  transform: translateX(calc(var(--ob-i, 0) * -100% / var(--ob-n, 3)));
   transition: transform var(--dur-move) var(--ease-glide);
 }
-.ob-group.ob-group--ink,
-.ob-group.ob-group--ink .ob-group-icon {
+.ob-section.ob-section--ink,
+.ob-section.ob-section--ink .ob-section-icon {
   color: var(--color-bg);
 }
-.ob-groups-ind::before {
+.ob-sections-ind::before {
   content: "";
   position: absolute;
   top: 6px;
@@ -671,23 +673,20 @@ html.theme-switching::view-transition-new(root) {
   border-radius: 999px;
   background: var(--color-fg);
 }
-.ob-group {
+.ob-section {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
   gap: 4px;
   min-width: 0;
   height: 100%;
   padding: 10px 2px 0;
-  border: 0;
-  background: transparent;
   color: var(--color-fg-muted);
   transition: color var(--dur-hover) var(--ease-out);
 }
-.ob-group-icon {
+.ob-section-icon {
   width: 18px;
   height: 18px;
   flex: 0 0 auto;
@@ -695,7 +694,7 @@ html.theme-switching::view-transition-new(root) {
     color var(--dur-hover) var(--ease-out),
     transform var(--dur-press) var(--ease-out);
 }
-.ob-group-label {
+.ob-section-label {
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -705,18 +704,12 @@ html.theme-switching::view-transition-new(root) {
   line-height: 1.3;
 }
 @media (hover: hover) {
-  .ob-group:hover {
+  .ob-section:hover {
     color: var(--color-fg);
   }
 }
-.ob-group.is-on {
+.ob-section.is-on {
   color: var(--color-fg);
-}
-.ob-group.is-on .ob-group-icon {
-  color: var(--color-fg);
-}
-.ob-group:active .ob-group-icon {
-  transform: scale(0.94);
 }
 
 /* ------------------------------------------------------------- body/stage */
@@ -783,26 +776,100 @@ html.theme-switching::view-transition-new(root) {
 .ob-strip .ob-view-label {
   display: none;
 }
-/* The chart's details, where a page with sub-modes has its switch. */
-.ob-strip-cap {
-  flex: 0 1 auto;
+/* Where you are in Charts (ChartsNav.tsx, part R3): the language button,
+   the chips of the two other languages last used, the lens tabs and the
+   lens's sub-modes. */
+.ob-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   min-width: 0;
-  overflow: hidden;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  line-height: var(--ctl-h);
-  color: var(--color-fg-muted);
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
-.ob-strip-cap .ulune-method-note {
+.ob-lang,
+.ob-lang-chip,
+.ob-lens {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--ctl-h);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-size: var(--ctl-text);
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+.ob-lang {
+  flex: 0 0 auto;
+  padding: 0 4px 0 8px;
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+  font-weight: 600;
+}
+.ob-lang-short {
   display: none;
 }
-@media (max-width: 1023.98px) {
-  /* A phone: the details share their row with Wheel / Table and Export. */
-  .ob-strip-cap {
-    flex: 1 1 0;
+.ob-lang-caret {
+  color: var(--color-fg-muted);
+}
+.ob-lang-chips {
+  display: flex;
+  flex: 0 1 auto;
+  gap: 4px;
+  min-width: 0;
+}
+.ob-lang-chip {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 0 10px 0 8px;
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  border-radius: 999px;
+  color: var(--color-fg-muted);
+}
+.ob-lang-chip > span,
+.ob-lens-word {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ob-lenses {
+  display: flex;
+  flex: 0 1 auto;
+  gap: 2px;
+  min-width: 0;
+}
+.ob-lens {
+  flex: 0 1 auto;
+  gap: 0;
+  /* Short lens names stay whole; a long one gives way first ("Relation…"). */
+  min-width: 4.5em;
+  padding: 0 8px;
+  color: var(--color-fg-muted);
+}
+.ob-lens.is-on {
+  flex-shrink: 0;
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+  font-weight: 600;
+}
+@media (hover: hover) {
+  .ob-lang:hover {
+    background: color-mix(in oklab, var(--color-bg-subtle), var(--color-fg) 7%);
   }
+  :is(.ob-lang-chip, .ob-lens):hover {
+    color: var(--color-fg);
+  }
+}
+/* The chosen lens's sub-mode, shown in its tab when the sub-modes fold
+   (the gap stands for the space after the colon, which a flex row drops). */
+.ob-lens-more {
+  display: none;
+  align-items: center;
+  gap: 4px;
 }
 /* Numerology's tiles run under the wheel to the stage's edge on a narrow
    stage: there the cluster stands in the top corner (part 95). */
@@ -824,7 +891,7 @@ html.theme-switching::view-transition-new(root) {
   isolation: isolate;
   display: grid;
   grid-template-columns: repeat(var(--ob-n), minmax(0, 1fr));
-  flex: 1 1 100%;
+  flex: 0 0 auto;
   min-width: 0;
   height: var(--ctl-h);
   border-radius: var(--radius-md);
@@ -1654,7 +1721,7 @@ html.theme-switching::view-transition-new(root) {
     display: inline;
   }
 
-  .ob-groups {
+  .ob-sections {
     display: flex;
     align-items: center;
     height: var(--ob-top-h);
@@ -1662,16 +1729,16 @@ html.theme-switching::view-transition-new(root) {
     border-top: 0;
     border-bottom: 1px solid var(--color-border);
   }
-  /* Page tabs are words with a line under the chosen page (UI plan, part 92):
-     navigation between pages no longer looks like the switches inside one. */
-  .ob-groups-track {
-    grid-template-columns: repeat(4, 104px);
+  /* The sections are words with a line under the chosen one (UI plan, part
+     92): moving between them does not look like the switches inside one. */
+  .ob-sections-track {
+    grid-template-columns: repeat(var(--ob-n, 3), 120px);
     height: var(--ob-top-h);
   }
-  .ob-groups-ind {
+  .ob-sections-ind {
     clip-path: none;
   }
-  .ob-groups-ind::before {
+  .ob-sections-ind::before {
     top: auto;
     bottom: -1px;
     left: 16px;
@@ -1680,28 +1747,19 @@ html.theme-switching::view-transition-new(root) {
     margin: 0;
     border-radius: 2px;
   }
-  .ob-groups-ink {
+  .ob-sections-ink,
+  .ob-section-icon {
     display: none;
   }
-  .ob-group {
+  .ob-section {
     flex-direction: row;
-    align-items: center;
     justify-content: center;
-    gap: 6px;
     padding: 0 8px;
   }
-  .ob-group-icon {
-    width: 15px;
-    height: 15px;
-  }
-  .ob-group-label {
+  .ob-section-label {
     font-size: 14px;
   }
-  .ob-group.is-on,
-  .ob-group.is-on .ob-group-icon {
-    color: var(--color-fg);
-  }
-  .ob-group.is-on .ob-group-label {
+  .ob-section.is-on .ob-section-label {
     font-weight: 600;
   }
 
@@ -1724,7 +1782,6 @@ html.theme-switching::view-transition-new(root) {
     row-gap: 6px;
   }
   .ob-submodes {
-    flex: 0 0 auto;
     width: calc(var(--ob-n) * 6.5rem);
   }
   /* In the toolbar the page's own controls take what they need, not the row. */
@@ -1821,7 +1878,8 @@ html.theme-switching::view-transition-new(root) {
   html.theme-ready,
   .ob-panel,
   .ulune-seg-pill,
-  .ob-groups-ind,
+  .ob-sections-ind,
+  .ob-sections-ink,
   .ob-submodes-ind,
   .ob-chip-caret,
   .ob-collapse-icon {
@@ -1837,10 +1895,9 @@ html.theme-switching::view-transition-new(root) {
   .ob-btn:active,
   .ulune-wheel-zoom-btn:active,
   .ulune-wheel-zoom-fit:active,
-  .ob-group:active .ob-group-icon,
   [data-pressed],
-  .ob-group[data-pressed] .ob-group-icon,
-  :where(.ob-chip, .ob-menu-item, .ob-aspect-chip, .ob-panel-tab, .ob-submode, .ulune-seg-btn):active {
+  .ob-section:is(:active, [data-pressed]) .ob-section-icon,
+  :where(.ob-chip, .ob-menu-item, .ob-aspect-chip, .ob-panel-tab, .ob-submode, .ulune-seg-btn, .ob-lang, .ob-lang-chip, .ob-lens):active {
     transform: none !important;
   }
 }
@@ -3371,11 +3428,9 @@ html[data-tour-done] .ob-tour-link {
     align-items: center;
     gap: 8px;
   }
-  .ob-strip > .ob-submodes,
-  .ob-strip > .ob-strip-cap {
+  .ob-strip > .ob-nav {
     grid-column: 1;
     grid-row: 1;
-    width: auto;
   }
   .ob-strip > .ob-strip-end {
     grid-column: 2;
@@ -3405,10 +3460,10 @@ html[data-tour-done] .ob-tour-link {
     flex-grow: 0;
   }
 }
-/* A page with neither sub-modes nor details (the Chart's table): its own
-   controls share the first row with ⋯. */
+/* A page without the language and lenses (the Calendar): its own controls
+   share the first row with ⋯. */
 @media (max-width: 1023.98px) {
-  .ob-strip:not(:has(> .ob-submodes)):not(:has(> .ob-strip-cap)) > .ob-strip-extra {
+  .ob-strip:not(:has(> .ob-nav)) > .ob-strip-extra {
     grid-column: 1;
     grid-row: 1;
   }
@@ -3423,8 +3478,7 @@ html[data-tour-done] .ob-tour-link {
       grid-template-columns: minmax(0, 1fr) auto;
       row-gap: 6px;
     }
-    .ob-strip > .ob-submodes,
-    .ob-strip > .ob-strip-cap {
+    .ob-strip > .ob-nav {
       grid-column: 1;
       grid-row: 1;
     }
@@ -3436,9 +3490,92 @@ html[data-tour-done] .ob-tour-link {
       grid-column: 1 / -1;
       grid-row: 2;
     }
+    .ob-strip:not(:has(> .ob-nav)) > .ob-strip-extra {
+      grid-column: 1;
+      grid-row: 1;
+    }
     .ob-strip > .ob-strip-fill {
       display: none;
     }
+  }
+  /* The Calendar has no language or lenses: its controls start the row. */
+  .ob-strip:not(:has(> .ob-nav)) {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  /* With the sub-modes folded (below), a Relationship page's two people
+     take a second row, before anything is squeezed. */
+  @container stage (max-width: 1179.98px) {
+    .ob-strip:has(> .ob-nav > .ob-submodes) > .ob-strip-extra {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    /* (The last column: the third, or the second when the stage is under 760 px.) */
+    .ob-strip:has(> .ob-nav > .ob-submodes) > .ob-strip-end {
+      grid-column: -2 / -1;
+      grid-row: 1;
+    }
+  }
+}
+/* Under about 1180 px of stage (a small window, the side panel open, a
+   tablet, a phone) the sub-modes fold into their lens's tab, "Cycles:
+   Transits ▾", which opens them as a menu (ChartsNav.tsx). */
+@container stage (max-width: 1179.98px) {
+  .ob-nav:has(> .ob-lenses) > .ob-submodes {
+    display: none;
+  }
+  .ob-lens-more {
+    display: inline-flex;
+  }
+}
+/* The chips beside the language button need a wide toolbar; a narrower
+   one gives their short names (HD). */
+@container stage (max-width: 999.98px) {
+  .ob-lang-chip .ob-lang-name {
+    display: none;
+  }
+  .ob-lang-chip .ob-lang-short {
+    display: inline;
+  }
+}
+@container stage (max-width: 879.98px) {
+  .ob-lang-chips {
+    display: none;
+  }
+}
+/* A narrow toolbar (a phone, a computer's smallest window with its panel
+   open): the chosen lens's tab shows only its sub-mode ("Transits ▾", named
+   "Cycles: Transits" to a screen reader), and beside lens tabs the language
+   button gives its short name ("Astro"). */
+@container stage (max-width: 699.98px) {
+  .ob-lens.is-on:has(.ob-lens-more) .ob-lens-word,
+  .ob-lens-colon,
+  .ob-nav:has(> .ob-lenses) .ob-lang-name {
+    display: none;
+  }
+  .ob-nav:has(> .ob-lenses) .ob-lang-short {
+    display: inline;
+  }
+}
+/* Most phones: beside three lens tabs there is room for the language's mark
+   only (its name stays in its label and in the picker). */
+@container stage (max-width: 419.98px) {
+  .ob-nav:has(> .ob-lenses) .ob-lang-short {
+    display: none;
+  }
+}
+/* The Calendar's toolbar (timing.css) kept a place at its start for Time's
+   sub-modes. The Calendar is a section of its own now, without them (R2):
+   day / month / year take that place, and on a phone View joins them in the
+   first row. */
+.ob-stage .ob-strip .ulune-cal-scope {
+  grid-area: modes;
+}
+@media (max-width: 1023.98px) {
+  .ob-stage .ob-strip:has(.ulune-cal-bar) {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "modes options end"
+      "cap cap cap";
   }
 }
 /* Over a dial (Transits, Progressions) the zoom cluster stands in the
@@ -3449,10 +3586,3 @@ html[data-tour-done] .ob-tour-link {
   bottom: auto;
 }
 
-/* A phone: the sub-modes' words whole in a third of the row ("Progressions"
-   beside ⋯ at 375 px; 5 Oct). */
-@media (max-width: 1023.98px) {
-  .ob-strip .ob-submode {
-    padding: 0 4px;
-  }
-}

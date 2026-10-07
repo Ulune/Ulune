@@ -2,8 +2,6 @@
   "id": "calendar.ui",
   "kind": "chrome",
   "switches": {
-    "sky": { "en": "Sky", "fr": "Ciel" },
-    "yours": { "en": "For you", "fr": "Pour vous" },
     "today": { "en": "Today", "fr": "Aujourd’hui" },
     "view": { "en": "View", "fr": "Affichage" },
     "file": { "en": "Calendar file (.ics)", "fr": "Fichier agenda (.ics)" },

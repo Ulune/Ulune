@@ -17,16 +17,16 @@ try {
   await page.keyboard.type("mars");
   await page.keyboard.press("Enter");
   await page.waitForFunction(() => /mars/i.test(document.querySelector("#ob-rc-title")?.textContent ?? ""), null, { timeout: 8000 });
-  // Shortcuts: 2 → Time group, T → table, T → wheel.
+  // Shortcuts: Alt+2 → Cycles (Transits), T → table, T → wheel, Alt+1 → Natal.
   await page.locator("#ob-rc-title").click();
   await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : null));
-  await page.keyboard.press("2");
+  await page.keyboard.press("Alt+2");
   await page.getByTestId("studio-transits").waitFor({ timeout: 8000 });
   await page.keyboard.press("t");
   await page.waitForFunction(() => document.querySelector("[data-view]")?.getAttribute("data-view") === "table");
   await page.keyboard.press("t");
   await page.waitForFunction(() => document.querySelector("[data-view]")?.getAttribute("data-view") === "wheel");
-  await page.keyboard.press("1");
+  await page.keyboard.press("Alt+1");
   await page.getByTestId("studio-natal").waitFor({ timeout: 8000 });
   console.log("palette + shortcuts OK");
 

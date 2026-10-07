@@ -1,10 +1,12 @@
 import { Suspense, useLayoutEffect, useMemo, useRef } from "react";
 import { CalendarBar, CalendarScope } from "@/components/calendar-bar";
+import { CalendarInvite } from "@/components/calendar-layers";
 import { CalendarLegend, CalendarMonth } from "@/components/calendar-month";
 import { CalendarNow } from "@/components/calendar-now";
 import { CalendarDay } from "@/components/calendar-day";
 import { CalendarYear, CalendarYearPanel } from "@/components/calendar-year";
 import { LoadingLines } from "@/components/loading-lines";
+import { layersOn } from "@/lib/chart/calendar-layers";
 import type { NumRow } from "@/lib/chart/calendar-rows";
 import { changesBetween, dayKey, personalDayOn, personalMonthOn, personalYearOn, type NumerologyCalendar } from "@/lib/chart/numerology-calendar";
 import type { CivilDate } from "@/lib/chart/timing-window";
@@ -38,11 +40,16 @@ function numDayOf(num: NumerologyCalendar, civil: CivilDate) {
   };
 }
 
+/** The birth form, from the Calendar without a chart: the cast brings the reader back here with their transits. */
+const castFromCalendar = () => useStudioStore.getState().startNew();
+
 /** The calendar's bar, over the figure and over the table. */
 function TimingBar({ table = false }: { table?: boolean }) {
   const timing = useModeData("timing");
   const selectedId = useStudioStore((s) => s.selectedId);
   const pick = useStudioStore((s) => s.pick);
+  const choices = timing?.prefs.layers;
+  const on = useMemo(() => layersOn(choices), [choices]);
   if (!timing) return null;
   return (
     <CalendarBar
@@ -50,14 +57,11 @@ function TimingBar({ table = false }: { table?: boolean }) {
       civil={timing.civil}
       onShift={timing.shift}
       onToday={timing.goToday}
-      zone={timing.prefs.zone}
+      zone={timing.zone}
       zones={timing.zones}
       onZone={(zone) => timing.updatePrefs({ zone })}
       nowMs={timing.nowMs}
-      showSky={timing.prefs.sky}
-      showYours={timing.prefs.yours}
-      onSky={(sky) => timing.updatePrefs({ sky })}
-      onYours={(yours) => timing.updatePrefs({ yours })}
+      layers={{ on, shown: timing.shown, hasChart: timing.hasChart, onLayer: timing.setLayer, onCast: castFromCalendar }}
       onExport={timing.exportIcs}
       loading={timing.loading}
       table={table}
@@ -65,7 +69,7 @@ function TimingBar({ table = false }: { table?: boolean }) {
       numOn={!!timing.numTitle && selectedId === timing.numTitle.id}
       onNum={pick}
       onJump={timing.setCivil}
-      legend={timing.scope === "month" ? <CalendarLegend num={!!(timing.prefs.yours && timing.numCal)} /> : null}
+      legend={timing.scope === "month" ? <CalendarLegend sky={timing.shown.sky} yours={timing.shown.transits} num={!!timing.numShown} /> : null}
     />
   );
 }
@@ -87,8 +91,9 @@ function TimingFigure() {
   if (!timing.enabled && !timing.cast) {
     return <p className="px-5 py-10 font-display text-2xl text-fg">{timingNoNatal(locale)}</p>;
   }
-  // Your numerology rides with your transits.
-  const num = timing.prefs.yours ? timing.numCal : null;
+  // What the layers let through (lib/chart/calendar-layers.ts): the sky, your transits, your numerology.
+  const { sky, transits } = timing.shown;
+  const num = timing.numShown;
   return (
     <div
       ref={hero}
@@ -100,6 +105,7 @@ function TimingFigure() {
           {localizeError(timing.error, locale, "couldNotCastSky")}
         </p>
       ) : null}
+      {timing.hasChart ? null : <CalendarInvite onCast={castFromCalendar} />}
       {timing.scope === "day" && timing.dayView ? (
         <CalendarDay
           ov={timing.dayView}
@@ -107,8 +113,8 @@ function TimingFigure() {
           tz={timing.tz}
           nowMs={timing.nowMs}
           events={timing.allEvents}
-          showSky={timing.prefs.sky}
-          showYours={timing.prefs.yours}
+          showSky={sky}
+          showYours={transits}
           selectedId={selectedId}
           onSelect={pick}
           num={num && timing.dayView ? numDayOf(num, timing.civil) : null}
@@ -122,8 +128,8 @@ function TimingFigure() {
             events={timing.events}
             wins={timing.wins}
             hits={timing.scoped}
-            showSky={timing.prefs.sky}
-            showYours={timing.prefs.yours}
+            showSky={sky}
+            showYours={transits}
             selectedDay={selectedId?.startsWith("day:") ? selectedId.slice(4) : null}
             todayKey={timing.todayKey}
             onPickDay={timing.pickDay}
@@ -137,8 +143,8 @@ function TimingFigure() {
           layout={timing.yearView}
           tz={timing.tz}
           nowMs={timing.nowMs}
-          showSky={timing.prefs.sky}
-          showYours={timing.prefs.yours}
+          showSky={sky}
+          showYours={transits}
           selectedId={selectedId}
           onSelect={pick}
           onOpenMonth={(month) => timing.pickMonth({ year: timing.civil.year, month, day: 1 })}
@@ -171,11 +177,11 @@ function TimingHelloEmpty() {
       <CalendarYearPanel
         layout={timing.yearView}
         tz={timing.tz}
-        showSky={timing.prefs.sky}
-        showYours={timing.prefs.yours}
+        showSky={timing.shown.sky}
+        showYours={timing.shown.transits}
         selectedId={w.selectedId}
         onSelect={w.pick}
-        num={timing.prefs.yours ? timing.numCal : null}
+        num={timing.numShown}
       />
     );
   }
@@ -187,11 +193,11 @@ function TimingHelloEmpty() {
       wins={timing.nowWins}
       hits={timing.nowHits}
       windows={timing.windows}
-      showSky={timing.prefs.sky}
-      showYours={timing.prefs.yours}
+      showSky={timing.shown.sky}
+      showYours={timing.shown.transits}
       selectedId={w.selectedId}
       onSelect={w.pick}
-      num={timing.prefs.yours ? timing.numCal : null}
+      num={timing.numShown}
     />
   );
 }
@@ -203,6 +209,7 @@ function TimingData() {
   if (!timing?.cast) return null;
   return (
     <div className="ulune-cal-tableview">
+      {timing.hasChart ? null : <CalendarInvite onCast={castFromCalendar} />}
       <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
         <CalendarTable
           events={timing.allEvents}
@@ -217,7 +224,8 @@ function TimingData() {
           fileName={timing.fileName}
           selectedId={w.selectedId}
           onSelect={w.pick}
-          num={timing.prefs.yours ? timing.numRows : NO_ROWS}
+          layers={timing.shown}
+          num={timing.numShown ? timing.numRows : NO_ROWS}
           loading={timing.loading}
           who={chartName}
         />

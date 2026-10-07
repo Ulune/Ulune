@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { CATALOG } from "../src/lib/i18n/catalog/index.ts";
+import { calendarLayerWords } from "../src/lib/i18n/catalog/calendar-layer-words.ts";
+import { pickerWords } from "../src/lib/i18n/catalog/picker-words.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const CAT_DIR = join(ROOT, "src/lib/i18n/catalog");
@@ -63,4 +65,18 @@ test("no English literal in aria-label", () => {
       [...readFileSync(p, "utf8").matchAll(/aria-label="([A-Za-z][^"]*)"/g)].map((m) => `${p}: ${m[1]}`),
     );
   assert.deepEqual(hits, []);
+});
+
+test("the catalogs read on their own, outside the index (the calendar's layers, the language picker), are complete too", () => {
+  // Kept out of the index so they stay out of the first download; held to the same rules.
+  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords })) {
+    for (const [key, [en, fr]] of Object.entries(words)) {
+      assert.ok(en && en.trim(), `${name}.${key}: English missing`);
+      assert.ok(fr && fr.trim(), `${name}.${key}: French missing`);
+      for (const text of [en, fr]) assert.ok(!/\w'\w/.test(text), `${name}.${key}: straight apostrophe in "${text}"`);
+      // French spacing: a narrow no-break space before : ; ! ? and inside « ».
+      assert.ok(!/(?<!\u202f)[:;!?](?=\s|$)/.test(fr), `${name}.${key}: French punctuation without its narrow space: "${fr}"`);
+      assert.ok(!/« |«[^\u202f]| »|[^\u202f]»/.test(fr), `${name}.${key}: « » without narrow spaces in "${fr}"`);
+    }
+  }
 });

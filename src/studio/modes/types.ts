@@ -3,8 +3,6 @@ import type { ElementReading } from "@/lib/chart/types";
 import type { AppLocale } from "@/lib/i18n/messages";
 import type { ModeMeta } from "@/studio/modes/meta";
 
-export type { ModeGroupId } from "@/studio/url";
-
 /**
  * What a mode's own hooks hand the shell: its data (read by its figure,
  * panels and table through useModeData) and the reading of the selected item.

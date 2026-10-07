@@ -9,6 +9,7 @@ import { LegalNav } from "@/components/legal-page";
 import { keepWhole } from "@/components/keep-whole";
 import { pageHead } from "@/lib/page-head";
 import { problemMailto } from "@/lib/contact";
+import { TermLinksSetting } from "@/encyclopedia/TermLinksSetting";
 
 export const Route = createFileRoute("/settings")({
   // Nothing here for a search engine: the page is about this browser.
@@ -53,6 +54,7 @@ function Settings() {
             </a>
           </p>
         </section>
+        <TermLinksSetting />
         <p className="font-mono text-xs text-fg-subtle" data-testid="app-version">
           <Link to="/changes" className="ob-notice-link">
             Ulune {APP_VERSION} · {t("whatsNew")}

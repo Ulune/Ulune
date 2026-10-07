@@ -2,7 +2,7 @@ import { installPressFeedback } from "@/lib/press";
 import { createRootRoute, HeadContent, Outlet, Scripts, useRouter } from "@tanstack/react-router";
 import { AiSurfaceProvider } from "@/lib/ai/use-ai-surface";
 import { SpaceGate } from "@/components/space/space-gate";
-import { LocaleProvider, LOCALE_BOOT } from "@/lib/i18n/locale";
+import { LocaleProvider, LOCALE_BOOT, useDocumentLang, usePathLocale } from "@/lib/i18n/locale";
 import { THEME_BOOT, ThemeProvider } from "@/lib/theme";
 import { RENAME_BOOT } from "@/lib/space/legacy";
 import { LookProvider } from "@/lib/look-provider";
@@ -45,6 +45,42 @@ const fontPreload = (href: string) => ({
 function InlineScript({ code }: { code: string }) {
   const nonce = useRouter().options.ssr?.nonce;
   return <script nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: code }} />;
+}
+
+/**
+ * The page. Its language: /encyclopedie and /calendrier open in French when
+ * the reader has saved no choice, from the server's <html lang> on
+ * (lib/i18n/locale.tsx).
+ */
+function RootDocument() {
+  const pathLocale = usePathLocale();
+  const lang = useDocumentLang(pathLocale);
+  return (
+    <html lang={lang} className="antialiased" suppressHydrationWarning>
+      <head>
+        <HeadContent />
+        <InlineScript code={RENAME_BOOT} />
+        <InlineScript code={THEME_BOOT} />
+        <InlineScript code={LOCALE_BOOT} />
+        <InlineScript code={BOOT} />
+      </head>
+      <body className="min-h-dvh bg-bg text-fg">
+        <InlineScript code={FIRST_VIEW} />
+        <ThemeProvider>
+          <LookProvider>
+            <LocaleProvider pathLocale={pathLocale}>
+              <AiSurfaceProvider>
+                <Outlet />
+                <SpaceGate />
+                <ClientGuards />
+              </AiSurfaceProvider>
+            </LocaleProvider>
+          </LookProvider>
+        </ThemeProvider>
+        <Scripts />
+      </body>
+    </html>
+  );
 }
 
 /** Once the page runs: error reports (lib/error-report.ts) and a reload for code gone after a deploy. */
@@ -101,30 +137,5 @@ export const Route = createRootRoute({
       { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
     ],
   }),
-  component: () => (
-    <html lang="en" className="antialiased" suppressHydrationWarning>
-      <head>
-        <HeadContent />
-        <InlineScript code={RENAME_BOOT} />
-        <InlineScript code={THEME_BOOT} />
-        <InlineScript code={LOCALE_BOOT} />
-        <InlineScript code={BOOT} />
-      </head>
-      <body className="min-h-dvh bg-bg text-fg">
-        <InlineScript code={FIRST_VIEW} />
-        <ThemeProvider>
-          <LookProvider>
-            <LocaleProvider>
-              <AiSurfaceProvider>
-                <Outlet />
-                <SpaceGate />
-                <ClientGuards />
-              </AiSurfaceProvider>
-            </LocaleProvider>
-          </LookProvider>
-        </ThemeProvider>
-        <Scripts />
-      </body>
-    </html>
-  ),
+  component: RootDocument,
 });

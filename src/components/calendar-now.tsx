@@ -94,7 +94,7 @@ export function CalendarNow({
   showYours: boolean;
   selectedId: string | null;
   onSelect: (id: string) => void;
-  /** Your numerology (with your transits on): today's personal day. */
+  /** Your numerology (with its layer on): today's personal day. */
   num?: NumerologyCalendar | null;
 }) {
   const { locale } = useI18n();
@@ -177,7 +177,7 @@ export function CalendarNow({
       ) : (
         <p className="ulune-cal-now-detail">{pick(p.loading, locale)}</p>
       )}
-      {showYours ? (
+      {showYours || num ? (
         <>
           <h3 className="ulune-cal-now-kicker">{pick(p.forYou, locale)}</h3>
           {active.map((w) => {
@@ -213,7 +213,7 @@ export function CalendarNow({
               />
             );
           })}
-          {!active.length && !quick.length ? <p className="ulune-cal-now-detail">{pick(p.quiet, locale)}</p> : null}
+          {showYours && !active.length && !quick.length ? <p className="ulune-cal-now-detail">{pick(p.quiet, locale)}</p> : null}
           {num ? <NumToday num={num} today={dayKey(nowMs)} selectedId={selectedId} onSelect={onSelect} /> : null}
         </>
       ) : null}

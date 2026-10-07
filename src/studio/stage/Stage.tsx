@@ -5,9 +5,8 @@ import { lazyNamed } from "@/lib/lazy-component";
 import { SegmentedToggle } from "@/components/segmented-toggle";
 import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
-import { SubModeSwitch } from "@/studio/shell/SubModeSwitch";
+import { ChartsNav } from "@/studio/shell/ChartsNav";
 import { AspectSlotContext, ExportSlotContext, MoreSlotsContext, RingsSlotContext, TableTabsSlotContext, ZoomSlotContext, type MoreSlots } from "@/studio/stage/stage-slots";
-import { MODE_GROUPS, groupOf } from "@/studio/url";
 import { ExportMenu } from "@/studio/stage/ExportMenu";
 import { KeepOffer } from "@/components/space/keep-offer";
 import { useStudioStore } from "@/studio/store";
@@ -101,12 +100,12 @@ const loadMore = () => import("@/studio/stage/MorePanel");
 const MorePanel = lazyNamed(loadMore, "MorePanel");
 
 /**
- * Stage frame (UI plan, part 93): one toolbar (the page's sub-mode or, on a
- * page without one, the chart's details · the mode's own controls · the
- * rings · Wheel / Table · Export) / the figure, with zoom in its corner /
- * a footer (caption, the aspect key where it doesn't fit beside the wheel).
- * `form` hides the toolbar's tools and the footer, keeping the mode switch
- * when the form stands in for a mode (`nav`: no chart yet).
+ * Stage frame (UI plan, part 93): one toolbar (where you are in Charts: the
+ * language, its lens and sub-mode · the mode's own controls · the rings ·
+ * Wheel / Table · Export) / the figure, with zoom in its corner / a footer
+ * (the chart's details, the aspect key where it doesn't fit beside the
+ * wheel). `form` hides the toolbar's tools and the footer, keeping where you
+ * are when the form stands in for a page (`nav`: no chart yet).
  */
 export function Stage({
   children,
@@ -127,7 +126,7 @@ export function Stage({
   testId?: string;
   table?: boolean;
   form?: boolean;
-  /** With `form`: keep the mode switch above it (a mode was asked for before any chart). */
+  /** With `form`: keep the language and lens above it (a page was asked for before any chart). */
   nav?: boolean;
   foot?: boolean;
   swapKey?: string;
@@ -148,10 +147,6 @@ export function Stage({
   const moreRef = useRef<HTMLButtonElement>(null);
   const moreSlots: MoreSlots = useMemo(() => ({ rings: moreRings, tools: moreTools, close: closeMore }), [moreRings, moreTools, closeMore]);
   const view = useStudioStore((s) => s.view);
-  const page = useStudioStore((s) => s.navPage ?? s.page);
-  // A page with no sub-mode (the Chart) shows the chart's details where the switch would be.
-  const single = (MODE_GROUPS.find((g) => g.id === groupOf(page))?.pages.length ?? 0) <= 1;
-  const capInBar = single && Boolean(caption);
   const tools = !form && foot;
   // Store view comes from localStorage; only publish it once hydrated.
   const [mounted, setMounted] = useState(false);
@@ -216,13 +211,7 @@ export function Stage({
       >
         {form && !nav ? null : (
           <div className="ob-strip" data-testid="stage-toolbar">
-            {capInBar && tools ? (
-              <div className="ob-strip-cap ulune-stage-caption" data-testid="stage-details">
-                {caption}
-              </div>
-            ) : (
-              <SubModeSwitch />
-            )}
+            <ChartsNav />
             {tools && (extraControls || table) ? (
               <div className="ob-strip-extra">
                 {extraControls}
@@ -262,7 +251,7 @@ export function Stage({
         </div>
         {form || !foot ? null : (
           <div className="ob-foot">
-            {caption && !capInBar ? (
+            {caption ? (
               <div className="ob-foot-cap ulune-stage-caption">
                 {caption}
                 <KeepOffer />

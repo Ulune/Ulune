@@ -59,7 +59,7 @@ export function CalendarMonth({
   onPickDay: (day: CivilDate) => void;
   /** Page Up / Page Down: the previous or next month. */
   onShiftMonth?: (dir: 1 | -1) => void;
-  /** Your numerology (with your transits on): each day's personal day, a cycle's change on its birthday. */
+  /** Your numerology (with its layer on): each day's personal day, a cycle's change on its birthday. */
   num?: NumerologyCalendar | null;
 }) {
   const { locale } = useI18n();
@@ -319,7 +319,8 @@ export function CalendarMonth({
   );
 }
 
-export function CalendarLegend({ num = false }: { num?: boolean }) {
+/** The key to the month's symbols: the Moon always, then those of each layer shown. */
+export function CalendarLegend({ sky = true, yours = true, num = false }: { sky?: boolean; yours?: boolean; num?: boolean }) {
   const { locale } = useI18n();
   const l = CALENDAR_UI.legend;
   return (
@@ -327,29 +328,35 @@ export function CalendarLegend({ num = false }: { num?: boolean }) {
       <span>
         <MoonGlyph elong={120} size={13} /> {pick(l.moon, locale)}
       </span>
-      <span>
-        <MoonGlyph elong={270} size={13} /> {pick(l.phase, locale)}
-      </span>
-      <span>
-        <span className="ulune-cal-icon" aria-hidden>
-          <PlanetGlyph id="mars" size={12} />
-          <span className="ulune-cal-arrow">→</span>
-          <SignMark sign={4} size={11} />
-        </span>{" "}
-        {pick(l.ingress, locale)}
-      </span>
-      <span>
-        <span className="ulune-cal-icon" aria-hidden>
-          <PlanetGlyph id="venus" size={12} />
-          <span className="ulune-cal-turn">℞</span>
-        </span>{" "}
-        {pick(l.station, locale)}
-      </span>
-      <span>
-        {pick(l.yours, locale)} <i className="ulune-cal-dot" data-family="conj" style={{ background: "var(--aspect-conj)" }} /> {pick(l.conj, locale)}{" "}
-        <i className="ulune-cal-dot" data-family="soft" style={{ background: "var(--aspect-soft)" }} /> {pick(l.soft, locale)}{" "}
-        <i className="ulune-cal-dot" data-family="hard" style={{ background: "var(--aspect-hard)" }} /> {pick(l.hard, locale)}
-      </span>
+      {sky ? (
+        <>
+          <span>
+            <MoonGlyph elong={270} size={13} /> {pick(l.phase, locale)}
+          </span>
+          <span>
+            <span className="ulune-cal-icon" aria-hidden>
+              <PlanetGlyph id="mars" size={12} />
+              <span className="ulune-cal-arrow">→</span>
+              <SignMark sign={4} size={11} />
+            </span>{" "}
+            {pick(l.ingress, locale)}
+          </span>
+          <span>
+            <span className="ulune-cal-icon" aria-hidden>
+              <PlanetGlyph id="venus" size={12} />
+              <span className="ulune-cal-turn">℞</span>
+            </span>{" "}
+            {pick(l.station, locale)}
+          </span>
+        </>
+      ) : null}
+      {yours ? (
+        <span data-testid="calendar-legend-yours">
+          {pick(l.yours, locale)} <i className="ulune-cal-dot" data-family="conj" style={{ background: "var(--aspect-conj)" }} /> {pick(l.conj, locale)}{" "}
+          <i className="ulune-cal-dot" data-family="soft" style={{ background: "var(--aspect-soft)" }} /> {pick(l.soft, locale)}{" "}
+          <i className="ulune-cal-dot" data-family="hard" style={{ background: "var(--aspect-hard)" }} /> {pick(l.hard, locale)}
+        </span>
+      ) : null}
       {num ? (
         <>
           <span data-testid="calendar-legend-num">

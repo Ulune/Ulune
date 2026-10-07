@@ -2,6 +2,7 @@ import { startTransition, useEffect, useMemo, useState } from "react";
 import { PairIcon, SkyEventIcon } from "@/components/calendar-icons";
 import { SegmentedToggle } from "@/components/segmented-toggle";
 import { periodOf, type Period } from "@/lib/chart/calendar-periods";
+import { anyPersonalShown, layersForWhom, type ShownLayers } from "@/lib/chart/calendar-layers";
 import { calendarRows, type CalRow, type NumRow } from "@/lib/chart/calendar-rows";
 import type { TransitWindow } from "@/lib/chart/personal-transits";
 import type { SkyAspect, SkyEvent } from "@/lib/chart/sky-events";
@@ -52,6 +53,7 @@ export function CalendarTable({
   fileName,
   selectedId,
   onSelect,
+  layers,
   num = [],
   loading = false,
   who = "",
@@ -71,7 +73,9 @@ export function CalendarTable({
   fileName: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
-  /** Numerology's changes on your birthdays (with your transits). */
+  /** The layers shown (View): the table holds their rows only, and its own filter chooses among them. */
+  layers: ShownLayers;
+  /** Numerology's changes on your birthdays (with its layer on). */
   num?: readonly NumRow[];
   /** The period is still arriving: Copy, CSV and the file wait for it. */
   loading?: boolean;
@@ -80,12 +84,15 @@ export function CalendarTable({
 }) {
   const { locale, t } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
-  const [filterWho, setFilterWho] = useState<Who>("all");
+  const [chosenWho, setFilterWho] = useState<Who>("all");
+  // "For whom" chooses among the layers shown: with the sky alone, or yours alone, there is nothing to choose.
+  const canFilter = layers.sky && anyPersonalShown(layers);
+  const filterWho: Who = canFilter ? chosenWho : "all";
   const [moon, setMoon] = useState(scope === "day");
   useEffect(() => setMoon(scope === "day"), [scope]);
   const rows = useMemo(
-    () => calendarRows(events, hits, from, to, { sky: filterWho !== "yours", yours: filterWho !== "sky", moon }, num),
-    [events, hits, from, to, filterWho, moon, num],
+    () => calendarRows(events, hits, from, to, { layers: layersForWhom(layers, filterWho), moon }, num),
+    [events, hits, from, to, layers, filterWho, moon, num],
   );
   const columns = timingTableColumns(locale);
   const time = (ms: number) => dateFormat(loc, { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(ms));
@@ -165,7 +172,7 @@ export function CalendarTable({
   const csv = () => [[...columns], ...rows.map((r) => [whenOf(r), what(r), where(r), forWho(r), ut(r.t)])].map((r) => r.map(csvCell).join(",")).join("\n");
   const text = () => [timingTableTitle(locale), ...groups.map((g) => [g.heading, ...g.rows.map((x) => line(x.row))].join("\n"))].join("\n\n");
   const exportIcs = (kind: IcsKind) => {
-    const spans = filterWho === "sky" ? [] : windows.filter((w) => w.from < to && w.to >= from);
+    const spans = filterWho === "sky" || !layers.transits ? [] : windows.filter((w) => w.from < to && w.to >= from);
     const person = who.trim();
     const slug = person.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "");
     const name = `Ulune · ${person ? `${person} · ` : ""}${fileName}`;
@@ -252,12 +259,14 @@ export function CalendarTable({
         <p className="ulune-tpart-hint">{timingTableHint(locale)}</p>
       </PartAbout>
       <div className="ulune-cal-table-filters">
-        <SegmentedToggle
-          ariaLabel={pick(T.filter.label, locale)}
-          value={filterWho}
-          onChange={setFilterWho}
-          options={(["all", "sky", "yours"] as const).map((id) => ({ value: id, testId: `calendar-table-${id}`, label: pick(T.filter[id], locale) }))}
-        />
+        {canFilter ? (
+          <SegmentedToggle
+            ariaLabel={pick(T.filter.label, locale)}
+            value={filterWho}
+            onChange={setFilterWho}
+            options={(["all", "sky", "yours"] as const).map((id) => ({ value: id, testId: `calendar-table-${id}`, label: pick(T.filter[id], locale) }))}
+          />
+        ) : null}
         <label className="ulune-cal-table-moon">
           <input type="checkbox" checked={moon} onChange={(e) => setMoon(e.target.checked)} data-testid="calendar-table-moon" />
           {pick(T.moon, locale)}
@@ -282,7 +291,7 @@ export function CalendarTable({
             csv={csv}
             fileName={`ulune-${fileName}`}
             disabled={loading}
-            extra={<IcsItems onExport={exportIcs} loading={loading} testId="calendar-ics" />}
+            extra={<IcsItems onExport={exportIcs} loading={loading} testId="calendar-ics" transits={layers.transits && filterWho !== "sky"} />}
           />
         }
       />

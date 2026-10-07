@@ -62,12 +62,20 @@ test("a returning reader's first view is drawn only when it still fits", () => {
   assert.equal(ok.attrs.has("data-first-view"), true);
   assert.equal(ok.appended.at(-1).html, "<svg></svg>");
 
+  // 2.0: the Natal page's own path draws it too.
+  const atNatal = fakeDom(store(items));
+  run(bootScript(glyphs), atNatal, { location: { pathname: "/astrology", search: "" } });
+  run(firstViewScript(), atNatal, { location: { pathname: "/astrology", search: "" } });
+  assert.equal(atNatal.attrs.has("data-first-view"), true, "/astrology draws the first view");
+
   const cases = [
     [{ ...items, "orbis.charts.active": "c2" }, {}],
     [{ ...items, "ulune.studio.view": "table" }, {}],
     [{ ...items, "ulune.depth.v1": '{"lift":true,"view":"3d"}' }, {}],
     [items, { w: 1024 }],
     [items, { location: { pathname: "/", search: "?studio=transits" } }],
+    [items, { location: { pathname: "/astrology/transits", search: "" } }],
+    [items, { location: { pathname: "/calendar", search: "" } }],
     [items, { location: { pathname: "/settings", search: "" } }],
   ];
   for (const [s, extra] of cases) {

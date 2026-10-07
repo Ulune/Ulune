@@ -3,7 +3,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { reportError } from "@/lib/error-report";
 import { useI18n } from "@/lib/i18n/locale";
 import { isStaleVersion, recoverFromStaleChunk } from "@/lib/stale-chunks";
-import { studioSearch } from "@/studio/url";
+import { studioHref, type StudioSearch } from "@/studio/url";
 import { useStudioStore } from "@/studio/store";
 
 function StageThrower(): ReactNode {
@@ -91,9 +91,9 @@ class ErrorSlotBoundary extends Component<
 }
 
 export function ErrorSlot({ children }: { children: ReactNode }) {
-  const { t } = useI18n();
-  const navigate = useNavigate({ from: "/" });
-  const search = useSearch({ from: "/" });
+  const { t, locale } = useI18n();
+  const navigate = useNavigate();
+  const search = useSearch({ strict: false }) as StudioSearch;
   return (
     <ErrorSlotBoundary
       title={t("errorSlotTitle")}
@@ -108,8 +108,7 @@ export function ErrorSlot({ children }: { children: ReactNode }) {
         const page = useStudioStore.getState().page;
         const view = useStudioStore.getState().view;
         void navigate({
-          to: "/",
-          search: studioSearch(page, view),
+          href: studioHref(page, view, { locale, here: window.location.pathname }),
           replace: true,
         });
       }}

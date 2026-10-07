@@ -15,9 +15,18 @@ import { useSpace } from "@/lib/space/state";
  * panel to edit one. A first visit (no chart open, none kept on this device)
  * gets the page's title, "Cast a birth chart", one line on what it gives,
  * and two links under it: the sample chart and the tour. `modeLine` says why
- * the form stands where a mode was asked for (a link to Transits, say).
+ * the form stands where a mode was asked for (a link to Transits, say);
+ * `back` leads back to a page that needs no chart (the Calendar's sky).
  */
-export function BirthTab({ onStage = false, modeLine = null }: { onStage?: boolean; modeLine?: string | null }) {
+export function BirthTab({
+  onStage = false,
+  modeLine = null,
+  back = null,
+}: {
+  onStage?: boolean;
+  modeLine?: string | null;
+  back?: { label: string; onBack: () => void } | null;
+}) {
   const { locale, t } = useI18n();
   const input = useStudioStore((s) => s.input);
   const chart = useStudioStore((s) => s.chart);
@@ -88,6 +97,11 @@ export function BirthTab({ onStage = false, modeLine = null }: { onStage?: boole
       data-on-stage={onStage ? "1" : undefined}
     >
       <div className="ob-birth-head">
+        {back ? (
+          <button type="button" className="ob-sample-link ob-birth-back" data-testid="birth-back" onClick={back.onBack}>
+            {back.label}
+          </button>
+        ) : null}
         {modeLine ? (
           <p className="ob-birth-mode" data-testid="birth-mode-line">
             {modeLine}

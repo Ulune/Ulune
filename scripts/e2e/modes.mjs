@@ -153,11 +153,11 @@ async function runViewport(width) {
       null,
       { timeout: 30000 },
     );
-    // The switch (in View) hides them, and brings them back.
+    // Their layer (in View, under Astrology) hides them, and brings them back.
     await openCalendarView(page);
-    await page.getByTestId("calendar-switch-yours").click();
+    await page.getByTestId("calendar-layer-transits").click();
     await page.waitForFunction(() => !document.querySelector(".ulune-cal-you"), null, { timeout: 4000 });
-    await page.getByTestId("calendar-switch-yours").click();
+    await page.getByTestId("calendar-layer-transits").click();
     await page.waitForFunction(() => Boolean(document.querySelector(".ulune-cal-you")), null, { timeout: 4000 });
     // Universal time: the clock line says so.
     await page.getByTestId("calendar-zone-select").selectOption("utc");

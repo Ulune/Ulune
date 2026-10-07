@@ -18,17 +18,17 @@ import {
 } from "@/studio/look-pages";
 import { coerceBodiesPage } from "@/studio/bodies-pages";
 import { useStudioStore } from "@/studio/store";
-import { studioSearch } from "@/studio/url";
+import { studioHref, type StudioSearch } from "@/studio/url";
 import { onTablistKeyDown } from "@/lib/a11y/tablist";
 
 export function LookTab() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { resetLook } = useLook();
   const studioPage = useStudioStore((s) => s.page);
   const studioView = useStudioStore((s) => s.view);
 
-  const navigate = useNavigate({ from: "/" });
-  const search = useSearch({ from: "/" });
+  const navigate = useNavigate();
+  const search = useSearch({ strict: false }) as StudioSearch;
   const urlLook = coerceLookPage(search.look);
 
   const [page, setPageState] = useState<LookPage>(() => urlLook ?? loadLookPage());
@@ -46,18 +46,16 @@ export function LookTab() {
       if (scrollRef.current) scrollRef.current.scrollTop = 0;
       saveLookPage(next);
       void navigate({
-        to: "/",
-        search: studioSearch(
-          studioPage,
-          studioView,
-          undefined,
-          coerceBodiesPage(search.bodies),
-          next,
-        ),
+        href: studioHref(studioPage, studioView, {
+          locale,
+          here: window.location.pathname,
+          bodies: coerceBodiesPage(search.bodies),
+          look: next,
+        }),
         replace: true,
       });
     },
-    [navigate, studioPage, studioView, search.bodies],
+    [navigate, studioPage, studioView, search.bodies, locale],
   );
 
   const panelPage = lookPanelPage(page);

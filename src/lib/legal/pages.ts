@@ -14,7 +14,7 @@ import type { NoticeBlock } from "./privacy-notice";
 export type LegalPageId = "legal" | "terms" | "credits" | "accessibility";
 export type LegalText = { title: string; updated: string; blocks: NoticeBlock[] };
 
-export const LEGAL_UPDATED = "2026-09-30";
+export const LEGAL_UPDATED = "2026-10-07";
 
 export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = {
   legal: {
@@ -153,6 +153,10 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
           p: `Free software under the GNU Affero General Public License, version 3 or later, as the Swiss Ephemeris asks of what is built on it: [the source code](${SOURCE_URL}).`,
         },
         {
+          h: "The encyclopedia’s text",
+          p: "Written for Ulune and shared under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 licence](https://creativecommons.org/licenses/by-nc-sa/4.0/) (CC BY-NC-SA 4.0): you may share and adapt it, crediting Ulune, not for profit and under the same licence. The code stays under the GNU AGPL.",
+        },
+        {
           h: "Calculations",
           list: [
             "[Swiss Ephemeris](https://www.astro.com/swisseph/), © Astrodienst AG, Zurich: the planets, houses and fixed stars, with ephemeris files built from NASA JPL’s DE441.",
@@ -198,6 +202,10 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         {
           h: "Le code d’Ulune",
           p: `Un logiciel libre sous licence publique générale GNU Affero, version 3 ou ultérieure, comme la Swiss Ephemeris le demande à ce qui est bâti sur elle\u202f: [le code source](${SOURCE_URL}).`,
+        },
+        {
+          h: "Le texte de l’encyclopédie",
+          p: "Écrit pour Ulune et partagé sous [licence Creative Commons Attribution - Pas d’utilisation commerciale - Partage dans les mêmes conditions 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr) (CC BY-NC-SA 4.0)\u202f: vous pouvez le partager et l’adapter en citant Ulune, sans usage commercial et sous la même licence. Le code reste sous licence GNU AGPL.",
         },
         {
           h: "Calculs",

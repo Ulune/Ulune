@@ -8,7 +8,7 @@
 export type NoticeBlock = { h?: string; p?: string; list?: string[] };
 export type Notice = { title: string; updated: string; blocks: NoticeBlock[]; who: { h: string; p: string } };
 
-export const PRIVACY_UPDATED = "2026-10-04";
+export const PRIVACY_UPDATED = "2026-10-07";
 
 export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
   en: {
@@ -37,6 +37,10 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
           "When the page breaks: unless you turn it off in Settings, Your data, the page sends Ulune’s server a short report of what failed: the error with every number masked, where in Ulune’s code it happened, the page’s address without anything after it, the version and the browser’s engine (Blink, WebKit or Gecko). It holds no chart, date, place, name or email address, and goes to the host’s technical logs (below) so the fault can be fixed.",
           "Hosting: Ulune runs on Vercel. Like any host, Vercel receives your IP address and the addresses of the pages you open, and keeps technical logs of them under its own privacy policy.",
         ],
+      },
+      {
+        h: "The encyclopedia",
+        p: "Searching and reading the encyclopedia sends nothing but the request for each page you open, and for Ulune’s own files, the same for everyone. Its search runs on your device: what you type in it is never sent.",
       },
       {
         h: "Your choices and rights",
@@ -80,6 +84,10 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
           "Quand la page plante\u202f: sauf si vous le désactivez dans Réglages, Vos données, la page envoie au serveur d’Ulune un court rapport de ce qui a échoué\u202f: l’erreur avec chaque chiffre masqué, l’endroit du code d’Ulune où elle s’est produite, l’adresse de la page sans ce qui la suit, la version et le moteur du navigateur (Blink, WebKit ou Gecko). Il ne contient ni thème, ni date, ni lieu, ni nom, ni adresse e-mail, et va dans les journaux techniques de l’hébergeur (ci-dessous) pour que la panne soit réparée.",
           "Hébergement\u202f: Ulune fonctionne sur Vercel. Comme tout hébergeur, Vercel reçoit votre adresse IP et l’adresse des pages que vous ouvrez, et en garde des journaux techniques selon sa propre politique de confidentialité.",
         ],
+      },
+      {
+        h: "L’encyclopédie",
+        p: "Chercher et lire dans l’encyclopédie n’envoie rien d’autre que la demande de chaque page ouverte, et des fichiers d’Ulune, les mêmes pour tous. Sa recherche se fait sur votre appareil\u202f: ce que vous y tapez n’est jamais envoyé.",
       },
       {
         h: "Vos choix et vos droits",

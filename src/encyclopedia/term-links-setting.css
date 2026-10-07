@@ -1,0 +1,17 @@
+/* Settings' card for the encyclopedia's links (TermLinksSetting.tsx). */
+.ob-term-links {
+  display: flex;
+  flex-direction: column;
+  margin: 8px 0 4px;
+  padding: 0;
+  border: 0;
+}
+.ob-term-links-sample {
+  margin-top: 8px;
+}
+/* A wide window: under the private space and the legal links, in the left column. */
+@media (min-width: 1024px) {
+  .ulune-settings--grid > #term-links {
+    grid-column: 1;
+  }
+}

@@ -8,6 +8,7 @@ import { CALENDAR_UI, fill } from "@/lib/i18n/calendar-words";
 import { calendarIcs, type IcsKind } from "@/lib/i18n/calendar-export";
 import { downloadText } from "@/lib/download-text";
 import { eventsOf, mergeEvents, windowId } from "@/lib/chart/calendar-sky";
+import { shownLayers, type CalendarLayerId } from "@/lib/chart/calendar-layers";
 import { CALENDAR_DEFAULTS, deviceZone, loadCalendarPrefs, saveCalendarPrefs, type CalendarPrefs, type CalendarZone } from "@/lib/chart/calendar-prefs";
 import { slowWindowsFromYears, transitsInSlices, type TransitWindow } from "@/lib/chart/personal-transits";
 import { skyEventId, type SkyEvent } from "@/lib/chart/sky-events";
@@ -71,9 +72,11 @@ export function useTiming() {
   const page = useStudioStore((s) => s.page);
   const selectedId = useStudioStore((s) => s.selectedId);
   const pick = useStudioStore((s) => s.pick);
-  const enabled = page === "timing" && Boolean(chart) && !creating;
+  // The Calendar needs no chart (reorganisation plan, R5): without one it is the sky alone.
+  const enabled = page === "timing" && !creating;
+  const hasChart = Boolean(chart);
 
-  // Which clock the times follow (this device's by default), and the switches: kept in this browser.
+  // Which clock the times follow (this device's by default), and the layers: kept in this browser.
   const [prefs, setPrefs] = useState<CalendarPrefs>(CALENDAR_DEFAULTS);
   useEffect(() => setPrefs(loadCalendarPrefs()), []);
   const updatePrefs = useCallback((next: Partial<CalendarPrefs>) => {
@@ -83,22 +86,35 @@ export function useTiming() {
       return merged;
     });
   }, []);
+  const setLayer = useCallback((id: CalendarLayerId, on: boolean) => {
+    setPrefs((cur) => {
+      const merged = { ...cur, layers: { ...cur.layers, [id]: on } };
+      saveCalendarPrefs(merged);
+      return merged;
+    });
+  }, []);
+  /** The layers drawn: those switched on, the ones read from a chart only with a chart. */
+  const shown = useMemo(() => shownLayers(prefs.layers, hasChart), [prefs.layers, hasChart]);
   const zones = useMemo<Record<CalendarZone, string>>(
     () => ({ device: browserZone(deviceZone()), birth: browserZone(chart?.meta.timezone), utc: "UTC" }),
     [chart?.meta.timezone],
   );
-  const tz = zones[prefs.zone];
+  // Without a chart there is no birthplace: its clock gives way to this device's (the choice stays kept).
+  const zone: CalendarZone = prefs.zone === "birth" && !hasChart ? "device" : prefs.zone;
+  const tz = zones[zone];
   // Your numerology in the calendar: the personal day, month and year, and the long cycles' changes on birthdays.
   const numCal = useMemo(() => numerologyCalendarOf(chart), [chart]);
+  /** Numerology as the views draw it: with its layer on. */
+  const numShown = shown.numerology ? numCal : null;
   const numRows = useMemo<NumRow[]>(
     () =>
-      numCal
-        ? numCal.changes.map((c) => {
+      numShown
+        ? numShown.changes.map((c) => {
             const [year, month, day] = c.day.split("-").map(Number) as [number, number, number];
             return { kind: "num", t: utcFromCivil({ year, month, day, hour: 0, minute: 0 }, tz).getTime(), id: changeId(c), change: c };
           })
         : [],
-    [numCal, tz],
+    [numShown, tz],
   );
 
   const [scope, setScope] = useState<TimingScope>("month");
@@ -142,9 +158,9 @@ export function useTiming() {
   const [yearsFor, setYearsFor] = useState<string | null>(null);
   const loading = hitsFor_ !== spanKey || yearsFor !== yearsKey;
 
-  // The span shown: its chunks, then your transits in it, worked out here.
+  // The span shown: its chunks, then your transits in it, worked out here (none without a chart).
   useEffect(() => {
-    if (!enabled || !chart) return;
+    if (!enabled) return;
     const from = needed.from.getTime();
     const to = needed.to.getTime();
     const n = ++gen.current;
@@ -156,7 +172,7 @@ export function useTiming() {
       if (n !== gen.current || ctrl.signal.aborted) return;
       if (!got) throw new Error("Failed to fetch the sky");
       setWins(got);
-      const found = await hitsFor(got, natalBodies, from, to, `${from}|${to}|${natalSig}`, ctrl.signal);
+      const found = chart ? await hitsFor(got, natalBodies, from, to, `${from}|${to}|${natalSig}`, ctrl.signal) : [];
       if (!found || n !== gen.current) return;
       ready.current = true;
       setHits(found);
@@ -173,13 +189,19 @@ export function useTiming() {
   // Now: the sky and your transits of the coming days, and the slow transits in effect.
   const nowDay = Math.floor(nowMs / DAY_MS);
   useEffect(() => {
-    if (!enabled || !chart) return;
+    if (!enabled) return;
     const ctrl = new AbortController();
     const from = nowDay * DAY_MS;
     void (async () => {
       const got = await loadWindowsBetween(from - EDGE_MS, from + AHEAD_MS + EDGE_MS);
       if (!got || ctrl.signal.aborted) return;
       setNowWins(got);
+      if (!chart) {
+        // The sky alone: nothing of a chart shown before (one removed) stays.
+        setNowHits([]);
+        setWindows([]);
+        return;
+      }
       const found = await hitsFor(got, natalBodies, from, from + AHEAD_MS, `now|${from}|${natalSig}`, ctrl.signal);
       if (found && !ctrl.signal.aborted) setNowHits(found);
       const years = await loadYearsBetween(from - YEARS_AROUND_MS, from + YEARS_AROUND_MS);
@@ -195,7 +217,7 @@ export function useTiming() {
   // the events past the chunks' ends (until when a planet stays, the next phase).
   const [spanYears, setSpanYears] = useState<SkyYear[]>([]);
   useEffect(() => {
-    if (!enabled || !chart) return;
+    if (!enabled) return;
     let live = true;
     const from = needed.from.getTime();
     const to = needed.to.getTime();
@@ -212,7 +234,7 @@ export function useTiming() {
     return () => {
       live = false;
     };
-  }, [enabled, chart, needed, tick]);
+  }, [enabled, needed, tick]);
   const spanWindows = useMemo(
     () =>
       spanYears.length && natalBodies.length
@@ -248,6 +270,19 @@ export function useTiming() {
     },
     [tz, allEvents, allWins, allHits, allWindows, nowMs],
   );
+  /** A day as its readings tell it: the Moon always, the sky's events and yours as their layers say. */
+  const shownDayOf = useCallback(
+    (day: CivilDate) => {
+      const ov = overviewOf(day);
+      return {
+        ...ov,
+        rows: ov.rows.filter((r) => (r.kind === "sky" ? shown.sky : shown.transits)),
+        voids: shown.sky ? ov.voids : [],
+        effect: shown.transits ? ov.effect : [],
+      };
+    },
+    [overviewOf, shown],
+  );
   const dayView = useMemo(() => (scope === "day" ? overviewOf(civil) : null), [scope, civil, overviewOf]);
   /** The year laid out (the year view and its panel). */
   const yearView = useMemo(
@@ -261,10 +296,10 @@ export function useTiming() {
     [hits, needed, tz],
   );
 
-  // Readings come with the calendar's reading text (its own download).
+  // Readings come with the calendar's reading text (its own download). The sky's need no chart.
   const texts = usePack("cal", locale, enabled);
   const reading = useMemo<ElementReading | null>(() => {
-    if (!chart || !texts || !selectedId) return null;
+    if (!texts || !selectedId) return null;
     const {
       calendarDayReading,
       moonDayReading,
@@ -277,10 +312,9 @@ export function useTiming() {
       timingExactReading,
       windowReading,
     } = texts;
-    const num = prefs.yours ? numCal : null;
     const dayReading = (key: string) => {
       const parsed = parseCivilKey(key);
-      return parsed ? calendarDayReading(overviewOf(parsed), civilKey(parsed), locale, tz, nowMs, num) : null;
+      return parsed ? calendarDayReading(shownDayOf(parsed), civilKey(parsed), locale, tz, nowMs, numShown) : null;
     };
     if (selectedId.startsWith("day:")) return dayReading(selectedId.slice(4));
     if (selectedId.startsWith("numday:")) return numCal ? numerologyDayReading(numCal, selectedId.slice(7), locale) : null;
@@ -289,7 +323,7 @@ export function useTiming() {
     if (selectedId.startsWith("numyear:")) return numCal ? numerologyYearReading(numCal, Number(selectedId.slice(8)), locale) : null;
     if (selectedId.startsWith("moon:")) {
       const parsed = parseCivilKey(selectedId.slice(5));
-      return parsed ? moonDayReading(overviewOf(parsed), civilKey(parsed), locale, tz, nowMs) : null;
+      return parsed ? moonDayReading(shownDayOf(parsed), civilKey(parsed), locale, tz, nowMs) : null;
     }
     if (selectedId.startsWith("sky:")) {
       const id = selectedId.slice(4);
@@ -303,7 +337,7 @@ export function useTiming() {
     if (!selectedId.startsWith("timing:")) return null;
     const raw = selectedId.slice("timing:".length);
     const hit = allHits.find((h) => h.id === raw);
-    if (hit) return timingExactReading(hit, chart, locale, nowMs, tz);
+    if (hit) return chart ? timingExactReading(hit, chart, locale, nowMs, tz) : null;
     if (raw.startsWith("date:")) return dayReading(raw.slice(5));
     if (raw.startsWith("body:")) {
       const moving = raw.slice(5) as TimingHit["moving"];
@@ -315,7 +349,7 @@ export function useTiming() {
       );
     }
     return null;
-  }, [selectedId, chart, locale, nowMs, tz, scoped, texts, events, nowEvents, allEvents, allHits, allWindows, overviewOf, prefs.yours, numCal]);
+  }, [selectedId, chart, locale, nowMs, tz, scoped, texts, events, nowEvents, allEvents, allHits, allWindows, shownDayOf, numShown, numCal]);
 
   const pickHit = useCallback((hit: TimingHit) => pick(`timing:${hit.id}`), [pick]);
 
@@ -366,13 +400,13 @@ export function useTiming() {
   const retry = useCallback(() => setTick((n) => n + 1), []);
   /** The period's name in file names: "2026-09-28", "2026-09", "2026". */
   const fileName = scope === "year" ? String(civil.year) : scope === "month" ? `${civil.year}-${String(civil.month).padStart(2, "0")}` : civilKey(civil);
-  /** The period shown as a calendar file: the switches' choice, the Moon's own on a day only. */
+  /** The period shown as a calendar file: the layers shown, the Moon's own on a day only. */
   const exportIcs = useCallback(
     (kind: IcsKind = "mine") => {
       const from = bounds.from.getTime();
       const to = bounds.to.getTime();
-      const rows = calendarRows(allEvents, hits ?? [], from, to, { sky: prefs.sky, yours: prefs.yours, moon: scope === "day" }, numRows);
-      const spans = prefs.yours ? allWindows.filter((w) => w.from < to && w.to >= from) : [];
+      const rows = calendarRows(allEvents, hits ?? [], from, to, { layers: shown, moon: scope === "day" }, numRows);
+      const spans = shown.transits ? allWindows.filter((w) => w.from < to && w.to >= from) : [];
       // Whose calendar it is, in the file and its name (review 3 Oct, T5); it stays on this device.
       const who = chart?.meta.name?.trim() || "";
       const slug = who.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "");
@@ -387,16 +421,16 @@ export function useTiming() {
         "text/calendar;charset=utf-8",
       );
     },
-    [bounds, allEvents, hits, prefs, scope, allWindows, fileName, locale, tz, numRows, chart, wins, nowWins, texts, nowMs],
+    [bounds, allEvents, hits, shown, scope, allWindows, fileName, locale, tz, numRows, chart, wins, nowWins, texts, nowMs],
   );
   const todayKey = useMemo(() => civilKey(civilFromUtc(new Date(nowMs), tz)), [nowMs, tz]);
-  // The bar's numerology (with your transits on): the personal month in a month's title, the personal year in a year's.
+  // The bar's numerology (with its layer on): the personal month in a month's title, the personal year in a year's.
   const numTitle = useMemo(() => {
-    if (!numCal || !prefs.yours || scope === "day") return null;
-    if (scope === "year") return { id: `numyear:${civil.year}`, text: fill(CALENDAR_UI.num.personalYear, locale, { n: personalYearOn(numCal, civil.year) }) };
+    if (!numShown || scope === "day") return null;
+    if (scope === "year") return { id: `numyear:${civil.year}`, text: fill(CALENDAR_UI.num.personalYear, locale, { n: personalYearOn(numShown, civil.year) }) };
     const mm = String(civil.month).padStart(2, "0");
-    return { id: `nummonth:${civil.year}-${mm}`, text: fill(CALENDAR_UI.num.personalMonth, locale, { n: personalMonthOn(numCal, civil.year, civil.month) }) };
-  }, [numCal, prefs.yours, scope, civil.year, civil.month, locale]);
+    return { id: `nummonth:${civil.year}-${mm}`, text: fill(CALENDAR_UI.num.personalMonth, locale, { n: personalMonthOn(numShown, civil.year, civil.month) }) };
+  }, [numShown, scope, civil.year, civil.month, locale]);
 
   return useMemo(
     () => ({
@@ -407,9 +441,13 @@ export function useTiming() {
       shift,
       goToday,
       tz,
+      zone,
       zones,
       prefs,
       updatePrefs,
+      setLayer,
+      shown,
+      hasChart,
       cast,
       wins,
       events,
@@ -438,9 +476,10 @@ export function useTiming() {
       pickMonth,
       enabled,
       numCal,
+      numShown,
       numRows,
       numTitle,
     }),
-    [scope, civil, changeScope, shift, goToday, tz, zones, prefs, updatePrefs, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, loading, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled, numCal, numRows, numTitle],
+    [scope, civil, changeScope, shift, goToday, tz, zone, zones, prefs, updatePrefs, setLayer, shown, hasChart, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, loading, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled, numCal, numShown, numRows, numTitle],
   );
 }

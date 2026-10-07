@@ -113,16 +113,17 @@ test("Born on 29 February: the changes fall on 1 March in years without a 29th",
   assert.equal(dayKey(2031, 6, 5), "2031-06-05");
 });
 
-test("A change is yours: in the rows with your transits on, after the sky's at the same time", () => {
+test("A change is numerology's: in the rows with its layer on (reorganisation plan, R5), after the sky's at the same time", () => {
   const change = camille.changes.find((c) => c.kind === "pinnacle" && c.index === 3);
   const t = Date.UTC(2031, 5, 14, 22); // midnight in Paris
   const num = [{ kind: "num", t, id: changeId(change), change }];
   const sky = [{ k: "phase", t, phase: 2, lon: 84 }];
-  const on = calendarRows(sky, [], t - 1, t + 1, { sky: true, yours: true, moon: true }, num);
+  const on = calendarRows(sky, [], t - 1, t + 1, { layers: { sky: true, numerology: true }, moon: true }, num);
   assert.deepEqual(on.map((r) => r.kind), ["sky", "num"]);
-  const off = calendarRows(sky, [], t - 1, t + 1, { sky: true, yours: false, moon: true }, num);
+  // Your transits no longer carry it: their layer on, numerology's off, no change.
+  const off = calendarRows(sky, [], t - 1, t + 1, { layers: { sky: true, transits: true, numerology: false }, moon: true }, num);
   assert.deepEqual(off.map((r) => r.kind), ["sky"]);
-  const outside = calendarRows([], [], t + 1, t + 2, { sky: true, yours: true, moon: true }, num);
+  const outside = calendarRows([], [], t + 1, t + 2, { layers: { sky: true, numerology: true }, moon: true }, num);
   assert.equal(outside.length, 0);
 });
 

@@ -9,8 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as StudioRouteImport } from './routes/_studio'
 import { Route as AccessibilityRouteImport } from './routes/accessibility'
 import { Route as ChangesRouteImport } from './routes/changes'
 import { Route as CreditsRouteImport } from './routes/credits'
@@ -18,20 +18,34 @@ import { Route as GuideRouteImport } from './routes/guide'
 import { Route as LegalRouteImport } from './routes/legal'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as StudioIndexRouteImport } from './routes/_studio.index'
+import { Route as StudioCalendarRouteImport } from './routes/_studio.calendar'
+import { Route as StudioCalendrierRouteImport } from './routes/_studio.calendrier'
+import { Route as StudioHumanDesignRouteImport } from './routes/_studio.human-design'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiReportRouteImport } from './routes/api/report'
 import { Route as ApiSkyWindowRouteImport } from './routes/api/sky-window'
 import { Route as ApiSkyYearRouteImport } from './routes/api/sky-year'
+import { Route as EncyclopediaIndexRouteImport } from './routes/encyclopedia.index'
+import { Route as EncyclopediaSlugRouteImport } from './routes/encyclopedia.$slug'
+import { Route as EncyclopedieIndexRouteImport } from './routes/encyclopedie.index'
+import { Route as EncyclopedieSlugRouteImport } from './routes/encyclopedie.$slug'
+import { Route as StudioAstrologyIndexRouteImport } from './routes/_studio.astrology.index'
+import { Route as StudioAstrologyCompositeRouteImport } from './routes/_studio.astrology.composite'
+import { Route as StudioAstrologyProgressionsRouteImport } from './routes/_studio.astrology.progressions'
+import { Route as StudioAstrologySynastryRouteImport } from './routes/_studio.astrology.synastry'
+import { Route as StudioAstrologyTransitsRouteImport } from './routes/_studio.astrology.transits'
+import { Route as StudioNumerologyIndexRouteImport } from './routes/_studio.numerology.index'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
   path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudioRoute = StudioRouteImport.update({
+  id: '/_studio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccessibilityRoute = AccessibilityRouteImport.update({
@@ -69,10 +83,35 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
   getParentRoute: () => rootRouteImport,
+} as any)
+const StudioIndexRoute = StudioIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StudioRoute,
+} as any)
+const StudioCalendarRoute = StudioCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => StudioRoute,
+} as any)
+const StudioCalendrierRoute = StudioCalendrierRouteImport.update({
+  id: '/calendrier',
+  path: '/calendrier',
+  getParentRoute: () => StudioRoute,
+} as any)
+const StudioHumanDesignRoute = StudioHumanDesignRouteImport.update({
+  id: '/human-design',
+  path: '/human-design',
+  getParentRoute: () => StudioRoute,
 } as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
@@ -94,10 +133,62 @@ const ApiSkyYearRoute = ApiSkyYearRouteImport.update({
   path: '/api/sky-year',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EncyclopediaIndexRoute = EncyclopediaIndexRouteImport.update({
+  id: '/encyclopedia/',
+  path: '/encyclopedia/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EncyclopediaSlugRoute = EncyclopediaSlugRouteImport.update({
+  id: '/encyclopedia/$slug',
+  path: '/encyclopedia/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EncyclopedieIndexRoute = EncyclopedieIndexRouteImport.update({
+  id: '/encyclopedie/',
+  path: '/encyclopedie/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EncyclopedieSlugRoute = EncyclopedieSlugRouteImport.update({
+  id: '/encyclopedie/$slug',
+  path: '/encyclopedie/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudioAstrologyIndexRoute = StudioAstrologyIndexRouteImport.update({
+  id: '/astrology/',
+  path: '/astrology/',
+  getParentRoute: () => StudioRoute,
+} as any)
+const StudioAstrologyCompositeRoute =
+  StudioAstrologyCompositeRouteImport.update({
+    id: '/astrology/composite',
+    path: '/astrology/composite',
+    getParentRoute: () => StudioRoute,
+  } as any)
+const StudioAstrologyProgressionsRoute =
+  StudioAstrologyProgressionsRouteImport.update({
+    id: '/astrology/progressions',
+    path: '/astrology/progressions',
+    getParentRoute: () => StudioRoute,
+  } as any)
+const StudioAstrologySynastryRoute = StudioAstrologySynastryRouteImport.update({
+  id: '/astrology/synastry',
+  path: '/astrology/synastry',
+  getParentRoute: () => StudioRoute,
+} as any)
+const StudioAstrologyTransitsRoute = StudioAstrologyTransitsRouteImport.update({
+  id: '/astrology/transits',
+  path: '/astrology/transits',
+  getParentRoute: () => StudioRoute,
+} as any)
+const StudioNumerologyIndexRoute = StudioNumerologyIndexRouteImport.update({
+  id: '/numerology/',
+  path: '/numerology/',
+  getParentRoute: () => StudioRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/': typeof StudioIndexRoute
   '/accessibility': typeof AccessibilityRoute
   '/changes': typeof ChangesRoute
   '/credits': typeof CreditsRoute
@@ -105,14 +196,27 @@ export interface FileRoutesByFullPath {
   '/legal': typeof LegalRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/calendar': typeof StudioCalendarRoute
+  '/calendrier': typeof StudioCalendrierRoute
+  '/human-design': typeof StudioHumanDesignRoute
   '/api/health': typeof ApiHealthRoute
   '/api/report': typeof ApiReportRoute
   '/api/sky-window': typeof ApiSkyWindowRoute
   '/api/sky-year': typeof ApiSkyYearRoute
+  '/encyclopedia/$slug': typeof EncyclopediaSlugRoute
+  '/encyclopedie/$slug': typeof EncyclopedieSlugRoute
+  '/encyclopedia/': typeof EncyclopediaIndexRoute
+  '/encyclopedie/': typeof EncyclopedieIndexRoute
+  '/astrology/composite': typeof StudioAstrologyCompositeRoute
+  '/astrology/progressions': typeof StudioAstrologyProgressionsRoute
+  '/astrology/synastry': typeof StudioAstrologySynastryRoute
+  '/astrology/transits': typeof StudioAstrologyTransitsRoute
+  '/astrology/': typeof StudioAstrologyIndexRoute
+  '/numerology/': typeof StudioNumerologyIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/accessibility': typeof AccessibilityRoute
   '/changes': typeof ChangesRoute
@@ -121,16 +225,31 @@ export interface FileRoutesByTo {
   '/legal': typeof LegalRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/calendar': typeof StudioCalendarRoute
+  '/calendrier': typeof StudioCalendrierRoute
+  '/human-design': typeof StudioHumanDesignRoute
   '/api/health': typeof ApiHealthRoute
   '/api/report': typeof ApiReportRoute
   '/api/sky-window': typeof ApiSkyWindowRoute
   '/api/sky-year': typeof ApiSkyYearRoute
+  '/encyclopedia/$slug': typeof EncyclopediaSlugRoute
+  '/encyclopedie/$slug': typeof EncyclopedieSlugRoute
+  '/': typeof StudioIndexRoute
+  '/encyclopedia': typeof EncyclopediaIndexRoute
+  '/encyclopedie': typeof EncyclopedieIndexRoute
+  '/astrology/composite': typeof StudioAstrologyCompositeRoute
+  '/astrology/progressions': typeof StudioAstrologyProgressionsRoute
+  '/astrology/synastry': typeof StudioAstrologySynastryRoute
+  '/astrology/transits': typeof StudioAstrologyTransitsRoute
+  '/astrology': typeof StudioAstrologyIndexRoute
+  '/numerology': typeof StudioNumerologyIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/_studio': typeof StudioRouteWithChildren
   '/accessibility': typeof AccessibilityRoute
   '/changes': typeof ChangesRoute
   '/credits': typeof CreditsRoute
@@ -138,17 +257,32 @@ export interface FileRoutesById {
   '/legal': typeof LegalRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/_studio/calendar': typeof StudioCalendarRoute
+  '/_studio/calendrier': typeof StudioCalendrierRoute
+  '/_studio/human-design': typeof StudioHumanDesignRoute
   '/api/health': typeof ApiHealthRoute
   '/api/report': typeof ApiReportRoute
   '/api/sky-window': typeof ApiSkyWindowRoute
   '/api/sky-year': typeof ApiSkyYearRoute
+  '/encyclopedia/$slug': typeof EncyclopediaSlugRoute
+  '/encyclopedie/$slug': typeof EncyclopedieSlugRoute
+  '/_studio/': typeof StudioIndexRoute
+  '/encyclopedia/': typeof EncyclopediaIndexRoute
+  '/encyclopedie/': typeof EncyclopedieIndexRoute
+  '/_studio/astrology/composite': typeof StudioAstrologyCompositeRoute
+  '/_studio/astrology/progressions': typeof StudioAstrologyProgressionsRoute
+  '/_studio/astrology/synastry': typeof StudioAstrologySynastryRoute
+  '/_studio/astrology/transits': typeof StudioAstrologyTransitsRoute
+  '/_studio/astrology/': typeof StudioAstrologyIndexRoute
+  '/_studio/numerology/': typeof StudioNumerologyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/$'
+    | '/'
     | '/accessibility'
     | '/changes'
     | '/credits'
@@ -156,14 +290,27 @@ export interface FileRouteTypes {
     | '/legal'
     | '/privacy'
     | '/settings'
+    | '/sitemap.xml'
     | '/terms'
+    | '/calendar'
+    | '/calendrier'
+    | '/human-design'
     | '/api/health'
     | '/api/report'
     | '/api/sky-window'
     | '/api/sky-year'
+    | '/encyclopedia/$slug'
+    | '/encyclopedie/$slug'
+    | '/encyclopedia/'
+    | '/encyclopedie/'
+    | '/astrology/composite'
+    | '/astrology/progressions'
+    | '/astrology/synastry'
+    | '/astrology/transits'
+    | '/astrology/'
+    | '/numerology/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/$'
     | '/accessibility'
     | '/changes'
@@ -172,15 +319,30 @@ export interface FileRouteTypes {
     | '/legal'
     | '/privacy'
     | '/settings'
+    | '/sitemap.xml'
     | '/terms'
+    | '/calendar'
+    | '/calendrier'
+    | '/human-design'
     | '/api/health'
     | '/api/report'
     | '/api/sky-window'
     | '/api/sky-year'
+    | '/encyclopedia/$slug'
+    | '/encyclopedie/$slug'
+    | '/'
+    | '/encyclopedia'
+    | '/encyclopedie'
+    | '/astrology/composite'
+    | '/astrology/progressions'
+    | '/astrology/synastry'
+    | '/astrology/transits'
+    | '/astrology'
+    | '/numerology'
   id:
     | '__root__'
-    | '/'
     | '/$'
+    | '/_studio'
     | '/accessibility'
     | '/changes'
     | '/credits'
@@ -188,16 +350,31 @@ export interface FileRouteTypes {
     | '/legal'
     | '/privacy'
     | '/settings'
+    | '/sitemap.xml'
     | '/terms'
+    | '/_studio/calendar'
+    | '/_studio/calendrier'
+    | '/_studio/human-design'
     | '/api/health'
     | '/api/report'
     | '/api/sky-window'
     | '/api/sky-year'
+    | '/encyclopedia/$slug'
+    | '/encyclopedie/$slug'
+    | '/_studio/'
+    | '/encyclopedia/'
+    | '/encyclopedie/'
+    | '/_studio/astrology/composite'
+    | '/_studio/astrology/progressions'
+    | '/_studio/astrology/synastry'
+    | '/_studio/astrology/transits'
+    | '/_studio/astrology/'
+    | '/_studio/numerology/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
+  StudioRoute: typeof StudioRouteWithChildren
   AccessibilityRoute: typeof AccessibilityRoute
   ChangesRoute: typeof ChangesRoute
   CreditsRoute: typeof CreditsRoute
@@ -205,27 +382,32 @@ export interface RootRouteChildren {
   LegalRoute: typeof LegalRoute
   PrivacyRoute: typeof PrivacyRoute
   SettingsRoute: typeof SettingsRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiReportRoute: typeof ApiReportRoute
   ApiSkyWindowRoute: typeof ApiSkyWindowRoute
   ApiSkyYearRoute: typeof ApiSkyYearRoute
+  EncyclopediaSlugRoute: typeof EncyclopediaSlugRoute
+  EncyclopedieSlugRoute: typeof EncyclopedieSlugRoute
+  EncyclopediaIndexRoute: typeof EncyclopediaIndexRoute
+  EncyclopedieIndexRoute: typeof EncyclopedieIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/$': {
       id: '/$'
       path: '/$'
       fullPath: '/$'
       preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_studio': {
+      id: '/_studio'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof StudioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/accessibility': {
@@ -277,12 +459,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_studio/': {
+      id: '/_studio/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof StudioIndexRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/_studio/calendar': {
+      id: '/_studio/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof StudioCalendarRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/_studio/calendrier': {
+      id: '/_studio/calendrier'
+      path: '/calendrier'
+      fullPath: '/calendrier'
+      preLoaderRoute: typeof StudioCalendrierRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/_studio/human-design': {
+      id: '/_studio/human-design'
+      path: '/human-design'
+      fullPath: '/human-design'
+      preLoaderRoute: typeof StudioHumanDesignRouteImport
+      parentRoute: typeof StudioRoute
     }
     '/api/health': {
       id: '/api/health'
@@ -312,12 +529,111 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSkyYearRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/encyclopedia/': {
+      id: '/encyclopedia/'
+      path: '/encyclopedia'
+      fullPath: '/encyclopedia/'
+      preLoaderRoute: typeof EncyclopediaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/encyclopedia/$slug': {
+      id: '/encyclopedia/$slug'
+      path: '/encyclopedia/$slug'
+      fullPath: '/encyclopedia/$slug'
+      preLoaderRoute: typeof EncyclopediaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/encyclopedie/': {
+      id: '/encyclopedie/'
+      path: '/encyclopedie'
+      fullPath: '/encyclopedie/'
+      preLoaderRoute: typeof EncyclopedieIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/encyclopedie/$slug': {
+      id: '/encyclopedie/$slug'
+      path: '/encyclopedie/$slug'
+      fullPath: '/encyclopedie/$slug'
+      preLoaderRoute: typeof EncyclopedieSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_studio/astrology/': {
+      id: '/_studio/astrology/'
+      path: '/astrology'
+      fullPath: '/astrology/'
+      preLoaderRoute: typeof StudioAstrologyIndexRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/_studio/astrology/composite': {
+      id: '/_studio/astrology/composite'
+      path: '/astrology/composite'
+      fullPath: '/astrology/composite'
+      preLoaderRoute: typeof StudioAstrologyCompositeRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/_studio/astrology/progressions': {
+      id: '/_studio/astrology/progressions'
+      path: '/astrology/progressions'
+      fullPath: '/astrology/progressions'
+      preLoaderRoute: typeof StudioAstrologyProgressionsRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/_studio/astrology/synastry': {
+      id: '/_studio/astrology/synastry'
+      path: '/astrology/synastry'
+      fullPath: '/astrology/synastry'
+      preLoaderRoute: typeof StudioAstrologySynastryRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/_studio/astrology/transits': {
+      id: '/_studio/astrology/transits'
+      path: '/astrology/transits'
+      fullPath: '/astrology/transits'
+      preLoaderRoute: typeof StudioAstrologyTransitsRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/_studio/numerology/': {
+      id: '/_studio/numerology/'
+      path: '/numerology'
+      fullPath: '/numerology/'
+      preLoaderRoute: typeof StudioNumerologyIndexRouteImport
+      parentRoute: typeof StudioRoute
+    }
   }
 }
 
+interface StudioRouteChildren {
+  StudioCalendarRoute: typeof StudioCalendarRoute
+  StudioCalendrierRoute: typeof StudioCalendrierRoute
+  StudioHumanDesignRoute: typeof StudioHumanDesignRoute
+  StudioIndexRoute: typeof StudioIndexRoute
+  StudioAstrologyCompositeRoute: typeof StudioAstrologyCompositeRoute
+  StudioAstrologyProgressionsRoute: typeof StudioAstrologyProgressionsRoute
+  StudioAstrologySynastryRoute: typeof StudioAstrologySynastryRoute
+  StudioAstrologyTransitsRoute: typeof StudioAstrologyTransitsRoute
+  StudioAstrologyIndexRoute: typeof StudioAstrologyIndexRoute
+  StudioNumerologyIndexRoute: typeof StudioNumerologyIndexRoute
+}
+
+const StudioRouteChildren: StudioRouteChildren = {
+  StudioCalendarRoute: StudioCalendarRoute,
+  StudioCalendrierRoute: StudioCalendrierRoute,
+  StudioHumanDesignRoute: StudioHumanDesignRoute,
+  StudioIndexRoute: StudioIndexRoute,
+  StudioAstrologyCompositeRoute: StudioAstrologyCompositeRoute,
+  StudioAstrologyProgressionsRoute: StudioAstrologyProgressionsRoute,
+  StudioAstrologySynastryRoute: StudioAstrologySynastryRoute,
+  StudioAstrologyTransitsRoute: StudioAstrologyTransitsRoute,
+  StudioAstrologyIndexRoute: StudioAstrologyIndexRoute,
+  StudioNumerologyIndexRoute: StudioNumerologyIndexRoute,
+}
+
+const StudioRouteWithChildren =
+  StudioRoute._addFileChildren(StudioRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
+  StudioRoute: StudioRouteWithChildren,
   AccessibilityRoute: AccessibilityRoute,
   ChangesRoute: ChangesRoute,
   CreditsRoute: CreditsRoute,
@@ -325,11 +641,16 @@ const rootRouteChildren: RootRouteChildren = {
   LegalRoute: LegalRoute,
   PrivacyRoute: PrivacyRoute,
   SettingsRoute: SettingsRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiReportRoute: ApiReportRoute,
   ApiSkyWindowRoute: ApiSkyWindowRoute,
   ApiSkyYearRoute: ApiSkyYearRoute,
+  EncyclopediaSlugRoute: EncyclopediaSlugRoute,
+  EncyclopedieSlugRoute: EncyclopedieSlugRoute,
+  EncyclopediaIndexRoute: EncyclopediaIndexRoute,
+  EncyclopedieIndexRoute: EncyclopedieIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

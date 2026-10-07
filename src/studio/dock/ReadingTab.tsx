@@ -11,7 +11,6 @@ import { useModeReading } from "@/studio/modes/data";
 import { useModeDef } from "@/studio/modes/registry";
 import type { StudioPage } from "@/studio/url";
 import { useWheelView } from "@/studio/modes/wheel-view";
-import { rememberGroupPage } from "@/studio/shell/GroupBar";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { useStudioStore } from "@/studio/store";
 import { useEffect, useRef, useState } from "react";
@@ -58,7 +57,6 @@ export function ReadingTab() {
       const at = Number(ref.slice("transits-at:".length));
       if (!Number.isFinite(at)) return;
       useStudioStore.getState().pin(at);
-      rememberGroupPage("transits");
       useStudioStore.setState({ selectedId: null });
       setStudioPage("transits");
       return;
@@ -68,7 +66,6 @@ export function ReadingTab() {
     const across = /^go:(natal|design|numerology):(.+)$/.exec(ref);
     if (across) {
       const [, target, id] = across as unknown as [string, StudioPage, string];
-      rememberGroupPage(target);
       useStudioStore.setState({ selectedId: id, dock: "reading", dockOpen: true });
       setStudioPage(target);
       return;
@@ -78,7 +75,6 @@ export function ReadingTab() {
       const year = Number(ref.slice("calendar-year:".length));
       if (!Number.isInteger(year)) return;
       useStudioStore.setState({ calendarAt: { year }, selectedId: null });
-      rememberGroupPage("timing");
       setStudioPage("timing");
       return;
     }
@@ -94,7 +90,8 @@ export function ReadingTab() {
     useStudioStore.setState({ selectedId: prev.id });
   };
 
-  if (!chart) {
+  // The Calendar reads the sky without a chart (reorganisation plan, R5); the other pages wait for one.
+  if (!chart && page !== "timing") {
     return <p className="ulune-empty-body px-[var(--stage-pad)] py-4">{t("blankHint")}</p>;
   }
 
@@ -131,7 +128,7 @@ export function ReadingTab() {
                 onCompose={() => void compose(locale)}
               />
             </section>
-          ) : isComposeMode(page) ? (
+          ) : isComposeMode(page) && chart ? (
             <ModeCompose mode={page} chart={chart} />
           ) : null}
         </>

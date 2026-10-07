@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { AnchoredPopover } from "@/components/anchored-popover";
 import { LangSwitch } from "@/components/lang-switch";
 import { ThemeSwitch } from "@/components/theme-switch";
+import { isStudioPath } from "@/studio/map";
 import { useI18n } from "@/lib/i18n/locale";
 import { useSpace } from "@/lib/space/state";
 import { startTour } from "@/lib/tour/state";
@@ -12,7 +13,7 @@ import { startTour } from "@/lib/tour/state";
 export function AccountMenu() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const inStudio = useRouterState({ select: (s) => s.location.pathname === "/" });
+  const inStudio = useRouterState({ select: (s) => isStudioPath(s.location.pathname) });
   const status = useSpace((s) => s.status);
   const spaced = status === "open" || status === "locked";
   const [open, setOpen] = useState(false);

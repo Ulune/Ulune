@@ -18,11 +18,16 @@ export const MS_PER_DAY = 86_400_000;
 
 export const PROGRESSION_METHOD = "secondary" as const;
 
-/** Moving bodies on the progressed-to-natal table (planets + progressed angles). */
-export const PROGRESSION_TABLE_MOVING: ReadonlySet<BodyId> = new Set([
-  ...TRANSIT_TABLE_MOVING,
-  ...ANGLE_BODIES,
-]);
+let progressionMoving: ReadonlySet<BodyId> | undefined;
+/**
+ * Moving bodies on the progressed-to-natal table (planets + progressed angles).
+ * Built on first use, not while this module loads: in the server's bundle this
+ * module can run before constants.ts has (their chunks import each other), and
+ * the spread would throw (scripts/chunk-cycles.mjs checks every build).
+ */
+export const PROGRESSION_TABLE_MOVING = {
+  has: (id: BodyId) => (progressionMoving ??= new Set<BodyId>([...TRANSIT_TABLE_MOVING, ...ANGLE_BODIES])).has(id),
+};
 
 /** Natal bodies those progressions are scored against (planets + angles). */
 export const PROGRESSION_TABLE_NATAL: ReadonlySet<BodyId> = TRANSIT_TABLE_NATAL;

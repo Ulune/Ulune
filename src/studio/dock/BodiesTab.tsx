@@ -21,11 +21,11 @@ import {
 } from "@/studio/bodies-pages";
 import { coerceLookPage } from "@/studio/look-pages";
 import { useStudioStore } from "@/studio/store";
-import { studioSearch } from "@/studio/url";
+import { studioHref, type StudioSearch } from "@/studio/url";
 import { onTablistKeyDown } from "@/lib/a11y/tablist";
 
 export function BodiesTab() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const view = useChartView();
   const chart = useStudioStore((s) => s.chart);
   const selectedId = useStudioStore((s) => s.selectedId);
@@ -37,8 +37,8 @@ export function BodiesTab() {
   const cast = useStudioStore((s) => s.cast);
   const casting = useStudioStore((s) => s.casting);
 
-  const navigate = useNavigate({ from: "/" });
-  const search = useSearch({ from: "/" });
+  const navigate = useNavigate();
+  const search = useSearch({ strict: false }) as StudioSearch;
   const urlBodies = coerceBodiesPage(search.bodies);
 
   const [page, setPageState] = useState<BodiesPage>(() => urlBodies ?? loadBodiesPage());
@@ -56,12 +56,16 @@ export function BodiesTab() {
       if (scrollRef.current) scrollRef.current.scrollTop = 0;
       saveBodiesPage(next);
       void navigate({
-        to: "/",
-        search: studioSearch(studioPage, studioView, undefined, next, coerceLookPage(search.look)),
+        href: studioHref(studioPage, studioView, {
+          locale,
+          here: window.location.pathname,
+          bodies: next,
+          look: coerceLookPage(search.look),
+        }),
         replace: true,
       });
     },
-    [navigate, studioPage, studioView, search.look],
+    [navigate, studioPage, studioView, search.look, locale],
   );
 
   const onHouseSystem = useCallback(

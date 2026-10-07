@@ -56,7 +56,7 @@ export function CalendarDay({
   showYours: boolean;
   selectedId: string | null;
   onSelect: (id: string) => void;
-  /** Your numerology that day (with your transits on): the personal day, month and year, a cycle's change. */
+  /** Your numerology that day (with its layer on): the personal day, month and year, a cycle's change. */
   num?: { pd: number; pm: number; py: number; changes: NumerologyCalendar["changes"] } | null;
 }) {
   const { locale } = useI18n();
@@ -71,9 +71,11 @@ export function CalendarDay({
   const today = nowMs >= ov.from && nowMs < ov.to;
   const key = `${civil.year}-${String(civil.month).padStart(2, "0")}-${String(civil.day).padStart(2, "0")}`;
 
-  // The Moon bar.
+  // The Moon bar: the Moon itself always; its void hours and next exact phase are the sky's events, with that layer.
   const moon = ov.moon;
   const mw = dayMoonWords(ov, locale, time, shortDay);
+  const moonVoid = showSky ? mw.void : "";
+  const moonPhase = showSky ? mw.phase : "";
   const moonId = `moon:${key}`;
 
   // The hours: every three, at their true place (a day of 23 or 25 hours when the clocks change).
@@ -115,8 +117,8 @@ export function CalendarDay({
         {moon ? <MoonGlyph elong={moon.elong} size={48} /> : <span className="ulune-cal-moonbar-blank" aria-hidden />}
         <span className="ulune-cal-moonbar-text">
           <span className="ulune-cal-moonbar-title">{mw.title || pick(CALENDAR_UI.panel.loading, locale)}</span>
-          {mw.sign || mw.void ? <span className="ulune-cal-moonbar-line">{[mw.sign, mw.void].filter(Boolean).join(" · ")}</span> : null}
-          {mw.phase ? <span className="ulune-cal-moonbar-line">{mw.phase}</span> : null}
+          {mw.sign || moonVoid ? <span className="ulune-cal-moonbar-line">{[mw.sign, moonVoid].filter(Boolean).join(" · ")}</span> : null}
+          {moonPhase ? <span className="ulune-cal-moonbar-line">{moonPhase}</span> : null}
         </span>
       </button>
 

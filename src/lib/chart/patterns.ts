@@ -46,8 +46,13 @@ import type {
   WeightedBalance,
 } from "./types";
 
-const CLASSIC = new Set<string>(CLASSIC_BODIES);
-const CLASSICAL = new Set<string>(CLASSICAL_PLANETS);
+// Built on first use, not while this module loads: in the server's bundle this
+// module can run before constants.ts has (their chunks import each other), and a
+// set built then would be empty (scripts/chunk-cycles.mjs checks every build).
+let classic: Set<string> | undefined;
+let classical: Set<string> | undefined;
+const CLASSIC = { has: (id: string) => (classic ??= new Set<string>(CLASSIC_BODIES)).has(id) };
+const CLASSICAL = { has: (id: string) => (classical ??= new Set<string>(CLASSICAL_PLANETS)).has(id) };
 const SECT_DAY: BodyId[] = ["sun", "jupiter", "saturn"];
 const SECT_NIGHT: BodyId[] = ["moon", "venus", "mars"];
 export function houseTempo(house: number): HouseTempo {

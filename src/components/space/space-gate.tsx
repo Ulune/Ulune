@@ -7,6 +7,7 @@ import { toast } from "@/lib/toast";
 import { loadSpaceRuntime } from "@/lib/space/load";
 import { openSpaceSheet, useSpace } from "@/lib/space/state";
 import { spaceSupported } from "@/lib/space/store";
+import { isStudioPath } from "@/studio/map";
 
 const SpaceSheet = lazyNamed(() => import("./space-sheet"), "SpaceSheet");
 
@@ -46,7 +47,7 @@ export function SpaceGate() {
       if (gone || useSpace.getState().sheet) return;
       const { status } = useSpace.getState();
       if (status === "locked") openSpaceSheet("unlock");
-      else if (status === "none" && window.location.pathname === "/" && hasLegacyData()) openSpaceSheet("legacy");
+      else if (status === "none" && isStudioPath(window.location.pathname) && hasLegacyData()) openSpaceSheet("legacy");
     };
     const boot = () =>
       loadSpaceRuntime()

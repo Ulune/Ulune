@@ -1,25 +1,25 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useNavigate, useRouterState, useSearch } from "@tanstack/react-router";
 import { useStudioStore } from "@/studio/store";
 import {
-  isStudioPage,
   isStudioView,
   loadStudioPage,
   loadStudioView,
   saveStudioPage,
   saveStudioView,
-  studioSearch,
+  studioHref,
   type StudioPage,
+  type StudioSearch,
   type StudioView,
 } from "@/studio/url";
 import { coerceBodiesPage } from "@/studio/bodies-pages";
 import { coerceLookPage } from "@/studio/look-pages";
 import { loadMode, modeReady } from "@/studio/modes/registry";
 import { swapTransition } from "@/lib/swap-transition";
-import { MODE_GROUPS } from "@/studio/url";
+import { PAGE_ORDER, pageFromPath, rememberPage } from "@/studio/map";
+import { useI18n } from "@/lib/i18n/locale";
 
-/** Every page in the order of the bars (groups left to right, then their row): a switch comes from the side it moves toward. */
-const PAGE_ORDER: StudioPage[] = MODE_GROUPS.flatMap((g) => g.pages as readonly StudioPage[]);
+/** A switch comes from the side it moves toward, in the order of the bars (src/studio/map.ts). */
 function dirOf(from: StudioPage, to: StudioPage): -1 | 0 | 1 {
   const a = PAGE_ORDER.indexOf(from);
   const b = PAGE_ORDER.indexOf(to);
@@ -37,9 +37,12 @@ const pendingNav: { current: { page: StudioPage; view: StudioView } | null } = {
 
 export function useStudioUrl(opts?: { hydrate?: boolean }) {
   const hydrate = opts?.hydrate !== false;
-  const navigate = useNavigate({ from: "/" });
-  const search = useSearch({ from: "/" });
-  const urlPage = isStudioPage(search.studio) ? search.studio : undefined;
+  const navigate = useNavigate();
+  const search = useSearch({ strict: false }) as StudioSearch;
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { locale } = useI18n();
+  // The page is the path's (`/astrology/transits`); `/` is the first screen, which restores the last page.
+  const urlPage = pageFromPath(pathname);
   const urlView = isStudioView(search.view) ? search.view : undefined;
   const hydrated = useRef(false);
 
@@ -75,6 +78,7 @@ export function useStudioUrl(opts?: { hydrate?: boolean }) {
 
     if (urlPage) {
       saveStudioPage(urlPage);
+      rememberPage(urlPage);
       if (urlView) saveStudioView(urlView);
       hydrated.current = true;
       return;
@@ -86,17 +90,15 @@ export function useStudioUrl(opts?: { hydrate?: boolean }) {
     if (local === "natal" && view === "wheel") return;
     pendingNav.current = { page: local, view };
     void navigate({
-      to: "/",
-      search: studioSearch(
-        local,
-        view,
-        undefined,
-        coerceBodiesPage(search.bodies),
-        coerceLookPage(search.look),
-      ),
+      href: studioHref(local, view, {
+        locale,
+        here: pathname,
+        bodies: coerceBodiesPage(search.bodies),
+        look: coerceLookPage(search.look),
+      }),
       replace: true,
     });
-  }, [urlPage, urlView, navigate, hydrate, search.bodies, search.look]);
+  }, [urlPage, urlView, navigate, hydrate, search.bodies, search.look, locale, pathname]);
 
   function setPage(next: StudioPage) {
     const view = useStudioStore.getState().view;
@@ -125,14 +127,12 @@ export function useStudioUrl(opts?: { hydrate?: boolean }) {
 
   function navigateTo(next: StudioPage, view: StudioView) {
     void navigate({
-      to: "/",
-      search: studioSearch(
-        next,
-        view,
-        undefined,
-        coerceBodiesPage(search.bodies),
-        coerceLookPage(search.look),
-      ),
+      href: studioHref(next, view, {
+        locale,
+        here: pathname,
+        bodies: coerceBodiesPage(search.bodies),
+        look: coerceLookPage(search.look),
+      }),
       replace: true,
     });
   }
@@ -147,14 +147,12 @@ export function useStudioUrl(opts?: { hydrate?: boolean }) {
       dir: from === view ? 0 : view === "table" ? 1 : -1,
     });
     void navigate({
-      to: "/",
-      search: studioSearch(
-        page,
-        view,
-        undefined,
-        coerceBodiesPage(search.bodies),
-        coerceLookPage(search.look),
-      ),
+      href: studioHref(page, view, {
+        locale,
+        here: pathname,
+        bodies: coerceBodiesPage(search.bodies),
+        look: coerceLookPage(search.look),
+      }),
       replace: true,
     });
   }

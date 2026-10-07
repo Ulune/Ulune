@@ -86,11 +86,16 @@ export const TOUR_STEPS: readonly TourStep[] = [
   },
   {
     id: "modes",
-    targets: ['[data-testid="studio-nav"]'],
-    title: ["Time, Pair and Systems", "Temps, Duo et Systèmes"],
+    // The language button and the lenses beside it (ChartsNav.tsx).
+    targets: ['[data-testid="charts-nav"]', '[data-testid="studio-nav"]'],
+    title: ["Languages and lenses", "Langages et prismes"],
     body: [
-      "They use this chart too: today’s transits and a calendar of the sky, a second person, and Human Design and numerology, which each open with a short guided read.",
-      "Ils partent aussi de ce thème\u202f: les transits du jour et un calendrier du ciel, une deuxième personne, et le Human Design et la numérologie, qui s’ouvrent chacun sur une courte lecture guidée.",
+      "Other languages read this chart too: the button opens Human Design and numerology. Beside it, Cycles holds today’s transits and your progressions, Relationship a second person. The Calendar, at the top, shows the sky day by day.",
+      "D’autres langages lisent aussi ce thème\u202f: le bouton ouvre le Human Design et la numérologie. À côté, Cycles montre les transits du jour et vos progressions, Relation une deuxième personne. Le Calendrier, en haut, montre le ciel jour après jour.",
+    ],
+    compact: [
+      "Other languages read this chart too: the button opens Human Design and numerology. Beside it, Cycles holds today’s transits and your progressions, Relationship a second person. The Calendar, in the bar at the bottom, shows the sky day by day.",
+      "D’autres langages lisent aussi ce thème\u202f: le bouton ouvre le Human Design et la numérologie. À côté, Cycles montre les transits du jour et vos progressions, Relation une deuxième personne. Le Calendrier, dans la barre du bas, montre le ciel jour après jour.",
     ],
   },
   {
@@ -98,8 +103,8 @@ export const TOUR_STEPS: readonly TourStep[] = [
     targets: ['[data-testid="space-button"]'],
     title: ["Your charts", "Vos thèmes"],
     body: [
-      "Charts, at the top, switches between the charts you’ve cast. They go when this tab closes, unless you sign in: then they’re kept on this device, encrypted.",
-      "Thèmes, en haut, passe d’un thème calculé à l’autre. Ils disparaissent à la fermeture de l’onglet, sauf si vous vous connectez\u202f: ils sont alors gardés sur cet appareil, chiffrés.",
+      "The name at the top left switches between the charts you’ve cast. They go when this tab closes, unless you sign in: then they’re kept on this device, encrypted.",
+      "Le nom en haut à gauche passe d’un thème calculé à l’autre. Ils disparaissent à la fermeture de l’onglet, sauf si vous vous connectez\u202f: ils sont alors gardés sur cet appareil, chiffrés.",
     ],
   },
 ];

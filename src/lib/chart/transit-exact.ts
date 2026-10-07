@@ -1,7 +1,11 @@
 import { ASPECT_META, aspectOrb, MAJOR_ASPECT_IDS, MEAN_SPEED, STATION_SPEED, SWIFT_BODIES } from "./constants";
 import type { AspectId, AspectLink, BodyId, TimingHit } from "./types";
 
-const MAJOR = new Set<string>(MAJOR_ASPECT_IDS);
+// Built on first use, not while this module loads: in the server's bundle this
+// module can run before constants.ts has (their chunks import each other), and a
+// set built then would be empty (scripts/chunk-cycles.mjs checks every build).
+let major: Set<string> | undefined;
+const MAJOR = { has: (type: string) => (major ??= new Set<string>(MAJOR_ASPECT_IDS)).has(type) };
 
 /** Moving bodies shown in Hello-now and the transit-to-natal table. */
 export const TRANSIT_TABLE_MOVING: ReadonlySet<BodyId> = new Set([

@@ -1,0 +1,217 @@
+/* The language picker (LanguagePicker.tsx): it downloads with the picker. */
+
+.ob-langs-pop {
+  padding: 12px;
+}
+.ob-langs-group + .ob-langs-group {
+  margin-top: 14px;
+}
+.ob-langs-head {
+  margin: 0 2px 8px;
+  font: 600 11px/1.3 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
+}
+.ob-langs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ob-langs-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+.ob-langs-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  text-align: left;
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    border-color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+@media (hover: hover) {
+  .ob-langs-main:hover {
+    background: var(--color-bg-subtle);
+  }
+}
+.ob-langs-main:is(:active, [data-pressed]) {
+  transform: scale(0.98);
+}
+.ob-langs-main:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+.ob-langs-card.is-on .ob-langs-main {
+  border-color: var(--color-fg-muted);
+  background: var(--color-bg-subtle);
+}
+.ob-langs-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  /* Room for ⓘ in the corner. */
+  padding-right: 24px;
+}
+.ob-langs-mark {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+}
+.ob-langs-name {
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.ob-langs-tick {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+}
+.ob-langs-line {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-fg-muted);
+}
+.ob-langs-needs {
+  margin-top: auto;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--color-fg-subtle, var(--color-fg-muted));
+}
+/* ⓘ: the language's home in the encyclopedia, in the card's corner. */
+.ob-langs-info {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  color: var(--color-fg-muted);
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out);
+}
+@media (hover: hover) {
+  .ob-langs-info:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
+}
+.ob-langs-info:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 1px;
+}
+@media (pointer: coarse) {
+  .ob-langs-top {
+    padding-right: 32px;
+  }
+  .ob-langs-info {
+    top: 0;
+    right: 0;
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* A phone: a sheet from the bottom of the screen, over a dimmed page. */
+@keyframes ob-langsheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes ob-langsheet-out {
+  to {
+    transform: translateY(100%);
+  }
+}
+.ob-langsheet-scrim {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  background: rgb(0 0 0 / 0.4);
+  animation: ob-fade var(--dur-in) var(--ease-out) both;
+}
+.ob-langsheet-scrim[data-leaving] {
+  animation: ob-fade-out var(--dur-out) var(--ease-quick-in) forwards;
+}
+.ob-langsheet {
+  width: 100%;
+  max-height: 88dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 12px calc(16px + var(--ob-safe-b, 0px));
+  border-top: 1px solid var(--color-border-strong);
+  border-radius: 14px 14px 0 0;
+  background: var(--color-bg-elevated);
+  box-shadow: var(--ob-shadow);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  animation: ob-langsheet-in var(--sheet-move, 320ms) var(--sheet-ease, var(--ease-out)) both;
+  transition: transform var(--dur-move) var(--ease-glide);
+}
+.ob-langsheet[data-dragging] {
+  transition: none;
+}
+.ob-langsheet-scrim[data-leaving] .ob-langsheet {
+  animation: ob-langsheet-out var(--dur-out) var(--ease-quick-in) forwards;
+}
+.ob-langsheet-head {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  margin: 0 -12px 4px;
+  padding: 8px 4px 0 16px;
+  background: var(--color-bg-elevated);
+  touch-action: none;
+}
+.ob-langsheet-grip {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 36px;
+  height: 4px;
+  margin-left: -18px;
+  border-radius: 999px;
+  background: var(--color-border-strong);
+}
+.ob-langsheet-title {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ob-langsheet,
+  .ob-langsheet-scrim,
+  .ob-langsheet-scrim[data-leaving],
+  .ob-langsheet-scrim[data-leaving] .ob-langsheet {
+    animation: none;
+    transition: none;
+  }
+}

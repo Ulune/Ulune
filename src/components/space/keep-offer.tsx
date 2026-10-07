@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/locale";
 import { openSpaceSheet, useSpace } from "@/lib/space/state";
+import { useStudioStore } from "@/studio/store";
 
 export const KEEP_NOTE_KEY = "ulune.hint.keep.v1";
 
@@ -25,8 +26,10 @@ function seenBefore(): boolean {
 export function KeepOffer() {
   const { t } = useI18n();
   const status = useSpace((s) => s.status);
+  // Under a chart only: the Calendar's sky without one (reorganisation plan, R5) has nothing to keep.
+  const hasChart = useStudioStore((s) => s.chart != null);
   const [show, setShow] = useState(shownThisVisit);
-  const unkept = status === "none" || status === "locked";
+  const unkept = (status === "none" || status === "locked") && hasChart;
   useEffect(() => {
     if (!unkept || shownThisVisit || seenBefore()) return;
     shownThisVisit = true;

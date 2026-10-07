@@ -62,6 +62,19 @@ if (!existsSync(FUNCTION_DIR)) fail("no build output: run `npm run build` first"
 const missing = REQUIRED.filter((f) => !existsSync(join(FUNCTION_DIR, f)));
 if (missing.length) fail(`not next to the server function: ${missing.join(", ")}`);
 
+// Chunks that import each other must not read each other's values while they
+// load (scripts/chunk-cycles.mjs): the order they run in depends on which page
+// loads first, and a value read too early is undefined.
+{
+  const { findCycleReads } = await import("./chunk-cycles.mjs");
+  const { findings } = findCycleReads([FUNCTION_DIR, join(OUTPUT, "static", "assets")]);
+  if (findings.length) {
+    for (const f of findings) console.error(`  ${f.file}:${f.line}${f.region ? ` [${f.region}]` : ""} reads ${f.name} from ${f.from}`);
+    fail(`${findings.length} top-level read(s) across a cycle of chunks; read them inside a function instead`);
+  }
+  console.log("chunks: no value read across a cycle while loading");
+}
+
 // The function and the static files, away from the repository (removed again on exit).
 const away = mkdtempSync(join(tmpdir(), "ulune-vercel-"));
 process.on("exit", () => rmSync(away, { recursive: true, force: true }));
@@ -178,7 +191,15 @@ async function checkHeaders() {
   const robots = await get("/robots.txt");
   const sitemap = await get("/sitemap.xml");
   if (robots.res.status !== 200 || !/Sitemap: https:\/\/ulune\.app\/sitemap\.xml/.test(robots.text)) fail("robots.txt");
-  if (sitemap.res.status !== 200 || (sitemap.text.match(/<loc>/g) ?? []).length !== 7) fail("sitemap.xml");
+  // The sitemap is made from the encyclopedia's index (src/lib/sitemap.ts): the app's pages, then the encyclopedia's.
+  const locs = [...sitemap.text.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  const listed = ["/", "/calendar", "/calendrier", "/privacy", "/legal", "/terms", "/credits", "/accessibility", "/changes", "/encyclopedia", "/encyclopedie"];
+  if (sitemap.res.status !== 200 || listed.some((p) => !locs.includes(`https://ulune.app${p}`)) || new Set(locs).size !== locs.length) fail("sitemap.xml");
+  const entry = locs.find((l) => /\/encyclopedia\/[a-z0-9-]+$/.test(l) && !/\/(astrology|human-design|numerology|shared-ideas)$/.test(l));
+  if (entry) {
+    const page = await get(new URL(entry).pathname);
+    if (page.res.status !== 200 || /<link rel="canonical" href="([^"]+)"/.exec(page.text)?.[1] !== entry || !/hreflang="fr"/i.test(page.text)) fail(`${entry}: head`);
+  }
   const canonical = (html) => /<link rel="canonical" href="([^"]+)"/.exec(html)?.[1];
   const noindex = (html) => /<meta name="robots" content="noindex"/.test(html);
   if (canonical(home.text) !== "https://ulune.app/" || noindex(home.text)) fail("/: canonical or robots");
@@ -197,7 +218,7 @@ async function checkHeaders() {
   const guidePage = await get("/guide");
   if (guidePage.res.status !== 200 || !noindex(guidePage.text) || canonical(guidePage.text)) fail("/guide: should answer and stay out of search");
   if (!guidePage.text.includes('data-testid="guide"')) fail("/guide: no guide in the server's page");
-  console.log("search: robots.txt, a 7-page sitemap, canonical addresses, settings, /guide and missing pages kept out; the guide in the home page");
+  console.log(`search: robots.txt, a ${locs.length}-page sitemap, canonical addresses, settings, /guide and missing pages kept out; the guide in the home page`);
 }
 
 /** The health check an uptime monitor calls, and where error reports arrive. */

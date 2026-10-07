@@ -18,8 +18,8 @@ import { chromium } from "playwright";
 import { DEV, FIXTURE_A, FIXTURE_B, castFixture, clickDockTab, goStudioPage, gotoApp, pickPlace } from "./_lib.mjs";
 
 const PAGES = ["natal", "transits", "timing", "synastry", "design", "numerology"];
-const CHROME = ".ob-top, .ob-groups, .ob-strip, .ob-foot, .ob-panel-head, .ulune-time-scrub-head";
-const CONTROL = "button, input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select";
+const CHROME = ".ob-top, .ob-sections, .ob-strip, .ob-foot, .ob-panel-head, .ulune-time-scrub-head";
+const CONTROL = "button, a.ob-section, input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select";
 
 async function typeField(page, sel, value) {
   const el = page.locator(sel);
@@ -41,7 +41,7 @@ async function controls(page) {
           // A link inside a sentence (“This chart isn’t kept. Sign in…”) is text, not a control.
           if (window.inSentence(el)) continue;
           const name = (el.getAttribute("aria-label") || el.textContent || el.value || el.tagName).trim().replace(/\s+/g, " ").slice(0, 30);
-          const kind = el.closest(".ob-groups") ? "page-tab" : el.classList.contains("ob-panel-tab") ? "panel-tab" : "control";
+          const kind = el.closest(".ob-sections") ? "page-tab" : el.classList.contains("ob-panel-tab") ? "panel-tab" : "control";
           out.push({ name, kind, h: Math.round(r.height), w: Math.round(r.width) });
         }
       }

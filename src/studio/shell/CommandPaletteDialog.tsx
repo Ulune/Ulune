@@ -8,6 +8,8 @@ import { aspectLinkPhrase, bodyLabel, houseName, signName } from "@/lib/i18n/ast
 import { SIGN_IDS } from "@/lib/chart/constants";
 import { formatArc } from "@/lib/utils";
 import { GLOSSARY_ORDER, glossaryBody, glossaryTerm } from "@/lib/i18n/glossary";
+import { useEncyclopediaCommands } from "@/encyclopedia/palette";
+import { pickerWord } from "@/studio/shell/picker-words";
 import { PRESET_ORDER, type NamedPresetId } from "@/lib/chart/chart-view";
 import { useChartView } from "@/lib/chart/use-chart-view";
 import { setDepthPrefs, useDepthPrefs } from "@/lib/depth/prefs";
@@ -15,9 +17,19 @@ import type { MessageKey } from "@/lib/i18n/messages";
 import { useI18n } from "@/lib/i18n/locale";
 import { useLookProfiles } from "@/lib/look-provider";
 import { useTheme } from "@/lib/theme";
-import { GROUP_LABEL, PAGE_LABEL } from "@/studio/modes/meta";
+import { PAGE_LABEL } from "@/studio/modes/meta";
 import { useStudioStore } from "@/studio/store";
-import { MODE_GROUPS, type StudioPage } from "@/studio/url";
+import {
+  ENCYCLOPEDIA_PATHS,
+  LANGUAGES,
+  LENSES,
+  languageOf,
+  lastLanguage,
+  lensesOf,
+  pageFor,
+  pagesOf,
+} from "@/studio/map";
+import { LANGUAGE_WORDS, LENS_LABEL } from "@/studio/shell/map-ui";
 import { useStudioUrl } from "@/studio/use-studio-url";
 
 /** `find`: listed only once something is typed (aspects, signs, houses, words: too many to show at rest). */
@@ -32,9 +44,9 @@ const PRESET_LABEL: Record<NamedPresetId, MessageKey> = {
 };
 
 /**
- * The palette itself (CommandPalette.tsx opens it): every mode, chart, body,
- * Look profile and setting, searched as you type. Its own download, fetched
- * when the page is idle so ⌘K still opens at once.
+ * The palette itself (CommandPalette.tsx opens it): every section, language,
+ * lens, mode, chart, body, Look profile and setting, searched as you type.
+ * Its own download, fetched when the page is idle so ⌘K still opens at once.
  */
 export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
   const { locale, setLocale, t } = useI18n();
@@ -44,11 +56,14 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
   const { setPage, setView } = useStudioUrl({ hydrate: false });
   const rows = useStudioStore((s) => s.rows);
+  const page = useStudioStore((s) => s.page);
   const chart = useStudioStore((s) => s.chart);
   const view = useStudioStore((s) => s.view);
   const chartView = useChartView();
   const depth = useDepthPrefs();
   const [q, setQ] = useState("");
+  // The encyclopedia's entries, after everything else (src/encyclopedia/palette.ts).
+  const pages = useEncyclopediaCommands(q, locale);
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const close = onClose;
@@ -59,19 +74,51 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
 
   const cmds = useMemo<Cmd[]>(() => {
     const list: Cmd[] = [];
-    const secModes = t("paletteModes");
-    MODE_GROUPS.forEach((g, gi) => {
-      for (const page of g.pages) {
+    // The map (page reorganisation, R8): the sections, every language, every
+    // lens of a language that has several, and every page of a lens.
+    const here = languageOf(page) ?? lastLanguage();
+    const secSections = t("sectionsNav");
+    list.push(
+      { id: "section:charts", section: secSections, label: t("sectionCharts"), run: () => setPage(pageFor(lastLanguage())) },
+      { id: "section:calendar", section: secSections, label: t("sectionCalendar"), run: () => setPage("timing") },
+      {
+        id: "section:encyclopedia",
+        section: secSections,
+        label: t("sectionEncyclopedia"),
+        run: () => void navigate({ href: locale === "fr" ? ENCYCLOPEDIA_PATHS.fr : ENCYCLOPEDIA_PATHS.en }),
+      },
+    );
+    const secLanguages = pickerWord(locale, "paletteLanguages");
+    for (const l of LANGUAGES) {
+      const words = LANGUAGE_WORDS[l.id];
+      list.push({ id: `lang:${l.id}`, section: secLanguages, label: t(words.name), hint: pickerWord(locale, words.line), keys: l.id === here ? "L" : undefined, run: () => setPage(pageFor(l.id)) });
+    }
+    const secLenses = t("lensesLabel");
+    for (const l of LANGUAGES) {
+      const lenses = lensesOf(l.id);
+      if (lenses.length < 2) continue;
+      for (const lens of lenses) {
         list.push({
-          id: `mode:${page}`,
-          section: secModes,
-          label: t(PAGE_LABEL[page as StudioPage]),
-          hint: t(GROUP_LABEL[g.id]),
-          keys: g.pages[0] === page ? String(gi + 1) : undefined,
-          run: () => setPage(page as StudioPage),
+          id: `lens:${l.id}:${lens}`,
+          section: secLenses,
+          label: t(LENS_LABEL[lens]),
+          hint: t(LANGUAGE_WORDS[l.id].name),
+          keys: l.id === here ? `Alt+${LENSES.indexOf(lens) + 1}` : undefined,
+          run: () => setPage(pageFor(l.id, lens)),
         });
       }
-    });
+    }
+    const secModes = t("paletteModes");
+    for (const l of LANGUAGES) {
+      const name = t(LANGUAGE_WORDS[l.id].name);
+      for (const lens of lensesOf(l.id)) {
+        for (const p of pagesOf(l.id, lens)) {
+          // A page named as its language (Human Design) is the language's own entry.
+          if (t(PAGE_LABEL[p]) === name) continue;
+          list.push({ id: `mode:${p}`, section: secModes, label: t(PAGE_LABEL[p]), hint: `${name} › ${t(LENS_LABEL[lens])}`, run: () => setPage(p) });
+        }
+      }
+    }
     if (chart) {
       list.push({
         id: "view:toggle",
@@ -186,7 +233,7 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
       { id: "set:open", section: secSettings, label: t("shellSettings"), run: () => void navigate({ to: "/settings" }) },
     );
     return list;
-  }, [t, locale, rows, chart, view, look, setPage, setView, setTheme, setLocale, navigate, chartView, depth.view]);
+  }, [t, locale, page, rows, chart, view, look, setPage, setView, setTheme, setLocale, navigate, chartView, depth.view]);
 
   const results = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -195,8 +242,8 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
     return cmds.filter((c) => {
       const hay = `${c.label} ${c.hint ?? ""} ${c.section}`.toLowerCase();
       return words.every((w) => hay.includes(w));
-    });
-  }, [cmds, q]);
+    }).concat(pages);
+  }, [cmds, q, pages]);
 
   if (typeof document === "undefined") return null;
 

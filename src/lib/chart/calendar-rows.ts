@@ -1,9 +1,11 @@
 /**
  * The calendar's rows for a period (part 57 of the launch plan): the sky's
- * events and your exacts in time order, filtered, for the events table and
- * the calendar file; with your numerology's long cycles changing on
- * birthdays (part 62), yours too.
+ * events, your exacts and numerology's long cycles changing on birthdays
+ * (part 62), in time order, for the events table and the calendar file. Each
+ * kind of row comes from a layer (calendar-layers.ts): only the layers shown
+ * give theirs.
  */
+import { rowShown, type ShownLayers } from "./calendar-layers";
 import type { NumerologyCalendar } from "./numerology-calendar";
 import { skyEventId, type SkyEvent } from "./sky-events";
 import type { TimingHit } from "./types";
@@ -26,19 +28,20 @@ export function calendarRows(
   hits: readonly TimingHit[],
   from: number,
   to: number,
-  opts: { sky: boolean; yours: boolean; moon: boolean },
+  /** The layers shown (a layer left out is off), and whether the Moon's own events come too. */
+  opts: { layers: Partial<ShownLayers>; moon: boolean },
   /** Numerology's changes, already placed in the calendar's clock. */
   num: readonly NumRow[] = [],
 ): CalRow[] {
   const rows: CalRow[] = [];
-  if (opts.sky) {
+  if (rowShown("sky", opts.layers)) {
     for (const ev of events) {
       if (ev.t < from || ev.t >= to) continue;
       if (!opts.moon && isMoonOwn(ev)) continue;
       rows.push({ kind: "sky", t: ev.t, id: `sky:${skyEventId(ev)}`, ev });
     }
   }
-  if (opts.yours) {
+  if (rowShown("you", opts.layers)) {
     const seen = new Set<string>();
     for (const hit of hits) {
       const t = Date.parse(hit.exactUtc);
@@ -48,7 +51,7 @@ export function calendarRows(
       rows.push({ kind: "you", t, id: `timing:${hit.id}`, hit });
     }
   }
-  if (opts.yours) for (const r of num) if (r.t >= from && r.t < to) rows.push(r);
+  if (rowShown("num", opts.layers)) for (const r of num) if (r.t >= from && r.t < to) rows.push(r);
   const rank = { sky: 0, you: 1, num: 2 } as const;
   return rows.sort((a, b) => a.t - b.t || rank[a.kind] - rank[b.kind]);
 }

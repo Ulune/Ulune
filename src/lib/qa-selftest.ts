@@ -19,6 +19,8 @@
 
 import { loadSpaceRuntime } from "@/lib/space/load";
 import { closeSpaceSheet, useSpace } from "@/lib/space/state";
+import { languageOf, lensOf } from "@/studio/map";
+import type { StudioPage } from "@/studio/url";
 
 type Stats = {
   frames: number;
@@ -322,25 +324,41 @@ function environment() {
 
 // ── Studio navigation (as scripts/e2e/_lib.mjs does it) ─────────────────────
 
-const MODE_GROUP: Record<string, string> = {
-  natal: "chart",
-  transits: "time",
-  timing: "time",
-  progressions: "time",
-  synastry: "pair",
-  composite: "pair",
-  design: "systems",
-  numerology: "systems",
-};
-
+/**
+ * Opens a studio page as a reader would (page reorganisation, R2 to R4): the
+ * Calendar from the sections; a page of Charts by its language (a chip, else
+ * the picker's card), its lens and its sub-mode, whose tab is on the page
+ * even where the toolbar folds it.
+ */
 async function goMode(id: string) {
   const table = byTest("view-table");
   if (table?.getAttribute("aria-pressed") === "true") click(byTest("view-wheel"), "wheel view");
-  click(byTest(`mode-group-${MODE_GROUP[id]}`), `mode group ${MODE_GROUP[id]}`);
-  const alone = Object.values(MODE_GROUP).filter((g) => g === MODE_GROUP[id]).length === 1;
-  if (!alone) {
-    const tab = await until(() => byTest(`studio-page-${id}`), 8000);
-    click(tab, `studio page ${id}`);
+  const now = () => byTest("studio-nav")?.getAttribute("data-page");
+  if (now() === id) return;
+  if (id === "timing") {
+    click(byTest("section-calendar"), "the Calendar");
+  } else {
+    const lang = languageOf(id as StudioPage);
+    const lens = lensOf(id as StudioPage);
+    if (!byTest("lang-button")) {
+      click(byTest("section-charts"), "Charts");
+      await until(() => byTest("lang-button"), 8000);
+    }
+    if (byTest("lang-button")?.getAttribute("data-language") !== lang) {
+      const chip = byTest(`lang-chip-${lang}`);
+      if (chip) click(chip, `the ${lang} chip`);
+      else {
+        click(byTest("lang-button"), "the language button");
+        click(await until(() => byTest(`lang-card-${lang}`), 8000), `the ${lang} card`);
+      }
+      await until(() => byTest("lang-button")?.getAttribute("data-language") === lang, 8000);
+    }
+    const lensTab = byTest(`lens-${lens}`);
+    if (lensTab && lensTab.getAttribute("aria-selected") !== "true") {
+      click(lensTab, `the ${lens} lens`);
+      await sleep(300);
+    }
+    if (now() !== id) click(await until(() => byTest(`studio-page-${id}`), 8000), `studio page ${id}`);
   }
   await sleep(300);
 }

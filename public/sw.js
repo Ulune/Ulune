@@ -10,7 +10,8 @@
  *   - The sky's files (/api/sky-window, /api/sky-year): the same for
  *     everyone, asked for by date and version only, never changing for a
  *     given address; kept so the calendar's months open offline.
- *   - The studio's page ("/"): from the network as always (checked with the
+ *   - The studio's pages ("/" and its paths: /astrology…, /human-design,
+ *     /numerology, /calendar, /calendrier): from the network as always (checked with the
  *     server, never an older copy from the browser's cache), and the last copy
  *     is kept, so saved charts still open without a connection. It is the same
  *     page for everyone; no other page (sign-in above all) is ever kept.
@@ -23,6 +24,8 @@ const SKY = "ulune-sky-v1";
 const MAX_FILES = 300;
 const MAX_PAGES = 12;
 const MAX_SKY = 120;
+/** The studio's paths (src/studio/map.ts): the same page, each kept under its own address. */
+const STUDIO = /^\/(?:astrology(?:\/(?:transits|progressions|synastry|composite))?|human-design|numerology|calendar|calendrier)?\/?$/;
 
 self.addEventListener("install", () => {
   self.skipWaiting();
@@ -54,9 +57,9 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(file(req, event, SKY, MAX_SKY));
     return;
   }
-  // Only the studio's page; every other page (sign-in, callbacks) is left
+  // Only the studio's pages; every other page (sign-in, callbacks) is left
   // to the browser, as if there were no worker.
-  if (req.mode === "navigate" && url.pathname === "/") event.respondWith(page(req, event));
+  if (req.mode === "navigate" && STUDIO.test(url.pathname)) event.respondWith(page(req, event));
 });
 
 async function file(req, event, name = FILES, max = MAX_FILES) {

@@ -7,22 +7,12 @@ import {
   assertFixtureA,
   assertNoOverflow,
   ensureShotsDir,
+  goStudioPage,
   gotoApp,
   keepCharts,
   launch,
   setLang,
 } from "./_lib.mjs";
-
-const GROUP_OF = {
-  natal: "chart",
-  transits: "time",
-  timing: "time",
-  progressions: "time",
-  synastry: "pair",
-  composite: "pair",
-  design: "systems",
-  numerology: "systems",
-};
 
 async function shot(page, file) {
   try {
@@ -84,9 +74,7 @@ async function chipNames(page) {
 }
 
 async function goMode(page, id) {
-  const group = page.getByTestId(`mode-group-${GROUP_OF[id]}`);
-  if (await group.isVisible().catch(() => false)) await group.click();
-  await page.getByTestId(`studio-page-${id}`).click({ force: true });
+  await goStudioPage(page, id);
 }
 
 async function selectedOptionText(page, testId) {

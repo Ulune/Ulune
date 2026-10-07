@@ -7,6 +7,8 @@ import { nitro } from "nitro/vite";
 import { contentPacksPlugin } from "./scripts/content-packs-plugin.mjs";
 // @ts-expect-error JS plugin alongside the TS vite config
 import { qaSelftestPlugin } from "./scripts/qa-selftest/plugin.mjs";
+// @ts-expect-error JS plugin alongside the TS vite config
+import { encyclopediaPlugin } from "./scripts/encyclopedia/vite-plugin.mjs";
 import { SECURITY_HEADERS } from "./src/lib/security-headers";
 
 // The development server answers this machine only (127.0.0.1), on the
@@ -90,6 +92,8 @@ export default defineConfig(({ command, isPreview }) => ({
     contentPacksPlugin(),
     // Development only: where `?qa=<suite>` runs send their reports.
     qaSelftestPlugin(),
+    // The encyclopedia's entries, checked and cut into the pieces the site loads one at a time.
+    encyclopediaPlugin(),
     tailwindcss(),
     tanstackStart(),
     ...(command === "build" || isPreview

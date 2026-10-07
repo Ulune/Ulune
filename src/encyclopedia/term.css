@@ -1,0 +1,39 @@
+/* A word linked to the encyclopedia (Term.tsx). It keeps the colour of the
+   text around it; the mark is the reader's choice (Settings, kept on this
+   device and set on <html> before the page paints, lib/boot.ts):
+   subtle (a fine dotted underline, by default), clearly underlined, or none
+   (underlined only on pointing or focus). It is a link in every case. */
+.ob-term {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in oklab, currentColor 55%, transparent);
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color var(--dur-hover) var(--ease-out);
+}
+@media (hover: hover) {
+  .ob-term:hover {
+    text-decoration-color: currentColor;
+  }
+}
+.ob-term:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+  text-decoration-color: currentColor;
+}
+:root[data-term-links="underline"] .ob-term {
+  text-decoration-style: solid;
+  text-decoration-color: currentColor;
+}
+:root[data-term-links="none"] .ob-term:not(:hover, :focus-visible) {
+  text-decoration-line: none;
+}

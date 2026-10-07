@@ -1,6 +1,5 @@
 export {
   STUDIO_PAGES,
-  MODE_GROUPS,
   isStudioPage,
   parseStudioSearch,
   loadStudioPage,

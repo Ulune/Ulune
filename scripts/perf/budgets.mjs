@@ -122,7 +122,12 @@ if (want.has("bundle")) {
   // the other pages' bar with the studio's four pages: 268.3-269.0 depending on where Rolldown
   // puts the shared icons and menus (the Settings page's styles and the not-found page's bar
   // left the first load to make room); limit 269.5.
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 269.5, "KB gz");
+  // Ulune 2.0's reorganisation, R1–R5 (7 Oct 2026): the studio as one layout route split
+  // from the first script, the sections and lens bars, the address's language: 273.0 when
+  // the private space's button (4.7) arrives within the load, 268.3 when just after; limit
+  // 274. The next saving is the UI text: both languages ship in every first load (catalog
+  // 93 KB minified); one language up front would win back more than this.
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 274, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's
@@ -134,8 +139,11 @@ if (want.has("bundle")) {
   // (The review's improvements, parts 87f-g, the field errors, tab fades and the pick card: limit 32.5.)
   check("bundle", '"/" style sheets up front', cssUpFront / 1024, 32.5, "KB gz");
   // (The review's improvements, parts 87f–j: the tables' phone layout, the
-  // calendar's month marks and file menu, the pair switch: limit 52.)
-  check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 52, "KB gz");
+  // calendar's month marks and file menu, the pair switch: limit 52. Ulune 2.0's
+  // reorganisation, R2–R5 (7 Oct 2026): the sections and lens bars in the shell's
+  // sheet, the Calendar's layers menu and its sky without a chart: 52.2, limit 53;
+  // the sheets the first paint waits for stay within their 32.5.)
+  check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 53, "KB gz");
   const largest = Math.max(...home.files.filter((f) => f.type === "script").map((f) => f.gz ?? 0));
   // (The natal wheel's chunk: 79.4-80.2 since parts 96-97, as shared modules land in it or not; limit 81.)
   check("bundle", "largest script", largest / 1024, 81, "KB gz");

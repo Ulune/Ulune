@@ -1,0 +1,601 @@
+/* The encyclopedia's pages (src/encyclopedia): loaded with them, never with the studio. */
+.ob-enc {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 20px 16px 56px;
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+}
+.ob-enc :focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+/* An entry's page: one reading column, in the middle. */
+.ob-enc--narrow {
+  max-width: 752px;
+}
+
+/* Breadcrumbs: Encyclopedia › Astrology › The sky's cycles › Retrograde. */
+.ob-enc-crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  color: var(--color-fg-subtle);
+  font-size: 13px;
+}
+.ob-enc-crumbs li {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+.ob-enc-crumbs li + li::before {
+  content: "›" / "";
+  margin: 0 8px;
+}
+.ob-enc-crumbs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--color-fg-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+.ob-enc-crumbs [aria-current] {
+  color: var(--color-fg);
+}
+
+/* The head: glyph, name, tradition, the other language. */
+.ob-enc-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.ob-enc-glyph {
+  flex: none;
+  font-family: var(--font-glyphs);
+  font-size: 56px;
+  line-height: 1;
+}
+.ob-enc-hero {
+  max-width: 720px;
+  margin: 4px 0 24px;
+}
+.ob-enc-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 400;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.ob-enc-lead {
+  margin: 10px 0 0;
+  color: var(--color-fg-muted);
+  font-size: 17px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.ob-enc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 10px 0 0;
+  font-size: 13px;
+}
+.ob-enc-tag {
+  --tint: var(--color-fg-subtle);
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--tint) 24%, var(--color-bg-subtle));
+  color: var(--color-fg);
+  font-size: 12px;
+  font-weight: 500;
+}
+.ob-enc-tag[data-tradition="astrology"] {
+  --tint: var(--color-halo);
+}
+.ob-enc-tag[data-tradition="human-design"] {
+  --tint: var(--el-water);
+}
+.ob-enc-tag[data-tradition="numerology"] {
+  --tint: var(--el-earth);
+}
+.ob-enc-twin {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-height: 24px;
+  color: var(--color-fg-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+.ob-enc-twin-label {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ob-enc-twin-title {
+  color: var(--color-fg);
+}
+@media (hover: hover) {
+  .ob-enc-twin:hover,
+  .ob-enc-crumbs a:hover,
+  .ob-enc-card-link:hover,
+  .ob-enc-az-link:hover,
+  .ob-enc-quiet-link:hover,
+  .ob-enc-licence a:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+/* The one-sentence summary, then the body. */
+.ob-enc-summary {
+  margin: 20px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.ob-enc-section {
+  margin-top: 32px;
+}
+.ob-enc-h2 {
+  margin: 0 0 10px;
+  font-family: var(--font-ui);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ob-enc-h3 {
+  margin: 0 0 8px;
+  color: var(--color-fg-subtle);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ob-enc-prose > p,
+.ob-enc-prose > ul > li,
+.ob-enc-prose > ol > li {
+  color: var(--color-fg-muted);
+  font-size: 16px;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+.ob-enc-prose > p {
+  margin: 0 0 12px;
+}
+.ob-enc-prose > ul,
+.ob-enc-prose > ol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 12px;
+  padding-left: 1.2em;
+}
+.ob-enc-prose > ul {
+  list-style: disc;
+}
+.ob-enc-prose > ol {
+  list-style: decimal;
+}
+.ob-enc-section strong {
+  color: var(--color-fg);
+  font-weight: 600;
+}
+.ob-enc-table {
+  overflow-x: auto;
+  margin: 4px 0 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.ob-enc-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.ob-enc-table th,
+.ob-enc-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+.ob-enc-table th {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+  font-weight: 600;
+}
+.ob-enc-table td {
+  color: var(--color-fg-muted);
+}
+.ob-enc-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Cards: Related, a tradition's families, search results. A card with a page is one link, all of it. */
+.ob-enc-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ob-enc-card,
+.ob-enc-hit {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  scroll-margin-top: calc(var(--ob-top-h) + 16px);
+}
+/* An entry with a page stands out a little from one that is a card only. */
+.ob-enc-card:has(.ob-enc-card-link),
+.ob-enc-hit:has(.ob-enc-card-link) {
+  border-color: var(--color-border-strong);
+  background: var(--color-bg-elevated);
+}
+.ob-enc-card:target {
+  border-color: var(--color-fg-muted);
+}
+.ob-enc-card:has(.ob-enc-card-link:hover),
+.ob-enc-hit:has(.ob-enc-card-link:hover) {
+  border-color: var(--color-fg-subtle);
+}
+.ob-enc-card:has(.ob-enc-card-link:focus-visible),
+.ob-enc-hit:has(.ob-enc-card-link:focus-visible) {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+.ob-enc-mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--color-bg-subtle);
+  font-family: var(--font-glyphs);
+  font-size: 18px;
+  line-height: 1;
+}
+.ob-enc-mark--letter {
+  color: var(--color-fg-muted);
+  font-family: var(--font-display);
+  font-size: 17px;
+}
+.ob-enc-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ob-enc-card-name {
+  color: var(--color-fg);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.ob-enc-card-link {
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+.ob-enc-card-link:focus-visible {
+  outline: none;
+}
+.ob-enc-card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.ob-enc-card-summary {
+  color: var(--color-fg-muted);
+  font-size: 13.5px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.ob-enc-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding-left: 1.2em;
+  color: var(--color-fg-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  list-style: disc;
+}
+
+/* The foot: last revised, report an error, previous and next, the licence. */
+.ob-enc-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-fg-subtle);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.ob-enc-foot p {
+  margin: 0;
+}
+.ob-enc-quiet-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+.ob-enc-quiet-link,
+.ob-enc-licence a {
+  color: var(--color-fg-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+.ob-enc-pn {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.ob-enc-pn-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-fg);
+}
+.ob-enc-pn-link--next {
+  grid-column: 2;
+  align-items: flex-end;
+  text-align: right;
+}
+@media (hover: hover) {
+  .ob-enc-pn-link:hover,
+  .ob-enc-trad:hover {
+    border-color: var(--color-border-strong);
+  }
+}
+.ob-enc-pn-label {
+  color: var(--color-fg-subtle);
+  font-size: 12px;
+}
+.ob-enc-pn-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* The home: search, traditions, A to Z. */
+.ob-enc-search {
+  max-width: 720px;
+  margin: 0 0 8px;
+}
+.ob-enc-search-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.ob-enc-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 6px 0 12px;
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+}
+.ob-enc-search-row:focus-within {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 1px;
+}
+.ob-enc-search-row input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--color-fg);
+  font: inherit;
+  font-size: 16px;
+}
+.ob-enc-search-row input:focus-visible {
+  outline: none;
+}
+.ob-enc-search-icon {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--color-fg-subtle);
+}
+.ob-enc-search-go {
+  flex: none;
+  min-height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.ob-enc-search-hint {
+  margin: 6px 0 0;
+  color: var(--color-fg-subtle);
+  font-size: 13px;
+}
+.ob-enc-results {
+  margin-top: 4px;
+}
+.ob-enc-none {
+  margin: 12px 0 0;
+  color: var(--color-fg-muted);
+}
+.ob-enc-results-group {
+  margin-top: 16px;
+}
+.ob-enc-hits {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ob-enc-block {
+  margin-top: 40px;
+}
+.ob-enc-trads {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ob-enc-trad {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 14px;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  color: var(--color-fg);
+}
+.ob-enc-trad-icon {
+  grid-row: span 3;
+  width: 28px;
+  height: 28px;
+  color: var(--color-fg-muted);
+}
+.ob-enc-trad-name {
+  font-family: var(--font-display);
+  font-size: 21px;
+  line-height: 1.2;
+}
+.ob-enc-trad-intro {
+  color: var(--color-fg-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.ob-enc-trad-count {
+  color: var(--color-fg-subtle);
+  font-size: 12px;
+}
+.ob-enc-letters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 8px;
+}
+.ob-enc-letter {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  color: var(--color-fg);
+  font-size: 14px;
+  font-weight: 600;
+}
+a.ob-enc-letter {
+  background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  a.ob-enc-letter:hover {
+    background: color-mix(in oklab, var(--color-fg) 14%, var(--color-bg-subtle));
+  }
+}
+.ob-enc-letter--none {
+  color: var(--color-fg-subtle);
+  font-weight: 400;
+  opacity: 0.5;
+}
+.ob-enc-az-group,
+.ob-enc-family {
+  margin-top: 24px;
+  scroll-margin-top: calc(var(--ob-top-h) + 16px);
+}
+.ob-enc-family {
+  margin-top: 32px;
+}
+.ob-enc-az {
+  columns: 3 220px;
+  column-gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ob-enc-az li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  padding: 3px 0;
+  break-inside: avoid;
+  line-height: 1.4;
+}
+.ob-enc-az-link {
+  color: var(--color-fg);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+/* A list, not a sentence: each name a target of its own, 24 px at least. */
+.ob-enc-az-link,
+.ob-enc-az .ob-term {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+.ob-enc-az-tag {
+  color: var(--color-fg-subtle);
+  font-size: 11px;
+}
+
+/* Fingers: every target 44 px. */
+@media (pointer: coarse) {
+  .ob-enc-search-go,
+  .ob-enc-letter {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .ob-enc-crumbs li,
+  .ob-enc-crumbs a,
+  .ob-enc-twin,
+  .ob-enc-tag,
+  .ob-enc-quiet-link,
+  .ob-enc-az-link,
+  .ob-enc-az .ob-term {
+    min-height: 44px;
+  }
+  .ob-enc-az li {
+    align-items: center;
+  }
+}

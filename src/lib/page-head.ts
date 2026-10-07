@@ -54,5 +54,29 @@ export const HOME_STRUCTURED_DATA = {
   offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
 };
 
-/** The pages a search engine should know (public/sitemap.xml lists the same). */
-export const INDEXED_PAGES = ["/", "/privacy", "/legal", "/terms", "/credits", "/accessibility", "/changes"] as const;
+/**
+ * The pages a search engine should know: the app's, then the encyclopedia's
+ * homes in both languages (scripts/encyclopedia/registry.mjs names them).
+ * The Calendar is there in both languages: each address is its own page
+ * (src/studio/calendar-head.ts). The sitemap (src/lib/sitemap.ts) lists
+ * these, then every encyclopedia page from the encyclopedia's own index.
+ */
+export const INDEXED_PAGES = [
+  "/",
+  "/calendar",
+  "/calendrier",
+  "/privacy",
+  "/legal",
+  "/terms",
+  "/credits",
+  "/accessibility",
+  "/changes",
+  "/encyclopedia",
+  "/encyclopedie",
+  "/encyclopedia/astrology",
+  "/encyclopedie/astrologie",
+  "/encyclopedia/human-design",
+  "/encyclopedie/design-humain",
+  "/encyclopedia/numerology",
+  "/encyclopedie/numerologie",
+] as const;

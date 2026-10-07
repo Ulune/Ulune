@@ -46,7 +46,7 @@ export function CalendarYear({
   onSelect: (id: string) => void;
   /** Open a month (1–12) of the year in the month view. */
   onOpenMonth: (month: number) => void;
-  /** Your numerology (with your transits on): the personal months, a long cycle changing on a birthday. */
+  /** Your numerology (with its layer on): the personal months, a long cycle changing on a birthday. */
   num?: NumerologyCalendar | null;
 }) {
   const props = { layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth, num };
@@ -209,7 +209,7 @@ function YearTimeline({ layout, tz, nowMs, showSky, showYours, selectedId, onSel
           ))}
         </>
       ) : null}
-      {showYours && num ? <NumLane layout={layout} tz={tz} num={num} x={x} pct={pct} selectedId={selectedId} onSelect={onSelect} /> : null}
+      {num ? <NumLane layout={layout} tz={tz} num={num} x={x} pct={pct} selectedId={selectedId} onSelect={onSelect} /> : null}
       {showYours ? (
         <>
           <p className="ulune-cal-tl-sect">{pick(Y.yoursHead, locale)}</p>
@@ -374,7 +374,7 @@ function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelec
   const f = useFormats(tz);
   const { locale } = f;
   const shownTransits = headlineTransits(layout.transits, 99);
-  const numChanges = showYours ? yearChanges(num, layout.year, tz) : [];
+  const numChanges = yearChanges(num, layout.year, tz);
   // On a phone the year opens on the current month (the stage scrolls, not the page), and
   // stays on it while the year's sky and your transits arrive, until the reader scrolls.
   const list = useRef<HTMLOListElement>(null);
@@ -417,7 +417,7 @@ function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelec
               .filter((r) => r.days.length)
           : [];
         const current = nowMs >= m && nowMs < end;
-        const pm = showYours && num ? personalMonthOn(num, layout.year, i + 1) : null;
+        const pm = num ? personalMonthOn(num, layout.year, i + 1) : null;
         const pmId = `nummonth:${layout.year}-${String(i + 1).padStart(2, "0")}`;
         const turns = numChanges.filter((r) => inMonth(r.t));
         return (
@@ -616,7 +616,7 @@ export function CalendarYearPanel({
           ) : null}
         </>
       ) : null}
-      {showYours ? (
+      {showYours || num ? (
         <>
           <h3 className="ulune-cal-now-kicker">{pick(Y.yourYear, locale)}</h3>
           {num ? (
@@ -630,7 +630,7 @@ export function CalendarYearPanel({
               ))}
             </p>
           ) : null}
-          {top.length ? (
+          {!showYours ? null : top.length ? (
             top.map((t) => {
               const id = windowId(t.windows[0]!);
               return (
@@ -645,7 +645,7 @@ export function CalendarYearPanel({
           ) : (
             <p className="ulune-cal-now-detail">{pick(layout.ready ? Y.none : CALENDAR_UI.panel.loading, locale)}</p>
           )}
-          {rest > 0 ? <p className="ulune-cal-now-detail">{fill(Y.more, locale, { n: rest })}</p> : null}
+          {showYours && rest > 0 ? <p className="ulune-cal-now-detail">{fill(Y.more, locale, { n: rest })}</p> : null}
         </>
       ) : null}
     </section>

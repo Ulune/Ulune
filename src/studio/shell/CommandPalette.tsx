@@ -1,7 +1,8 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { lazyNamed, prefetch, whenIdle } from "@/lib/lazy-component";
 import { useStudioStore } from "@/studio/store";
-import { MODE_GROUPS, type StudioPage } from "@/studio/url";
+import { LENSES, languageOf, lastLanguage, lensesOf, pageFor } from "@/studio/map";
+import { openLanguagePicker } from "@/studio/shell/language-open";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { usePresence } from "@/lib/presence";
 
@@ -14,9 +15,11 @@ function isTyping(el: EventTarget | null) {
 }
 
 /**
- * ⌘K / Ctrl+K: jump to any mode, chart, body, Look profile or setting
- * (CommandPaletteDialog.tsx, loaded ahead at idle).
- * Also: 1–4 switch groups, T toggles the table, Esc clears the selection.
+ * ⌘K / Ctrl+K: jump to any section, language, lens, mode, chart, body, Look
+ * profile or setting (CommandPaletteDialog.tsx, loaded ahead at idle).
+ * Also: L opens the language picker, Alt+1 to Alt+3 choose the lens (Natal,
+ * Cycles, Relationship), T toggles the table, Esc clears the selection; 1 to
+ * 4 choose the rings (rings-menu.tsx).
  */
 export function CommandPalette() {
   const { setPage, setView } = useStudioUrl({ hydrate: false });
@@ -39,11 +42,23 @@ export function CommandPalette() {
         setOpen((v) => !v);
         return;
       }
-      if (open || isTyping(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (open || isTyping(e.target) || e.metaKey || e.ctrlKey) return;
       const s = useStudioStore.getState();
-      if (/^[1-4]$/.test(e.key) && s.chart) {
-        const group = MODE_GROUPS[Number(e.key) - 1];
-        if (group) setPage(group.pages[0] as StudioPage);
+      const busy = () => Boolean(document.querySelector("[role=dialog], [role=menu]"));
+      if (e.altKey) {
+        // Alt+1 to Alt+3: the lens, in the language on screen (the last one,
+        // from the Calendar), when it has that lens. By the key's place, as
+        // Alt with a digit types another sign on a Mac.
+        const n = /^Digit([1-9])$/.exec(e.code);
+        const lens = n ? LENSES[Number(n[1]) - 1] : undefined;
+        const lang = languageOf(s.navPage ?? s.page) ?? lastLanguage();
+        if (!lens || !lensesOf(lang).includes(lens) || busy()) return;
+        e.preventDefault();
+        setPage(pageFor(lang, lens));
+      } else if ((e.key === "l" || e.key === "L") && !busy()) {
+        e.preventDefault();
+        // From the Calendar: Charts first, where the language button is.
+        if (!openLanguagePicker()) setPage(pageFor(lastLanguage()));
       } else if (e.key === "t" || e.key === "T") {
         if (s.chart) setView(s.view === "table" ? "wheel" : "table");
       } else if (e.key === "Escape" && s.selectedId) {

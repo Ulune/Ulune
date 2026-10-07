@@ -89,14 +89,20 @@ export function StudioWorkspace() {
     };
   }, [hasChart]);
 
-  const panelOn = Boolean(chart) && !creating && !addingPartnerFor;
-  // With no chart, every page is the form: a link to a mode asks for a birth chart first.
-  const formOnStage = Boolean(addingPartnerFor) || creating || !chart;
+  // The Calendar needs no chart (reorganisation plan, R5): without one it opens on the sky alone,
+  // with its side panel; the birth form comes when asked for (CalendarInvite), as "New chart" does.
+  const skyOnly = page === "timing" && !chart && !creating && !addingPartnerFor;
+  const panelOn = (Boolean(chart) || skyOnly) && !creating && !addingPartnerFor;
+  // With no chart, every other page is the form: a link to a mode asks for a birth chart first.
+  const formOnStage = Boolean(addingPartnerFor) || creating || (!chart && !skyOnly);
+  // The form asked for from the Calendar: a line on what it brings, and the way back to the sky.
+  const fromCalendar = formOnStage && page === "timing" && !chart && !addingPartnerFor;
   const rows = useStudioStore((s) => s.rows);
   const cast = useStudioStore((s) => s.cast);
+  const discardDraft = useStudioStore((s) => s.discardDraft);
   const spaceStatus = useSpace((s) => s.status);
-  // The guide stands under the first visit's form only (BirthTab: firstVisit).
-  const showGuide = !chart && !addingPartnerFor && rows.length === 0 && spaceStatus !== "locked";
+  // The guide stands under the first visit's form only (BirthTab: firstVisit), not under the Calendar's.
+  const showGuide = !chart && !addingPartnerFor && rows.length === 0 && spaceStatus !== "locked" && !fromCalendar;
 
   // Compact: a fresh chart, mode or view starts with the sheet at peek so the
   // figure (or the table, which the open sheet squeezed) is the first thing seen.
@@ -109,17 +115,24 @@ export function StudioWorkspace() {
   // Why the form stands where a mode or the table was asked for.
   const modeLine = chart
     ? null
-    : page !== "natal"
-      ? t("firstModeLine", { mode: t(PAGE_LABEL[page]) })
-      : table
-        ? t("firstTableLine")
-        : null;
+    : fromCalendar
+      ? t("calFormLine")
+      : page !== "natal"
+        ? t("firstModeLine", { mode: t(PAGE_LABEL[page]) })
+        : table
+          ? t("firstTableLine")
+          : null;
 
   let body: ReactNode;
   if (formOnStage) {
     body = (
       <>
-        <BirthTab onStage modeLine={modeLine} />
+        <BirthTab
+          onStage
+          modeLine={modeLine}
+          // With charts kept, the form's own Discard leads back (to the chart before).
+          back={fromCalendar && rows.length === 0 ? { label: t("calBackToSky"), onBack: discardDraft } : null}
+        />
         {showGuide ? (
           <>
             <Guide onTour={startTour} onSample={() => void cast(sampleBirth(t("sampleName")))} />
@@ -128,7 +141,7 @@ export function StudioWorkspace() {
         ) : null}
       </>
     );
-  } else if (!chart) {
+  } else if (!chart && !skyOnly) {
     body = null;
   } else if (!def) {
     // The mode is still downloading (or its download failed).
@@ -152,11 +165,12 @@ export function StudioWorkspace() {
         data-form={formOnStage ? "1" : undefined}
         data-guide={formOnStage && showGuide ? "1" : undefined}
       >
-        {/* The page's heading when a chart is on screen (the first screen's is the form's title). */}
+        {/* The page's heading when a chart is on screen (the first screen's is the form's title), or the sky alone's. */}
         {!formOnStage && chart ? <h1 className="sr-only">{`${t(PAGE_LABEL[page])} · ${chart.meta.name}`}</h1> : null}
+        {skyOnly ? <h1 className="sr-only">{t(PAGE_LABEL[page])}</h1> : null}
         <Stage
           testId={
-            showChart && !formOnStage ? (table ? "studio-table" : meta.stageTestId) : "studio-stage"
+            (showChart || skyOnly) && !formOnStage ? (table ? "studio-table" : meta.stageTestId) : "studio-stage"
           }
           extraControls={panelOn && def?.Controls ? <def.Controls /> : undefined}
           caption={!table && panelOn && def?.Caption ? <def.Caption /> : undefined}
@@ -166,7 +180,8 @@ export function StudioWorkspace() {
           foot={panelOn}
           swapKey={`${formOnStage ? "form" : page}:${table ? "table" : "wheel"}`}
           viewIntent={def?.preloadData}
-          overlay={panelOn ? <OfflineOffer /> : null}
+          // The offer to keep Ulune here waits for a chart on screen (offline-offer.tsx).
+          overlay={panelOn && chart ? <OfflineOffer /> : null}
         >
           {body}
         </Stage>

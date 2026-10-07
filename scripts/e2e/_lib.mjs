@@ -197,51 +197,103 @@ export async function clickDockTab(page, id) {
   }, testId);
 }
 
-const MODE_GROUP = {
-  natal: "chart",
-  transits: "time",
-  timing: "time",
-  progressions: "time",
-  synastry: "pair",
-  composite: "pair",
-  design: "systems",
-  numerology: "systems",
+/**
+ * Where each studio page lives in the 2.0 map (src/studio/map.ts, page
+ * reorganisation R1 to R4): its language and its lens in Charts. The Calendar
+ * is a section of its own.
+ */
+export const PAGE_PLACE = {
+  natal: ["astrology", "natal"],
+  transits: ["astrology", "cycles"],
+  progressions: ["astrology", "cycles"],
+  synastry: ["astrology", "relationship"],
+  composite: ["astrology", "relationship"],
+  design: ["human-design", "natal"],
+  numerology: ["numerology", "natal"],
 };
 
+/** Clicks an element by its test id, drawn or not (a folded sub-mode, a chip a phone hides); false when it is not there. */
+export async function clickTestId(page, testId) {
+  return page.evaluate((tid) => {
+    const el = document.querySelector(`[data-testid="${tid}"]`);
+    if (el instanceof HTMLElement) el.click();
+    return Boolean(el);
+  }, testId);
+}
+
+/** The studio page on screen, as the sections bar says (undefined outside the studio). */
+export async function studioPageNow(page) {
+  return page.evaluate(() => document.querySelector("[data-testid=studio-nav]")?.getAttribute("data-page") ?? undefined);
+}
+
+/** Waits until the bars have settled on `id` (a switch lands a frame or two after the press). */
+export async function waitStudioPage(page, id, timeout = 8000) {
+  await page.waitForFunction(
+    (want) => Boolean(document.querySelector(`[data-testid=studio-nav][data-page="${want}"]:not([data-pending])`)),
+    id,
+    { timeout },
+  );
+}
+
+/**
+ * Opens a studio page as a reader would: the Calendar from the sections; a
+ * page of Charts by its language (a chip, else the picker's card), its lens
+ * and its sub-mode. The sub-mode's tab is on the page even where the toolbar
+ * folds it into its lens's menu.
+ */
 export async function goStudioPage(page, id) {
   // Wheel/table is a sticky preference now; mode tests start from the wheel.
   const table = page.getByTestId("view-table");
   if ((await table.count()) && (await table.getAttribute("aria-pressed")) === "true") {
     await setView(page, "wheel");
   }
-  const groupId = `mode-group-${MODE_GROUP[id]}`;
-  const pageId = `studio-page-${id}`;
-  await page.evaluate((gid) => {
-    const el = document.querySelector(`[data-testid="${gid}"]`);
-    if (el instanceof HTMLElement) el.click();
-  }, groupId);
-  // The switch lands a frame or two later (the bars answer at once, the page
-  // is drawn two frames on, once its code is here): wait until it has.
-  const landed = async (sel) => {
+  const settle = () =>
+    page
+      .waitForFunction(() => !document.querySelector("[data-testid=studio-nav][data-pending]"), null, { timeout: 8000 })
+      .catch(() => {});
+  await settle();
+  if ((await studioPageNow(page)) === id) return;
+  if (id === "timing") {
+    await clickTestId(page, "section-calendar");
+    await waitStudioPage(page, id).catch(() => {});
+    return;
+  }
+  const [lang, lens] = PAGE_PLACE[id];
+  // From the Calendar: Charts first, where the language button is.
+  if (!(await page.getByTestId("lang-button").count())) {
+    await clickTestId(page, "section-charts");
+    await page.getByTestId("lang-button").waitFor({ state: "attached", timeout: 8000 });
+    await settle();
+  }
+  if ((await page.getByTestId("lang-button").getAttribute("data-language")) !== lang) {
+    if (!(await clickTestId(page, `lang-chip-${lang}`))) {
+      await page.getByTestId("lang-button").click();
+      await page.getByTestId(`lang-card-${lang}`).click();
+    }
+    await page.waitForFunction(
+      (l) => document.querySelector("[data-testid=lang-button]")?.getAttribute("data-language") === l,
+      lang,
+      { timeout: 8000 },
+    );
+    await settle();
+  }
+  const lensTab = page.getByTestId(`lens-${lens}`);
+  if ((await lensTab.count()) && (await lensTab.getAttribute("aria-selected")) !== "true") {
+    await clickTestId(page, `lens-${lens}`);
     await page
       .waitForFunction(
-        (s) => Boolean(document.querySelector(s)) && !document.querySelector("[data-testid=studio-nav][data-pending]"),
-        sel,
+        (tid) => document.querySelector(`[data-testid="${tid}"]`)?.getAttribute("aria-selected") === "true",
+        `lens-${lens}`,
         { timeout: 8000 },
       )
       .catch(() => {});
-  };
-  // One-mode groups (Chart) have no sub-mode switch: the group tab is the mode.
-  if (Object.values(MODE_GROUP).filter((g) => g === MODE_GROUP[id]).length === 1) {
-    await landed(`[data-testid="${groupId}"][aria-selected="true"]`);
-    return;
+    await settle();
   }
-  await page.getByTestId(pageId).waitFor({ state: "attached", timeout: 8000 });
-  await page.evaluate((pid) => {
-    const el = document.querySelector(`[data-testid="${pid}"]`);
-    if (el instanceof HTMLElement) el.click();
-  }, pageId);
-  await landed(`[data-testid="${pageId}"]:is([aria-selected="true"], [aria-pressed="true"], [aria-current])`);
+  if ((await studioPageNow(page)) !== id) {
+    await page.getByTestId(`studio-page-${id}`).waitFor({ state: "attached", timeout: 8000 });
+    await clickTestId(page, `studio-page-${id}`);
+  }
+  await waitStudioPage(page, id).catch(() => {});
 }
 
 /**

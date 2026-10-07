@@ -1,3 +1,5 @@
+import { pagePath } from "./map";
+
 export const STUDIO_PAGES = [
   "natal",
   "transits",
@@ -11,14 +13,6 @@ export const STUDIO_PAGES = [
 
 export type StudioPage = (typeof STUDIO_PAGES)[number];
 export type StudioView = "wheel" | "table";
-export type ModeGroupId = "chart" | "time" | "pair" | "systems";
-
-export const MODE_GROUPS = [
-  { id: "chart", pages: ["natal"] },
-  { id: "time", pages: ["transits", "timing", "progressions"] },
-  { id: "pair", pages: ["synastry", "composite"] },
-  { id: "systems", pages: ["design", "numerology"] },
-] as const satisfies readonly { id: ModeGroupId; pages: readonly StudioPage[] }[];
 
 export type StudioSearch = {
   studio?: StudioPage;
@@ -37,11 +31,6 @@ export function isStudioPage(value: unknown): value is StudioPage {
 
 export function isStudioView(value: unknown): value is StudioView {
   return value === "wheel" || value === "table";
-}
-
-export function groupOf(page: StudioPage): ModeGroupId {
-  const hit = MODE_GROUPS.find((g) => (g.pages as readonly string[]).includes(page));
-  return hit?.id ?? "chart";
 }
 
 /** `?studio=table` aliases natal + view=table. Unknown studio → natal. */
@@ -65,20 +54,25 @@ export function parseStudioSearch(search: Record<string, unknown>): StudioSearch
   return extra;
 }
 
-export function studioSearch(
+/**
+ * A studio page's address: its path (src/studio/map.ts) and what the query
+ * still carries (the Table view, the dock's pages, a test hook). Natal stays
+ * on `/` when that is where the reader is: the first screen keeps its address.
+ */
+export function studioHref(
   page: StudioPage,
   view: StudioView,
-  thrown?: "stage",
-  bodies?: string,
-  look?: string,
-): StudioSearch {
-  const search: StudioSearch = {};
-  if (page !== "natal") search.studio = page;
-  if (view === "table") search.view = "table";
-  if (thrown) search.__throw = thrown;
-  if (bodies) search.bodies = bodies;
-  if (look) search.look = look;
-  return search;
+  opts: { locale?: string; here?: string; bodies?: string; look?: string; thrown?: "stage" } = {},
+): string {
+  const atRoot = (opts.here ?? "").replace(/\/+$/, "") === "";
+  const path = page === "natal" && atRoot ? "/" : pagePath(page, opts.locale);
+  const q = new URLSearchParams();
+  if (view === "table") q.set("view", "table");
+  if (opts.thrown) q.set("__throw", opts.thrown);
+  if (opts.bodies) q.set("bodies", opts.bodies);
+  if (opts.look) q.set("look", opts.look);
+  const query = q.toString();
+  return query ? `${path}?${query}` : path;
 }
 
 export function loadStudioPage(): StudioPage {

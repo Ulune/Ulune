@@ -1,6 +1,6 @@
 import { HomeTree } from "@/studio/home-tree";
 import { ErrorSlot } from "@/studio/shell/ErrorSlot";
-import { GroupBar } from "@/studio/shell/GroupBar";
+import { SectionBar } from "@/studio/shell/SectionBar";
 import { TopLeft, TopRight } from "@/studio/shell/TopBar";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { Toaster } from "@/components/toaster";
@@ -12,12 +12,20 @@ import { useStudioStore } from "@/studio/store";
 import { TourHost } from "@/components/tour/TourHost";
 
 /**
- * The first stop for the keyboard: straight to the form's first field when
- * the form is on screen, else to the chart.
+ * The first stop for the keyboard, in words that fit the page: straight to
+ * the form's first field when the form is on screen, else to the calendar or
+ * the chart. The Calendar shows the sky without a chart (workspace.tsx: the
+ * form comes there only when asked for).
  */
 function SkipLink() {
   const { t } = useI18n();
-  const toForm = useStudioStore((s) => Boolean(s.pair.addingPartnerFor) || s.creating || !s.chart);
+  const to = useStudioStore((s) =>
+    s.pair.addingPartnerFor || s.creating || (!s.chart && s.page !== "timing")
+      ? "form"
+      : s.page === "timing"
+        ? "calendar"
+        : "chart",
+  );
   return (
     <a
       href="#main"
@@ -25,11 +33,11 @@ function SkipLink() {
       data-testid="skip-link"
       onClick={(e) => {
         e.preventDefault();
-        const target = (toForm ? document.getElementById("native-name") : null) ?? document.getElementById("main");
+        const target = (to === "form" ? document.getElementById("native-name") : null) ?? document.getElementById("main");
         target?.focus();
       }}
     >
-      {toForm ? t("skipToForm") : t("skipToChart")}
+      {to === "form" ? t("skipToForm") : to === "calendar" ? t("skipToCalendar") : t("skipToChart")}
     </a>
   );
 }
@@ -78,8 +86,8 @@ function SelfTest() {
 }
 
 /**
- * One fixed-viewport grid. Wide: [top-l | groups | top-r] over the body.
- * Compact: [top-l | top-r], body, groups as the bottom tab bar.
+ * One fixed-viewport grid. Wide: [top-l | sections | top-r] over the body.
+ * Compact: [top-l | top-r], body, the sections as the bottom tab bar.
  */
 export function Shell() {
   useStudioUrl();
@@ -87,7 +95,7 @@ export function Shell() {
     <div className="ob-app" data-testid="app-shell">
       <SkipLink />
       <TopLeft />
-      <GroupBar />
+      <SectionBar />
       <Toaster />
       <PerfOverlay />
       {import.meta.env.DEV ? <SelfTest /> : null}

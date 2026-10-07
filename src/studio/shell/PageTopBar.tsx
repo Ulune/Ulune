@@ -1,10 +1,12 @@
-import { Link } from "@tanstack/react-router";
-import { CircleDot, Clock3, Combine, Shapes } from "lucide-react";
-import { useEffect, useState, type ComponentType } from "react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { PathLink } from "@/components/path-link";
 import { useI18n } from "@/lib/i18n/locale";
+import { cn } from "@/lib/utils";
 import { AccountMenu } from "@/studio/shell/AccountMenu";
 import { SpaceButton } from "@/components/space/space-button";
-import { MODE_GROUPS, type ModeGroupId, type StudioPage } from "@/studio/url";
+import { CALENDAR_PATHS, ENCYCLOPEDIA_PATHS, SECTIONS, lastLanguage, pageFor, pagePath, type SectionId } from "@/studio/map";
+import { SECTION_ICON, SECTION_LABEL } from "@/studio/shell/map-ui";
 import "./page-bar.css";
 
 /*
@@ -23,57 +25,52 @@ function UluneMark({ className }: { className?: string }) {
   );
 }
 
-const ICON: Record<ModeGroupId, ComponentType<{ className?: string; strokeWidth?: number }>> = {
-  chart: CircleDot,
-  time: Clock3,
-  pair: Combine,
-  systems: Shapes,
-};
-const LABEL = { chart: "groupChart", time: "groupTime", pair: "groupPair", systems: "groupSystems" } as const;
-
-/** The page each group last showed (GroupBar keeps it), read after mounting. */
-function useLastPages(): Partial<Record<ModeGroupId, StudioPage>> {
-  const [last, setLast] = useState<Partial<Record<ModeGroupId, StudioPage>>>({});
-  useEffect(() => {
-    try {
-      setLast(JSON.parse(window.localStorage.getItem("ulune.studio.group-last") ?? "{}") ?? {});
-    } catch {
-      /* the groups' first pages */
-    }
-  }, []);
-  return last;
+/** Where Charts leads: the last language's last page, read from this device once mounted. */
+function useChartsPath(locale: string): string {
+  const [path, setPath] = useState(() => pagePath("natal", locale));
+  useEffect(() => setPath(pagePath(pageFor(lastLanguage()), locale)), [locale]);
+  return path;
 }
 
 /**
  * Top bar for pages outside the studio (settings, the guide, the legal
  * pages, not found): the studio's own frame (UI plan, part 97), its mark
- * back to the studio and its four pages, not a separate “← Studio” bar.
+ * back to the studio and the three sections (page reorganisation, R2), not
+ * a separate “← Studio” bar.
  */
 export function PageTopBar({ menu = true }: { menu?: boolean }) {
-  const { t } = useI18n();
-  const last = useLastPages();
+  const { t, locale } = useI18n();
+  const fr = locale === "fr";
+  const charts = useChartsPath(locale);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // The encyclopedia's pages are this bar's own section; the other pages are none.
+  const here: SectionId | null = /^\/encyclop(e|%C3%A9|é)di(a|e)(\/|$)/i.test(pathname) ? "encyclopedia" : null;
+  const href: Record<SectionId, string> = {
+    charts,
+    calendar: fr ? CALENDAR_PATHS.fr : CALENDAR_PATHS.en,
+    encyclopedia: fr ? ENCYCLOPEDIA_PATHS.fr : ENCYCLOPEDIA_PATHS.en,
+  };
   return (
     <header className="ob-pagebar" data-testid="page-topbar">
       <Link to="/" className="ob-brand ob-brand--page" data-testid="back-to-studio" aria-label={t("shellStudio")}>
         <UluneMark className="ob-brand-mark" />
         <span className="ob-brand-word">Ulune</span>
       </Link>
-      <nav className="ob-pagebar-nav" aria-label={t("studioNav")}>
-        {MODE_GROUPS.map((g) => {
-          const page = last[g.id] ?? g.pages[0];
-          const Icon = ICON[g.id];
+      <nav className="ob-pagebar-nav" aria-label={t("sectionsNav")}>
+        {SECTIONS.map((id) => {
+          const Icon = SECTION_ICON[id];
           return (
-            <Link
-              key={g.id}
-              to="/"
-              search={page === "natal" ? {} : { studio: page }}
-              className="ob-pagebar-link"
-              data-testid={`pagebar-${g.id}`}
-              aria-label={t(LABEL[g.id])}
+            <PathLink
+              key={id}
+              href={href[id]}
+              className={cn("ob-pagebar-link", here === id && "is-on")}
+              data-testid={`section-${id}`}
+              aria-current={here === id ? "page" : undefined}
+              aria-label={t(SECTION_LABEL[id])}
             >
-              <Icon className="size-4" strokeWidth={1.75} />
-              <span className="ob-pagebar-word">{t(LABEL[g.id])}</span>
-            </Link>
+              <Icon className="size-4" strokeWidth={1.75} aria-hidden />
+              <span className="ob-pagebar-word">{t(SECTION_LABEL[id])}</span>
+            </PathLink>
           );
         })}
       </nav>

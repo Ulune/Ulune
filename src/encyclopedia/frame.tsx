@@ -1,0 +1,117 @@
+import { Link } from "@tanstack/react-router";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import { PageTopBar } from "@/studio/shell/PageTopBar";
+import { TEXT_LICENCE } from "./head";
+import type { Lang } from "./types";
+import { tr } from "./words";
+import "./encyclopedia.css";
+
+/*
+ * What every encyclopedia page shares: the frame of the app's other pages
+ * (its top bar), the page's language on its content, breadcrumbs, the link
+ * to the same page in the other language, and the licence of the text. The
+ * words are in the page's language (its address says which), whatever the
+ * reader's interface language: /encyclopedie/… is a French page for everyone.
+ */
+
+type AnchorProps = Omit<ComponentPropsWithoutRef<"a">, "href" | "children">;
+
+/**
+ * A link inside the encyclopedia, moved to by the app without reloading:
+ * `to` the language of the address, then its home, or a page or a tradition
+ * by its address (`slug`). Pointing at it fetches the page's piece ahead, so
+ * the click lands at once.
+ */
+export function EncLink({ to, slug, hash, children, ...rest }: { to: Lang; slug?: string; hash?: string; children: ReactNode } & AnchorProps) {
+  if (slug) {
+    return to === "fr" ? (
+      <Link to="/encyclopedie/$slug" params={{ slug }} hash={hash} preload="intent" {...rest}>
+        {children}
+      </Link>
+    ) : (
+      <Link to="/encyclopedia/$slug" params={{ slug }} hash={hash} preload="intent" {...rest}>
+        {children}
+      </Link>
+    );
+  }
+  return to === "fr" ? (
+    <Link to="/encyclopedie" hash={hash} preload="intent" {...rest}>
+      {children}
+    </Link>
+  ) : (
+    <Link to="/encyclopedia" hash={hash} preload="intent" {...rest}>
+      {children}
+    </Link>
+  );
+}
+
+export function EncFrame({ lang, testId, narrow = false, children }: { lang: Lang; testId: string; narrow?: boolean; children: ReactNode }) {
+  return (
+    <div className="min-w-0" data-testid={testId}>
+      <PageTopBar />
+      <main className={narrow ? "ob-enc ob-enc--narrow" : "ob-enc"} lang={lang}>
+        {children}
+      </main>
+    </div>
+  );
+}
+
+export type Crumb = { label: string; slug?: string; hash?: string; home?: boolean };
+
+/** Encyclopedia › Astrology › Planets › Saturn: each a link but the last, the page itself. */
+export function Crumbs({ lang, items }: { lang: Lang; items: Crumb[] }) {
+  return (
+    <nav className="ob-enc-crumbs" aria-label={tr(lang, "encBreadcrumb")} data-testid="enc-crumbs">
+      <ol>
+        {items.map((c, i) =>
+          i === items.length - 1 ? (
+            <li key={i} aria-current="page">
+              {c.label}
+            </li>
+          ) : (
+            <li key={i}>
+              <EncLink to={lang} slug={c.slug} hash={c.hash}>
+                {c.label}
+              </EncLink>
+            </li>
+          ),
+        )}
+      </ol>
+    </nav>
+  );
+}
+
+/** The same page in the other language, named in that language. */
+export function TwinLink({ lang, slug, title }: { lang: Lang; slug?: string; title?: string }) {
+  const twin: Lang = lang === "en" ? "fr" : "en";
+  return (
+    <EncLink to={twin} slug={slug} className="ob-enc-twin" hrefLang={twin} lang={twin} data-testid="enc-twin">
+      <span className="ob-enc-twin-label">{tr(lang, "encTwin")}</span>
+      {title ? <span className="ob-enc-twin-title">{title}</span> : null}
+    </EncLink>
+  );
+}
+
+/** The text's licence (content/encyclopedia/LICENSE); the code's is on the credits page. */
+export function Licence({ lang }: { lang: Lang }) {
+  const [before, after] = tr(lang, "encLicence").split("{licence}");
+  return (
+    <p className="ob-enc-licence" data-testid="enc-licence">
+      {before}
+      <a href={TEXT_LICENCE.url} target="_blank" rel="license noopener noreferrer">
+        {TEXT_LICENCE.name}
+        <span className="sr-only"> ({tr(lang, "legalNewTab")})</span>
+      </a>
+      {after}
+    </p>
+  );
+}
+
+/** A glyph, or the name's first letter where the entry has none. */
+export function Mark({ glyph, title }: { glyph: string; title: string }) {
+  return (
+    <span className={glyph ? "ob-enc-mark" : "ob-enc-mark ob-enc-mark--letter"} aria-hidden="true">
+      {glyph || title.charAt(0)}
+    </span>
+  );
+}

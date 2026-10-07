@@ -70,8 +70,15 @@ export function Dock() {
   // wheels' bodies, aspects and stars) is left out there, and comes back with the wheels.
   const studioPage = useStudioStore((s) => s.page);
   const noBodies = studioPage === "design" || studioPage === "numerology";
-  const tabs = noBodies ? PANEL_TABS.filter((tab) => tab.id !== "bodies") : PANEL_TABS;
-  const dock: DockTab = noBodies && chosen === "bodies" ? "reading" : chosen;
+  // The Calendar without a chart (reorganisation plan, R5): the sky's readings only; the
+  // birth form comes on the stage when asked for, as for a new chart.
+  const skyOnly = useStudioStore((s) => !s.chart && s.page === "timing");
+  const tabs = skyOnly
+    ? PANEL_TABS.filter((tab) => tab.id === "reading")
+    : noBodies
+      ? PANEL_TABS.filter((tab) => tab.id !== "bodies")
+      : PANEL_TABS;
+  const dock: DockTab = skyOnly ? "reading" : noBodies && chosen === "bodies" ? "reading" : chosen;
   const openDock = useStudioStore((s) => s.openDock);
   const toggleDock = useStudioStore((s) => s.toggleDock);
   const [width, setWidth] = useState<PanelWidth>("normal");

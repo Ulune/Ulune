@@ -46,6 +46,12 @@ Software Foundation, either version 3 of the License, or (at your option) any
 later version. It is distributed in the hope that it will be useful, but
 without any warranty; see [LICENSE](LICENSE).
 
+The encyclopedia's text (`content/encyclopedia`) is shared under the
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 licence (CC
+BY-NC-SA 4.0): free to share and adapt with credit, not for profit; see
+[content/encyclopedia/LICENSE](content/encyclopedia/LICENSE). The code stays
+under the AGPL-3.0-or-later.
+
 It rests on the work of others: the Swiss Ephemeris, © Astrodienst AG, used
 under the AGPL; fonts under the SIL Open Font License (their texts are in
 `src/assets/fonts`); place data from Open-Meteo and GeoNames (CC BY 4.0);

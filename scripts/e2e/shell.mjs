@@ -15,6 +15,8 @@ import {
   gotoApp,
   launch,
   setView,
+  studioPageNow,
+  waitStudioPage,
 } from "./_lib.mjs";
 
 const MODES = ["natal", "transits", "timing", "synastry", "composite", "progressions", "numerology", "design"];
@@ -31,21 +33,20 @@ async function runNav(width) {
     await nav.waitFor();
 
     if (width === 390) {
-      for (const g of ["chart", "time", "pair", "systems"]) {
-        await page.getByTestId(`mode-group-${g}`).waitFor({ state: "visible" });
+      // The sections, the phone's bottom bar (page reorganisation, R4).
+      for (const s of ["charts", "calendar", "encyclopedia"]) {
+        await page.getByTestId(`section-${s}`).waitFor({ state: "visible" });
       }
       const box = await nav.evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth }));
       if (box.sw > box.cw + 1) throw new Error(`nav overflow at 390: ${box.sw} > ${box.cw}`);
 
       for (const id of MODES) {
         await goMode(page, id);
-        // Natal is the Chart group itself (no sub-mode switch).
-        const tid = id === "natal" ? "mode-group-chart" : `studio-page-${id}`;
-        await page.waitForFunction(
-          (pid) => document.querySelector(`[data-testid="${pid}"]`)?.getAttribute("aria-selected") === "true",
-          tid,
-          { timeout: 8000 },
-        );
+        await waitStudioPage(page, id);
+        const section = id === "timing" ? "calendar" : "charts";
+        if ((await page.getByTestId(`section-${section}`).getAttribute("aria-current")) !== "page") {
+          throw new Error(`${id}: ${section} is not the section shown`);
+        }
       }
 
       const headerH = await page.getByTestId("top-left").evaluate((el) => el.getBoundingClientRect().height);
@@ -73,9 +74,9 @@ async function runTableAlias() {
     // No chart yet: the toggle is hidden, the stage still records the view.
     await page.locator("[data-view]").first().waitFor({ state: "attached" });
     const tableOn = (await page.locator("[data-view]").first().getAttribute("data-view")) === "table" ? "true" : "false";
-    const natalOn = await page.getByTestId("mode-group-chart").getAttribute("aria-selected");
+    const natalOn = (await studioPageNow(page)) === "natal" && (await page.getByTestId("lens-natal").getAttribute("aria-selected")) === "true";
     if (tableOn !== "true") throw new Error(`?studio=table did not press view-table (aria-pressed=${tableOn})`);
-    if (natalOn !== "true") throw new Error(`?studio=table did not select natal (aria-selected=${natalOn})`);
+    if (!natalOn) throw new Error(`?studio=table did not select natal (${await studioPageNow(page)})`);
 
     await page.goto(`${DEV}/?studio=transits&view=table`, { waitUntil: "load", timeout: 45000 });
     await page.waitForSelector("html.theme-ready");
@@ -84,7 +85,40 @@ async function runTableAlias() {
     const trOn = await page.getByTestId("studio-page-transits").getAttribute("aria-selected");
     if (tOn !== "true") throw new Error(`?view=table on transits not pressed`);
     if (trOn !== "true") throw new Error(`transits not selected`);
+    // 2.0: a 1.x address moves to its path, its view kept (page reorganisation, R1).
+    const moved = new URL(page.url());
+    if (moved.pathname !== "/astrology/transits" || moved.searchParams.get("view") !== "table") {
+      throw new Error(`?studio=transits&view=table landed on ${moved.pathname}${moved.search}`);
+    }
     console.log("w2-table-alias OK");
+  } finally {
+    await browser.close();
+  }
+}
+
+async function runPaths() {
+  const { browser, page } = await launch(1280);
+  try {
+    // Each path opens its page.
+    for (const [path, id] of [["/astrology/progressions", "progressions"], ["/human-design", "design"], ["/numerology", "numerology"], ["/calendrier", "timing"]]) {
+      await page.goto(`${DEV}${path}`, { waitUntil: "load", timeout: 45000 });
+      await page.waitForSelector("html.theme-ready", { timeout: 20000 });
+      await waitStudioPage(page, id, 15000);
+      const kept = new URL(page.url()).pathname;
+      if (kept !== path) throw new Error(`${path} became ${kept}`);
+    }
+    // A switch writes the new page's path, without a new history entry.
+    await page.goto(`${DEV}/astrology/transits`, { waitUntil: "load", timeout: 45000 });
+    await page.waitForSelector("html.theme-ready", { timeout: 20000 });
+    const before = await page.evaluate(() => history.length);
+    await goStudioPage(page, "synastry");
+    await page.waitForFunction(() => location.pathname === "/astrology/synastry", null, { timeout: 8000 });
+    const after = await page.evaluate(() => history.length);
+    if (after !== before) throw new Error(`a page switch added history (${before} → ${after})`);
+    // The first screen restores the page last used on this device.
+    await page.goto(`${DEV}/`, { waitUntil: "load", timeout: 45000 });
+    await page.waitForFunction(() => location.pathname === "/astrology/synastry", null, { timeout: 15000 });
+    console.log("w2-paths OK");
   } finally {
     await browser.close();
   }
@@ -96,7 +130,8 @@ async function runThrow() {
     await gotoApp(page, "/?__throw=stage");
     await page.getByTestId("error-slot").waitFor({ timeout: 10000 });
     await page.getByTestId("error-slot-retry").waitFor();
-    await page.getByTestId("studio-nav").click();
+    // The bars still answer beside the error.
+    await page.getByTestId("section-charts").click();
     await goStudioPage(page, "natal");
     await page.getByTestId("error-slot-retry").click();
     await page.getByTestId("error-slot").waitFor({ state: "hidden", timeout: 8000 }).catch(async () => {
@@ -297,7 +332,7 @@ for (const width of [390, 768, 1280]) {
     fail.push(`nav ${width}: ${err instanceof Error ? err.message : err}`);
   }
 }
-for (const fn of [runTableAlias, runThrow, runRoundTrip]) {
+for (const fn of [runTableAlias, runPaths, runThrow, runRoundTrip]) {
   try {
     await fn();
   } catch (err) {

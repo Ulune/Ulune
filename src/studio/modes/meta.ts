@@ -1,14 +1,13 @@
 import type { MessageKey } from "@/lib/i18n/messages";
-import type { MODE_GROUPS, ModeGroupId, StudioPage } from "@/studio/url";
+import type { StudioPage } from "@/studio/url";
 
 /**
  * What the shell needs to know about every mode before its code has loaded:
- * names, group, test ids. The modes themselves (figures, panels, tables and
+ * names, test ids. The modes themselves (figures, panels, tables and
  * their data) load when they are first opened, or at idle beforehand.
  */
 export type ModeMeta = {
   id: StudioPage;
-  group: ModeGroupId;
   labelKey: MessageKey;
   needsChart: boolean;
   stageTestId: string;
@@ -18,14 +17,12 @@ export type ModeMeta = {
 export const MODE_META: Record<StudioPage, ModeMeta> = {
   natal: {
     id: "natal",
-    group: "chart",
     labelKey: "pageNatal",
     needsChart: true,
     stageTestId: "studio-natal",
   },
   transits: {
     id: "transits",
-    group: "time",
     labelKey: "pageTransits",
     needsChart: true,
     stageTestId: "studio-transits",
@@ -33,7 +30,6 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
   },
   timing: {
     id: "timing",
-    group: "time",
     labelKey: "pageTiming",
     needsChart: true,
     stageTestId: "studio-timing",
@@ -41,7 +37,6 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
   },
   progressions: {
     id: "progressions",
-    group: "time",
     labelKey: "pageProgressions",
     needsChart: true,
     stageTestId: "studio-progressions",
@@ -49,7 +44,6 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
   },
   synastry: {
     id: "synastry",
-    group: "pair",
     labelKey: "pageSynastry",
     needsChart: true,
     stageTestId: "studio-synastry",
@@ -57,7 +51,6 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
   },
   composite: {
     id: "composite",
-    group: "pair",
     labelKey: "pageComposite",
     needsChart: true,
     stageTestId: "studio-composite",
@@ -65,7 +58,6 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
   },
   design: {
     id: "design",
-    group: "systems",
     labelKey: "pageDesign",
     needsChart: true,
     stageTestId: "studio-humandesign",
@@ -73,7 +65,6 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
   },
   numerology: {
     id: "numerology",
-    group: "systems",
     labelKey: "pageNumerology",
     needsChart: true,
     stageTestId: "studio-numerology",
@@ -90,11 +81,4 @@ export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
   progressions: "pageProgressions",
   numerology: "pageNumerology",
   design: "pageDesign",
-};
-
-export const GROUP_LABEL: Record<(typeof MODE_GROUPS)[number]["id"], MessageKey> = {
-  chart: "groupChart",
-  time: "groupTime",
-  pair: "groupPair",
-  systems: "groupSystems",
 };

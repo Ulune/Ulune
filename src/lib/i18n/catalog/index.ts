@@ -13,6 +13,8 @@ import { common } from "./common";
 import { space } from "./space";
 import { legal } from "./legal";
 import { guide } from "./guide";
+import { sections } from "./sections";
+import { calendarLayers } from "./calendar-layers";
 
 /**
  * Every UI string, English and French side by side, split by area.
@@ -34,6 +36,8 @@ export const CATALOG = {
   ...space,
   ...legal,
   ...guide,
+  ...sections,
+  ...calendarLayers,
 } as const;
 
 export type CatalogKey = keyof typeof CATALOG;

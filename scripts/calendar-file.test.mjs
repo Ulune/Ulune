@@ -61,9 +61,9 @@ test("the calendar's rows become one event each, in both languages", () => {
   ];
   const from = Date.UTC(2026, 8, 1);
   const to = Date.UTC(2026, 9, 1);
-  const all = calendarRows(events, hits, from, to, { sky: true, yours: true, moon: true });
+  const all = calendarRows(events, hits, from, to, { layers: { sky: true, transits: true }, moon: true });
   assert.equal(all.length, 5, "the phase of 3 Oct is outside September");
-  const noMoon = calendarRows(events, hits, from, to, { sky: true, yours: true, moon: false });
+  const noMoon = calendarRows(events, hits, from, to, { layers: { sky: true, transits: true }, moon: false });
   assert.equal(noMoon.length, 2);
   assert.ok(noMoon.every((r) => r.kind === "you" || !isMoonOwn(r.ev)));
   for (const locale of ["en", "fr"]) {

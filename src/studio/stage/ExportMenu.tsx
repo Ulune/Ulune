@@ -114,7 +114,8 @@ export function ExportItems({
     };
   }, [extra, extraSlot, close]);
   useEffect(exportAhead, []);
-  if (!chart) return null;
+  // No chart (the Calendar's sky alone, reorganisation plan R5): only the page's own items, its file and its table.
+  if (!chart) return extraSlot ? <div ref={setExtra} className="ob-menu-extra" style={{ marginTop: 0, paddingTop: 0, borderTop: 0 }} /> : null;
   const name = slugName(`${chart.meta.name || "ulune"}-${page}`);
   const hasFigure = view === "wheel";
 
@@ -231,11 +232,12 @@ export function ExportItems({
 /** The toolbar's Export: the ways out in a menu under its button. */
 export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null) => void } = {}) {
   const { t } = useI18n();
-  const chart = useStudioStore((s) => s.chart);
+  // With a chart; or on the Calendar, whose sky needs none (its file and its table are its ways out).
+  const shown = useStudioStore((s) => s.chart != null || s.page === "timing");
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => setOpen(false), []);
-  if (!chart) return null;
+  if (!shown) return null;
   return (
     <>
       <button

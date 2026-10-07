@@ -3,9 +3,11 @@ import { Suspense, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { IcsKind } from "@/lib/i18n/calendar-export";
 import { AnchoredPopover } from "@/components/anchored-popover";
+import { CalendarLayers } from "@/components/calendar-layers";
 import { LoadingLines } from "@/components/loading-lines";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { SegmentedToggle } from "@/components/segmented-toggle";
+import type { CalendarLayerId, ShownLayers } from "@/lib/chart/calendar-layers";
 import { zoneCity, zoneOffset, type CalendarZone } from "@/lib/chart/calendar-prefs";
 import { scopeBounds, utcFromCivil, type CivilDate } from "@/lib/chart/timing-window";
 import type { TimingScope } from "@/lib/chart/transit-exact";
@@ -51,9 +53,9 @@ export function CalendarScope({ scope, onScope }: { scope: TimingScope; onScope:
 }
 
 /**
- * The calendar's bar: the period with its arrows and Today, then the clock
- * the times follow and the two switches (the sky, your transits). On a phone
- * the clock and switches move under the month (calendar.css).
+ * The calendar's bar: the period with its arrows and Today, then View with
+ * the clock the times follow and the layers. On a phone View is an icon in
+ * the toolbar's second row (timing.css).
  */
 /**
  * The zone's offset over the period shown, not today's (review 3 Oct, T3):
@@ -72,10 +74,24 @@ function periodOffset(zone: string, scope: TimingScope, civil: CivilDate): strin
   return from === to ? from : `${from} → ${to}`;
 }
 
-/** The calendar file's three choices as menu items (in an Export menu). */
-export function IcsItems({ onExport, loading, testId }: { onExport: (kind: IcsKind) => void; loading: boolean; testId: string }) {
+/**
+ * The calendar file's choices as menu items (in an Export menu): the sky's
+ * main events, those with your slow transits (while they show), everything.
+ */
+export function IcsItems({
+  onExport,
+  loading,
+  testId,
+  transits = true,
+}: {
+  onExport: (kind: IcsKind) => void;
+  loading: boolean;
+  testId: string;
+  /** Your transits show: the file can hold them. */
+  transits?: boolean;
+}) {
   const { locale } = useI18n();
-  const kinds: IcsKind[] = ["main", "mine", "all"];
+  const kinds: IcsKind[] = transits ? ["main", "mine", "all"] : ["main", "all"];
   return (
     <div role="group" aria-label={pick(CALENDAR_UI.switches.file, locale)} data-testid={testId} aria-busy={loading || undefined}>
       <p className="ob-menu-head">
@@ -105,11 +121,23 @@ export function IcsItems({ onExport, loading, testId }: { onExport: (kind: IcsKi
  * The calendar file's choices at the end of the stage's Export menu (UI
  * plan, part 93): every way to save or share is in that one menu.
  */
-function IcsExportItems({ onExport, loading }: { onExport: (kind: IcsKind) => void; loading: boolean }) {
+function IcsExportItems({ onExport, loading, transits }: { onExport: (kind: IcsKind) => void; loading: boolean; transits: boolean }) {
   const slot = useExportSlot();
   if (!slot) return null;
-  return createPortal(<IcsItems onExport={onExport} loading={loading} testId="calendar-export" />, slot);
+  return createPortal(<IcsItems onExport={onExport} loading={loading} testId="calendar-export" transits={transits} />, slot);
 }
+
+/** The layers' switches and their state, as the bar hands them to View. */
+export type CalendarBarLayers = {
+  /** Each switch's position: the reader's choice, else the layer's default. */
+  on: ShownLayers;
+  /** What the views draw (a layer read from a chart only with one). */
+  shown: ShownLayers;
+  hasChart: boolean;
+  onLayer: (id: CalendarLayerId, on: boolean) => void;
+  /** Opens the birth form, while no chart is cast. */
+  onCast?: () => void;
+};
 
 // The month picker the birth form uses (its own download).
 const loadPicker = () => import("./birth-calendar");
@@ -174,18 +202,18 @@ function DateJump({ civil, onJump, label, locale }: { civil: CivilDate; onJump: 
 
 /**
  * What the calendar shows and in which clock (UI plan, part 93): one View
- * button in the toolbar, holding the clock and the two switches (the sky,
- * your transits) that took a row of their own.
+ * button in the toolbar, holding the clock and the layers by language
+ * (reorganisation plan, R5), which the table, the file and the panel follow
+ * too. The layers took over the two switches of 1.x: the sky is the
+ * astrology layer of that name, "For you" is your transits, and
+ * numerology's personal days, which rode with it, have a switch of their own.
  */
 function CalendarView({
   zone,
   zones,
   zoneLine,
   onZone,
-  showSky,
-  showYours,
-  onSky,
-  onYours,
+  layers,
   table,
   legend,
 }: {
@@ -193,10 +221,7 @@ function CalendarView({
   zones: Record<CalendarZone, string>;
   zoneLine: string;
   onZone: (next: CalendarZone) => void;
-  showSky: boolean;
-  showYours: boolean;
-  onSky: (on: boolean) => void;
-  onYours: (on: boolean) => void;
+  layers: CalendarBarLayers;
   table: boolean;
   /** The key to the month's symbols (part 95: the line under the month went). */
   legend?: ReactNode;
@@ -231,7 +256,7 @@ function CalendarView({
         aria-label={label}
         hideLabel={label}
         align="end"
-        width={legend && !table ? 320 : 264}
+        width={legend && !table ? 320 : 300}
         testId="calendar-view-pop"
       >
         <div className="ob-menu ulune-cal-view">
@@ -244,25 +269,15 @@ function CalendarView({
               data-testid="calendar-zone-select"
             >
               <option value="device">{fill(z.device, locale, { city: zoneCity(zones.device) })}</option>
-              <option value="birth">{fill(z.birth, locale, { city: zoneCity(zones.birth) })}</option>
+              {/* No chart, no birthplace: its clock comes with a chart. */}
+              {layers.hasChart ? <option value="birth">{fill(z.birth, locale, { city: zoneCity(zones.birth) })}</option> : null}
               <option value="utc">{pick(z.utc, locale)}</option>
             </select>
             <span className="ulune-cal-zone-line" data-testid="calendar-zone-line">
               {zoneLine}
             </span>
           </label>
-          {table ? null : (
-            <div className="ulune-cal-switches">
-              <button type="button" data-testid="calendar-switch-sky" aria-pressed={showSky} onClick={() => onSky(!showSky)} className={cn("ulune-cal-chip", showSky && "is-on")}>
-                <i className="ulune-cal-dot" style={{ background: "var(--color-fg-muted)" }} />
-                {pick(CALENDAR_UI.switches.sky, locale)}
-              </button>
-              <button type="button" data-testid="calendar-switch-yours" aria-pressed={showYours} onClick={() => onYours(!showYours)} className={cn("ulune-cal-chip", showYours && "is-on")}>
-                <i className="ulune-cal-dot" style={{ background: "var(--aspect-soft)" }} />
-                {pick(CALENDAR_UI.switches.yours, locale)}
-              </button>
-            </div>
-          )}
+          <CalendarLayers on={layers.on} hasChart={layers.hasChart} onLayer={layers.onLayer} onCast={layers.onCast} />
           {legend && !table ? (
             <div className="ulune-cal-view-key">
               <span className="ulune-cal-view-h">{pick(CALENDAR_UI.switches.key, locale)}</span>
@@ -284,10 +299,7 @@ export function CalendarBar({
   zones,
   onZone,
   nowMs: _nowMs,
-  showSky,
-  showYours,
-  onSky,
-  onYours,
+  layers,
   onExport,
   loading = false,
   table = false,
@@ -306,17 +318,15 @@ export function CalendarBar({
   zones: Record<CalendarZone, string>;
   onZone: (next: CalendarZone) => void;
   nowMs: number;
-  showSky: boolean;
-  showYours: boolean;
-  onSky: (on: boolean) => void;
-  onYours: (on: boolean) => void;
+  /** The layers by language, switched in View; every view, the table and the file follow them. */
+  layers: CalendarBarLayers;
   /** Save the period shown as a calendar file (.ics), holding the main events, with your transits, or everything. */
   onExport: (kind: IcsKind) => void;
   /** The period is still arriving: the file waits for it. */
   loading?: boolean;
-  /** Over the table, which has its own filters and export: the period and the clock only. */
+  /** Over the table, which has its own filters and export: the period, the clock and the layers. */
   table?: boolean;
-  /** Your numerology for the period shown, "Personal month 4" (with your transits on), and its reading's id. */
+  /** Your numerology for the period shown, "Personal month 4" (with its layer on), and its reading's id. */
   num?: { id: string; text: string } | null;
   numOn?: boolean;
   onNum?: (id: string) => void;
@@ -367,15 +377,12 @@ export function CalendarBar({
           zones={zones}
           zoneLine={zoneLine}
           onZone={onZone}
-          showSky={showSky}
-          showYours={showYours}
-          onSky={onSky}
-          onYours={onYours}
+          layers={layers}
           table={table}
           legend={legend}
         />
       </div>
-      {table ? null : <IcsExportItems onExport={onExport} loading={loading} />}
+      {table ? null : <IcsExportItems onExport={onExport} loading={loading} transits={layers.shown.transits} />}
     </div>
   );
 }
