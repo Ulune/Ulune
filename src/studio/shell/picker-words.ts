@@ -2,8 +2,9 @@ import { pickerWords } from "@/lib/i18n/catalog/picker-words";
 
 /*
  * The language picker's words (src/lib/i18n/catalog/picker-words.ts), read
- * here rather than through the app's catalog: only the picker and the palette
- * say them, so they load with those instead of with every page.
+ * here rather than through the app's catalog: only the picker, the palette
+ * and the language button's one-time hint say them, so they load with those
+ * instead of with every page.
  */
 export type PickerWordKey = keyof typeof pickerWords;
 

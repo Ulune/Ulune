@@ -1,9 +1,10 @@
 import { Check, ChevronDown } from "lucide-react";
-import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { Suspense, useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { AnchoredPopover } from "@/components/anchored-popover";
 import { onTablistKeyDown } from "@/lib/a11y/tablist";
 import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
+import { useTour } from "@/lib/tour/state";
 import { cn } from "@/lib/utils";
 import {
   LENSES,
@@ -19,6 +20,7 @@ import {
 } from "@/studio/map";
 import { PAGE_LABEL } from "@/studio/modes/meta";
 import { preloadMode } from "@/studio/modes/registry";
+import { langHintDone, langHintDue } from "@/studio/shell/lang-hint";
 import { LanguageMark } from "@/studio/shell/language-mark";
 import { bindLanguagePicker } from "@/studio/shell/language-open";
 import { LANGUAGE_WORDS, LENS_LABEL } from "@/studio/shell/map-ui";
@@ -30,6 +32,8 @@ import type { StudioPage } from "@/studio/url";
 // focused or pressed (as the dock's Bodies and Look tabs are).
 const loadPicker = () => import("@/studio/shell/LanguagePicker");
 const LanguagePicker = lazyNamed(loadPicker, "LanguagePicker");
+// The one-time hint for readers who knew 1.x (lang-hint.ts): its own download, for them only.
+const LanguageHint = lazyNamed(() => import("@/studio/shell/LanguageHint"), "LanguageHint");
 
 /**
  * Where you are in Charts, at the start of the stage's toolbar (page
@@ -68,16 +72,35 @@ function LanguageButton({ lang, go }: { lang: LanguageId; go: Go }) {
   const [open, setOpen] = useState(false);
   // Kept once opened, so the panel can leave with its motion.
   const [loaded, setLoaded] = useState(false);
+  // The one-time hint (R8), looked at once mounted: the server's page has none.
+  const [hint, setHint] = useState(false);
+  useEffect(() => setHint(langHintDue()), []);
+  const hintId = useId();
+  const touring = useTour((s) => s.active);
+  const endHint = useCallback(() => {
+    langHintDone();
+    setHint(false);
+  }, []);
+  // "Got it": the focus, if it was there, goes back to the button (the hint goes).
+  const gotIt = useCallback(() => {
+    const inHint = document.activeElement?.closest(".ob-lang-hint");
+    endHint();
+    if (inHint) ref.current?.focus({ preventScroll: true });
+  }, [endHint]);
   const show = useCallback(() => {
+    // Opening the picker is what the hint asks for: it has done its work.
+    endHint();
     setLoaded(true);
     setOpen(true);
-  }, []);
+  }, [endHint]);
   const close = useCallback(() => setOpen(false), []);
   // L, pressed anywhere on the page (CommandPalette.tsx).
   useEffect(() => bindLanguagePicker(show), [show]);
   const words = LANGUAGE_WORDS[lang];
   const name = t(words.name);
   const ahead = () => prefetch(loadPicker);
+  // (Not over the tour, which shows the same place in its own words.)
+  const hinted = hint && !touring && !open;
   return (
     <>
       <button
@@ -89,6 +112,7 @@ function LanguageButton({ lang, go }: { lang: LanguageId; go: Go }) {
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={t("langButton", { name })}
+        aria-describedby={hinted ? hintId : undefined}
         aria-keyshortcuts="L"
         title={`${t("langPicker")} (L)`}
         onPointerEnter={ahead}
@@ -101,6 +125,11 @@ function LanguageButton({ lang, go }: { lang: LanguageId; go: Go }) {
         <span className="ob-lang-short">{t(words.short)}</span>
         <ChevronDown className="ob-lang-caret size-3.5 shrink-0" strokeWidth={1.75} aria-hidden />
       </button>
+      {hinted ? (
+        <Suspense fallback={null}>
+          <LanguageHint id={hintId} onDone={gotIt} />
+        </Suspense>
+      ) : null}
       {loaded ? (
         <Suspense fallback={null}>
           <LanguagePicker

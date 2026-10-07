@@ -1,0 +1,73 @@
+/* The language button's one-time hint (LanguageHint.tsx): a note under the
+   button, its point at the button's mark, inside the toolbar so it moves
+   with it. Its own file, downloaded with the hint, only for the readers it
+   is shown to. */
+.ob-nav:has(> .ob-lang-hint) {
+  position: relative;
+}
+.ob-lang-hint {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 30;
+  /* As wide as a short paragraph, never past the stage's edge (the stage is a container). */
+  width: min(21rem, calc(100cqw - 2 * var(--stage-pad)));
+  padding: 12px 14px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-bg-elevated);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+  color: var(--color-fg);
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: normal;
+  text-align: start;
+  transform-origin: 18px top;
+  /* After the page has settled: a moment, then the popovers' entrance. */
+  animation: ob-pop-in var(--dur-in) var(--ease-soft) 0.25s both;
+}
+/* The point, under the button's mark. */
+.ob-lang-hint::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 12px;
+  width: 10px;
+  height: 10px;
+  border-top: 1px solid var(--color-border);
+  border-left: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  transform: rotate(45deg);
+}
+.ob-lang-hint-title {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+.ob-lang-hint-body {
+  margin: 0;
+  color: var(--color-fg-muted);
+  text-wrap: pretty;
+}
+.ob-lang-hint-ok {
+  display: block;
+  min-height: var(--row-h);
+  margin: 8px 0 0 auto;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+  font-size: var(--ctl-text);
+  font-weight: 600;
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+@media (hover: hover) {
+  .ob-lang-hint-ok:hover {
+    background: color-mix(in oklab, var(--color-bg-subtle), var(--color-fg) 7%);
+  }
+}
+.ob-lang-hint-ok:active {
+  transform: scale(0.97);
+}

@@ -52,7 +52,7 @@ export function PageTopBar({ menu = true }: { menu?: boolean }) {
   };
   return (
     <header className="ob-pagebar" data-testid="page-topbar">
-      <Link to="/" className="ob-brand ob-brand--page" data-testid="back-to-studio" aria-label={t("shellStudio")}>
+      <Link to="/" className="ob-brand ob-brand--page" data-testid="back-to-studio" aria-label={t("shellHome")}>
         <UluneMark className="ob-brand-mark" />
         <span className="ob-brand-word">Ulune</span>
       </Link>

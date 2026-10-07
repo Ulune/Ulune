@@ -1,7 +1,8 @@
 // The 2.0 navigation's pure parts (page reorganisation, R2 to R4): the
 // picker's headings and order, the chips beside the language button, the
 // order the bars switch in, each language's home in the encyclopedia, and
-// the words every section, lens and language needs in both languages.
+// the words every section, lens and language needs in both languages; and
+// who gets the language button's one-time hint (R8).
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
@@ -15,9 +16,11 @@ import {
   languageHomePath,
   lensesOf,
   pickerOrder,
+  REMEMBER_KEY,
   recentLanguages,
   rememberPage,
 } from "../src/studio/map.ts";
+import { LANG_HINT_KEY, MARKS_1X, decideLangHint } from "../src/studio/shell/lang-hint.ts";
 import { STUDIO_PAGES } from "../src/studio/url.ts";
 import { LANGUAGE_WORDS, LENS_LABEL, SECTION_LABEL, TRADITION_LABEL } from "../src/studio/shell/map-ui.ts";
 import { CATALOG } from "../src/lib/i18n/catalog/index.ts";
@@ -144,4 +147,39 @@ test("a lens a language lacks is never offered", () => {
     for (const lens of lensesOf(l.id)) assert.ok((l.lenses[lens]?.length ?? 0) > 0, `${l.id} ${lens}`);
   }
   assert.deepEqual(lensesOf("numerology"), ["natal"], "one lens: no lens tabs (ChartsNav.tsx)");
+});
+
+test("the language button's hint: a reader of 1.x gets it until it is done, a new reader never", () => {
+  // A new reader: nothing of 1.x here. Decided once and kept, so 2.0's own marks
+  // written later (the Calendar keeps a page and no language) never turn it on.
+  const fresh = memory();
+  assert.equal(decideLangHint(fresh), "done");
+  assert.equal(fresh.getItem(LANG_HINT_KEY), "1");
+  fresh.setItem("ulune.studio.page", "timing");
+  assert.equal(decideLangHint(fresh), "done", "decided once");
+  // A reader of 1.x: one of the marks 1.x left while its tabs were used, none of 2.0's.
+  assert.deepEqual([...MARKS_1X], ["ulune.studio.group-last", "ulune.studio.page", "ulune.studio.view"]);
+  for (const mark of MARKS_1X) {
+    const old = memory();
+    old.setItem(mark, "transits");
+    assert.equal(decideLangHint(old), "show", mark);
+    assert.equal(old.getItem(LANG_HINT_KEY), "show");
+    // 2.0 then writes its own marks: the hint stays until it is done.
+    rememberPage("natal", old);
+    assert.ok(old.getItem(REMEMBER_KEY));
+    assert.equal(decideLangHint(old), "show", `${mark}, on the next visit`);
+  }
+  // A reader who has used 2.0 already, here: never.
+  const both = memory();
+  both.setItem("ulune.studio.page", "transits");
+  rememberPage("transits", both);
+  assert.equal(decideLangHint(both), "done");
+  // Done is for good; marks the tests leave (the wheel's own hint seen) are not 1.x's.
+  const done = memory();
+  done.setItem(LANG_HINT_KEY, "1");
+  done.setItem("ulune.studio.group-last", "{}");
+  assert.equal(decideLangHint(done), "done");
+  const wheelOnly = memory();
+  wheelOnly.setItem("ulune.hint.wheel.v1", "1");
+  assert.equal(decideLangHint(wheelOnly), "done");
 });

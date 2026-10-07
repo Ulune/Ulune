@@ -32,25 +32,34 @@ export const guide = {
 
   guideWhatTitle: ["What Ulune is", "Ce qu’est Ulune"],
   guideWhatBody: [
-    "Ulune casts your birth chart and explains it: where the Sun, the Moon and the planets stood when and where you were born, the houses they fell in and the angles between them. Human Design and numerology sit alongside, from the same birth data.",
-    "Ulune calcule votre thème natal et l’explique\u202f: où se trouvaient le Soleil, la Lune et les planètes au moment et au lieu de votre naissance, les maisons où ils tombaient et les angles qu’ils formaient entre eux. Le Human Design et la numérologie l’accompagnent, à partir des mêmes données de naissance.",
+    "Ulune casts your birth chart and explains it: where the Sun, the Moon and the planets stood when and where you were born, the houses they fell in and the angles between them. Human Design and numerology read the same birth data in languages of their own; the Calendar follows the sky day by day, and the encyclopedia explains every word.",
+    "Ulune calcule votre thème natal et l’explique\u202f: où se trouvaient le Soleil, la Lune et les planètes au moment et au lieu de votre naissance, les maisons où ils tombaient et les angles qu’ils formaient entre eux. Le Human Design et la numérologie lisent les mêmes données de naissance dans leur propre langage\u202f; le calendrier suit le ciel jour après jour, et l’encyclopédie explique chaque mot.",
   ],
+  // What you can do, in the 2.0 map’s words (page reorganisation, R8): the three languages, the lenses, the Calendar, the encyclopedia.
   guideDoTitle: ["What you can do", "Ce que vous pouvez faire"],
-  guideDoChart: [
+  guideDoAstrology: [
     "Your birth chart as a wheel or a table, with a written reading for each planet, house and aspect.",
     "Votre thème natal en roue ou en tableau, avec une lecture écrite pour chaque planète, maison et aspect.",
   ],
-  guideDoTime: [
-    "Today’s sky against your chart (transits), the sky day by day with the dates your transits are exact (calendar), and your progressed chart.",
-    "Le ciel du jour sur votre thème (transits), le ciel jour après jour avec les dates où vos transits sont exacts (calendrier), et votre thème progressé.",
+  guideDoHumanDesign: [
+    "Your bodygraph, with your type, strategy, authority and profile.",
+    "Votre bodygraph, avec votre type, votre stratégie, votre autorité et votre profil.",
   ],
-  guideDoPair: [
-    "Two charts compared contact by contact (synastry), and the chart of the relationship itself (composite).",
-    "Deux thèmes comparés contact par contact (synastrie), et le thème de la relation elle-même (composite).",
+  guideDoNumerology: [
+    "The numbers of your birth date and full name at birth, and their cycles through life.",
+    "Les nombres de votre date de naissance et de votre nom complet de naissance, et leurs cycles au fil de la vie.",
   ],
-  guideDoSystems: [
-    "Your Human Design type, strategy and bodygraph. Your numerology: the numbers of your birth date and full name at birth, their cycles through life, and your personal year, month and day, in the calendar too.",
-    "Votre type, votre stratégie et votre bodygraph en Human Design. Votre numérologie\u202f: les nombres de votre date de naissance et de votre nom complet de naissance, leurs cycles au fil de la vie, et votre année, votre mois et votre jour personnels, dans le calendrier aussi.",
+  guideDoLenses: [
+    "The tabs beside the language: Natal, the birth chart itself; Cycles, the chart through time (transits, progressions); Relationship, beside a second person’s (synastry, composite).",
+    "Les onglets à côté du langage\u202f: Natal, le thème natal lui-même\u202f; Cycles, le thème au fil du temps (transits, progressions)\u202f; Relation, à côté de celui d’une autre personne (synastrie, composite).",
+  ],
+  guideDoCalendar: [
+    "The sky day by day, with the dates your transits are exact and your personal year, month and day. It works without a chart too.",
+    "Le ciel jour après jour, avec les dates où vos transits sont exacts, et votre année, votre mois et votre jour personnels. Il fonctionne aussi sans thème.",
+  ],
+  guideDoEncyclopedia: [
+    "A page for each word the three languages use, from Saturn to the life path, in English and French.",
+    "Une page pour chaque mot des trois langages, de Saturne au chemin de vie, en français et en anglais.",
   ],
   guideBeginTitle: ["How to begin", "Pour commencer"],
   guideBegin1: [
@@ -62,8 +71,8 @@ export const guide = {
     "Choisissez le lieu dans la liste, pour que ses coordonnées et l’historique de son fuseau horaire soient exacts.",
   ],
   guideBegin3: [
-    "Cast. The chart opens with its reading, and the tabs lead to the rest.",
-    "Calculez. Le thème s’ouvre avec sa lecture, et les onglets mènent au reste.",
+    "Cast. The chart opens with its reading; above it, the language and its tabs lead to the rest.",
+    "Calculez. Le thème s’ouvre avec sa lecture\u202f; au-dessus, le langage et ses onglets mènent au reste.",
   ],
   guideBeginNoTime: [
     "No birth time? Tick “I don’t know the time”: Ulune uses noon and marks the houses as approximate.",
@@ -131,8 +140,8 @@ export const guide = {
   ],
   faqFreeQ: ["Is Ulune free?", "Ulune est-il gratuit\u202f?"],
   faqFreeA: [
-    "Yes: every chart, mode and reading, with no account, subscription or advertising.",
-    "Oui\u202f: chaque thème, chaque mode et chaque lecture, sans compte, sans abonnement ni publicité.",
+    "Yes: every chart, language and reading, with no account, subscription or advertising.",
+    "Oui\u202f: chaque thème, chaque langage et chaque lecture, sans compte, sans abonnement ni publicité.",
   ],
   faqKeptQ: ["Where are my charts kept?", "Où sont gardés mes thèmes\u202f?"],
   faqKeptA: [

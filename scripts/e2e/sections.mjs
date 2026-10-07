@@ -5,12 +5,13 @@
  * reopening its last lens and sub-mode; no lens tabs for a one-lens language;
  * the sub-modes folded into their lens on a narrow toolbar; the French
  * words; no horizontal overflow from 360 to 1440 px in either language; the
- * keys L and Alt+1 to Alt+3.
+ * keys L and Alt+1 to Alt+3; the language button's one-time hint for a
+ * reader of 1.x (R8), never for a new reader.
  *
  * The chart is the sample (1 January 2000, noon, Greenwich: nobody's birth).
  */
 import { chromium } from "playwright";
-import { DEV, clickTestId, goStudioPage, gotoApp, setLang, studioPageNow, waitStudioPage } from "./_lib.mjs";
+import { DEV, clickTestId, goStudioPage, gotoApp, openMenu, setLang, studioPageNow, waitStudioPage } from "./_lib.mjs";
 
 const fail = [];
 const check = (ok, msg) => {
@@ -374,7 +375,126 @@ async function overflow() {
   console.log("no overflow OK");
 }
 
-for (const fn of [computer, wide, phone, french, overflow]) {
+/**
+ * A reader of 1.x (R8): the language button's one-time hint, under the button
+ * and inside the screen, named as the button's description, taking no focus;
+ * kept across a reload until "Got it" or the picker; hidden while the tour
+ * runs; in French on the smallest phone. A new reader never gets it.
+ */
+async function fromOne() {
+  // What 1.x left while its tabs were used, and nothing of 2.0's: set once, before the first page.
+  const seed = (fr) => {
+    if (sessionStorage.getItem("seeded")) return;
+    sessionStorage.setItem("seeded", "1");
+    localStorage.setItem("ulune.studio.group-last", JSON.stringify({ time: "transits" }));
+    if (fr) localStorage.setItem("ulune.locale", "fr");
+  };
+  const reload = async (page) => {
+    await page.reload({ waitUntil: "load" });
+    await page.waitForSelector("html.theme-ready");
+    await page.getByTestId("lang-button").waitFor();
+  };
+  const hintGone = async (page, msg) => {
+    await page.waitForTimeout(1200);
+    check(!(await page.getByTestId("lang-hint").count()), msg);
+  };
+  for (const [width, height, touch, fr] of [
+    [1280, 900, false, false],
+    [360, 740, true, true],
+  ]) {
+    const context = await browser.newContext({ viewport: { width, height }, ...(touch ? { isMobile: true, hasTouch: true } : {}) });
+    await context.addInitScript(seed, fr);
+    const page = await context.newPage();
+    page.setDefaultTimeout(20000);
+    const errors = [];
+    page.on("pageerror", (e) => errors.push(String(e)));
+    const where = `${width}${fr ? " fr" : ""}`;
+    try {
+      await gotoApp(page);
+      await sample(page);
+      await page.getByTestId("lang-hint").waitFor();
+      await page.waitForTimeout(600);
+      const geo = await page.evaluate(() => {
+        const button = document.querySelector("[data-testid=lang-button]");
+        const hint = document.querySelector("[data-testid=lang-hint]");
+        const b = button.getBoundingClientRect();
+        const h = hint.getBoundingClientRect();
+        return {
+          gap: h.top - b.bottom,
+          left: h.left - b.left,
+          right: document.documentElement.clientWidth - h.right,
+          overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+          describedBy: button.getAttribute("aria-describedby"),
+          bodyId: hint.querySelector(".ob-lang-hint-body")?.id,
+          role: hint.getAttribute("role"),
+          focus: document.activeElement?.closest("[data-testid=lang-hint]") ? "the hint" : "",
+          text: hint.innerText,
+          ok: hint.querySelector("[data-testid=lang-hint-ok]").getBoundingClientRect().height,
+        };
+      });
+      check(geo.gap > 0 && geo.gap < 20, `${where}: the hint is not just under the button (${geo.gap}px)`);
+      check(Math.abs(geo.left) <= 1, `${where}: the hint does not start at the button (${geo.left}px)`);
+      check(geo.right >= 8, `${where}: the hint runs to the screen's edge (${geo.right}px left)`);
+      check(geo.overflow <= 1, `${where}: the page is ${geo.overflow}px wider than the screen with the hint`);
+      check(Boolean(geo.describedBy) && geo.describedBy === geo.bodyId, `${where}: the button is not described by the hint (${geo.describedBy} / ${geo.bodyId})`);
+      check(geo.role === "note" && !geo.focus, `${where}: the hint is a ${geo.role}, focus ${geo.focus || "elsewhere"}`);
+      const want = fr ? ["Nouveau dans Ulune 2.0", "Temps devient Cycles, Duo devient Relation", "Compris"] : ["New in Ulune 2.0", "Time is now Cycles, Pair is Relationship", "Got it"];
+      for (const w of want) check(geo.text.includes(w), `${where}: the hint lacks "${w}"`);
+      check(geo.ok >= (touch ? 44 : 32), `${where}: "Got it" is ${geo.ok}px high`);
+      // It stays until it is done.
+      await reload(page);
+      await page.getByTestId("lang-hint").waitFor();
+      if (!touch) {
+        // Not over the tour, which shows the same place in its own words; back after it.
+        await openMenu(page);
+        await page.getByTestId("menu-tour").click();
+        await page.getByTestId("tour-card").waitFor();
+        check(!(await page.getByTestId("lang-hint").count()), `${where}: the hint shows over the tour`);
+        await page.keyboard.press("Escape");
+        await page.getByTestId("tour-card").waitFor({ state: "detached" });
+        await page.getByTestId("lang-hint").waitFor();
+        // "Got it": gone, the focus back on the button, and for good.
+        await page.getByTestId("lang-hint-ok").focus();
+        await page.keyboard.press("Enter");
+        await page.getByTestId("lang-hint").waitFor({ state: "detached" });
+        const after = await page.evaluate(() => ({
+          focus: document.activeElement?.getAttribute("data-testid"),
+          describedBy: document.querySelector("[data-testid=lang-button]").getAttribute("aria-describedby"),
+        }));
+        check(after.focus === "lang-button", `${where}: after "Got it" the focus is on ${after.focus}`);
+        check(after.describedBy === null, `${where}: the button is still described by the hint`);
+      } else {
+        // Opening the picker is what it asks for: gone, for good.
+        await page.getByTestId("lang-button").click();
+        await page.getByTestId("lang-picker").waitFor();
+        check(!(await page.getByTestId("lang-hint").count()), `${where}: the hint stays with the picker open`);
+        await page.keyboard.press("Escape");
+        await page.getByTestId("lang-picker").waitFor({ state: "detached" });
+      }
+      await hintGone(page, `${where}: the hint came back once done`);
+      check((await page.evaluate(() => localStorage.getItem("ulune.hint.lang.v1"))) === "1", `${where}: done is not kept`);
+      await reload(page);
+      await hintGone(page, `${where}: the hint came back after a reload`);
+      check(!errors.length, `${where}: page errors: ${errors.join(" | ")}`);
+    } finally {
+      await context.close();
+    }
+  }
+  // A new reader never gets it, and the answer is kept.
+  const { context, page } = await open(1280);
+  try {
+    await sample(page);
+    await page.getByTestId("lang-button").waitFor();
+    await page.waitForTimeout(1500);
+    check(!(await page.getByTestId("lang-hint").count()), "a new reader is shown the hint");
+    check((await page.evaluate(() => localStorage.getItem("ulune.hint.lang.v1"))) === "1", "a new reader's answer is not kept");
+  } finally {
+    await context.close();
+  }
+  console.log("the 1.x reader's hint OK");
+}
+
+for (const fn of [computer, wide, phone, french, overflow, fromOne]) {
   try {
     await fn();
   } catch (err) {

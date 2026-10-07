@@ -5,7 +5,8 @@
  *   - the form comes first: its title is the page's only h1, the first field
  *     is the name, and the first Tab stop skips straight to it;
  *   - the guide's seven sections and the footer follow; every footer link
- *     answers, the source link names the public repository;
+ *     answers, the source link names the public repository; what you can
+ *     do is told in the 2.0 map's words (R8), in English and French;
  *   - nothing scrolls sideways; no AI anywhere (AI readings wait for v1.1);
  *   - a link to a mode without a chart shows the form with a line saying so,
  *     and the mode opens after the cast;
@@ -39,6 +40,24 @@ import {
 const SOURCE_URL = /export const SOURCE_URL = "([^"]+)"/.exec(readFileSync(join(ROOT, "src/lib/app-identity.ts"), "utf8"))[1];
 const SECTIONS_EN = ["What Ulune is", "What you can do", "How to begin", "New to charts?", "Your data stays yours", "Precise, and open about it", "Questions"];
 const FOOTER = ["privacy", "legal", "terms", "credits", "accessibility", "source", "report"];
+// What you can do (R8): the three languages, the lenses, the Calendar and the encyclopedia, as the screens name them.
+const DO_EN = [
+  ["astrology", "Astrology"],
+  ["human-design", "Human Design"],
+  ["numerology", "Numerology"],
+  ["lenses", "Natal · Cycles · Relationship"],
+  ["calendar", "Calendar"],
+  ["encyclopedia", "Encyclopedia"],
+];
+const DO_FR = ["Astrologie", "Human Design", "Numérologie", "Natal · Cycles · Relation", "Calendrier", "Encyclopédie"];
+const doList = (page) =>
+  page.evaluate(() =>
+    [...document.querySelectorAll("[data-testid=guide] [data-testid^=guide-mode-]")].map((li) => [
+      li.dataset.testid.slice("guide-mode-".length),
+      li.querySelector(".ob-guide-mode-name").textContent.trim(),
+      Boolean(li.querySelector("svg")?.getClientRects().length),
+    ]),
+  );
 
 function watch(page) {
   const errors = [];
@@ -62,6 +81,10 @@ async function firstVisit(width) {
     }));
     if (heads.h1.length !== 1 || heads.h1[0] !== "Cast a birth chart") throw new Error(`h1: ${JSON.stringify(heads.h1)}`);
     if (JSON.stringify(heads.h2) !== JSON.stringify(SECTIONS_EN)) throw new Error(`guide sections: ${JSON.stringify(heads.h2)}`);
+    const did = await doList(page);
+    if (JSON.stringify(did.map(([id, name]) => [id, name])) !== JSON.stringify(DO_EN) || !did.every(([, , mark]) => mark)) {
+      throw new Error(`what you can do: ${JSON.stringify(did)}`);
+    }
     if (heads.firstField !== "native-name") throw new Error(`first field: ${heads.firstField}`);
     // Two ways in without a chart, under the form (R7).
     const ways = await page.evaluate(() =>
@@ -110,6 +133,13 @@ async function firstVisit(width) {
       await setLang(page, "fr");
       const fr = (await page.getByTestId("birth-title").innerText()).trim();
       if (fr !== "Calculer un thème natal") throw new Error(`French title: "${fr}"`);
+      const didFr = (await doList(page)).map(([, name]) => name);
+      if (JSON.stringify(didFr) !== JSON.stringify(DO_FR)) throw new Error(`what you can do, in French: ${JSON.stringify(didFr)}`);
+      // None of 1.x's tabs is named any more (Temps, Duo, Systèmes).
+      const guideFr = await page.getByTestId("guide").innerText();
+      for (const old of ["Temps", "Duo", "Systèmes"]) {
+        if (guideFr.includes(old)) throw new Error(`the French guide still says "${old}"`);
+      }
       await assertNoOverflow(page);
       await page.screenshot({ path: join(SHOTS, `first-screen-fr-${width}.png`) });
       await setLang(page, "en");
@@ -205,6 +235,8 @@ async function otherStates() {
     // The private space item opens the way in (here: sign in, nothing kept yet).
     await page.getByTestId("menu-space").click();
     await page.getByTestId("space-sheet").waitFor({ timeout: 10000 });
+    // Escape is the sheet's own key: once the focus is in it (a frame after it opens).
+    await page.waitForFunction(() => document.querySelector("[data-testid=space-sheet]")?.contains(document.activeElement), null, { timeout: 5000 });
     await page.keyboard.press("Escape");
     await page.getByTestId("space-sheet").waitFor({ state: "detached", timeout: 10000 });
     // /guide: out of search; its tour link brings the tour to the studio, not in the address.

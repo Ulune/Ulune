@@ -1,12 +1,14 @@
 /**
  * picker-words: [English, French]. The language picker's own words (page
  * reorganisation plan, R3): each card's line and what it needs, the headings
- * of the traditions, the link to a language's home in the encyclopedia, and
- * the palette's heading for languages.
+ * of the traditions, the link to a language's home in the encyclopedia, the
+ * palette's heading for languages, and the language button's one-time hint
+ * for readers who knew 1.x (R8).
  *
  * Read by src/studio/shell/picker-words.ts, not spread into this folder's
- * index: only the picker and the palette say them, and both are downloaded
- * when opened, so they stay out of every page's first download.
+ * index: only the picker, the palette and the hint say them, and each is
+ * downloaded when opened or shown, so they stay out of every page's first
+ * download.
  * scripts/i18n-catalog.test.mjs checks them as it checks the others.
  */
 export const pickerWords = {
@@ -28,4 +30,11 @@ export const pickerWords = {
   traditionWestern: ["Western traditions", "Traditions occidentales"],
   traditionChinese: ["Chinese traditions", "Traditions chinoises"],
   paletteLanguages: ["Languages", "Langages"],
+  // The language button's one-time hint for readers of 1.x (page reorganisation, R8; src/studio/shell/LanguageHint.tsx).
+  langHintTitle: ["New in Ulune 2.0", "Nouveau dans Ulune 2.0"],
+  langHintBody: [
+    "Human Design and numerology are now languages, like astrology: choose them here. Time is now Cycles, Pair is Relationship, and the Calendar has a section of its own.",
+    "Le Human Design et la numérologie sont désormais des langages, comme l’astrologie : choisissez-les ici. Temps devient Cycles, Duo devient Relation, et le calendrier a sa propre section.",
+  ],
+  langHintOk: ["Got it", "Compris"],
 } as const satisfies Record<string, readonly [string, string]>;

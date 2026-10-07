@@ -1,21 +1,54 @@
 import { Link } from "@tanstack/react-router";
-import { CircleDot, Clock3, Combine, Shapes } from "lucide-react";
-import type { ComponentType } from "react";
+import { Aperture } from "lucide-react";
+import type { ReactNode } from "react";
 import { SOURCE_URL } from "@/lib/app-identity";
 import { useI18n } from "@/lib/i18n/locale";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { GlossaryDetails } from "@/components/glossary-details";
 import { keepWhole } from "@/components/keep-whole";
+import { LENSES, type LanguageId } from "@/studio/map";
+import { LanguageMark } from "@/studio/shell/language-mark";
+import { LANGUAGE_WORDS, LENS_LABEL, SECTION_ICON, SECTION_LABEL } from "@/studio/shell/map-ui";
 
-type Icon = ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean }>;
-
-/** The four tabs, with the tab bar's own icons (studio/shell/GroupBar.tsx). */
-const MODES: { id: string; icon: Icon; label: MessageKey; body: MessageKey }[] = [
-  { id: "chart", icon: CircleDot, label: "groupChart", body: "guideDoChart" },
-  { id: "time", icon: Clock3, label: "groupTime", body: "guideDoTime" },
-  { id: "pair", icon: Combine, label: "groupPair", body: "guideDoPair" },
-  { id: "systems", icon: Shapes, label: "groupSystems", body: "guideDoSystems" },
+const LANGUAGES: { id: LanguageId; body: MessageKey }[] = [
+  { id: "astrology", body: "guideDoAstrology" },
+  { id: "human-design", body: "guideDoHumanDesign" },
+  { id: "numerology", body: "guideDoNumerology" },
 ];
+
+/**
+ * What you can do, in the words and marks of the 2.0 map (page reorganisation,
+ * R8): the three languages as the language picker shows them, the lenses (the
+ * tabs beside the language), then the Calendar and the Encyclopedia with
+ * their sections' icons.
+ */
+function useDoList(): { id: string; mark: ReactNode; label: string; body: MessageKey }[] {
+  const { t } = useI18n();
+  const iconProps = { className: "ob-guide-mode-icon", strokeWidth: 1.75, "aria-hidden": true } as const;
+  const CalendarIcon = SECTION_ICON.calendar;
+  const EncyclopediaIcon = SECTION_ICON.encyclopedia;
+  return [
+    ...LANGUAGES.map(({ id, body }) => ({
+      id,
+      mark: <LanguageMark id={id} className="ob-guide-mode-icon" />,
+      label: t(LANGUAGE_WORDS[id].name),
+      body,
+    })),
+    {
+      id: "lenses",
+      mark: <Aperture {...iconProps} />,
+      label: LENSES.map((lens) => t(LENS_LABEL[lens])).join(" · "),
+      body: "guideDoLenses",
+    },
+    { id: "calendar", mark: <CalendarIcon {...iconProps} />, label: t(SECTION_LABEL.calendar), body: "guideDoCalendar" },
+    {
+      id: "encyclopedia",
+      mark: <EncyclopediaIcon {...iconProps} />,
+      label: t(SECTION_LABEL.encyclopedia),
+      body: "guideDoEncyclopedia",
+    },
+  ];
+}
 
 const QUESTIONS: { id: string; q: MessageKey; a: MessageKey }[] = [
   { id: "time", q: "faqTimeQ", a: "faqTimeA" },
@@ -36,6 +69,7 @@ const QUESTIONS: { id: string; q: MessageKey; a: MessageKey }[] = [
  */
 export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () => void }) {
   const { t } = useI18n();
+  const doList = useDoList();
   return (
     <div className="ob-guide" data-testid="guide">
       <section className="ob-guide-sec" aria-labelledby="guide-what">
@@ -50,11 +84,11 @@ export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () =
           {t("guideDoTitle")}
         </h2>
         <ul className="ob-guide-modes">
-          {MODES.map(({ id, icon: ModeIcon, label, body }) => (
+          {doList.map(({ id, mark, label, body }) => (
             <li key={id} className="ob-guide-mode" data-testid={`guide-mode-${id}`}>
               <span className="ob-guide-mode-head">
-                <ModeIcon className="ob-guide-mode-icon" strokeWidth={1.75} aria-hidden />
-                <span className="ob-guide-mode-name">{t(label)}</span>
+                {mark}
+                <span className="ob-guide-mode-name">{label}</span>
               </span>
               <span className="ob-guide-mode-body">{t(body)}</span>
             </li>
