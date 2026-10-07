@@ -1,4 +1,5 @@
 import { ASPECT_COLOR } from "@/lib/chart/constants";
+import { TermWord } from "@/encyclopedia/TermWord";
 import { lineInk } from "@/lib/chart/wheel-style";
 import { ChevronRight } from "lucide-react";
 import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
@@ -258,7 +259,9 @@ function PointsPart({
                       <Maybe cell={r.position} mono />{" "}
                       <span className="inline-flex items-center gap-1.5 align-[-1px]">
                         <SignGlyph id={p.sign} size={12} />
-                        {r.sign}
+                        <TermWord kind="sign" id={p.sign}>
+                          {r.sign}
+                        </TermWord>
                       </span>
                     </span>
                     {r.range ? (
@@ -268,7 +271,9 @@ function PointsPart({
                     ) : null}
                   </td>
                   <td data-col="house" className="ulune-house-num tabular-nums">
-                    <Maybe cell={r.house} mono />
+                    <TermWord kind="house" id={p.house}>
+                      <Maybe cell={r.house} mono />
+                    </TermWord>
                   </td>
                   {composite ? null : <td data-col="motion">
                     {r.motion ? (
@@ -404,7 +409,9 @@ function HousesPart({
                     <Maybe cell={r.position} mono />{" "}
                     <span className="inline-flex items-center gap-1.5 align-[-1px]">
                       <SignGlyph id={r.sign} size={12} />
-                      {signName(r.sign, locale)}
+                      <TermWord kind="sign" id={r.sign}>
+                        {signName(r.sign, locale)}
+                      </TermWord>
                     </span>
                   </span>
                   {r.intercepted.map((sign) => (
@@ -426,7 +433,9 @@ function HousesPart({
                     <span key={x.id} className={cn("ulune-ruler", x.traditional && "is-trad")} data-ruler={x.id}>
                       <GlyphPick id={x.id} onSelect={onSelect} size={13} />
                       <span>
-                        {x.text}
+                        <TermWord kind="body" id={x.id}>
+                          {x.text}
+                        </TermWord>
                         {x.traditional ? <span className="text-fg-muted"> · {housesWord(locale, "traditional")}</span> : null}
                       </span>
                     </span>
@@ -593,7 +602,9 @@ function AspectsPart({
                   <td data-col="aspect">
                     <span className="inline-flex items-center gap-1.5">
                       <AspectGlyph id={a.type} size={15} />
-                      {r.type}
+                      <TermWord kind="aspect" id={a.type}>
+                        {r.type}
+                      </TermWord>
                     </span>
                     {notes.length ? <span className="ulune-cell-sub">{notes.join(" · ")}</span> : null}
                   </td>
@@ -655,7 +666,9 @@ function AspectsPart({
                   <td data-col="aspect">
                     <span className="inline-flex items-center gap-1.5">
                       <ParallelGlyph kind={p.kind} size={13} />
-                      {aspectsWord(locale, p.kind === "parallel" ? "parallelTitle" : "contraTitle")}
+                      <TermWord kind="aspect" id={p.kind === "parallel" ? "parallel" : null}>
+                        {aspectsWord(locale, p.kind === "parallel" ? "parallelTitle" : "contraTitle")}
+                      </TermWord>
                     </span>
                   </td>
                   <td data-col="orb">
@@ -692,7 +705,9 @@ function ShapeLine({ shape, uncertain }: { shape: MergedShape; uncertain: boolea
     <span className={cn("ulune-shape", uncertain && "ulune-uncertain")}>
       <span className="ulune-shape-name">
         {uncertain ? "~" : ""}
-        {t.name}
+        <TermWord kind="pattern" id={shape.type}>
+          {t.name}
+        </TermWord>
         {shape.dominant ? <span className="ulune-note ulune-shape-tag">{patternsWord(locale, "dominant")}</span> : null}
       </span>
       <span className="ulune-cell-sub">
@@ -849,7 +864,9 @@ function DignitiesPart({
                     <span className="font-mono">{formatDegree(r.point.ecliptic)}</span>{" "}
                     <span className="inline-flex items-center gap-1.5 align-[-1px]">
                       <SignGlyph id={r.point.sign} size={12} />
-                      {signName(r.point.sign, locale)}
+                      <TermWord kind="sign" id={r.point.sign}>
+                        {signName(r.point.sign, locale)}
+                      </TermWord>
                     </span>
                   </td>
                   <td data-col="domicile" data-glyph data-label={w("domicile")}>
@@ -1074,7 +1091,9 @@ function StarsPart({ chart, onSelect }: { chart: NatalChart; onSelect?: (id: str
       </span>{" "}
       <span className="inline-flex items-center gap-1.5 align-[-1px]">
         <SignGlyph id={sign} size={12} />
-        {signName(sign, locale)}
+        <TermWord kind="sign" id={sign}>
+          {signName(sign, locale)}
+        </TermWord>
       </span>
     </span>
   );
@@ -1179,7 +1198,11 @@ function BarGroup({ group }: { group: BalanceGroup }) {
       <ul className="ob-bal-rows">
         {group.rows.map((r) => (
           <li key={r.id} className="ob-bal-row" data-row={r.id} aria-label={`${r.label}: ${weightText(r.value, locale)}${r.bodies.length ? ` (${r.bodies.map((id) => bodyBare(id, locale)).join(", ")})` : ""}`}>
-            <span className="ob-bal-label">{r.label}</span>
+            <span className="ob-bal-label">
+              <TermWord kind={group.id === "elements" ? "element" : "modality"} id={group.id === "elements" || group.id === "modalities" ? r.id : null}>
+                {r.label}
+              </TermWord>
+            </span>
             <span className="ob-bal-track" aria-hidden>
               <span
                 className="ob-bal-fill"

@@ -1,5 +1,5 @@
 import { ArrowLeft, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { SIGN_META } from "@/lib/chart/constants";
 import type { AspectId } from "@/lib/chart/types";
 import type { ElementReading, NatalChart, SignId } from "@/lib/chart/types";
@@ -15,6 +15,11 @@ import { previewProps } from "@/lib/depth/preview-bus";
 import { aspectVisible } from "@/lib/chart/aspect-filter";
 import { useChartView } from "@/lib/chart/use-chart-view";
 import type { ReadingLink } from "@/lib/chart/types";
+import { lazyNamed } from "@/lib/lazy-component";
+
+// The entries of what a chart reading is about (encyclopedia part 7): their own download.
+const ReadingTerms = lazyNamed(() => import("@/encyclopedia/ReadingTerms"), "ReadingTerms");
+const TERMS_FOR = /^(planet|angle|house|sign|aspect):/;
 
 
 function aspectTypeFromReadingId(id: string): AspectId | null {
@@ -372,6 +377,12 @@ export function ReadingCard({
             ) : null,
           )}
         </section>
+      ) : null}
+
+      {TERMS_FOR.test(reading.id) ? (
+        <Suspense fallback={null}>
+          <ReadingTerms readingId={reading.id} chart={chart} />
+        </Suspense>
       ) : null}
 
       {reading.about && (reading.about.paragraphs.length || noteInAbout) ? (

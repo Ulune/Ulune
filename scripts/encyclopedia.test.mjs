@@ -654,3 +654,14 @@ test("the encyclopedia's words: both languages, French typography, every one use
   // The palette's own change stays a few lines.
   assert.match(readFileSync(`${ROOT}src/studio/shell/CommandPaletteDialog.tsx`, "utf8"), /useEncyclopediaCommands\(q, locale\)/);
 });
+
+test("every entry the studio links by id (tables, panels) exists", async () => {
+  const { allTermIds, termId } = await import("../src/encyclopedia/term-ids.ts");
+  const missing = allTermIds().filter((id) => !real.data.index.terms[id]);
+  assert.deepEqual(missing, []);
+  assert.equal(termId("body", "ic"), "imum-coeli");
+  assert.equal(termId("house", 10), "house-10");
+  assert.equal(termId("house", 13), null);
+  assert.equal(termId("aspect", "semisextile"), "semi-sextile");
+  assert.equal(termId("body", "antivertex"), null, "no entry: the word stays plain");
+});

@@ -9,10 +9,13 @@
  * the ⌘K palette's entries; what leaves the browser: nothing but the pages
  * and the app's own files, nothing typed into the search; and the interface's
  * language: the address's (/encyclopedie, /calendrier: French) while the
- * reader has saved no choice, the saved choice once there is one.
+ * reader has saved no choice, the saved choice once there is one; and from
+ * the studio (part 7): the tables' signs, houses, rulers, aspects and shapes,
+ * the side panel's entries of the chosen thing and its glossary's words, each
+ * linking to its entry without choosing the row it sits in.
  */
 import { join } from "node:path";
-import { DEV, SHOTS, assertNoOverflow, ensureShotsDir, gotoApp, launch, setLang } from "./_lib.mjs";
+import { DEV, SHOTS, assertNoOverflow, ensureShotsDir, gotoApp, launch, setLang, setView } from "./_lib.mjs";
 
 const fail = (why) => {
   throw new Error(why);
@@ -408,6 +411,62 @@ await ensureShotsDir();
     await page.getByTestId("term-links-subtle").check();
     if (await page.evaluate(() => document.documentElement.hasAttribute("data-term-links") || localStorage.getItem("ulune.term-links"))) fail("subtle is not the default again");
     console.log("link setting OK");
+  } finally {
+    await browser.close();
+  }
+}
+
+// From the studio (part 7): the tables and the side panel link to the entries.
+{
+  const { browser, page } = await launch(1280);
+  try {
+    await gotoApp(page);
+    await page.getByTestId("sample-chart").click();
+    await page.getByTestId("studio-natal").waitFor({ timeout: 30000 });
+    await setView(page, "table");
+    const saturn = page.locator("tr[data-body=saturn]").first();
+    await saturn.waitFor({ timeout: 15000 });
+    // Each kind of cell that names a term is a link to its entry.
+    const links = await page.evaluate(() => {
+      const href = (sel) => document.querySelector(sel)?.getAttribute("href") ?? null;
+      return {
+        sign: href("tr[data-body=saturn] td[data-col=position] a.ob-term"),
+        house: href("tr[data-body=saturn] td[data-col=house] a.ob-term"),
+        cusp: href("tr[data-house='10'] td[data-col=cusp] a.ob-term"),
+        ruler: href("tr[data-house='1'] td[data-col=ruler] a.ob-term"),
+        aspect: href("tr[data-aspect] td[data-col=aspect] a.ob-term"),
+        element: href(".ob-bal[data-group=elements] a.ob-term"),
+        pick: Boolean(document.querySelector("tr[data-body=saturn] td[data-col=body] a.ob-term")),
+      };
+    });
+    for (const [k, v] of Object.entries(links)) {
+      if (k === "pick") continue;
+      if (!v || !/^\/encyclopedia\/[a-z0-9-]+$/.test(v)) fail(`the table's ${k} link: ${v}`);
+    }
+    if (links.pick) fail("the row's own name became a link (it chooses the row)");
+    // The row still chooses its reading; the side panel then names its entries.
+    await saturn.locator("td[data-col=body] button").click();
+    await page.getByTestId("reading-terms").waitFor({ timeout: 8000 });
+    const panel = await page.getByTestId("reading-terms").evaluate((el) => [...el.querySelectorAll("a.ob-term")].map((a) => a.getAttribute("href")));
+    if (panel[0] !== "/encyclopedia/saturn" || panel.length !== 3) fail(`the panel's entries ${JSON.stringify(panel)}`);
+    // A word pressed in a row opens its entry and leaves the row's choice alone.
+    const chosen = await page.evaluate(() => document.querySelector("tr[data-body=saturn]")?.getAttribute("data-selected"));
+    const sign = links.sign;
+    await page.locator("tr[data-body=mars] td[data-col=position] a.ob-term").click();
+    await page.waitForURL((u) => u.pathname.startsWith("/encyclopedia/"), { timeout: 10000 });
+    await page.getByTestId("enc-back").waitFor({ timeout: 10000 });
+    await page.getByTestId("enc-back").click();
+    await page.locator("tr[data-body=saturn]").first().waitFor({ timeout: 15000 });
+    await page.waitForTimeout(600);
+    const after = await page.evaluate(() => document.querySelector("tr[data-body=saturn]")?.getAttribute("data-selected"));
+    if (chosen !== "1" || after !== "1") fail(`the chosen row ${chosen} → ${after} (a sign's link chose Mars?)`);
+    if (!sign) fail("no sign link");
+    // The glossary's words link to their entries.
+    await page.getByTestId("glossary").locator("summary").click();
+    await page.locator("[data-testid=glossary] dt a.ob-term").first().waitFor({ timeout: 8000 });
+    const words = await page.locator("[data-testid=glossary] dt a.ob-term").evaluateAll((els) => els.map((a) => a.getAttribute("href")));
+    if (words.length < 20 || words.some((h) => !/^\/encyclopedia\/[a-z0-9-]+$/.test(h))) fail(`the glossary's links ${words.slice(0, 5)}`);
+    console.log("links from the studio OK");
   } finally {
     await browser.close();
   }

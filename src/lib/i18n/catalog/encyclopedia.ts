@@ -38,6 +38,8 @@ export const encyclopedia = {
   encNext: ["Next", "Suivant"],
   encLicence: ["Text under {licence}: share it with credit, not for profit.", "Texte sous licence {licence}\u202f: à partager en citant la source, sans usage commercial."],
   encReadFull: ["Read the full page", "Lire la page entière"],
+  // Under a chart reading in the side panel: the entries of what it is about (part 7).
+  encInPanel: ["In the encyclopedia", "Dans l’encyclopédie"],
   encClose: ["Close", "Fermer"],
   encLinks: ["Links to the encyclopedia", "Liens vers l’encyclopédie"],
   encLinksLead: ["How words with an entry are marked. They are links in every case.", "Le marquage des mots qui ont une entrée. Ce sont des liens dans tous les cas."],

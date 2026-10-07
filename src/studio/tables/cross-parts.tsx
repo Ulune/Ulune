@@ -1,4 +1,5 @@
 import { ASPECT_COLOR } from "@/lib/chart/constants";
+import { TermWord } from "@/encyclopedia/TermWord";
 import { lineInk } from "@/lib/chart/wheel-style";
 import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { SegmentedToggle } from "@/components/segmented-toggle";
@@ -79,7 +80,9 @@ export function Position({ cell, sign }: { cell: Cell; sign: SignId }) {
       <Maybe cell={cell} mono />{" "}
       <span className="inline-flex items-center gap-1.5 align-[-1px]">
         <SignGlyph id={sign} size={12} />
-        {signName(sign, locale)}
+        <TermWord kind="sign" id={sign}>
+          {signName(sign, locale)}
+        </TermWord>
       </span>
     </span>
   );
@@ -272,7 +275,9 @@ export function CrossAspects({
               <td data-col="aspect">
                 <span className="inline-flex items-center gap-1.5">
                   <AspectGlyph id={l.type} size={15} />
-                  {aspectName(l.type, locale)}
+                  <TermWord kind="aspect" id={l.type}>
+                    {aspectName(l.type, locale)}
+                  </TermWord>
                 </span>
                 {r.twins.length ? (
                   <span className="ulune-cell-sub" data-testid="aspect-mirror">

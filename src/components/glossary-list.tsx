@@ -1,5 +1,9 @@
 import { GLOSSARY_ORDER, glossaryBody, glossaryFor, glossaryTerm, type GlossaryId } from "@/lib/i18n/glossary";
 import { useI18n } from "@/lib/i18n/locale";
+import { Term } from "@/encyclopedia/Term";
+
+/** A glossary word's entry in the encyclopedia: its id, in kebab case (lifePath → life-path). */
+const entryOf = (id: GlossaryId) => id.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 
 /** Some of the glossary's words, each with its sentence or two (a table part's "Words used here"). */
 export function GlossaryTerms({ ids }: { ids: GlossaryId[] }) {
@@ -12,7 +16,9 @@ function Terms({ ids }: { ids: GlossaryId[] }) {
     <dl className="ob-glossary-dl">
       {ids.map((id) => (
         <div key={id} className="ob-glossary-item" data-term={id}>
-          <dt>{glossaryTerm(id, locale)}</dt>
+          <dt>
+            <Term id={entryOf(id)}>{glossaryTerm(id, locale)}</Term>
+          </dt>
           <dd>{glossaryBody(id, locale)}</dd>
         </div>
       ))}
