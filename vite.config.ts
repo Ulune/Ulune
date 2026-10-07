@@ -73,6 +73,19 @@ export default defineConfig(({ command, isPreview }) => ({
                 },
                 // Everything the entry itself needs (root, providers, UI text).
                 { name: "app", tags: ["$initial"], test: /[\\/]src[\\/]/, priority: 2 },
+                // TanStack Start's client side (its server-function calls), after the
+                // app's own: the entry needs it, and left to the wheel's group it made
+                // every page, the encyclopedia's too, download the wheel (R6, 7 Oct 2026).
+                { name: "vendor-start", test: /node_modules[\\/]@tanstack[\\/]start-client-core[\\/]/, priority: 1.8 },
+                // Small helpers the pages outside the studio share with the wheel (the
+                // top bar's class names, the private-space button's motion check and
+                // tour, the footer's loading lines): a chunk of their own, so the
+                // encyclopedia's, the guide's and the settings' pages leave the wheel alone.
+                {
+                  name: "shared",
+                  test: /[\\/]src[\\/](lib[\\/](utils|depth[\\/]env|tour[\\/](state|keys))\.ts|components[\\/]loading-lines\.tsx)|node_modules[\\/]clsx[\\/]/,
+                  priority: 1.5,
+                },
                 // The natal wheel and all it imports (the studio's first figure),
                 // with the studio's URL state.
                 {

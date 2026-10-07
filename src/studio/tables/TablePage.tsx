@@ -12,6 +12,7 @@ import { toast } from "@/lib/toast";
 import { downloadText } from "@/lib/download-text";
 import { copyTextAndTable, encodeCsv, htmlTable, parseCsv } from "@/lib/csv";
 import { activePartIndex, barScrollFor, isAtEnd, scrollTargetFor } from "@/studio/tables/table-spy";
+import { keepPart, keptPart, scrollBack } from "@/studio/return-parts";
 import "@/studio/modes/styles/tables.css";
 
 export type TablePart = {
@@ -102,6 +103,8 @@ export function TablePage({
   // part a link chose, held until the reader scrolls (a short last part never
   // reaches the top, and would lose its mark to the part below it).
   const state = useRef({ barH: 0, gliding: false, pinned: null as string | null, endTimer: 0, frame: 0 });
+  /** A scroll on its way back after a page outside the studio (R6). */
+  const kept = useRef<{ pending: number | null }>({ pending: null });
 
   const mark = useCallback(
     (id: string) => {
@@ -163,11 +166,23 @@ export function TablePage({
     };
     target.addEventListener("scroll", onScroll, { passive: true });
     target.addEventListener("scrollend", endGlide);
+    // Back from a page outside the studio, the table exactly where it was (R6).
+    const k = kept.current;
+    const exact = keptPart<number>(`table:${name}`);
+    let stopExact: (() => void) | null = null;
+    if (exact && scroller !== document.scrollingElement) {
+      k.pending = exact;
+      stopExact = scrollBack(scroller, exact, () => {
+        k.pending = null;
+      });
+    }
     // The part last read comes back with the table (after the stage has
     // put its scroll back to the top).
     const want = lastRead.get(name) ?? startAt;
     let restore = 0;
-    if (want && want !== order[0] && order.includes(want)) {
+    if (stopExact) {
+      s.frame = requestAnimationFrame(compute);
+    } else if (want && want !== order[0] && order.includes(want)) {
       restore = requestAnimationFrame(() => {
         const part = document.getElementById(partDomId(want));
         if (!part) return;
@@ -186,6 +201,7 @@ export function TablePage({
     return () => {
       target.removeEventListener("scroll", onScroll);
       target.removeEventListener("scrollend", endGlide);
+      stopExact?.();
       cancelAnimationFrame(restore);
       cancelAnimationFrame(s.frame);
       s.frame = 0;
@@ -193,6 +209,16 @@ export function TablePage({
       s.gliding = false;
     };
   }, [ids, name, mark, startAt]);
+
+  // Where the table was scrolled, kept as it goes (read before the page is taken
+  // down; a position still on its way back is the one kept).
+  useLayoutEffect(() => {
+    const scroller = scrollerOf(root.current);
+    const k = kept.current;
+    return () => {
+      if (scroller && scroller !== document.scrollingElement) keepPart(`table:${name}`, k.pending ?? scroller.scrollTop);
+    };
+  }, [name]);
 
   // On a narrow bar, slide it sideways to keep the marked link in view.
   useEffect(() => {

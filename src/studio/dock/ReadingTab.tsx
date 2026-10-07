@@ -14,6 +14,7 @@ import { useWheelView } from "@/studio/modes/wheel-view";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { useStudioStore } from "@/studio/store";
 import { useEffect, useRef, useState } from "react";
+import { keptOr, useKeep, useKeptScroll } from "@/studio/return-parts";
 
 export function ReadingTab() {
   const { locale, t } = useI18n();
@@ -39,10 +40,20 @@ export function ReadingTab() {
   const natalRoot = natalRootReading(dossier);
   // Back trail: readings opened from a fact or row inside another reading.
   // Any other change of selection (wheel, table, hello) starts a new trail.
-  const [trail, setTrail] = useState<{ id: string; title: string }[]>([]);
+  // Kept, with where the panel was scrolled, when the reader leaves the studio and comes back (R6).
+  const [trail, setTrail] = useState<{ id: string; title: string }[]>(() => keptOr("reading-trail", []));
+  useKeep("reading-trail", trail);
+  const scroller = useRef<HTMLDivElement>(null);
+  useKeptScroll(scroller, "dock-reading");
   const internal = useRef(false);
   const selectedId = reading?.id ?? null;
+  const firstRun = useRef(true);
   useEffect(() => {
+    // The trail a return brought back stays; later changes of selection start a new one.
+    if (firstRun.current) {
+      firstRun.current = false;
+      return;
+    }
     if (internal.current) {
       internal.current = false;
       return;
@@ -96,7 +107,7 @@ export function ReadingTab() {
   }
 
   return (
-    <div className="ulune-dock-scroll flex flex-col gap-[var(--space-3)] px-[var(--stage-pad)] py-[var(--space-3)]">
+    <div ref={scroller} className="ulune-dock-scroll flex flex-col gap-[var(--space-3)] px-[var(--stage-pad)] py-[var(--space-3)]">
       {readingPending ? (
         <LoadingLines testId="reading-loading" lines={5} />
       ) : reading ? (

@@ -28,6 +28,7 @@ import { BirthTab } from "@/studio/dock/BirthTab";
 import { isWide, loadPanelWidth, savePanelWidth, type PanelWidth } from "@/studio/dock/dock-layout";
 import { ReadingTab } from "@/studio/dock/ReadingTab";
 import { useStudioStore, type DockTab } from "@/studio/store";
+import { keptOr, useKeep } from "@/studio/return-parts";
 import { useModeReading } from "@/studio/modes/data";
 import { onTablistKeyDown } from "@/lib/a11y/tablist";
 import { SHEET_MOVE_MS, captureStage, dropStage, playStage } from "@/lib/stage-flip";
@@ -82,7 +83,9 @@ export function Dock() {
   const openDock = useStudioStore((s) => s.openDock);
   const toggleDock = useStudioStore((s) => s.toggleDock);
   const [width, setWidth] = useState<PanelWidth>("normal");
-  const [full, setFull] = useState(false);
+  // The phone's sheet whole or at half, as it was when the reader left the studio (R6).
+  const [full, setFull] = useState(() => keptOr("sheet-full", false));
+  useKeep("sheet-full", full);
   const detent: SheetDetent = !dockOpen ? "peek" : full ? "full" : "half";
   // Something chosen on the chart while the panel is closed: the chart stays
   // whole (store.choose) and the Reading tab carries its name, to open when

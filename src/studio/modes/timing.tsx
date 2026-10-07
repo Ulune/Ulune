@@ -1,4 +1,4 @@
-import { Suspense, useLayoutEffect, useMemo, useRef } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import { CalendarBar, CalendarScope } from "@/components/calendar-bar";
 import { CalendarInvite } from "@/components/calendar-layers";
 import { CalendarLegend, CalendarMonth } from "@/components/calendar-month";
@@ -20,6 +20,7 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useStudioStore } from "@/studio/store";
+import { useKeptScroll } from "@/studio/return-parts";
 import "@/studio/modes/styles/timing.css";
 
 const loadTable = () => import("@/studio/tables/calendar-table");
@@ -84,9 +85,8 @@ function TimingFigure() {
   // then brings today or the day chosen into view, the year its month.
   const hero = useRef<HTMLDivElement>(null);
   const scope = timing?.scope;
-  useLayoutEffect(() => {
-    if (hero.current) hero.current.scrollTop = 0;
-  }, [scope]);
+  // …except when the studio comes back from a page outside it: where it was (R6).
+  useKeptScroll(hero, "calendar-scroll", scope);
   if (!timing) return null;
   if (!timing.enabled && !timing.cast) {
     return <p className="px-5 py-10 font-display text-2xl text-fg">{timingNoNatal(locale)}</p>;

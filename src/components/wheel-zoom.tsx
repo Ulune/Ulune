@@ -2,6 +2,7 @@ import { Box, Minus, Plus } from "lucide-react";
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
@@ -15,6 +16,7 @@ import { supportsWebGL } from "./depth/gl/support";
 import { preloadView3D } from "./depth/load-view3d";
 import { whenIdle } from "@/lib/lazy-component";
 import { useAspectSlot, useMoreSlots, useZoomSlot } from "@/studio/stage/stage-slots";
+import { keepPart, keptPart } from "@/studio/return-parts";
 
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 2.5;
@@ -250,9 +252,12 @@ export function WheelZoom({
    */
   const [can3d, setCan3d] = useState(true);
   useEffect(() => whenIdle(() => setCan3d(supportsWebGL()), 3000), []);
-  const [zoom, setZoom] = useState(ZOOM_MIN);
-  const zoomRef = useRef(ZOOM_MIN);
-  const panRef = useRef<Pt>({ x: 0, y: 0 });
+  // Back from a page outside the studio, the wheel as it was zoomed and moved (R6).
+  const [kept] = useState(() => keptPart<{ zoom: number; pan: Pt }>("wheel-zoom"));
+  const [zoom, setZoom] = useState(kept?.zoom ?? ZOOM_MIN);
+  const zoomRef = useRef(kept?.zoom ?? ZOOM_MIN);
+  const panRef = useRef<Pt>(kept?.pan ?? { x: 0, y: 0 });
+  useLayoutEffect(() => () => keepPart("wheel-zoom", { zoom: zoomRef.current, pan: panRef.current }), []);
   const innerRef = useRef<HTMLDivElement>(null);
   const portRef = useRef<HTMLDivElement>(null);
   const pointers = useRef(new Map<number, Pt>());

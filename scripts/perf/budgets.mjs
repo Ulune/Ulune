@@ -127,7 +127,10 @@ if (want.has("bundle")) {
   // the private space's button (4.7) arrives within the load, 268.3 when just after; limit
   // 274. The next saving is the UI text: both languages ship in every first load (catalog
   // 93 KB minified); one language up front would win back more than this.
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 274, "KB gz");
+  // R6, back to the same place (7 Oct 2026): what the studio's parts keep as it leaves the
+  // page, 1.4; TanStack Start's client and a few helpers in chunks of their own (the pages
+  // outside the studio no longer download the wheel), 0.5 more on "/": 275.2-276.0, limit 276.5.
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 276.5, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's
@@ -145,8 +148,15 @@ if (want.has("bundle")) {
   // the sheets the first paint waits for stay within their 32.5.)
   check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 53, "KB gz");
   const largest = Math.max(...home.files.filter((f) => f.type === "script").map((f) => f.gz ?? 0));
-  // (The natal wheel's chunk: 79.4-80.2 since parts 96-97, as shared modules land in it or not; limit 81.)
+  // (The natal wheel's chunk: 79.4-80.2 since parts 96-97, as shared modules land in it or not; limit 81.
+  // 77.4 since R6, TanStack Start's client and the helpers the other pages share having left it.)
   check("bundle", "largest script", largest / 1024, 81, "KB gz");
+  // An encyclopedia page opened afresh (a search engine's visitor): its own code, never the
+  // studio's. 159.8 on 7 Oct 2026 (238.3 while the wheel's chunk came with every page).
+  const enc = node([join(ROOT, "scripts/perf/load/chunks.mjs"), "/encyclopedia/saturn", "--json"]);
+  const [entry] = JSON.parse(enc.slice(enc.indexOf("[")));
+  check("bundle", '"/encyclopedia/saturn" JavaScript with the load', entry.jsUpFront / 1024, 165, "KB gz");
+  check("bundle", '"/encyclopedia/saturn" downloads none of the studio', entry.files.filter((f) => /\/assets\/(wheel|_studio)-/.test(f.file)).length, 0, "");
 }
 
 if (want.has("scrub")) {

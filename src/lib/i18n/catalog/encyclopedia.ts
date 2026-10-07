@@ -22,6 +22,10 @@ export const encyclopedia = {
   encAZ: ["A to Z", "De A à Z"],
   encLetters: ["Letters", "Lettres"],
   encBreadcrumb: ["Where you are", "Vous êtes ici"],
+  // Back to where the studio was left in this tab (page reorganisation R6): a chart, the Calendar, or Charts without a chart.
+  encBackChart: ["Back to your chart", "Retour à votre thème"],
+  encBackCalendar: ["Back to the Calendar", "Retour au calendrier"],
+  encBackCharts: ["Back to Charts", "Retour aux thèmes"],
   encRelated: ["Related", "Voir aussi"],
   encSources: ["Sources", "Sources"],
   encRevised: ["Last revised on {date}.", "Dernière révision le {date}."],

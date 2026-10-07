@@ -34,6 +34,7 @@ import type { ElementReading, TimingCast } from "@/lib/chart/types";
 import { useI18n } from "@/lib/i18n/locale";
 import { natalBodiesOf } from "@/studio/modes/hooks/natal-bodies";
 import { useStudioStore } from "@/studio/store";
+import { keptOr, useKeep } from "@/studio/return-parts";
 import { useVisibleInterval } from "@/lib/use-visible-interval";
 import { lru } from "@/lib/chart/result-cache";
 import { errorForState } from "@/lib/i18n/errors";
@@ -117,11 +118,16 @@ export function useTiming() {
     [numShown, tz],
   );
 
-  const [scope, setScope] = useState<TimingScope>("month");
-  const [civil, setCivil] = useState<CivilDate>(() => {
-    const now = civilFromUtc(new Date(), tz);
-    return { year: now.year, month: now.month, day: now.day };
-  });
+  // The day and the scope shown, back as they were after a page outside the studio (R6).
+  const [scope, setScope] = useState<TimingScope>(() => keptOr("calendar-scope", "month"));
+  useKeep("calendar-scope", scope);
+  const [civil, setCivil] = useState<CivilDate>(() =>
+    keptOr("calendar-day", () => {
+      const now = civilFromUtc(new Date(), tz);
+      return { year: now.year, month: now.month, day: now.day };
+    }),
+  );
+  useKeep("calendar-day", civil);
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [wins, setWins] = useState<SkyWindow[]>([]);
   const [nowWins, setNowWins] = useState<SkyWindow[]>([]);

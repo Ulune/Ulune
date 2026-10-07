@@ -112,6 +112,7 @@ import { WheelKeys } from "./wheel-keys";
 import { arcSpan, boxesOverlap, placeBadges, placeBeside, placeLabels, type Disc, type LabelPlace, type OBox } from "@/lib/chart/wheel-layout";
 import { createSelectionStore, type SelectionStore } from "@/lib/chart/selection-store";
 import { getWheelPrefs, subscribeWheelPrefs } from "@/lib/chart/wheel-prefs";
+import { keepPart, keptPart, leavesStudio, notePinLetGo } from "@/studio/return-parts";
 import { WheelToggles } from "./wheel-toggles";
 import type { AspectId } from "@/lib/chart/types";
 import { formatArc } from "@/lib/utils";
@@ -1512,13 +1513,18 @@ const ChartWheelView = memo(function ChartWheelView({
 
   useEffect(() => {
     // A press anywhere off the chart and its companions lets go of the pin, at once.
+    // A link out of the studio keeps it, to find it there on the way back (R6);
+    // one let go by a control (a menu, the search) comes back if the studio is left from there.
     const onDoc = (e: PointerEvent) => {
       const selected = selectedIdRef.current;
       if (!selected) return;
       const node = e.target;
       if (!(node instanceof Element)) return;
-      if (node.closest("[data-chart-pick]")) return;
+      if (node.closest("[data-chart-pick]") || leavesStudio(node)) return;
       chooseRef.current(selected);
+      if (node.closest("button, a[href], input, select, textarea, summary, [role=button], [role=tab], [role=menuitem], [role=option]")) {
+        notePinLetGo(selected);
+      }
     };
     document.addEventListener("pointerdown", onDoc);
     return () => document.removeEventListener("pointerdown", onDoc);
@@ -1740,6 +1746,9 @@ const ChartWheelView = memo(function ChartWheelView({
       offWheelPrefs();
       offPreview();
       offReset();
+      // The 3D view's camera and lens, back with the studio after a page outside it (R6).
+      const cam = view3dRef.current?.entered ? depth.getCamera() : null;
+      if (cam) keepPart("camera-3d", { cam, lens: depth.lensZoom() });
       view3dRef.current?.destroy();
       view3dRef.current = null;
       depth.destroy();
@@ -1804,6 +1813,11 @@ const ChartWheelView = memo(function ChartWheelView({
       scene?.setAttribute("data-depth-view", "3d");
       clearHoverRef.current();
       v.enter();
+      const kept = keptPart<{ cam: { rx: number; rz: number }; lens: number }>("camera-3d");
+      if (kept) {
+        depth.setCamera(kept.cam);
+        if (kept.lens > 1.001) depth.zoomLens(kept.lens / depth.lensZoom());
+      }
       cacheRef.current = null;
       paintNowRef.current(hoverIdRef.current);
     } else if (cur && cur.entered) {

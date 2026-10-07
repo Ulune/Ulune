@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { LoadFailed, LoadingLines } from "@/components/loading-lines";
 import { OfflineOffer } from "@/components/offline-offer";
 import { usePack } from "@/lib/content/packs";
@@ -21,6 +21,7 @@ import { loadNatalTable } from "@/studio/modes/natal";
 import { prefetchModesAtIdle, useModeDef } from "@/studio/modes/registry";
 import { Stage } from "@/studio/stage/Stage";
 import { bindStudioI18n, setStudioLocale, useStudioStore } from "@/studio/store";
+import { isReturning } from "@/studio/return-parts";
 
 export function StudioWorkspace() {
   const { locale, t, subscribeUserLocale } = useI18n();
@@ -106,9 +107,16 @@ export function StudioWorkspace() {
 
   // Compact: a fresh chart, mode or view starts with the sheet at peek so the
   // figure (or the table, which the open sheet squeezed) is the first thing seen.
+  // Back from a page outside the studio, the sheet stays as it was left (R6).
+  const sheetAt = useRef<string | null>(null);
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
     if (isWide()) return;
+    const at = `${panelOn}|${page}|${view}`;
+    // The mount (or React's second one in development): the same place as before.
+    const mounting = sheetAt.current === null || sheetAt.current === at;
+    sheetAt.current = at;
+    if (mounting && isReturning()) return;
     if (panelOn) useStudioStore.setState({ dockOpen: false });
   }, [panelOn, page, view]);
 

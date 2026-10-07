@@ -20,6 +20,7 @@ import { coerceBodiesPage } from "@/studio/bodies-pages";
 import { useStudioStore } from "@/studio/store";
 import { studioHref, type StudioSearch } from "@/studio/url";
 import { onTablistKeyDown } from "@/lib/a11y/tablist";
+import { useKeptScroll } from "@/studio/return-parts";
 
 export function LookTab() {
   const { t, locale } = useI18n();
@@ -38,6 +39,8 @@ export function LookTab() {
   }, [urlLook, page]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Where the tab was scrolled, back with the studio after a page outside it (R6).
+  useKeptScroll(scrollRef, "dock-look");
 
   const setPage = useCallback(
     (next: LookPage) => {

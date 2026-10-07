@@ -1,6 +1,7 @@
-import { Link } from "@tanstack/react-router";
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
 import { PageTopBar } from "@/studio/shell/PageTopBar";
+import { historyIndex, studioReturn } from "@/studio/return-target";
 import { TEXT_LICENCE } from "./head";
 import type { Lang } from "./types";
 import { tr } from "./words";
@@ -50,9 +51,45 @@ export function EncFrame({ lang, testId, narrow = false, children }: { lang: Lan
     <div className="min-w-0" data-testid={testId}>
       <PageTopBar />
       <main className={narrow ? "ob-enc ob-enc--narrow" : "ob-enc"} lang={lang}>
+        <BackToStudio lang={lang} />
         {children}
       </main>
     </div>
+  );
+}
+
+/**
+ * "← Back to your chart" (page reorganisation plan, R6), when the reader came
+ * from the studio in this tab: to the very entry of the tab's history it was
+ * left from, as the browser's Back would, past the encyclopedia's pages read
+ * since; the studio comes back with its chart, lens, pin, zoom and scroll.
+ * A first visit (from a search engine, a shared link) has no such link: the
+ * sections above lead into Ulune.
+ */
+function BackToStudio({ lang }: { lang: Lang }) {
+  const router = useRouter();
+  const [back] = useState(studioReturn);
+  if (!back) return null;
+  const words = back.calendar ? "encBackCalendar" : back.chart ? "encBackChart" : "encBackCharts";
+  return (
+    <p className="ob-enc-back">
+      <a
+        href={back.href}
+        className="ob-enc-back-link"
+        data-testid="enc-back"
+        onClick={(e) => {
+          // A new tab or window: the browser's own way (that tab starts afresh).
+          if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+          e.preventDefault();
+          const now = historyIndex();
+          if (back.index != null && now != null && back.index < now) router.history.go(back.index - now);
+          else void router.navigate({ href: back.href });
+        }}
+      >
+        <span aria-hidden="true">←</span>
+        {tr(lang, words)}
+      </a>
+    </p>
   );
 }
 

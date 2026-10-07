@@ -5,8 +5,16 @@
  */
 import { Shell } from "@/studio/shell/Shell";
 import { useLibraryBoot } from "@/studio/library-boot";
+import { StudioReturnTracker, useStudioReturn } from "@/studio/return-memory";
 
 export function StudioPage() {
+  // Back to the same place after a page outside the studio (R6).
+  useStudioReturn();
   useLibraryBoot();
-  return <Shell />;
+  return (
+    <>
+      <StudioReturnTracker />
+      <Shell />
+    </>
+  );
 }

@@ -50,6 +50,20 @@
   color: var(--color-fg);
 }
 
+/* Back to where the studio was left in this tab (R6): above the crumbs, quiet. */
+.ob-enc-back {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+.ob-enc-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  min-height: 24px;
+  color: var(--color-fg-muted);
+  text-decoration: none;
+}
+
 /* The head: glyph, name, tradition, the other language. */
 .ob-enc-head {
   display: flex;
@@ -129,6 +143,9 @@
   color: var(--color-fg);
 }
 @media (hover: hover) {
+  .ob-enc-back-link:hover {
+    color: var(--color-fg);
+  }
   .ob-enc-twin:hover,
   .ob-enc-crumbs a:hover,
   .ob-enc-card-link:hover,

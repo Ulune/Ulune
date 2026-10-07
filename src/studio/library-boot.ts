@@ -8,6 +8,13 @@ import { hydratePair, studioFlags, useStudioStore } from "@/studio/store";
 import { loadDockOpen } from "@/studio/dock/dock-layout";
 
 /**
+ * Read once per page load: the studio coming back from a page outside it (an
+ * encyclopedia page, Settings) finds its store as it left it (R6), rather than
+ * the chart applied again (its form reset, its pin and its reading lost).
+ */
+let booted = false;
+
+/**
  * The studio's library as the page opens, before the first paint so a
  * returning reader does not see the empty form first: what this tab already
  * showed, or else the charts kept in the clear before private spaces (read,
@@ -20,6 +27,8 @@ export function useLibraryBoot() {
   const activeId = useStudioStore((s) => s.activeId);
 
   useLayoutEffect(() => {
+    if (booted) return;
+    booted = true;
     // The panel as the reader left it, once the server's page is hydrated (store.ts starts it open, as the server draws it).
     const open = loadDockOpen();
     if (useStudioStore.getState().dockOpen !== open) useStudioStore.setState({ dockOpen: open });

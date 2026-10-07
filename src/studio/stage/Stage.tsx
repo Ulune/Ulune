@@ -11,6 +11,7 @@ import { ExportMenu } from "@/studio/stage/ExportMenu";
 import { KeepOffer } from "@/components/space/keep-offer";
 import { useStudioStore } from "@/studio/store";
 import { useStudioUrl } from "@/studio/use-studio-url";
+import { useKeptScroll } from "@/studio/return-parts";
 
 function ViewToggle() {
   const { t } = useI18n();
@@ -152,11 +153,10 @@ export function Stage({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   // On a phone the stage scrolls (a full-width wheel with its controls): each
-  // mode and view starts at the top.
+  // mode and view starts at the top, but the studio coming back from a page
+  // outside it comes back where it was (R6).
   const stageRef = useRef<HTMLElement>(null);
-  useLayoutEffect(() => {
-    if (stageRef.current) stageRef.current.scrollTop = 0;
-  }, [swapKey]);
+  useKeptScroll(stageRef, "stage", swapKey);
   // Held upright on a tablet with the sheet folded, the wheel takes the whole width and the
   // stage scrolls to its controls. When giving up a little of that width (up to 12%) lets the
   // controls row fit above the sheet, the wheel does (shell.css reads --ob-port-fit); phones
