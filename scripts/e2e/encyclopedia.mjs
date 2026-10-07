@@ -100,7 +100,7 @@ await ensureShotsDir();
     const rows = await page.locator("[data-testid=enc-az] li[data-entry]").count();
     if (rows < 69) fail(`A–Z lists ${rows} entries`);
     if ((await page.locator('[data-testid=enc-az] li[data-entry="retrograde"] a').getAttribute("href")) !== "/encyclopedia/retrograde") fail("A–Z: Retrograde is not a link to its page");
-    if ((await page.locator('[data-testid=enc-az] li[data-entry="decan"] button[data-term="decan"]').count()) !== 1) fail("A–Z: Decan is not a card");
+    if ((await page.locator('[data-testid=enc-az] li[data-entry="hd-gate"] button[data-term="hd-gate"]').count()) !== 1) fail("A–Z: Gate (Human Design) is not a card");
     await page.locator("[data-testid=enc-letters] a", { hasText: /^D$/ }).click();
     await page.waitForFunction(() => location.hash === "#az-d", null, { timeout: 4000 });
     const top = await page.locator("#az-d").evaluate((el) => el.getBoundingClientRect().top);
@@ -166,13 +166,18 @@ await ensureShotsDir();
     if ((await word.getAttribute("aria-describedby")) !== "ob-term-card-text") fail("card: the word is not described by it");
     await page.mouse.move(5, 5);
     await card.waitFor({ state: "detached", timeout: 4000 });
-    // A card only: the card, without "Read the full page".
-    const cardOnly = page.locator('[data-section=practice] [data-term="transit"]').first();
-    await cardOnly.hover();
-    await card.waitFor({ timeout: 4000 });
-    if (/Read the full page/.test(await card.innerText())) fail("a card only offers a page");
-    await page.mouse.move(5, 5);
-    await card.waitFor({ state: "detached", timeout: 4000 });
+    // A card only (a Human Design word linked from the Transit page): the card, without "Read the full page".
+    {
+      const other = await page.context().browser().newPage({ viewport: { width: 1280, height: 900 } });
+      await gotoApp(other, "/encyclopedia/transit");
+      const cardOnly = other.locator('[data-section=traditions] [data-term="hd-gate"]').first();
+      await cardOnly.scrollIntoViewIfNeeded();
+      await cardOnly.hover();
+      const otherCard = other.getByTestId("term-card");
+      await otherCard.waitFor({ timeout: 4000 });
+      if (/Read the full page/.test(await otherCard.innerText())) fail("a card only offers a page");
+      await other.close();
+    }
     // The keyboard: focus shows it at once, Escape closes it and leaves the focus on the word.
     await page.keyboard.press("Shift");
     await word.focus();
@@ -190,9 +195,14 @@ await ensureShotsDir();
     // Previous and next in the family; the twin in the other language.
     if ((await page.getByTestId("enc-prev").getAttribute("href")) !== "/encyclopedia/retrograde") fail("station: previous is not Retrograde");
     await page.getByTestId("enc-next").click();
-    await page.waitForURL(`${origin}/encyclopedia/eclipse`, { timeout: 10000 });
+    await page.waitForURL(`${origin}/encyclopedia/ingress`, { timeout: 10000 });
+    await page.waitForFunction(() => document.querySelector("main h1")?.textContent === "Ingress", null, { timeout: 8000 });
+    // The family's last page has no next (Season, after Eclipse and Void of course).
+    await page.goto(`${origin}/encyclopedia/equinox-and-solstice`, { waitUntil: "load" });
+    await page.getByTestId("enc-entry").waitFor();
+    if ((await page.getByTestId("enc-next").count()) !== 0) fail("season: the last page of its family has a next");
+    await page.goto(`${origin}/encyclopedia/eclipse`, { waitUntil: "load" });
     await page.waitForFunction(() => document.querySelector("main h1")?.textContent === "Eclipse", null, { timeout: 8000 });
-    if ((await page.getByTestId("enc-next").count()) !== 0) fail("eclipse: the last page of its family has a next");
     await page.getByTestId("enc-twin").click();
     await page.waitForURL(`${origin}/encyclopedie/eclipse`, { timeout: 10000 });
     await page.waitForFunction(() => document.querySelector("main h1")?.textContent === "Éclipse", null, { timeout: 8000 });
@@ -204,7 +214,7 @@ await ensureShotsDir();
     await page.getByTestId("enc-tradition").waitFor();
     // A tradition's home: its families as cards; a card only with its summary and no link.
     const decan = page.locator('#decan');
-    if ((await decan.locator("a").count()) !== 0 || !/Un tiers de signe/.test(await decan.innerText())) fail("a card only on its tradition's home");
+    if ((await decan.locator("a").count()) !== 1 || !/Un tiers de signe/.test(await decan.innerText())) fail("a page with its summary on its tradition's home");
     if ((await page.locator('[data-entry="station"] a').getAttribute("href")) !== "/encyclopedie/station") fail("a page on its tradition's home");
     console.log("previous, next, twin, tradition home OK");
 
@@ -271,7 +281,7 @@ await ensureShotsDir();
     await page.goto(`${DEV}/encyclopedia?q=retrogarde`, { waitUntil: "load" });
     if ((await page.locator('[data-testid=enc-results] [data-entry="retrograde"]').count()) !== 1) fail("no JavaScript: the search did not answer");
     // A card only, and an unknown address: not found, 404.
-    for (const p of ["/encyclopedia/decan", "/encyclopedie/nothing-here"]) {
+    for (const p of ["/encyclopedia/gate", "/encyclopedie/nothing-here"]) {
       const lost = await page.goto(`${DEV}${p}`, { waitUntil: "load" });
       if (lost?.status() !== 404) fail(`${p}: ${lost?.status()}, not 404`);
       if ((await page.locator('meta[name="robots"]').getAttribute("content")) !== "noindex") fail(`${p}: not kept out of search`);
@@ -452,8 +462,11 @@ await ensureShotsDir();
     // A word pressed in a row opens its entry and leaves the row's choice alone.
     const chosen = await page.evaluate(() => document.querySelector("tr[data-body=saturn]")?.getAttribute("data-selected"));
     const sign = links.sign;
-    await page.locator("tr[data-body=mars] td[data-col=position] a.ob-term").click();
-    await page.waitForURL((u) => u.pathname.startsWith("/encyclopedia/"), { timeout: 10000 });
+    const marsSign = page.locator("tr[data-body=mars] td[data-col=position] a.ob-term");
+    await marsSign.scrollIntoViewIfNeeded();
+    await marsSign.click();
+    // The app moves there itself (no page load).
+    await page.waitForFunction(() => location.pathname.startsWith("/encyclopedia/"), null, { timeout: 10000 });
     await page.getByTestId("enc-back").waitFor({ timeout: 10000 });
     await page.getByTestId("enc-back").click();
     await page.locator("tr[data-body=saturn]").first().waitFor({ timeout: 15000 });

@@ -135,9 +135,13 @@ export const FAMILIES = {
         "house-10",
         "house-11",
         "house-12",
-        "house-system",
         "intercepted",
       ],
+    },
+    {
+      id: "house-systems",
+      name: { en: "House systems", fr: "Systèmes de maisons" },
+      order: ["house-system", "placidus", "whole-sign", "equal-houses", "porphyry", "koch", "regiomontanus", "campanus", "alcabitius", "morinus", "topocentric"],
     },
     {
       id: "aspects",
@@ -195,7 +199,7 @@ export const FAMILIES = {
     {
       id: "fixed-stars",
       name: { en: "Fixed stars", fr: "Étoiles fixes" },
-      order: ["fixed-star"],
+      order: ["fixed-star", "aldebaran", "regulus", "antares", "fomalhaut", "spica", "algol"],
     },
     {
       id: "techniques",
