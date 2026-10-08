@@ -33,7 +33,7 @@ Prenons une personne inventée, Yolanda Mary Kyle, née le 29 novembre 1984.
 - Le jour, 29 : 2 + 9 = 11, gardé lui aussi.
 - 11 + 11 = 22, et 22 est gardé à son tour.
 
-Son nombre d’attitude est 22. Ulune l’affiche 22/4, un [[number-22|22]] posé sur sa racine 4, et lui donne la courte lecture du 4. Elle aborde volontiers la vie avec sérieux : pratique, fiable, prudente avant de s’engager. Un peu de légèreté évite que le sérieux lui pèse.
+Son nombre d’attitude est 22. Ulune l’affiche 22/4, un [[number-22|22]] posé sur sa racine 4, et lui donne la courte lecture propre au 22. Elle aborde volontiers la vie en bâtisseuse : calme, capable, voyant déjà ce qui pourrait se construire. Partager le plan tôt permet aux autres d’aider à le porter.
 
 Sa première réalisation est le même 22. Son Chemin de vie est 8, si bien que cette réalisation dure jusqu’à son 28e anniversaire (36 moins 8).
 
@@ -44,7 +44,7 @@ Sa première réalisation est le même 22. Son Chemin de vie est 8, si bien que 
 - Le jour est réduit de la même façon, en gardant 11 et 22. Le 11 et le 29 donnent 11, le 22 donne 22.
 - Les deux sont additionnés. La somme est réduite de nouveau, et 11, 22 et 33 sont gardés. Un 33 ne vient que du 22 novembre.
 - Aucune [[karmic-debt|dette karmique]] n’est lue. Né le 3 novembre, on a 11 + 3 = 14, qui devient simplement 5.
-- Un nombre maître est affiché avec sa racine (22/4). Le court texte d’Ulune est celui de la racine.
+- Un nombre maître est affiché avec sa racine (22/4). Ulune lui donne son propre court texte, et non celui de la racine.
 
 ## Correspondances
 
@@ -61,6 +61,8 @@ Le nombre d’attitude prend les valeurs 1 à 9, 11, 22 et 33, résumées ici av
 | [[number-7|7]] | Avec réflexion : observateur, réservé | Un signe amical |
 | [[number-8|8]] | Avec assurance : capable, tourné vers les objectifs | Montrer un peu de ses doutes |
 | [[number-9|9]] | Avec ouverture : généreux, tolérant | Des limites claires |
-| [[number-11|11]], [[number-22|22]], [[number-33|33]] | Lus avec leur racine, 2, 4 et 6 | Comme pour la racine |
+| [[number-11|11]] | Avec une attention vive et sensible | Un peu de calme à soi |
+| [[number-22|22]] | En bâtisseur : calme, capable | Partager le plan tôt |
+| [[number-33|33]] | Avec un soin généreux : chaleureux, encourageant | Laisser les autres prendre soin de soi |
 
 Les positions voisines sont la première réalisation, la même somme, et le Jour de naissance, son jour. Les autres nombres secondaires sont la [[rational-thought|pensée rationnelle]], le [[balance-number|nombre d’équilibre]] et le [[subconscious-self|moi subconscient]].

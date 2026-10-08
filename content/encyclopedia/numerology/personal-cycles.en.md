@@ -60,7 +60,7 @@ Everything is worked out on the device, from the birth date alone. Ulune shows t
 
 | Cycle | Made from | Changes on | Numbers |
 | --- | --- | --- | --- |
-| [[universal-year|Universal year]] | The calendar year | 1 January | 1–9 |
+| [[universal-year|Universal year]] | The calendar year | 1 January | 1–9, 11, 22 |
 | [[personal-year|Personal year]] | Birth month, birth day, calendar year | 1 January | 1–9 |
 | [[personal-month|Personal month]] | Personal year, calendar month | The 1st of each month | 1–9 |
 | [[personal-day|Personal day]] | Personal month, day of the month | Every day | 1–9 |

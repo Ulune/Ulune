@@ -2,7 +2,7 @@
  * The encyclopedia's entry for a thing the studio already names by its id
  * (encyclopedia plan, part 7: "structured places know their term already"):
  * a body, a sign, a house, an aspect, a pattern, an element or a modality,
- * a dignity. No text is matched; a thing with no entry gives null, and the
+ * a dignity, a line of the birth grid. No text is matched; a thing with no entry gives null, and the
  * word stays plain. scripts/encyclopedia.test.mjs checks that every id given
  * here has its entry.
  */
@@ -73,7 +73,11 @@ const DIGNITY: Record<string, string> = {
   face: "face",
 };
 
-export type TermKind = "body" | "sign" | "house" | "aspect" | "pattern" | "element" | "modality" | "dignity";
+/** The birth grid's eight lines in Phillips's layout, by their digits in order; a Lo Shu line with the same three digits shares its entry. */
+const GRID_LINES = ["3-6-9", "2-5-8", "1-4-7", "1-2-3", "4-5-6", "7-8-9", "1-5-9", "3-5-7"];
+const gridKey = (id: string) => id.split("-").map(Number).sort((a, b) => a - b).join("-");
+
+export type TermKind = "body" | "sign" | "house" | "aspect" | "pattern" | "element" | "modality" | "dignity" | "gridline";
 
 /** The entry's id for a thing of the studio, or null when it has none. */
 export function termId(kind: TermKind, id: string | number | null | undefined): string | null {
@@ -98,6 +102,10 @@ export function termId(kind: TermKind, id: string | number | null | undefined): 
       return ["cardinal", "fixed", "mutable"].includes(key) ? `modality-${key}` : null;
     case "dignity":
       return DIGNITY[key] ?? null;
+    case "gridline": {
+      const line = GRID_LINES.find((l) => gridKey(l) === gridKey(key));
+      return line ? `grid-${line}` : null;
+    }
   }
 }
 
@@ -112,5 +120,6 @@ export function allTermIds(): string[] {
     ...["fire", "earth", "air", "water"].map((e) => `element-${e}`),
     ...["cardinal", "fixed", "mutable"].map((m) => `modality-${m}`),
     ...Object.values(DIGNITY),
+    ...GRID_LINES.map((l) => `grid-${l}`),
   ];
 }

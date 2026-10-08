@@ -40,7 +40,7 @@ Some numerologists do not use 33 at all. Those who do usually read it as a 6 unt
 - **[[personality-number|Personality]] 33**: comes across as deeply caring, with a quiet wisdom that invites trust.
 - **[[maturity|Maturity]] 33**: a second half of life of care on a larger scale, kept possible by clear limits.
 - **[[pinnacle|Pinnacle]] 33**: a stage of teaching or guiding others, where looking after oneself is part of the work.
-- **[[period-cycle|Period cycle]] 33**: a time of care on a larger scale. Ulune has a reading for it, though no single part of a birth date in use today reduces to 33.
+- **[[attitude-number|Attitude]] 33**, from 22 November alone: meeting life with open-hearted care, warm and ready to teach or help.
 
 ## Across traditions
 
@@ -53,7 +53,7 @@ The master numbers are modern. Mrs L. Dow Balliett, early in the 20th century, i
 
 ## How Ulune calculates it
 
-Ulune keeps 33 in the Life Path, the three name numbers and the Maturity. It also keeps it in the [[attitude-number|Attitude]], the pinnacles, the period cycles, the [[planes|planes]] and the first name. In practice it appears where several numbers are added.
+Ulune keeps 33 in the Life Path, the three name numbers and the Maturity. It also keeps it in the Attitude, the pinnacles and the [[planes|planes]]. In practice it appears where several numbers are added. No [[period-cycle|period cycle]] reaches it, since no part of a birth date reduces to 33.
 
 For a birth on 22 September 1991, the parts give 9 + 22 + 2 = 33: a Life Path 33. The 22nd stays whole, and 1991 gives 20 → 2. The first pinnacle ends at 36 − 6 = 30. A birth on 11 November 2009 gives 11 + 11 + 11 = 33.
 
@@ -71,6 +71,6 @@ Ulune reduces 33 to 6 in the [[personal-year|personal year]], month and day, the
 | [[pythagorean|Pythagorean]] letters | None |
 | Chaldean number | Compound 33, single 6 |
 | Birth grid | No cell: the grid holds single digits only |
-| Kept by Ulune | Core numbers except the Birthday, pinnacles, periods, planes |
-| Never reached | Birthday, essence |
+| Kept by Ulune | Core numbers except the Birthday, attitude, pinnacles, planes |
+| Never reached | Birthday, periods, essence |
 | Reduced by Ulune | Personal and universal cycles, balance, rational thought, gaps |

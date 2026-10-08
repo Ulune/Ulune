@@ -57,13 +57,13 @@ The master numbers are modern. Mrs L. Dow Balliett, writing in the early 1900s, 
 
 ## How Ulune calculates it
 
-A total of 11, or a total that reduces to 11, such as 29 or 38, stops at 11 where the rule keeps masters. Ulune keeps it in the core numbers: the Life Path, the three name numbers, the Birthday and the Maturity. It keeps it in the [[attitude-number|Attitude]], the pinnacles, the period cycles, the [[planes|planes]], the essence and the first name.
+A total of 11, or a total that reduces to 11, such as 29 or 38, stops at 11 where the rule keeps masters. Ulune keeps it in the core numbers: the Life Path, the three name numbers, the Birthday and the Maturity. It keeps it in the [[attitude-number|Attitude]], the pinnacles, the period cycles, the [[planes|planes]], the essence, the rational thought and the universal year.
 
 It keeps it inside the parts too. In the Life Path, a November month stays 11, and so do the 11th, the 29th, or a year like 2009. In a name, each name keeps its own 11 before the names are added. Bernard Olivier Martin, born 3 November 1978, has 29 → 11 in the vowels of Olivier.
 
 For a birth on 1 January 1980, the parts give 1 + 1 + 9 = 11: a Life Path 11. The first pinnacle ends at 36 − 2 = 34, because a master counts as its root there.
 
-Ulune reduces 11 to 2 in the [[personal-year|personal year]], month and day, the [[universal-year|universal year]], the [[balance-number|balance]] and the [[rational-thought|rational thought]]. The year 2027 adds up to 11, yet its universal year is a 2. The [[challenge|challenges]] and the [[bridge|bridges]] count 11 as 2. Yolanda Mary Kyle, born 29 November 1984, has a Birthday 11, but her personal year uses the 29th as 2.
+Ulune reduces 11 to 2 in the [[personal-year|personal year]], month and day, and the [[balance-number|balance]]. The year 2027 adds up to 11: an 11/2 [[universal-year|universal year]], read with its own text. The [[challenge|challenges]] and the [[bridge|bridges]] count 11 as 2. Yolanda Mary Kyle, born 29 November 1984, has a Birthday 11, but her personal year uses the 29th as 2.
 
 ## Correspondences
 
@@ -73,5 +73,5 @@ Ulune reduces 11 to 2 in the [[personal-year|personal year]], month and day, the
 | [[pythagorean|Pythagorean]] letters | None is worth 11; K, the 11th letter, is worth 2 |
 | Chaldean number | Compound 11, single 2 |
 | Birth grid | No cell: an 11 in the date shows as two 1s |
-| Kept by Ulune | Core numbers, Birthday, pinnacles, periods, planes, essence |
-| Reduced by Ulune | Personal and universal cycles, balance, rational thought, gaps |
+| Kept by Ulune | Core numbers, Birthday, attitude, pinnacles, periods, planes, essence, [[rational-thought|rational thought]], universal year |
+| Reduced by Ulune | Personal cycles, balance, gaps |

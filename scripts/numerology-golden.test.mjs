@@ -283,4 +283,6 @@ test("Personal month/day and universal year reduce to 1–9 only", () => {
   assert.equal(personalMonthFromParts(py, 9), 4); // 4+9=13→4
   assert.equal(personalDayFromParts(4, 18), 4); // 4+18=22→4
   assert.equal(universalYearFromYear(2025), 9); // 2+0+2+5=9
+  assert.equal(universalYearFromYear(2027), 11); // 2+0+2+7=11, kept (review of 8 Oct)
+  assert.equal(universalYearFromYear(2029), 4); // 13 → 4
 });

@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import { useSwitchY } from "@/studio/modes/hooks/useSwitchY";
 import { DataTable } from "@/studio/tables/DataTable";
 import { NumerologyLifeLine } from "@/studio/tables/numerology-life";
+import { TermWord } from "@/encyclopedia/TermWord";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
 /**
@@ -548,7 +549,10 @@ function GridPart({
           {chart.grid.lines[layout].map((line) => (
             <tr key={line.id} data-testid={`num-line-${line.id}`} data-state={line.state}>
               <td data-col="line" className="font-mono tabular-nums">
-                {line.id}
+                {/* The line's entry says what it stands for (review of 8 Oct); a Lo Shu line with no Phillips twin stays plain. */}
+                <TermWord kind="gridline" id={line.id}>
+                  {line.id}
+                </TermWord>
               </td>
               <td data-col="state">{p(locale, `line_${line.state}`)}</td>
             </tr>
@@ -652,7 +656,7 @@ function YearsPart({
       id: `year:${chart.calendarYear}`,
       label: p(locale, "universalYear"),
       value: chart.universalYear,
-      text: pack && chart.universalYear.digit ? pickBi(pack.UNIVERSAL_YEAR_TEXT[chart.universalYear.digit as 1], locale) : "",
+      text: pack && chart.universalYear.number ? pickBi(pack.UNIVERSAL_YEAR_TEXT[chart.universalYear.number as 1], locale) : "",
     },
   ];
   return (

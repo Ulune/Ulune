@@ -55,14 +55,14 @@ Ties are common. Yolanda Mary Kyle, another made-up name, has three letters on 1
 
 Letter arithmetic is old. In 1533, Agrippa reports the Pythagorean belief that letters carry numbers, and he adds up whole names. Counting how often each number appears among the letters is a later idea. It belongs to modern numerology, together with the karmic lessons, the planes of expression and the other finer numbers. No ancient source describes it, and its Pythagorean label is a later attribution.
 
-Ulune follows Hans Decoz’s school for the rules. It counts all the letters of the full birth name, and it reads every tie.
+Ulune follows Hans Decoz’s school for the rules. It counts all the letters of the full birth name, and it reads ties of up to three numbers.
 
 ## How Ulune calculates it
 
 - **Which name.** The full name at birth, typed for numerology, or the chart’s typed name when no birth name is given. A name used now does not change it. Without any name, there is no hidden passion.
 - **Letter values.** The Pythagorean table: A J S = 1, B K T = 2, C L U = 3, D M V = 4, E N W = 5, F O X = 6, G P Y = 7, H Q Z = 8, I R = 9. Accents are dropped.
 - **Counting.** Every letter counts once, vowels and consonants alike. A Y counts on 7 whether it is read as a vowel or a consonant.
-- **The result.** The number or numbers with the highest count. When several numbers tie, Ulune reads them all, and shows the count: “7 letters, the most”.
+- **The result.** The number or numbers with the highest count. When two or three numbers tie, Ulune reads them all, and shows the count: “7 letters, the most”. When four or more tie, as in a short name with six numbers on two letters each, no number stands out and none is named.
 - Nothing is added or reduced, so there are no master numbers and no karmic debts here.
 
 ## Correspondences

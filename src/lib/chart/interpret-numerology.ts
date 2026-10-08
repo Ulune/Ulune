@@ -439,11 +439,13 @@ function detailReading(chart: NumerologyChart, id: string, locale: AppLocale): E
   const pickId = `detail:${id}`;
   if (id === "attitude" || id === "rationalThought") {
     const value = id === "attitude" ? chart.attitude : chart.rationalThought;
-    const d = value.digit as Digit;
+    const table: Partial<Record<number, Bi>> = id === "attitude" ? ATTITUDE_TEXT : RATIONAL_TEXT;
+    // A master number reads with its own text (review of 8 Oct), any other with its digit's.
+    const text = table[value.number ?? 0] ?? table[value.digit ?? 0];
     return simpleReading(pickId, locale, {
       title: p(locale, id),
       value,
-      text: t((id === "attitude" ? ATTITUDE_TEXT : RATIONAL_TEXT)[d], locale),
+      text: text ? t(text, locale) : "",
       about: t(id === "attitude" ? ATTITUDE_ABOUT : RATIONAL_ABOUT, locale),
       how: p(locale, id === "attitude" ? "from_attitude" : "from_rationalThought"),
     });
@@ -626,7 +628,7 @@ function spanText(chart: NumerologyChart, span: AgeSpan, locale: AppLocale) {
 function cycleNumberText(kind: CycleKind, n: number | null, locale: AppLocale): string {
   if (n == null) return "";
   if (kind === "challenge") return t(CHALLENGE_TEXT[n as Gap], locale);
-  return t((kind === "pinnacle" ? PINNACLE_TEXT : PERIOD_TEXT)[n as CycleNumberKey], locale);
+  return t(kind === "pinnacle" ? PINNACLE_TEXT[n as CycleNumberKey] : PERIOD_TEXT[n as Exclude<CycleNumberKey, 33>], locale);
 }
 
 /** A period cycle, a pinnacle or a challenge: its number's text, its years, the others that run with it. */
@@ -715,7 +717,7 @@ function yearReading(chart: NumerologyChart, year: number, locale: AppLocale): E
     sections: [
       ...(essence ? [{ id: "essence", title: r(locale, "essenceTitle", { n: wholeText(essence) }), paragraphs: [essenceText, t(ESSENCE_ABOUT, locale)] }] : []),
       ...(letterLines.length ? [{ id: "letters", title: r(locale, "letterCycles"), paragraphs: letterLines }] : []),
-      ...(uy != null ? [{ id: "universal", title: r(locale, "universalOf", { n: uy }), paragraphs: [t(UNIVERSAL_YEAR_TEXT[uy as Digit], locale)] }] : []),
+      ...(uy != null ? [{ id: "universal", title: r(locale, "universalOf", { n: uy }), paragraphs: [t(UNIVERSAL_YEAR_TEXT[uy as keyof typeof UNIVERSAL_YEAR_TEXT], locale)] }] : []),
     ],
     links: rows.length ? { title: r(locale, "inEffect"), rows } : undefined,
     about: howAbout(locale, cycleExample(chart, locale), ...(c?.letters ? [t(ESSENCE_ABOUT, locale), ...LETTER_CYCLE_IDS.map((id) => t(LETTER_CYCLE_ABOUT[id], locale))] : [])),

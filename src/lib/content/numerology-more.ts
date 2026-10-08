@@ -190,7 +190,7 @@ export const RATIONAL_ABOUT: Bi = {
   fr: "Le nombre de pensée rationnelle additionne le prénom et le jour de naissance\u202f: votre façon de réfléchir à une question et d’arriver à une décision.",
 };
 
-export const RATIONAL_TEXT: Record<Digit, Bi> = {
+export const RATIONAL_TEXT: Record<Digit | 11 | 22, Bi> = {
   1: {
     en: "You think independently: you form your own view quickly and trust it. Checking it against one other opinion keeps it sharp.",
     fr: "Vous pensez de façon indépendante\u202f: vous vous faites vite votre propre avis et vous lui faites confiance. Le confronter à un autre avis le garde affûté.",
@@ -226,6 +226,14 @@ export const RATIONAL_TEXT: Record<Digit, Bi> = {
   9: {
     en: "You think broadly: the whole picture, the long term, the people involved. Pinning down the next concrete step keeps ideals practical.",
     fr: "Vous pensez large\u202f: l’ensemble, le long terme, les gens concernés. Fixer la prochaine étape concrète garde les idéaux praticables.",
+  },
+  11: {
+    en: "You think by insight: the answer often arrives whole before the reasons do. Writing the reasons down afterwards keeps the insight easy to share. Numerologists read it as an 11/2.",
+    fr: "Vous pensez par intuition\u202f: la réponse arrive souvent entière avant les raisons. Écrire les raisons ensuite rend l’intuition facile à partager. Les numérologues le lisent comme un 11/2.",
+  },
+  22: {
+    en: "You think in plans on a large scale: the vision and the steps to build it come together. Starting with one small, finished piece keeps the scale from stalling you. Numerologists read it as a 22/4.",
+    fr: "Vous pensez en plans à grande échelle\u202f: la vision et les étapes pour la bâtir viennent ensemble. Commencer par une petite pièce achevée évite que l’ampleur vous arrête. Les numérologues le lisent comme un 22/4.",
   },
 };
 
@@ -278,7 +286,7 @@ export const ATTITUDE_ABOUT: Bi = {
   fr: "Le nombre d’attitude additionne le mois et le jour de naissance\u202f: la position que vous prenez volontiers face à la vie, souvent la première chose que les gens perçoivent de vous.",
 };
 
-export const ATTITUDE_TEXT: Record<Digit, Bi> = {
+export const ATTITUDE_TEXT: Record<Digit | 11 | 22 | 33, Bi> = {
   1: {
     en: "You tend to meet life head-on: confident, direct, ready to start. A word of warmth keeps the directness from sounding abrupt.",
     fr: "Vous abordez souvent la vie de front\u202f: avec assurance, franchise, prêt à commencer. Un mot chaleureux évite que la franchise paraisse abrupte.",
@@ -315,6 +323,18 @@ export const ATTITUDE_TEXT: Record<Digit, Bi> = {
     en: "You tend to meet life openly: generous, tolerant, with an eye on the bigger picture. Clear limits keep the generosity from being taken for granted.",
     fr: "Vous abordez souvent la vie avec ouverture\u202f: généreux, tolérant, attentif à l’ensemble. Des limites claires évitent qu’on tienne votre générosité pour acquise.",
   },
+  11: {
+    en: "You tend to meet life with a quick, sensitive alertness: people feel noticed, sometimes inspired. Some quiet time of your own keeps the sensitivity from tiring you. Numerologists read it as an 11/2.",
+    fr: "Vous abordez souvent la vie avec une attention vive et sensible\u202f: les gens se sentent remarqués, parfois inspirés. Un peu de calme à vous évite que la sensibilité vous fatigue. Les numérologues le lisent comme un 11/2.",
+  },
+  22: {
+    en: "You tend to meet life as a builder: calm, capable, already seeing what could be made. Sharing the plan early lets others help carry it. Numerologists read it as a 22/4.",
+    fr: "Vous abordez souvent la vie en bâtisseur\u202f: calme, capable, voyant déjà ce qui pourrait se construire. Partager le plan tôt permet aux autres d’aider à le porter. Les numérologues le lisent comme un 22/4.",
+  },
+  33: {
+    en: "You tend to meet life with open-hearted care: warm, encouraging, ready to teach or help. Letting others care for you too keeps the giving light. Numerologists read it as a 33/6.",
+    fr: "Vous abordez souvent la vie avec un soin généreux\u202f: chaleureux, encourageant, prêt à transmettre ou à aider. Laisser les autres prendre soin de vous aussi garde le don léger. Les numérologues le lisent comme un 33/6.",
+  },
 };
 
 // ----------------------------------------------------------------- The planes
@@ -326,8 +346,8 @@ export const PLANES_ABOUT: Bi = {
 
 export const PLANE_TEXT: Record<PlaneId, Bi> = {
   physical: {
-    en: "The physical plane holds the letters D, E, M and W: the body, the senses and practical action. Its number shows how you deal with the tangible world: work with your hands, health, getting things done.",
-    fr: "Le plan physique contient les lettres D, E, M et W\u202f: le corps, les sens et l’action concrète. Son nombre montre votre rapport au monde tangible\u202f: le travail des mains, la santé, faire avancer les choses.",
+    en: "The physical plane holds the letters D, E, M and W: the body, the senses and practical action. Its number shows how you deal with the tangible world: work with your hands, daily routines, getting things done.",
+    fr: "Le plan physique contient les lettres D, E, M et W\u202f: le corps, les sens et l’action concrète. Son nombre montre votre rapport au monde tangible\u202f: le travail des mains, le quotidien, faire avancer les choses.",
   },
   mental: {
     en: "The mental plane holds A, G, H, J, L, N and P: thinking, logic and ideas. Its number shows how you use your mind: analysing, planning, learning.",
@@ -514,7 +534,8 @@ export const PERIOD_PLACE_TEXT: Record<1 | 2 | 3, Bi> = {
   },
 };
 
-export const PERIOD_TEXT: Record<CycleNumberKey, Bi> = {
+/** No 33: a period is the month, the day or the year alone, and none reduces to 33 (a year's digits add to 30 at most before 4000). */
+export const PERIOD_TEXT: Record<Exclude<CycleNumberKey, 33>, Bi> = {
   1: {
     en: "A 1 period asks for independence: circumstances push you to stand on your own, decide for yourself and find your own way of doing things.",
     fr: "Un cycle 1 demande de l’indépendance\u202f: les circonstances vous poussent à voler de vos propres ailes, à décider par vous-même et à trouver votre propre manière de faire.",
@@ -558,10 +579,6 @@ export const PERIOD_TEXT: Record<CycleNumberKey, Bi> = {
   22: {
     en: "A 22 period gives room to build on a large scale: practical vision, organisation, work that can outlast you.",
     fr: "Un cycle 22 donne de la place pour bâtir à grande échelle\u202f: une vision concrète, l’organisation, un travail qui peut vous survivre.",
-  },
-  33: {
-    en: "A 33 period is a time of care on a larger scale: teaching, guiding and supporting others, with clear limits so it can last.",
-    fr: "Un cycle 33 est un temps de soin à plus grande échelle\u202f: enseigner, guider et soutenir les autres, avec des limites claires pour que cela dure.",
   },
 };
 

@@ -153,9 +153,13 @@ export function personalDayOf(personalMonth: number, day: number): NumerologyVal
   return fromTerms([term("personalMonth", personalMonth, NO_MASTERS), term("day", day, NO_MASTERS)], NO_MASTERS, false);
 }
 
-/** Universal year: the year's digits, the same for everyone. */
+/**
+ * Universal year: the year's digits, the same for everyone. 11 and 22 are
+ * kept, as numerologists read them (2027 is an 11/2 year); 33 cannot arise
+ * from a year's four digits before 3999.
+ */
 export function universalYearOf(year: number): NumerologyValue {
-  return fromTerms([term("year", year, NO_MASTERS)], NO_MASTERS, false);
+  return fromTerms([term("year", year, DAY_MASTERS)], DAY_MASTERS, false);
 }
 
 /** A personal day as a number alone, for a whole month at a time (the Calendar). */
@@ -215,7 +219,7 @@ export function letterSpans(letters: readonly NameLetter[], untilAge: number): L
   return out;
 }
 
-/** The essence: the three letters' values added (11, 22 kept). */
+/** The essence: the three letters' values added (11 and 22 kept; three letters add to 27 at most, so never 33). */
 export function essenceOf(spans: Record<LetterCycleId, LetterSpan>): NumerologyValue {
   return fromTerms(
     LETTER_CYCLE_IDS.map((id) => term(id, spans[id].letter.value)),

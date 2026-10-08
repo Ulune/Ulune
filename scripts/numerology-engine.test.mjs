@@ -121,10 +121,11 @@ test("Decoz: 15 December 1965 has the period cycles 3, 6 and 3", () => {
   assert.deepEqual(values(c.life.periods), [3, 6, 3]);
 });
 
-test("Decoz: Rational Thought for Thomas, born on the 3rd, is 22/4 + 3 = 7", () => {
+test("Decoz: Rational Thought for Thomas, born on the 3rd, is 22 + 3 = 25 → 7", () => {
   const c = cast("1962-07-03", "Thomas Cruise Mapother");
   assert.equal(c.rationalThought.number, 7);
-  assert.deepEqual(c.rationalThought.terms[0].chain, [22, 4]);
+  // The first name keeps its 22 on the way (review of 8 Oct); the total is the same.
+  assert.deepEqual(c.rationalThought.terms[0].chain, [22]);
 });
 
 test("Decoz: Thomas Cruise Mapother's letter cycles at 20 are A, I and H", () => {
@@ -624,16 +625,18 @@ const REF = (() => {
       pe: [pe.n, pe.debt],
       maturity: last(red(lp + ex.n)),
       attitude: last(red(mR + dR)),
-      rational: root(first.split("").reduce((a, ch) => a + PV(ch), 0) + d),
+      // Rational thought and the universal year keep 11 and 22 (review of 8 Oct).
+      rational: last(red(last(red(first.split("").reduce((a, ch) => a + PV(ch), 0), [11, 22])) + last(red(d, [11, 22])), [11, 22])),
       balance: root(words.reduce((a, w) => a + PV(w[0]), 0)),
       pinnacles,
       pinnacleEnds: [e1, e1 + 9, e1 + 18],
       challenges,
       periods: [mR, dR, yR],
       periodEnds: [a1, a1 + 27],
-      cycle: [py, pm, pd, root(ds(cy))],
+      cycle: [py, pm, pd, last(red(cy, [11, 22]))],
       lessons,
-      passion: [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((k) => counts[k] === most),
+      // Up to three tied numbers are read; with more, none stands out (review of 8 Oct).
+      passion: ((t) => (t.length <= 3 ? t : []))([1, 2, 3, 4, 5, 6, 7, 8, 9].filter((k) => counts[k] === most)),
       subconscious: 9 - lessons.length,
       planes,
       corner: [first[0], first[first.length - 1], [...first].find((_, i) => vowelFlags(first)[i]) ?? null],

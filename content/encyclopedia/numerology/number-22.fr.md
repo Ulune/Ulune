@@ -56,13 +56,13 @@ Les nombres maîtres sont modernes. On attribue en général à L. Dow Balliett,
 
 ## Comment Ulune le calcule
 
-Un total de 22, ou dont les chiffres font 22, comme 499 ou 1984, s’arrête à 22 là où la règle garde les maîtres. Ulune le garde dans les nombres principaux : le Chemin de vie, les trois nombres du nom, le Jour de naissance et la Maturité. Il le garde aussi dans l’[[attitude-number|Attitude]], les réalisations, les cycles de vie, les [[planes|plans]], l’essence et le prénom.
+Un total de 22, ou dont les chiffres font 22, comme 499 ou 1984, s’arrête à 22 là où la règle garde les maîtres. Ulune le garde dans les nombres principaux : le Chemin de vie, les trois nombres du nom, le Jour de naissance et la Maturité. Il le garde aussi dans l’[[attitude-number|Attitude]], les réalisations, les cycles de vie, les [[planes|plans]], l’essence, la pensée rationnelle et l’année universelle.
 
 Pour une naissance le 9 avril 1980, les parties donnent 4 + 9 + 9 = 22 : un Chemin de vie 22. Sa première réalisation finit à 36 − 4 = 32 ans, car un maître y compte pour sa racine.
 
 Un 22 dans une date reste entier et s’additionne comme 22. Yolanda Mary Kyle, née le 29 novembre 1984, a une année 1984 → 22 : son troisième cycle de vie, dès 56 ans, est un 22. Son mois, 11, et son jour, 29 → 11, donnent une Attitude et une première réalisation de 22. Pour une naissance le 4 avril 1975, le 22 de l’année entre dans la somme : 4 + 4 + 22 = 30 → 3.
 
-Ulune réduit 22 en 4 dans l’[[personal-year|année personnelle]], le mois et le jour personnels, l’[[universal-year|année universelle]], l’[[balance-number|équilibre]] et la [[rational-thought|pensée rationnelle]]. L’année 1993 fait 22, mais son année universelle est un 4. Les [[challenge|défis]] et les [[bridge|ponts]] comptent 22 pour 4.
+Ulune réduit 22 en 4 dans l’[[personal-year|année personnelle]], le mois et le jour personnels, et l’[[balance-number|équilibre]]. L’année 1993 fait 22 : une [[universal-year|année universelle]] 22/4, lue avec son propre texte. Les [[challenge|défis]] et les [[bridge|ponts]] comptent 22 pour 4.
 
 ## Correspondances
 
@@ -72,5 +72,5 @@ Ulune réduit 22 en 4 dans l’[[personal-year|année personnelle]], le mois et 
 | Lettres [[pythagorean|pythagoriciennes]] | Aucune ne vaut 22 ; V, la 22e lettre, vaut 4 |
 | Nombre chaldéen | Composé 22, simple 4 |
 | Grille de naissance | Aucune case : un 22 de la date y devient deux 2 |
-| Gardé par Ulune | Nombres principaux, Jour de naissance (le 22), réalisations, cycles de vie, plans, essence |
-| Réduit par Ulune | Cycles personnels et universels, équilibre, pensée rationnelle, écarts |
+| Gardé par Ulune | Nombres principaux, Jour de naissance (le 22), attitude, réalisations, cycles de vie, plans, essence, [[rational-thought|pensée rationnelle]], année universelle |
+| Réduit par Ulune | Cycles personnels, équilibre, écarts |

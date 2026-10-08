@@ -48,8 +48,8 @@ These four numbers belong to modern name numerology, not to any ancient text. Ul
 
 - Letters take their [[pythagorean|Pythagorean]] values, 1 to 9, after accents are dropped. The name is the full name at birth; a name used now never changes these numbers.
 - The balance number reduces the initials’ sum to 1–9: 11 and 22 are reduced too.
-- The rational thought number reduces the first name and the day each to one digit, then their sum, always to 1–9.
-- The attitude number reduces the month and the day keeping 11 and 22, then their sum keeping 11, 22 and 33.
+- The rational thought number reduces the first name and the day, then their sum, keeping 11 and 22 each time.
+- The attitude number reduces the month and the day keeping 11 and 22, then their sum keeping 11, 22 and 33. Each master has its own text.
 - The subconscious self is 9 minus the number of [[karmic-lesson|karmic lessons]], with no reduction.
 - No [[karmic-debt|karmic debt]] is read in any of the four.
 
@@ -58,7 +58,7 @@ These four numbers belong to modern name numerology, not to any ancient text. Ul
 | Number | From | Values | Read as |
 | --- | --- | --- | --- |
 | [[balance-number|Balance]] | Initials of the birth name | 1–9 | Coping in a hard moment |
-| [[rational-thought|Rational thought]] | First name and day of birth | 1–9 | Thinking and deciding |
+| [[rational-thought|Rational thought]] | First name and day of birth | 1–9, 11, 22 | Thinking and deciding |
 | [[attitude-number|Attitude]] | Month and day of birth | 1–9, 11, 22, 33 | The stance towards life |
 | [[subconscious-self|Subconscious self]] | Numbers present in the birth name | 1–9 | Facing the unexpected |
 

@@ -56,13 +56,13 @@ The master numbers are modern. Mrs L. Dow Balliett, writing in the early 1900s, 
 
 ## How Ulune calculates it
 
-A total of 22, or one whose digits add up to 22, such as 499 or 1984, stops at 22 where the rule keeps masters. Ulune keeps it in the core numbers: the Life Path, the three name numbers, the Birthday and the Maturity. It keeps it in the [[attitude-number|Attitude]], the pinnacles, the period cycles, the [[planes|planes]], the essence and the first name.
+A total of 22, or one whose digits add up to 22, such as 499 or 1984, stops at 22 where the rule keeps masters. Ulune keeps it in the core numbers: the Life Path, the three name numbers, the Birthday and the Maturity. It keeps it in the [[attitude-number|Attitude]], the pinnacles, the period cycles, the [[planes|planes]], the essence, the rational thought and the universal year.
 
 For a birth on 9 April 1980, the parts give 4 + 9 + 9 = 22: a Life Path 22. Its first pinnacle ends at 36 − 4 = 32, because a master counts as its root there.
 
 A 22 inside a date stays whole and is added as 22. Yolanda Mary Kyle, born 29 November 1984, has a year of 1984 → 22, so her third period cycle, from 56, is a 22. Her month, 11, and her day, 29 → 11, give an Attitude and a first pinnacle of 22. For a birth on 4 April 1975, the year’s 22 joins the sum: 4 + 4 + 22 = 30 → 3.
 
-Ulune reduces 22 to 4 in the [[personal-year|personal year]], month and day, the [[universal-year|universal year]], the [[balance-number|balance]] and the [[rational-thought|rational thought]]. The year 1993 adds up to 22, yet its universal year is a 4. The [[challenge|challenges]] and the [[bridge|bridges]] count 22 as 4.
+Ulune reduces 22 to 4 in the [[personal-year|personal year]], month and day, and the [[balance-number|balance]]. The year 1993 adds up to 22: a 22/4 [[universal-year|universal year]], read with its own text. The [[challenge|challenges]] and the [[bridge|bridges]] count 22 as 4.
 
 ## Correspondences
 
@@ -72,5 +72,5 @@ Ulune reduces 22 to 4 in the [[personal-year|personal year]], month and day, the
 | [[pythagorean|Pythagorean]] letters | None is worth 22; V, the 22nd letter, is worth 4 |
 | Chaldean number | Compound 22, single 4 |
 | Birth grid | No cell: a 22 in the date shows as two 2s |
-| Kept by Ulune | Core numbers, Birthday (the 22nd), pinnacles, periods, planes, essence |
-| Reduced by Ulune | Personal and universal cycles, balance, rational thought, gaps |
+| Kept by Ulune | Core numbers, Birthday (the 22nd), attitude, pinnacles, periods, planes, essence, [[rational-thought|rational thought]], universal year |
+| Reduced by Ulune | Personal cycles, balance, gaps |

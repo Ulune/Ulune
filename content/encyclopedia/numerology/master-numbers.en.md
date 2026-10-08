@@ -51,11 +51,11 @@ Master numbers belong to early 20th-century American numerology. Clifford W. Che
 
 ## How Ulune calculates it
 
-Ulune keeps 11, 22 and 33 whole in the Life Path, each part first and then the total. It keeps them in the Expression, the Soul Urge and the Personality, each name first and then the total. The Maturity, the pinnacles, the period cycles and the [[planes|planes]] keep them as well.
+Ulune keeps 11, 22 and 33 whole in the Life Path, each part first and then the total. It keeps them in the Expression, the Soul Urge and the Personality, each name first and then the total. The Maturity, the pinnacles and the [[planes|planes]] keep them as well. So do the period cycles, though no part of a birth date reduces to 33.
 
-The Birthday keeps 11 and 22 only, for the 11th, the 29th and the 22nd. The [[essence|essence]] can reach 11 or 22, since three letters never add up to 33. The Attitude keeps them in its sum, but Ulune reads it through its root.
+The Birthday keeps 11 and 22 only, for the 11th, the 29th and the 22nd. The [[essence|essence]] can reach 11 or 22, since three letters never add up to 33. The Attitude keeps all three in its sum, each read with its own text. The rational thought number and the [[universal-year|universal year]] keep 11 and 22. In 2027, 2 + 0 + 2 + 7 = 11, an 11/2 year.
 
-Elsewhere the masters reduce. The balance, the rational thought number and the [[personal-cycles|personal]] and [[universal-year|universal]] cycles run from 1 to 9. In 2027, 2 + 0 + 2 + 7 = 11 → 2. The [[challenge|challenges]] and [[bridge|bridges]] count a master as its root, and so does the length of the first pinnacle. For a Life Path 11, 22 or 33, that pinnacle ends at 34, 32 or 30.
+Elsewhere the masters reduce. The balance and the [[personal-cycles|personal]] cycles run from 1 to 9. The [[challenge|challenges]] and [[bridge|bridges]] count a master as its root, and so does the length of the first pinnacle. For a Life Path 11, 22 or 33, that pinnacle ends at 34, 32 or 30.
 
 A master number and a [[karmic-debt|karmic debt]] are written alike, but they differ. A debt such as 13/4 is a total passed on the way. A master such as 22/4 is where the reduction stops.
 

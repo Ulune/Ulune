@@ -1,10 +1,9 @@
 import type { BirthInput, NatalChart } from "./types";
 import {
+  DAY_MASTERS,
   MASTERS,
-  NO_MASTERS,
   absent,
   digitalRoot,
-  digitSum,
   fromTerms,
   gapOf,
   present,
@@ -188,9 +187,9 @@ export function personalDayFromParts(personalMonth: number, calendarDay: number)
   return digitalRoot(personalMonth + calendarDay);
 }
 
-/** Collective backdrop: reduce the calendar year's digits to 1–9. */
+/** Collective backdrop: the calendar year's digits reduced, 11 and 22 kept (as universalYearOf). */
 export function universalYearFromYear(calendarYear: number): number {
-  return digitalRoot(digitSum(calendarYear));
+  return universalYearOf(calendarYear).number ?? 0;
 }
 
 /** A name's letters, numbers and finer numbers; null when it holds no letter. */
@@ -200,12 +199,16 @@ export function readName(text: string, yRoles?: readonly YRole[] | null): Numero
   return { text: parsed.text, parsed, ...nameNumbersOf(parsed), detail: nameDetail(parsed), chaldean: chaldeanOf(parsed) };
 }
 
-/** Rational thought: the first name and the day of birth, reduced to 1–9. */
+/**
+ * Rational thought: the first name and the day of birth added and reduced,
+ * 11 and 22 kept, as Decoz reads them (review of 8 Oct); each part keeps its
+ * own 11 or 22 on the way, as the other numbers do.
+ */
 function rationalThoughtOf(name: NumerologyName | null, b: BirthDate): NumerologyValue {
   const first = name?.parsed.words[0];
   if (!first) return absent();
   const raw = first.letters.reduce((s, l) => s + l.value, 0);
-  return fromTerms([term(first.text, raw, NO_MASTERS), term("day", b.day, NO_MASTERS)], NO_MASTERS, false);
+  return fromTerms([term(first.text, raw, DAY_MASTERS), term("day", b.day, DAY_MASTERS)], DAY_MASTERS, false);
 }
 
 function gapOrAbsent(a: NumerologyValue, b: NumerologyValue): NumerologyValue {

@@ -40,7 +40,7 @@ Certains numérologues n’utilisent pas du tout le 33. Ceux qui l’emploient l
 - **[[personality-number|Personnalité]] 33** : une allure profondément bienveillante, d’une sagesse tranquille qui inspire confiance.
 - **[[maturity|Maturité]] 33** : une seconde moitié de vie de soin à plus grande échelle, rendue possible par des limites claires.
 - **[[pinnacle|Réalisation]] 33** : une étape où l’on enseigne ou guide les autres, et où prendre soin de soi fait partie du travail.
-- **[[period-cycle|Cycle de vie]] 33** : un temps de soin à plus grande échelle. Ulune a une lecture pour lui, bien qu’aucune partie d’une date de naissance actuelle ne se réduise à 33.
+- **[[attitude-number|Attitude]] 33**, du seul 22 novembre : aborder la vie avec un soin généreux, chaleureux et prêt à transmettre ou à aider.
 
 ## D’une tradition à l’autre
 
@@ -53,7 +53,7 @@ Les nombres maîtres sont modernes. On attribue en général à L. Dow Balliett,
 
 ## Comment Ulune le calcule
 
-Ulune garde le 33 dans le Chemin de vie, les trois nombres du nom et la Maturité. Il le garde aussi dans l’[[attitude-number|Attitude]], les réalisations, les cycles de vie, les [[planes|plans]] et le prénom. En pratique, il apparaît là où plusieurs nombres s’additionnent.
+Ulune garde le 33 dans le Chemin de vie, les trois nombres du nom et la Maturité. Il le garde aussi dans l’Attitude, les réalisations et les [[planes|plans]]. En pratique, il apparaît là où plusieurs nombres s’additionnent. Aucun [[period-cycle|cycle de vie]] ne l’atteint, car aucune partie d’une date de naissance ne se réduit à 33.
 
 Pour une naissance le 22 septembre 1991, les parties donnent 9 + 22 + 2 = 33 : un Chemin de vie 33. Le 22 du jour reste entier, et 1991 donne 20 → 2. La première réalisation finit à 36 − 6 = 30 ans. Une naissance le 11 novembre 2009 donne 11 + 11 + 11 = 33.
 
@@ -71,6 +71,6 @@ Ulune réduit 33 en 6 dans l’[[personal-year|année personnelle]], le mois et 
 | Lettres [[pythagorean|pythagoriciennes]] | Aucune |
 | Nombre chaldéen | Composé 33, simple 6 |
 | Grille de naissance | Aucune case : la grille ne contient que des chiffres |
-| Gardé par Ulune | Nombres principaux sauf le Jour de naissance, réalisations, cycles de vie, plans |
-| Jamais atteint | Jour de naissance, essence |
+| Gardé par Ulune | Nombres principaux sauf le Jour de naissance, attitude, réalisations, plans |
+| Jamais atteint | Jour de naissance, cycles de vie, essence |
 | Réduit par Ulune | Cycles personnels et universels, équilibre, pensée rationnelle, écarts |

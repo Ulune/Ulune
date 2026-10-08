@@ -545,7 +545,7 @@ export function numerologyYearReading(num: NumerologyCalendar, year: number, loc
 /** The text of a long cycle's number, in its kind (numerology, part 63). */
 function cycleText(kind: "period" | "pinnacle" | "challenge", n: number | null, locale: Locale): string {
   if (n == null) return "";
-  const bi = kind === "challenge" ? CHALLENGE_TEXT[n as Gap] : kind === "pinnacle" ? PINNACLE_TEXT[n as CycleNumberKey] : PERIOD_TEXT[n as CycleNumberKey];
+  const bi = kind === "challenge" ? CHALLENGE_TEXT[n as Gap] : kind === "pinnacle" ? PINNACLE_TEXT[n as CycleNumberKey] : PERIOD_TEXT[n as Exclude<CycleNumberKey, 33>];
   return bi ? pickBi(bi, locale) : "";
 }
 

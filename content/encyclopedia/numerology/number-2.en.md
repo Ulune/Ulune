@@ -55,7 +55,7 @@ Greek arithmetic made 2 the first even number and the first step away from unity
 
 A total whose digits come down to 2 gives a 2: 20, for instance, and 101. A total of 29, 38 or 47 goes through 11 on the way. Where Ulune keeps the [[master-numbers|master numbers]], it stops there, at [[number-11|11]]. In practice a Life Path of 2 therefore comes only from a total of 20.
 
-The Birthday keeps 11 too: the 11th and the 29th give 11, so only the 2nd and the 20th give 2. In the yearly cycles, which reduce to 1–9, 11 becomes 2. That is why 2027 is a [[universal-year|universal year]] 2: 2 + 0 + 2 + 7 = 11 → 2.
+The Birthday keeps 11 too: the 11th and the 29th give 11, so only the 2nd and the 20th give 2. In the personal cycles, which reduce to 1–9, 11 becomes 2. The [[universal-year|universal year]] keeps it: 2027, with 2 + 0 + 2 + 7 = 11, is an 11/2 year.
 
 A master number within one name stays whole while that name is reduced. The total can still come to 2. Bernard Olivier Martin’s consonants give 29 → 11 for Bernard. His Personality is 11 + 7 + 2 = 20 → 2.
 

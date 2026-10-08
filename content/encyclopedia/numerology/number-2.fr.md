@@ -55,7 +55,7 @@ L’arithmétique grecque faisait du 2 le premier nombre pair et le premier pas 
 
 Un total dont les chiffres se ramènent à 2 donne un 2 : 20, par exemple, ou 101. Un total de 29, 38 ou 47 passe par 11 en chemin. Là où Ulune garde les [[master-numbers|nombres maîtres]], il s’arrête à [[number-11|11]]. En pratique, un Chemin de vie 2 ne vient donc que d’un total de 20.
 
-Le Jour de naissance garde aussi le 11 : le 11 et le 29 donnent 11. Seuls le 2 et le 20 donnent donc 2. Dans les cycles annuels, réduits de 1 à 9, le 11 devient 2. C’est pourquoi 2027 est une [[universal-year|année universelle]] 2 : 2 + 0 + 2 + 7 = 11 → 2.
+Le Jour de naissance garde aussi le 11 : le 11 et le 29 donnent 11. Seuls le 2 et le 20 donnent donc 2. Dans les cycles personnels, réduits de 1 à 9, le 11 devient 2. L’[[universal-year|année universelle]] le garde : 2027, avec 2 + 0 + 2 + 7 = 11, est une année 11/2.
 
 Un nombre maître obtenu dans un seul nom reste entier pendant la réduction de ce nom. Le total peut quand même aboutir à 2. Les consonnes de Bernard, dans Bernard Olivier Martin, donnent 29 → 11. Sa Personnalité vaut 11 + 7 + 2 = 20 → 2.
 

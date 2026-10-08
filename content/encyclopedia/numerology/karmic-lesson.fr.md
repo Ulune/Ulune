@@ -70,7 +70,7 @@ Les valeurs sont les valeurs [[pythagorean|pythagoriciennes]] : A = 1 jusqu’
 - Le Y compte toujours 7, que le nom le lise comme voyelle ou comme consonne. Changer un Y à la main ne change rien ici. Le W compte toujours 5.
 - Chaque nombre de 1 à 9 sans aucune lettre est une leçon karmique. Il peut y en avoir plusieurs, ou aucune.
 - Seul le nom de naissance donne des leçons. Un nom porté aujourd’hui, s’il diffère, n’en donne pas.
-- Le [[subconscious-self|moi subconscient]] vaut 9 moins le nombre de leçons. La passion cachée est le nombre qui a le plus de lettres ; une égalité en donne deux.
+- Le [[subconscious-self|moi subconscient]] vaut 9 moins le nombre de leçons. La passion cachée est le nombre qui a le plus de lettres. Jusqu’à trois nombres à égalité sont tous lus ; à partir de quatre, aucun ne l’est.
 - Sur la roue de numérologie, le nombre d’une leçon ne porte aucune lettre, et sa lecture donne le texte de la leçon.
 
 ## Correspondances

@@ -36,7 +36,7 @@ Now take 26 August 2003. Its digits are 2 2 3 6 8. No 1, no 5, no 9: the diagona
 
 ## Across traditions
 
-The Lo Shu square is laid out 4 9 2 / 3 5 7 / 8 1 6. There, the digits 1, 5 and 9 form the centre column, with the 9 on top and the 1 below. Ulune lists it there as 9-5-1, as it is read on the square. The line is the same in both layouts, only turned, and it is full or empty on the same dates. Its digits add up to 15, like every line of the Lo Shu.
+The Lo Shu square is laid out 4 9 2 / 3 5 7 / 8 1 6. There, the digits 1, 5 and 9 form the centre column, with the 9 on top and the 1 below. Ulune lists it there as 9-5-1, as it is read on the square, and that name links to this page too. The line is the same in both layouts, only turned, and it is full or empty on the same dates. Its digits add up to 15, like every line of the Lo Shu.
 
 ## How Ulune calculates it
 

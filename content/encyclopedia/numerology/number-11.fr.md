@@ -57,13 +57,13 @@ Les nombres maîtres sont modernes. On attribue en général à L. Dow Balliett,
 
 ## Comment Ulune le calcule
 
-Un total de 11, ou qui se réduit à 11, comme 29 ou 38, s’arrête à 11 là où la règle garde les maîtres. Ulune le garde dans les nombres principaux : le Chemin de vie, les trois nombres du nom, le Jour de naissance et la Maturité. Il le garde aussi dans l’[[attitude-number|Attitude]], les réalisations, les cycles de vie, les [[planes|plans]], l’essence et le prénom.
+Un total de 11, ou qui se réduit à 11, comme 29 ou 38, s’arrête à 11 là où la règle garde les maîtres. Ulune le garde dans les nombres principaux : le Chemin de vie, les trois nombres du nom, le Jour de naissance et la Maturité. Il le garde aussi dans l’[[attitude-number|Attitude]], les réalisations, les cycles de vie, les [[planes|plans]], l’essence, la pensée rationnelle et l’année universelle.
 
 Il le garde jusque dans les parties. Dans le Chemin de vie, un mois de novembre reste 11, tout comme le 11, le 29, ou une année comme 2009. Dans un nom, chaque nom garde son 11 avant que les noms soient additionnés. Bernard Olivier Martin, né le 3 novembre 1978, a 29 → 11 dans les voyelles d’Olivier.
 
 Pour une naissance le 1er janvier 1980, les parties donnent 1 + 1 + 9 = 11 : un Chemin de vie 11. La première réalisation finit à 36 − 2 = 34 ans, car un maître y compte pour sa racine.
 
-Ulune réduit 11 en 2 dans l’[[personal-year|année personnelle]], le mois et le jour personnels, l’[[universal-year|année universelle]], l’[[balance-number|équilibre]] et la [[rational-thought|pensée rationnelle]]. L’année 2027 fait 11, mais son année universelle est un 2. Les [[challenge|défis]] et les [[bridge|ponts]] comptent 11 pour 2. Yolanda Mary Kyle, née le 29 novembre 1984, a un Jour de naissance 11, mais son année personnelle compte le 29 pour 2.
+Ulune réduit 11 en 2 dans l’[[personal-year|année personnelle]], le mois et le jour personnels, et l’[[balance-number|équilibre]]. L’année 2027 fait 11 : une [[universal-year|année universelle]] 11/2, lue avec son propre texte. Les [[challenge|défis]] et les [[bridge|ponts]] comptent 11 pour 2. Yolanda Mary Kyle, née le 29 novembre 1984, a un Jour de naissance 11, mais son année personnelle compte le 29 pour 2.
 
 ## Correspondances
 
@@ -73,5 +73,5 @@ Ulune réduit 11 en 2 dans l’[[personal-year|année personnelle]], le mois et 
 | Lettres [[pythagorean|pythagoriciennes]] | Aucune ne vaut 11 ; K, la 11e lettre, vaut 2 |
 | Nombre chaldéen | Composé 11, simple 2 |
 | Grille de naissance | Aucune case : un 11 de la date y devient deux 1 |
-| Gardé par Ulune | Nombres principaux, Jour de naissance, réalisations, cycles de vie, plans, essence |
-| Réduit par Ulune | Cycles personnels et universels, équilibre, pensée rationnelle, écarts |
+| Gardé par Ulune | Nombres principaux, Jour de naissance, attitude, réalisations, cycles de vie, plans, essence, [[rational-thought|pensée rationnelle]], année universelle |
+| Réduit par Ulune | Cycles personnels, équilibre, écarts |

@@ -48,8 +48,8 @@ Ces quatre nombres appartiennent à la numérologie moderne des noms, non à un 
 
 - Les lettres prennent leur valeur [[pythagorean|pythagoricienne]], de 1 à 9, une fois les accents retirés. Le nom est le nom complet de naissance ; un nom d’usage ne change jamais ces nombres.
 - Le nombre d’équilibre réduit la somme des initiales de 1 à 9 : 11 et 22 sont réduits eux aussi.
-- La pensée rationnelle réduit le prénom et le jour chacun à un chiffre, puis leur somme, toujours de 1 à 9.
-- Le nombre d’attitude réduit le mois et le jour en gardant 11 et 22, puis leur somme en gardant 11, 22 et 33.
+- La pensée rationnelle réduit le prénom et le jour, puis leur somme, en gardant chaque fois 11 et 22.
+- Le nombre d’attitude réduit le mois et le jour en gardant 11 et 22, puis leur somme en gardant 11, 22 et 33. Chaque nombre maître a son propre texte.
 - Le moi subconscient vaut 9 moins le nombre de [[karmic-lesson|leçons karmiques]], sans réduction.
 - Aucune [[karmic-debt|dette karmique]] n’est lue dans les quatre.
 
@@ -58,7 +58,7 @@ Ces quatre nombres appartiennent à la numérologie moderne des noms, non à un 
 | Nombre | Tiré de | Valeurs | Lu comme |
 | --- | --- | --- | --- |
 | [[balance-number|Équilibre]] | Initiales du nom de naissance | 1 à 9 | Faire face à un moment difficile |
-| [[rational-thought|Pensée rationnelle]] | Prénom et jour de naissance | 1 à 9 | Réfléchir et décider |
+| [[rational-thought|Pensée rationnelle]] | Prénom et jour de naissance | 1 à 9, 11, 22 | Réfléchir et décider |
 | [[attitude-number|Attitude]] | Mois et jour de naissance | 1 à 9, 11, 22, 33 | La position face à la vie |
 | [[subconscious-self|Moi subconscient]] | Nombres présents dans le nom | 1 à 9 | Réagir à l’imprévu |
 

@@ -59,7 +59,7 @@ Ulune reduces the month, the day and the year of birth each to 1–9. A master n
 
 The two bridges work the same way: the Life Path against the Expression, the Soul Urge against the Personality, each reduced to 1–9 first.
 
-Inside a reduction, a 0 adds nothing: 1990 → 19 → 10 → 1, and 2000 → 2. No total of a date or a name reduces to 0. A missing name gives no number at all, never a 0. The [[personal-cycles|personal cycles]] and the [[universal-year|universal year]] run from 1 to 9.
+Inside a reduction, a 0 adds nothing: 1990 → 19 → 10 → 1, and 2000 → 2. No total of a date or a name reduces to 0. A missing name gives no number at all, never a 0. The [[personal-cycles|personal cycles]] run from 1 to 9, and the [[universal-year|universal year]] adds only 11 and 22.
 
 Anna Lise Berg, born 10 October 2000, has five zeros in her date. Her grid holds only 1, 1 and 2. In Phillips’s layout, four lines are empty, among them [[grid-3-6-9|3-6-9]] and [[grid-7-8-9|7-8-9]].
 

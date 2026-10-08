@@ -71,14 +71,14 @@ test("Every set of the finer numbers and the cycles is complete, in both languag
     KARMIC_LESSON_TEXT: DIGITS,
     HIDDEN_PASSION_TEXT: DIGITS,
     BALANCE_TEXT: DIGITS,
-    RATIONAL_TEXT: DIGITS,
+    RATIONAL_TEXT: [...DIGITS, 11, 22],
     SUBCONSCIOUS_TEXT: DIGITS,
-    ATTITUDE_TEXT: DIGITS,
+    ATTITUDE_TEXT: MASTERS,
     PLANE_TEXT: [...PLANE_IDS],
     STONE_TEXT: ["cornerstone", "capstone", "firstVowel"],
     LETTER_TEXT: LETTERS,
     BRIDGE_TEXT: [0, ...DIGITS.slice(0, 8)],
-    PERIOD_TEXT: MASTERS,
+    PERIOD_TEXT: [...DIGITS, 11, 22],
     PERIOD_PLACE_TEXT: [1, 2, 3],
     PINNACLE_TEXT: MASTERS,
     CHALLENGE_TEXT: [0, ...DIGITS.slice(0, 8)],
@@ -109,10 +109,13 @@ test("Every set of the finer numbers and the cycles is complete, in both languag
 
 test("The older numerology texts: complete, the masters gone from the personal cycles, the French spaced", () => {
   for (const n of MASTERS) for (const k of ["keywords", "what", "strengths", "pitfalls", "example"]) checkBi(NUMBER_TEXT[n][k], `number ${n} ${k}`);
-  for (const [name, set] of Object.entries({ PERSONAL_YEAR_TEXT, PERSONAL_MONTH_TEXT, PERSONAL_DAY_TEXT, UNIVERSAL_YEAR_TEXT })) {
+  for (const [name, set] of Object.entries({ PERSONAL_YEAR_TEXT, PERSONAL_MONTH_TEXT, PERSONAL_DAY_TEXT })) {
     assert.deepEqual(Object.keys(set).map(Number), DIGITS, `${name}: 1 to 9 only`);
     for (const n of DIGITS) checkBi(set[n], `${name} ${n}`);
   }
+  // The universal year keeps 11 and 22 (review of 8 Oct).
+  assert.deepEqual(Object.keys(UNIVERSAL_YEAR_TEXT).map(Number), [...DIGITS, 11, 22], "UNIVERSAL_YEAR_TEXT: 1 to 9, 11, 22");
+  for (const n of [...DIGITS, 11, 22]) checkBi(UNIVERSAL_YEAR_TEXT[n], `UNIVERSAL_YEAR_TEXT ${n}`);
   for (const [k, bi] of Object.entries(NUMEROLOGY_ABOUT)) checkBi(bi, `about ${k}`);
   // The numerology words on screen too.
   const ui = JSON.parse(readFileSync(new URL("../src/lib/i18n/numerology-ui.json", import.meta.url), "utf8"));

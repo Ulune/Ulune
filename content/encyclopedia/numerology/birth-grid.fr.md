@@ -60,7 +60,7 @@ La grille de Phillips est moderne : il l’a publiée dans *Secrets of the Inn
 
 - Ulune prend la date de naissance locale du thème : jour, mois et année. Il met les zéros à part, compte chaque chiffre de 1 à 9 et liste ceux qui manquent. Le nom et l’heure de naissance n’y jouent aucun rôle.
 - Il lit huit lignes dans chaque disposition : trois rangées, trois colonnes et deux diagonales. Une ligne est pleine quand la date contient chacun de ses trois chiffres au moins une fois. Elle est vide quand elle n’en contient aucun, partielle sinon, et marquée alors d’un tiret. Un chiffre répété compte une fois pour sa ligne.
-- Les deux dispositions sont calculées ensemble, et un sélecteur montre l’une ou l’autre. Les auteurs nomment les flèches à leur façon : Ulune nomme donc chaque ligne par ses chiffres. Il les donne dans l’ordre chez Phillips (1-5-9), tels qu’on les lit sur le carré pour le Lo Shu (9-5-1).
+- Les deux dispositions sont calculées ensemble, et un sélecteur montre l’une ou l’autre. Les auteurs nomment les flèches à leur façon : Ulune nomme donc chaque ligne par ses chiffres. Il les donne dans l’ordre chez Phillips (1-5-9), tels qu’on les lit sur le carré pour le Lo Shu (9-5-1). Dans le tableau, le nom de chaque ligne mène à son article. Les lignes Lo Shu 4-9-2, 8-1-6, 4-3-8 et 2-7-6 n’en ont pas et restent simples.
 - Sur le carré, chaque case montre son chiffre autant de fois que la date le contient. Une case vide ne montre que son petit numéro.
 
 ## Correspondances

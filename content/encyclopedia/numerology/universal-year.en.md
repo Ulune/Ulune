@@ -8,7 +8,7 @@ tradition: numerology
 family: cycles
 kind: core
 page: true
-summary: The digits of a calendar year added and reduced to 1–9, the same for everyone: the collective background of every personal year.
+summary: The digits of a calendar year added and reduced to 1–9, 11 or 22, the same for everyone: the collective background of every personal year.
 related: [personal-year, personal-cycles, personal-month, personal-day]
 sources:
   - Juno Jordan, Numerology: The Romance in Your Name, 1965
@@ -18,7 +18,7 @@ revised: 2026-10-08
 
 ## Meaning
 
-The universal year is the number of a calendar year itself. Its digits are added and reduced to one number from 1 to 9. It needs no birth date, so it is the same for everyone. Numerology reads it as the collective mood of the year, the background against which every [[personal-year|personal year]] is lived.
+The universal year is the number of a calendar year itself. Its digits are added and reduced to one number from 1 to 9, or to 11 or 22. It needs no birth date, so it is the same for everyone. Numerology reads it as the collective mood of the year, the background against which every [[personal-year|personal year]] is lived.
 
 The universal years turn in the same round of nine as the personal ones. Ulune’s readings give each a collective theme:
 
@@ -31,8 +31,10 @@ The universal years turn in the same round of nine as the personal ones. Ulune�
 - **7**: reflection, research and the search for meaning.
 - **8**: power, authority and the economy; how resources are used.
 - **9**: endings and review; the close of the collective round.
+- **11**: a 2 year with a sharper edge; ideals, inspiration and public voices.
+- **22**: a 4 year on a larger scale; large projects and lasting structures.
 
-Each echoes its number, from [[number-1|1]] to [[number-9|9]]. These are themes for reflection, not forecasts of events.
+Each echoes its number, from [[number-1|1]] to [[number-9|9]], [[number-11|11]] and [[number-22|22]]. These are themes for reflection, not forecasts of events.
 
 The universal year and the personal year are tied by simple arithmetic. Adding the reduced birth month and birth day to the universal year gives the personal year. One person’s year is the collective year, shifted by their birth date. Two people born on the same month and day share every personal year.
 
@@ -40,7 +42,7 @@ The universal year and the personal year are tied by simple arithmetic. Adding t
 
 - **2026**: 2 + 0 + 2 + 6 = 10, then 1 + 0 = 1. A universal year 1, read as a collective year of beginnings.
 - **2025**: 2 + 0 + 2 + 5 = 9. A universal year 9, the close of a collective round.
-- **2027**: 2 + 0 + 2 + 7 = 11, then 2. Ulune reads it as a 2; some writers would call it an 11.
+- **2027**: 2 + 0 + 2 + 7 = 11, kept as a [[master-numbers|master number]]. Ulune reads it as an 11/2 year, with its own text.
 - **2000**: 2 + 0 + 0 + 0 = 2. **1999**: 28, then 10, then 1.
 
 Camille Marie Laurent, a made-up person born on 15 June 1990, has a personal year 4 in 2026. Her birth month and day reduce to 6 and 6, which together add 12, or 3, to the year. The universal 1 of 2026 becomes her personal 4, since 1 + 3 = 4.
@@ -55,7 +57,7 @@ The numerological universal year is a simple device, a sum of digits, and it dep
 
 ## How Ulune calculates it
 
-Ulune adds the digits of the calendar year and reduces the total to a number from 1 to 9. No master number is kept: a year whose digits add to 11, such as 2027, is read as 2. A 13, 14, 16 or 19 on the way is not read as a [[karmic-debt|karmic debt]]. The universal year runs from 1 January to 31 December, like the personal year.
+Ulune adds the digits of the calendar year and reduces the total to a number from 1 to 9. It keeps 11 and 22, as numerologists read them: 2027 is an 11/2 year. A 13, 14, 16 or 19 on the way is not read as a [[karmic-debt|karmic debt]]: 2029 gives 13, then 4. The universal year runs from 1 January to 31 December, like the personal year.
 
 The Calendar shows it in each year’s reading, next to the personal year and with its own text. The Cycles lens, at /numerology/cycles, lists it in its table view, among the numbers of the year chosen.
 
@@ -66,7 +68,7 @@ The Calendar shows it in each year’s reading, next to the personal year and wi
 | 2024 | 8 | 8 |
 | 2025 | 9 | 9 |
 | 2026 | 10 | 1 |
-| 2027 | 11 | 2 |
+| 2027 | 11 | 11/2 |
 | 2028 | 12 | 3 |
 | 2029 | 13 | 4 |
 | 2030 | 5 | 5 |

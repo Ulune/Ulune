@@ -36,7 +36,7 @@ Prenons maintenant le 26 août 2003. Ses chiffres sont 2 2 3 6 8. Pas de 1, pas 
 
 ## D’une tradition à l’autre
 
-Le carré Lo Shu est disposé 4 9 2 / 3 5 7 / 8 1 6. Les chiffres 1, 5 et 9 y forment la colonne du centre, le 9 en haut et le 1 en bas. Ulune l’y affiche 9-5-1, telle qu’on la lit sur le carré. La ligne est la même dans les deux dispositions, simplement tournée, et elle est pleine ou vide aux mêmes dates. Ses chiffres font 15, comme toutes les lignes du Lo Shu.
+Le carré Lo Shu est disposé 4 9 2 / 3 5 7 / 8 1 6. Les chiffres 1, 5 et 9 y forment la colonne du centre, le 9 en haut et le 1 en bas. Ulune l’y affiche 9-5-1, telle qu’on la lit sur le carré, et ce nom mène aussi à cette page. La ligne est la même dans les deux dispositions, simplement tournée, et elle est pleine ou vide aux mêmes dates. Ses chiffres font 15, comme toutes les lignes du Lo Shu.
 
 ## Comment Ulune le calcule
 

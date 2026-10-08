@@ -8,7 +8,7 @@ tradition: numerology
 family: cycles
 kind: core
 page: true
-summary: Les chiffres d’une année civile additionnés et ramenés de 1 à 9, les mêmes pour tous : le fond collectif de chaque année personnelle.
+summary: Les chiffres d’une année civile additionnés et ramenés de 1 à 9, à 11 ou à 22, les mêmes pour tous : le fond collectif de chaque année personnelle.
 related: [personal-year, personal-cycles, personal-month, personal-day]
 sources:
   - Juno Jordan, Numerology: The Romance in Your Name, 1965
@@ -18,7 +18,7 @@ revised: 2026-10-08
 
 ## Sens
 
-L’année universelle est le nombre de l’année civile elle-même. On additionne ses chiffres et on ramène le total à un nombre de 1 à 9. Elle ne demande aucune date de naissance : elle est donc la même pour tous. La numérologie y lit l’humeur collective de l’année, le fond sur lequel chaque [[personal-year|année personnelle]] se vit.
+L’année universelle est le nombre de l’année civile elle-même. On additionne ses chiffres et on ramène le total à un nombre de 1 à 9, ou à 11 ou 22. Elle ne demande aucune date de naissance : elle est donc la même pour tous. La numérologie y lit l’humeur collective de l’année, le fond sur lequel chaque [[personal-year|année personnelle]] se vit.
 
 Les années universelles suivent le même cycle de neuf ans que les années personnelles. Les lectures d’Ulune donnent à chacune un thème collectif :
 
@@ -31,8 +31,10 @@ Les années universelles suivent le même cycle de neuf ans que les années pers
 - **7** : la réflexion, la recherche et la quête de sens.
 - **8** : le pouvoir, l’autorité et l’économie ; l’usage des ressources.
 - **9** : les fins et le bilan ; la clôture du cycle collectif.
+- **11** : une année 2 plus aiguisée ; les idéaux, l’inspiration et les voix publiques.
+- **22** : une année 4 à plus grande échelle ; les grands projets et les structures durables.
 
-Chacune fait écho à son nombre, de [[number-1|1]] à [[number-9|9]]. Ce sont des thèmes de réflexion, non des prévisions d’événements.
+Chacune fait écho à son nombre, de [[number-1|1]] à [[number-9|9]], [[number-11|11]] et [[number-22|22]]. Ce sont des thèmes de réflexion, non des prévisions d’événements.
 
 Année universelle et année personnelle sont liées par un calcul simple. Ajouter à l’année universelle le mois et le jour de naissance réduits donne l’année personnelle. L’année d’une personne est l’année collective, décalée par sa date de naissance. Deux personnes nées le même jour du même mois partagent toutes leurs années personnelles.
 
@@ -40,7 +42,7 @@ Année universelle et année personnelle sont liées par un calcul simple. Ajout
 
 - **2026** : 2 + 0 + 2 + 6 = 10, puis 1 + 0 = 1. Une année universelle 1, lue comme une année collective de commencements.
 - **2025** : 2 + 0 + 2 + 5 = 9. Une année universelle 9, la clôture d’un cycle collectif.
-- **2027** : 2 + 0 + 2 + 7 = 11, puis 2. Ulune la lit comme un 2 ; certains auteurs y verraient un 11.
+- **2027** : 2 + 0 + 2 + 7 = 11, gardé comme [[master-numbers|nombre maître]]. Ulune la lit comme une année 11/2, avec son propre texte.
 - **2000** : 2 + 0 + 0 + 0 = 2. **1999** : 28, puis 10, puis 1.
 
 Camille Marie Laurent, une personne imaginaire née le 15 juin 1990, vit en 2026 une année personnelle 4. Son mois et son jour de naissance se réduisent à 6 et 6, qui ajoutent ensemble 12, soit 3, à l’année. Le 1 universel de 2026 devient son 4 personnel, puisque 1 + 3 = 4.
@@ -55,7 +57,7 @@ L’année universelle de la numérologie est un procédé simple, une somme de 
 
 ## Comment Ulune le calcule
 
-Ulune additionne les chiffres de l’année civile et ramène le total à un nombre de 1 à 9. Aucun nombre maître n’est gardé : une année dont les chiffres font 11, comme 2027, se lit comme un 2. Un 13, 14, 16 ou 19 rencontré en chemin n’est pas lu comme une [[karmic-debt|dette karmique]]. L’année universelle court du 1er janvier au 31 décembre, comme l’année personnelle.
+Ulune additionne les chiffres de l’année civile et ramène le total à un nombre de 1 à 9. Il garde 11 et 22, comme les lisent les numérologues : 2027 est une année 11/2. Un 13, 14, 16 ou 19 rencontré en chemin n’est pas lu comme une [[karmic-debt|dette karmique]] : 2029 donne 13, puis 4. L’année universelle court du 1er janvier au 31 décembre, comme l’année personnelle.
 
 Le Calendrier la montre dans la lecture de chaque année, à côté de l’année personnelle et avec son propre texte. La vue Cycles, à /numerology/cycles, la donne dans sa vue en tableau, parmi les nombres de l’année choisie.
 
@@ -66,7 +68,7 @@ Le Calendrier la montre dans la lecture de chaque année, à côté de l’anné
 | 2024 | 8 | 8 |
 | 2025 | 9 | 9 |
 | 2026 | 10 | 1 |
-| 2027 | 11 | 2 |
+| 2027 | 11 | 11/2 |
 | 2028 | 12 | 3 |
 | 2029 | 13 | 4 |
 | 2030 | 5 | 5 |

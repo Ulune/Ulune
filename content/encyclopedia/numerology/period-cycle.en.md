@@ -26,7 +26,7 @@ Each period has its place in a life, as Ulune’s readings put it:
 - **The second period**, from the day, lasts 27 years. It is the productive middle of life: work, creativity, and the place one makes for oneself.
 - **The third period**, from the year, runs from an age between 54 and 62 to the end of life. It is the harvest: the inner life, what matters in later years, and what one passes on.
 
-The numbers carry their usual themes. A 1 period asks for independence, a 2 for cooperation, a 3 for expression. A 4 period is one of work and foundations, a 5 of change, a 6 of care and responsibility. A 7 period turns inward, an 8 towards achievement and authority, a 9 towards the wider world. An 11 sharpens intuition, a 22 gives room to build on a large scale, a 33 to care on a larger scale.
+The numbers carry their usual themes. A 1 period asks for independence, a 2 for cooperation, a 3 for expression. A 4 period is one of work and foundations, a 5 of change, a 6 of care and responsibility. A 7 period turns inward, an 8 towards achievement and authority, a 9 towards the wider world. An 11 sharpens intuition, and a 22 gives room to build on a large scale.
 
 The periods form a backdrop. Within each, the pinnacles, the [[challenge|challenges]] and the [[personal-year|personal years]] change more often.
 
@@ -48,7 +48,7 @@ The three periods belong to the twentieth-century American numerology that also 
 
 ## How Ulune calculates it
 
-The month, the day and the year are each reduced on their own, keeping 11, 22 and 33 whole. The month gives the first period, the day the second, the year the third.
+The month, the day and the year are each reduced on their own, keeping master numbers whole. None of them can reduce to 33, so a period is 1 to 9, 11 or 22. The month gives the first period, the day the second, the year the third.
 
 The first period ends on the birthday that falls in the first personal year 1 from age 27, the year of the 27th birthday included. Ulune checks the calendar year of each birthday from the 27th on, and stops at the first whose personal year is 1. Since a personal year 1 comes every nine years, the first period ends between 27 and 35. The second lasts exactly 27 years, so the third begins between 54 and 62.
 

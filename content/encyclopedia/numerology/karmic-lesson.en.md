@@ -70,7 +70,7 @@ The values are the [[pythagorean|Pythagorean]] ones, A = 1 to I = 9, then again 
 - Y always counts as 7, whether the name reads it as a vowel or a consonant. Switching a Y by hand changes nothing here. W always counts as 5.
 - Every number from 1 to 9 with no letter is a karmic lesson. There can be several, or none.
 - Only the birth name gives lessons. A name used now, if different, does not.
-- The [[subconscious-self|subconscious self]] is 9 minus the number of lessons. The hidden passion is the number with the most letters; a tie gives two.
+- The [[subconscious-self|subconscious self]] is 9 minus the number of lessons. The hidden passion is the number with the most letters; ties of up to three are all read, and four or more name none.
 - On the numerology wheel, a lesson’s number shows no letter, and its reading gives the lesson’s text.
 
 ## Correspondences

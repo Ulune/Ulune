@@ -51,11 +51,11 @@ Les nombres maîtres appartiennent à la numérologie américaine du début du X
 
 ## Comment Ulune le calcule
 
-Ulune garde 11, 22 et 33 entiers dans le Chemin de vie, d’abord dans chaque partie, puis dans le total. Il les garde dans l’Expression, l’Élan de l’âme et la Personnalité, d’abord dans chaque nom, puis dans le total. La Maturité, les réalisations, les cycles de vie et les [[planes|plans]] les gardent aussi.
+Ulune garde 11, 22 et 33 entiers dans le Chemin de vie, d’abord dans chaque partie, puis dans le total. Il les garde dans l’Expression, l’Élan de l’âme et la Personnalité, d’abord dans chaque nom, puis dans le total. La Maturité, les réalisations et les [[planes|plans]] les gardent aussi. Les cycles de vie de même, bien qu’aucune partie d’une date de naissance ne se réduise à 33.
 
-Le Jour de naissance ne garde que 11 et 22, pour le 11, le 29 et le 22. L’[[essence|essence]] peut atteindre 11 ou 22, car trois lettres n’additionnent jamais 33. L’Attitude les garde dans sa somme, mais Ulune la lit à travers sa racine.
+Le Jour de naissance ne garde que 11 et 22, pour le 11, le 29 et le 22. L’[[essence|essence]] peut atteindre 11 ou 22, car trois lettres n’additionnent jamais 33. L’Attitude garde les trois dans sa somme, chacun lu avec son propre texte. La pensée rationnelle et l’[[universal-year|année universelle]] gardent 11 et 22. En 2027, 2 + 0 + 2 + 7 = 11 : une année 11/2.
 
-Ailleurs, les nombres maîtres se réduisent. L’équilibre, la pensée rationnelle et les cycles [[personal-cycles|personnels]] et [[universal-year|universels]] vont de 1 à 9. En 2027, 2 + 0 + 2 + 7 = 11 → 2. Les [[challenge|défis]] et les [[bridge|ponts]] comptent un nombre maître pour sa racine, tout comme la durée de la première réalisation. Pour un Chemin de vie 11, 22 ou 33, elle s’achève à 34, 32 ou 30 ans.
+Ailleurs, les nombres maîtres se réduisent. L’équilibre et les cycles [[personal-cycles|personnels]] vont de 1 à 9. Les [[challenge|défis]] et les [[bridge|ponts]] comptent un nombre maître pour sa racine, tout comme la durée de la première réalisation. Pour un Chemin de vie 11, 22 ou 33, elle s’achève à 34, 32 ou 30 ans.
 
 Un nombre maître et une [[karmic-debt|dette karmique]] s’écrivent de la même façon, mais diffèrent. Une dette comme 13/4 est un total traversé en chemin. Un nombre maître comme 22/4 est l’endroit où la réduction s’arrête.
 

@@ -59,7 +59,7 @@ Ulune réduit le mois, le jour et l’année de naissance chacun de 1 à 9. Un n
 
 Les deux ponts suivent la même règle. Le Chemin de vie fait face à l’Expression, l’Élan de l’âme à la Personnalité, chacun réduit d’abord de 1 à 9.
 
-Dans une réduction, un 0 n’ajoute rien : 1990 → 19 → 10 → 1, et 2000 → 2. Aucun total de date ou de nom ne se réduit à 0. Un nom absent ne donne aucun nombre, jamais un 0. Les [[personal-cycles|cycles personnels]] et l’[[universal-year|année universelle]] vont de 1 à 9.
+Dans une réduction, un 0 n’ajoute rien : 1990 → 19 → 10 → 1, et 2000 → 2. Aucun total de date ou de nom ne se réduit à 0. Un nom absent ne donne aucun nombre, jamais un 0. Les [[personal-cycles|cycles personnels]] vont de 1 à 9, et l’[[universal-year|année universelle]] n’y ajoute que 11 et 22.
 
 Anna Lise Berg, née le 10 octobre 2000, compte cinq zéros dans sa date. Sa grille ne contient que 1, 1 et 2. Dans la disposition de Phillips, quatre lignes sont vides, dont [[grid-3-6-9|3-6-9]] et [[grid-7-8-9|7-8-9]].
 

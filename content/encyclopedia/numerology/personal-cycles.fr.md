@@ -60,7 +60,7 @@ Tout est calculé sur l’appareil, à partir de la seule date de naissance. Ulu
 
 | Cycle | Calculé à partir de | Change | Nombres |
 | --- | --- | --- | --- |
-| [[universal-year|Année universelle]] | L’année civile | Le 1er janvier | 1–9 |
+| [[universal-year|Année universelle]] | L’année civile | Le 1er janvier | 1–9, 11, 22 |
 | [[personal-year|Année personnelle]] | Mois et jour de naissance, année civile | Le 1er janvier | 1–9 |
 | [[personal-month|Mois personnel]] | Année personnelle, mois civil | Le 1er de chaque mois | 1–9 |
 | [[personal-day|Jour personnel]] | Mois personnel, jour du mois | Chaque jour | 1–9 |

@@ -60,7 +60,7 @@ Phillips’s grid is modern: he published it in *Secrets of the Inner Self* (198
 
 - Ulune takes the local date of birth from the chart: day, month and year. It sets the zeros aside, counts each digit from 1 to 9 and lists the missing ones. The name and the birth time play no part.
 - It reads eight lines in each layout: three rows, three columns and two diagonals. A line is full when the date holds each of its three digits at least once. It is empty when it holds none, and partial otherwise, shown with a dash. A repeated digit counts once for its line.
-- Both layouts are worked out together, and a switch shows one or the other. Authors name the arrows differently, so Ulune names each line by its digits. Phillips’s are in order (1-5-9), the Lo Shu’s as read on the square (9-5-1).
+- Both layouts are worked out together, and a switch shows one or the other. Authors name the arrows differently, so Ulune names each line by its digits. Phillips’s are in order (1-5-9), the Lo Shu’s as read on the square (9-5-1). In the table, each line’s name links to its entry. The Lo Shu lines 4-9-2, 8-1-6, 4-3-8 and 2-7-6 have none and stay plain.
 - On the square, each cell shows its digit as many times as the date holds it. An empty cell shows only its own small number.
 
 ## Correspondences

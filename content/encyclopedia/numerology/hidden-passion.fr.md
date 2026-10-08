@@ -55,14 +55,14 @@ Les égalités sont fréquentes. Yolanda Mary Kyle, autre nom imaginaire, a troi
 
 L’arithmétique des lettres est ancienne. En 1533, Agrippa rapporte la croyance pythagoricienne selon laquelle les lettres portent des nombres, et il additionne des noms entiers. Compter combien de fois chaque nombre revient parmi les lettres est une idée plus tardive. Elle appartient à la numérologie moderne, avec les leçons karmiques, les plans d’expression et les autres nombres secondaires. Aucune source antique ne la décrit, et son étiquette pythagoricienne est une attribution tardive.
 
-Ulune suit l’école de Hans Decoz pour les règles. Il compte toutes les lettres du nom complet de naissance, et lit chaque égalité.
+Ulune suit l’école de Hans Decoz pour les règles. Il compte toutes les lettres du nom complet de naissance, et lit les égalités jusqu’à trois nombres.
 
 ## Comment Ulune le calcule
 
 - **Quel nom.** Le nom complet de naissance, saisi pour la numérologie. À défaut, le nom du thème s’il a été saisi. Un nom utilisé aujourd’hui ne la change pas. Sans aucun nom, il n’y a pas de passion cachée.
 - **Valeurs des lettres.** La table pythagoricienne : A J S = 1, B K T = 2, C L U = 3, D M V = 4, E N W = 5, F O X = 6, G P Y = 7, H Q Z = 8, I R = 9. Les accents tombent.
 - **Le compte.** Chaque lettre compte une fois, voyelles et consonnes confondues. Un Y compte sur le 7, qu’il soit lu comme voyelle ou comme consonne.
-- **Le résultat.** Le ou les nombres au compte le plus élevé. Quand plusieurs nombres sont à égalité, Ulune les lit tous, et affiche le compte : « 7 lettres, le plus ».
+- **Le résultat.** Le ou les nombres au compte le plus élevé. Quand deux ou trois nombres sont à égalité, Ulune les lit tous, et affiche le compte : « 7 lettres, le plus ». À partir de quatre, comme dans un nom court où six nombres ont deux lettres chacun, aucun ne se détache et aucun n’est nommé.
 - Rien n’est additionné ni réduit : il n’y a donc ici ni nombre maître ni dette karmique.
 
 ## Correspondances

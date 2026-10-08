@@ -123,8 +123,8 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
       fr: "Souple, vif d’esprit et à l’aise avec les inconnus. Encaisse les changements soudains mieux que la plupart, et rapporte des idées et des contacts venus d’en dehors du cercle habituel.",
     },
     pitfalls: {
-      en: "Can drop commitments once they turn routine, or chase stimulation — spending, food, new plans — to escape boredom. Building variety into a commitment usually works better than leaving it.",
-      fr: "Peut lâcher un engagement dès qu’il devient routinier, ou chercher la stimulation — dépenses, nourriture, nouveaux projets — pour fuir l’ennui. Introduire de la variété dans un engagement marche en général mieux que d’en sortir.",
+      en: "Can drop commitments once they turn routine, or chase stimulation — novelty, purchases, new plans — to escape boredom. Building variety into a commitment usually works better than leaving it.",
+      fr: "Peut lâcher un engagement dès qu’il devient routinier, ou chercher la stimulation — nouveautés, achats, nouveaux projets — pour fuir l’ennui. Introduire de la variété dans un engagement marche en général mieux que d’en sortir.",
     },
     example: {
       en: "A 5 who feels stuck in a job may not need a new one. Changing teams, taking on a project that involves travel, or learning a skill on the side often brings the interest back.",
@@ -189,8 +189,8 @@ export const NUMBER_TEXT: Record<NumberKey, NumberText> = {
       fr: "Ambitieux, organisé et décidé. Voit comment combiner argent, personnes et temps pour mener une chose à bien, et exerce l’autorité sans se laisser intimider par elle.",
     },
     pitfalls: {
-      en: "Can measure everything, relationships included, by success or control, and overwork until health or family pay the price. Using power fairly is the lesson that keeps returning.",
-      fr: "Peut tout mesurer, relations comprises, à l’aune de la réussite ou du contrôle, et travailler à l’excès jusqu’à ce que la santé ou la famille en paient le prix. Exercer le pouvoir avec équité est la leçon qui revient sans cesse.",
+      en: "Can measure everything, relationships included, by success or control, and overwork until rest and the people close to them pay the price. Using power fairly is the lesson that keeps returning.",
+      fr: "Peut tout mesurer, relations comprises, à l’aune de la réussite ou du contrôle, et travailler à l’excès jusqu’à ce que le repos et les proches en paient le prix. Exercer le pouvoir avec équité est la leçon qui revient sans cesse.",
     },
     example: {
       en: "Asked to help with a charity event, an 8 also negotiates a sponsor, sets a fundraising target and tracks it weekly — and the evening raises twice what was planned.",
@@ -410,8 +410,8 @@ export const PERSONAL_DAY_TEXT: Record<CycleKey, Bi> = {
   },
 };
 
-/** Universal Year 1–9: the collective theme of a calendar year. */
-export const UNIVERSAL_YEAR_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, Bi> = {
+/** Universal Year 1–9, 11 and 22: the collective theme of a calendar year. */
+export const UNIVERSAL_YEAR_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 11 | 22, Bi> = {
   1: {
     en: "A Universal Year 1 is read as a collective year of beginnings: new initiatives, new leaders and fresh starts in many areas at once. Its general theme is independence and setting a direction for the next nine years.",
     fr: "Une Année universelle 1 se lit comme une année collective de commencements\u202f: nouvelles initiatives, nouveaux dirigeants, nouveaux départs dans de nombreux domaines à la fois. Son thème général est l’indépendance et le choix d’une direction pour les neuf années à venir.",
@@ -448,6 +448,14 @@ export const UNIVERSAL_YEAR_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, Bi> 
     en: "A Universal Year 9 is associated with endings and completion. It closes the nine-year collective cycle, and is read as a time of review, letting go and preparing for a new beginning.",
     fr: "Une Année universelle 9 est associée aux fins et à l’achèvement. Elle referme le cycle collectif de neuf ans, et se lit comme un temps de bilan, de lâcher-prise et de préparation à un nouveau départ.",
   },
+  11: {
+    en: "A Universal Year 11 is read as a 2 year with a sharper edge: cooperation and balance are still the theme, but with more attention on ideals, inspiration and public voices. Numerologists write it 11/2 and read it as a year when vision and sensitivity carry further than usual.",
+    fr: "Une Année universelle 11 se lit comme une année 2 plus aiguisée\u202f: la coopération et l’équilibre restent le thème, mais l’attention se porte davantage sur les idéaux, l’inspiration et les voix publiques. Les numérologues l’écrivent 11/2 et y lisent une année où la vision et la sensibilité portent plus loin que d’habitude.",
+  },
+  22: {
+    en: "A Universal Year 22 is read as a 4 year on a larger scale: building and organising are still the theme, but the work concerns large projects and lasting structures. Numerologists write it 22/4 and read it as a year for practical plans that serve many people.",
+    fr: "Une Année universelle 22 se lit comme une année 4 à plus grande échelle\u202f: bâtir et organiser restent le thème, mais le travail porte sur de grands projets et des structures durables. Les numérologues l’écrivent 22/4 et y lisent une année de projets concrets au service du plus grand nombre.",
+  },
 };
 
 /** Short explainers (2–3 sentences each). */
@@ -465,8 +473,8 @@ export const NUMEROLOGY_ABOUT: { system: Bi; reduction: Bi; masters: Bi; cycle: 
     fr: "11, 22 et 33 sont appelés nombres maîtres et ne sont pas réduits quand ils apparaissent, car la tradition y voit une forme plus intense et plus exigeante de leur racine. On les lit aussi comme 2, 4 et 6 (1 + 1, 2 + 2, 3 + 3), d’où l’écriture 11/2, 22/4 et 33/6. On dit souvent qu’une personne vit d’abord le nombre racine, puis s’approprie peu à peu le nombre maître.",
   },
   cycle: {
-    en: "Personal Years run in a nine-year cycle, from 1 (beginnings) to 9 (completion), and then start again. The Personal Year adds your birth month and birth day to the current calendar year and reduces the total: for someone born on 15 June, 2026 gives 6 + 15 + 2026 = 2047, then 2 + 0 + 4 + 7 = 13, then 1 + 3 = 4. The next year, 2027, is a Personal Year 5.",
-    fr: "Les Années personnelles suivent un cycle de neuf ans, de 1 (commencement) à 9 (achèvement), puis recommencent. L’Année personnelle additionne votre mois et votre jour de naissance à l’année civile en cours, puis réduit le total\u202f: pour une personne née un 15 juin, 2026 donne 6 + 15 + 2026 = 2047, puis 2 + 0 + 4 + 7 = 13, puis 1 + 3 = 4. L’année suivante, 2027, est une Année personnelle 5.",
+    en: "Personal Years run in a nine-year cycle, from 1 (beginnings) to 9 (completion), and then start again. The Personal Year adds your birth month and birth day to the current calendar year, each reduced first, and reduces the total: for someone born on 15 June, the month gives 6, the day 1 + 5 = 6 and 2026 gives 2 + 0 + 2 + 6 = 10, then 1; 6 + 6 + 1 = 13, then 1 + 3 = 4. The next year, 2027, is a Personal Year 5.",
+    fr: "Les Années personnelles suivent un cycle de neuf ans, de 1 (commencement) à 9 (achèvement), puis recommencent. L’Année personnelle additionne votre mois et votre jour de naissance à l’année civile en cours, chacun réduit d’abord, puis réduit le total\u202f: pour une personne née un 15 juin, le mois donne 6, le jour 1 + 5 = 6, et 2026 donne 2 + 0 + 2 + 6 = 10, puis 1\u202f; 6 + 6 + 1 = 13, puis 1 + 3 = 4. L’année suivante, 2027, est une Année personnelle 5.",
   },
   compare: {
     en: "Comparing two people’s numbers shows which themes they share and where they differ — for example, two 4s who both value routine, or a 5 who needs change sharing a home with a 6 who needs stability. It is not a compatibility score: no pair of numbers is good or bad, and the useful question is how each person’s needs can be understood and met.",

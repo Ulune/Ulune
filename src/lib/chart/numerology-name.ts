@@ -254,7 +254,7 @@ export type NameDetail = {
   counts: number[];
   /** The numbers 1–9 no letter gives. */
   karmicLessons: number[];
-  /** The number(s) with the most letters. */
+  /** The number(s) with the most letters: up to three tied; none when more tie. */
   hiddenPassion: number[];
   /** How many of the nine numbers the name holds (9 minus the lessons). */
   subconsciousSelf: number;
@@ -275,7 +275,10 @@ export function nameDetail(parsed: ParsedName): NameDetail {
   const nine = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   const karmicLessons = nine.filter((n) => counts[n] === 0);
   const most = Math.max(0, ...nine.map((n) => counts[n] ?? 0));
-  const hiddenPassion = most > 0 ? nine.filter((n) => counts[n] === most) : [];
+  // Ties are all read, up to three; with more, no number stands out (a short
+  // name with six numbers on two letters each), and none is named (review of 8 Oct).
+  const tied = most > 0 ? nine.filter((n) => counts[n] === most) : [];
+  const hiddenPassion = tied.length <= 3 ? tied : [];
   // Balance reduces all the way, masters too (Decoz).
   const initials = parsed.words.map((w) => w.letters[0]!).filter(Boolean);
   const balance = fromTerms(

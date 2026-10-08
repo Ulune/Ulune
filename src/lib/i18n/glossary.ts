@@ -379,8 +379,8 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
   karmicDebt: {
     term: ["Karmic debt", "Dette karmique"],
     body: [
-      "A 13, 14, 16 or 19 reached just before a core number’s last step, written whole (13/4): a lesson that comes back until it is learned, not a punishment.",
-      "Un 13, 14, 16 ou 19 atteint juste avant la dernière étape d’un nombre principal, écrit en entier (13/4)\u202f: une leçon qui revient jusqu’à ce qu’elle soit apprise, pas une punition.",
+      "A 13, 14, 16 or 19 reached on the way to a core number, before it is reduced to one digit, written whole (13/4): a lesson that comes back until it is learned, not a punishment.",
+      "Un 13, 14, 16 ou 19 atteint en chemin, avant qu’un nombre principal soit réduit à un chiffre, écrit en entier (13/4)\u202f: une leçon qui revient jusqu’à ce qu’elle soit apprise, pas une punition.",
     ],
   },
   karmicLesson: {

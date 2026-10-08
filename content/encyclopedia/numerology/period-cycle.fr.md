@@ -26,7 +26,7 @@ Chaque cycle a sa place dans une vie, comme le disent les lectures d’Ulune :
 - **Le deuxième cycle**, tiré du jour, dure 27 ans. C’est le cœur productif de la vie : le travail, la création et la place qu’on se fait.
 - **Le troisième cycle**, tiré de l’année, court d’un âge compris entre 54 et 62 ans jusqu’à la fin de la vie. C’est la moisson : la vie intérieure, ce qui compte dans les dernières années, ce qu’on transmet.
 
-Les nombres portent leurs thèmes habituels. Un cycle 1 demande de l’indépendance, un 2 de la coopération, un 3 de l’expression. Un cycle 4 est un temps de travail et de fondations, un 5 de changement, un 6 de soin et de responsabilité. Un cycle 7 tourne vers l’intérieur, un 8 vers la réussite et l’autorité, un 9 vers le vaste monde. Un 11 aiguise l’intuition, un 22 donne de la place pour bâtir en grand, un 33 pour prendre soin à plus grande échelle.
+Les nombres portent leurs thèmes habituels. Un cycle 1 demande de l’indépendance, un 2 de la coopération, un 3 de l’expression. Un cycle 4 est un temps de travail et de fondations, un 5 de changement, un 6 de soin et de responsabilité. Un cycle 7 tourne vers l’intérieur, un 8 vers la réussite et l’autorité, un 9 vers le vaste monde. Un 11 aiguise l’intuition, et un 22 donne de la place pour bâtir en grand.
 
 Les cycles de vie forment une toile de fond. En leur sein, les réalisations, les [[challenge|défis]] et les [[personal-year|années personnelles]] changent plus souvent.
 
@@ -48,7 +48,7 @@ Les trois cycles de vie appartiennent à la numérologie américaine du XXe siè
 
 ## Comment Ulune le calcule
 
-Le mois, le jour et l’année sont chacun réduits à part, en gardant 11, 22 et 33 entiers. Le mois donne le premier cycle, le jour le deuxième, l’année le troisième.
+Le mois, le jour et l’année sont chacun réduits à part, en gardant entiers les nombres maîtres. Aucun ne peut se réduire à 33 : un cycle vaut donc de 1 à 9, 11 ou 22. Le mois donne le premier cycle, le jour le deuxième, l’année le troisième.
 
 Le premier cycle s’achève à l’anniversaire qui tombe dans la première année personnelle 1 à partir de 27 ans, l’année du 27e anniversaire comprise. Ulune examine l’année civile de chaque anniversaire à partir du 27e, et s’arrête à la première dont l’année personnelle vaut 1. Comme une année personnelle 1 revient tous les neuf ans, le premier cycle s’achève entre 27 et 35 ans. Le deuxième dure exactement 27 ans : le troisième commence donc entre 54 et 62 ans.
 

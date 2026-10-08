@@ -33,7 +33,7 @@ Take a made-up person, Yolanda Mary Kyle, born 29 November 1984.
 - The day, 29: 2 + 9 = 11, kept as well.
 - 11 + 11 = 22, and 22 is kept too.
 
-Her attitude number is 22. Ulune shows it as 22/4, a [[number-22|22]] over its root 4, and gives it the 4’s short reading. She tends to meet life seriously: practical, dependable, careful before committing. Some lightness keeps the seriousness from weighing on her.
+Her attitude number is 22. Ulune shows it as 22/4, a [[number-22|22]] over its root 4, and gives it the 22’s own short reading. She tends to meet life as a builder: calm, capable, already seeing what could be made. Sharing the plan early lets others help carry it.
 
 Her first pinnacle is the same 22. Her Life Path is 8, so that pinnacle runs until her 28th birthday (36 minus 8).
 ## How Ulune calculates it
@@ -43,7 +43,7 @@ Her first pinnacle is the same 22. Her Life Path is 8, so that pinnacle runs unt
 - The day is reduced the same way, keeping 11 and 22. The 11th and the 29th give 11, the 22nd gives 22.
 - The two are added. The sum is reduced again, and 11, 22 and 33 are kept. A 33 comes from 22 November alone.
 - No [[karmic-debt|karmic debt]] is read. Born 3 November, someone has 11 + 3 = 14, which simply becomes 5.
-- A master number is shown with its root (22/4). The short text Ulune gives is that of the root.
+- A master number is shown with its root (22/4). Ulune gives it its own short text, not the root’s.
 
 ## Correspondences
 
@@ -60,6 +60,8 @@ The attitude number takes the values 1 to 9, 11, 22 and 33. Each value is summed
 | [[number-7|7]] | Thoughtfully: observant, reserved | A friendly sign now and then |
 | [[number-8|8]] | With assurance: capable, goal-minded | Showing some doubts |
 | [[number-9|9]] | Openly: generous, tolerant | Clear limits |
-| [[number-11|11]], [[number-22|22]], [[number-33|33]] | Read with their roots, 2, 4 and 6 | As for the root |
+| [[number-11|11]] | With quick, sensitive alertness | Some quiet time of one’s own |
+| [[number-22|22]] | As a builder: calm, capable | Sharing the plan early |
+| [[number-33|33]] | With open-hearted care: warm, encouraging | Letting others care too |
 
 The related positions are the first pinnacle, the same sum, and the Birthday number, its day. The other finer numbers are the [[rational-thought|rational thought number]], the [[balance-number|balance number]] and the [[subconscious-self|subconscious self]].

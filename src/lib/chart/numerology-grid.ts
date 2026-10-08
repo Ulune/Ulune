@@ -5,7 +5,8 @@
  * of Numerology). Phillips puts 3-6-9 on top; the Chinese Lo Shu square lays
  * the same digits out as 4-9-2 / 3-5-7 / 8-1-6, which gives other lines.
  * The arrows' names differ from book to book, so Ulune names a line by its
- * digits and says what it stands for in the reading.
+ * digits; the line's encyclopedia entry (linked from the table) says what
+ * it stands for, with the names authors give it.
  */
 import type { BirthDate } from "./numerology-cycles";
 
