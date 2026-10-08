@@ -96,11 +96,13 @@ await ensureShotsDir();
     if (!(order[0] >= 0 && order[0] < order[1] && order[1] < order[2])) fail(`home: the parts are out of order ${order}`);
     const traditions = await page.locator("[data-testid=enc-traditions] [data-tradition]").evaluateAll((els) => els.map((e) => e.getAttribute("data-tradition")));
     if (traditions.join() !== "astrology,human-design,numerology") fail(`home: traditions ${traditions}`);
-    // A–Z: every entry, a page as a link, a card only as a word that shows its card.
+    // A–Z: every entry, a page as a link.
     const rows = await page.locator("[data-testid=enc-az] li[data-entry]").count();
     if (rows < 69) fail(`A–Z lists ${rows} entries`);
     if ((await page.locator('[data-testid=enc-az] li[data-entry="retrograde"] a').getAttribute("href")) !== "/encyclopedia/retrograde") fail("A–Z: Retrograde is not a link to its page");
-    if ((await page.locator('[data-testid=enc-az] li[data-entry="master-numbers"] button[data-term="master-numbers"]').count()) !== 1) fail("A–Z: Master numbers (numerology) is not a card");
+    // Since part 15 every entry has its page: no word in the A–Z is a card only.
+    if ((await page.locator("[data-testid=enc-az] li[data-entry] button[data-term]").count()) !== 0) fail("A–Z: an entry without its page");
+    if ((await page.locator('[data-testid=enc-az] li[data-entry="master-numbers"] a').getAttribute("href")) !== "/encyclopedia/master-numbers") fail("A–Z: Master numbers is not a link to its page");
     await page.locator("[data-testid=enc-letters] a", { hasText: /^D$/ }).click();
     await page.waitForFunction(() => location.hash === "#az-d", null, { timeout: 4000 });
     const top = await page.locator("#az-d").evaluate((el) => el.getBoundingClientRect().top);
@@ -166,18 +168,6 @@ await ensureShotsDir();
     if ((await word.getAttribute("aria-describedby")) !== "ob-term-card-text") fail("card: the word is not described by it");
     await page.mouse.move(5, 5);
     await card.waitFor({ state: "detached", timeout: 4000 });
-    // A card only (a numerology word linked from the Transit page): the card, without "Read the full page".
-    {
-      const other = await page.context().browser().newPage({ viewport: { width: 1280, height: 900 } });
-      await gotoApp(other, "/encyclopedia/transit");
-      const cardOnly = other.locator('[data-section=traditions] [data-term="personal-cycles"]').first();
-      await cardOnly.scrollIntoViewIfNeeded();
-      await cardOnly.hover();
-      const otherCard = other.getByTestId("term-card");
-      await otherCard.waitFor({ timeout: 4000 });
-      if (/Read the full page/.test(await otherCard.innerText())) fail("a card only offers a page");
-      await other.close();
-    }
     // The keyboard: focus shows it at once, Escape closes it and leaves the focus on the word.
     await page.keyboard.press("Shift");
     await word.focus();
@@ -212,7 +202,7 @@ await ensureShotsDir();
     await page.getByTestId("enc-crumbs").getByRole("link", { name: "Les cycles du ciel" }).click();
     await page.waitForURL(`${origin}/encyclopedie/astrologie#family-cycles`, { timeout: 10000 });
     await page.getByTestId("enc-tradition").waitFor();
-    // A tradition's home: its families as cards; a card only with its summary and no link.
+    // A tradition's home: its families as cards, each with its summary and its link.
     const decan = page.locator('#decan');
     if ((await decan.locator("a").count()) !== 1 || !/Un tiers de signe/.test(await decan.innerText())) fail("a page with its summary on its tradition's home");
     if ((await page.locator('[data-entry="station"] a').getAttribute("href")) !== "/encyclopedie/station") fail("a page on its tradition's home");
@@ -280,8 +270,8 @@ await ensureShotsDir();
     // The search answers a sent form.
     await page.goto(`${DEV}/encyclopedia?q=retrogarde`, { waitUntil: "load" });
     if ((await page.locator('[data-testid=enc-results] [data-entry="retrograde"]').count()) !== 1) fail("no JavaScript: the search did not answer");
-    // A card only, and an unknown address: not found, 404.
-    for (const p of ["/encyclopedia/master-numbers", "/encyclopedie/nothing-here"]) {
+    // An unknown address, in either language: not found, 404.
+    for (const p of ["/encyclopedia/nothing-here", "/encyclopedie/nothing-here"]) {
       const lost = await page.goto(`${DEV}${p}`, { waitUntil: "load" });
       if (lost?.status() !== 404) fail(`${p}: ${lost?.status()}, not 404`);
       if ((await page.locator('meta[name="robots"]').getAttribute("content")) !== "noindex") fail(`${p}: not kept out of search`);

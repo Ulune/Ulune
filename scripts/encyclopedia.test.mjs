@@ -463,8 +463,9 @@ test("the term index: each entry's tradition, family and addresses; a family in 
   const { index, traditionHomes, pages } = real.data;
   assert.deepEqual(index.terms.retrograde, ["astrology", "cycles", "retrograde", "retrograde", 1, "℞"]);
   assert.deepEqual(index.terms["moon-phase"].slice(2, 5), ["moon-phase", "phase-de-la-lune", 1]);
-  // A short card (no page yet): its row says so.
-  assert.deepEqual(index.terms["master-numbers"].slice(2, 5), ["master-numbers", "nombres-maitres", 0]);
+  // Since part 15 every entry has its page (a short card returns with the next languages' terms).
+  assert.deepEqual(index.terms["master-numbers"].slice(2, 5), ["master-numbers", "nombres-maitres", 1]);
+  assert.ok(Object.values(index.terms).every((r) => r[4] === 1), "every entry has its page");
   const cycles = traditionHomes["en/astrology"].families.find((f) => f.id === "cycles").rows.map((r) => r[0]);
   assert.deepEqual(cycles, ["retrograde", "station", "ingress", "moon-phase", "eclipse", "void-of-course", "season"]);
   // Previous and next go through the pages of the family only.
@@ -495,7 +496,7 @@ test("the plugin hands each piece as its own module, pages through their traditi
   for (const path of named) assert.match(load(path), /^export default JSON\.parse\(/);
   const page = JSON.parse(JSON.parse(/JSON\.parse\((.*)\);/.exec(load("page/fr/station"))[1]));
   assert.equal(page.title, "Station");
-  assert.throws(() => load("page/fr/master-numbers"), /No encyclopedia module/);
+  assert.throws(() => load("page/fr/nothing-here"), /No encyclopedia module/);
   assert.equal(plugin.load("/src/other.ts"), null);
 });
 
@@ -578,10 +579,10 @@ test("search: phrases, whole first, then their parts; grouped by tradition with 
   assert.equal(groups[0].tradition, "human-design");
   assert.ok(groups.every((g) => g.hits.every((h) => h.tradition === g.tradition)));
   assert.ok(mixed[0].summary.length > 20);
-  // An entry with no page is found too, with no address.
-  const card = search(engines.en, "master numbers")[0];
-  assert.equal(card.id, "master-numbers");
-  assert.equal(card.slug, null);
+  // An entry is found by its name, with its address.
+  const hit = search(engines.en, "master numbers")[0];
+  assert.equal(hit.id, "master-numbers");
+  assert.equal(hit.slug, "master-numbers");
 });
 
 /* ------------------------------------------------------------ heads, sitemap, boot */
@@ -622,7 +623,7 @@ test("the sitemap: the app's public pages, then every encyclopedia page in both 
     assert.ok(paths.includes(`/encyclopedia/${index.terms[id][2]}`) && paths.includes(`/encyclopedie/${index.terms[id][3]}`), id);
   }
   // No entry without a page, and the homes INDEXED_PAGES names are those the index has.
-  assert.ok(!paths.includes("/encyclopedia/master-numbers") && paths.includes("/encyclopedia/gate"));
+  assert.ok(paths.includes("/encyclopedia/master-numbers") && paths.includes("/encyclopedie/nombres-maitres") && paths.includes("/encyclopedia/gate"));
   const homes = encyclopediaPairs(index).slice(0, 1 + index.traditions.filter((t) => t.count > 0).length).flatMap((p) => [p.en, p.fr]);
   assert.deepEqual(INDEXED_PAGES.filter((p) => p.startsWith("/encycloped")), homes);
   const xml = sitemapXml(index);
