@@ -35,7 +35,11 @@ function lexicons(lang: Lang): Promise<Lexicons> {
 }
 
 const CENTRE: Record<string, string> = { solarPlexus: "solar-plexus" };
+/** The numerology readings' ids ("core:lifepath", "detail:attitude"), and their older spellings. */
 const CORE: Record<string, string> = {
+  lifepath: "life-path",
+  soulurge: "soul-urge",
+  personalYear: "personal-year",
   lifePath: "life-path",
   expression: "expression",
   soulUrge: "soul-urge",

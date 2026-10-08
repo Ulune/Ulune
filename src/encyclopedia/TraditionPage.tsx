@@ -1,4 +1,5 @@
 import { Crumbs, EncFrame, EncLink, Licence, Mark, TwinLink } from "./frame";
+import { MineIndexSlot } from "./MineSlot";
 import { tr } from "./words";
 import type { ListRow, TraditionHome } from "./types";
 
@@ -42,6 +43,7 @@ export function TraditionPage({ home }: { home: TraditionHome }) {
           <TwinLink lang={lang} slug={home.twinHome} />
         </p>
       </header>
+      <MineIndexSlot lang={lang} tradition={home.id} />
       {home.families.map((f) => (
         <section key={f.id} id={`family-${f.id}`} className="ob-enc-family" aria-labelledby={`h-family-${f.id}`} data-family={f.id}>
           <h2 id={`h-family-${f.id}`} className="ob-enc-h2">

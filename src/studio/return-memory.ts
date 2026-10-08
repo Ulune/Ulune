@@ -11,6 +11,7 @@ import { isStudioPath } from "@/studio/map";
 import { dropPinLetGo, endReturn, keepPart, keptPart, leaveStudio, pinLetGo, returnPlace, setPlaceSource } from "@/studio/return-parts";
 import { historyIndex, setStudioReturn } from "@/studio/return-target";
 import { useStudioStore } from "@/studio/store";
+import { takeAskedReading } from "@/encyclopedia/your-chart";
 
 type Place = { page: string; view: string; activeId: string | null };
 const placeKey = (s: Place) => `${s.page}|${s.view}|${s.activeId ?? ""}`;
@@ -49,9 +50,16 @@ export function useStudioReturn(): void {
   useLayoutEffect(() => {
     const from = returnPlace();
     if (from !== null && placeKey(useStudioStore.getState()) !== from) endReturn();
+    // "Open the reading" from an encyclopedia page (part 18): that chart, that reading, in the panel.
+    const asked = takeAskedReading();
+    if (asked) {
+      const s = useStudioStore.getState();
+      if (asked.chart !== s.activeId && s.rows.some((r) => r.id === asked.chart)) s.select(asked.chart);
+      useStudioStore.setState({ selectedId: asked.ref, dock: "reading", dockOpen: true });
+    }
     // The pin, as it was when the studio was left.
     const pin = keptPart<string>("pin");
-    if (typeof pin === "string" && !useStudioStore.getState().selectedId) useStudioStore.setState({ selectedId: pin });
+    if (!asked && typeof pin === "string" && !useStudioStore.getState().selectedId) useStudioStore.setState({ selectedId: pin });
     dropPinLetGo();
     const over = () => {
       if (returnPlace() !== null) endReturn();

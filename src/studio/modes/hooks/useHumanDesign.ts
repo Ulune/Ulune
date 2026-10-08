@@ -6,6 +6,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { useStudioStore } from "@/studio/store";
 import { errorForState } from "@/lib/i18n/errors";
 import { keptOr, useKeep } from "@/studio/return-parts";
+import { noteBodygraph } from "@/encyclopedia/your-chart";
 
 /**
  * The last bodygraph cast, for this tab only: the same birth gives the same
@@ -52,6 +53,8 @@ export function useHumanDesign() {
         if (cancelled) return;
         ready.current = true;
         lastHd = { key: hdKey, hd: next };
+        // For the encyclopedia's "In your chart" in this tab (part 18).
+        noteBodygraph(hdKey, next);
         setHd(next);
         setBusy(false);
       })

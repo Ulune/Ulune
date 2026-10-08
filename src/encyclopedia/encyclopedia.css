@@ -657,3 +657,110 @@ a.ob-enc-letter {
   color: var(--color-fg);
   text-decoration: underline;
 }
+
+/* "In your chart" (part 18): the reader's own placement, worked out in the browser. */
+.ob-enc-mine {
+  margin-top: 28px;
+  padding: 14px 16px 12px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+.ob-enc-mine--hidden {
+  padding-block: 8px;
+  background: none;
+  border-color: var(--color-border);
+}
+.ob-enc-mine-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+.ob-enc-mine-head .ob-enc-h2 {
+  margin: 0;
+  flex: 1 1 auto;
+}
+.ob-enc-mine--hidden .ob-enc-h2 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-fg-muted);
+}
+.ob-enc-mine-whose {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-fg-muted);
+}
+.ob-enc-mine-whose select {
+  max-width: 12rem;
+  font: inherit;
+  color: var(--color-fg);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius-sm, 6px);
+  padding: 4px 6px;
+}
+.ob-enc-mine-toggle,
+.ob-enc-mine-reading {
+  min-height: 32px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--color-fg);
+  background: none;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+}
+.ob-enc-mine-toggle:hover,
+.ob-enc-mine-reading:hover {
+  background: var(--color-bg-elevated);
+}
+.ob-enc-mine-toggle:focus-visible,
+.ob-enc-mine-reading:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+.ob-enc-mine-body {
+  margin-top: 8px;
+}
+.ob-enc-mine-body p {
+  margin: 0 0 6px;
+}
+.ob-enc-mine-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-top: 8px;
+}
+.ob-enc-mine-note,
+.ob-enc-mine-lead {
+  font-size: 12.5px;
+  color: var(--color-fg-subtle);
+}
+.ob-enc-mine-lead {
+  margin: 6px 0 4px;
+  font-size: 13.5px;
+  color: var(--color-fg-muted);
+}
+.ob-enc-mine-group {
+  margin-top: 12px;
+}
+.ob-enc-mine-h3 {
+  margin: 0 0 4px;
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-fg-muted);
+}
+.ob-enc-mine .ob-enc-compact {
+  columns: 3 12rem;
+}
+@media print {
+  .ob-enc-mine {
+    display: none;
+  }
+}

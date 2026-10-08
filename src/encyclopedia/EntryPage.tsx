@@ -2,6 +2,7 @@ import { APP_VERSION, SITE_URL } from "@/lib/app-identity";
 import { dateFormat } from "@/lib/intl-cache";
 import { OPERATOR } from "@/lib/legal/operator";
 import { Sections } from "./Body";
+import { MineSlot } from "./MineSlot";
 import { encPath } from "./data";
 import { Crumbs, EncFrame, EncLink, Licence, Mark, markClass, TwinLink } from "./frame";
 import { tr } from "./words";
@@ -10,7 +11,7 @@ import type { EntryRef, Lang, PageData } from "./types";
 /*
  * An entry's page (encyclopedia plan, "An entry, start to finish"), in this
  * order: the head (name, glyph, tradition, the name in the other language),
- * the one-sentence summary, "In your chart" (later), the body's sections,
+ * the one-sentence summary, "In your chart" (part 18, MineSlot.tsx: only with a chart open in this tab, worked out in the browser), the body's sections,
  * Related, Sources, then the date it was last revised, a way to report an
  * error, the next and previous pages of its family and the text's licence.
  * Rendered on the server: complete and readable without JavaScript.
@@ -30,17 +31,6 @@ function errorMail(page: PageData): string {
   const subject = tr(page.lang, "encReportSubject", { version: APP_VERSION, title: page.title });
   const body = `${url}\n\n${tr(page.lang, "reportMailBody")}\n\n`;
   return `mailto:${OPERATOR.contact}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}
-
-/*
- * IN YOUR CHART (encyclopedia plan, part 18, not built yet): with a chart
- * open, a short personal part goes here, between the summary and the body,
- * worked out on the device from the chart in memory (Saturn in Capricorn in
- * the 5th house…), with a switch to hide it (decision 6). The page itself
- * stays the same for everyone: the server never learns which chart reads it.
- */
-function InYourChart(_props: { page: PageData }) {
-  return null;
 }
 
 function RelatedCard({ entry, lang }: { entry: EntryRef; lang: Lang }) {
@@ -94,7 +84,7 @@ export function EntryPage({ page }: { page: PageData }) {
         <p className="ob-enc-summary" data-testid="enc-summary">
           {page.summary}
         </p>
-        <InYourChart page={page} />
+        <MineSlot page={page} />
         <Sections sections={page.sections} lang={lang} />
         {page.related.length ? (
           <section className="ob-enc-section" aria-labelledby="s-related" data-testid="enc-related">
