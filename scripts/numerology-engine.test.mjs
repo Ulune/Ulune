@@ -39,15 +39,19 @@ const values = (list) => list.map((c) => c.value.number);
 const ages = (list) => list.map((c) => [c.fromAge, c.toAge]);
 
 // ── 1. Decoz's worked examples ─────────────────────────────────────────────
+// Decoz's own example is a real person; here the names are made up with the
+// same letter values in the same places, so every number of his worked
+// example (and each letter of its cycles) is still checked (Limiel, 8 Oct:
+// no real person's data in the code).
 
-test("Decoz: Thomas Cruise Mapother's Expression is 22 + 3 + 6 = 31 → 4, name by name", () => {
-  const n = readName("Thomas Cruise Mapother");
+test("Decoz: Thomas Cilian Dagobher's Expression is 22 + 3 + 6 = 31 → 4, name by name", () => {
+  const n = readName("Thomas Cilian Dagobher");
   assert.deepEqual(
     n.expression.terms.map((t) => [t.key, t.raw, t.value]),
     [
       ["Thomas", 22, 22],
-      ["Cruise", 30, 3],
-      ["Mapother", 42, 6],
+      ["Cilian", 30, 3],
+      ["Dagobher", 42, 6],
     ],
   );
   assert.deepEqual(n.expression.chain, [31, 4]);
@@ -57,7 +61,7 @@ test("Decoz: Thomas Cruise Mapother's Expression is 22 + 3 + 6 = 31 → 4, name 
 });
 
 test("Decoz: challenges for 3 July 1962 are 4, 6, 2 (the main one) and 2", () => {
-  const c = cast("1962-07-03", "Thomas Cruise Mapother");
+  const c = cast("1962-07-03", "Thomas Cilian Dagobher");
   assert.deepEqual(values(c.life.challenges), [4, 6, 2, 2]);
   assert.deepEqual(
     c.life.challenges.map((x) => x.value.gap),
@@ -122,14 +126,14 @@ test("Decoz: 15 December 1965 has the period cycles 3, 6 and 3", () => {
 });
 
 test("Decoz: Rational Thought for Thomas, born on the 3rd, is 22 + 3 = 25 → 7", () => {
-  const c = cast("1962-07-03", "Thomas Cruise Mapother");
+  const c = cast("1962-07-03", "Thomas Cilian Dagobher");
   assert.equal(c.rationalThought.number, 7);
   // The first name keeps its 22 on the way (review of 8 Oct); the total is the same.
   assert.deepEqual(c.rationalThought.terms[0].chain, [22]);
 });
 
-test("Decoz: Thomas Cruise Mapother's letter cycles at 20 are A, I and H", () => {
-  const c = cast("1962-07-03", "Thomas Cruise Mapother");
+test("Decoz: Thomas Cilian Dagobher's letter cycles at 20 are A, I and H", () => {
+  const c = cast("1962-07-03", "Thomas Cilian Dagobher");
   const row = numerologyYear(c, 1962 + 20);
   const { physical, mental, spiritual } = row.cycles.letters;
   assert.deepEqual([physical.letter.ch, mental.letter.ch, spiritual.letter.ch], ["A", "I", "H"]);
