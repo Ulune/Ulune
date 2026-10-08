@@ -29,7 +29,7 @@ Comme sa route relie l’orbite de Saturne à celle d’Uranus, on le lit souven
 ## En pratique
 
 - **Le retour de Chiron**, vers 50 ans, se lit souvent comme le moment de faire la paix avec une vieille blessure et de transmettre ce qu’elle a appris.
-- **Sa maison** montre où se logent le point sensible et le don : en Maison X par exemple, un malaise quant à sa place dans le monde peut devenir une vocation de soin ou d’enseignement.
+- **Sa maison** montre où se logent le point sensible et le don : en maison X par exemple, un malaise quant à sa place dans le monde peut devenir une vocation de soin ou d’enseignement.
 - **Ses aspects** au Soleil, à la Lune ou à un angle le rendent personnel ; son signe, partagé par tous ceux qui sont nés sur plusieurs années, en dit moins.
 - **Ses transits** durent de nombreux mois et ramènent souvent une ancienne sensibilité au premier plan, avec l’occasion de l’aborder plus sagement.
 

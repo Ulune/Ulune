@@ -30,7 +30,7 @@ Son signe et sa maison montrent où les circonstances tendent à porter quelqu�
 
 ## En pratique
 
-- **En Maison X ou près du Milieu du Ciel**, la stabilité matérielle suit souvent un rôle public : revenus et bien-être montent et descendent avec le travail et la réputation.
+- **En maison X ou près du Milieu du Ciel**, la stabilité matérielle suit souvent un rôle public : revenus et bien-être montent et descendent avec le travail et la réputation.
 - **Son maître**, la planète qui gouverne le signe où elle tombe, se lit pour la façon d’user de la fortune : bien placé, les choses tendent à s’assembler ; malmené, l’effort va à les tenir.
 - **Comme un second Ascendant**, les astrologues hellénistiques comptaient les signes à partir de Fortune ; Vettius Valens lisait le onzième à partir d’elle comme le lieu de l’acquisition.
 

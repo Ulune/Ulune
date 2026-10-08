@@ -24,7 +24,7 @@ Where the [[life-path|Life Path]] describes the whole road, the Birthday is read
 
 The tradition reads the Birthday as a help to the Life Path, not a second direction. When the two agree, the talent and the road pull the same way. When they differ, the Birthday is read as a resource for the Life Path’s lessons. A Life Path 7 with a Birthday 3, for instance, has a way of sharing what it studies.
 
-The Birthday keeps two master numbers, 11 and 22. A 33 cannot occur, since no month has a 33rd day.
+The Birthday keeps two master numbers, 11 and 22. A 33 cannot occur, since no month has a 33rd day and no day’s digits add up to 33.
 
 ## In practice
 

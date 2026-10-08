@@ -34,7 +34,7 @@ Ses dons sont la chaleur, l’assurance, la générosité et le courage de se mo
 ## En pratique
 
 - **Le signe solaire** est ce que les magazines appellent le signe astrologique. Ses dates de changement varient d’un jour environ selon les années : pour un anniversaire en bordure de signe, il faut l’année et l’heure.
-- **Sa maison** montre où l’on cherche la reconnaissance : en [[house-10|Maison X]], par le travail et un rôle public ; en Maison IV, par le foyer et la famille.
+- **Sa maison** montre où l’on cherche la reconnaissance : en [[house-10|maison X]], par le travail et un rôle public ; en maison IV, par le foyer et la famille.
 - **Les planètes en aspect** au Soleil colorent l’expression de soi : Saturne apporte souvent une assurance bâtie lentement, Jupiter un optimisme facile.
 - **Tout près du Soleil**, à moins de 8°, une planète est [[combust|combuste]], noyée dans son éclat ; à moins de 17′, elle est cazimi, « au cœur du Soleil », et lue comme renforcée.
 - **Autour de chaque anniversaire**, le Soleil revient à son degré de naissance : c’est le moment de la révolution solaire, le thème de l’année à venir.

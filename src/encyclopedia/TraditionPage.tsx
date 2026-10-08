@@ -7,7 +7,8 @@ import type { ListRow, TraditionHome } from "./types";
  * introduction, then its families as grids of glyph cards. An entry with a
  * page is a link to it; one without is listed with its summary, unlinked.
  * Each family and each entry can be reached by its anchor (#family-planets,
- * #saturn): the breadcrumbs of a page lead to its family here.
+ * #saturn): the breadcrumbs of a page lead to its family here. The
+ * combination pages' families (part 17) are lists of names in columns.
  */
 
 function Card({ row, lang }: { row: ListRow; lang: TraditionHome["lang"] }) {
@@ -46,11 +47,24 @@ export function TraditionPage({ home }: { home: TraditionHome }) {
           <h2 id={`h-family-${f.id}`} className="ob-enc-h2">
             {f.name}
           </h2>
-          <ul className="ob-enc-cards">
-            {f.rows.map((row) => (
-              <Card key={row[0]} row={row} lang={lang} />
-            ))}
-          </ul>
+          {f.compact ? (
+            // The combination pages (part 17): their names only, in columns.
+            <ul className="ob-enc-compact" data-compact="">
+              {f.rows.map(([id, title, , , slug]) => (
+                <li key={id} id={id} data-entry={id}>
+                  <EncLink to={lang} slug={slug} className="ob-enc-compact-link">
+                    {title}
+                  </EncLink>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <ul className="ob-enc-cards">
+              {f.rows.map((row) => (
+                <Card key={row[0]} row={row} lang={lang} />
+              ))}
+            </ul>
+          )}
         </section>
       ))}
       <footer className="ob-enc-foot">

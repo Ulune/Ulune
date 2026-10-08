@@ -31,7 +31,7 @@ Comme tout point du thème, une part se lit par son signe, sa maison, la planèt
 
 ## En pratique
 
-- **Fortune et Esprit ensemble** : Fortune en Maison II et Esprit en Maison X, par exemple, se lisent comme des circonstances liées aux ressources et des intentions liées à un rôle public.
+- **Fortune et Esprit ensemble** : Fortune en maison II et Esprit en maison X, par exemple, se lisent comme des circonstances liées aux ressources et des intentions liées à un rôle public.
 - **Le maître d’une part** montre comment cette part est menée : un maître bien placé se lit comme une part facile à employer.
 - **Compter depuis une part** : les astrologues hellénistiques comptaient les signes à partir de Fortune comme d’un second Ascendant, pour lire tout un thème des circonstances.
 - **Les autres parts** : parts du mariage, des enfants, du père ou de la mère reportaient chacune deux corps à elles depuis l’Ascendant, pour lire un seul sujet.

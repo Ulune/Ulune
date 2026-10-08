@@ -81,6 +81,9 @@
   font-size: 36px;
   font-variant-numeric: tabular-nums;
 }
+.ob-enc-glyph--trio {
+  font-size: 40px;
+}
 .ob-enc-hero {
   max-width: 720px;
   margin: 4px 0 24px;
@@ -302,6 +305,10 @@
   font-size: 11px;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
+}
+.ob-enc-mark--trio {
+  font-size: 12px;
+  letter-spacing: -0.04em;
 }
 .ob-enc-mark--letter {
   color: var(--color-fg-muted);
@@ -626,4 +633,27 @@ a.ob-enc-letter {
   .ob-enc-az li {
     align-items: center;
   }
+}
+
+/* A tradition's combination pages (part 17): names in columns, no cards. */
+.ob-enc-compact {
+  columns: 4 13rem;
+  column-gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.9;
+}
+.ob-enc-compact li {
+  break-inside: avoid;
+}
+.ob-enc-compact-link {
+  color: var(--color-fg-muted);
+  text-decoration: none;
+}
+.ob-enc-compact-link:hover,
+.ob-enc-compact-link:focus-visible {
+  color: var(--color-fg);
+  text-decoration: underline;
 }

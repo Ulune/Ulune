@@ -100,6 +100,8 @@ export type SearchDoc = [
   names: string,
   others: string,
   words: string,
+  /** 1 for a combination page (part 17): after the core entry it combines when both match as well. */
+  combination?: 1,
 ];
 export type SearchIndex = { lang: Lang; docs: SearchDoc[] };
 
@@ -123,5 +125,5 @@ export type TraditionHome = {
   home: string;
   /** Its address segment in the other language. */
   twinHome: string;
-  families: { id: string; name: string; rows: ListRow[] }[];
+  families: { id: string; name: string; rows: ListRow[]; /** Combination pages (part 17): a short list of names, no cards. */ compact?: boolean }[];
 };

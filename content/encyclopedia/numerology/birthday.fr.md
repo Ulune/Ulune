@@ -24,7 +24,7 @@ Là où le [[life-path|Chemin de vie]] décrit toute la route, le Jour de naissa
 
 La tradition lit le Jour de naissance comme une aide au Chemin de vie, non comme une seconde direction. Quand les deux s’accordent, le talent et la route tirent dans le même sens. Quand ils diffèrent, le Jour de naissance se lit comme une ressource pour les leçons du Chemin de vie. Un Chemin de vie 7 avec un Jour de naissance 3, par exemple, sait partager ce qu’il étudie.
 
-Le Jour de naissance garde deux nombres maîtres, 11 et 22. Le 33 ne peut pas apparaître : aucun jour du mois ne se réduit en 33.
+Le Jour de naissance garde deux nombres maîtres, 11 et 22. Le 33 ne peut pas apparaître : aucun mois n’a de 33e jour, et aucun jour n’a des chiffres dont la somme fait 33.
 
 ## En pratique
 

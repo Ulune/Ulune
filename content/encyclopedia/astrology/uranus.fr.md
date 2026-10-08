@@ -31,7 +31,7 @@ Ses dons sont l’inventivité, la franchise, le sens de l’avenir et le courag
 ## En pratique
 
 - **Au fil d’une vie**, Uranus forme un carré à sa position de naissance vers 21 ans, s’y oppose vers 40 ans, un transit souvent associé aux remises en question du milieu de vie, et y revient vers 84 ans.
-- **Sa maison** montre où la vie exige la liberté : en [[house-11|Maison XI]], les groupes et les causes ; en Maison IV, un foyer peu ordinaire ou des déménagements fréquents.
+- **Sa maison** montre où la vie exige la liberté : en [[house-11|maison XI]], les groupes et les causes ; en maison IV, un foyer peu ordinaire ou des déménagements fréquents.
 - **Sur un angle ou près du Soleil ou de la Lune**, il désigne souvent quelqu’un qui a besoin de faire les choses à sa façon.
 - **Ses transits** restent dans l’orbe un an ou deux et se lisent comme des ruptures de routine et des ouvertures soudaines.
 

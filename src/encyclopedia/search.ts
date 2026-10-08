@@ -31,6 +31,8 @@ type Prepared = {
   words: string[];
   /** Its title as one folded phrase, for "the whole name" matches. */
   phrase: string;
+  /** A combination page ("Birthday 7") yields to the core entry ("Number 7") when both match as well. */
+  after: number;
 };
 
 export type SearchEngine = { lang: string; docs: Prepared[] };
@@ -42,7 +44,7 @@ const phraseOf = (s: string) => queryWords(s).join(" ");
 export function prepare(index: SearchIndex): SearchEngine {
   return {
     lang: index.lang,
-    docs: index.docs.map((doc) => ({ doc, names: split(doc[7]), others: split(doc[8]), words: split(doc[9]), phrase: phraseOf(doc[1]) })),
+    docs: index.docs.map((doc) => ({ doc, names: split(doc[7]), others: split(doc[8]), words: split(doc[9]), phrase: phraseOf(doc[1]), after: doc[10] ? 0.5 : 0 })),
   };
 }
 
@@ -121,7 +123,9 @@ export function search(engine: SearchEngine, query: string, limit = 40): SearchH
     if (p.phrase === whole) score += 6;
     else if (p.phrase.startsWith(whole)) score += 2;
     const [id, title, summary, glyph, tradition, family, slug] = p.doc;
-    hits.push({ id, title, summary, glyph, tradition, family, slug: slug || null, score: score + (full ? 100 : 0), full });
+    // A number or a glyph typed alone finds the entry it stands for first ("7": Number 7).
+    if (glyph && phraseOf(glyph) === whole) score += 1;
+    hits.push({ id, title, summary, glyph, tradition, family, slug: slug || null, score: score + (full ? 100 : 0) - p.after, full });
   }
   const collator = new Intl.Collator(engine.lang, { sensitivity: "base" });
   hits.sort((a, b) => b.score - a.score || collator.compare(a.title, b.title));

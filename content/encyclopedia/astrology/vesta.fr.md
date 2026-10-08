@@ -28,7 +28,7 @@ Ses dons sont le dévouement, la constance et la capacité de travail en profond
 ## En pratique
 
 - **En aspect étroit** au [[sun]], Vesta peut prendre la forme d’années passées à perfectionner un seul savoir-faire, d’une routine matinale stricte et d’un temps de travail protégé des interruptions.
-- **Sa maison** montre où va le dévouement : en Maison VI, un travail quotidien fait avec soin ; en Maison IX, l’étude ou une pratique spirituelle.
+- **Sa maison** montre où va le dévouement : en maison VI, un travail quotidien fait avec soin ; en maison IX, l’étude ou une pratique spirituelle.
 - **Son signe** décrit le style de concentration, des élans d’engagement du Bélier à l’attention patiente au détail de la Vierge.
 - **Avec Vénus ou Mars** en aspect étroit, l’équilibre entre la proximité des autres et le temps gardé pour son propre travail devient souvent une question centrale.
 

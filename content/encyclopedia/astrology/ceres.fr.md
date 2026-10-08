@@ -30,7 +30,7 @@ Ses dons sont l’attention, la générosité et le sens d’une croissance qui 
 ## En pratique
 
 - **Avec la Lune** en aspect étroit, Cérès décrit un langage du soin : on montre parfois son affection en nourrissant les autres et en veillant au bien-être de chacun.
-- **Sa maison** montre où le soin se donne et se demande : en Maison IV, la famille et le foyer ; en Maison VI, l’entretien quotidien du travail, du corps et des routines.
+- **Sa maison** montre où le soin se donne et se demande : en maison IV, la famille et le foyer ; en maison VI, l’entretien quotidien du travail, du corps et des routines.
 - **Son signe** colore la manière de prendre soin, de l’encouragement à l’autonomie du Bélier à la proximité protectrice du Cancer.
 
 ## Origine et histoire

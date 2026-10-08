@@ -10,6 +10,8 @@
  * entry naming one that is not here fails the build with its file and line.
  */
 
+import { COMBINATION_FAMILIES, combinationIds } from "./combinations.mjs";
+
 export const LANGS = /** @type {const} */ (["en", "fr"]);
 
 /**
@@ -337,6 +339,12 @@ export const FAMILIES = {
     },
   ],
 };
+// The combination pages' families (part 17), after each tradition's own, their order made from the lists.
+for (const [tradition, list] of Object.entries(COMBINATION_FAMILIES)) {
+  const ids = combinationIds();
+  for (const f of list) FAMILIES[tradition].push({ id: f.id, name: f.name, order: ids[f.group] });
+}
+
 
 /**
  * A page's body sections, in this fixed order, each optional, with exactly

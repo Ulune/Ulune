@@ -31,7 +31,7 @@ Ce n’est ni un verdict sur un passé ni un destin : il décrit un axe à éq
 
 ## En pratique
 
-- **L’axe par maison** : le Nœud Nord en Maison I, avec le Nœud Sud en Maison VII, décrit souvent quelqu’un qui s’appuie par habitude sur ses partenaires et grandit en décidant seul ; l’inverse place la croissance dans la vie à deux.
+- **L’axe par maison** : le Nœud Nord en maison I, avec le Nœud Sud en maison VII, décrit souvent quelqu’un qui s’appuie par habitude sur ses partenaires et grandit en décidant seul ; l’inverse place la croissance dans la vie à deux.
 - **Les retours nodaux**, quand les nœuds reviennent à leur place de naissance vers 19, 37, 56 et 74 ans, se lisent comme des moments où la direction d’une vie se précise ; vers 9, 28 et 46 ans, l’axe est inversé.
 - **Les planètes proches des nœuds** se lisent comme liées à cette direction, et une [[eclipse|éclipse]] qui tombe près d’une planète ou d’un angle natal comme un tournant dans son domaine.
 

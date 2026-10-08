@@ -20,7 +20,7 @@ revised: 2026-10-07
 
 ## Sens
 
-Le Descendant est le degré du zodiaque qui se couche à l’horizon ouest au moment et au lieu de la naissance, toujours exactement à l’opposé de l’[[ascendant]]. Dans la plupart des systèmes de maisons, il est la cuspide de la [[house-7|Maison VII]], celle des partenaires, et comme les autres angles il demande une heure de naissance précise.
+Le Descendant est le degré du zodiaque qui se couche à l’horizon ouest au moment et au lieu de la naissance, toujours exactement à l’opposé de l’[[ascendant]]. Dans la plupart des systèmes de maisons, il est la cuspide de la [[house-7|maison VII]], celle des partenaires, et comme les autres angles il demande une heure de naissance précise.
 
 Là où l’Ascendant décrit la façon d’aborder le monde, le Descendant décrit ceux que l’on rencontre en face à face : partenaires amoureux et professionnels, proches associés, adversaires déclarés. Il montre les qualités que l’on recherche chez les autres, ou que l’on ne cesse d’y croiser, souvent celles que l’on n’a pas encore reconnues comme siennes.
 
@@ -35,7 +35,7 @@ L’astrologie psychologique y voit volontiers le lieu de la projection : ce q
 
 ## Origine et histoire
 
-Les astrologues hellénistiques l’appelaient le couchant, dysis en grec, l’un des quatre pivots du thème, et lisaient dans le septième lieu, où il tombe, le mariage et les partenaires. L’astrologie médiévale a gardé ce cadre : pour William Lilly, la Maison VII montrait le mariage, les contrats et les ennemis déclarés. L’astrologie psychologique du XXe siècle, par exemple dans le livre que Howard Sasportas consacra aux maisons en 1985, y a ajouté la lecture du Descendant comme ce que l’on voit d’abord chez les autres.
+Les astrologues hellénistiques l’appelaient le couchant, dysis en grec, l’un des quatre pivots du thème, et lisaient dans le septième lieu, où il tombe, le mariage et les partenaires. L’astrologie médiévale a gardé ce cadre : pour William Lilly, la maison VII montrait le mariage, les contrats et les ennemis déclarés. L’astrologie psychologique du XXe siècle, par exemple dans le livre que Howard Sasportas consacra aux maisons en 1985, y a ajouté la lecture du Descendant comme ce que l’on voit d’abord chez les autres.
 
 ## Comment Ulune le calcule
 

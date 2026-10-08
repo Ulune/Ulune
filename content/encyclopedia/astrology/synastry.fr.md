@@ -28,7 +28,7 @@ La synastrie décrit une rencontre de tempéraments, pas un verdict. Elle montre
 - **Soleil et Lune** : le Soleil de l’un sur la Lune de l’autre, ou en aspect avec elle, est le contact classique de la vie à deux, lu comme le sentiment d’être compris et d’aller ensemble.
 - **Vénus et Mars** : les contacts entre la Vénus de l’un et le Mars de l’autre se lisent comme de l’attirance et de l’étincelle ; Vénus avec Vénus comme des goûts partagés.
 - **Les contacts de Saturne** : le Saturne de l’un sur les planètes personnelles de l’autre se lit comme de l’engagement et du sérieux, parfois comme un poids. Beaucoup de longues relations en comptent un.
-- **Les superpositions de maisons** : une personne dont les planètes tombent dans votre [[house-7|Maison VII]] se lit comme une figure naturelle de partenaire ; dans votre Maison X, comme quelqu’un qui touche votre vie publique ou votre vocation.
+- **Les superpositions de maisons** : une personne dont les planètes tombent dans votre [[house-7|maison VII]] se lit comme une figure naturelle de partenaire ; dans votre maison X, comme quelqu’un qui touche votre vie publique ou votre vocation.
 - **Les angles** : une planète de l’un sur l’Ascendant ou le Milieu du Ciel de l’autre fait un contact qui se sent vite et nettement.
 
 ## D’une tradition à l’autre
@@ -48,4 +48,4 @@ Comparer des thèmes est très ancien. Dans la *Tétrabible* (IIe siècle), Ptol
 - Vers un angle, un orbe n’est jamais plus large que dans un thème natal : 6° pour un trigone et 4° pour un sextile.
 - Les aspects mineurs restent serrés : 2° pour le quinconce, 1,5° pour le semi-sextile, le semi-carré et le quintile.
 - Les superpositions placent les corps et les angles de chacun dans les maisons de l’autre, avec le système de maisons du thème où ils tombent.
-- Quand une heure de naissance manque, les superpositions sont des positions de midi, signalées comme telles. Quand un thème n’a pas de maisons utilisables, Ulune ne montre aucune superposition dans ce thème plutôt que de tout placer en Maison I.
+- Quand une heure de naissance manque, les superpositions sont des positions de midi, signalées comme telles. Quand un thème n’a pas de maisons utilisables, Ulune ne montre aucune superposition dans ce thème plutôt que de tout placer en maison I.

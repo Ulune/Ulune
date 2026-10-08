@@ -33,7 +33,7 @@ Ses dons sont l’optimisme, l’humour, la générosité et le sentiment que la
 ## En pratique
 
 - **Le retour de Jupiter** à sa place de naissance revient tous les douze ans environ, vers 12, 24, 36, 48 et 60 ans, souvent lu comme le début d’un nouveau cycle de croissance.
-- **Sa maison** montre où circulent les occasions et la générosité : en [[house-9|Maison IX]], les études, les voyages et les convictions ; en [[house-11|Maison XI]], les amis et les alliés, la maison où l’on disait qu’il se réjouit.
+- **Sa maison** montre où circulent les occasions et la générosité : en [[house-9|maison IX]], les études, les voyages et les convictions ; en [[house-11|maison XI]], les amis et les alliés, la maison où l’on disait qu’il se réjouit.
 - **Ses transits** sur un thème natal durent de quelques semaines à quelques mois et se lisent comme des temps d’expansion, parfois d’excès.
 - **Rétrograde** environ quatre mois sur treize : près d’un tiers des gens naissent ainsi, ce qu’on lit souvent comme des convictions tirées de l’expérience plutôt qu’empruntées.
 

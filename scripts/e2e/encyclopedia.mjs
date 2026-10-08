@@ -208,6 +208,20 @@ await ensureShotsDir();
     if ((await page.locator('[data-entry="station"] a').getAttribute("href")) !== "/encyclopedie/station") fail("a page on its tradition's home");
     console.log("previous, next, twin, tradition home OK");
 
+    // The combination pages (part 17): a short list on the home, a page with its opening, the reading's text and its parts.
+    if ((await page.locator('#family-in-aspect [data-entry="venus-square-mars"] a').getAttribute("href")) !== "/encyclopedie/venus-carre-mars") fail("a combination in its home's list");
+    await page.locator('#family-in-aspect [data-entry="venus-square-mars"] a').click();
+    await page.waitForURL(`${origin}/encyclopedie/venus-carre-mars`, { timeout: 10000 });
+    await page.waitForFunction(() => document.querySelector("main h1")?.textContent === "Vénus carré Mars", null, { timeout: 8000 });
+    const meaning = page.locator("[data-section=meaning]");
+    if ((await meaning.locator("p").count()) < 3) fail("a combination's meaning: its opening, the pair's theme, the aspect's text");
+    if ((await page.locator('[data-section=correspondences] [data-term="mars"]').count()) < 1) fail("a combination links its parts");
+    if ((await page.locator("[data-section=practice]").count()) !== 1) fail("a combination's practice");
+    await page.goto(`${origin}/encyclopedia/sun-square-venus`, { waitUntil: "load" });
+    await page.waitForFunction(() => document.querySelector("main h1")?.textContent === "Sun square Venus", null, { timeout: 8000 });
+    if ((await page.locator("[data-section=practice]").count()) !== 0) fail("an aspect no chart holds gives advice for having it");
+    console.log("combination pages OK");
+
     // Names and targets, in both languages, the card open too.
     const a11y = [];
     // The last, the French Station: its card for "rétrograde" is scanned too.

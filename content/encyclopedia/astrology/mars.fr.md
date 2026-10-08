@@ -33,7 +33,7 @@ Ses dons sont le courage, la décision, l’endurance et la franchise. Ses diffi
 ## En pratique
 
 - **Son signe** décrit le style d’action : Mars en Bélier frappe le premier, en Taureau avance lentement sans s’arrêter, en Balance agit par la négociation.
-- **Sa maison** montre où vont l’énergie et l’esprit de compétition : en [[house-6|Maison VI]], dans le travail et l’entraînement ; en Maison X, dans l’ambition.
+- **Sa maison** montre où vont l’énergie et l’esprit de compétition : en [[house-6|maison VI]], dans le travail et l’entraînement ; en maison X, dans l’ambition.
 - **La secte compte** : la tradition juge Mars plus facile à vivre dans un thème de nuit, plus rude dans un thème de jour.
 - **Avec Vénus**, Mars décrit le désir et l’attirance, dans un thème comme entre deux thèmes.
 - **Rétrograde** une dizaine de semaines tous les deux ans environ : à peu près une personne sur dix naît ainsi, ce qu’on lit souvent comme un élan d’abord travaillé à l’intérieur, puis employé avec stratégie.

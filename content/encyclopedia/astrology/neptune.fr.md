@@ -30,7 +30,7 @@ Ses dons sont l’empathie, l’inspiration et le sens de l’invisible. Ses dif
 
 ## En pratique
 
-- **Sa maison** montre où la vie demande de la foi et où les contours se brouillent : en [[house-12|Maison XII]], la solitude, la musique ou la vie intérieure ; en Maison X, une vocation artistique ou soignante, ou plusieurs changements de cap.
+- **Sa maison** montre où la vie demande de la foi et où les contours se brouillent : en [[house-12|maison XII]], la solitude, la musique ou la vie intérieure ; en maison X, une vocation artistique ou soignante, ou plusieurs changements de cap.
 - **Ses aspects aux planètes personnelles**, surtout à la Lune et à Vénus, se lisent comme une sensibilité accrue : quelqu’un qui ressent ce que ressentent les autres.
 - **Ses transits** durent deux ans ou plus, apportent incertitude ou inspiration là où ils touchent, et récompensent la patience plus que les décisions rapides.
 - **Neptune forme un carré** à sa position de naissance au début de la quarantaine, un transit souvent lu avec l’opposition d’Uranus parmi les questions du milieu de la vie.

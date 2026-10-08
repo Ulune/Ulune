@@ -97,7 +97,10 @@ export function buildLexicon(entries, lang) {
   // "all": every tradition at once, for the guide (a name two traditions share stays plain).
   for (const t of [...traditions, "all"]) {
     const own = entries.filter(
-      (e) => e.page && (t === "all" || e.tradition === t || (BORROWED[t] ?? []).includes(`${e.tradition}/${e.family}`)),
+      (e) =>
+        e.page &&
+        e.kind !== "combination" &&
+        (t === "all" || e.tradition === t || (BORROWED[t] ?? []).includes(`${e.tradition}/${e.family}`)),
     );
     const seen = new Map();
     for (const e of own) {

@@ -17,7 +17,7 @@
  * Body: `## ` headings (the fixed list in registry.mjs), paragraphs (lines
  * joined until a blank line), `- ` and `1. ` lists (an indented line goes on
  * with the item above), pipe tables, **bold**, *italic*, and links to other
- * entries written [[id]] (the entry's title) or [[id|the words shown]], also
+ * entries written [[id]] (the entry’s title, in small letters inside a sentence for a common noun: build.mjs) or [[id|the words shown]], also
  * inside bold or italic and in table cells. Any other character is text as it
  * is (’ ′ ½ ~ # macrons and tones, U+202F); \* \[ \| and the like write the
  * sign itself. Nothing else: no raw HTML, no images, no other links, no code,

@@ -3,7 +3,7 @@ import { dateFormat } from "@/lib/intl-cache";
 import { OPERATOR } from "@/lib/legal/operator";
 import { Sections } from "./Body";
 import { encPath } from "./data";
-import { Crumbs, EncFrame, EncLink, Licence, Mark, TwinLink } from "./frame";
+import { Crumbs, EncFrame, EncLink, Licence, Mark, markClass, TwinLink } from "./frame";
 import { tr } from "./words";
 import type { EntryRef, Lang, PageData } from "./types";
 
@@ -77,7 +77,7 @@ export function EntryPage({ page }: { page: PageData }) {
       <article className="ob-enc-article" data-entry={page.id}>
         <header className="ob-enc-head">
           {page.glyph ? (
-            <span className={[...page.glyph].length > 2 ? "ob-enc-glyph ob-enc-glyph--long" : "ob-enc-glyph"} aria-hidden="true">
+            <span className={markClass(page.glyph, "ob-enc-glyph")} aria-hidden="true">
               {page.glyph}
             </span>
           ) : null}

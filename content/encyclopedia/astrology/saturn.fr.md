@@ -34,7 +34,7 @@ Ses dons sont le sérieux, la patience, l’endurance et l’intégrité. Ses di
 ## En pratique
 
 - **Le retour de Saturne**, quand il revient à sa place de naissance vers 29 et 59 ans, se lit souvent comme un moment de bilan : les projets empruntés aux autres sont remis en question, et les engagements d’adulte prennent leur forme propre.
-- **Sa maison** montre où l’effort est demandé et où la maîtrise vient tard : en [[house-10|Maison X]], la carrière et l’autorité ; en Maison IV, un foyer bâti avec soin.
+- **Sa maison** montre où l’effort est demandé et où la maîtrise vient tard : en [[house-10|maison X]], la carrière et l’autorité ; en maison IV, un foyer bâti avec soin.
 - **La secte compte** : la tradition juge Saturne plus constructif dans un thème de jour, plus lourd à porter dans un thème de nuit.
 - **Ses transits** durent des mois et sont souvent exacts trois fois à cause de ses boucles de rétrogradation ; on les lit comme des périodes d’effort, de restructuration et de consolidation.
 

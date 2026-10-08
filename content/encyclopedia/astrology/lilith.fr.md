@@ -27,7 +27,7 @@ Ce n’est ni une malédiction ni un sombre destin. Elle décrit où l’on a be
 
 ## En pratique
 
-- **Son signe et sa maison** montrent où les conventions pèsent : en Maison VII, le refus de jouer le partenaire conciliant ; en Maison X, l’impatience devant une autorité qui exige la conformité.
+- **Son signe et sa maison** montrent où les conventions pèsent : en maison VII, le refus de jouer le partenaire conciliant ; en maison X, l’impatience devant une autorité qui exige la conformité.
 - **Avec Vénus ou Mars** en aspect étroit, le désir et la colère sont vifs et se cachent mal.
 - **Quelle Lilith ?** La Lune noire moyenne, la vraie et l’interpolée peuvent être très éloignées dans un même thème : mieux vaut vérifier laquelle une lecture utilise.
 

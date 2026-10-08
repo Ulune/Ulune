@@ -94,8 +94,8 @@ export const ASPECT_TEXT: Record<AspectId, AspectText> = {
     angle: "30°",
     family: "flow",
     what: {
-      en: "A semisextile joins two planets 30° apart, typically in neighbouring signs, and is used with a tight orb, usually 1–2° (Ulune counts up to 2°30'). Neighbouring signs share neither element nor modality, yet each builds on the one before. The link is mild: two functions that can learn from each other, though the connection is easy to overlook.",
-      fr: "Un semi-sextile relie deux planètes à 30° l’une de l’autre, en général dans des signes voisins, avec un orbe serré, le plus souvent de 1 à 2° (Ulune compte jusqu’à 2°30'). Deux signes voisins n’ont en commun ni l’élément ni la modalité, mais chacun prolonge le précédent. Le lien est léger\u202f: deux fonctions qui peuvent apprendre l’une de l’autre, même si la connexion passe facilement inaperçue.",
+      en: "A semisextile joins two planets 30° apart, typically in neighbouring signs, and is used with a tight orb, usually 1–2° (Ulune counts up to 2°30′). Neighbouring signs share neither element nor modality, yet each builds on the one before. The link is mild: two functions that can learn from each other, though the connection is easy to overlook.",
+      fr: "Un semi-sextile relie deux planètes à 30° l’une de l’autre, en général dans des signes voisins, avec un orbe serré, le plus souvent de 1 à 2° (Ulune compte jusqu’à 2°30′). Deux signes voisins n’ont en commun ni l’élément ni la modalité, mais chacun prolonge le précédent. Le lien est léger\u202f: deux fonctions qui peuvent apprendre l’une de l’autre, même si la connexion passe facilement inaperçue.",
     },
     inPractice: {
       en: "Semisextiles are minor and quiet. They tend to show as a gradual skill that improves when you look for ways the two functions could help each other, like adding one practical step to a decision made on feeling.",
@@ -107,8 +107,8 @@ export const ASPECT_TEXT: Record<AspectId, AspectText> = {
     angle: "45°",
     family: "tension",
     what: {
-      en: "A semisquare joins two planets 45° apart — half a square, about a sign and a half — and is generally given an orb of 1–2° (Ulune counts up to 2°30'). It carries the friction of a square in a milder, more irritating form. It feels less like a crisis and more like a nagging tension that keeps you slightly on edge.",
-      fr: "Un semi-carré relie deux planètes à 45° l’une de l’autre, soit la moitié d’un carré, environ un signe et demi, avec un orbe de 1 à 2° en général (Ulune compte jusqu’à 2°30'). Il porte la friction du carré sous une forme plus légère et plus agaçante. On le vit moins comme une crise que comme une tension sourde qui maintient légèrement sur le qui-vive.",
+      en: "A semisquare joins two planets 45° apart — half a square, about a sign and a half — and is generally given an orb of 1–2° (Ulune counts up to 2°30′). It carries the friction of a square in a milder, more irritating form. It feels less like a crisis and more like a nagging tension that keeps you slightly on edge.",
+      fr: "Un semi-carré relie deux planètes à 45° l’une de l’autre, soit la moitié d’un carré, environ un signe et demi, avec un orbe de 1 à 2° en général (Ulune compte jusqu’à 2°30′). Il porte la friction du carré sous une forme plus légère et plus agaçante. On le vit moins comme une crise que comme une tension sourde qui maintient légèrement sur le qui-vive.",
     },
     inPractice: {
       en: "Semisquares often push you into action through small irritations. What helps is noticing the pattern — the same kind of annoyance in similar situations — and treating it as a signal to adjust something rather than something to put up with.",
@@ -411,8 +411,8 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "La rencontre de l’élan et du changement\u202f: action soudaine, indépendance, rébellion, et une énergie qui vient par à-coups plutôt que de façon régulière.",
     },
     blend: {
-      en: "Your drive is sudden and independent. You tend to act on impulse, break routines and resist being told what to do, which can make you brave and inventive in a crisis. You might quit a job overnight when it feels confining. Watch out for accidents caused by haste.",
-      fr: "Votre élan est soudain et indépendant. Vous agissez volontiers sur un coup de tête, cassez les routines et supportez mal qu’on vous dicte quoi faire, ce qui donne de l’audace et de l’inventivité en situation de crise. Vous pouvez quitter un emploi du jour au lendemain s’il vous étouffe. Attention aux accidents dus à la précipitation.",
+      en: "Your drive is sudden and independent. You tend to act on impulse, break routines and resist being told what to do, which can make you brave and inventive in a crisis. You might quit a job overnight when it feels confining. A pause before acting keeps that speed on your side.",
+      fr: "Votre élan est soudain et indépendant. Vous agissez volontiers sur un coup de tête, cassez les routines et supportez mal qu’on vous dicte quoi faire, ce qui donne de l’audace et de l’inventivité en situation de crise. Vous pouvez quitter un emploi du jour au lendemain s’il vous étouffe. Une courte pause avant d’agir garde cette vitesse de votre côté.",
     },
     flow: {
       en: "You act quickly and originally. When something needs changing, you tend to find a new method and apply it without hesitation, and you cope well with surprises. Technology, emergency work or anything fast-moving can suit you.",
@@ -635,8 +635,8 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "Ce que vous voulez et ce dont vous avez besoin s’accordent en général. Vous poursuivez vos objectifs sans trahir vos besoins affectifs, et votre vie intérieure est plutôt harmonieuse. On se sent bien à vos côtés\u202f: vous savez travailler dur puis vous reposer sans culpabilité.",
     },
     tension: {
-      en: "Your will and your needs pull against each other: ambition versus rest, independence versus closeness. With the opposition (born near a Full Moon), you often meet this through relationships. What helps: making room for both sides deliberately, rather than letting one win every time.",
-      fr: "Votre volonté et vos besoins tirent en sens contraire\u202f: ambition contre repos, indépendance contre proximité. Avec l’opposition (naissance près d’une Pleine Lune), cela se joue souvent dans les relations. Ce qui aide\u202f: faire consciemment de la place aux deux, plutôt que de laisser l’un gagner à chaque fois.",
+      en: "Your will and your needs pull against each other: ambition versus rest, independence versus closeness. With the square (born near a quarter Moon) it pushes you to act; with the opposition (born near a Full Moon) you often meet it through relationships. What helps: making room for both sides deliberately, rather than letting one win every time.",
+      fr: "Votre volonté et vos besoins tirent en sens contraire\u202f: ambition contre repos, indépendance contre proximité. Avec le carré (naissance près d’un quartier de Lune), elle pousse à agir\u202f; avec l’opposition (près d’une Pleine Lune), elle se joue souvent dans les relations. Ce qui aide\u202f: faire consciemment de la place aux deux, plutôt que de laisser l’un gagner à chaque fois.",
     },
   },
   "moon|uranus": {

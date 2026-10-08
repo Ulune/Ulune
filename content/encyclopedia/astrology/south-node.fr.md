@@ -28,7 +28,7 @@ La tradition l’appelait Queue du Dragon et le traitait comme le contraire du N
 
 ## En pratique
 
-- **Par maison**, le Nœud Sud montre où les choses viennent facilement et où les vieux schémas se répètent : en Maison X, être la personne fiable au travail va de soi, tandis que la croissance se trouve à l’autre bout de l’axe, dans le foyer et la vie intérieure.
+- **Par maison**, le Nœud Sud montre où les choses viennent facilement et où les vieux schémas se répètent : en maison X, être la personne fiable au travail va de soi, tandis que la croissance se trouve à l’autre bout de l’axe, dans le foyer et la vie intérieure.
 - **Les planètes proches du Nœud Sud** se lisent comme des dons apportés tout faits, qui demandent à être partagés plutôt qu’à servir d’appui.
 - **Les transits sur lui** se lisent comme le retour de schémas familiers, l’occasion de voir ce qui peut désormais être lâché.
 

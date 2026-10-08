@@ -27,7 +27,7 @@ Ses dons sont la fidélité, le sens de l’équité et la volonté de construir
 
 ## En pratique
 
-- **Sur l’axe du couple** : sur le [[descendant]] ou en [[house-7|Maison VII]], Junon désigne souvent quelqu’un qui tient davantage à la loyauté et à l’équité qu’au romantisme, et pour qui une promesse non tenue pèse lourd.
+- **Sur l’axe du couple** : sur le [[descendant]] ou en [[house-7|maison VII]], Junon désigne souvent quelqu’un qui tient davantage à la loyauté et à l’équité qu’au romantisme, et pour qui une promesse non tenue pèse lourd.
 - **Avec Vénus** en aspect étroit, le désir d’amour et le désir d’engagement vont de pair.
 - **Son signe** décrit ce qu’on attend d’un lien durable : Junon en Taureau demande sécurité et constance, en Verseau la liberté au sein du lien.
 - **Entre deux thèmes**, en [[synastry|synastrie]], la Junon de l’un sur le Soleil, la Lune, la Vénus ou l’Ascendant de l’autre se lit comme un sentiment de partenariat entre eux.

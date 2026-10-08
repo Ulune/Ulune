@@ -32,7 +32,7 @@ Ses dons sont la chaleur, le charme, le goût et le désir de rapprocher les gen
 ## En pratique
 
 - **Son signe** décrit le goût et le style de l’affection : Vénus en Taureau se plaît dans les sens, en Verseau dans l’amitié et la liberté.
-- **Sa maison** montre où l’on trouve plaisir et aisance : en [[house-7|Maison VII]], la vie à deux ; en Maison II, des revenus tirés d’un travail agréable ou artistique.
+- **Sa maison** montre où l’on trouve plaisir et aisance : en [[house-7|maison VII]], la vie à deux ; en maison II, des revenus tirés d’un travail agréable ou artistique.
 - **En synastrie**, la Vénus de l’un sur le Mars, le Soleil ou l’Ascendant de l’autre se lit classiquement comme une attirance.
 - **Rétrograde** tous les 19 mois environ, pendant six semaines à peu près : quelque 7 % des gens naissent ainsi, ce qu’on lit souvent comme des goûts et des valeurs forgés à l’écart des modes.
 - **Tous les huit ans**, Vénus revient presque au même degré presque à la même date : des personnes nées à huit ans d’écart autour du même jour partagent souvent leur Vénus.

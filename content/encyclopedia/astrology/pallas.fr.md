@@ -28,7 +28,7 @@ Ses dons sont la clarté d’esprit, le savoir-faire et le talent stratégique. 
 ## En pratique
 
 - **Avec Mercure** en aspect étroit, Pallas désigne souvent la personne qui repère la logique d’un ensemble de données confus ou conçoit un système que tout le monde finit par adopter.
-- **Sa maison** montre où s’exerce la stratégie : en Maison VII, la négociation et l’association ; en Maison X, une carrière fondée sur l’expertise.
+- **Sa maison** montre où s’exerce la stratégie : en maison VII, la négociation et l’association ; en maison X, une carrière fondée sur l’expertise.
 - **Son signe** décrit le style de pensée, des liens rapides des Gémeaux aux plans à long terme du Capricorne.
 - **Entre deux thèmes**, la Pallas de l’un sur le Mercure ou le Soleil de l’autre se lit comme une entente des esprits, de bon augure pour travailler ensemble.
 

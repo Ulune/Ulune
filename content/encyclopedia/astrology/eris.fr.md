@@ -30,7 +30,7 @@ Comme son signe est commun à tous ceux qui sont nés en un siècle, sa maison e
 
 - **Près de l’Ascendant ou du Soleil**, Éris désigne souvent la personne qui dénonce la règle injuste que tous tolèrent, ou qui continue de réclamer sa place dans un groupe qui a voulu l’écarter.
 - **Avec Mars** en aspect étroit, le goût de la compétition et de la défense de son terrain est fort ; il peut bien servir une cause.
-- **Sa maison** montre où se vit cette lutte pour compter : en Maison X, au travail ; en Maison XI, dans les groupes et les causes.
+- **Sa maison** montre où se vit cette lutte pour compter : en maison X, au travail ; en maison XI, dans les groupes et les causes.
 
 ## Origine et histoire
 

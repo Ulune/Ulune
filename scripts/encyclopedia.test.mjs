@@ -24,6 +24,7 @@ import { bootScript } from "../src/lib/boot.ts";
 import { GENERIC } from "./encyclopedia/lexicon.mjs";
 import { compileLexicon, linkText } from "../src/encyclopedia/linker.ts";
 import { review } from "./encyclopedia/link-review.mjs";
+import { IMPOSSIBLE, combinationIds } from "./encyclopedia/combinations.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const N = " ";
@@ -377,7 +378,8 @@ test("the writers' forms: quoted values, free sources, links in bold and tables,
   // Links inside bold keep both: the bold and the links, with the writer's words or the target's title.
   const [bold, , bold2] = en.sections[0].blocks[0].c;
   assert.deepEqual(bold, { b: [{ l: "beta", w: "Mercury", s: null, g: "astrology" }, " square ", { l: "gamma", w: "Saturn", s: null, g: "astrology" }] });
-  assert.deepEqual(bold2, { b: ["The ", { l: "beta", w: "Title beta", s: null, g: "astrology" }, " in Virgo"] });
+  // A bare link inside a sentence to a family of common nouns (the fixtures' cycles) shows its title in small letters.
+  assert.deepEqual(bold2, { b: ["The ", { l: "beta", w: "title beta", s: null, g: "astrology" }, " in Virgo"] });
   assert.match(en.sections[0].blocks[0].c.at(-1), /2½ degrees, 15′ of arc, ~1500 years\.$/);
   // A bare [[id]] in a table's cells shows the target's title; "#" is a cell like any other.
   const table = en.sections[1].blocks[0];
@@ -588,6 +590,32 @@ test("search: phrases, whole first, then their parts; grouped by tradition with 
   assert.equal(hit.slug, "master-numbers");
 });
 
+test("combination pages (part 17): every one written in both languages, found by its phrase", () => {
+  const all = Object.values(combinationIds()).flat();
+  assert.equal(all.length, 580);
+  assert.deepEqual(real.warnings.filter((w) => /combinations/.test(w.file)), []);
+  for (const id of all) {
+    for (const lang of ["en", "fr"]) {
+      const page = real.data.pages[`${lang}/${id}`];
+      assert.ok(page, `${lang}/${id}`);
+      assert.equal(page.kind, "combination");
+      assert.ok(page.summary.length > 20 && page.sections[0].key === "meaning", `${lang}/${id}`);
+    }
+  }
+  // An aspect no birth chart holds gives no advice for having it.
+  for (const id of IMPOSSIBLE) assert.ok(!real.data.pages[`en/${id}`].sections.some((x) => x.key === "practice"), id);
+  assert.ok(real.data.pages["en/venus-square-mars"].sections.some((x) => x.key === "practice"));
+  assert.equal(first("en", "moon scorpio"), "moon-in-scorpio");
+  assert.equal(first("fr", "venus carre mars"), "venus-square-mars");
+  assert.equal(first("en", "life path 7"), "life-path-7");
+  // A core entry before the combinations made of it.
+  assert.equal(first("en", "venus"), "venus");
+  assert.ok(ids("en", "7").indexOf("number-7") < ids("en", "7").indexOf("birthday-7"));
+  assert.equal(real.data.search.en.docs.find((d) => d[0] === "moon-in-scorpio")[9], "");
+  // Never in the lexicon: a reading's "Moon in Scorpio" stays its own words.
+  assert.ok(!real.data.lexicon.en.astrology.some(([, id]) => id === "moon-in-scorpio"));
+});
+
 /* ------------------------------------------------------------ heads, sitemap, boot */
 
 test("an entry's head: title, summary, own address, its twin, a DefinedTerm", () => {
@@ -723,7 +751,7 @@ test("the review: every reading text links only reviewed words, and the usual on
     for (const f of forms(k)) assert.ok(!GENERIC[lang].has(f), `${k}: ${f}`);
   }
   for (const f of ["Sun", "Aries", "Ascendant", "10th house"]) assert.ok(forms("en/astrology").has(f), f);
-  for (const f of ["Soleil", "Bélier", "Maison X"]) assert.ok(forms("fr/astrology").has(f), f);
+  for (const f of ["Soleil", "Bélier", "maison X"]) assert.ok(forms("fr/astrology").has(f), f);
   for (const f of ["G centre", "Sacral", "gate 34"]) assert.ok(forms("en/human-design").has(f), f);
   for (const f of ["Life Path", "Soul Urge", "karmic lesson"]) assert.ok(forms("en/numerology").has(f), f);
   // Never "Determination" (an arrow) inside gate 46's name, Determination of the Self.

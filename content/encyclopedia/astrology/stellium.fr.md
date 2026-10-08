@@ -19,7 +19,7 @@ revised: 2026-10-07
 
 Un stellium est un rassemblement : plusieurs planètes dans le même signe, ou dans la même maison. Là où la plupart des thèmes répartissent leurs planètes autour de la roue, un stellium concentre en un seul lieu une grande part du poids du thème, et le style de ce signe ou le domaine de cette maison tend à devenir un thème central de la vie.
 
-Un stellium dans un [[sign|signe]] colore le caractère. Avec quatre planètes en Vierge, le sens du détail, de l’utile et du travail bien fait traverse bien des aspects de la personnalité, de la façon d’aimer à la façon de travailler. Un stellium dans une [[house|maison]] désigne un domaine de vie : plusieurs planètes en Maison VII placent le couple, et la rencontre avec l’autre, au centre de tout.
+Un stellium dans un [[sign|signe]] colore le caractère. Avec quatre planètes en Vierge, le sens du détail, de l’utile et du travail bien fait traverse bien des aspects de la personnalité, de la façon d’aimer à la façon de travailler. Un stellium dans une [[house|maison]] désigne un domaine de vie : plusieurs planètes en maison VII placent le couple, et la rencontre avec l’autre, au centre de tout.
 
 Sa force est la concentration : de la profondeur, de la persévérance et une vraie compétence dans son domaine. Son risque est le déséquilibre, tant d’investissement en un seul lieu que le reste de la vie reçoit peu, et que les signes ou les maisons laissés vides peuvent sembler étrangers. Les planètes d’un stellium agissent aussi les unes sur les autres, le plus souvent par [[conjunction|conjonctions]], et la planète qui gouverne le signe, leur [[dispositor|dispositeur]], prend de l’importance, comme celle dont toutes dépendent.
 
@@ -29,7 +29,7 @@ Les écoles ne s’accordent pas sur le nombre. Beaucoup d’astrologues parlent
 
 - Le [[sun|Soleil]], [[mercury|Mercure]] et [[venus|Vénus]] réunis dans un même signe sont fréquents, car Mercure et Vénus ne s’éloignent jamais beaucoup du Soleil ; un rassemblement de planètes qui ne voyagent pas ensemble est plus rare.
 - Uranus, Neptune et Pluton avancent si lentement que leur part d’un stellium est commune à tous ceux qui sont nés à la même époque. Ce qui le rend personnel, c’est la maison où il tombe et les planètes rapides qui s’y joignent.
-- Lisez ensemble le signe et la maison : un stellium en Capricorne en Maison V apporte la patience et l’ambition du Capricorne à la création et au jeu.
+- Lisez ensemble le signe et la maison : un stellium en Capricorne en maison V apporte la patience et l’ambition du Capricorne à la création et au jeu.
 - Quand le Soleil fait partie d’un stellium, les planètes qui en sont les plus proches sont [[combust|combustes]] au sens traditionnel, leur voix fondue dans celle du Soleil.
 
 ## Origine et histoire

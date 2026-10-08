@@ -385,7 +385,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
     },
     example: {
       en: "If the Lot of Fortune falls in the 10th house or near the Midheaven, material stability often depends on a public role: income and well-being tend to follow how work and reputation are going.",
-      fr: "Si la Part de Fortune tombe en Maison X ou près du Milieu du Ciel, la stabilité matérielle dépend souvent du rôle public\u202f: les revenus et le bien-être tendent à suivre la marche du travail et de la réputation.",
+      fr: "Si la Part de Fortune tombe en maison X ou près du Milieu du Ciel, la stabilité matérielle dépend souvent du rôle public\u202f: les revenus et le bien-être tendent à suivre la marche du travail et de la réputation.",
     },
     cycle: {
       en: "Worked out as Ascendant + Moon − Sun for a day birth (Sun above the horizon) and Ascendant + Sun − Moon for a night birth. It moves with the Ascendant, so it needs an accurate birth time.",
@@ -571,7 +571,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   midheaven: {
     what: {
       en: "The Midheaven (MC, from the Latin medium coeli) is the degree of the zodiac crossing the meridian above the birthplace, shown at the top of the chart. In most house systems it begins the 10th house. It describes career aims, reputation and public role: what someone wants to achieve and be known for in the wider world. Like the Ascendant, it needs an accurate birth time.",
-      fr: "Le Milieu du Ciel (MC, du latin medium coeli) est le degré du zodiaque qui passe au méridien au-dessus du lieu de naissance\u202f; il se place en haut du thème. Dans la plupart des systèmes de maisons, il ouvre la Maison X. Il décrit les objectifs professionnels, la réputation et le rôle public\u202f: ce que l’on veut accomplir et ce pour quoi l’on veut être connu dans la société. Comme l’Ascendant, il demande une heure de naissance précise.",
+      fr: "Le Milieu du Ciel (MC, du latin medium coeli) est le degré du zodiaque qui passe au méridien au-dessus du lieu de naissance\u202f; il se place en haut du thème. Dans la plupart des systèmes de maisons, il ouvre la maison X. Il décrit les objectifs professionnels, la réputation et le rôle public\u202f: ce que l’on veut accomplir et ce pour quoi l’on veut être connu dans la société. Comme l’Ascendant, il demande une heure de naissance précise.",
     },
     short: {
       en: "your career aims, your reputation and your place in society",
@@ -593,7 +593,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   descendant: {
     what: {
       en: "The Descendant is the degree of the zodiac setting on the western horizon at birth, exactly opposite the Ascendant, and in most house systems it begins the 7th house. It describes close one-to-one relationships: partners, business associates and open rivals, and the qualities someone looks for, or tends to notice, in other people. Like the Ascendant, it needs an accurate birth time.",
-      fr: "Le Descendant est le degré du zodiaque qui se couche à l’horizon occidental à la naissance, exactement à l’opposé de l’Ascendant\u202f; dans la plupart des systèmes de maisons, il ouvre la Maison VII. Il décrit les relations en face à face\u202f: partenaires, associés et adversaires déclarés, ainsi que les qualités que l’on recherche, ou que l’on remarque d’emblée, chez les autres. Comme l’Ascendant, il demande une heure de naissance précise.",
+      fr: "Le Descendant est le degré du zodiaque qui se couche à l’horizon occidental à la naissance, exactement à l’opposé de l’Ascendant\u202f; dans la plupart des systèmes de maisons, il ouvre la maison VII. Il décrit les relations en face à face\u202f: partenaires, associés et adversaires déclarés, ainsi que les qualités que l’on recherche, ou que l’on remarque d’emblée, chez les autres. Comme l’Ascendant, il demande une heure de naissance précise.",
     },
     short: {
       en: "your partners and what you look for in others",
@@ -615,7 +615,7 @@ export const BODY_TEXT: Record<BodyId, BodyText> = {
   ic: {
     what: {
       en: "The IC (imum coeli, ‘bottom of the sky’) is the degree of the zodiac crossing the meridian beneath the birthplace, exactly opposite the Midheaven, and sits at the lowest point of the chart. In most house systems it begins the 4th house. It describes roots and private life: home, family, origins and the inner base someone returns to. Like the other angles, it needs an accurate birth time.",
-      fr: "Le Fond du Ciel (FC, en latin imum coeli) est le degré du zodiaque qui passe au méridien sous le lieu de naissance, exactement à l’opposé du Milieu du Ciel, en bas du thème. Dans la plupart des systèmes de maisons, il ouvre la Maison IV. Il décrit les racines et la vie privée\u202f: le foyer, la famille, les origines et la base intime à laquelle on revient. Comme les autres angles, il demande une heure de naissance précise.",
+      fr: "Le Fond du Ciel (FC, en latin imum coeli) est le degré du zodiaque qui passe au méridien sous le lieu de naissance, exactement à l’opposé du Milieu du Ciel, en bas du thème. Dans la plupart des systèmes de maisons, il ouvre la maison IV. Il décrit les racines et la vie privée\u202f: le foyer, la famille, les origines et la base intime à laquelle on revient. Comme les autres angles, il demande une heure de naissance précise.",
     },
     short: {
       en: "your roots, your home life and your private base",

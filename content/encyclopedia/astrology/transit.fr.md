@@ -28,7 +28,7 @@ Un transit décrit un climat, pas un événement écrit d’avance. Saturne sur 
 
 - **Le retour de Saturne** : Saturne revient à sa place de naissance vers 29 ans, puis vers 59 ans. La tradition y lit un passage à l’âge adulte, le moment de garder ce qui est solide et de laisser le reste.
 - **Jupiter sur le [[midheaven|Milieu du Ciel]]** : souvent lu comme un temps de visibilité, où le travail et la réputation ont de la place pour grandir.
-- **À travers les maisons** : une planète lente qui traverse une maison natale y apporte sa couleur pour un temps. Saturne en Maison IV, par exemple, tourne l’attention vers le foyer et les racines.
+- **À travers les maisons** : une planète lente qui traverse une maison natale y apporte sa couleur pour un temps. Saturne en maison IV, par exemple, tourne l’attention vers le foyer et les racines.
 - **Une [[station]] près d’un point natal** : la planète qui s’arrête et rebrousse chemin à cet endroit y reste plus longtemps, parfois des mois. Sa [[window|fenêtre]] contient alors plusieurs passages exacts.
 - **Les planètes rapides comme minuteries** : quand un transit lent est déjà en cours, la Lune, le Soleil ou Mars qui passent sur le même point marquent souvent les jours où il se fait le plus sentir.
 

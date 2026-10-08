@@ -32,7 +32,7 @@ Ses dons sont la sensibilité, le soin, la mémoire et la faculté d’adaptatio
 
 ## En pratique
 
-- **Son signe et sa maison** disent ce qui réconforte et où l’on cherche à appartenir : en [[house-4|Maison IV]], la Lune fait souvent du foyer un refuge ; en Maison X, elle demande qu’une vie publique reste personnelle.
+- **Son signe et sa maison** disent ce qui réconforte et où l’on cherche à appartenir : en [[house-4|maison IV]], la Lune fait souvent du foyer un refuge ; en maison X, elle demande qu’une vie publique reste personnelle.
 - **Sa phase à la naissance**, l’angle entre le Soleil et la Lune, est lue par bien des astrologues modernes comme un tempérament, de la spontanéité de la nouvelle lune au regard tourné vers l’autre de la pleine lune. Les [[moon-phase|phases]] rythment aussi le mois.
 - **Les retours.** La Lune revient à sa place de naissance tous les 27,3 jours. Progressée, elle avance d’environ un degré par mois et revient vers 27 et 55 ans, des étapes souvent lues comme des chapitres de la vie affective.
 - **Les éclipses** se produisent quand une nouvelle ou une pleine lune tombe près des [[north-node|nœuds lunaires]].

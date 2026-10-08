@@ -437,7 +437,7 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
   1: {
     what: {
       en: "The 1st house describes the self: the body, vitality, appearance and the way someone meets life and starts things. Traditionally called the house of life, it begins at the Ascendant in most house systems. It is angular, the strongest type of house, so planets here are prominent and visible in behaviour. Its opposite is the 7th, forming the axis of self and other.",
-      fr: "La Maison I décrit le soi\u202f: le corps, la vitalité, l’apparence et la manière d’aborder la vie et de commencer les choses. Appelée traditionnellement maison de la vie, elle commence à l’Ascendant dans la plupart des systèmes de maisons. C’est une maison angulaire, le type de maison le plus puissant\u202f: les planètes qui s’y trouvent sont mises en avant et se voient dans le comportement. Elle fait face à la Maison VII, avec laquelle elle forme l’axe du soi et de l’autre.",
+      fr: "La maison I décrit le soi\u202f: le corps, la vitalité, l’apparence et la manière d’aborder la vie et de commencer les choses. Appelée traditionnellement maison de la vie, elle commence à l’Ascendant dans la plupart des systèmes de maisons. C’est une maison angulaire, le type de maison le plus puissant\u202f: les planètes qui s’y trouvent sont mises en avant et se voient dans le comportement. Elle fait face à la maison VII, avec laquelle elle forme l’axe du soi et de l’autre.",
     },
     area: {
       en: "identity, the body and first impressions",
@@ -445,17 +445,17 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "Mars in the 1st often shows someone who walks fast, speaks plainly and is quick to take the lead; with the Moon here instead, moods tend to show on the face, and others read them easily.",
-      fr: "Mars en Maison I se traduit souvent par une démarche rapide, un franc-parler et une tendance à prendre les devants\u202f; avec la Lune à cette place, les humeurs se lisent plutôt sur le visage, et l’entourage les perçoit facilement.",
+      fr: "Mars en maison I se traduit souvent par une démarche rapide, un franc-parler et une tendance à prendre les devants\u202f; avec la Lune à cette place, les humeurs se lisent plutôt sur le visage, et l’entourage les perçoit facilement.",
     },
     empty: {
       en: "An empty 1st house is common and does not mean a faint personality. The rising sign, and the house and sign of its ruler, the chart ruler, describe how someone comes across.",
-      fr: "Une Maison I sans planète est fréquente et ne signifie pas une personnalité effacée. Le signe de l’Ascendant, ainsi que la maison et le signe de son maître, le maître du thème, décrivent la façon dont on se présente.",
+      fr: "Une maison I sans planète est fréquente et ne signifie pas une personnalité effacée. Le signe de l’Ascendant, ainsi que la maison et le signe de son maître, le maître du thème, décrivent la façon dont on se présente.",
     },
   },
   2: {
     what: {
       en: "The 2nd house covers money, possessions, earning ability and self-worth: what someone has, uses and values. Traditionally it is the house of livelihood. It is succedent: it follows an angle, and succedent houses are about building up and keeping resources. It faces the 8th: together they form the axis of what is one’s own and what is shared.",
-      fr: "La Maison II concerne l’argent, les biens, la capacité à gagner sa vie et l’estime de soi\u202f: ce que l’on possède, ce que l’on utilise et ce à quoi l’on tient. On l’appelait traditionnellement la maison des moyens d’existence. C’est une maison succédente\u202f: elle suit un angle, et les maisons de ce type servent à accumuler et à conserver. La Maison VIII lui fait face\u202f: ensemble, elles forment l’axe de ce qui est à soi et de ce qui est partagé.",
+      fr: "La maison II concerne l’argent, les biens, la capacité à gagner sa vie et l’estime de soi\u202f: ce que l’on possède, ce que l’on utilise et ce à quoi l’on tient. On l’appelait traditionnellement la maison des moyens d’existence. C’est une maison succédente\u202f: elle suit un angle, et les maisons de ce type servent à accumuler et à conserver. La maison VIII lui fait face\u202f: ensemble, elles forment l’axe de ce qui est à soi et de ce qui est partagé.",
     },
     area: {
       en: "money, possessions and self-worth",
@@ -463,17 +463,17 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "Venus in the 2nd often points to someone who earns through pleasant or artistic work and enjoys spending on beautiful things; with Saturn here, money may feel tight early on, and patient saving tends to build lasting security.",
-      fr: "Vénus en Maison II indique souvent quelqu’un qui gagne sa vie par un travail agréable ou artistique et aime dépenser pour de belles choses\u202f; avec Saturne à cette place, l’argent peut sembler rare au début, et une épargne patiente construit souvent une sécurité durable.",
+      fr: "Vénus en maison II indique souvent quelqu’un qui gagne sa vie par un travail agréable ou artistique et aime dépenser pour de belles choses\u202f; avec Saturne à cette place, l’argent peut sembler rare au début, et une épargne patiente construit souvent une sécurité durable.",
     },
     empty: {
       en: "An empty 2nd house says nothing about being short of money. The sign on its cusp shows how earning and spending are handled, and its ruler’s placement shows where income often comes from.",
-      fr: "Une Maison II vide ne dit rien d’un éventuel manque d’argent. Le signe sur sa cuspide montre la manière de gagner et de dépenser, et la position de son maître indique d’où viennent souvent les revenus.",
+      fr: "Une maison II vide ne dit rien d’un éventuel manque d’argent. Le signe sur sa cuspide montre la manière de gagner et de dépenser, et la position de son maître indique d’où viennent souvent les revenus.",
     },
   },
   3: {
     what: {
       en: "The 3rd house covers everyday communication, early learning, siblings, neighbours and short trips: the local world someone moves through each day. Traditionally it is the house of brothers and sisters, and the Moon was said to rejoice here. It is cadent, falling away from an angle, which links it to learning, adjusting and exchanging information. Opposite lies the 9th, and together they span near and distant knowledge.",
-      fr: "La Maison III concerne la communication de tous les jours, les premiers apprentissages, les frères et sœurs, le voisinage et les petits déplacements\u202f: le monde proche que l’on parcourt chaque jour. C’est traditionnellement la maison de la fratrie, et la tradition dit que la Lune s’y plaît particulièrement. C’est une maison cadente, qui «\u202ftombe\u202f» après un angle, ce qui la lie à l’apprentissage, à l’adaptation et à l’échange d’informations. En face se trouve la Maison IX\u202f: ensemble, elles relient le savoir proche et le savoir lointain.",
+      fr: "La maison III concerne la communication de tous les jours, les premiers apprentissages, les frères et sœurs, le voisinage et les petits déplacements\u202f: le monde proche que l’on parcourt chaque jour. C’est traditionnellement la maison de la fratrie, et la tradition dit que la Lune s’y plaît particulièrement. C’est une maison cadente, qui «\u202ftombe\u202f» après un angle, ce qui la lie à l’apprentissage, à l’adaptation et à l’échange d’informations. En face se trouve la maison IX\u202f: ensemble, elles relient le savoir proche et le savoir lointain.",
     },
     area: {
       en: "communication, learning, siblings and short trips",
@@ -481,17 +481,17 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "Mercury in the 3rd often shows someone who is always messaging, reading or explaining, and who may write or teach with ease; with Mars here, arguments flare quickly and end quickly, and a sibling rivalry may have sharpened the wits early.",
-      fr: "Mercure en Maison III montre souvent quelqu’un qui écrit des messages, lit ou explique sans arrêt, et qui peut écrire ou enseigner avec aisance\u202f; avec Mars à cette place, les discussions s’enflamment vite et retombent aussi vite, et une rivalité entre frères et sœurs a parfois aiguisé l’esprit très tôt.",
+      fr: "Mercure en maison III montre souvent quelqu’un qui écrit des messages, lit ou explique sans arrêt, et qui peut écrire ou enseigner avec aisance\u202f; avec Mars à cette place, les discussions s’enflamment vite et retombent aussi vite, et une rivalité entre frères et sœurs a parfois aiguisé l’esprit très tôt.",
     },
     empty: {
       en: "When the 3rd house is empty, communication and learning are not missing. The sign on its cusp describes the everyday way of thinking and talking, and its ruler shows where that curiosity goes.",
-      fr: "Une Maison III vide ne signifie pas que la communication ou l’apprentissage fassent défaut. Le signe sur sa cuspide décrit la façon de penser et de parler au quotidien, et son maître montre où se porte cette curiosité.",
+      fr: "Une maison III vide ne signifie pas que la communication ou l’apprentissage fassent défaut. Le signe sur sa cuspide décrit la façon de penser et de parler au quotidien, et son maître montre où se porte cette curiosité.",
     },
   },
   4: {
     what: {
       en: "The 4th house covers home, family, roots and a parent; traditionally it also shows how matters end. In most house systems its cusp is the IC, the point at the bottom of the chart. It is angular, so planets here are strong, though they show more in private than in public. Its opposite is the 10th, forming the axis of private and public life.",
-      fr: "La Maison IV concerne le foyer, la famille, les racines et l’un des parents\u202f; traditionnellement, elle montre aussi comment les choses se terminent. Dans la plupart des systèmes de maisons, sa cuspide est le Fond du Ciel, le point situé en bas du thème. C’est une maison angulaire\u202f: les planètes y sont fortes, même si elles se manifestent davantage dans la vie privée qu’en public. Elle fait face à la Maison X, avec laquelle elle forme l’axe de la vie privée et de la vie publique.",
+      fr: "La maison IV concerne le foyer, la famille, les racines et l’un des parents\u202f; traditionnellement, elle montre aussi comment les choses se terminent. Dans la plupart des systèmes de maisons, sa cuspide est le Fond du Ciel, le point situé en bas du thème. C’est une maison angulaire\u202f: les planètes y sont fortes, même si elles se manifestent davantage dans la vie privée qu’en public. Elle fait face à la maison X, avec laquelle elle forme l’axe de la vie privée et de la vie publique.",
     },
     area: {
       en: "home, family and roots",
@@ -499,17 +499,17 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "The Moon in the 4th often shows someone for whom home is a real refuge, who cooks family recipes and stays close to relatives; with Uranus here, the family may have moved often or lived in an unconventional way.",
-      fr: "La Lune en Maison IV montre souvent quelqu’un pour qui le foyer est un vrai refuge, qui cuisine les recettes de famille et reste proche des siens\u202f; avec Uranus à cette place, la famille a peut-être souvent déménagé ou vécu de façon peu conventionnelle.",
+      fr: "La Lune en maison IV montre souvent quelqu’un pour qui le foyer est un vrai refuge, qui cuisine les recettes de famille et reste proche des siens\u202f; avec Uranus à cette place, la famille a peut-être souvent déménagé ou vécu de façon peu conventionnelle.",
     },
     empty: {
       en: "Without planets in the 4th, home and family still matter. The sign on the IC describes the feel of home and roots, and its ruler shows where the need for a base plays out.",
-      fr: "Sans planète en Maison IV, le foyer et la famille comptent tout autant. Le signe du Fond du Ciel décrit l’atmosphère du foyer et des origines, et son maître montre où se joue le besoin d’une base solide.",
+      fr: "Sans planète en maison IV, le foyer et la famille comptent tout autant. Le signe du Fond du Ciel décrit l’atmosphère du foyer et des origines, et son maître montre où se joue le besoin d’une base solide.",
     },
   },
   5: {
     what: {
       en: "The 5th house covers creativity, pleasure, romance, children and play: what someone does for joy rather than duty. Traditionally it was the house of good fortune, and Venus was thought to be at her happiest here. It is succedent, a house of building up, here through what is made and enjoyed. Across the chart lies the 11th, and together they balance personal expression and group life.",
-      fr: "La Maison V concerne la créativité, le plaisir, les amours, les enfants et le jeu\u202f: ce que l’on fait par goût plutôt que par devoir. On l’appelait traditionnellement la maison de la bonne fortune, et Vénus était censée y être particulièrement heureuse. C’est une maison succédente, qui fait fructifier, ici à travers ce que l’on crée et ce que l’on savoure. À l’opposé se trouve la Maison XI\u202f: ensemble, elles équilibrent expression personnelle et vie collective.",
+      fr: "La maison V concerne la créativité, le plaisir, les amours, les enfants et le jeu\u202f: ce que l’on fait par goût plutôt que par devoir. On l’appelait traditionnellement la maison de la bonne fortune, et Vénus était censée y être particulièrement heureuse. C’est une maison succédente, qui fait fructifier, ici à travers ce que l’on crée et ce que l’on savoure. À l’opposé se trouve la maison XI\u202f: ensemble, elles équilibrent expression personnelle et vie collective.",
     },
     area: {
       en: "creativity, pleasure, romance and children",
@@ -517,17 +517,17 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "Several planets in the 5th often show someone who needs a creative outlet, such as a stage, a hobby or a sports team, to feel fully alive; with Jupiter here, generosity towards children and a taste for fun and games are common.",
-      fr: "Plusieurs planètes en Maison V montrent souvent quelqu’un qui a besoin d’un exutoire créatif, une scène, un loisir ou une équipe de sport, pour se sentir pleinement vivant\u202f; avec Jupiter à cette place, la générosité envers les enfants et le goût du jeu sont fréquents.",
+      fr: "Plusieurs planètes en maison V montrent souvent quelqu’un qui a besoin d’un exutoire créatif, une scène, un loisir ou une équipe de sport, pour se sentir pleinement vivant\u202f; avec Jupiter à cette place, la générosité envers les enfants et le goût du jeu sont fréquents.",
     },
     empty: {
       en: "Having no planets in the 5th does not rule out creativity, romance or children. The sign on its cusp shows the style of play and affection, and its ruler shows where enjoyment is found.",
-      fr: "Une Maison V sans planète n’exclut ni la créativité, ni les amours, ni les enfants. Le signe sur sa cuspide montre la manière de jouer et d’aimer, et son maître indique où se trouve le plaisir.",
+      fr: "Une maison V sans planète n’exclut ni la créativité, ni les amours, ni les enfants. Le signe sur sa cuspide montre la manière de jouer et d’aimer, et son maître indique où se trouve le plaisir.",
     },
   },
   6: {
     what: {
       en: "The 6th house covers daily work, routines, health habits, pets and service: how someone organises ordinary days and looks after the body. Traditionally it was the house of illness and toil, and Mars was said to rejoice here. It is cadent, a house of adjustment, which fits its focus on skills, maintenance and improvement. It pairs with the 12th opposite, on the axis of daily order and retreat.",
-      fr: "La Maison VI concerne le travail quotidien, les routines, l’hygiène de vie, les animaux domestiques et le service rendu\u202f: la façon d’organiser les journées ordinaires et de prendre soin du corps. On l’appelait traditionnellement la maison de la maladie et de la peine, et l’on disait que Mars s’y réjouissait. C’est une maison cadente, une maison d’ajustement, ce qui correspond bien à son souci du savoir-faire, de l’entretien et de l’amélioration. Elle forme avec la Maison XII, située en face, l’axe de l’ordre quotidien et du retrait.",
+      fr: "La maison VI concerne le travail quotidien, les routines, l’hygiène de vie, les animaux domestiques et le service rendu\u202f: la façon d’organiser les journées ordinaires et de prendre soin du corps. On l’appelait traditionnellement la maison de la maladie et de la peine, et l’on disait que Mars s’y réjouissait. C’est une maison cadente, une maison d’ajustement, ce qui correspond bien à son souci du savoir-faire, de l’entretien et de l’amélioration. Elle forme avec la maison XII, située en face, l’axe de l’ordre quotidien et du retrait.",
     },
     area: {
       en: "daily work, routines and health habits",
@@ -535,17 +535,17 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "Several planets in the 6th often point to someone whose job, routines and work habits take up much of their attention; with Saturn here, a firm daily schedule may be what helps them feel well and get things done.",
-      fr: "Plusieurs planètes en Maison VI désignent souvent quelqu’un dont le travail, les routines et les habitudes occupent une grande part de l’attention\u202f; avec Saturne à cette place, un emploi du temps rigoureux est peut-être ce qui l’aide à se sentir bien et à avancer.",
+      fr: "Plusieurs planètes en maison VI désignent souvent quelqu’un dont le travail, les routines et les habitudes occupent une grande part de l’attention\u202f; avec Saturne à cette place, un emploi du temps rigoureux est peut-être ce qui l’aide à se sentir bien et à avancer.",
     },
     empty: {
       en: "An empty 6th house does not mean poor health or a weak work ethic. The sign on its cusp describes how routines and tasks are handled, and its ruler shows where daily effort goes.",
-      fr: "Une Maison VI vide ne signifie ni une santé fragile ni un manque de sérieux au travail. Le signe sur sa cuspide décrit la manière de gérer routines et tâches, et son maître montre où va l’effort quotidien.",
+      fr: "Une maison VI vide ne signifie ni une santé fragile ni un manque de sérieux au travail. Le signe sur sa cuspide décrit la manière de gérer routines et tâches, et son maître montre où va l’effort quotidien.",
     },
   },
   7: {
     what: {
       en: "The 7th house, traditionally the house of marriage, covers partners of every kind: spouses, close collaborators and open rivals, anyone met one to one. In most house systems its cusp is the Descendant, the degree setting in the west. It is angular, so planets here are strong and often experienced through other people. It faces the 1st, and this axis is about self and other.",
-      fr: "La Maison VII, traditionnellement celle du mariage, concerne les partenaires de toutes sortes\u202f: conjoints, proches collaborateurs et adversaires déclarés, toutes les personnes que l’on rencontre en face à face. Dans la plupart des systèmes de maisons, sa cuspide est le Descendant, le degré qui se couche à l’ouest. C’est une maison angulaire\u202f: les planètes y sont fortes et se vivent souvent à travers les autres. Elle fait face à la Maison I, et cet axe est celui du soi et de l’autre.",
+      fr: "La maison VII, traditionnellement celle du mariage, concerne les partenaires de toutes sortes\u202f: conjoints, proches collaborateurs et adversaires déclarés, toutes les personnes que l’on rencontre en face à face. Dans la plupart des systèmes de maisons, sa cuspide est le Descendant, le degré qui se couche à l’ouest. C’est une maison angulaire\u202f: les planètes y sont fortes et se vivent souvent à travers les autres. Elle fait face à la maison I, et cet axe est celui du soi et de l’autre.",
     },
     area: {
       en: "partnership, marriage and close collaboration",
@@ -553,17 +553,17 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "Venus in the 7th often shows someone who thrives in partnership and tends to attract considerate, sociable partners; with Mars here, relationships are lively and sometimes combative, and partners are often energetic or competitive people.",
-      fr: "Vénus en Maison VII montre souvent quelqu’un qui s’épanouit à deux et attire volontiers des partenaires attentionnés et sociables\u202f; avec Mars à cette place, les relations sont vivantes, parfois combatives, et les partenaires sont souvent des personnes énergiques ou compétitives.",
+      fr: "Vénus en maison VII montre souvent quelqu’un qui s’épanouit à deux et attire volontiers des partenaires attentionnés et sociables\u202f; avec Mars à cette place, les relations sont vivantes, parfois combatives, et les partenaires sont souvent des personnes énergiques ou compétitives.",
     },
     empty: {
       en: "Plenty of charts have an empty 7th; this does not mean staying single. The sign on the Descendant describes what is sought in a partner, and its ruler shows where relationships often begin.",
-      fr: "Beaucoup de thèmes ont une Maison VII vide, ce qui ne signifie pas une vie sans couple. Le signe du Descendant décrit ce que l’on cherche chez un partenaire, et son maître montre où les relations se nouent souvent.",
+      fr: "Beaucoup de thèmes ont une maison VII vide, ce qui ne signifie pas une vie sans couple. Le signe du Descendant décrit ce que l’on cherche chez un partenaire, et son maître montre où les relations se nouent souvent.",
     },
   },
   8: {
     what: {
       en: "The 8th house covers shared resources, debt, inheritance, taxes and other people’s money, along with intimacy, crises and deep change. Traditionally it was the house of death, which modern astrology reads more broadly as endings and transformation. As a succedent house, it deals with what is held jointly and what is exchanged. Its opposite, the 2nd, completes the axis of one’s own and shared resources.",
-      fr: "La Maison VIII concerne les ressources partagées, les dettes, les héritages, les impôts et l’argent des autres, ainsi que l’intimité, les crises et les changements profonds. On l’appelait traditionnellement la maison de la mort, que l’astrologie moderne lit plus largement comme celle des fins et des transformations. En tant que maison succédente, elle concerne ce que l’on détient en commun et ce que l’on échange. La Maison II, en face, complète l’axe des ressources propres et des ressources partagées.",
+      fr: "La maison VIII concerne les ressources partagées, les dettes, les héritages, les impôts et l’argent des autres, ainsi que l’intimité, les crises et les changements profonds. On l’appelait traditionnellement la maison de la mort, que l’astrologie moderne lit plus largement comme celle des fins et des transformations. En tant que maison succédente, elle concerne ce que l’on détient en commun et ce que l’on échange. La maison II, en face, complète l’axe des ressources propres et des ressources partagées.",
     },
     area: {
       en: "shared resources, intimacy and times of crisis",
@@ -571,17 +571,17 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "Jupiter in the 8th often shows someone who handles other people’s money well or benefits from a partner’s resources, a loan or an investment; with the Moon here, emotional bonds tend to be intense and very private.",
-      fr: "Jupiter en Maison VIII montre souvent quelqu’un qui gère bien l’argent des autres ou bénéficie des ressources d’un partenaire, d’un prêt ou d’un placement\u202f; avec la Lune à cette place, les liens affectifs sont souvent intenses et très secrets.",
+      fr: "Jupiter en maison VIII montre souvent quelqu’un qui gère bien l’argent des autres ou bénéficie des ressources d’un partenaire, d’un prêt ou d’un placement\u202f; avec la Lune à cette place, les liens affectifs sont souvent intenses et très secrets.",
     },
     empty: {
       en: "With no planets in the 8th, intimacy and joint finances still play their part. The sign on its cusp describes how trust, debts and crises are handled, and its ruler shows where they arise.",
-      fr: "Une Maison VIII vide n’empêche ni l’intimité ni les finances partagées. Le signe sur sa cuspide décrit la façon de vivre la confiance, les dettes et les crises, et son maître montre où ces questions se posent.",
+      fr: "Une maison VIII vide n’empêche ni l’intimité ni les finances partagées. Le signe sur sa cuspide décrit la façon de vivre la confiance, les dettes et les crises, et son maître montre où ces questions se posent.",
     },
   },
   9: {
     what: {
       en: "The 9th house covers higher learning, long journeys, beliefs, philosophy, law and publishing: everything that widens someone’s view of the world. Traditionally it was the house of religion and travel, and the Sun was said to be happiest here. Being cadent, it deals with learning and understanding more than with action. The 3rd lies opposite, forming the axis of local and far-reaching knowledge.",
-      fr: "La Maison IX concerne les études supérieures, les grands voyages, les croyances, la philosophie, le droit et l’édition\u202f: tout ce qui élargit la vision du monde. On l’appelait traditionnellement la maison de la religion et des voyages, et le Soleil passait pour s’y trouver le mieux. Maison cadente, elle relève de l’apprentissage et de la compréhension plus que de l’action. La Maison III lui fait face, formant l’axe du savoir proche et du savoir lointain.",
+      fr: "La maison IX concerne les études supérieures, les grands voyages, les croyances, la philosophie, le droit et l’édition\u202f: tout ce qui élargit la vision du monde. On l’appelait traditionnellement la maison de la religion et des voyages, et le Soleil passait pour s’y trouver le mieux. Maison cadente, elle relève de l’apprentissage et de la compréhension plus que de l’action. La maison III lui fait face, formant l’axe du savoir proche et du savoir lointain.",
     },
     area: {
       en: "higher learning, long journeys and beliefs",
@@ -589,17 +589,17 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "Jupiter in the 9th often shows someone who studies for years, travels widely or teaches, and holds strong but generous beliefs; with Mercury here, languages, writing and debating ideas across cultures tend to come easily.",
-      fr: "Jupiter en Maison IX montre souvent quelqu’un qui étudie longtemps, voyage beaucoup ou enseigne, avec des convictions fortes mais généreuses\u202f; avec Mercure à cette place, les langues, l’écriture et le débat d’idées entre cultures viennent souvent facilement.",
+      fr: "Jupiter en maison IX montre souvent quelqu’un qui étudie longtemps, voyage beaucoup ou enseigne, avec des convictions fortes mais généreuses\u202f; avec Mercure à cette place, les langues, l’écriture et le débat d’idées entre cultures viennent souvent facilement.",
     },
     empty: {
       en: "Travel and ideas can matter greatly even with an empty 9th house. The sign on its cusp describes the approach to study and belief, and its ruler shows where the search for meaning leads.",
-      fr: "Les voyages et les idées peuvent compter énormément, même avec une Maison IX vide. Le signe sur sa cuspide décrit le rapport aux études et aux croyances, et son maître montre où mène la quête de sens.",
+      fr: "Les voyages et les idées peuvent compter énormément, même avec une maison IX vide. Le signe sur sa cuspide décrit le rapport aux études et aux croyances, et son maître montre où mène la quête de sens.",
     },
   },
   10: {
     what: {
       en: "The 10th house covers career, reputation, public role and authority: what someone is known for and how they relate to bosses and status. Its cusp is usually the Midheaven, the top of the chart. It is angular, and traditionally the house of rank and action, so planets here tend to shape public life. Opposite is the 4th; together they form the axis of public and private life.",
-      fr: "La Maison X concerne la carrière, la réputation, le rôle public et l’autorité\u202f: ce pour quoi l’on est connu, et le rapport aux supérieurs et au statut. Dans la plupart des systèmes de maisons, sa cuspide est le Milieu du Ciel, le sommet du thème. C’est une maison angulaire, traditionnellement celle du rang et de l’action\u202f: les planètes qui s’y trouvent marquent souvent la vie publique. En face se trouve la Maison IV\u202f; ensemble, elles forment l’axe de la vie publique et de la vie privée.",
+      fr: "La maison X concerne la carrière, la réputation, le rôle public et l’autorité\u202f: ce pour quoi l’on est connu, et le rapport aux supérieurs et au statut. Dans la plupart des systèmes de maisons, sa cuspide est le Milieu du Ciel, le sommet du thème. C’est une maison angulaire, traditionnellement celle du rang et de l’action\u202f: les planètes qui s’y trouvent marquent souvent la vie publique. En face se trouve la maison IV\u202f; ensemble, elles forment l’axe de la vie publique et de la vie privée.",
     },
     area: {
       en: "career, reputation and public standing",
@@ -607,17 +607,17 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "The Sun in the 10th often shows someone who wants recognition for their work and may end up in a leading or visible role; with Neptune here, the career may involve art, care or several changes of direction.",
-      fr: "Le Soleil en Maison X montre souvent quelqu’un qui tient à la reconnaissance de son travail et accède parfois à un rôle de direction ou très exposé\u202f; avec Neptune à cette place, la carrière passe volontiers par l’art, le soin ou plusieurs changements de cap.",
+      fr: "Le Soleil en maison X montre souvent quelqu’un qui tient à la reconnaissance de son travail et accède parfois à un rôle de direction ou très exposé\u202f; avec Neptune à cette place, la carrière passe volontiers par l’art, le soin ou plusieurs changements de cap.",
     },
     empty: {
       en: "Career and ambition are not missing when the 10th house is empty. The sign on the Midheaven describes the reputation someone aims for, and its ruler shows where professional effort tends to go.",
-      fr: "Une Maison X vide ne signifie ni absence de carrière ni manque d’ambition. Le signe du Milieu du Ciel décrit la réputation recherchée, et son maître montre où se porte l’effort professionnel.",
+      fr: "Une maison X vide ne signifie ni absence de carrière ni manque d’ambition. Le signe du Milieu du Ciel décrit la réputation recherchée, et son maître montre où se porte l’effort professionnel.",
     },
   },
   11: {
     what: {
       en: "The 11th house covers friends, groups, networks, allies and hopes for the future: the people someone chooses to build things with. Traditionally it was the house of the Good Spirit and of benefactors, and Jupiter was said to rejoice here. It is succedent, building up support and resources through connections. It faces the 5th, forming the axis of personal expression and collective life.",
-      fr: "La Maison XI concerne les amis, les groupes, les réseaux, les alliés et les espoirs pour l’avenir\u202f: les personnes avec qui l’on choisit de construire. On l’appelait traditionnellement la maison du Bon Génie et des bienfaiteurs, et la tradition dit que Jupiter s’y plaît particulièrement. C’est une maison succédente, qui accumule soutiens et ressources grâce aux relations. Elle fait face à la Maison V, formant l’axe de l’expression personnelle et de la vie collective.",
+      fr: "La maison XI concerne les amis, les groupes, les réseaux, les alliés et les espoirs pour l’avenir\u202f: les personnes avec qui l’on choisit de construire. On l’appelait traditionnellement la maison du Bon Génie et des bienfaiteurs, et la tradition dit que Jupiter s’y plaît particulièrement. C’est une maison succédente, qui accumule soutiens et ressources grâce aux relations. Elle fait face à la maison V, formant l’axe de l’expression personnelle et de la vie collective.",
     },
     area: {
       en: "friends, groups and hopes for the future",
@@ -625,17 +625,17 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "Planets gathered in the 11th often show someone whose friendships, clubs or online communities are central, and who achieves more through networks than alone; with Saturn here, friends may be few but loyal, and often older.",
-      fr: "Des planètes réunies en Maison XI montrent souvent quelqu’un pour qui les amitiés, les clubs ou les communautés en ligne sont essentiels, et qui accomplit davantage en réseau que seul\u202f; avec Saturne à cette place, les amis sont parfois peu nombreux mais fidèles, et souvent plus âgés.",
+      fr: "Des planètes réunies en maison XI montrent souvent quelqu’un pour qui les amitiés, les clubs ou les communautés en ligne sont essentiels, et qui accomplit davantage en réseau que seul\u202f; avec Saturne à cette place, les amis sont parfois peu nombreux mais fidèles, et souvent plus âgés.",
     },
     empty: {
       en: "Having friends does not depend on planets in the 11th. The sign on its cusp describes how someone fits into groups, and its ruler shows where allies and future plans are found.",
-      fr: "Avoir des amis ne dépend pas de la présence de planètes en Maison XI. Le signe sur sa cuspide décrit la façon de trouver sa place dans un groupe, et son maître montre où se trouvent les alliés et les projets d’avenir.",
+      fr: "Avoir des amis ne dépend pas de la présence de planètes en maison XI. Le signe sur sa cuspide décrit la façon de trouver sa place dans un groupe, et son maître montre où se trouvent les alliés et les projets d’avenir.",
     },
   },
   12: {
     what: {
       en: "The 12th house covers solitude, rest, retreat, what is hidden or behind the scenes, and institutions such as hospitals or monasteries. Traditionally it was the house of confinement and self-undoing, and Saturn was said to rejoice here. It is cadent, so planets here tend to work quietly, through the inner life or out of sight. Its opposite is the 6th, completing the axis of daily order and withdrawal.",
-      fr: "La Maison XII concerne la solitude, le repos, le retrait, ce qui est caché ou se passe en coulisses, et les institutions comme les hôpitaux ou les monastères. On l’appelait traditionnellement la maison de l’enfermement et des épreuves que l’on se crée soi-même, et Saturne était censé s’y plaire. C’est une maison cadente\u202f: les planètes y agissent souvent en silence, par la vie intérieure ou loin des regards. La Maison VI, en face, complète l’axe de l’ordre quotidien et du retrait.",
+      fr: "La maison XII concerne la solitude, le repos, le retrait, ce qui est caché ou se passe en coulisses, et les institutions comme les hôpitaux ou les monastères. On l’appelait traditionnellement la maison de l’enfermement et des épreuves que l’on se crée soi-même, et Saturne était censé s’y plaire. C’est une maison cadente\u202f: les planètes y agissent souvent en silence, par la vie intérieure ou loin des regards. La maison VI, en face, complète l’axe de l’ordre quotidien et du retrait.",
     },
     area: {
       en: "solitude, rest and life behind the scenes",
@@ -643,11 +643,11 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
     },
     example: {
       en: "Several planets in the 12th often show someone who needs regular time alone and may work behind the scenes, in research, hospitals or backstage; with Neptune here, music, meditation or dreams tend to matter a great deal.",
-      fr: "Plusieurs planètes en Maison XII montrent souvent quelqu’un qui a besoin de moments de solitude réguliers et travaille parfois en coulisses, dans la recherche, à l’hôpital ou dans l’ombre d’une scène\u202f; avec Neptune à cette place, la musique, la méditation ou les rêves comptent beaucoup.",
+      fr: "Plusieurs planètes en maison XII montrent souvent quelqu’un qui a besoin de moments de solitude réguliers et travaille parfois en coulisses, dans la recherche, à l’hôpital ou dans l’ombre d’une scène\u202f; avec Neptune à cette place, la musique, la méditation ou les rêves comptent beaucoup.",
     },
     empty: {
       en: "An empty 12th house is common and simply puts less emphasis here. The sign on its cusp describes how someone rests and withdraws, and its ruler shows where private or hidden matters surface.",
-      fr: "Une Maison XII vide est fréquente et indique simplement que ce domaine est moins souligné. Le signe sur sa cuspide décrit la manière de se reposer et de se retirer, et son maître montre où les questions intimes ou cachées refont surface.",
+      fr: "Une maison XII vide est fréquente et indique simplement que ce domaine est moins souligné. Le signe sur sa cuspide décrit la manière de se reposer et de se retirer, et son maître montre où les questions intimes ou cachées refont surface.",
     },
   },
 };
@@ -796,7 +796,7 @@ export const BASICS_TEXT: {
   },
   chartRuler: {
     en: "The chart ruler is the planet that rules the sign on the Ascendant: Mars for Aries rising, Venus for Libra rising, and so on; for Scorpio, Aquarius and Pisces rising, traditional astrology uses Mars, Saturn and Jupiter, and modern astrology Pluto, Uranus and Neptune. Because the Ascendant describes how someone approaches life, the chart ruler’s sign, house and aspects show where that approach is directed and how easily it flows. With Virgo rising, for example, Mercury rules the chart, and Mercury in the 10th house turns much of that attention towards work and public life.",
-    fr: "Le maître du thème est la planète qui gouverne le signe de l’Ascendant\u202f: Mars pour un Ascendant Bélier, Vénus pour un Ascendant Balance, et ainsi de suite\u202f; pour les Ascendants Scorpion, Verseau et Poissons, l’astrologie traditionnelle retient Mars, Saturne et Jupiter, l’astrologie moderne Pluton, Uranus et Neptune. Comme l’Ascendant décrit la façon d’aborder la vie, le signe, la maison et les aspects du maître du thème montrent où cette approche se dirige et avec quelle aisance elle s’exprime. Avec un Ascendant Vierge, par exemple, Mercure gouverne le thème, et un Mercure en Maison X tourne une grande partie de cette attention vers le travail et la vie publique.",
+    fr: "Le maître du thème est la planète qui gouverne le signe de l’Ascendant\u202f: Mars pour un Ascendant Bélier, Vénus pour un Ascendant Balance, et ainsi de suite\u202f; pour les Ascendants Scorpion, Verseau et Poissons, l’astrologie traditionnelle retient Mars, Saturne et Jupiter, l’astrologie moderne Pluton, Uranus et Neptune. Comme l’Ascendant décrit la façon d’aborder la vie, le signe, la maison et les aspects du maître du thème montrent où cette approche se dirige et avec quelle aisance elle s’exprime. Avec un Ascendant Vierge, par exemple, Mercure gouverne le thème, et un Mercure en maison X tourne une grande partie de cette attention vers le travail et la vie publique.",
   },
   intercepted: {
     en: "An intercepted sign lies wholly inside a house without touching any cusp; in exchange, some other sign occupies two consecutive cusps, and interceptions always come in opposite pairs. It happens only in unequal house systems such as Placidus or Koch, more often the further from the equator someone is born, and never with Equal or Whole Sign houses. A common reading is that the intercepted sign’s qualities take longer to reach and express, and develop with experience.",
@@ -804,7 +804,7 @@ export const BASICS_TEXT: {
   },
   stellium: {
     en: "A stellium is a group of three or more planets in one sign or one house; some astrologers ask for four, or for the planets to be linked by conjunction. It concentrates attention on that sign’s style or that house’s area, which tends to become a major theme of the life. Four planets in the 10th house, for example, often go with a strong investment in career and reputation.",
-    fr: "Un stellium est un groupe d’au moins trois planètes dans un même signe ou une même maison\u202f; certains astrologues en exigent quatre, ou demandent qu’elles soient reliées par conjonction. Il concentre l’attention sur le style de ce signe ou le domaine de cette maison, qui devient souvent un thème majeur de la vie. Quatre planètes en Maison X, par exemple, vont souvent de pair avec un fort investissement dans la carrière et la réputation.",
+    fr: "Un stellium est un groupe d’au moins trois planètes dans un même signe ou une même maison\u202f; certains astrologues en exigent quatre, ou demandent qu’elles soient reliées par conjonction. Il concentre l’attention sur le style de ce signe ou le domaine de cette maison, qui devient souvent un thème majeur de la vie. Quatre planètes en maison X, par exemple, vont souvent de pair avec un fort investissement dans la carrière et la réputation.",
   },
   sect: {
     en: "Sect distinguishes day charts, where the Sun is above the horizon at birth, from night charts, where it is below. Traditional astrology uses it to judge which planets work more easily: Jupiter and Saturn are more at ease by day, Venus and Mars by night, while Mercury depends on whether it rises before or after the Sun. In a day chart, for example, Saturn is considered more constructive and Mars harder to handle, and in a night chart the reverse.",

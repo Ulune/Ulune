@@ -31,7 +31,7 @@ Ses dons sont la profondeur, la résilience, la lucidité sur ce qui est caché 
 
 ## En pratique
 
-- **Sa maison** montre où la vie se vit le plus intensément : en [[house-8|Maison VIII]], les ressources partagées, l’intimité et les crises ; en Maison X, les questions de pouvoir et d’autorité.
+- **Sa maison** montre où la vie se vit le plus intensément : en [[house-8|maison VIII]], les ressources partagées, l’intimité et les crises ; en maison X, les questions de pouvoir et d’autorité.
 - **Près du Soleil, de la Lune ou d’un angle**, il désigne souvent quelqu’un attiré par la profondeur, par la recherche, la psychologie ou les métiers de crise, et qui protège farouchement sa vie privée.
 - **Ses transits** durent deux à trois ans et s’associent à des changements irréversibles : finir ce qui ne marche plus, puis reconstruire.
 - **Son carré à sa propre position de naissance** survient à des âges très différents d’une génération à l’autre, tant sa vitesse varie le long de son orbite.

@@ -27,7 +27,7 @@ Un composite n’a ni moment ni lieu propres : personne n’est né à cet ins
 
 ## En pratique
 
-- **La maison du Soleil composite** se lit comme le terrain où la relation vit le plus : la Maison X pour un travail ou un rôle public partagé, la IV pour un foyer, la IX pour les voyages, les études ou les croyances.
+- **La maison du Soleil composite** se lit comme le terrain où la relation vit le plus : la maison X pour un travail ou un rôle public partagé, la IV pour un foyer, la IX pour les voyages, les études ou les croyances.
 - **La Lune composite** donne le climat affectif : une Lune en signe d’eau se lit comme tendre et proche, en signe d’air comme bavarde et légère.
 - **Saturne sur un angle** du composite se lit comme un lien bâti pour durer, avec des devoirs et une structure.
 - **Les transits au composite** se suivent comme ceux d’un thème natal, pour lire les saisons de la vie d’un couple, d’une amitié ou d’une équipe.

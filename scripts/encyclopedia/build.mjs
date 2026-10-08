@@ -27,12 +27,20 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fold, keyTokens, STOPWORDS, tokens } from "../../src/encyclopedia/normalize.ts";
 import { buildLexicon } from "./lexicon.mjs";
+import { combinationFiles } from "./combinations.mjs";
 import { parseEntry } from "./parse.mjs";
 import { FAMILIES, ID_RE, KINDS, LANGS, REQUIRED_KEYS, SECTIONS, SUMMARY_MAX, TRADITIONS } from "./registry.mjs";
 
 export const CONTENT_DIR = "content/encyclopedia";
+/** Astrology's families whose titles are common nouns, shown in small letters inside a sentence. */
+const COMMON_FAMILIES = new Set(["aspects", "dignities", "techniques", "coordinates", "cycles", "elements", "patterns", "houses"]);
+/** content/encyclopedia/combinations: the openings of the combination pages (combinations.mjs). */
+export const COMBINATIONS_DIR = "combinations";
 
-/** Every file under a tradition's folder, as `{ path: "astrology/saturn.en.md", text }`. Files at the top (LICENSE) are not entries. */
+/**
+ * Every file under a tradition's folder, as `{ path: "astrology/saturn.en.md", text }`. Files at the top (LICENSE) are not entries.
+ * The combinations folder gives the combination pages, made (their missing openings as `files.combinationWarnings`).
+ */
 export function readContent(dir) {
   const files = [];
   let folders;
@@ -44,6 +52,13 @@ export function readContent(dir) {
   for (const folder of folders) {
     const path = join(dir, folder);
     if (!statSync(path).isDirectory()) continue;
+    // The combination pages are made from the readings' texts and their openings (part 17).
+    if (folder === COMBINATIONS_DIR) {
+      const made = combinationFiles(dir);
+      files.push(...made.files);
+      files.combinationWarnings = made.warnings;
+      continue;
+    }
     for (const name of readdirSync(path).sort()) {
       if (name.startsWith(".")) continue;
       const file = join(path, name);
@@ -128,7 +143,7 @@ function inlineGroups(block) {
  */
 export function buildEncyclopedia(files, { prefix = CONTENT_DIR } = {}) {
   const errors = [];
-  const warnings = [];
+  const warnings = [...(files.combinationWarnings ?? [])];
   /** id → { en, fr }, each `{ file, meta, metaLines, sections, raw }`. */
   const byId = new Map();
   const where = new Map();
@@ -353,13 +368,22 @@ function assemble(byId) {
     tradition: e.tradition,
   });
 
+  // A bare [[id]] shows the entry's title; inside a sentence, a common noun's title ("Fall", "Grand trine",
+  // "Maison X") shows in small letters ("its fall", "a grand trine", "en maison X"), a name never.
+  const proper = new Set(entries.filter((e) => e.tradition === "astrology" && (e.family === "planets" || e.family === "signs")).flatMap((e) => [title(e, "en"), title(e, "fr")]));
+  const shown = (target, lang, before) => {
+    const t = title(target, lang);
+    const inSentence = typeof before === "string" && before !== "" && !/[.!?]\s*$/.test(before);
+    if (!inSentence || target.tradition !== "astrology" || !COMMON_FAMILIES.has(target.family) || proper.has(t.split(/\s/)[0])) return t;
+    return t.charAt(0).toLowerCase() + t.slice(1);
+  };
   const inline = (nodes, lang) =>
-    nodes.map((n) => {
+    nodes.map((n, i) => {
       if (typeof n === "string") return n;
       if ("b" in n) return { b: inline(n.b, lang) };
       if ("i" in n) return { i: inline(n.i, lang) };
       const target = entry.get(n.l);
-      return { l: n.l, w: n.w ?? title(target, lang), s: target.page ? slug(target, lang) : null, g: target.tradition };
+      return { l: n.l, w: n.w ?? shown(target, lang, nodes[i - 1]), s: target.page ? slug(target, lang) : null, g: target.tradition };
     });
   const block = (b, lang) => {
     if (b.t === "p") return { t: "p", c: inline(b.c, lang) };
@@ -388,7 +412,9 @@ function assemble(byId) {
       const families = [];
       for (const f of FAMILIES[t.id]) {
         const list = ordered(t.id, f.id);
-        if (list.length) families.push({ id: f.id, name: f.name[lang], rows: list.map((e) => listRow(e, lang)) });
+        // Combination families are a short list of names on the home (part 17), not cards with summaries.
+        const compact = list.length > 0 && list.every((e) => e.kind === "combination");
+        if (list.length) families.push({ id: f.id, name: f.name[lang], ...(compact ? { compact: true } : {}), rows: list.map((e) => (compact ? [e.id, title(e, lang), e.glyph, "", slug(e, lang)] : listRow(e, lang))) });
         const withPage = list.filter((e) => e.page);
         withPage.forEach((e, i) => {
           const m = e[lang].meta;
@@ -439,15 +465,18 @@ function assemble(byId) {
         const others = keyTokens([e[other].meta.title, ...(e.en.meta.aliases ?? []), ...(e.fr.meta.aliases ?? [])].join(" ")).filter(
           (k) => !names.includes(k),
         );
-        const words = [...new Set(tokens(m.summary))].filter((w) => w.length >= 3 && !STOPWORDS.has(w) && !names.includes(w));
-        return [e.id, m.title, m.summary, e.glyph, e.tradition, e.family, e.page ? m.slug : "", names.join(" "), others.join(" "), words.join(" ")];
+        // A combination is found by its names ("moon scorpio"), not by its summary's words, which would crowd every search.
+        const words = e.kind === "combination" ? [] : [...new Set(tokens(m.summary))].filter((w) => w.length >= 3 && !STOPWORDS.has(w) && !names.includes(w));
+        const doc = [e.id, m.title, m.summary, e.glyph, e.tradition, e.family, e.page ? m.slug : "", names.join(" "), others.join(" "), words.join(" ")];
+        return e.kind === "combination" ? [...doc, 1] : doc;
       }),
     };
 
     const collator = new Intl.Collator(lang, { sensitivity: "base", numeric: true });
     const sorted = [...entries].sort((a, b) => collator.compare(title(a, lang), title(b, lang)));
     const az = [];
-    for (const e of sorted) {
+    // The A–Z lists the core entries; the combinations are found by search and on their tradition's home.
+    for (const e of sorted.filter((x) => x.kind !== "combination")) {
       const first = fold(title(e, lang)).charAt(0).toUpperCase();
       const letter = /^[A-Z]$/.test(first) ? first : "#";
       let group = az.find((g) => g[0] === letter);
