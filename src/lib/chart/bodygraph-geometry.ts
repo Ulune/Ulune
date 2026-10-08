@@ -11,7 +11,8 @@
  * channel long enough to show both halves, only the standard crossings, one
  * bend). Change a number here and run that test.
  */
-import { HD_CHANNELS, type HdCenterId } from "./human-design";
+// With its extension, so the encyclopedia's build can read this file too (scripts/encyclopedia/figures.mjs).
+import { HD_CHANNELS, type HdCenterId } from "./human-design.ts";
 
 export type Pt = readonly [number, number];
 

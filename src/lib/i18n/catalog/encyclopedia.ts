@@ -27,6 +27,11 @@ export const encyclopedia = {
   encBackCalendar: ["Back to the Calendar", "Retour au calendrier"],
   encBackCharts: ["Back to Charts", "Retour aux thèmes"],
   encRelated: ["Related", "Voir aussi"],
+  // An aspect's figure turned by the reader (part 19).
+  encDialLabel: ["Turn the second point", "Déplacez le second point"],
+  encDialExact: ["Exact.", "Exact."],
+  encDialIn: ["Within Ulune’s orb: {d} from exact.", "Dans l’orbe d’Ulune\u202f: à {d} de l’exactitude."],
+  encDialOut: ["Outside Ulune’s orb: {d} from exact.", "Hors de l’orbe d’Ulune\u202f: à {d} de l’exactitude."],
   // "In your chart" (part 18): worked out in the browser from the chart open in this tab.
   encMine: ["In your chart", "Dans votre thème"],
   encMineHide: ["Hide", "Masquer"],

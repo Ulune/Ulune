@@ -59,6 +59,17 @@ export type PageData = {
   /** The pages before and after it in its family (entries without a page are skipped). */
   prev: { slug: string; title: string } | null;
   next: { slug: string; title: string } | null;
+  /** Its figure, drawn at build time from the charts' own numbers (part 19, scripts/encyclopedia/figures.mjs). */
+  figure?: Figure;
+};
+
+export type Figure = {
+  /** One to three drawings, each an SVG with its own description for screen readers. */
+  panels: { svg: string; w: number; h: number; scale?: number }[];
+  /** The text twin shown under it. */
+  caption: string;
+  /** An aspect's figure the reader can turn through its orb. */
+  interactive?: { kind: "aspect"; angle: number; orb: number };
 };
 
 export type TraditionInfo = {

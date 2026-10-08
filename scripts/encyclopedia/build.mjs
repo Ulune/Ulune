@@ -24,14 +24,19 @@
  * Writers who link a term once per whole list or table pass it too.
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { fold, keyTokens, STOPWORDS, tokens } from "../../src/encyclopedia/normalize.ts";
 import { buildLexicon } from "./lexicon.mjs";
 import { combinationFiles } from "./combinations.mjs";
+import { figureFor } from "./figures.mjs";
 import { parseEntry } from "./parse.mjs";
 import { FAMILIES, ID_RE, KINDS, LANGS, REQUIRED_KEYS, SECTIONS, SUMMARY_MAX, TRADITIONS } from "./registry.mjs";
 
 export const CONTENT_DIR = "content/encyclopedia";
+/** The repository, for the figures' numbers (src/lib/chart). */
+const REPO = resolve(fileURLToPath(import.meta.url), "..", "..", "..");
+
 /** Astrology's families whose titles are common nouns, shown in small letters inside a sentence. */
 const COMMON_FAMILIES = new Set(["aspects", "dignities", "techniques", "coordinates", "cycles", "elements", "patterns", "houses"]);
 /** content/encyclopedia/combinations: the openings of the combination pages (combinations.mjs). */
@@ -442,6 +447,9 @@ function assemble(byId) {
             prev: near(withPage[i - 1]),
             next: near(withPage[i + 1]),
           };
+          // Its figure, drawn from the charts' own numbers (part 19).
+          const figure = figureFor(e, lang, m.title, REPO);
+          if (figure) pages[`${lang}/${e.id}`].figure = figure;
         });
       }
       if (families.length) {

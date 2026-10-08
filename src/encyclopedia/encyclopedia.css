@@ -764,3 +764,223 @@ a.ob-enc-letter {
     display: none;
   }
 }
+
+/* The figures (part 19): drawn at build time, coloured here by the theme and the reader's look. */
+.ob-enc-figure {
+  margin: 22px 0 0;
+}
+.ob-enc-figure-panels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 28px;
+}
+.ob-enc-figure-panel {
+  max-width: 100%;
+  flex: 0 1 auto;
+}
+.ob-enc-figure-panel svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.ob-enc-figure-caption {
+  max-width: 40rem;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-fg-subtle);
+}
+.f-svg text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--color-fg-subtle);
+  font-family: var(--font-ui);
+}
+.f-svg .f-start {
+  text-anchor: start;
+}
+.f-svg .f-glyph {
+  font-family: var(--font-glyphs);
+  font-size: 17px;
+  fill: var(--color-fg-muted);
+}
+.f-svg .f-label,
+.f-svg .f-small {
+  font-size: 12px;
+}
+.f-svg .f-num {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.f-svg .f-big {
+  font-size: 22px;
+  font-family: var(--font-display);
+}
+.f-svg .f-on {
+  fill: var(--color-fg);
+  font-weight: 600;
+}
+.f-svg .f-line,
+.f-svg .f-cell,
+.f-svg .f-ray {
+  fill: none;
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+}
+.f-svg .f-ray {
+  stroke-dasharray: 2 3;
+}
+.f-svg .f-axis {
+  stroke: var(--color-fg-subtle);
+  stroke-width: 1.4;
+}
+.f-svg .f-lit {
+  fill: color-mix(in oklch, var(--color-fg) 14%, transparent);
+  stroke: var(--color-fg-muted);
+  stroke-width: 1.2;
+}
+.f-svg .f-el {
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+}
+.f-svg .f-el-fire {
+  fill: color-mix(in oklch, var(--el-fire) 45%, transparent);
+}
+.f-svg .f-el-earth {
+  fill: color-mix(in oklch, var(--el-earth) 45%, transparent);
+}
+.f-svg .f-el-air {
+  fill: color-mix(in oklch, var(--el-air) 45%, transparent);
+}
+.f-svg .f-el-water {
+  fill: color-mix(in oklch, var(--el-water) 45%, transparent);
+}
+.f-svg .f-shape {
+  fill: none;
+  stroke: var(--color-fg-muted);
+  stroke-width: 1.2;
+}
+.f-svg .f-strong {
+  stroke: var(--color-fg);
+  stroke-width: 1.4;
+}
+.f-svg .f-disc {
+  fill: var(--color-bg);
+  stroke: var(--color-fg-muted);
+  stroke-width: 1;
+}
+.f-svg .f-dot {
+  fill: var(--color-fg);
+}
+.f-svg .f-handle {
+  stroke: var(--color-bg);
+  stroke-width: 2;
+}
+.f-svg .f-orb {
+  fill: color-mix(in oklch, var(--color-fg) 24%, transparent);
+  stroke: none;
+}
+.f-svg .f-arc {
+  fill: none;
+  stroke: var(--color-fg-subtle);
+  stroke-width: 1;
+}
+.f-svg .f-asp {
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.f-svg .f-asp-conj {
+  stroke: var(--aspect-conj);
+}
+.f-svg .f-asp-hard {
+  stroke: var(--aspect-hard);
+}
+.f-svg .f-asp-soft {
+  stroke: var(--aspect-soft);
+}
+.f-svg .f-asp-minor {
+  stroke: var(--aspect-minor);
+  stroke-dasharray: 5 3;
+}
+.f-svg .f-asp-off {
+  stroke: var(--color-fg-subtle);
+  stroke-dasharray: 2 3;
+}
+.f-svg .f-channel {
+  fill: none;
+  stroke: var(--color-border-strong);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+.f-svg .f-channel.f-on {
+  stroke: var(--color-fg);
+  stroke-width: 9;
+}
+.f-svg .f-centre {
+  fill: var(--color-bg);
+  stroke: var(--color-fg-subtle);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.f-svg .f-centre.f-lit {
+  fill: color-mix(in oklch, var(--color-fg) 55%, var(--color-bg));
+  stroke: var(--color-fg);
+}
+.f-svg .f-gate {
+  fill: var(--color-fg);
+}
+.f-svg .f-gate-num {
+  fill: var(--color-bg);
+  font-size: 19px;
+  font-weight: 700;
+}
+.f-svg .f-gate-arc {
+  fill: color-mix(in oklch, var(--color-fg) 70%, transparent);
+}
+.f-svg .f-yao {
+  fill: var(--color-fg-subtle);
+}
+.f-svg .f-yao.f-on {
+  fill: var(--color-fg);
+}
+.f-svg .f-arrow {
+  stroke: var(--color-fg);
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.55;
+}
+.ob-enc-dial-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--color-fg-muted);
+}
+.ob-enc-dial-control input {
+  flex: 1 1 12rem;
+  max-width: 240px;
+  accent-color: var(--color-fg);
+}
+.ob-enc-dial-status {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  color: var(--color-fg);
+}
+@media print {
+  .ob-enc-dial-control {
+    display: none;
+  }
+}
+/* On a phone, several figures side by side, two to a row. */
+@media (max-width: 600px) {
+  .ob-enc-figure-panels:has(> :nth-child(2)) {
+    gap: 12px 16px;
+  }
+  .ob-enc-figure-panels:has(> :nth-child(2)) .ob-enc-figure-panel {
+    max-width: calc(50% - 8px);
+  }
+}

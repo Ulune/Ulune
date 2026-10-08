@@ -10,7 +10,8 @@ import type {
   SignId,
 } from "./types";
 import type { MessageKey } from "@/lib/i18n/messages";
-import { SIGN_IDS } from "./types";
+// With its extension, so the encyclopedia's build can read this file too (scripts/encyclopedia/figures.mjs).
+import { SIGN_IDS } from "./types.ts";
 
 export { SIGN_IDS };
 

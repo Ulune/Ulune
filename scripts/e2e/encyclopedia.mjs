@@ -222,6 +222,18 @@ await ensureShotsDir();
     if ((await page.locator("[data-section=practice]").count()) !== 0) fail("an aspect no chart holds gives advice for having it");
     console.log("combination pages OK");
 
+    // An aspect's figure is a dial (part 19): turned past the orb by the keyboard, it says so.
+    await page.goto(`${origin}/encyclopedia/trine`, { waitUntil: "load" });
+    const range = page.getByTestId("enc-dial-range");
+    await range.waitFor({ timeout: 10000 });
+    if ((await page.getByTestId("enc-dial-status").innerText()).trim() !== "Exact.") fail("the dial starts exact");
+    await range.focus();
+    await page.keyboard.press("End");
+    await page.waitForFunction(() => /^Outside Ulune’s orb: 12°00′ from exact\./.test(document.querySelector("[data-testid=enc-dial-status]")?.textContent ?? ""), null, { timeout: 5000 });
+    for (let i = 0; i < 16; i += 1) await page.keyboard.press("ArrowLeft");
+    await page.waitForFunction(() => /^Within Ulune’s orb: 8°00′ from exact\./.test(document.querySelector("[data-testid=enc-dial-status]")?.textContent ?? ""), null, { timeout: 5000 });
+    console.log("figures OK");
+
     // Names and targets, in both languages, the card open too.
     const a11y = [];
     // The last, the French Station: its card for "rétrograde" is scanned too.
@@ -281,6 +293,10 @@ await ensureShotsDir();
       if (!body.includes(bit)) fail(`no JavaScript: "${bit}" missing`);
     }
     if ((await page.locator('a[hreflang="en"][href="/encyclopedia/eclipse"]').count()) !== 1) fail("no JavaScript: no link to the twin");
+    // A figure is in the page itself (part 19), with its text twin.
+    await page.goto(`${DEV}/encyclopedie/porte-34`, { waitUntil: "load" });
+    if ((await page.locator("[data-testid=enc-figure] svg[role=img][aria-label]").count()) !== 3) fail("no JavaScript: gate 34's three figures");
+    if (!/hexagramme 34/.test(await page.locator("[data-testid=enc-figure] figcaption").innerText())) fail("no JavaScript: the figure's caption");
     // The search answers a sent form.
     await page.goto(`${DEV}/encyclopedia?q=retrogarde`, { waitUntil: "load" });
     if ((await page.locator('[data-testid=enc-results] [data-entry="retrograde"]').count()) !== 1) fail("no JavaScript: the search did not answer");
