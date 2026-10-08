@@ -10,6 +10,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { useModeReading } from "@/studio/modes/data";
 import { useModeDef } from "@/studio/modes/registry";
 import type { StudioPage } from "@/studio/url";
+import { languageOf } from "@/studio/map";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { useStudioStore } from "@/studio/store";
@@ -121,6 +122,7 @@ export function ReadingTab() {
             back={trail.length ? trail[trail.length - 1].title : null}
             onBack={back}
             mode={page === "numerology-cycles" ? "numerology" : page}
+            tradition={languageOf(page) ?? "astrology"}
           />
         </div>
       ) : (

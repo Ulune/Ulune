@@ -449,6 +449,13 @@ await ensureShotsDir();
     await page.getByTestId("reading-terms").waitFor({ timeout: 8000 });
     const panel = await page.getByTestId("reading-terms").evaluate((el) => [...el.querySelectorAll("a.ob-term")].map((a) => a.getAttribute("href")));
     if (panel[0] !== "/encyclopedia/saturn" || panel.length !== 3) fail(`the panel's entries ${JSON.stringify(panel)}`);
+    // Part 16: the reading's own text links its words, never its subject.
+    await page.waitForFunction(() => document.querySelector('[data-testid=reading-card] .ob-rc-lead a.ob-term, [data-testid=reading-card] .ob-rc-p a.ob-term'), null, { timeout: 8000 });
+    const inText = await page.evaluate(() =>
+      [...document.querySelectorAll("[data-testid=reading-card] .ob-rc-lead a.ob-term, [data-testid=reading-card] section:not(.ob-rc-terms) .ob-rc-p a.ob-term")].map((a) => [a.textContent, a.getAttribute("href")]),
+    );
+    if (!inText.some(([w, h]) => w === "Taurus" && h === "/encyclopedia/taurus")) fail(`the reading's words: ${JSON.stringify(inText)}`);
+    if (inText.some(([w]) => w === "Saturn")) fail("the reading links its own subject");
     // A word pressed in a row opens its entry and leaves the row's choice alone.
     const chosen = await page.evaluate(() => document.querySelector("tr[data-body=saturn]")?.getAttribute("data-selected"));
     const sign = links.sign;

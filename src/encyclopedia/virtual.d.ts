@@ -17,4 +17,6 @@ declare module "virtual:ulune-encyclopedia/loaders" {
   export const homes: Record<string, Load<import("@/encyclopedia/types").HomeData>>;
   /** Keys: "<lang>/<tradition>". */
   export const traditions: Record<string, Load<import("@/encyclopedia/types").TraditionHome>>;
+  /** Keys: "<lang>"; each loads that language's words by tradition (part 16). */
+  export const lexicon: Record<string, Load<Record<string, import("@/encyclopedia/linker").LexiconRow[]>>>;
 }

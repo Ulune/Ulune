@@ -26,6 +26,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fold, keyTokens, STOPWORDS, tokens } from "../../src/encyclopedia/normalize.ts";
+import { buildLexicon } from "./lexicon.mjs";
 import { parseEntry } from "./parse.mjs";
 import { FAMILIES, ID_RE, KINDS, LANGS, REQUIRED_KEYS, SECTIONS, SUMMARY_MAX, TRADITIONS } from "./registry.mjs";
 
@@ -466,7 +467,9 @@ function assemble(byId) {
     };
   }
 
-  return { index, pages, cards, search, homes, traditionHomes };
+  // The words a reading's text may link, by language and tradition (part 16).
+  const lexicon = Object.fromEntries(LANGS.map((lang) => [lang, buildLexicon(entries, lang)]));
+  return { index, pages, cards, search, homes, traditionHomes, lexicon };
 
   function listRow(e, lang) {
     return [e.id, title(e, lang), e.glyph, e[lang].meta.summary, e.page ? slug(e, lang) : ""];

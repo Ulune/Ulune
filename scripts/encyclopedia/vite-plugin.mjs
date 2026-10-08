@@ -15,6 +15,7 @@
  *   virtual:ulune-encyclopedia/cards/<lang>/<tradition> a tradition's card texts
  *   virtual:ulune-encyclopedia/search/<lang>            a language's search index
  *   virtual:ulune-encyclopedia/homes/<lang>             the encyclopedia's home
+ *   virtual:ulune-encyclopedia/lexicon/<lang>           the words a reading's text links, by tradition
  *   virtual:ulune-encyclopedia/tradition/<lang>/<id>    a tradition's home
  *
  * A mistake in an entry fails the production build with its file and line,
@@ -88,6 +89,7 @@ export function encyclopediaPlugin() {
           `export const search = ${loaderMap("search", Object.keys(data.search))};`,
           `export const homes = ${loaderMap("homes", Object.keys(data.homes))};`,
           `export const traditions = ${loaderMap("tradition", Object.keys(data.traditionHomes))};`,
+          `export const lexicon = ${loaderMap("lexicon", Object.keys(data.lexicon))};`,
           "",
         ].join("\n");
       }
@@ -97,7 +99,7 @@ export function encyclopediaPlugin() {
         const [lang, tradition] = rest;
         return `export default ${loaderMap("page", shardOf(data, lang, tradition), (id) => `${lang}/${id}`)};\n`;
       }
-      const piece = { page: data.pages, cards: data.cards, search: data.search, homes: data.homes, tradition: data.traditionHomes }[kind]?.[key];
+      const piece = { page: data.pages, cards: data.cards, search: data.search, homes: data.homes, tradition: data.traditionHomes, lexicon: data.lexicon }[kind]?.[key];
       if (piece === undefined) throw new Error(`No encyclopedia module "${path}"`);
       return jsonModule(piece);
     },

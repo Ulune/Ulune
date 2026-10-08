@@ -20,6 +20,8 @@ import { lazyNamed } from "@/lib/lazy-component";
 // The entries of what a chart reading is about (encyclopedia part 7): their own download.
 const ReadingTerms = lazyNamed(() => import("@/encyclopedia/ReadingTerms"), "ReadingTerms");
 const TERMS_FOR = /^(planet|angle|house|sign|aspect):/;
+// Its running text with the encyclopedia's words linked (part 16): its own download; the plain text until then.
+const LinkedText = lazyNamed(() => import("@/encyclopedia/LinkedText"), "LinkedText");
 
 
 function aspectTypeFromReadingId(id: string): AspectId | null {
@@ -173,6 +175,7 @@ export function ReadingCard({
   onGo,
   back,
   onBack,
+  tradition,
 }: {
   reading: ElementReading;
   chart?: NatalChart | null;
@@ -181,9 +184,19 @@ export function ReadingCard({
   onGo?: (ref: string) => void;
   back?: string | null;
   onBack?: () => void;
+  /** The language the reading belongs to: its words link to that tradition's entries. */
+  tradition?: string;
 }) {
   const { t } = useI18n();
   const color = useMarkColor(reading, chart);
+  const linked = (text: string) =>
+    tradition ? (
+      <Suspense fallback={text}>
+        <LinkedText text={text} tradition={tradition} readingId={reading.id} />
+      </Suspense>
+    ) : (
+      text
+    );
   const full = depth === "full";
   // A body's aspects, as the wheel draws them (review 3 Oct, C2): those on the
   // wheel first, then the ones its filters leave off, under their own heading.
@@ -297,7 +310,7 @@ export function ReadingCard({
           <h3 className="ob-rc-h">{timeNote.title}</h3>
           {timeNote.paragraphs.map((p, i) => (
             <p key={i} className="ob-rc-p">
-              {p}
+              {linked(p)}
             </p>
           ))}
         </section>
@@ -305,11 +318,11 @@ export function ReadingCard({
 
       {reading.note && !noteInAbout ? (
         <p className="ob-rc-note" data-testid="reading-note">
-          {reading.note}
+          {linked(reading.note)}
         </p>
       ) : null}
 
-      {lead ? <p className={noteInAbout ? "ob-rc-lead ob-rc-lead--first" : "ob-rc-lead"}>{lead}</p> : null}
+      {lead ? <p className={noteInAbout ? "ob-rc-lead ob-rc-lead--first" : "ob-rc-lead"}>{linked(lead)}</p> : null}
 
       {otherSections?.map((s) =>
         s.paragraphs.length ? (
@@ -317,7 +330,7 @@ export function ReadingCard({
             <h3 className="ob-rc-h">{s.title}</h3>
             {(full ? s.paragraphs : s.paragraphs.slice(0, 1)).map((p, i) => (
               <p key={i} className="ob-rc-p">
-                {p}
+                {linked(p)}
               </p>
             ))}
             {!full && s.paragraphs.length > 1 ? (
@@ -334,7 +347,7 @@ export function ReadingCard({
           <div className="ob-rc-sec">
             {rest.map((p, i) => (
               <p key={i} className="ob-rc-p">
-                {p}
+                {linked(p)}
               </p>
             ))}
           </div>
@@ -390,12 +403,12 @@ export function ReadingCard({
           <summary>{reading.about.title}</summary>
           {noteInAbout ? (
             <p className="ob-rc-p" data-testid="reading-note">
-              {reading.note}
+              {linked(reading.note ?? "")}
             </p>
           ) : null}
           {reading.about.paragraphs.map((p, i) => (
             <p key={i} className="ob-rc-p">
-              {p}
+              {linked(p)}
             </p>
           ))}
         </details>

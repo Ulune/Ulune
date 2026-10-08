@@ -1,12 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { Aperture } from "lucide-react";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { SOURCE_URL } from "@/lib/app-identity";
 import { useI18n } from "@/lib/i18n/locale";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { GlossaryDetails } from "@/components/glossary-details";
 import { keepWhole } from "@/components/keep-whole";
 import { LENSES, type LanguageId } from "@/studio/map";
+import { lazyNamed } from "@/lib/lazy-component";
 import { LanguageMark } from "@/studio/shell/language-mark";
 import { LANGUAGE_WORDS, LENS_LABEL, SECTION_ICON, SECTION_LABEL } from "@/studio/shell/map-ui";
 
@@ -67,6 +68,18 @@ const QUESTIONS: { id: string; q: MessageKey; a: MessageKey }[] = [
  * catalog, rendered by the server, so it reads without JavaScript and search
  * engines read it too.
  */
+// The guide's words link to their entries (encyclopedia plan, part 16): its own download; the plain text until then.
+const LinkedText = lazyNamed(() => import("@/encyclopedia/LinkedText"), "LinkedText");
+const TRADITION_OF: Record<string, string> = { astrology: "astrology", "human-design": "human-design", numerology: "numerology" };
+
+function Linked({ text, tradition = "all" }: { text: string; tradition?: string }) {
+  return (
+    <Suspense fallback={text}>
+      <LinkedText text={text} tradition={tradition} />
+    </Suspense>
+  );
+}
+
 export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () => void }) {
   const { t } = useI18n();
   const doList = useDoList();
@@ -76,7 +89,9 @@ export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () =
         <h2 id="guide-what" className="ob-guide-h">
           {t("guideWhatTitle")}
         </h2>
-        <p className="ob-guide-p">{t("guideWhatBody")}</p>
+        <p className="ob-guide-p">
+          <Linked text={t("guideWhatBody")} />
+        </p>
       </section>
 
       <section className="ob-guide-sec" aria-labelledby="guide-do">
@@ -90,7 +105,9 @@ export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () =
                 {mark}
                 <span className="ob-guide-mode-name">{label}</span>
               </span>
-              <span className="ob-guide-mode-body">{t(body)}</span>
+              <span className="ob-guide-mode-body">
+                <Linked text={t(body)} tradition={TRADITION_OF[id]} />
+              </span>
             </li>
           ))}
         </ul>
@@ -178,7 +195,9 @@ export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () =
           {QUESTIONS.map(({ id, q, a }) => (
             <details key={id} className="ob-guide-qa" data-testid={`guide-faq-${id}`}>
               <summary>{t(q)}</summary>
-              <p className="ob-guide-p">{t(a)}</p>
+              <p className="ob-guide-p">
+                <Linked text={t(a)} />
+              </p>
             </details>
           ))}
         </div>

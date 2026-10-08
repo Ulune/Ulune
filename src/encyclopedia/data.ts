@@ -5,6 +5,7 @@
  * needed. On the server they are all bundled with the app.
  */
 import { importWithRetry } from "@/lib/lazy-retry";
+import type { LexiconRow } from "./linker";
 import type { CardTexts, HomeData, Lang, PageData, SearchIndex, TermIndex, TermRow, TraditionHome } from "./types";
 
 /** The encyclopedia's address in each language. */
@@ -45,6 +46,12 @@ export async function loadPage(lang: Lang, id: string, tradition: string): Promi
 
 export async function loadCards(lang: Lang, tradition: string): Promise<CardTexts> {
   const load = (await loaders()).cards[`${lang}/${tradition}`];
+  return load ? (await importWithRetry(load)).default : {};
+}
+
+/** The words a reading's running text links, by tradition (part 16; scripts/encyclopedia/lexicon.mjs). */
+export async function loadLexicon(lang: Lang): Promise<Record<string, LexiconRow[]>> {
+  const load = (await loaders()).lexicon[lang];
   return load ? (await importWithRetry(load)).default : {};
 }
 

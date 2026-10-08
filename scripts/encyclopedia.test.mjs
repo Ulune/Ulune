@@ -21,6 +21,9 @@ import { GLOSSARY_ORDER } from "../src/lib/i18n/glossary.ts";
 import { CATALOG } from "../src/lib/i18n/catalog/index.ts";
 import { encyclopedia } from "../src/lib/i18n/catalog/encyclopedia.ts";
 import { bootScript } from "../src/lib/boot.ts";
+import { GENERIC } from "./encyclopedia/lexicon.mjs";
+import { compileLexicon, linkText } from "../src/encyclopedia/linker.ts";
+import { review } from "./encyclopedia/link-review.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const N = " ";
@@ -668,4 +671,61 @@ test("every entry the studio links by id (tables, panels) exists", async () => {
   assert.equal(termId("house", 13), null);
   assert.equal(termId("aspect", "semisextile"), "semi-sextile");
   assert.equal(termId("body", "antivertex"), null, "no entry: the word stays plain");
+});
+
+/* ------------------------------------------------------------ part 16: the words of the readings */
+
+test("the lexicon: names of entries with a page, never an everyday word, longest first", () => {
+  const { lexicon, index } = real.data;
+  for (const lang of ["en", "fr"]) {
+    for (const t of ["astrology", "human-design", "numerology", "all"]) {
+      const rows = lexicon[lang][t];
+      assert.ok(rows.length > 50, `${lang}/${t}: ${rows.length} words`);
+      for (const [form, id, slug] of rows) {
+        assert.ok(!GENERIC[lang].has(form), `${lang}/${t}: "${form}" is an everyday word`);
+        assert.equal(index.terms[id][4], 1, `${form}: ${id} has a page`);
+        assert.equal(slug, index.terms[id][lang === "en" ? 2 : 3], `${form}: its address`);
+      }
+      for (let i = 1; i < rows.length; i += 1) assert.ok([...rows[i - 1][0]].length >= [...rows[i][0]].length, `${lang}/${t}: longest first`);
+    }
+  }
+  const has = (lang, t, form) => lexicon[lang][t].some((r) => r[0] === form);
+  // Case kept: the planet, not the month; a name of two words in small letters too, unless it then reads as a phrase.
+  assert.ok(has("fr", "astrology", "Mars") && !has("fr", "astrology", "mars"));
+  assert.ok(has("en", "astrology", "tenth house") && has("en", "astrology", "Grand trine") && has("en", "astrology", "grand trine"));
+  assert.ok(has("en", "astrology", "Whole sign") && !has("en", "astrology", "whole sign"));
+  assert.ok(!has("fr", "numerology", "jour de naissance"));
+  // Each tradition its own words: "Personality" is numerology's number; in Human Design (its layer, beside "Design",
+  // as in "Human Design") it stays plain.
+  assert.equal(lexicon.en.numerology.find((r) => r[0] === "Personality")?.[1], "personality-number");
+  assert.ok(!has("en", "human-design", "Personality") && !has("en", "human-design", "Design"));
+  // Human Design's texts name planets and signs too.
+  assert.ok(has("en", "human-design", "Saturn") && has("fr", "human-design", "Bélier"));
+});
+
+test("a paragraph links each entry once, at its first mention, never the reading's own subject", () => {
+  const m = compileLexicon(real.data.lexicon.en.astrology);
+  const pieces = linkText("Saturn in Taurus squares the Moon; Taurus again, and the tenth house, the 10th house.", m, new Set(["saturn"]));
+  const linked = pieces.filter((p) => p.id).map((p) => `${p.text}>${p.id}`);
+  assert.deepEqual(linked, ["Taurus>taurus", "Moon>moon", "tenth house>house-10"]);
+  assert.equal(pieces.map((p) => p.text).join(""), "Saturn in Taurus squares the Moon; Taurus again, and the tenth house, the 10th house.");
+  // Whole words only, French elision allowed.
+  const fr = compileLexicon(real.data.lexicon.fr.astrology);
+  assert.deepEqual(linkText("l’Ascendant et Marseille", fr).filter((p) => p.id).map((p) => p.text), ["Ascendant"]);
+});
+
+test("the review: every reading text links only reviewed words, and the usual ones", async () => {
+  const report = await review();
+  const forms = (k) => new Set(report[k].forms.map(([f]) => f.split(" → ")[0]));
+  for (const [k, r] of Object.entries(report)) {
+    assert.ok(r.texts > 100, `${k}: ${r.texts} texts`);
+    const lang = k.split("/")[0];
+    for (const f of forms(k)) assert.ok(!GENERIC[lang].has(f), `${k}: ${f}`);
+  }
+  for (const f of ["Sun", "Aries", "Ascendant", "10th house"]) assert.ok(forms("en/astrology").has(f), f);
+  for (const f of ["Soleil", "Bélier", "Maison X"]) assert.ok(forms("fr/astrology").has(f), f);
+  for (const f of ["G centre", "Sacral", "gate 34"]) assert.ok(forms("en/human-design").has(f), f);
+  for (const f of ["Life Path", "Soul Urge", "karmic lesson"]) assert.ok(forms("en/numerology").has(f), f);
+  // Never "Determination" (an arrow) inside gate 46's name, Determination of the Self.
+  assert.ok(!forms("en/human-design").has("Determination"));
 });

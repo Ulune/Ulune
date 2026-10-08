@@ -26,6 +26,7 @@ export function ReadingPanel({
   back,
   onBack,
   mode = "natal",
+  tradition,
 }: {
   reading: ElementReading | null;
   grokPending: boolean;
@@ -35,6 +36,8 @@ export function ReadingPanel({
   onGo?: (ref: string) => void;
   back?: string | null;
   onBack?: () => void;
+  /** The language the reading belongs to (its words link to that tradition's entries). */
+  tradition?: string;
 }) {
   const { t } = useI18n();
   const [cardDepth, setCardDepth] = useCardDepth(depth);
@@ -63,6 +66,7 @@ export function ReadingPanel({
         onGo={onGo}
         back={back}
         onBack={onBack}
+        tradition={tradition}
       />
       {AI_ENABLED && chart ? <AskAbout key={`${mode}:${reading.id}`} chart={chart} reading={reading} mode={mode} /> : null}
     </div>
