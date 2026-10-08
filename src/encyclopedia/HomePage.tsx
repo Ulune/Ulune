@@ -1,5 +1,5 @@
 import { Hash, Hexagon, Sparkles, Sun, type LucideIcon } from "lucide-react";
-import { MineIndexSlot } from "./MineSlot";
+import { MineIndexSlot, ShelfSlot } from "./MineSlot";
 import { EncFrame, EncLink, Licence, TwinLink } from "./frame";
 import { tr } from "./words";
 import type { HomeRouteData } from "./load";
@@ -34,6 +34,7 @@ export function HomePage({ data }: { data: HomeRouteData }) {
 
       <SearchBox lang={lang} initialQ={data.q} initialHits={data.hits} names={names} />
       <MineIndexSlot lang={lang} />
+      <ShelfSlot lang={lang} />
 
       <section className="ob-enc-block" aria-labelledby="h-traditions" data-testid="enc-traditions">
         <h2 id="h-traditions" className="ob-enc-h2">

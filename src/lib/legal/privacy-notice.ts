@@ -8,7 +8,7 @@
 export type NoticeBlock = { h?: string; p?: string; list?: string[] };
 export type Notice = { title: string; updated: string; blocks: NoticeBlock[]; who: { h: string; p: string } };
 
-export const PRIVACY_UPDATED = "2026-10-07";
+export const PRIVACY_UPDATED = "2026-10-08";
 
 export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
   en: {
@@ -40,7 +40,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
       },
       {
         h: "The encyclopedia",
-        p: "Searching and reading the encyclopedia sends nothing but the request for each page you open, and for Ulune’s own files, the same for everyone. Its search runs on your device: what you type in it is never sent.",
+        p: "Searching and reading the encyclopedia sends nothing but the request for each page you open, and for Ulune’s own files, the same for everyone. Its search runs on your device: what you type in it is never sent. “In your chart” is worked out on your device from the chart open in the tab. Your bookmarks and notes are kept only in your private space, encrypted on this device like your charts; the pages you read are kept there too while it is open, otherwise only until the tab closes, and you can clear them.",
       },
       {
         h: "Your choices and rights",
@@ -87,7 +87,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
       },
       {
         h: "L’encyclopédie",
-        p: "Chercher et lire dans l’encyclopédie n’envoie rien d’autre que la demande de chaque page ouverte, et des fichiers d’Ulune, les mêmes pour tous. Sa recherche se fait sur votre appareil\u202f: ce que vous y tapez n’est jamais envoyé.",
+        p: "Chercher et lire dans l’encyclopédie n’envoie rien d’autre que la demande de chaque page ouverte, et des fichiers d’Ulune, les mêmes pour tous. Sa recherche se fait sur votre appareil\u202f: ce que vous y tapez n’est jamais envoyé. «\u202fDans votre thème\u202f» est calculé sur votre appareil à partir du thème ouvert dans l’onglet. Vos marque-pages et vos notes sont gardés uniquement dans votre espace privé, chiffrés sur cet appareil comme vos thèmes\u202f; les pages lues y sont gardées aussi tant qu’il est ouvert, sinon seulement jusqu’à la fermeture de l’onglet, et vous pouvez les effacer.",
       },
       {
         h: "Vos choix et vos droits",

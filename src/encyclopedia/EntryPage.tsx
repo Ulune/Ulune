@@ -3,7 +3,7 @@ import { dateFormat } from "@/lib/intl-cache";
 import { OPERATOR } from "@/lib/legal/operator";
 import { Sections } from "./Body";
 import { Figure } from "./Figure";
-import { MineSlot } from "./MineSlot";
+import { KeepSlot, MineSlot } from "./MineSlot";
 import { encPath } from "./data";
 import { Crumbs, EncFrame, EncLink, Licence, Mark, markClass, TwinLink } from "./frame";
 import { tr } from "./words";
@@ -85,6 +85,7 @@ export function EntryPage({ page }: { page: PageData }) {
         <p className="ob-enc-summary" data-testid="enc-summary">
           {page.summary}
         </p>
+        <KeepSlot page={page} />
         {page.figure ? <Figure figure={page.figure} lang={lang} /> : null}
         <MineSlot page={page} />
         <Sections sections={page.sections} lang={lang} />
