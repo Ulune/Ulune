@@ -69,6 +69,12 @@ import { tmpdir } from "node:os";
 /** The second chart of the space also gets numerology's two names (part 64), sealed with it. */
 const B_NAMED = { ...FIXTURE_B, birthName: "Quintessa Marie Aurelia", currentName: "Quintessa Vale", chineseCount: "yang" };
 const PERSONAL = [FIXTURE_A.name, FIXTURE_B.name, B_NAMED.birthName, B_NAMED.currentName, "15/06/1990", "1990-06-15", "03/11/1987", "1987-11-03", "Paris", "Oslo"];
+/**
+ * A sealed file's text with its random bytes (the ciphertexts, their ivs, the
+ * salts) left out: tens of thousands of base64 characters hold a word like
+ * "Oslo" by chance a few times in a thousand runs, which is not a leak.
+ */
+const clearPart = (text) => JSON.stringify(JSON.parse(text), (k, v) => (k === "ct" || k === "iv" || k === "salt" ? "" : v));
 // Personal keys under either name: Ulune's, or those the prototype wrote (legacy names).
 const PERSONAL_KEYS = /^(orbis|ulune)\.(charts|firstview|synastry\.partner|composite\.partner|account|login)/;
 const MODES = ["natal", "transits", "timing", "progressions", "synastry", "composite", "design", "numerology"];
@@ -642,7 +648,8 @@ async function run() {
         const backup = JSON.parse(text);
         if (backup.app !== "ulune" || backup.type !== "private-space" || !backup.items.some(([k]) => k.startsWith("chart/")))
           throw new Error("the backup's shape");
-        for (const w of PERSONAL) if (text.includes(w)) throw new Error(`the backup holds "${w}" in the clear`);
+        const clear = clearPart(text);
+        for (const w of PERSONAL) if (clear.includes(w)) throw new Error(`the backup holds "${w}" in the clear`);
         await page.waitForSelector("[data-testid=space-button]:not([data-due])", { timeout: 8000 });
         // A new chart: due again.
         await castFixture(page, FIXTURE_B);
@@ -662,7 +669,8 @@ async function run() {
         if (!/^ulune-private-space-\d{4}-\d{2}-\d{2}\.json$/.test(sent.suggestedFilename())) throw new Error(`device copy name ${sent.suggestedFilename()}`);
         await sent.saveAs(deviceFile);
         const sentText = await readFile(deviceFile, "utf8");
-        for (const w of PERSONAL) if (sentText.includes(w)) throw new Error(`the device copy holds "${w}" in the clear`);
+        const sentClear = clearPart(sentText);
+        for (const w of PERSONAL) if (sentClear.includes(w)) throw new Error(`the device copy holds "${w}" in the clear`);
         if (sentText.includes('"lock"') || sentText.includes("lockSet")) throw new Error("the device copy carries this device's lock");
         await page.getByTestId("space-add-device-done").waitFor({ timeout: 8000 });
         await page.getByTestId("space-add-device-close").click();

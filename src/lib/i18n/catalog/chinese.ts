@@ -165,4 +165,59 @@ export const chinese = {
     "The full readings of each animal, its relations with the others and the year ahead come next; for now this page shows where your animals stand.",
     "Les lectures complètes de chaque animal, leurs relations et l’année à venir arrivent ensuite\u202f; pour l’instant cette page montre où se trouvent vos animaux.",
   ],
+  // The relations between animals (languages plan, part 8).
+  zkRelations: ["Between your animals", "Entre vos animaux"],
+  zkRelationsNone: [
+    "No harmony, trine, clash, harm, punishment or destruction joins your animals: each stands on its own.",
+    "Aucune harmonie, trigone, choc, nuisance, punition ou destruction ne relie vos animaux\u202f: chacun se tient seul.",
+  ],
+  zkTrineFull: [
+    "Your {places} animals make a whole trine of {phase}: three allies on one wheel.",
+    "Vos animaux {places} forment un trigone entier de {phase}\u202f: trois alliés sur une même roue.",
+  ],
+  zkRelHarmony: [
+    "Two animals the tradition pairs as natural partners, the six harmonies: they combine, and what one lacks the other brings.",
+    "Deux animaux que la tradition associe en partenaires naturels, les six harmonies\u202f: ils s’assemblent, et ce qui manque à l’un, l’autre l’apporte.",
+  ],
+  zkRelTrine: [
+    "Animals four places apart, of one of the four trines that share a phase: allies, at ease with each other and pulling the same way.",
+    "Des animaux à quatre places l’un de l’autre, d’un des quatre trigones qui partagent une phase\u202f: des alliés, à l’aise ensemble et tirant dans le même sens.",
+  ],
+  zkRelClash: [
+    "Opposite animals on the wheel: the tradition reads movement and friction between them, energy that asks to be put to use rather than a bad sign.",
+    "Des animaux opposés sur la roue\u202f: la tradition y lit du mouvement et des frottements, une énergie à employer plutôt qu’un mauvais présage.",
+  ],
+  zkRelHarm: [
+    "One of the six harms: a pair that can misread each other or get in each other’s way in small things.",
+    "Une des six nuisances\u202f: un duo qui peut se méprendre l’un sur l’autre ou se gêner dans les petites choses.",
+  ],
+  zkRelPunishment: [
+    "One of the three punishments: a pair the tradition watches for pressure and for overdoing things, best met with patience and clear agreements.",
+    "Une des trois punitions\u202f: un duo où la tradition guette la pression et l’excès, à aborder avec patience et des accords clairs.",
+  ],
+  zkRelDestruction: [
+    "One of the six destructions: a mild tension that can unsettle what the two build, more often by small changes than by a break.",
+    "Une des six destructions\u202f: une tension légère qui peut ébranler ce que les deux construisent, par de petits changements plus que par une rupture.",
+  ],
+  zkRelSelf: [
+    "The Dragon, the Horse, the Rooster and the Pig punish themselves when they meet their own kind: the animal’s own habit, pushed too far.",
+    "Le Dragon, le Cheval, le Coq et le Cochon se punissent eux-mêmes lorsqu’ils rencontrent leur semblable\u202f: l’habitude propre à l’animal, poussée trop loin.",
+  ],
+  zkRelKind: ["Relation", "Relation"],
+  zkRelBetween: ["Between", "Entre"],
+  zkHidden: ["Hidden stems", "Troncs cachés"],
+  zkHiddenHint: [
+    "The stems each branch holds, the main one first, weighted as a common method counts them.",
+    "Les troncs que porte chaque branche, le principal d’abord, pondérés comme une méthode courante les compte.",
+  ],
+  zkPartAnimals: ["The four animals", "Les quatre animaux"],
+  zkPartAnimalsHint: [
+    "Each pillar: its stem over its branch, the animal’s phase, its polarity, its Na Yin and its hidden stems.",
+    "Chaque pilier\u202f: son tronc sur sa branche, la phase de l’animal, sa polarité, son Na Yin et ses troncs cachés.",
+  ],
+  zkPartRelations: ["Relations", "Relations"],
+  zkPartRelationsHint: [
+    "The classical relations between your animals, pair by pair: harmonies and trines bring together, the others rub.",
+    "Les relations classiques entre vos animaux, deux à deux\u202f: harmonies et trigones rapprochent, les autres frottent.",
+  ],
 } as const satisfies Record<string, readonly [string, string]>;

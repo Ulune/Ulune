@@ -101,8 +101,9 @@ test("what the page says of a chosen place and of an animal of the wheel", () =>
   assert.equal(year.kicker, "Year animal · gēngwǔ 庚午");
   assert.deepEqual(
     year.facts.map((f) => f.label),
-    ["Pillar", "Heavenly Stem", "Earthly Branch", "The animal’s phase", "Na Yin", "Year"],
+    ["Pillar", "Heavenly Stem", "Earthly Branch", "The animal’s phase", "Na Yin", "Year", "Self-punishment"],
   );
+  assert.equal(year.facts[6].value, "month (Horse)", "part 8: the year's relations with the other places");
   assert.equal(year.facts[5].value, "4 Feb 1990 – 4 Feb 1991");
   assert.match(year.lead, /how others see you/);
   const hour = zodiacReading(z, "zk:hour", "fr", { script: "hans", show: "names" });

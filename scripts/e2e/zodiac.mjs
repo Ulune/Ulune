@@ -8,6 +8,10 @@
  *     hour), this year's on the rim, the four cards;
  *   - a card opens its reading (its pillar, stem, branch, phase, Na Yin);
  *     the ring walked by the keyboard, Enter opening an animal's reading;
+ *   - part 8: the relations between the four animals (Fixture A: the Pig
+ *     day clashes with the Snake hour, a dashed line across the ring; the
+ *     two Horses punish themselves), listed with nothing chosen and opening
+ *     their reading; the table's relation rows and hidden stems;
  *   - the table view's four rows; Settings' "Name only" followed at once;
  *   - nothing sent while the page works it out; nothing scrolls sideways.
  */
@@ -21,6 +25,8 @@ const WORDS = {
     pillar: "Yang Metal Horse",
     naYin: "Earth by the roadside",
     year: "Year animal",
+    clash: "Clash",
+    clashLine: "day (Pig) – hour (Snake)",
   },
   fr: {
     heading: "Traditions chinoises",
@@ -28,6 +34,8 @@ const WORDS = {
     pillar: "Cheval de Métal yang",
     naYin: "Terre du bord de la route",
     year: "Animal de l’année",
+    clash: "Choc",
+    clashLine: "jour (Cochon) – heure (Serpent)",
   },
 };
 
@@ -74,8 +82,27 @@ async function run(width, lang) {
       const text = await page.getByTestId(`zodiac-card-${id}`).innerText();
       if (!text.includes(w.animals[i])) throw new Error(`${label}: the ${id} card "${text}"`);
     }
+    // The relations on the ring: one line, the clash, dashed (two Horses on one animal draw none).
+    const lines = await page.locator("[data-testid=zodiac-lines] line").evaluateAll((els) => els.map((e) => e.getAttribute("data-kind")));
+    if (lines.join() !== "clash") throw new Error(`${label}: lines ${lines.join()}`);
+    const dash = await page.locator("[data-testid=zodiac-lines] line").evaluate((e) => getComputedStyle(e).strokeDasharray);
+    if (!dash || dash === "none") throw new Error(`${label}: the clash line is not dashed`);
     await assertNoOverflow(page);
     await page.screenshot({ path: join(SHOTS, `zodiac-${lang}-${width}.png`) }).catch(() => {});
+
+    if (width >= 1024) {
+      // With nothing chosen, the side panel lists the relations; one opens its reading.
+      const rels = await page.locator("[data-testid^=zodiac-rel-]").evaluateAll((els) => els.map((e) => e.getAttribute("data-testid")));
+      if (rels.join() !== "zodiac-rel-clash-day-hour,zodiac-rel-self-punishment-year-month") throw new Error(`${label}: relations ${rels.join()}`);
+      const relText = await page.getByTestId("zodiac-rel-clash-day-hour").innerText();
+      if (!relText.includes(w.clashLine)) throw new Error(`${label}: the clash row "${relText}"`);
+      await page.getByTestId("zodiac-rel-clash-day-hour").click();
+      await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.clash, { timeout: 8000 });
+      const relNote = await page.getByTestId("click-note").innerText();
+      if (!relNote.includes(w.animals[2]) || !relNote.includes(w.animals[3])) throw new Error(`${label}: the clash's reading "${relNote.slice(0, 200)}"`);
+      const lineOn = await page.locator("[data-testid=zodiac-lines] line.is-on").count();
+      if (lineOn !== 1) throw new Error(`${label}: the chosen clash's line is not marked`);
+    }
 
     // A card opens its reading.
     await page.getByTestId("zodiac-card-year").click();
@@ -104,6 +131,11 @@ async function run(width, lang) {
     await page.getByTestId("zodiac-table").waitFor({ timeout: 10000 });
     const rows = await page.locator("[data-testid^=zodiac-row-]").count();
     if (rows !== 4) throw new Error(`${label}: ${rows} table rows`);
+    // Part 8: the hidden stems (the Horse holds Ding and Ji) and the relations' rows.
+    const hidden = await page.getByTestId("zodiac-hidden-year").innerText();
+    if (!hidden.includes("丁") || !hidden.includes("己")) throw new Error(`${label}: the year's hidden stems "${hidden}"`);
+    const relRows = await page.locator("[data-testid^=zodiac-relrow-]").evaluateAll((els) => els.map((e) => e.getAttribute("data-testid")));
+    if (relRows.join() !== "zodiac-relrow-clash-day-hour,zodiac-relrow-self-punishment-year-month") throw new Error(`${label}: relation rows ${relRows.join()}`);
     await assertNoOverflow(page);
     await setView(page, "wheel");
     await page.getByTestId("zodiac-wheel").waitFor({ timeout: 10000 });

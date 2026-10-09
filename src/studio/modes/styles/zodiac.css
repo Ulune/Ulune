@@ -134,6 +134,34 @@ html.light {
   text-anchor: middle;
   dominant-baseline: central;
   fill: var(--color-fg);
+  /* The relation lines pass behind the centre's words: a margin of the ground keeps them read. */
+  paint-order: stroke;
+  stroke: var(--color-bg-elevated);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+.ulune-zk-centre {
+  pointer-events: none;
+}
+/* The relations between the reader's animals (part 8). */
+.ulune-zk-line {
+  stroke: var(--aspect-soft);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.85;
+  cursor: pointer;
+}
+.ulune-zk-line[data-kind="trine"] {
+  stroke-width: 1.3;
+}
+.ulune-zk-line[data-kind="clash"] {
+  stroke: var(--aspect-hard);
+  stroke-dasharray: 6 5;
+}
+.ulune-zk-line.is-on {
+  stroke-width: 3;
+  opacity: 1;
 }
 .ulune-zk-centre-hanzi {
   font-size: 34px;
@@ -199,7 +227,7 @@ html.light {
 }
 .ulune-zk-card-hanzi,
 .ulune-zk-card-py:lang(zh),
-.ulune-zk-hello-row span {
+.ulune-zk-hello-row span:lang(zh) {
   font-family: "PingFang TC", "PingFang SC", "Noto Sans CJK TC", "Noto Sans CJK SC", "Microsoft JhengHei", "Microsoft YaHei", var(--font-ui), sans-serif;
 }
 .ulune-zk-card-pair,
@@ -229,6 +257,24 @@ html.light {
 }
 .ulune-zk-hello-note {
   color: var(--color-fg-subtle);
+}
+.ulune-zk-hello-h3 {
+  margin: var(--space-2) 0 0;
+  font: 600 10.5px/1.3 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.ulune-zk-hello-row.is-rel::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 14px;
+  height: 0;
+  align-self: center;
+  border-top: 2px solid var(--aspect-soft);
+}
+.ulune-zk-hello-row.is-rel[data-tone="tension"]::before {
+  border-top: 2px dashed var(--aspect-hard);
 }
 .ulune-zk-hello-list {
   margin: 0;

@@ -1,11 +1,14 @@
-import { useMemo, useRef, type KeyboardEvent } from "react";
+import { Suspense, useMemo, useRef, type KeyboardEvent } from "react";
 import { Link } from "@tanstack/react-router";
-import { BRANCHES, PHASES, SIXTY, STEMS, type ChineseName } from "@/lib/chinese/names";
+import { BRANCHES, PHASES, SIXTY } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord, animalOf, theAnimal } from "@/lib/chinese/words";
 import { branchAngle, zodiacChart, ZODIAC_PLACES, type ZodiacChart, type ZodiacPlace } from "@/lib/chinese/zodiac";
-import { PLACE_ANIMAL, PLACE_WORD, branchRef, placeRef, zodiacReading } from "@/lib/chinese/zodiac-reading";
+import { PLACE_ANIMAL, PLACE_WORD, branchRef, placeRef, relationLine, relationRef, zodiacReading } from "@/lib/chinese/zodiac-reading";
+import { relationTone } from "@/lib/chinese/relations";
+import { lazyNamed, prefetch } from "@/lib/lazy-component";
+import { LoadingLines } from "@/components/loading-lines";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
@@ -159,6 +162,26 @@ function ZodiacWheel({ z }: { z: ZodiacChart }) {
           );
         })}
       </g>
+      {/* The relations between the reader's animals (part 8): harmonies and trines as lines, clashes dashed across. */}
+      <g className="ulune-zk-lines" data-testid="zodiac-lines" aria-hidden>
+        {linesOf(z).map((l) => {
+          const a = at(branchAngle(l.a), R_IN);
+          const b = at(branchAngle(l.b), R_IN);
+          const on = w.selectedId === l.ref;
+          return (
+            <line
+              key={l.ref}
+              x1={f(a.x)}
+              y1={f(a.y)}
+              x2={f(b.x)}
+              y2={f(b.y)}
+              data-kind={l.kind}
+              className={cn("ulune-zk-line", on && "is-on")}
+              onClick={() => w.choose(l.ref)}
+            />
+          );
+        })}
+      </g>
       {/* The reader's animals: a badge each, inside the ring at its animal; two on one animal stack inward. */}
       {[...byBranch.entries()].flatMap(([branch, places]) =>
         places.map((p, i) => {
@@ -210,6 +233,26 @@ function ZodiacWheel({ z }: { z: ZodiacChart }) {
       </g>
     </svg>
   );
+}
+
+/**
+ * The lines the wheel draws between the reader's animals, one a pair of
+ * different animals: a clash dashed straight across, a harmony or a trine
+ * solid (the plan: "harmonies and trines drawn as lines and clashes as
+ * dashed lines across"). Harms, punishments and destructions are in the
+ * table and the readings, where words can say them.
+ */
+function linesOf(z: ZodiacChart): { ref: string; kind: "harmony" | "trine" | "clash"; a: number; b: number }[] {
+  const seen = new Set<string>();
+  const out: { ref: string; kind: "harmony" | "trine" | "clash"; a: number; b: number }[] = [];
+  for (const r of z.relations) {
+    if (r.kind !== "harmony" && r.kind !== "trine" && r.kind !== "clash") continue;
+    const key = [...r.branches].sort((x, y) => x - y).join("-");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ ref: relationRef(r), kind: r.kind, a: r.branches[0], b: r.branches[1] });
+  }
+  return out;
 }
 
 /** The animals' own characters (the branch's is on the rim): 鼠 for the Rat, 馬 or 马 for the Horse. */
@@ -322,6 +365,28 @@ function ZodiacHello() {
         })}
       </ol>
       {z.timeUnknown ? <p className="ulune-zk-hello-p">{cnWord(locale, "zkNoHour")}</p> : null}
+      <h3 className="ulune-zk-hello-h3">{cnWord(locale, "zkRelations")}</h3>
+      {z.relations.length ? (
+        <ul className="ulune-zk-hello-list" data-testid="zodiac-relations">
+          {z.relations.map((r) => (
+            <li key={relationRef(r)}>
+              <button
+                type="button"
+                className="ulune-zk-hello-row is-rel"
+                data-tone={relationTone(r.kind)}
+                data-testid={`zodiac-rel-${r.kind}-${r.places.join("-")}`}
+                onClick={() => w.pick(relationRef(r))}
+              >
+                <span>{relationLine(z, r, locale, prefs)}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="ulune-zk-hello-p" data-testid="zodiac-relations-none">
+          {cnWord(locale, "zkRelationsNone")}
+        </p>
+      )}
       {z.newYearAnimal != null ? (
         <p className="ulune-zk-hello-p" data-testid="zodiac-newyear">
           {cnWord(locale, "zkNewYear", { theAnimal: theAnimal(z.newYearAnimal, locale) })}
@@ -343,52 +408,21 @@ function ZodiacHello() {
   );
 }
 
-/** The table view: the four pillars, each with its stem, branch, phase and Na Yin (relations come with part 8). */
+const loadTable = () => import("@/studio/tables/zodiac-table");
+const ZodiacTable = lazyNamed(loadTable, "ZodiacTable");
+
+/** The table view (part 8): the four animals with every layer, and the relations between them. */
 function ZodiacData() {
-  const { locale } = useI18n();
-  const prefs = useChinesePrefs();
   const data = useModeData("zodiac");
   const w = useWheelView();
   const z = data?.zodiac;
   if (!z) return null;
-  const say = (n: ChineseName) => chineseLabel(n, locale, prefs).text;
   return (
-    <div className="ulune-zk-table-box" data-testid="zodiac-table">
-      <table className="ulune-zk-table">
-        <caption className="ulune-zk-table-cap">{cnWord(locale, "zkTitle")}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{cnWord(locale, "zkPlace")}</th>
-            <th scope="col">{cnWord(locale, "zkPillar")}</th>
-            <th scope="col">{cnWord(locale, "zkStem")}</th>
-            <th scope="col">{cnWord(locale, "zkBranch")}</th>
-            <th scope="col">{cnWord(locale, "zkAnimalPhase")}</th>
-            <th scope="col">{cnWord(locale, "zkNaYin")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {z.places.map((p) => (
-            <tr key={p.id} data-testid={`zodiac-row-${p.id}`} className={cn(w.selectedId === placeRef(p.id) && "is-on")}>
-              <th scope="row">
-                <button type="button" className="ulune-zk-table-pick" onClick={() => w.pick(placeRef(p.id))}>
-                  {cnWord(locale, PLACE_WORD[p.id])}
-                  {p.uncertain ? " ~" : ""}
-                </button>
-              </th>
-              <td>{say(SIXTY[p.pillar.cycle]!)}</td>
-              <td>{say(STEM_OF(p))}</td>
-              <td>{say(BRANCHES[p.branch]!)}</td>
-              <td>{say(PHASES.find((x) => x.id === p.branchPhase)!)}</td>
-              <td>{say(p.naYin)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
+      <ZodiacTable z={z} name={w.chart?.meta.name ?? ""} selectedId={w.selectedId} onSelect={w.pick} />
+    </Suspense>
   );
 }
-
-const STEM_OF = (p: ZodiacPlace) => STEMS[p.stem]!;
 
 function useZodiacRuntime(): ModeRuntime<ZodiacState> {
   const { locale } = useI18n();
@@ -421,5 +455,6 @@ export const zodiacMode: ModeDef = {
   Figure: ZodiacFigure,
   HelloEmpty: ZodiacHello,
   Data: ZodiacData,
+  preloadData: () => prefetch(loadTable),
   useRuntime: useZodiacRuntime,
 };

@@ -128,6 +128,28 @@ export const BRANCHES: readonly Branch[] = [
   { index: 11, id: "hai", hant: "亥", hans: "亥", pinyin: "hài", phase: "water", polarity: "yin", animal: 11, hours: [21, 23], solarMonth: 9, lunarMonth: 10, en: "Pig", fr: "Cochon" },
 ];
 
+/**
+ * The stems hidden in each branch (地支藏干): the main qi first, then the
+ * middle and the residual where there are, each with the weight a common
+ * method gives it (one stem 100; two 70 and 30; three 60, 30 and 10). The
+ * main qi is always of the branch's own phase. BaZi (part 15) names the
+ * method it counts with; the zodiac's table shows them.
+ */
+export const HIDDEN_STEMS: readonly (readonly { stem: number; weight: number }[])[] = [
+  [{ stem: 9, weight: 100 }],
+  [{ stem: 5, weight: 60 }, { stem: 9, weight: 30 }, { stem: 7, weight: 10 }],
+  [{ stem: 0, weight: 60 }, { stem: 2, weight: 30 }, { stem: 4, weight: 10 }],
+  [{ stem: 1, weight: 100 }],
+  [{ stem: 4, weight: 60 }, { stem: 1, weight: 30 }, { stem: 9, weight: 10 }],
+  [{ stem: 2, weight: 60 }, { stem: 4, weight: 30 }, { stem: 6, weight: 10 }],
+  [{ stem: 3, weight: 70 }, { stem: 5, weight: 30 }],
+  [{ stem: 5, weight: 60 }, { stem: 3, weight: 30 }, { stem: 1, weight: 10 }],
+  [{ stem: 6, weight: 60 }, { stem: 8, weight: 30 }, { stem: 4, weight: 10 }],
+  [{ stem: 7, weight: 100 }],
+  [{ stem: 4, weight: 60 }, { stem: 7, weight: 30 }, { stem: 3, weight: 10 }],
+  [{ stem: 8, weight: 70 }, { stem: 0, weight: 30 }],
+];
+
 export type CyclePair = ChineseName & {
   /** 0 (Jia-Zi) to 59 (Gui-Hai). */
   index: number;

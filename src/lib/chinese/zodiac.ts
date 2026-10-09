@@ -11,6 +11,7 @@
  * and day boundary from Settings (prefs.ts). Nothing leaves the device.
  */
 import { BRANCHES, naYinOf, STEMS, type NaYin, type PhaseId, type Polarity } from "./names";
+import { fullTrines, placedRelations, type PlacedRelation } from "./relations";
 import { fourPillars, monthPillarAt, yearPillarAt, type BirthMoment, type Clock, type DayBoundary, type FourPillars, type Pillar } from "./pillars";
 
 export type ZodiacPlaceId = "year" | "month" | "day" | "hour";
@@ -40,6 +41,9 @@ export type ZodiacChart = {
   timeUnknown: boolean;
   /** The birth instant (UT ms). */
   birthMs: number;
+  /** The relations between the reader's animals, pair by pair (part 8), and any whole trine among them. */
+  relations: PlacedRelation<ZodiacPlaceId>[];
+  trines: { phase: PhaseId; places: ZodiacPlaceId[] }[];
   /** The year and the solar month an instant ("now") is in: their animals are marked on the wheel. */
   now: { year: Pillar; month: Pillar };
 };
@@ -112,6 +116,8 @@ export function zodiacChart(
     newYearAnimal: pillars.animal.lunarNewYear !== pillars.animal.lichun ? pillars.animal.lunarNewYear : null,
     timeUnknown: Boolean(moment.timeUnknown),
     birthMs: moment.ms,
+    relations: placedRelations(places),
+    trines: fullTrines(places),
     now: { year: yearPillarAt(nowMs), month: monthPillarAt(nowMs) },
   };
 }
