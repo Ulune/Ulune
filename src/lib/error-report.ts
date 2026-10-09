@@ -45,6 +45,8 @@ export function ignorable(error: unknown): boolean {
   if (/^Script error\.?$/.test(msg)) return true;
   // The browser's own noise, harmless.
   if (/ResizeObserver loop/.test(msg)) return true;
+  // An encyclopedia page opened offline from the copy of another (public/sw.js): drawn again on the device, as expected.
+  if (typeof document !== "undefined" && document.querySelector('meta[name="ulune-offline-copy"]') && /#41[89]|#42[35]|hydrat/i.test(msg)) return true;
   // An extension's code, not Ulune's.
   const stack = error instanceof Error ? (error.stack ?? "") : "";
   if (/(?:chrome|moz|safari(?:-web)?)-extension:\/\//.test(stack)) return true;

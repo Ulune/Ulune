@@ -69,6 +69,13 @@ export async function turnOfflineOn(): Promise<boolean> {
 /** No (or no longer): nothing kept, the worker and its files gone. */
 export async function turnOfflineOff(): Promise<void> {
   remember("off");
+  // The encyclopedia kept whole goes with it (lib/encyclopedia-offline.ts).
+  try {
+    window.localStorage.removeItem("ulune.encyclopedia.offline");
+    window.localStorage.removeItem("ulune.encyclopedia.offline.version");
+  } catch {
+    /* nothing kept */
+  }
   await unregister();
 }
 

@@ -132,7 +132,10 @@ if (want.has("bundle")) {
   // outside the studio no longer download the wheel), 0.5 more on "/": 275.2-276.0, limit 276.5.
   // Numerology's Cycles (7 Oct): its page in the map, its words and its view's name, 0.3:
   // 276.3, and 277.1 in one run of four (a small chunk landing within the load); limit 277.5.
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 277.5, "KB gz");
+  // Encyclopedia parts 18–21 and their fixes (8 Oct): the bridge to "In your chart", the reading
+  // opposite an angle, the offline copy's check, the space's encyclopedia records, 0.3 (the
+  // rest loads later): 277.4, 277.7 when a small chunk lands within the load; limit 278.
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 278, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's

@@ -1,5 +1,6 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
+import { useEffect, useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
+import { whenIdle } from "@/lib/lazy-component";
 import { PageTopBar } from "@/studio/shell/PageTopBar";
 import { historyIndex, studioReturn } from "@/studio/return-target";
 import { TEXT_LICENCE } from "./head";
@@ -47,6 +48,17 @@ export function EncLink({ to, slug, hash, children, ...rest }: { to: Lang; slug?
 }
 
 export function EncFrame({ lang, testId, narrow = false, children }: { lang: Lang; testId: string; narrow?: boolean; children: ReactNode }) {
+  // The encyclopedia kept whole on this device (part 21): a new deploy's files in place of the old, quietly, once the page is idle.
+  useEffect(() => {
+    try {
+      if (!window.localStorage.getItem("ulune.encyclopedia.offline")) return;
+    } catch {
+      return;
+    }
+    return whenIdle(() => {
+      void import("@/lib/encyclopedia-offline").then((m) => m.refreshKeptEncyclopedia()).catch(() => {});
+    }, 5000);
+  }, []);
   return (
     <div className="min-w-0" data-testid={testId}>
       <PageTopBar />

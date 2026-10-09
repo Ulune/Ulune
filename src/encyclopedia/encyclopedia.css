@@ -1102,3 +1102,89 @@ a.ob-enc-letter {
     display: none;
   }
 }
+
+/* Printed (part 21): the page alone, on white, its sources and licence kept, its address at the end. */
+.ob-enc-print-url {
+  display: none;
+}
+@media print {
+  @page {
+    margin: 16mm 16mm 18mm;
+  }
+  html,
+  body {
+    --color-bg: #fff;
+    --color-bg-subtle: #f4f4f4;
+    --color-bg-elevated: #fff;
+    --color-fg: #111;
+    --color-fg-muted: #333;
+    --color-fg-subtle: #555;
+    --color-border: #ccc;
+    --color-border-strong: #999;
+    --color-border-field: #999;
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .ob-pagebar,
+  .ob-enc-back,
+  .ob-enc-crumbs,
+  .ob-enc-search,
+  .ob-enc-twin,
+  .ob-enc-meta,
+  .ob-enc-pn,
+  .ob-enc-quiet-link,
+  .ob-enc-shelf,
+  [data-testid="space-button"],
+  [data-testid="page-bottombar"] {
+    display: none !important;
+  }
+  .ob-enc {
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+  .ob-enc a,
+  .ob-enc .ob-term {
+    color: inherit;
+    text-decoration: none;
+    border: 0;
+  }
+  .ob-enc-title {
+    font-size: 26pt;
+  }
+  .ob-enc-summary {
+    font-size: 14pt;
+  }
+  .ob-enc-prose,
+  .ob-enc-section {
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+  .ob-enc-h2 {
+    break-after: avoid;
+  }
+  .ob-enc-figure,
+  .ob-enc-table,
+  .ob-enc-card,
+  li {
+    break-inside: avoid;
+  }
+  .ob-enc-prose p {
+    orphans: 3;
+    widows: 3;
+  }
+  .ob-enc-cards {
+    display: block;
+    columns: 2;
+  }
+  .ob-enc-card {
+    border: 0;
+    padding: 2px 0 6px;
+  }
+  .ob-enc-print-url {
+    display: block;
+    margin-top: 8px;
+    font-size: 9pt;
+    color: #555;
+  }
+}

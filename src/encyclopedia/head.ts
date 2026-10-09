@@ -70,6 +70,25 @@ export function entryHead(page: PageData): Head {
       url: `${SITE_URL}${encPath(page.lang)}`,
     },
   };
-  return { ...head, scripts: [{ type: "application/ld+json", children: jsonLd(term) }] };
+  return { ...head, meta: [...head.meta, ...previewMeta(page)], scripts: [{ type: "application/ld+json", children: jsonLd(term) }] };
+}
+
+/**
+ * Its preview image for a shared link (part 21): a core page's own
+ * (public/previews, scripts/encyclopedia/previews.mjs), a combination's that
+ * of its first part (the Moon's for Moon in Scorpio).
+ */
+function previewMeta(page: PageData): Tag[] {
+  const id = page.kind === "combination" ? page.related[0]?.id : page.id;
+  if (!id) return [];
+  const alt = page.kind === "combination" ? (page.related[0]?.title ?? page.title) : page.title;
+  return [
+    { property: "og:image", content: `${SITE_URL}/previews/${id}.jpg` },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { property: "og:image:alt", content: `${alt} · ${tr(page.lang, "encTitle")} · Ulune` },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:image", content: `${SITE_URL}/previews/${id}.jpg` },
+  ];
 }
 

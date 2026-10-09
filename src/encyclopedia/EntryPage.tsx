@@ -145,6 +145,8 @@ export function EntryPage({ page }: { page: PageData }) {
             </nav>
           ) : null}
           <Licence lang={lang} />
+          {/* On paper only (part 21): where the page lives. */}
+          <p className="ob-enc-print-url">{`${SITE_URL}${encPath(lang, page.slug)}`}</p>
         </footer>
       </article>
     </EncFrame>

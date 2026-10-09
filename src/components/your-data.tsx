@@ -6,6 +6,8 @@ import { AI_ENABLED } from "@/lib/features";
 import { useI18n } from "@/lib/i18n/locale";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { offlineChoice, offlineSupported, turnOfflineOff, turnOfflineOn } from "@/lib/offline";
+import { tr } from "@/encyclopedia/words";
+import { dropEncyclopedia, encManifest, encSize, keepEncyclopedia, keptEncyclopedia, type EncLangs, type EncManifest } from "@/lib/encyclopedia-offline";
 import { reportsOn, setReportsOn } from "@/lib/error-report";
 import { toast } from "@/lib/toast";
 import { spaceSupported } from "@/lib/space/store";
@@ -236,6 +238,60 @@ export function YourData() {
           </span>
         </label>
       )}
+      {offline ? <KeepEncyclopedia /> : null}
     </section>
+  );
+}
+
+/** "Keep the whole encyclopedia on this device" (part 21), with Ulune kept on it: a language, both or none. */
+function KeepEncyclopedia() {
+  const { locale } = useI18n();
+  const lang = locale === "fr" ? "fr" : "en";
+  const [kept, setKept] = useState<EncLangs | "none">("none");
+  const [manifest, setManifest] = useState<EncManifest | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    setKept(keptEncyclopedia() ?? "none");
+    void encManifest().then(setManifest);
+  }, []);
+  const choose = async (next: EncLangs | "none") => {
+    setKept(next);
+    if (next === "none") {
+      await dropEncyclopedia();
+      setStatus(tr(lang, "encOfflineDropped"));
+      return;
+    }
+    setBusy(true);
+    setStatus(tr(lang, "encOfflineProgress", { done: 0, total: "…" }));
+    const ok = await keepEncyclopedia(next, (p) => setStatus(tr(lang, "encOfflineProgress", { done: p.done, total: p.total })));
+    setBusy(false);
+    setStatus(tr(lang, ok ? "encOfflineDone" : "encOfflineFailed"));
+  };
+  const mb = (langs: EncLangs) => (manifest ? String(encSize(manifest, langs)).replace(".", locale === "fr" ? "," : ".") : "…");
+  const options: { id: EncLangs | "none"; label: string }[] = [
+    { id: "none", label: tr(lang, "encOfflineNone") },
+    { id: "en", label: tr(lang, "encOfflineEn", { mb: mb("en") }) },
+    { id: "fr", label: tr(lang, "encOfflineFr", { mb: mb("fr") }) },
+    { id: "both", label: tr(lang, "encOfflineBoth", { mb: mb("both") }) },
+  ];
+  return (
+    <fieldset className="ob-enc-offline" data-testid="data-enc-offline" disabled={busy}>
+      <legend className="ob-enc-offline-legend">
+        {tr(lang, "encOfflineKeep")}
+        <span className="ob-check-hint"> — {tr(lang, "encOfflineKeepHint")}</span>
+      </legend>
+      {options.map((o) => (
+        <label key={o.id} className="ob-check ob-enc-offline-option">
+          <input type="radio" name="data-enc-offline" value={o.id} checked={kept === o.id} onChange={() => void choose(o.id)} data-testid={`data-enc-${o.id}`} />
+          <span>{o.label}</span>
+        </label>
+      ))}
+      {status ? (
+        <p className="ob-check-hint" aria-live="polite" data-testid="data-enc-status">
+          {status}
+        </p>
+      ) : null}
+    </fieldset>
   );
 }

@@ -23,10 +23,13 @@
  * (the rest of the site goes on working). A warning (a term linked twice in
  * one paragraph) is said with its file and line, and builds go on.
  */
+import { createHash } from "node:crypto";
+import { gzipSync } from "node:zlib";
 import { resolve, sep } from "node:path";
 import { buildEncyclopedia, CONTENT_DIR, formatErrors, readContent } from "./build.mjs";
 
 const PREFIX = "virtual:ulune-encyclopedia/";
+const encHome = (lang) => (lang === "fr" ? "/encyclopedie" : "/encyclopedia");
 const RESOLVED = `\0${PREFIX}`;
 
 /** A module whose default export is `value`, parsed from a JSON string (faster to start than an object literal). */
@@ -102,6 +105,67 @@ export function encyclopediaPlugin() {
       const piece = { page: data.pages, cards: data.cards, search: data.search, homes: data.homes, tradition: data.traditionHomes, lexicon: data.lexicon }[kind]?.[key];
       if (piece === undefined) throw new Error(`No encyclopedia module "${path}"`);
       return jsonModule(piece);
+    },
+    // What "Keep the encyclopedia on this device" downloads (part 21), by
+    // language: every piece of the encyclopedia's data, and the code and
+    // fonts its pages need, as this build named them.
+    generateBundle(_options, bundle) {
+      if (this.environment?.name && this.environment.name !== "client") return;
+      const { data } = build();
+      if (!data) return;
+      const chunks = Object.values(bundle).filter((c) => c.type === "chunk");
+      const byName = new Map(Object.values(bundle).map((c) => [c.fileName, c]));
+      const url = (f) => `/${f}`;
+      const files = { en: new Set(), fr: new Set(), shared: new Set() };
+      const closure = (start, into) => {
+        const todo = [...start];
+        while (todo.length) {
+          const f = todo.pop();
+          if (into.has(f)) continue;
+          into.add(f);
+          const c = byName.get(f);
+          if (c?.type !== "chunk") continue;
+          todo.push(...c.imports);
+          for (const css of c.viteMetadata?.importedCss ?? []) into.add(css);
+          // The encyclopedia's own code it loads later (a card, "In your chart", the dial): kept too.
+          for (const d of c.dynamicImports) {
+            const dc = byName.get(d);
+            if (dc?.type === "chunk" && dc.facadeModuleId && !dc.facadeModuleId.startsWith(RESOLVED) && /[/\\]src[/\\]encyclopedia[/\\]/.test(dc.facadeModuleId)) todo.push(d);
+          }
+        }
+      };
+      for (const c of chunks) {
+        const id = c.facadeModuleId ?? "";
+        if (id.startsWith(RESOLVED)) {
+          const path = id.slice(RESOLVED.length);
+          const lang = /^(?:page|pages|cards|tradition)\/(en|fr)\/|^(?:search|homes|lexicon)\/(en|fr)$/.exec(path);
+          const into = new Set();
+          closure([c.fileName], into);
+          for (const f of into) files[lang ? (lang[1] ?? lang[2]) : "shared"].add(f);
+        } else if (c.isEntry || /[/\\]src[/\\](?:routes[/\\]encyclop|encyclopedia[/\\])/.test(id)) {
+          closure([c.fileName], files.shared);
+        }
+      }
+      // The fonts the pages draw with.
+      for (const a of Object.values(bundle)) if (a.type === "asset" && /\.woff2$/.test(a.fileName)) files.shared.add(a.fileName);
+      for (const lang of ["en", "fr"]) for (const f of files[lang]) files.shared.delete(f);
+      // What the download weighs over the network (compressed, as the files are served).
+      const size = (set) =>
+        [...set].reduce((n, f) => {
+          const c = byName.get(f);
+          const body = c?.type === "chunk" ? c.code : c?.source;
+          if (body == null) return n;
+          return n + (/\.woff2$/.test(f) ? body.length : gzipSync(body).length);
+        }, 0);
+      const list = (set) => [...set].sort().map(url);
+      const homes = (lang) => [encHome(lang), ...Object.keys(data.traditionHomes).filter((k) => k.startsWith(`${lang}/`)).map((k) => `${encHome(lang)}/${data.traditionHomes[k].home}`)];
+      const manifest = {
+        files: { en: list(files.en), fr: list(files.fr), shared: list(files.shared) },
+        bytes: { en: size(files.en), fr: size(files.fr), shared: size(files.shared) },
+        pages: { en: homes("en"), fr: homes("fr") },
+      };
+      const version = createHash("sha256").update(JSON.stringify(manifest.files)).digest("hex").slice(0, 12);
+      this.emitFile({ type: "asset", fileName: "encyclopedia-offline.json", source: `${JSON.stringify({ version, ...manifest })}\n` });
     },
     configureServer(server) {
       const dir = contentDir();

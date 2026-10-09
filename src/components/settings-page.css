@@ -143,3 +143,19 @@
   text-decoration: none;
 }
 
+
+/* Keep the whole encyclopedia on this device (encyclopedia plan, part 21). */
+.ob-enc-offline {
+  margin: 4px 0 0 28px;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+.ob-enc-offline-legend {
+  padding: 0;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+.ob-enc-offline-option {
+  margin-top: 2px;
+}

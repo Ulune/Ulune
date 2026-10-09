@@ -27,6 +27,20 @@ export const encyclopedia = {
   encBackCalendar: ["Back to the Calendar", "Retour au calendrier"],
   encBackCharts: ["Back to Charts", "Retour aux thèmes"],
   encRelated: ["Related", "Voir aussi"],
+  // The whole encyclopedia kept on the device (part 21), in Settings → Your data (said here, out of every first load).
+  encOfflineKeep: ["Keep the whole encyclopedia on this device", "Garder toute l’encyclopédie sur cet appareil"],
+  encOfflineKeepHint: [
+    "Every page then opens without a connection. Only the encyclopedia’s own files are kept, the same for everyone.",
+    "Chaque page s’ouvre alors sans connexion. Seuls les fichiers de l’encyclopédie sont gardés, les mêmes pour tous.",
+  ],
+  encOfflineNone: ["Not kept", "Non gardée"],
+  encOfflineEn: ["In English (about {mb} MB)", "En anglais (environ {mb} Mo)"],
+  encOfflineFr: ["In French (about {mb} MB)", "En français (environ {mb} Mo)"],
+  encOfflineBoth: ["In both languages (about {mb} MB)", "Dans les deux langues (environ {mb} Mo)"],
+  encOfflineProgress: ["Downloading: {done} of {total} files…", "Téléchargement\u202f: {done} fichiers sur {total}…"],
+  encOfflineDone: ["The encyclopedia is kept on this device.", "L’encyclopédie est gardée sur cet appareil."],
+  encOfflineFailed: ["Some files couldn’t be downloaded; choose again later.", "Certains fichiers n’ont pas pu être téléchargés\u202f; choisissez de nouveau plus tard."],
+  encOfflineDropped: ["The encyclopedia is no longer kept on this device.", "L’encyclopédie n’est plus gardée sur cet appareil."],
   // The reader's own encyclopedia (part 20): bookmarks, notes, pages read, sealed in the private space.
   encKeepBookmark: ["Bookmark", "Marque-page"],
   encKeepBookmarked: ["Bookmarked", "Marquée"],
