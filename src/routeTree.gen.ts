@@ -23,6 +23,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StudioIndexRouteImport } from './routes/_studio.index'
 import { Route as StudioCalendarRouteImport } from './routes/_studio.calendar'
 import { Route as StudioCalendrierRouteImport } from './routes/_studio.calendrier'
+import { Route as StudioChineseAstrologyRouteImport } from './routes/_studio.chinese-astrology'
 import { Route as StudioHumanDesignRouteImport } from './routes/_studio.human-design'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiReportRouteImport } from './routes/api/report'
@@ -107,6 +108,11 @@ const StudioCalendarRoute = StudioCalendarRouteImport.update({
 const StudioCalendrierRoute = StudioCalendrierRouteImport.update({
   id: '/calendrier',
   path: '/calendrier',
+  getParentRoute: () => StudioRoute,
+} as any)
+const StudioChineseAstrologyRoute = StudioChineseAstrologyRouteImport.update({
+  id: '/chinese-astrology',
+  path: '/chinese-astrology',
   getParentRoute: () => StudioRoute,
 } as any)
 const StudioHumanDesignRoute = StudioHumanDesignRouteImport.update({
@@ -206,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/calendar': typeof StudioCalendarRoute
   '/calendrier': typeof StudioCalendrierRoute
+  '/chinese-astrology': typeof StudioChineseAstrologyRoute
   '/human-design': typeof StudioHumanDesignRoute
   '/api/health': typeof ApiHealthRoute
   '/api/report': typeof ApiReportRoute
@@ -236,6 +243,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/calendar': typeof StudioCalendarRoute
   '/calendrier': typeof StudioCalendrierRoute
+  '/chinese-astrology': typeof StudioChineseAstrologyRoute
   '/human-design': typeof StudioHumanDesignRoute
   '/api/health': typeof ApiHealthRoute
   '/api/report': typeof ApiReportRoute
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_studio/calendar': typeof StudioCalendarRoute
   '/_studio/calendrier': typeof StudioCalendrierRoute
+  '/_studio/chinese-astrology': typeof StudioChineseAstrologyRoute
   '/_studio/human-design': typeof StudioHumanDesignRoute
   '/api/health': typeof ApiHealthRoute
   '/api/report': typeof ApiReportRoute
@@ -303,6 +312,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/calendar'
     | '/calendrier'
+    | '/chinese-astrology'
     | '/human-design'
     | '/api/health'
     | '/api/report'
@@ -333,6 +343,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/calendar'
     | '/calendrier'
+    | '/chinese-astrology'
     | '/human-design'
     | '/api/health'
     | '/api/report'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_studio/calendar'
     | '/_studio/calendrier'
+    | '/_studio/chinese-astrology'
     | '/_studio/human-design'
     | '/api/health'
     | '/api/report'
@@ -506,6 +518,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudioCalendrierRouteImport
       parentRoute: typeof StudioRoute
     }
+    '/_studio/chinese-astrology': {
+      id: '/_studio/chinese-astrology'
+      path: '/chinese-astrology'
+      fullPath: '/chinese-astrology'
+      preLoaderRoute: typeof StudioChineseAstrologyRouteImport
+      parentRoute: typeof StudioRoute
+    }
     '/_studio/human-design': {
       id: '/_studio/human-design'
       path: '/human-design'
@@ -624,6 +643,7 @@ declare module '@tanstack/react-router' {
 interface StudioRouteChildren {
   StudioCalendarRoute: typeof StudioCalendarRoute
   StudioCalendrierRoute: typeof StudioCalendrierRoute
+  StudioChineseAstrologyRoute: typeof StudioChineseAstrologyRoute
   StudioHumanDesignRoute: typeof StudioHumanDesignRoute
   StudioIndexRoute: typeof StudioIndexRoute
   StudioAstrologyCompositeRoute: typeof StudioAstrologyCompositeRoute
@@ -638,6 +658,7 @@ interface StudioRouteChildren {
 const StudioRouteChildren: StudioRouteChildren = {
   StudioCalendarRoute: StudioCalendarRoute,
   StudioCalendrierRoute: StudioCalendrierRoute,
+  StudioChineseAstrologyRoute: StudioChineseAstrologyRoute,
   StudioHumanDesignRoute: StudioHumanDesignRoute,
   StudioIndexRoute: StudioIndexRoute,
   StudioAstrologyCompositeRoute: StudioAstrologyCompositeRoute,

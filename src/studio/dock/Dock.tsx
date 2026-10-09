@@ -67,10 +67,11 @@ export function Dock() {
   const { t } = useI18n();
   const chosen = useStudioStore((s) => s.dock);
   const dockOpen = useStudioStore((s) => s.dockOpen);
-  // Human Design and numerology read their own bodies, all of them: the Bodies tab (the
-  // wheels' bodies, aspects and stars) is left out there, and comes back with the wheels.
+  // Human Design, numerology and Chinese astrology read their own bodies, all of them: the Bodies
+  // tab (the wheels' bodies, aspects and stars) is left out there, and comes back with the wheels.
   const studioPage = useStudioStore((s) => s.page);
-  const noBodies = studioPage === "design" || studioPage === "numerology" || studioPage === "numerology-cycles";
+  const noBodies =
+    studioPage === "design" || studioPage === "numerology" || studioPage === "numerology-cycles" || studioPage === "zodiac";
   // The Calendar without a chart (reorganisation plan, R5): the sky's readings only; the
   // birth form comes on the stage when asked for, as for a new chart.
   const skyOnly = useStudioStore((s) => !s.chart && s.page === "timing");

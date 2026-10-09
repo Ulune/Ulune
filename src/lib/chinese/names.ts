@@ -137,8 +137,8 @@ export type CyclePair = ChineseName & {
   branch: number;
 };
 
-/** In French the animal comes first and the stem follows as its complement, without an article: Rat de Bois yang. */
-const frPair = (stem: Stem, branch: Branch): string => `${branch.fr} de ${stem.fr}`;
+/** In French the animal comes first and the stem follows as its complement, without an article: Rat de Bois yang, Serpent d’Eau yin. */
+const frPair = (stem: Stem, branch: Branch): string => `${branch.fr} ${/^[AEIOUÉÈ]/.test(stem.fr) ? "d’" : "de "}${stem.fr}`;
 
 /**
  * The sixty pairs (六十甲子), each stem with the branch of the same
@@ -160,6 +160,65 @@ export const SIXTY: readonly CyclePair[] = Array.from({ length: 60 }, (_, index)
     fr: frPair(stem, branch),
   };
 });
+
+export type NaYin = ChineseName & {
+  /** 0 (Jia-Zi and Yi-Chou) to 29 (Ren-Xu and Gui-Hai): one for each two pairs of the cycle. */
+  index: number;
+  /** The phase it sounds. */
+  phase: PhaseId;
+};
+
+const NA_YIN_ROWS: readonly (readonly [string, string, string, PhaseId, string, string])[] = [
+  ["海中金", "海中金", "hǎizhōng jīn", "metal", "Metal in the sea", "Métal au fond de la mer"],
+  ["爐中火", "炉中火", "lúzhōng huǒ", "fire", "Fire in the furnace", "Feu du fourneau"],
+  ["大林木", "大林木", "dàlín mù", "wood", "Wood of the great forest", "Bois de la grande forêt"],
+  ["路旁土", "路旁土", "lùpáng tǔ", "earth", "Earth by the roadside", "Terre du bord de la route"],
+  ["劍鋒金", "剑锋金", "jiànfēng jīn", "metal", "Metal of the sword’s edge", "Métal du tranchant de l’épée"],
+  ["山頭火", "山头火", "shāntóu huǒ", "fire", "Fire on the mountain top", "Feu au sommet de la montagne"],
+  ["澗下水", "涧下水", "jiànxià shuǐ", "water", "Water in the ravine", "Eau du ravin"],
+  ["城頭土", "城头土", "chéngtóu tǔ", "earth", "Earth on the city wall", "Terre des remparts"],
+  ["白蠟金", "白蜡金", "báilà jīn", "metal", "Metal of white wax", "Métal de cire blanche"],
+  ["楊柳木", "杨柳木", "yángliǔ mù", "wood", "Willow wood", "Bois de saule"],
+  ["泉中水", "泉中水", "quánzhōng shuǐ", "water", "Water from the spring", "Eau de source"],
+  ["屋上土", "屋上土", "wūshàng tǔ", "earth", "Earth on the roof", "Terre du toit"],
+  ["霹靂火", "霹雳火", "pīlì huǒ", "fire", "Fire of the thunderbolt", "Feu de la foudre"],
+  ["松柏木", "松柏木", "sōngbǎi mù", "wood", "Pine and cypress wood", "Bois de pin et de cyprès"],
+  ["長流水", "长流水", "chángliú shuǐ", "water", "Long-flowing water", "Eau qui coule loin"],
+  ["沙中金", "沙中金", "shāzhōng jīn", "metal", "Metal in the sand", "Métal dans le sable"],
+  ["山下火", "山下火", "shānxià huǒ", "fire", "Fire at the foot of the mountain", "Feu au pied de la montagne"],
+  ["平地木", "平地木", "píngdì mù", "wood", "Wood of the plain", "Bois de la plaine"],
+  ["壁上土", "壁上土", "bìshàng tǔ", "earth", "Earth on the wall", "Terre du mur"],
+  ["金箔金", "金箔金", "jīnbó jīn", "metal", "Gold leaf metal", "Métal de la feuille d’or"],
+  ["覆燈火", "覆灯火", "fùdēng huǒ", "fire", "Fire of the lamp", "Feu de la lampe"],
+  ["天河水", "天河水", "tiānhé shuǐ", "water", "Water of the Milky Way", "Eau de la Voie lactée"],
+  ["大驛土", "大驿土", "dàyì tǔ", "earth", "Earth of the great road", "Terre de la grande route"],
+  ["釵釧金", "钗钏金", "chāichuàn jīn", "metal", "Metal of hairpins and bracelets", "Métal des épingles et des bracelets"],
+  ["桑柘木", "桑柘木", "sāngzhè mù", "wood", "Mulberry wood", "Bois du mûrier"],
+  ["大溪水", "大溪水", "dàxī shuǐ", "water", "Water of the great stream", "Eau du grand torrent"],
+  ["沙中土", "沙中土", "shāzhōng tǔ", "earth", "Earth in the sand", "Terre dans le sable"],
+  ["天上火", "天上火", "tiānshàng huǒ", "fire", "Fire in the sky", "Feu du ciel"],
+  ["石榴木", "石榴木", "shíliú mù", "wood", "Pomegranate wood", "Bois du grenadier"],
+  ["大海水", "大海水", "dàhǎi shuǐ", "water", "Water of the great sea", "Eau de la grande mer"],
+];
+
+/**
+ * The Na Yin (納音 nàyīn, "received sound"): the thirty "sounds" of the
+ * sixty-cycle, one for each two pairs in order, each with its phase (Jia-Zi
+ * and Yi-Chou are Metal in the sea; Geng-Wu, 1990's year, Earth by the
+ * roadside). Their names are the classical images, in Ulune's words.
+ */
+export const NA_YIN: readonly NaYin[] = NA_YIN_ROWS.map(([hant, hans, pinyin, phase, en, fr], index) => ({
+  index,
+  hant,
+  hans,
+  pinyin,
+  phase,
+  en,
+  fr,
+}));
+
+/** The Na Yin of a place in the sixty-cycle. */
+export const naYinOf = (cycle: number): NaYin => NA_YIN[Math.floor((((cycle % 60) + 60) % 60) / 2)]!;
 
 export type SolarTermName = ChineseName & {
   /** 0 (Lichun) to 23 (Dahan), as in terms.ts. */

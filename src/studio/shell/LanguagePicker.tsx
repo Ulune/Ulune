@@ -89,6 +89,7 @@ function Cards({
   onLeave: () => void;
 }) {
   const { t, locale } = useI18n();
+  const home = (id: LanguageId) => languageHomePath(id, locale);
   const uid = useId();
   return (
     <div className="ob-langs" onKeyDown={moveBetweenCards}>
@@ -136,17 +137,19 @@ function Cards({
                         {pickerWord(locale, words.needs)}
                       </span>
                     </button>
-                    {/* Its home in the encyclopedia (another page: the picker closes). */}
-                    <PathLink
-                      href={languageHomePath(id, locale)}
-                      className="ob-langs-info"
-                      data-testid={`lang-info-${id}`}
-                      aria-label={pickerWord(locale, "langAbout", { name })}
-                      title={pickerWord(locale, "langAbout", { name })}
-                      onClick={onLeave}
-                    >
-                      <Info className="size-4" strokeWidth={1.75} aria-hidden />
-                    </PathLink>
+                    {/* Its home in the encyclopedia (another page: the picker closes), once it has one. */}
+                    {home(id) == null ? null : (
+                      <PathLink
+                        href={home(id)!}
+                        className="ob-langs-info"
+                        data-testid={`lang-info-${id}`}
+                        aria-label={pickerWord(locale, "langAbout", { name })}
+                        title={pickerWord(locale, "langAbout", { name })}
+                        onClick={onLeave}
+                      >
+                        <Info className="size-4" strokeWidth={1.75} aria-hidden />
+                      </PathLink>
+                    )}
                   </li>
                 );
               })}

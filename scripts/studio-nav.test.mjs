@@ -31,24 +31,23 @@ function memory() {
   return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)) };
 }
 
-test("the picker's headings come from the registry: Western now, Chinese once the registry has one", () => {
-  const groups = languageGroups();
+test("the picker's headings come from the registry: Western, then Chinese since Chinese astrology (languages plan, part 7)", () => {
   assert.deepEqual(
-    groups.map((g) => g.group),
-    ["western"],
-    "no heading without a language under it",
+    languageGroups().map((g) => [g.group, g.languages.map((l) => l.id)]),
+    [
+      ["western", ["astrology", "human-design", "numerology"]],
+      ["chinese", ["chinese-astrology"]],
+    ],
   );
-  assert.deepEqual(
-    groups[0].languages.map((l) => l.id),
-    ["astrology", "human-design", "numerology"],
-  );
-  // A Chinese language added to the registry brings its heading, after the Western one.
+  // A heading never stands without a language under it.
+  assert.deepEqual(languageGroups(LANGUAGES.filter((l) => l.group !== "chinese")).map((g) => g.group), ["western"]);
+  // Another Chinese language joins its heading in the registry's order.
   const withBazi = [...LANGUAGES, { id: "bazi", path: "/bazi", group: "chinese", home: { en: "bazi", fr: "bazi" }, lenses: { natal: ["natal"] } }];
   assert.deepEqual(
     languageGroups(withBazi).map((g) => [g.group, g.languages.map((l) => l.id)]),
     [
       ["western", ["astrology", "human-design", "numerology"]],
-      ["chinese", ["bazi"]],
+      ["chinese", ["chinese-astrology", "bazi"]],
     ],
   );
   assert.deepEqual(TRADITIONS, ["western", "chinese"]);
@@ -61,10 +60,12 @@ test("each language's ⓘ leads to its home in the encyclopedia, in the reader's
   assert.equal(languageHomePath("astrology", "fr"), "/encyclopedie/astrologie");
   assert.equal(languageHomePath("human-design", "fr"), "/encyclopedie/design-humain");
   assert.equal(languageHomePath("numerology", "fr"), "/encyclopedie/numerologie");
+  // Chinese astrology's home comes with its pages (encyclopedia plan, part 24): no ⓘ until then.
+  assert.equal(languageHomePath("chinese-astrology"), null);
 });
 
 test("the bars' order: each language's lenses and sub-modes, then the Calendar", () => {
-  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", "timing"]);
+  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", "zodiac", "timing"]);
   assert.deepEqual([...PAGE_ORDER].sort(), [...STUDIO_PAGES].sort(), "every page once");
 });
 

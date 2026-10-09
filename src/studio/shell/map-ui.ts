@@ -46,4 +46,10 @@ export const LANGUAGE_WORDS: Record<LanguageId, { name: MessageKey; short: Messa
     needs: "langNeedsTime",
   },
   numerology: { name: "langNumerology", short: "langNumerology", line: "langNumerologyLine", needs: "langNeedsName" },
+  "chinese-astrology": {
+    name: "langChineseAstrology",
+    short: "langChineseAstrologyShort",
+    line: "langChineseAstrologyLine",
+    needs: "langNeedsDate",
+  },
 };

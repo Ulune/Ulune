@@ -111,4 +111,7 @@ test("English and French names: every entry has both, with typographic apostroph
   }
   assert.equal(SOLAR_TERMS[6].fr, "Début de l’été");
   assert.equal(STEMS[0].fr, "Bois yang");
+  // The pairs in French: the animal, then its stem, "de" elided before Eau.
+  assert.equal(SIXTY[0].fr, "Rat de Bois yang");
+  assert.equal(SIXTY[29].fr, "Serpent d’Eau yin");
 });

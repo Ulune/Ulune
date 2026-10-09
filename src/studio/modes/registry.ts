@@ -24,6 +24,7 @@ const LOADERS: Record<LazyPage, () => Promise<ModeDef>> = {
   design: () => import("@/studio/modes/design").then((m) => m.designMode),
   numerology: () => import("@/studio/modes/numerology").then((m) => m.numerologyMode),
   "numerology-cycles": () => import("@/studio/modes/numerology-cycles").then((m) => m.numerologyCyclesMode),
+  zodiac: () => import("@/studio/modes/zodiac").then((m) => m.zodiacMode),
 };
 
 /**

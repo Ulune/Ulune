@@ -394,6 +394,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
         page === "progressions" ||
         page === "numerology" ||
         page === "numerology-cycles" ||
+        page === "zodiac" ||
         page === "design";
       set((s) => ({
         chart: result.chart,

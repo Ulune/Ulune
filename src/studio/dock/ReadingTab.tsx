@@ -121,7 +121,7 @@ export function ReadingTab() {
             onGo={go}
             back={trail.length ? trail[trail.length - 1].title : null}
             onBack={back}
-            mode={page === "numerology-cycles" ? "numerology" : page}
+            mode={page === "numerology-cycles" ? "numerology" : page === "zodiac" ? undefined : page}
             tradition={languageOf(page) ?? "astrology"}
           />
         </div>

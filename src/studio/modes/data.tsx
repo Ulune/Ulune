@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useSyncExternalStore } from "react";
+import type { ZodiacState } from "@/studio/modes/zodiac";
 import type { ElementReading } from "@/lib/chart/types";
 import type { CompositeState } from "@/studio/modes/composite";
 import type { DesignState } from "@/studio/modes/design";
@@ -32,6 +33,7 @@ export type ModeData = {
   design: DesignState;
   numerology: NumerologyState;
   "numerology-cycles": NumerologyState;
+  zodiac: ZodiacState;
 };
 
 const slots: Partial<Record<StudioPage, ModeRuntime>> = {};

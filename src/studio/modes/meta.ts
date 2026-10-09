@@ -81,6 +81,13 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
     emptyTestId: "studio-numerology-cycles-empty",
     noPicture: true,
   },
+  zodiac: {
+    id: "zodiac",
+    labelKey: "pageZodiac",
+    needsChart: true,
+    stageTestId: "studio-zodiac",
+    emptyTestId: "studio-zodiac-empty",
+  },
 };
 
 export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
@@ -92,5 +99,6 @@ export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
   progressions: "pageProgressions",
   numerology: "pageNumerology",
   "numerology-cycles": "pageNumerologyCycles",
+  zodiac: "pageZodiac",
   design: "pageDesign",
 };

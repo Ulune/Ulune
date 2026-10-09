@@ -11,7 +11,8 @@
  *     everyone, asked for by date and version only, never changing for a
  *     given address; kept so the calendar's months open offline.
  *   - The studio's pages ("/" and its paths: /astrology…, /human-design,
- *     /numerology, /numerology/cycles, /calendar, /calendrier): from the
+ *     /numerology, /numerology/cycles, /chinese-astrology, /calendar,
+ *     /calendrier): from the
  *     network as always (checked with the server, never an older copy from
  *     the browser's cache), and the last copy is kept, so saved charts still
  *     open without a connection. It is the same page for everyone; no other
@@ -39,7 +40,7 @@ const MAX_ENC_PAGES = 60;
 const ENC_KEPT = { en: "ulune-enc-en-v1", fr: "ulune-enc-fr-v1", shared: "ulune-enc-shared-v1" };
 const ENCYCLOPEDIA = /^\/(?:encyclopedia|encyclopedie)(?:\/[a-z0-9-]+)?\/?$/;
 /** The studio's paths (src/studio/map.ts): the same page, each kept under its own address. */
-const STUDIO = /^\/(?:astrology(?:\/(?:transits|progressions|synastry|composite))?|human-design|numerology(?:\/cycles)?|calendar|calendrier)?\/?$/;
+const STUDIO = /^\/(?:astrology(?:\/(?:transits|progressions|synastry|composite))?|human-design|numerology(?:\/cycles)?|chinese-astrology|calendar|calendrier)?\/?$/;
 
 self.addEventListener("install", () => {
   self.skipWaiting();

@@ -11,6 +11,8 @@ export const STUDIO_PAGES = [
   "design",
   // 2.0: numerology's Cycles lens (page reorganisation, from R3).
   "numerology-cycles",
+  // 2.0: Chinese astrology, the four animals (languages plan, part 7).
+  "zodiac",
 ] as const;
 
 export type StudioPage = (typeof STUDIO_PAGES)[number];

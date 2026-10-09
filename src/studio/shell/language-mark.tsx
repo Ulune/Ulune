@@ -16,6 +16,12 @@ export function LanguageMark({ id, className }: { id: LanguageId; className?: st
         </>
       ) : id === "human-design" ? (
         <path d="M8 1.8 11.2 6.2H4.8ZM8 7.8 11.2 11 8 14.2 4.8 11Z" />
+      ) : id === "chinese-astrology" ? (
+        // The wheel of the twelve, its four cardinal animals marked (Rat, Rabbit, Horse, Rooster).
+        <>
+          <circle cx="8" cy="8" r="4.6" />
+          <path d="M8 1v2.2M15 8h-2.2M8 15v-2.2M1 8h2.2" strokeLinecap="round" />
+        </>
       ) : (
         <g fill="currentColor" stroke="none">
           {TETRACTYS.map(([x, y]) => (

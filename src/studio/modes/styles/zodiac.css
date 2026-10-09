@@ -1,0 +1,309 @@
+/* Chinese astrology's page (languages plan, part 7): the wheel of the twelve
+   animals and the four animals as cards (studio/modes/zodiac.tsx). The five
+   phases in their classical colours, tuned for both themes: Wood green, Fire
+   red, Earth ochre, Metal white-grey, Water deep blue. */
+:root {
+  --ph-wood: oklch(0.62 0.14 150);
+  --ph-fire: oklch(0.62 0.19 27);
+  --ph-earth: oklch(0.68 0.12 75);
+  --ph-metal: oklch(0.8 0.015 250);
+  --ph-water: oklch(0.55 0.14 255);
+}
+html.light {
+  --ph-wood: oklch(0.55 0.14 150);
+  --ph-fire: oklch(0.56 0.19 27);
+  --ph-earth: oklch(0.6 0.12 70);
+  --ph-metal: oklch(0.55 0.015 250);
+  --ph-water: oklch(0.48 0.14 255);
+}
+[data-phase="wood"] { --ph: var(--ph-wood); }
+[data-phase="fire"] { --ph: var(--ph-fire); }
+[data-phase="earth"] { --ph: var(--ph-earth); }
+[data-phase="metal"] { --ph: var(--ph-metal); }
+[data-phase="water"] { --ph: var(--ph-water); }
+
+.ulune-zk {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: var(--space-2) var(--stage-pad);
+  container-type: inline-size;
+}
+.ulune-zk-wheel-box {
+  flex: 0 1 min(640px, 62%);
+  aspect-ratio: 1;
+  max-height: 100%;
+  min-width: 0;
+}
+.ulune-zk-wheel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  font-family: var(--font-ui);
+}
+.ulune-zk-rim {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-border-strong);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-zk-sector {
+  cursor: pointer;
+  outline: none;
+}
+.ulune-zk-cell {
+  fill: color-mix(in oklab, var(--ph) 9%, transparent);
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transition: fill var(--motion-ui, 160ms) ease;
+}
+.ulune-zk-sector.is-mine .ulune-zk-cell {
+  fill: color-mix(in oklab, var(--ph) 26%, transparent);
+}
+.ulune-zk-sector:hover .ulune-zk-cell,
+.ulune-zk-sector.is-on .ulune-zk-cell {
+  fill: color-mix(in oklab, var(--ph) 38%, transparent);
+}
+.ulune-zk-sector:focus-visible .ulune-zk-cell {
+  stroke: var(--color-fg);
+  stroke-width: 2.5;
+}
+.ulune-zk-sector text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--color-fg);
+  pointer-events: none;
+}
+.ulune-zk-hanzi {
+  font-size: 27px;
+}
+.ulune-zk-name {
+  font-size: 10.5px;
+  fill: var(--color-fg-muted);
+}
+.ulune-zk-name.is-big {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--color-fg);
+}
+.ulune-zk-branch {
+  font-size: 9px;
+  fill: var(--color-fg-subtle);
+}
+.ulune-zk-badge {
+  cursor: pointer;
+}
+.ulune-zk-badge circle {
+  fill: var(--color-fg);
+  stroke: var(--color-bg-elevated);
+  stroke-width: 2;
+}
+.ulune-zk-badge text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font: 600 11px/1 var(--font-ui);
+  fill: var(--color-bg);
+  pointer-events: none;
+}
+.ulune-zk-badge.is-uncertain circle {
+  stroke-dasharray: 3 2;
+  stroke: var(--color-fg-muted);
+}
+.ulune-zk-badge.is-on circle {
+  fill: var(--color-halo);
+}
+.ulune-zk-now-year {
+  text-anchor: middle;
+  dominant-baseline: central;
+  font: 600 10px/1 var(--font-mono);
+  fill: var(--color-halo);
+}
+.ulune-zk-now-month {
+  fill: none;
+  stroke: var(--color-halo);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-zk-centre text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--color-fg);
+}
+.ulune-zk-centre-hanzi {
+  font-size: 34px;
+}
+.ulune-zk-centre-name {
+  font: 400 15px/1 var(--font-display);
+}
+.ulune-zk-centre-sub {
+  font-size: 9.5px;
+  fill: var(--color-fg-subtle) !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* The four animals. */
+.ulune-zk-cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  flex: 0 1 300px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-zk-card-li {
+  min-width: 0;
+}
+.ulune-zk-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  min-height: var(--row-h);
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--ph, var(--color-border-strong));
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+  color: var(--color-fg);
+  text-align: left;
+  cursor: pointer;
+}
+.ulune-zk-card:hover,
+.ulune-zk-card.is-on {
+  background: color-mix(in oklab, var(--ph, var(--color-fg)) 12%, var(--color-bg-elevated));
+}
+.ulune-zk-card.is-missing {
+  border-left-style: dashed;
+  cursor: default;
+}
+.ulune-zk-card-k {
+  font: 600 10.5px/1.3 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.ulune-zk-card-animal {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font: 400 20px/1.2 var(--font-display);
+}
+.ulune-zk-card-hanzi,
+.ulune-zk-card-py:lang(zh),
+.ulune-zk-hello-row span {
+  font-family: "PingFang TC", "PingFang SC", "Noto Sans CJK TC", "Noto Sans CJK SC", "Microsoft JhengHei", "Microsoft YaHei", var(--font-ui), sans-serif;
+}
+.ulune-zk-card-pair,
+.ulune-zk-card-note {
+  font: 400 12.5px/1.35 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-zk-card-tilde {
+  color: var(--color-fg-muted);
+}
+
+/* The side panel with nothing chosen. */
+.ulune-zk-hello {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ulune-zk-hello-h {
+  margin: 0;
+  font: 400 var(--text-xl) / 1.15 var(--font-display);
+}
+.ulune-zk-hello-p,
+.ulune-zk-hello-note {
+  margin: 0;
+  font: 400 var(--text-sm) / 1.5 var(--font-sans);
+  color: var(--color-fg-muted);
+}
+.ulune-zk-hello-note {
+  color: var(--color-fg-subtle);
+}
+.ulune-zk-hello-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-zk-hello-row {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  width: 100%;
+  min-height: var(--row-h);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-fg);
+  text-align: left;
+  font: 400 var(--text-sm) / 1.4 var(--font-sans);
+}
+.ulune-zk-hello-row b {
+  flex: 0 0 5.5em;
+  font-weight: 600;
+}
+
+/* The table view. */
+.ulune-zk-table-box {
+  overflow-x: auto;
+  padding: var(--space-3) var(--stage-pad);
+}
+.ulune-zk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 400 var(--text-sm) / 1.4 var(--font-sans);
+}
+.ulune-zk-table-cap {
+  text-align: left;
+  padding-bottom: var(--space-2);
+  font: 400 var(--text-lg) / 1.2 var(--font-display);
+}
+.ulune-zk-table th,
+.ulune-zk-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+.ulune-zk-table thead th {
+  font: 600 10.5px/1.3 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.ulune-zk-table tr.is-on {
+  background: var(--color-bg-subtle);
+}
+.ulune-zk-table-pick {
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-fg);
+  text-align: left;
+}
+
+/* A narrow stage (a phone, a tablet upright): the wheel on top, the cards two by two under it. */
+@container (max-width: 640px) {
+  .ulune-zk {
+    flex-direction: column;
+    justify-content: flex-start;
+    height: auto;
+  }
+  .ulune-zk-wheel-box {
+    flex: none;
+    width: min(100%, 420px);
+  }
+  .ulune-zk-cards {
+    flex: none;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

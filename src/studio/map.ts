@@ -16,7 +16,7 @@
 import type { StudioPage, StudioView } from "./url";
 
 export type SectionId = "charts" | "calendar" | "encyclopedia";
-export type LanguageId = "astrology" | "human-design" | "numerology";
+export type LanguageId = "astrology" | "human-design" | "numerology" | "chinese-astrology";
 export type LensId = "natal" | "cycles" | "relationship";
 /** The traditions the language picker groups its cards under, in order. */
 export type TraditionId = "western" | "chinese";
@@ -31,8 +31,8 @@ export type Language = {
   path: string;
   /** The tradition whose heading it stands under in the picker (western when left out). */
   group?: TraditionId;
-  /** Its home in the encyclopedia, under ENCYCLOPEDIA_PATHS, in each interface language. */
-  home: { en: string; fr: string };
+  /** Its home in the encyclopedia, under ENCYCLOPEDIA_PATHS, in each interface language (none until its pages are written). */
+  home?: { en: string; fr: string };
   /** Its lenses in order, each with its sub-modes (the first is the default). A lens it lacks is absent, never shown. */
   lenses: Partial<Record<LensId, readonly StudioPage[]>>;
 };
@@ -60,16 +60,26 @@ export const LANGUAGES: readonly Language[] = [
     home: { en: "numerology", fr: "numerologie" },
     lenses: { natal: ["numerology"], cycles: ["numerology-cycles"] },
   },
+  // The first Chinese language (languages plan, part 7). Its home in the
+  // encyclopedia comes with its pages (encyclopedia plan, part 24); its
+  // Cycles (the year ahead) and Relationship (two people's animals) with part 11.
+  {
+    id: "chinese-astrology",
+    path: "/chinese-astrology",
+    group: "chinese",
+    lenses: { natal: ["zodiac"] },
+  },
 ];
 
 /** The Calendar's path in each interface language. */
 export const CALENDAR_PATHS = { en: "/calendar", fr: "/calendrier" } as const;
 export const ENCYCLOPEDIA_PATHS = { en: "/encyclopedia", fr: "/encyclopedie" } as const;
 
-/** A language's home in the encyclopedia (`/encyclopedia/astrology`, `/encyclopedie/astrologie`). */
-export function languageHomePath(id: LanguageId, locale: string = "en"): string {
+/** A language's home in the encyclopedia (`/encyclopedia/astrology`, `/encyclopedie/astrologie`), or null before it has one. */
+export function languageHomePath(id: LanguageId, locale: string = "en"): string | null {
   const fr = locale === "fr";
   const home = languageById(id).home;
+  if (!home) return null;
   return `${fr ? ENCYCLOPEDIA_PATHS.fr : ENCYCLOPEDIA_PATHS.en}/${fr ? home.fr : home.en}`;
 }
 
@@ -105,6 +115,7 @@ export const PAGE_PATHS: Readonly<Record<StudioPage, string>> = {
   design: "/human-design",
   numerology: "/numerology",
   "numerology-cycles": "/numerology/cycles",
+  zodiac: "/chinese-astrology",
   timing: CALENDAR_PATHS.en,
 };
 

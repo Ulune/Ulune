@@ -21,3 +21,11 @@ export function animalOf(animal: number, locale: string): string {
   if (locale !== "fr") return a.en;
   return a.id === "goat" ? `de la ${a.fr}` : `du ${a.fr}`;
 }
+
+/** An animal with its article: "the Horse", « le Cheval », « la Chèvre »; capitalised to open a sentence. */
+export function theAnimal(animal: number, locale: string, capital = false): string {
+  const a = ANIMALS[((animal % 12) + 12) % 12]!;
+  const art = locale === "fr" ? (a.id === "goat" ? "la" : "le") : "the";
+  const word = `${art} ${locale === "fr" ? a.fr : a.en}`;
+  return capital ? word.charAt(0).toUpperCase() + word.slice(1) : word;
+}

@@ -78,15 +78,20 @@ async function computer() {
     await waitStudioPage(page, "progressions");
     console.log("sections OK");
 
-    // The picker by mouse: three cards under one heading, the current one ticked, ⓘ to the encyclopedia.
+    // The picker by mouse: three cards under the Western heading, Chinese astrology under the Chinese one
+    // (languages plan, part 7), the current one ticked, ⓘ to the encyclopedia.
     await page.getByTestId("lang-button").click();
     await page.getByTestId("lang-picker").waitFor();
     check((await attr(page, "lang-button", "aria-expanded")) === "true", "the button does not say its picker is open");
     const heads = await page.locator("[data-testid=lang-picker] h2").allInnerTexts();
-    check(JSON.stringify(heads) === JSON.stringify(["WESTERN TRADITIONS"]) || JSON.stringify(heads) === JSON.stringify(["Western traditions"]), `picker headings ${JSON.stringify(heads)}`);
+    check(
+      JSON.stringify(heads.map((h) => h.toLowerCase())) === JSON.stringify(["western traditions", "chinese traditions"]),
+      `picker headings ${JSON.stringify(heads)}`,
+    );
     const cards = await page.locator("[data-testid^=lang-card-]").evaluateAll((els) => els.map((e) => [e.dataset.testid, e.getAttribute("aria-current")]));
     check(
-      JSON.stringify(cards) === JSON.stringify([["lang-card-astrology", "true"], ["lang-card-human-design", null], ["lang-card-numerology", null]]),
+      JSON.stringify(cards) ===
+        JSON.stringify([["lang-card-astrology", "true"], ["lang-card-human-design", null], ["lang-card-numerology", null], ["lang-card-chinese-astrology", null]]),
       `cards ${JSON.stringify(cards)}`,
     );
     for (const [id, path] of [["astrology", "/encyclopedia/astrology"], ["human-design", "/encyclopedia/human-design"], ["numerology", "/encyclopedia/numerology"]]) {
@@ -288,7 +293,8 @@ async function phone() {
     });
     check(Math.abs(sheet.bottom - 844) <= 1, `the sheet ends at ${sheet.bottom}`);
     check(
-      JSON.stringify(sheet.cards.map((c) => c.id)) === JSON.stringify(["lang-card-astrology", "lang-card-numerology", "lang-card-human-design"]),
+      JSON.stringify(sheet.cards.map((c) => c.id)) ===
+        JSON.stringify(["lang-card-astrology", "lang-card-numerology", "lang-card-human-design", "lang-card-chinese-astrology"]),
       `the sheet's order ${sheet.cards.map((c) => c.id)}`,
     );
     check(sheet.cards[0].top === sheet.cards[1].top && sheet.cards[2].top > sheet.cards[0].top, `not two columns: ${JSON.stringify(sheet.cards)}`);

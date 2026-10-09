@@ -35,6 +35,7 @@ export const shell = {
   pageNotFound: ["This page isn’t in Ulune.", "Cette page n’est pas dans Ulune."],
   pageNumerology: ["Numerology", "Numérologie"],
   pageNumerologyCycles: ["Numerology cycles", "Cycles numérologiques"],
+  pageZodiac: ["Chinese astrology", "Astrologie chinoise"],
   pageProgressions: ["Progressions", "Progressions"],
   pageSynastry: ["Synastry", "Synastrie"],
   pageTiming: ["Calendar", "Calendrier"],
