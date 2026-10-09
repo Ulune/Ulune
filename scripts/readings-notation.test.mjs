@@ -94,3 +94,10 @@ test("French aspect lines never read \"à le\", and the note on a lot reads what
   const note = (fr.byId["planet:fortune"].sections ?? []).find((s) => s.id === "time");
   assert.match(note.paragraphs[0], /dépend de l’heure de naissance\u202f: cette position n’est peut-être pas la vôtre/);
 });
+
+test("a planet opposite the Ascendant or the Midheaven is read on the other end of the axis", () => {
+  assert.match(aspectPractice("saturn", "ascendant", "opposition", "en"), /Opposite the Ascendant, the planet stands on the Descendant/);
+  assert.match(aspectPractice("moon", "midheaven", "opposition", "fr"), /À l’opposé du Milieu du Ciel, la planète se tient au Fond du Ciel/);
+  assert.doesNotMatch(aspectPractice("saturn", "ascendant", "conjunction", "en"), /Opposite the/);
+  assert.doesNotMatch(aspectPractice("sun", "moon", "opposition", "en"), /Opposite the/);
+});

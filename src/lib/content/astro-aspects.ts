@@ -559,12 +559,12 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "Vous pensez et parlez avec un sens de l’harmonie. Vous faites preuve de tact, votre parole est agréable, et vous soignez la forme\u202f: le mot juste, une mise en page réussie. L’écriture, le design ou la diplomatie peuvent vous convenir. Vous adoucissez peut-être tant les vérités difficiles que le message se perd.",
     },
     flow: {
-      en: "Seen from Earth, Mercury and Venus are never more than about 76° apart, so the sextile is the only flowing major aspect they can form. With it, you communicate gracefully: you can negotiate, compliment sincerely or write in a way that makes people feel considered.",
-      fr: "Vus de la Terre, Mercure et Vénus ne s’écartent jamais de plus de 76° environ\u202f: le sextile est donc le seul aspect majeur harmonieux possible entre eux. Avec lui, vous communiquez avec élégance\u202f: vous savez négocier, complimenter sincèrement ou écrire de façon à ce que l’autre se sente considéré.",
+      en: "Seen from Earth, Mercury and Venus are never more than about 74° apart, so the sextile is the only flowing major aspect they can form. With it, you communicate gracefully: you can negotiate, compliment sincerely or write in a way that makes people feel considered.",
+      fr: "Vus de la Terre, Mercure et Vénus ne s’écartent jamais de plus de 74° environ\u202f: le sextile est donc le seul aspect majeur harmonieux possible entre eux. Avec lui, vous communiquez avec élégance\u202f: vous savez négocier, complimenter sincèrement ou écrire de façon à ce que l’autre se sente considéré.",
     },
     tension: {
-      en: "Seen from Earth, Mercury and Venus are never more than about 76° apart, so they cannot form a square or opposition, though the semisquare is possible. With it, you may say what pleases rather than what you think, or fuss over wording. What helps: saying the substance first, then the courtesy.",
-      fr: "Vus de la Terre, Mercure et Vénus ne s’écartent jamais de plus de 76° environ\u202f: ni carré ni opposition ne sont possibles, mais le semi-carré l’est. Avec lui, vous pouvez dire ce qui fait plaisir plutôt que ce que vous pensez, ou peaufiner la formulation à l’excès. Ce qui aide\u202f: dire d’abord le fond, puis y mettre les formes.",
+      en: "Seen from Earth, Mercury and Venus are never more than about 74° apart, so they cannot form a square or opposition, though the semisquare is possible. With it, you may say what pleases rather than what you think, or fuss over wording. What helps: saying the substance first, then the courtesy.",
+      fr: "Vus de la Terre, Mercure et Vénus ne s’écartent jamais de plus de 74° environ\u202f: ni carré ni opposition ne sont possibles, mais le semi-carré l’est. Avec lui, vous pouvez dire ce qui fait plaisir plutôt que ce que vous pensez, ou peaufiner la formulation à l’excès. Ce qui aide\u202f: dire d’abord le fond, puis y mettre les formes.",
     },
   },
   "moon|neptune": {
@@ -685,8 +685,8 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "Neptune et Pluton se sont rejoints pour la dernière fois vers 1891-1892 et ne se retrouvent qu’environ tous les 500 ans\u202f: personne en vie aujourd’hui n’a cette conjonction. Elle a ouvert un long cycle de transformation collective des croyances et de la culture. Dans un thème, elle ne compte personnellement qu’à travers les planètes ou angles qu’elle touche.",
     },
     flow: {
-      en: "Neptune and Pluto have been in a long sextile since the mid-twentieth century, so almost everyone born since then shares it; it matters personally mainly when it touches personal planets or angles. There it can show as a quiet ability to turn ideals into lasting change, as in healing or social work.",
-      fr: "Neptune et Pluton forment un long sextile depuis le milieu du XXe siècle\u202f: presque toutes les personnes nées depuis le partagent, et il compte surtout s’il touche des planètes personnelles ou un angle. Il peut alors se traduire par une capacité discrète à transformer un idéal en changement durable, par exemple dans le soin ou l’action sociale.",
+      en: "Neptune and Pluto have been in a long sextile since the mid-twentieth century, so most people born since then have it, within a few degrees (with Ulune’s 6° orb it drops out for part of some years between about 1993 and 2019); their trine last formed in the eighteenth century, so no one alive has that. It matters personally mainly when it touches personal planets or angles. There it can show as a quiet ability to turn ideals into lasting change, as in healing or social work.",
+      fr: "Neptune et Pluton forment un long sextile depuis le milieu du XXe siècle\u202f: la plupart des personnes nées depuis l’ont, à quelques degrés près (avec l’orbe de 6° d’Ulune, il disparaît une partie de certaines années entre 1993 et 2019 environ)\u202f; leur trigone remonte au XVIIIe siècle, et personne en vie ne l’a. Il compte surtout s’il touche des planètes personnelles ou un angle. Il peut alors se traduire par une capacité discrète à transformer un idéal en changement durable, par exemple dans le soin ou l’action sociale.",
     },
     tension: {
       en: "No one alive today has Neptune and Pluto square or opposite: their cycle lasts about 500 years, and since the mid-twentieth century they have been in a long sextile. You will meet this aspect in historical charts, where it describes a period of collective upheaval in beliefs, shared by whole generations.",
@@ -743,8 +743,8 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "Partagé par beaucoup de personnes nées à la même époque, cet aspect compte surtout s’il touche des planètes personnelles ou un angle. Il se traduit alors par une aisance avec les nouveaux outils de création, art numérique, musique électronique, ou une intuition qui devance les changements culturels.",
     },
     tension: {
-      en: "Many people born around the same time share this; it matters personally mainly when it touches personal planets or angles. Then ideals and the urge for change can feel unsettled — sudden disillusionment, confusing shifts in belief. What helps: testing new ideas in practice before committing to them.",
-      fr: "Beaucoup de personnes nées à la même époque partagent cet aspect\u202f; il compte surtout s’il touche des planètes personnelles ou un angle. L’idéal et le besoin de changement peuvent alors sembler instables\u202f: désillusions soudaines, convictions qui basculent de façon déroutante. Ce qui aide\u202f: éprouver une idée nouvelle en pratique avant de s’y engager.",
+      en: "Many people born around the same time share this, the square of the mid-1950s above all, while their last opposition, around 1906–10, is in no living chart. It matters personally mainly when it touches personal planets or angles. Then ideals and the urge for change can feel unsettled — sudden disillusionment, confusing shifts in belief. What helps: testing new ideas in practice before committing to them.",
+      fr: "Beaucoup de personnes nées à la même époque partagent cet aspect, surtout le carré du milieu des années 1950, tandis que leur dernière opposition, vers 1906-1910, n’est dans aucun thème vivant. Il compte surtout s’il touche des planètes personnelles ou un angle. L’idéal et le besoin de changement peuvent alors sembler instables\u202f: désillusions soudaines, convictions qui basculent de façon déroutante. Ce qui aide\u202f: éprouver une idée nouvelle en pratique avant de s’y engager.",
     },
   },
   "neptune|venus": {
@@ -815,8 +815,8 @@ export const PAIR_TEXT: Record<string, PairText> = {
       fr: "Partagé par beaucoup de personnes nées à la même époque, cet aspect compte surtout s’il touche des planètes personnelles ou un angle. Il donne alors l’art de mener un changement sans détruire ce qui fonctionne, par exemple en réformant un système de l’intérieur.",
     },
     tension: {
-      en: "Many people born around the same time share this, including everyone born under the 2012–2015 square; it matters personally mainly when it touches personal planets or angles. Then you may feel pressure to overturn things abruptly. What helps: channelling the urge for change into specific, sustained action.",
-      fr: "Beaucoup de personnes nées à la même époque partagent cet aspect, dont toutes celles nées sous le carré de 2012-2015\u202f; il compte surtout s’il touche des planètes personnelles ou un angle. Vous pouvez alors ressentir une pression à tout renverser brusquement. Ce qui aide\u202f: canaliser ce besoin de changement dans une action précise et durable.",
+      en: "Many people born around the same time share this: the square of 2012–2015 for the youngest, while their last opposition, in 1901–02, is in no living chart. It matters personally mainly when it touches personal planets or angles. Then you may feel pressure to overturn things abruptly. What helps: channelling the urge for change into specific, sustained action.",
+      fr: "Beaucoup de personnes nées à la même époque partagent cet aspect\u202f: le carré de 2012-2015 pour les plus jeunes, tandis que leur dernière opposition, en 1901-1902, n’est dans aucun thème vivant. Il compte surtout s’il touche des planètes personnelles ou un angle. Vous pouvez alors ressentir une pression à tout renverser brusquement. Ce qui aide\u202f: canaliser ce besoin de changement dans une action précise et durable.",
     },
   },
   "pluto|venus": {

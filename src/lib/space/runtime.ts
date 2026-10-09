@@ -5,6 +5,9 @@ import {
   AI_RECORD,
   BACKUP_RECORD,
   CHART_RECORD,
+  ENC_BOOKMARKS_RECORD,
+  ENC_CHANGED,
+  ENC_NOTE_RECORD,
   LIBRARY_RECORD,
   PAIR_RECORD,
   type BackupRecord,
@@ -351,6 +354,7 @@ export async function importBackup(backup: SpaceBackup, way: WayIn): Promise<num
   const records = await openBackup(backup, way);
   const bridge = spaceBridge();
   await bridge?.beforeLock().catch(() => {});
+  await importEncyclopedia(vault, records);
 
   const theirOrder = (records.get(LIBRARY_RECORD) as LibraryRecord | undefined)?.order ?? [];
   const rank = new Map(theirOrder.map((id, i) => [id, i]));
@@ -385,11 +389,39 @@ export async function importBackup(backup: SpaceBackup, way: WayIn): Promise<num
   return joining.length;
 }
 
+type KeptPage = { id: string; at: number };
+type KeptNote = { text: string; at: number };
+
+/**
+ * A backup's encyclopedia (part 20) joins the open space's: its bookmarks
+ * not kept here yet, its notes on pages that have none here or an older
+ * one. The pages it read stay with it.
+ */
+async function importEncyclopedia(vault: Vault, records: Map<string, unknown>): Promise<void> {
+  const puts: [string, unknown][] = [];
+  const theirs = records.get(ENC_BOOKMARKS_RECORD) as KeptPage[] | undefined;
+  if (Array.isArray(theirs) && theirs.length) {
+    const ours = (await vault.get<KeptPage[]>(ENC_BOOKMARKS_RECORD).catch(() => null)) ?? [];
+    const joining = theirs.filter((p) => p && typeof p.id === "string" && !ours.some((o) => o.id === p.id));
+    if (joining.length) puts.push([ENC_BOOKMARKS_RECORD, [...ours, ...joining].sort((a, b) => b.at - a.at)]);
+  }
+  for (const [name, value] of records) {
+    if (!name.startsWith(ENC_NOTE_RECORD)) continue;
+    const note = value as KeptNote;
+    if (!note || typeof note.text !== "string") continue;
+    const here = await vault.get<KeptNote>(name).catch(() => null);
+    if (!here || here.at < note.at) puts.push([name, note]);
+  }
+  if (!puts.length) return;
+  await vault.write(puts);
+  window.dispatchEvent(new Event(ENC_CHANGED));
+}
+
 /**
  * The open space's charts and partners, read, for the readable copy the
  * reader downloads from Your data (their AI keys stay out of it).
  */
-export async function readableCopy(): Promise<{ charts: StoredRow[]; partners: PairRecord | null } | null> {
+export async function readableCopy(): Promise<{ charts: StoredRow[]; partners: PairRecord | null; encyclopedia: { bookmarks: unknown[]; notes: unknown[] } } | null> {
   const vault = openVault();
   if (!vault) return null;
   await spaceBridge()?.beforeLock().catch(() => {});
@@ -400,7 +432,10 @@ export async function readableCopy(): Promise<{ charts: StoredRow[]; partners: P
     .map(([, row]) => row)
     .sort((a, b) => (rank.get(a.id) ?? Infinity) - (rank.get(b.id) ?? Infinity));
   const partners = await vault.get<PairRecord>(PAIR_RECORD).catch(() => null);
-  return { charts, partners };
+  // The encyclopedia's bookmarks and notes (part 20): the reader's too.
+  const bookmarks = (await vault.get<unknown[]>(ENC_BOOKMARKS_RECORD).catch(() => null)) ?? [];
+  const { rows: notes } = await vault.list<unknown>(ENC_NOTE_RECORD);
+  return { charts, partners, encyclopedia: { bookmarks, notes: notes.map(([, n]) => n) } };
 }
 
 /* ------------------------------------------------ after a while away */

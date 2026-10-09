@@ -86,14 +86,14 @@ export function YourData() {
         settings[k] = raw;
       }
     }
-    // The charts and partners too while the space is open; AI keys never.
+    // The charts, partners, encyclopedia bookmarks and notes too while the space is open; AI keys never.
     const space = useSpace.getState().status === "open" ? await (await loadSpaceRuntime()).readableCopy() : null;
     const copy = {
       app: "ulune",
       type: "readable-copy",
       exported: new Date().toISOString(),
       settings,
-      ...(space ? { charts: space.charts, partners: space.partners } : {}),
+      ...(space ? { charts: space.charts, partners: space.partners, encyclopedia: space.encyclopedia } : {}),
     };
     saveFile(`ulune-data-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(copy, null, 2));
     toast(t("dataExported"));

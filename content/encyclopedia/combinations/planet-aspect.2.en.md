@@ -5,15 +5,15 @@ mercury-conjunction-venus:
   opening: Both planets keep close to the Sun, so they meet often and this conjunction is a common one. Mercury takes on the nature of what it joins; beside Venus, the mind itself acquires grace and a sense of proportion.
 mercury-sextile-venus:
   summary: Mercury sextile Venus: the widest aspect these two can form, where speech and affection cooperate once the link is put to use.
-  opening: Sixty degrees is near the outer edge of their range, since Mercury and Venus never stand more than about 76° apart. To reach it they must flank the Sun: one is a morning star, the other an evening star.
+  opening: Sixty degrees is near the outer edge of their range, since Mercury and Venus never stand more than about 74° apart. To reach it they must flank the Sun: one is a morning star, the other an evening star.
 mercury-square-venus:
-  summary: Mercury square Venus cannot occur in a birth chart: the two never stand more than about 76° apart, so their friction takes milder forms.
-  opening: No birth chart holds this square: seen from the Earth, Mercury and Venus never stand more than about 76° apart, well short of 90°. The page is kept for completeness, as the square can form between two charts, in [[synastry]], or by [[transit]].
+  summary: Mercury square Venus cannot occur in a birth chart: the two never stand more than about 74° apart, so their friction takes milder forms.
+  opening: No birth chart holds this square: seen from the Earth, Mercury and Venus never stand more than about 74° apart, well short of 90°. The page is kept for completeness, as the square can form between two charts, in [[synastry]], or by [[transit]].
 mercury-trine-venus:
-  summary: Mercury trine Venus never occurs in a birth chart: the two stay within about 76° of each other, so their ease takes the form of a sextile.
+  summary: Mercury trine Venus never occurs in a birth chart: the two stay within about 74° of each other, so their ease takes the form of a sextile.
   opening: A trine needs 120°, far beyond the reach of two planets held so close to the Sun. Nobody is born with it. It appears only between two charts, in [[synastry]], or by [[transit]], when Mercury in the sky meets a natal Venus.
 mercury-opposition-venus:
-  summary: Mercury opposite Venus is impossible in a birth chart, since the two never stand more than about 76° apart, well under the 180° it needs.
+  summary: Mercury opposite Venus is impossible in a birth chart, since the two never stand more than about 74° apart, well under the 180° it needs.
   opening: Half the zodiac is out of reach for these two: Mercury strays at most about 28° from the Sun, Venus about 47°. Their opposition is therefore met only between two people, one’s Mercury facing the other’s Venus in [[synastry]].
 mercury-conjunction-mars:
   summary: Mercury conjunct Mars: thought and action fused into one quick, outspoken trait, a mind that debates and decides at speed.

@@ -32,7 +32,7 @@ Ses dons sont la curiosité, l’esprit, la souplesse et l’adresse des mots co
 ## En pratique
 
 - **Ses rétrogradations** reviennent trois ou quatre fois par an, pour trois semaines environ. En transit, on les associe volontiers aux retards et aux remises en question, et l’on s’en sert plutôt pour réviser que pour lancer. Environ une personne sur cinq naît avec Mercure rétrograde, ce qu’on lit comme un esprit qui retourne les choses avant de parler.
-- **Avec le Soleil**, Mercure ne peut former d’autre aspect majeur que la conjonction, et il est souvent [[combust|combuste]] ; avec Vénus, dont il n’est jamais à plus de 76° environ, il ne forme jamais de carré.
+- **Avec le Soleil**, Mercure ne peut former d’autre aspect majeur que la conjonction, et il est souvent [[combust|combuste]] ; avec Vénus, dont il n’est jamais à plus de 74° environ, il ne forme jamais de carré.
 - **Par maison**, il montre où l’esprit s’active le plus : en [[house-3|maison III]], les messages, les études et le voisinage ; en maison X, une carrière bâtie sur les mots ou le commerce.
 
 ## D’une tradition à l’autre

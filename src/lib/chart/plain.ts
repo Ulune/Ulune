@@ -137,7 +137,25 @@ export function aspectPractice(a: BodyId, b: BodyId, type: AspectId, locale: Loc
     locale === "fr"
       ? `${bodyThe(a, locale, true)} (${bodyKeywords(a, locale)}) ${link} ${bodyThe(b, locale)} (${bodyKeywords(b, locale)}).`
       : `${bodyThe(a, locale, true)} (${bodyKeywords(a, locale)}) ${link} ${bodyThe(b, locale)} (${bodyKeywords(b, locale)}).`;
-  return [theme ?? lead, aspectInPractice(type, locale)].filter(Boolean).join(" ") + minorNote;
+  return [theme ?? lead, angleOppositeNote(a, b, type, locale), aspectInPractice(type, locale)].filter(Boolean).join(" ") + minorNote;
+}
+
+/**
+ * The angle texts read a planet as on the angle; opposite it, the planet is
+ * on the other end of the axis (the Descendant, the IC), and the text says so.
+ */
+export function angleOppositeNote(a: BodyId, b: BodyId, type: AspectId, locale: Locale): string {
+  if (type !== "opposition") return "";
+  const angle = a === "ascendant" || a === "midheaven" ? a : b === "ascendant" || b === "midheaven" ? b : null;
+  if (!angle) return "";
+  if (angle === "ascendant") {
+    return locale === "fr"
+      ? "À l’opposé de l’Ascendant, la planète se tient sur le Descendant\u202f: cela se vit davantage à travers les partenaires et les personnes rencontrées que dans votre propre manière d’être."
+      : "Opposite the Ascendant, the planet stands on the Descendant: this shows more through partners and the people you meet than in your own manner.";
+  }
+  return locale === "fr"
+    ? "À l’opposé du Milieu du Ciel, la planète se tient au Fond du Ciel\u202f: cela agit davantage au foyer et dans la vie privée que dans la vie publique."
+    : "Opposite the Midheaven, the planet stands at the IC: this works more at home and in private life than in public life.";
 }
 
 function placementOf(chart: NatalChart, id: BodyId): Placement | undefined {

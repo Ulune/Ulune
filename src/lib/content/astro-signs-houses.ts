@@ -436,8 +436,8 @@ export type HouseText = {
 export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12, HouseText> = {
   1: {
     what: {
-      en: "The 1st house describes the self: the body, vitality, appearance and the way someone meets life and starts things. Traditionally called the house of life, it begins at the Ascendant in most house systems. It is angular, the strongest type of house, so planets here are prominent and visible in behaviour. Its opposite is the 7th, forming the axis of self and other.",
-      fr: "La maison I décrit le soi\u202f: le corps, la vitalité, l’apparence et la manière d’aborder la vie et de commencer les choses. Appelée traditionnellement maison de la vie, elle commence à l’Ascendant dans la plupart des systèmes de maisons. C’est une maison angulaire, le type de maison le plus puissant\u202f: les planètes qui s’y trouvent sont mises en avant et se voient dans le comportement. Elle fait face à la maison VII, avec laquelle elle forme l’axe du soi et de l’autre.",
+      en: "The 1st house describes the self: the body, vitality, appearance and the way someone meets life and starts things. Traditionally called the house of life, and the place where Mercury rejoices, it begins at the Ascendant in most house systems. It is angular, the strongest type of house, so planets here are prominent and visible in behaviour. Its opposite is the 7th, forming the axis of self and other.",
+      fr: "La maison I décrit le soi\u202f: le corps, la vitalité, l’apparence et la manière d’aborder la vie et de commencer les choses. Appelée traditionnellement maison de la vie, et lieu où Mercure se réjouit, elle commence à l’Ascendant dans la plupart des systèmes de maisons. C’est une maison angulaire, le type de maison le plus puissant\u202f: les planètes qui s’y trouvent sont mises en avant et se voient dans le comportement. Elle fait face à la maison VII, avec laquelle elle forme l’axe du soi et de l’autre.",
     },
     area: {
       en: "identity, the body and first impressions",
@@ -562,8 +562,8 @@ export const HOUSE_TEXT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
   },
   8: {
     what: {
-      en: "The 8th house covers shared resources, debt, inheritance, taxes and other people’s money, along with intimacy, crises and deep change. Traditionally it was the house of death, which modern astrology reads more broadly as endings and transformation. As a succedent house, it deals with what is held jointly and what is exchanged. Its opposite, the 2nd, completes the axis of one’s own and shared resources.",
-      fr: "La maison VIII concerne les ressources partagées, les dettes, les héritages, les impôts et l’argent des autres, ainsi que l’intimité, les crises et les changements profonds. On l’appelait traditionnellement la maison de la mort, que l’astrologie moderne lit plus largement comme celle des fins et des transformations. En tant que maison succédente, elle concerne ce que l’on détient en commun et ce que l’on échange. La maison II, en face, complète l’axe des ressources propres et des ressources partagées.",
+      en: "The 8th house covers shared resources, debt, inheritance, taxes and other people’s money, along with intimacy, crises and deep change. Hellenistic astrologers called it the Idle Place, as it makes no aspect to the rising sign; later tradition made it the house of death, which modern astrology reads more broadly as endings and transformation. As a succedent house, it deals with what is held jointly and what is exchanged. Its opposite, the 2nd, completes the axis of one’s own and shared resources.",
+      fr: "La maison VIII concerne les ressources partagées, les dettes, les héritages, les impôts et l’argent des autres, ainsi que l’intimité, les crises et les changements profonds. Les astrologues hellénistiques l’appelaient le Lieu oisif, car il ne forme aucun aspect avec le signe ascendant\u202f; la tradition ultérieure en a fait la maison de la mort, que l’astrologie moderne lit plus largement comme celle des fins et des transformations. En tant que maison succédente, elle concerne ce que l’on détient en commun et ce que l’on échange. La maison II, en face, complète l’axe des ressources propres et des ressources partagées.",
     },
     area: {
       en: "shared resources, intimacy and times of crisis",

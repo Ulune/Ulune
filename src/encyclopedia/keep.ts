@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { ENC_BOOKMARKS_RECORD as BOOKMARKS_RECORD, ENC_CHANGED, ENC_NOTE_RECORD as NOTE_RECORD, ENC_RECENT_RECORD as RECENT_RECORD } from "@/lib/space/records";
 import { openVault, useSpace, whenSpaceLocks } from "@/lib/space/state";
 import type { Lang, PageData } from "./types";
 
@@ -15,9 +16,6 @@ import type { Lang, PageData } from "./types";
  *   enc/recent      the pages read, newest first (the last 20)
  */
 
-export const BOOKMARKS_RECORD = "enc/bookmarks";
-export const NOTE_RECORD = "enc/note/";
-export const RECENT_RECORD = "enc/recent";
 const RECENT_MAX = 20;
 export const NOTE_MAX = 4000;
 
@@ -94,6 +92,11 @@ function watch(): void {
   whenSpaceLocks(() => useKeep.setState({ where: "tab", ready: true, bookmarks: [], notes: {}, recent: [] }));
   useSpace.subscribe((s, prev) => {
     if (s.status !== prev.status) void loadKeep();
+  });
+  // A backup's bookmarks and notes joined the space: read it again.
+  window.addEventListener(ENC_CHANGED, () => {
+    useKeep.setState({ ready: false, where: "tab" });
+    void loadKeep();
   });
 }
 

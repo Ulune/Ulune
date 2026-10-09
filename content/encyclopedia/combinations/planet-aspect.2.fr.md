@@ -5,15 +5,15 @@ mercury-conjunction-venus:
   opening: Les deux planètes restent près du Soleil : elles se rencontrent souvent, et cette conjonction est courante. Mercure prend la nature de ce qu’il touche ; aux côtés de Vénus, la pensée elle-même gagne en grâce et en mesure.
 mercury-sextile-venus:
   summary: Mercure sextile Vénus : l’aspect le plus large que ces deux planètes puissent former, où parole et affection coopèrent dès qu’on s’en sert.
-  opening: Soixante degrés, c’est presque la limite de leur écart, puisque Mercure et Vénus ne s’éloignent jamais de plus de 76° environ. Pour l’atteindre, les deux planètes doivent encadrer le Soleil : l’une est étoile du matin, l’autre étoile du soir.
+  opening: Soixante degrés, c’est presque la limite de leur écart, puisque Mercure et Vénus ne s’éloignent jamais de plus de 74° environ. Pour l’atteindre, les deux planètes doivent encadrer le Soleil : l’une est étoile du matin, l’autre étoile du soir.
 mercury-square-venus:
-  summary: Mercure carré Vénus n’existe pas dans un thème natal : les deux planètes ne s’écartent jamais de plus de 76° environ, et leur friction prend d’autres formes.
-  opening: Aucun thème natal ne porte ce carré : Mercure et Vénus ne s’écartent jamais de plus de 76° environ, bien en deçà de 90°. La page existe pour être complète, car ce carré peut se former entre deux thèmes, en [[synastry|synastrie]], ou par [[transit]].
+  summary: Mercure carré Vénus n’existe pas dans un thème natal : les deux planètes ne s’écartent jamais de plus de 74° environ, et leur friction prend d’autres formes.
+  opening: Aucun thème natal ne porte ce carré : Mercure et Vénus ne s’écartent jamais de plus de 74° environ, bien en deçà de 90°. La page existe pour être complète, car ce carré peut se former entre deux thèmes, en [[synastry|synastrie]], ou par [[transit]].
 mercury-trine-venus:
-  summary: Mercure trigone Vénus ne se rencontre dans aucun thème natal : les deux restent à moins de 76° environ, et leur aisance prend la forme d’un sextile.
+  summary: Mercure trigone Vénus ne se rencontre dans aucun thème natal : les deux restent à moins de 74° environ, et leur aisance prend la forme d’un sextile.
   opening: Un trigone demande 120°, bien au-delà de ce que permettent deux planètes tenues si près du Soleil. Personne ne naît avec. On ne le trouve qu’entre deux thèmes, en [[synastry|synastrie]], ou par [[transit]], quand le Mercure du ciel forme cet angle avec une Vénus natale.
 mercury-opposition-venus:
-  summary: Mercure opposé Vénus est impossible dans un thème natal : les deux ne s’écartent jamais de plus de 76° environ, loin des 180° nécessaires.
+  summary: Mercure opposé Vénus est impossible dans un thème natal : les deux ne s’écartent jamais de plus de 74° environ, loin des 180° nécessaires.
   opening: La moitié du zodiaque leur est hors d’atteinte : Mercure s’écarte au plus de 28° environ du Soleil, Vénus de 47°. Leur opposition ne se rencontre donc qu’entre deux personnes, le Mercure de l’une face à la Vénus de l’autre, en [[synastry|synastrie]].
 mercury-conjunction-mars:
   summary: Mercure conjoint Mars : pensée et action fondues en un seul trait, vif et franc, un esprit qui débat et tranche à toute allure.

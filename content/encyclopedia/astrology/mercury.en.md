@@ -32,7 +32,7 @@ Its gifts are curiosity, wit, adaptability and skill with words and hands. Its d
 ## In practice
 
 - **Retrograde periods** come three or four times a year, about three weeks each. As transits they are popularly linked to delays and second thoughts, and are often used for revising rather than launching. About one person in five is born with Mercury retrograde, read as a mind that turns things over before it speaks.
-- **With the Sun** Mercury can make no major aspect but the conjunction, and it is often [[combust|combust]]; with Venus, never more than about 76° away, it never reaches a square.
+- **With the Sun** Mercury can make no major aspect but the conjunction, and it is often [[combust|combust]]; with Venus, never more than about 74° away, it never reaches a square.
 - **By house** it shows where the mind is busiest: in the [[house-3|3rd]], messages, study and neighbours; in the 10th, a career built on words or trade.
 
 ## Across traditions
