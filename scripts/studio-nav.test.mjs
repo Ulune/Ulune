@@ -36,18 +36,18 @@ test("the picker's headings come from the registry: Western, then Chinese since 
     languageGroups().map((g) => [g.group, g.languages.map((l) => l.id)]),
     [
       ["western", ["astrology", "human-design", "numerology"]],
-      ["chinese", ["chinese-astrology"]],
+      ["chinese", ["chinese-astrology", "bazi"]],
     ],
   );
   // A heading never stands without a language under it.
   assert.deepEqual(languageGroups(LANGUAGES.filter((l) => l.group !== "chinese")).map((g) => g.group), ["western"]);
   // Another Chinese language joins its heading in the registry's order.
-  const withBazi = [...LANGUAGES, { id: "bazi", path: "/bazi", group: "chinese", home: { en: "bazi", fr: "bazi" }, lenses: { natal: ["natal"] } }];
+  const withFengShui = [...LANGUAGES, { id: "feng-shui", path: "/feng-shui", group: "chinese", lenses: { natal: ["natal"] } }];
   assert.deepEqual(
-    languageGroups(withBazi).map((g) => [g.group, g.languages.map((l) => l.id)]),
+    languageGroups(withFengShui).map((g) => [g.group, g.languages.map((l) => l.id)]),
     [
       ["western", ["astrology", "human-design", "numerology"]],
-      ["chinese", ["chinese-astrology", "bazi"]],
+      ["chinese", ["chinese-astrology", "bazi", "feng-shui"]],
     ],
   );
   assert.deepEqual(TRADITIONS, ["western", "chinese"]);
@@ -62,10 +62,11 @@ test("each language's ⓘ leads to its home in the encyclopedia, in the reader's
   assert.equal(languageHomePath("numerology", "fr"), "/encyclopedie/numerologie");
   // Chinese astrology's home comes with its pages (encyclopedia plan, part 24): no ⓘ until then.
   assert.equal(languageHomePath("chinese-astrology"), null);
+  assert.equal(languageHomePath("bazi"), null);
 });
 
 test("the bars' order: each language's lenses and sub-modes, then the Calendar", () => {
-  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", "zodiac", "zodiac-years", "zodiac-pair", "timing"]);
+  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "timing"]);
   assert.deepEqual([...PAGE_ORDER].sort(), [...STUDIO_PAGES].sort(), "every page once");
 });
 

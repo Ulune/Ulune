@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useSyncExternalStore } from "react";
 import type { ZodiacState } from "@/studio/modes/zodiac";
 import type { ZodiacYearsState } from "@/studio/modes/zodiac-years";
 import type { ZodiacPairState } from "@/studio/modes/zodiac-pair";
+import type { BaziState } from "@/studio/modes/bazi";
 import type { ElementReading } from "@/lib/chart/types";
 import type { CompositeState } from "@/studio/modes/composite";
 import type { DesignState } from "@/studio/modes/design";
@@ -38,6 +39,7 @@ export type ModeData = {
   zodiac: ZodiacState;
   "zodiac-years": ZodiacYearsState;
   "zodiac-pair": ZodiacPairState;
+  bazi: BaziState;
 };
 
 const slots: Partial<Record<StudioPage, ModeRuntime>> = {};

@@ -145,7 +145,10 @@ if (want.has("bundle")) {
   // people) in the map, the routes and the palette, the Calendar's day's-animal switch and
   // the reading's drawn mark, 0.5 (the pages, their words and the day's engine load when
   // used): 279.0-279.1; limit 279.5.
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 279.5, "KB gz");
+  // Part 12 (9 Oct): BaZi in the map, the picker (its card, mark and words) and the palette,
+  // 0.3 (its page, texts and table load when opened): 279.4, 279.7 in one run of five (a
+  // small chunk landing within the load); limit 280.
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 280, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's

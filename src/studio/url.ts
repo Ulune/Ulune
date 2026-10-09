@@ -16,6 +16,8 @@ export const STUDIO_PAGES = [
   // 2.0: its Cycles (the year ahead) and Relationship (two people's animals) lenses (part 11).
   "zodiac-years",
   "zodiac-pair",
+  // 2.0: BaZi, the Four Pillars (languages plan, part 12).
+  "bazi",
 ] as const;
 
 export type StudioPage = (typeof STUDIO_PAGES)[number];

@@ -28,7 +28,12 @@ export const pickerWords = {
     "Your four animals: the year’s, the month’s, the day’s and the hour’s.",
     "Vos quatre animaux\u202f: celui de l’année, du mois, du jour et de l’heure.",
   ],
+  langBaziLine: [
+    "Your Day Master and the Ten Gods of your four pillars.",
+    "Votre Maître du jour et les Dix Dieux de vos quatre piliers.",
+  ],
   langNeedsTime: ["Needs the birth time", "Demande l’heure de naissance"],
+  langNeedsDatePillar: ["A date is enough; the time adds the hour pillar", "Une date suffit\u202f; l’heure ajoute le pilier de l’heure"],
   langNeedsDate: ["A date is enough; the time adds the hour", "Une date suffit\u202f; l’heure ajoute la quatrième"],
   langNeedsName: ["Needs a name and a date", "Demande un nom et une date"],
   langAbout: ["{name} in the encyclopedia", "{name} dans l’encyclopédie"],

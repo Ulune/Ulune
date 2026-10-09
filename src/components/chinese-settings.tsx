@@ -5,6 +5,7 @@ import { AnimalGlyph } from "@/components/animal-glyph";
 import {
   ANIMAL_SHOWS,
   CLOCKS,
+  PILLAR_ORDERS,
   DAY_BOUNDARIES,
   DEFAULT_CHINESE_PREFS,
   SCRIPTS,
@@ -48,6 +49,15 @@ const ANIMALS: Group<"animals"> = {
     value,
     label: value === "drawings" ? "cnAnimalsDrawings" : "cnAnimalsCharacters",
     hint: value === "drawings" ? "cnAnimalsDrawingsHint" : "cnAnimalsCharactersHint",
+  })),
+};
+const ORDER: Group<"pillarOrder"> = {
+  key: "pillarOrder",
+  title: "bzOrder",
+  options: PILLAR_ORDERS.map((value) => ({
+    value,
+    label: value === "classical" ? "bzOrderClassical" : "bzOrderYearFirst",
+    hint: value === "classical" ? "bzOrderClassicalHint" : "bzOrderYearFirstHint",
   })),
 };
 const CLOCK: Group<"clock"> = {
@@ -149,6 +159,7 @@ export function ChineseSettings() {
               ))}
         </p>,
       )}
+      {radios(ORDER)}
       {radios(CLOCK)}
       {radios(DAY)}
     </section>

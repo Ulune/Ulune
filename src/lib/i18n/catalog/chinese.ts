@@ -241,6 +241,93 @@ export const chinese = {
   zkInPractice: ["In practice", "En pratique"],
   zkYears: ["Its years", "Ses années"],
   zkUncertainTitle: ["Depends on the birth time", "Dépend de l’heure de naissance"],
+  // BaZi, the Four Pillars (languages plan, part 12).
+  bzTitle: ["Your four pillars", "Vos quatre piliers"],
+  bzLead: [
+    "BaZi reads a birth as eight characters: four pillars, each a Heavenly Stem over an Earthly Branch. The day’s stem is you, the Day Master; every other stem, shown or hidden in a branch, is one of the Ten Gods.",
+    "Le BaZi lit une naissance en huit caractères\u202f: quatre piliers, chacun un Tronc céleste au-dessus d’une Branche terrestre. Le tronc du jour, c’est vous, le Maître du jour\u202f; chaque autre tronc, visible ou caché dans une branche, est l’un des Dix Dieux.",
+  ],
+  bzEmpty: ["Cast a birth chart to see your four pillars.", "Calculez un thème natal pour voir vos quatre piliers."],
+  bzNoHour: [
+    "Without a birth time, three pillars: the time adds the hour’s.",
+    "Sans heure de naissance, trois piliers\u202f: l’heure ajoute le sien.",
+  ],
+  bzBoard: ["The four pillars: hour, day, month and year", "Les quatre piliers\u202f: heure, jour, mois et année"],
+  bzPillarYear: ["Year pillar", "Pilier de l’année"],
+  bzPillarMonth: ["Month pillar", "Pilier du mois"],
+  bzPillarDay: ["Day pillar", "Pilier du jour"],
+  bzPillarHour: ["Hour pillar", "Pilier de l’heure"],
+  bzGod: ["Ten God", "Dieu"],
+  bzGodsHead: ["The Ten Gods in your chart", "Les Dix Dieux de votre thème"],
+  bzGodsKey: ["shown · hidden", "visibles · cachés"],
+  bzQiMain: ["Main qi", "Qi principal"],
+  bzQiMiddle: ["Middle qi", "Qi médian"],
+  bzQiResidual: ["Residual qi", "Qi résiduel"],
+  bzShown: ["shown", "visible"],
+  bzHiddenOne: ["hidden", "caché"],
+  bzWhy: ["Why this god", "Pourquoi ce dieu"],
+  bzInChart: ["In your chart", "Dans votre thème"],
+  bzSamePolarity: ["of the same polarity", "de la même polarité"],
+  bzOtherPolarity: ["of the other polarity", "de l’autre polarité"],
+  bzWhyPeer: [
+    "{stem} is {phase}, like your Day Master {dm}, and {polarity}: the tradition calls it {god}.",
+    "{stem} est {somePhase}, comme votre Maître du jour {dm}, et {polarity}\u202f: la tradition l’appelle {god}.",
+  ],
+  bzWhyOutput: [
+    "Your Day Master {dm} ({dmPhase}) produces {thePhase}, and {stem} is {polarity}: the tradition calls it {god}.",
+    "Votre Maître du jour {dm} ({dmPhase}) produit {thePhase}, et {stem} est {polarity}\u202f: la tradition l’appelle {god}.",
+  ],
+  bzWhyWealth: [
+    "Your Day Master {dm} ({dmPhase}) controls {thePhase}, and {stem} is {polarity}: the tradition calls it {god}.",
+    "Votre Maître du jour {dm} ({dmPhase}) contrôle {thePhase}, et {stem} est {polarity}\u202f: la tradition l’appelle {god}.",
+  ],
+  bzWhyPower: [
+    "{ThePhase} controls your Day Master {dm} ({dmPhase}), and {stem} is {polarity}: the tradition calls it {god}.",
+    "{ThePhase} contrôle votre Maître du jour {dm} ({dmPhase}), et {stem} est {polarity}\u202f: la tradition l’appelle {god}.",
+  ],
+  bzWhyResource: [
+    "{ThePhase} produces your Day Master {dm} ({dmPhase}), and {stem} is {polarity}: the tradition calls it {god}.",
+    "{ThePhase} produit votre Maître du jour {dm} ({dmPhase}), et {stem} est {polarity}\u202f: la tradition l’appelle {god}.",
+  ],
+  bzDayMasterRole: [
+    "The Day Master is the day’s stem: the self, around which the whole chart is read. Every other stem, shown or hidden in a branch, is one of the Ten Gods by how its phase meets this one, and whether their polarities agree.",
+    "Le Maître du jour est le tronc du jour\u202f: soi, autour de quoi tout le thème se lit. Chaque autre tronc, visible ou caché dans une branche, est l’un des Dix Dieux selon la façon dont sa phase rencontre celle-ci, et selon que leurs polarités s’accordent.",
+  ],
+  bzBranchLead: [
+    "The branch {branch}, the {animal}, holds {list}: its hidden stems, the main qi first. Each is one of the Ten Gods too, read more quietly than a stem that shows.",
+    "La branche {branch} ({animal}) contient {list}\u202f: ses troncs cachés, le qi principal d’abord. Chacun est aussi l’un des Dix Dieux, lu plus discrètement qu’un tronc visible.",
+  ],
+  bzHiddenNote: [
+    "A hidden stem is a phase held inside a branch: its main qi is the branch’s own, the middle and residual qi are smaller. The tradition counts them by their weight.",
+    "Un tronc caché est une phase contenue dans une branche\u202f: son qi principal est celui de la branche, les qi médian et résiduel sont plus petits. La tradition les compte selon leur poids.",
+  ],
+  bzGodNone: [
+    "It stands nowhere in your chart, shown or hidden: the tradition reads an absence too, as a quality to find around you or to grow.",
+    "Il ne figure nulle part dans votre thème, ni visible ni caché\u202f: la tradition lit aussi une absence, comme une qualité à trouver autour de soi ou à faire grandir.",
+  ],
+  bzAboutTitle: ["About the four pillars", "À propos des quatre piliers"],
+  bzAbout1: [
+    "BaZi (八字, “eight characters”) reads a birth as four pillars, the year, the month, the day and the hour, each a Heavenly Stem over an Earthly Branch, with the stems each branch holds hidden. The Day Master, the day’s stem, is the self; every other stem is one of the Ten Gods.",
+    "Le BaZi (八字, «\u202fhuit caractères\u202f») lit une naissance en quatre piliers, l’année, le mois, le jour et l’heure, chacun un Tronc céleste au-dessus d’une Branche terrestre, avec les troncs que chaque branche tient cachés. Le Maître du jour, tronc du jour, c’est soi\u202f; chaque autre tronc est l’un des Dix Dieux.",
+  ],
+  bzAbout2: [
+    "Where the words come from: the pillars, the hidden stems and the Ten Gods are the tradition’s, as the Zi Ping school reads them (after the Song-dynasty master Xu Ziping); the images of the ten stems follow the Di Tian Sui’s verses, in Ulune’s words.",
+    "D’où viennent les mots\u202f: les piliers, les troncs cachés et les Dix Dieux sont ceux de la tradition, telle que la lit l’école Zi Ping (d’après le maître Xu Ziping, sous les Song)\u202f; les images des dix troncs suivent les vers du Di Tian Sui, dans les mots d’Ulune.",
+  ],
+  bzOrder: ["The four pillars", "Les quatre piliers"],
+  bzOrderClassical: ["Hour to year", "De l’heure à l’année"],
+  bzOrderClassicalHint: ["As the tradition writes them: the year on the right", "Comme les écrit la tradition\u202f: l’année à droite"],
+  bzOrderYearFirst: ["Year to hour", "De l’année à l’heure"],
+  bzOrderYearFirstHint: ["Read left to right from the year", "Lus de gauche à droite depuis l’année"],
+  bzPartPillars: ["The four pillars", "Les quatre piliers"],
+  bzPartPillarsHint: [
+    "Each pillar’s stem and its god, its branch and the stems it holds hidden, with their gods.",
+    "Le tronc de chaque pilier et son dieu, sa branche et les troncs qu’elle cache, avec leurs dieux.",
+  ],
+  bzPartGods: ["The Ten Gods", "Les Dix Dieux"],
+  bzShownCol: ["Shown", "Visibles"],
+  bzHiddenCol: ["Hidden", "Cachés"],
+  bzPartGodsHint: ["How often each god stands in the chart, shown and hidden.", "Combien de fois chaque dieu figure dans le thème, visible et caché."],
   // The relations between animals (languages plan, part 8).
   zkRelations: ["Between your animals", "Entre vos animaux"],
   zkRelationsNone: [

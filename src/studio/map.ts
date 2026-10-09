@@ -16,7 +16,7 @@
 import type { StudioPage, StudioView } from "./url";
 
 export type SectionId = "charts" | "calendar" | "encyclopedia";
-export type LanguageId = "astrology" | "human-design" | "numerology" | "chinese-astrology";
+export type LanguageId = "astrology" | "human-design" | "numerology" | "chinese-astrology" | "bazi";
 export type LensId = "natal" | "cycles" | "relationship";
 /** The traditions the language picker groups its cards under, in order. */
 export type TraditionId = "western" | "chinese";
@@ -69,6 +69,14 @@ export const LANGUAGES: readonly Language[] = [
     group: "chinese",
     lenses: { natal: ["zodiac"], cycles: ["zodiac-years"], relationship: ["zodiac-pair"] },
   },
+  // BaZi, the Four Pillars (languages plan, part 12): its pillar board first;
+  // the luck pillars (Cycles) and Pair come with parts 16 and 19.
+  {
+    id: "bazi",
+    path: "/bazi",
+    group: "chinese",
+    lenses: { natal: ["bazi"] },
+  },
 ];
 
 /** The Calendar's path in each interface language. */
@@ -118,6 +126,7 @@ export const PAGE_PATHS: Readonly<Record<StudioPage, string>> = {
   zodiac: "/chinese-astrology",
   "zodiac-years": "/chinese-astrology/cycles",
   "zodiac-pair": "/chinese-astrology/pair",
+  bazi: "/bazi",
   timing: CALENDAR_PATHS.en,
 };
 

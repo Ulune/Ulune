@@ -16,6 +16,9 @@ export function LanguageMark({ id, className }: { id: LanguageId; className?: st
         </>
       ) : id === "human-design" ? (
         <path d="M8 1.8 11.2 6.2H4.8ZM8 7.8 11.2 11 8 14.2 4.8 11Z" />
+      ) : id === "bazi" ? (
+        // The four pillars side by side.
+        <path d="M2.6 3v10M6.2 3v10M9.8 3v10M13.4 3v10" strokeLinecap="round" />
       ) : id === "chinese-astrology" ? (
         // The wheel of the twelve, its four cardinal animals marked (Rat, Rabbit, Horse, Rooster).
         <>

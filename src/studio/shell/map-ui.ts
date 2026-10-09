@@ -52,4 +52,5 @@ export const LANGUAGE_WORDS: Record<LanguageId, { name: MessageKey; short: Messa
     line: "langChineseAstrologyLine",
     needs: "langNeedsDate",
   },
+  bazi: { name: "langBazi", short: "langBaziShort", line: "langBaziLine", needs: "langNeedsDatePillar" },
 };

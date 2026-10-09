@@ -25,6 +25,7 @@ demand.
 | `zodiac-time.ts`, `zodiac-time-reading.ts`, `zodiac-time-table.ts` | The year ahead and its months, the day's animal, two people's animals: how animals meet, what the pages say, their tables. |
 | `day-cycle.ts` | The day's place in the sixty-day cycle alone, for the Calendar's month (no tables). |
 | `calendar-chinese.ts` | What the Calendar loads for its day's-animal reading. |
+| `bazi.ts`, `bazi-reading.ts`, `bazi-texts.ts`, `bazi-table.ts` | BaZi, the Four Pillars: the Day Master, the Ten Gods of every stem shown and hidden, what the board says, its table. |
 | `animal-glyphs.ts` | The twelve animals as Ulune's own line drawings, in the planet glyphs' language (24 × 24, round strokes). |
 | `words.ts` | The interface words (`src/lib/i18n/catalog/chinese.ts`), read apart from the app's catalog so they stay out of the first download. |
 

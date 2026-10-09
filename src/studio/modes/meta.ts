@@ -103,6 +103,13 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
     stageTestId: "studio-zodiac-pair",
     emptyTestId: "studio-zodiac-pair-empty",
   },
+  bazi: {
+    id: "bazi",
+    labelKey: "pageBazi",
+    needsChart: true,
+    stageTestId: "studio-bazi",
+    emptyTestId: "studio-bazi-empty",
+  },
 };
 
 export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
@@ -117,5 +124,6 @@ export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
   zodiac: "pageZodiac",
   "zodiac-years": "pageZodiacYears",
   "zodiac-pair": "pageZodiacPair",
+  bazi: "pageBazi",
   design: "pageDesign",
 };

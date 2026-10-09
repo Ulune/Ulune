@@ -21,6 +21,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StudioIndexRouteImport } from './routes/_studio.index'
+import { Route as StudioBaziRouteImport } from './routes/_studio.bazi'
 import { Route as StudioCalendarRouteImport } from './routes/_studio.calendar'
 import { Route as StudioCalendrierRouteImport } from './routes/_studio.calendrier'
 import { Route as StudioHumanDesignRouteImport } from './routes/_studio.human-design'
@@ -100,6 +101,11 @@ const TermsRoute = TermsRouteImport.update({
 const StudioIndexRoute = StudioIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => StudioRoute,
+} as any)
+const StudioBaziRoute = StudioBaziRouteImport.update({
+  id: '/bazi',
+  path: '/bazi',
   getParentRoute: () => StudioRoute,
 } as any)
 const StudioCalendarRoute = StudioCalendarRouteImport.update({
@@ -225,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/bazi': typeof StudioBaziRoute
   '/calendar': typeof StudioCalendarRoute
   '/calendrier': typeof StudioCalendrierRoute
   '/human-design': typeof StudioHumanDesignRoute
@@ -258,6 +265,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/bazi': typeof StudioBaziRoute
   '/calendar': typeof StudioCalendarRoute
   '/calendrier': typeof StudioCalendrierRoute
   '/human-design': typeof StudioHumanDesignRoute
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/_studio/bazi': typeof StudioBaziRoute
   '/_studio/calendar': typeof StudioCalendarRoute
   '/_studio/calendrier': typeof StudioCalendrierRoute
   '/_studio/human-design': typeof StudioHumanDesignRoute
@@ -331,6 +340,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/terms'
+    | '/bazi'
     | '/calendar'
     | '/calendrier'
     | '/human-design'
@@ -364,6 +374,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/terms'
+    | '/bazi'
     | '/calendar'
     | '/calendrier'
     | '/human-design'
@@ -399,6 +410,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/terms'
+    | '/_studio/bazi'
     | '/_studio/calendar'
     | '/_studio/calendrier'
     | '/_studio/human-design'
@@ -529,6 +541,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof StudioIndexRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/_studio/bazi': {
+      id: '/_studio/bazi'
+      path: '/bazi'
+      fullPath: '/bazi'
+      preLoaderRoute: typeof StudioBaziRouteImport
       parentRoute: typeof StudioRoute
     }
     '/_studio/calendar': {
@@ -682,6 +701,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface StudioRouteChildren {
+  StudioBaziRoute: typeof StudioBaziRoute
   StudioCalendarRoute: typeof StudioCalendarRoute
   StudioCalendrierRoute: typeof StudioCalendrierRoute
   StudioHumanDesignRoute: typeof StudioHumanDesignRoute
@@ -699,6 +719,7 @@ interface StudioRouteChildren {
 }
 
 const StudioRouteChildren: StudioRouteChildren = {
+  StudioBaziRoute: StudioBaziRoute,
   StudioCalendarRoute: StudioCalendarRoute,
   StudioCalendrierRoute: StudioCalendrierRoute,
   StudioHumanDesignRoute: StudioHumanDesignRoute,

@@ -14,6 +14,9 @@
  * - `animals`: how the twelve animals are drawn on the wheel, the cards and
  *   the readings: as Ulune's drawings (by default, animal-glyphs.ts, part 9)
  *   or as their characters (鼠, 牛, 虎…).
+ * - `pillarOrder`: how BaZi's four pillars stand side by side: hour to year,
+ *   as the tradition writes them (the year on the right, by default), or
+ *   year to hour (part 12).
  *
  * Pure but for the storage: the page reads it when it runs (the server's page
  * shows the defaults), and a change is announced to the open views with the
@@ -25,6 +28,7 @@ import type { Clock, DayBoundary } from "./pillars";
 export type Script = "hant" | "hans";
 export type TermShow = "full" | "pinyin" | "names";
 export type AnimalShow = "drawings" | "characters";
+export type PillarOrder = "classical" | "year-first";
 
 export type ChinesePrefs = {
   clock: Clock;
@@ -32,6 +36,7 @@ export type ChinesePrefs = {
   script: Script;
   show: TermShow;
   animals: AnimalShow;
+  pillarOrder: PillarOrder;
 };
 
 export const CHINESE_PREFS_KEY = "ulune.chinese";
@@ -42,6 +47,7 @@ export const DAY_BOUNDARIES: readonly DayBoundary[] = ["23:00", "split", "midnig
 export const SCRIPTS: readonly Script[] = ["hant", "hans"];
 export const TERM_SHOWS: readonly TermShow[] = ["full", "pinyin", "names"];
 export const ANIMAL_SHOWS: readonly AnimalShow[] = ["drawings", "characters"];
+export const PILLAR_ORDERS: readonly PillarOrder[] = ["classical", "year-first"];
 
 export const DEFAULT_CHINESE_PREFS: Readonly<ChinesePrefs> = {
   clock: "true-solar",
@@ -49,6 +55,7 @@ export const DEFAULT_CHINESE_PREFS: Readonly<ChinesePrefs> = {
   script: "hant",
   show: "full",
   animals: "drawings",
+  pillarOrder: "classical",
 };
 
 const oneOf = <T extends string>(list: readonly T[], value: unknown, fallback: T): T =>
@@ -64,6 +71,7 @@ export function cleanChinesePrefs(raw: unknown): ChinesePrefs {
     script: oneOf(SCRIPTS, o.script, d.script),
     show: oneOf(TERM_SHOWS, o.show, d.show),
     animals: oneOf(ANIMAL_SHOWS, o.animals, d.animals),
+    pillarOrder: oneOf(PILLAR_ORDERS, o.pillarOrder, d.pillarOrder),
   };
 }
 

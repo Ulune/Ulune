@@ -24,7 +24,7 @@ import { calendarIcs, icsKeeps } from "../src/lib/i18n/calendar-export.ts";
 import { chinese } from "../src/lib/i18n/catalog/chinese.ts";
 
 test("the settings' defaults are the owner's answers, and anything unknown falls back to them", () => {
-  assert.deepEqual(DEFAULT_CHINESE_PREFS, { clock: "true-solar", dayBoundary: "23:00", script: "hant", show: "full", animals: "drawings" });
+  assert.deepEqual(DEFAULT_CHINESE_PREFS, { clock: "true-solar", dayBoundary: "23:00", script: "hant", show: "full", animals: "drawings", pillarOrder: "classical" });
   assert.deepEqual(cleanChinesePrefs(null), DEFAULT_CHINESE_PREFS);
   assert.deepEqual(cleanChinesePrefs({ clock: "civil", dayBoundary: "noon", script: "hans", show: 3, animals: "photos", extra: true }), {
     ...DEFAULT_CHINESE_PREFS,

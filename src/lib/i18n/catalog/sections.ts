@@ -21,6 +21,8 @@ export const sections = {
   langNumerology: ["Numerology", "Numérologie"],
   langChineseAstrology: ["Chinese astrology", "Astrologie chinoise"],
   langChineseAstrologyShort: ["Chinese", "Chinoise"],
+  langBazi: ["BaZi", "BaZi"],
+  langBaziShort: ["BaZi", "BaZi"],
   langButton: ["{name}, choose another language", "{name}, choisir un autre langage"],
   langPicker: ["Choose a language", "Choisir un langage"],
   // The skip link on the Calendar (Shell.tsx), beside "Skip to the form" and "Skip to the chart".

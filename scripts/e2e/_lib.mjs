@@ -220,6 +220,7 @@ export const PAGE_PLACE = {
   zodiac: ["chinese-astrology", "natal"],
   "zodiac-years": ["chinese-astrology", "cycles"],
   "zodiac-pair": ["chinese-astrology", "relationship"],
+  bazi: ["bazi", "natal"],
 };
 
 /** Clicks an element by its test id, drawn or not (a folded sub-mode, a chip a phone hides); false when it is not there. */
