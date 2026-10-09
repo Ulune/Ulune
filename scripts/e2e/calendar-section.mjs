@@ -42,7 +42,7 @@ const WORDS = {
   en: {
     invite: "Cast a chart to add your transits",
     phases: /New Moon|First quarter|Full Moon|Last quarter/,
-    layers: { sky: "The sky", transits: "Your transits", numerology: "Personal day, month and year", terms: "Solar terms" },
+    layers: { sky: "The sky", transits: "Your transits", numerology: "Personal day, month and year", terms: "Solar terms", animals: "The day’s animal" },
     langs: { astrology: "Astrology", numerology: "Numerology", chinese: "Chinese calendar" },
     nextTerm: "Next solar term",
     needs: "Needs a birth chart",
@@ -50,7 +50,7 @@ const WORDS = {
   fr: {
     invite: "Calculez un thème pour ajouter vos transits",
     phases: /Nouvelle Lune|Premier quartier|Pleine Lune|Dernier quartier/,
-    layers: { sky: "Le ciel", transits: "Vos transits", numerology: "Jour, mois et année personnels", terms: "Termes solaires" },
+    layers: { sky: "Le ciel", transits: "Vos transits", numerology: "Jour, mois et année personnels", terms: "Termes solaires", animals: "L’animal du jour" },
     langs: { astrology: "Astrologie", numerology: "Numérologie", chinese: "Calendrier chinois" },
     nextTerm: "Prochain terme solaire",
     needs: "Nécessite un thème natal",
@@ -217,11 +217,13 @@ async function skyAlone(path, width, lang) {
       `transits:switch:false:unavailable:${w.langs.astrology}`,
       `numerology:switch:false:unavailable:${w.langs.numerology}`,
       `terms:switch:true:available:${w.langs.chinese}`,
+      // The day's animal (languages plan, part 11): everyone's, off until asked for.
+      `animals:switch:false:available:${w.langs.chinese}`,
     ];
     if (shape.join() !== wantShape.join()) throw new Error(`${label}: layers ${shape.join(" | ")}`);
     for (const [id, l] of Object.entries(layers)) {
       if (l.name !== w.layers[id]) throw new Error(`${label}: ${id} named "${l.name}"`);
-      if (id !== "sky" && id !== "terms" && l.line !== w.needs) throw new Error(`${label}: ${id} says "${l.line}"`);
+      if (id !== "sky" && id !== "terms" && id !== "animals" && l.line !== w.needs) throw new Error(`${label}: ${id} says "${l.line}"`);
     }
     // An unavailable switch stays off when pressed (forced: Playwright waits for aria-disabled to go).
     await page.getByTestId("calendar-layer-transits").click({ force: true });

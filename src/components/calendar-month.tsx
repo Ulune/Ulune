@@ -17,8 +17,10 @@ import { pick } from "@/lib/i18n/pick";
 import { cn } from "@/lib/utils";
 import { SOLAR_TERMS } from "@/lib/chinese/names";
 import type { ChinesePrefs } from "@/lib/chinese/prefs";
+import { animalChar } from "@/lib/chinese/animal-chars";
+import { dayAnimalAt } from "@/lib/chinese/day-cycle";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
-import { cnWord } from "@/lib/chinese/words";
+import { animalOf, cnWord } from "@/lib/chinese/words";
 
 /** A term in a day cell: its characters when the reader shows them, else its name. */
 function termShort(term: number, locale: string, prefs: ChinesePrefs): string {
@@ -60,6 +62,7 @@ export function CalendarMonth({
   onPickDay,
   onShiftMonth,
   num = null,
+  animals = null,
 }: {
   civil: CivilDate;
   tz: string;
@@ -75,6 +78,8 @@ export function CalendarMonth({
   onShiftMonth?: (dir: 1 | -1) => void;
   /** Your numerology (with its layer on): each day's personal day, a cycle's change on its birthday. */
   num?: NumerologyCalendar | null;
+  /** The day's animal (with its layer on, part 11): each day's, and your year animal's for the clash days. */
+  animals?: { yearBranch: number | null; glyphs: readonly string[] | null } | null;
 }) {
   const { locale } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
@@ -230,6 +235,9 @@ export function CalendarMonth({
             : "";
           const pd = num ? personalDayOn(num, date.year, date.month, date.day) : null;
           const turns = changes?.get(key) ?? [];
+          // The day's animal, and whether it clashes with the reader's year animal (the almanac's clash day).
+          const da = animals ? dayAnimalAt(date.year, date.month, date.day) : null;
+          const clash = Boolean(da && animals?.yearBranch != null && da.clashes === animals.yearBranch);
           const label = [
             dayName.format(Date.UTC(date.year, date.month - 1, date.day, 12)),
             moonWords,
@@ -239,6 +247,8 @@ export function CalendarMonth({
             ...mine.map((h) => `${yourAspectWords(h.moving, h.type as SkyAspect, h.natal, locale)}, ${time(Date.parse(h.exactUtc))}`),
             pd != null ? fill(CALENDAR_UI.num.cellDay, locale, { n: pd }) : "",
             ...turns.map((c) => numChangeTitle(c, locale)),
+            da ? cnWord(locale, "zkDayTitle", { animal: animalOf(da.branch, locale) }) : "",
+            clash ? cnWord(locale, "zkCalClash") : "",
           ]
             .filter(Boolean)
             .join("; ");
@@ -251,6 +261,7 @@ export function CalendarMonth({
               tabIndex={key === stop ? 0 : -1}
               data-mine={mine.length}
               data-sky={heads.length}
+              data-clash={clash ? "1" : undefined}
               aria-label={label}
               aria-pressed={selectedDay === key}
               aria-current={todayKey === key ? "date" : undefined}
@@ -262,6 +273,15 @@ export function CalendarMonth({
                 <span className="ulune-cal-n">
                   {date.day}
                   {pd != null ? <sup className="ulune-cal-pd">{pd}</sup> : null}
+                  {da ? (
+                    <span className="ulune-cal-animal" data-testid={`calendar-animal-${key}`} data-branch={da.branch} aria-hidden>
+                      {cnPrefs.animals === "drawings" && animals?.glyphs ? (
+                        <svg width={13} height={13} viewBox="0 0 24 24" className="ulune-animal-glyph" data-animal-glyph={da.branch} dangerouslySetInnerHTML={{ __html: animals.glyphs[da.branch]! }} />
+                      ) : (
+                        <span lang={cnPrefs.script === "hans" ? "zh-Hans" : "zh-Hant"}>{animalChar(da.branch, cnPrefs.script)}</span>
+                      )}
+                    </span>
+                  ) : null}
                 </span>
                 <span className="ulune-cal-moon">
                   <span className="ulune-cal-signs">{signs}</span>
@@ -355,12 +375,15 @@ export function CalendarLegend({
   yours = true,
   num = false,
   terms = false,
+  animals = false,
 }: {
   sky?: boolean;
   yours?: boolean;
   num?: boolean;
   /** The Chinese solar terms' layer (languages plan, part 6). */
   terms?: boolean;
+  /** The day's animal (part 11): the clash days' mark, with a chart. */
+  animals?: boolean;
 }) {
   const { locale } = useI18n();
   const cnPrefs = useChinesePrefs();
@@ -418,6 +441,11 @@ export function CalendarLegend({
             {termShort(0, locale, cnPrefs)}
           </span>{" "}
           {cnWord(locale, "cnTerm").toLowerCase()}
+        </span>
+      ) : null}
+      {animals ? (
+        <span data-testid="calendar-legend-animals">
+          <i className="ulune-cal-clashmark" aria-hidden /> {cnWord(locale, "zkCalClash")}
         </span>
       ) : null}
     </p>

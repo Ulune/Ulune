@@ -12,7 +12,7 @@ import { ANIMALS, BRANCHES, PHASES, SIXTY, STEMS } from "../src/lib/chinese/name
 import { RELATION_KINDS } from "../src/lib/chinese/relations.ts";
 import { zodiacChart } from "../src/lib/chinese/zodiac.ts";
 import { pairYears, relationRef, zodiacReading } from "../src/lib/chinese/zodiac-reading.ts";
-import { ANIMAL_PORTRAITS, PAIR_TEXTS, PLACE_TEXTS, RELATION_PRACTICE, pairText } from "../src/lib/chinese/zodiac-texts.ts";
+import { ANIMAL_PORTRAITS, CLASH_DAY_TEXT, DAY_ANIMAL_TEXT, MONTH_TEXTS, PAIR_TEXTS, PAIR_TEXTS_TWO, PLACE_TEXTS, RELATION_PRACTICE, YEAR_TEXTS, pairText } from "../src/lib/chinese/zodiac-texts.ts";
 
 /** Every text, with where it is, as [where, en, fr]. */
 function everyText() {
@@ -23,6 +23,11 @@ function everyText() {
   for (const [k, t] of Object.entries(PAIR_TEXTS)) out.push([`pair ${k}`, ...t]);
   for (const [place, list] of Object.entries(PLACE_TEXTS)) list.forEach((t, i) => out.push([`${place} ${ANIMALS[i].en}`, ...t]));
   for (const [k, t] of Object.entries(RELATION_PRACTICE)) out.push([`practice ${k}`, ...t]);
+  // Part 11: the year ahead, the months, two people, the Calendar's day.
+  for (const [k, t] of Object.entries(YEAR_TEXTS)) out.push([`year ${k}`, ...t]);
+  for (const [k, t] of Object.entries(MONTH_TEXTS)) out.push([`month ${k}`, ...t]);
+  for (const [k, t] of Object.entries(PAIR_TEXTS_TWO)) out.push([`two ${k}`, ...t]);
+  out.push(["clash day", ...CLASH_DAY_TEXT], ["day animal", ...DAY_ANIMAL_TEXT]);
   return out;
 }
 

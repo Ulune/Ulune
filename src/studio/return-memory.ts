@@ -15,7 +15,14 @@ import { takeAskedReading } from "@/encyclopedia/your-chart";
 
 type Place = { page: string; view: string; activeId: string | null };
 const placeKey = (s: Place) => `${s.page}|${s.view}|${s.activeId ?? ""}`;
-setPlaceSource(() => placeKey(useStudioStore.getState()));
+/**
+ * The studio tells the parts where it is when it is drawn, not when this file
+ * loads: a call at the top level read across a cycle of the server's chunks
+ * (the deploy check, part 11 of the languages plan). The studio's layout draws
+ * before its parts' effects run, so they always know the place.
+ */
+const placeSource = () => placeKey(useStudioStore.getState());
+const tellPlace = () => setPlaceSource(placeSource);
 
 const INPUTS = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
 
@@ -26,6 +33,7 @@ const INPUTS = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
  * is not drawn again at each change of address.
  */
 export function StudioReturnTracker(): null {
+  tellPlace();
   const loc = useRouterState({ select: (s) => s.location });
   useLayoutEffect(() => {
     if (!isStudioPath(loc.pathname)) return;
@@ -47,6 +55,7 @@ export function StudioReturnTracker(): null {
  * or the place changes.
  */
 export function useStudioReturn(): void {
+  tellPlace();
   useLayoutEffect(() => {
     const from = returnPlace();
     if (from !== null && placeKey(useStudioStore.getState()) !== from) endReturn();

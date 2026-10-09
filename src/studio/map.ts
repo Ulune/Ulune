@@ -60,14 +60,14 @@ export const LANGUAGES: readonly Language[] = [
     home: { en: "numerology", fr: "numerologie" },
     lenses: { natal: ["numerology"], cycles: ["numerology-cycles"] },
   },
-  // The first Chinese language (languages plan, part 7). Its home in the
-  // encyclopedia comes with its pages (encyclopedia plan, part 24); its
-  // Cycles (the year ahead) and Relationship (two people's animals) with part 11.
+  // The first Chinese language (languages plan, part 7), with its Cycles (the
+  // year ahead) and Relationship (two people's animals) since part 11. Its
+  // home in the encyclopedia comes with its pages (encyclopedia plan, part 24).
   {
     id: "chinese-astrology",
     path: "/chinese-astrology",
     group: "chinese",
-    lenses: { natal: ["zodiac"] },
+    lenses: { natal: ["zodiac"], cycles: ["zodiac-years"], relationship: ["zodiac-pair"] },
   },
 ];
 
@@ -116,6 +116,8 @@ export const PAGE_PATHS: Readonly<Record<StudioPage, string>> = {
   numerology: "/numerology",
   "numerology-cycles": "/numerology/cycles",
   zodiac: "/chinese-astrology",
+  "zodiac-years": "/chinese-astrology/cycles",
+  "zodiac-pair": "/chinese-astrology/pair",
   timing: CALENDAR_PATHS.en,
 };
 

@@ -24,6 +24,11 @@ export const calendarLayerWords = {
   calLayerLangChinese: ["Chinese calendar", "Calendrier chinois"],
   calLayerTerms: ["Solar terms", "Termes solaires"],
   calLayerTermsHint: ["The 24 steps of the Sun’s year, from Lichun", "Les 24 pas de l’année du Soleil, depuis Lichun"],
+  calLayerAnimals: ["The day’s animal", "L’animal du jour"],
+  calLayerAnimalsHint: [
+    "Each day’s pillar and animal, and the days that clash with your year animal",
+    "Le pilier et l’animal de chaque jour, et les jours en choc avec votre animal de l’année",
+  ],
   calLayerNeedsChart: ["Needs a birth chart", "Nécessite un thème natal"],
   calInvite: ["Cast a chart to add your transits", "Calculez un thème pour ajouter vos transits"],
 } as const satisfies Record<string, readonly [string, string]>;

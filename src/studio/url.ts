@@ -13,6 +13,9 @@ export const STUDIO_PAGES = [
   "numerology-cycles",
   // 2.0: Chinese astrology, the four animals (languages plan, part 7).
   "zodiac",
+  // 2.0: its Cycles (the year ahead) and Relationship (two people's animals) lenses (part 11).
+  "zodiac-years",
+  "zodiac-pair",
 ] as const;
 
 export type StudioPage = (typeof STUDIO_PAGES)[number];

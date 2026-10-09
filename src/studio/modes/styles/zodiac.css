@@ -123,6 +123,18 @@ html.light {
 .ulune-zk-badge.is-on circle {
   fill: var(--color-halo);
 }
+/* The second person's animals on the Pair page (part 11): a ring, not a disc. */
+.ulune-zk-badge.is-b circle {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-fg);
+  stroke-width: 2;
+}
+.ulune-zk-badge.is-b text {
+  fill: var(--color-fg);
+}
+.ulune-zk-badge.is-b.is-on circle {
+  stroke: var(--color-halo);
+}
 .ulune-zk-now-year {
   text-anchor: middle;
   dominant-baseline: central;

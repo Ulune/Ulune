@@ -10,14 +10,31 @@ import { ArrowLeftRight } from "lucide-react";
 /** The B list's last choice: a new person, from right here (review 3 Oct, P4). */
 const ADD = "__add__";
 
-/** The two people of a pair mode (synastry or composite), above the figure. */
-export function PairSelects({ mode }: { mode: "synastry" | "composite" }) {
+/** What the two lists need of a pair page: its charts, who is A and B, and how to change them. */
+export type PairPick = {
+  rows: { id: string; input: Parameters<typeof chartDisplayName>[0] }[];
+  aId: string | null;
+  resolvedBId: string | null;
+  others: { id: string; input: Parameters<typeof chartDisplayName>[0] }[];
+  selectA: (id: string) => void;
+  selectB: (id: string) => void;
+  addSecond: () => void;
+  swap: () => void;
+};
+
+/**
+ * The two people of a pair page, above the figure: synastry's and the
+ * composite's (their own data), or another page's (Chinese astrology's Pair,
+ * part 11) that hands its own `pair` and `prefix`, in synastry's style.
+ */
+export function PairSelects({ mode, pair: given, prefix: givenPrefix, page }: { mode: "synastry" | "composite"; pair?: PairPick | null; prefix?: string; page?: string }) {
   const { locale, t } = useI18n();
-  const pair = useModeData(mode);
+  const fromMode = useModeData(mode);
+  const pair: PairPick | null | undefined = given !== undefined ? given : fromMode;
   const addingPartnerFor = useStudioStore((s) => s.pair.addingPartnerFor);
   if (!pair) return null;
-  const partnerBirth = addingPartnerFor === mode;
-  const prefix = mode;
+  const partnerBirth = addingPartnerFor === (page ?? mode);
+  const prefix = givenPrefix ?? mode;
   const pairLabel = mode === "composite" ? compositePairLabel : synastryPairLabel;
   const addLabel = mode === "composite" ? compositeAddSecond(locale) : synastryAddSecond(locale);
   return (

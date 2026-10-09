@@ -14,6 +14,7 @@ import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { LICHUN, termMs } from "./terms";
 import { solarMonthAt } from "./pillars";
 import { cnWord, theAnimal, type ChineseWordKey } from "./words";
+import { PLACE_ANIMAL, PLACE_WORD } from "./zodiac-places";
 import { ANIMAL_PORTRAITS, PLACE_TEXTS, RELATION_PRACTICE, pairText, said } from "./zodiac-texts";
 import type { ZodiacChart, ZodiacPlace, ZodiacPlaceId } from "./zodiac";
 import { branchRelations, RELATION_NAMES, trineOf, type PlacedRelation, type RelationKind } from "./relations";
@@ -24,13 +25,7 @@ type Shown = Pick<ChinesePrefs, "script" | "show"> & Partial<Pick<ChinesePrefs, 
 const drawn = (animal: number, prefs: Shown) => ((prefs.animals ?? "drawings") === "drawings" ? ANIMAL_GLYPH_INNER[animal] : undefined);
 
 const ROLE: Record<ZodiacPlaceId, ChineseWordKey> = { year: "zkRoleYear", month: "zkRoleMonth", day: "zkRoleDay", hour: "zkRoleHour" };
-export const PLACE_WORD: Record<ZodiacPlaceId, ChineseWordKey> = { year: "zkYear", month: "zkMonth", day: "zkDay", hour: "zkHour" };
-export const PLACE_ANIMAL: Record<ZodiacPlaceId, ChineseWordKey> = {
-  year: "zkYearAnimal",
-  month: "zkMonthAnimal",
-  day: "zkDayAnimal",
-  hour: "zkHourAnimal",
-};
+export { PLACE_ANIMAL, PLACE_WORD } from "./zodiac-places";
 
 /** A selection's id on the page: a place ("zk:year") or an animal of the wheel ("zk:branch:6"). */
 export const placeRef = (id: ZodiacPlaceId): string => `zk:${id}`;

@@ -1,5 +1,11 @@
 import { PairIcon, SkyEventIcon } from "@/components/calendar-icons";
 import { MoonGlyph } from "@/components/moon-glyph";
+import { animalChar } from "@/lib/chinese/animal-chars";
+import { dayAnimalAt } from "@/lib/chinese/day-cycle";
+import { BRANCHES, SIXTY } from "@/lib/chinese/names";
+import { chineseLabel } from "@/lib/chinese/prefs";
+import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
+import { animalOf, cnWord } from "@/lib/chinese/words";
 import type { DayOverview, DayRow } from "@/lib/chart/calendar-day";
 import { nextEvent, windowId } from "@/lib/chart/calendar-sky";
 import { changeId, type NumerologyCalendar } from "@/lib/chart/numerology-calendar";
@@ -45,6 +51,7 @@ export function CalendarDay({
   selectedId,
   onSelect,
   num = null,
+  animals = null,
 }: {
   ov: DayOverview;
   civil: CivilDate;
@@ -58,8 +65,11 @@ export function CalendarDay({
   onSelect: (id: string) => void;
   /** Your numerology that day (with its layer on): the personal day, month and year, a cycle's change. */
   num?: { pd: number; pm: number; py: number; changes: NumerologyCalendar["changes"] } | null;
+  /** The day's animal (with its layer on, part 11), and your year animal's for a clash day. */
+  animals?: { yearBranch: number | null; glyphs: readonly string[] | null } | null;
 }) {
   const { locale } = useI18n();
+  const cnPrefs = useChinesePrefs();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
   const time = (ms: number) => dateFormat(loc, { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(ms));
   const dayMonth = (ms: number) => dateFormat(loc, { timeZone: tz, day: "numeric", month: "short" }).format(new Date(ms));
@@ -106,6 +116,11 @@ export function CalendarDay({
     return fill(D.closest, locale, { orb: formatArc(w.minOrb) });
   };
 
+  const da = animals ? dayAnimalAt(civil.year, civil.month, civil.day) : null;
+  const clash = Boolean(da && animals?.yearBranch != null && da.clashes === animals.yearBranch);
+  const cnId = `cnday:${key}`;
+  const dayPair = da ? chineseLabel(SIXTY[da.cycle]!, locale, cnPrefs) : null;
+
   return (
     <div className="ulune-cal-day" data-testid="calendar-day">
       <button
@@ -122,6 +137,36 @@ export function CalendarDay({
           {moonPhase ? <span className="ulune-cal-moonbar-line">{moonPhase}</span> : null}
         </span>
       </button>
+
+      {da && dayPair ? (
+        <div className="ulune-cal-numday">
+          <button
+            type="button"
+            className={cn("ulune-cal-numbar ulune-cal-cnbar", selectedId === cnId && "is-on")}
+            data-testid="calendar-cnday"
+            data-branch={da.branch}
+            data-clash={clash ? "1" : undefined}
+            aria-pressed={selectedId === cnId}
+            onClick={() => onSelect(cnId)}
+          >
+            <span className="ulune-cal-numbar-n" aria-hidden>
+              {animals?.glyphs && cnPrefs.animals === "drawings" ? (
+                <svg width={28} height={28} viewBox="0 0 24 24" className="ulune-animal-glyph" data-animal-glyph={da.branch} dangerouslySetInnerHTML={{ __html: animals.glyphs[da.branch]! }} />
+              ) : (
+                <span lang={cnPrefs.script === "hans" ? "zh-Hans" : "zh-Hant"}>{animalChar(da.branch, cnPrefs.script)}</span>
+              )}
+            </span>
+            <span className="ulune-cal-numbar-text">
+              <span className="ulune-cal-numbar-title">{cnWord(locale, "zkDayTitle", { animal: animalOf(da.branch, locale) })}</span>
+              <span className="ulune-cal-numbar-line">
+                {[dayPair.name, [dayPair.pinyin, dayPair.hanzi].filter(Boolean).join(" ")].filter(Boolean).join(" · ")} · {cnWord(locale, "zkDayClashes")}{" "}
+                {chineseLabel(BRANCHES[da.clashes]!, locale, cnPrefs).name}
+                {clash ? ` · ${cnWord(locale, "zkCalClash")}` : ""}
+              </span>
+            </span>
+          </button>
+        </div>
+      ) : null}
 
       {num ? (
         <div className="ulune-cal-numday" data-testid="calendar-numday">

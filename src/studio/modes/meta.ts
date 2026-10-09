@@ -88,6 +88,21 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
     stageTestId: "studio-zodiac",
     emptyTestId: "studio-zodiac-empty",
   },
+  "zodiac-years": {
+    id: "zodiac-years",
+    labelKey: "pageZodiacYears",
+    needsChart: true,
+    stageTestId: "studio-zodiac-years",
+    emptyTestId: "studio-zodiac-years-empty",
+    noPicture: true,
+  },
+  "zodiac-pair": {
+    id: "zodiac-pair",
+    labelKey: "pageZodiacPair",
+    needsChart: true,
+    stageTestId: "studio-zodiac-pair",
+    emptyTestId: "studio-zodiac-pair-empty",
+  },
 };
 
 export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
@@ -100,5 +115,7 @@ export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
   numerology: "pageNumerology",
   "numerology-cycles": "pageNumerologyCycles",
   zodiac: "pageZodiac",
+  "zodiac-years": "pageZodiacYears",
+  "zodiac-pair": "pageZodiacPair",
   design: "pageDesign",
 };

@@ -141,7 +141,11 @@ if (want.has("bundle")) {
   // Languages plan, part 6 (9 Oct): the yin or yang count kept with a chart, the form's
   // way to its field, the solar terms as sky events and the wheel's way to their ring,
   // 0.5-0.9 (their words, names and table load when used): 278.2-278.6; limit 279.
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 279, "KB gz");
+  // Languages plan, part 11 (9 Oct): Chinese astrology's two new pages (the year ahead, two
+  // people) in the map, the routes and the palette, the Calendar's day's-animal switch and
+  // the reading's drawn mark, 0.5 (the pages, their words and the day's engine load when
+  // used): 279.0-279.1; limit 279.5.
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 279.5, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's

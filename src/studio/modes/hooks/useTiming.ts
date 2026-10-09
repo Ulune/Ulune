@@ -39,8 +39,10 @@ import { useVisibleInterval } from "@/lib/use-visible-interval";
 import { lru } from "@/lib/chart/result-cache";
 import { errorForState } from "@/lib/i18n/errors";
 import { importWithRetry } from "@/lib/lazy-retry";
+import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 
 type TermsModule = typeof import("@/lib/chinese/terms");
+type CnModule = typeof import("@/lib/chinese/calendar-chinese");
 
 /**
  * The Chinese solar terms (languages plan, part 6) between two instants, as
@@ -282,6 +284,31 @@ export function useTiming() {
       live = false;
     };
   }, [enabled, shown.terms, termsMod]);
+  // The day's animal (languages plan, part 11): the month draws each day's from a small count; the
+  // reader's year animal (for the clash days) and the day's reading come with the engine, once.
+  const cnPrefs = useChinesePrefs();
+  const [cnMod, setCnMod] = useState<CnModule | null>(null);
+  const wantCn = enabled && (shown.animals || Boolean(selectedId?.startsWith("cnday:")));
+  useEffect(() => {
+    if (!wantCn || cnMod) return;
+    let live = true;
+    importWithRetry(() => import("@/lib/chinese/calendar-chinese"))
+      .then((m) => {
+        if (live) setCnMod(m);
+      })
+      .catch(() => {
+        /* the days keep their animals; the clash days and the reading wait for the next visit */
+      });
+    return () => {
+      live = false;
+    };
+  }, [wantCn, cnMod]);
+  const cnZodiac = useMemo(() => (cnMod && chart ? cnMod.zodiacOfMeta(chart.meta, cnPrefs) : null), [cnMod, chart, cnPrefs]);
+  /** With the layer on: each day's animal, the reader's year animal for the clash days (null until known or without a chart), the drawings once loaded. */
+  const animals = useMemo(
+    () => (shown.animals ? { yearBranch: cnZodiac?.places[0]?.branch ?? null, glyphs: cnMod?.ANIMAL_GLYPH_INNER ?? null } : null),
+    [shown.animals, cnZodiac, cnMod],
+  );
   /** The terms of the span, a year before and after it, and of the days ahead (the Now panel names the next one). */
   const termEvents = useMemo<SkyEvent[]>(() => {
     if (!termsMod || !shown.terms) return [];
@@ -347,6 +374,14 @@ export function useTiming() {
   // Readings come with the calendar's reading text (its own download). The sky's need no chart.
   const texts = usePack("cal", locale, enabled);
   const reading = useMemo<ElementReading | null>(() => {
+    if (selectedId?.startsWith("cnday:")) {
+      const parsed = parseCivilKey(selectedId.slice(6));
+      if (!cnMod || !parsed) return null;
+      const line = new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-GB", { timeZone: "UTC", weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(
+        new Date(Date.UTC(parsed.year, parsed.month - 1, parsed.day, 12)),
+      );
+      return cnMod.dayAnimalReading(civilKey(parsed), cnZodiac, locale, cnPrefs, line);
+    }
     if (!texts || !selectedId) return null;
     const {
       calendarDayReading,
@@ -397,7 +432,7 @@ export function useTiming() {
       );
     }
     return null;
-  }, [selectedId, chart, locale, nowMs, tz, scoped, texts, events, nowEvents, allEvents, allHits, allWindows, shownDayOf, numShown, numCal]);
+  }, [selectedId, chart, locale, nowMs, tz, scoped, texts, events, nowEvents, allEvents, allHits, allWindows, shownDayOf, numShown, numCal, cnMod, cnZodiac, cnPrefs]);
 
   const pickHit = useCallback((hit: TimingHit) => pick(`timing:${hit.id}`), [pick]);
 
@@ -526,8 +561,9 @@ export function useTiming() {
       numCal,
       numShown,
       numRows,
+      animals,
       numTitle,
     }),
-    [scope, civil, changeScope, shift, goToday, tz, zone, zones, prefs, updatePrefs, setLayer, shown, hasChart, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, loading, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled, numCal, numShown, numRows, numTitle],
+    [scope, civil, changeScope, shift, goToday, tz, zone, zones, prefs, updatePrefs, setLayer, shown, hasChart, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, loading, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled, numCal, numShown, numRows, numTitle, animals],
   );
 }

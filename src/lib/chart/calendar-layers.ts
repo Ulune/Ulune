@@ -20,7 +20,7 @@
 import type { CalendarWordKey } from "@/lib/i18n/calendar-layer-words";
 import type { CalRow } from "./calendar-rows";
 
-export type CalendarLayerId = "sky" | "transits" | "numerology" | "terms";
+export type CalendarLayerId = "sky" | "transits" | "numerology" | "terms" | "animals";
 
 /** The language a layer belongs to: the View menu names it above its switches. */
 export type LayerLanguage = "astrology" | "numerology" | "chinese";
@@ -83,6 +83,18 @@ export const CALENDAR_LAYERS: readonly CalendarLayer[] = [
     rows: [],
     label: "calLayerTerms",
     hint: "calLayerTermsHint",
+  },
+  // The day's animal (languages plan, part 11): each day's pillar and animal,
+  // and with a chart the days that clash with your year animal (the almanac's
+  // clash). Off by default; it draws in the month and the day, no rows.
+  {
+    id: "animals",
+    language: "chinese",
+    defaultOn: false,
+    needsChart: false,
+    rows: [],
+    label: "calLayerAnimals",
+    hint: "calLayerAnimalsHint",
   },
 ];
 

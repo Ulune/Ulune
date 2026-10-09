@@ -25,6 +25,8 @@ const LOADERS: Record<LazyPage, () => Promise<ModeDef>> = {
   numerology: () => import("@/studio/modes/numerology").then((m) => m.numerologyMode),
   "numerology-cycles": () => import("@/studio/modes/numerology-cycles").then((m) => m.numerologyCyclesMode),
   zodiac: () => import("@/studio/modes/zodiac").then((m) => m.zodiacMode),
+  "zodiac-years": () => import("@/studio/modes/zodiac-years").then((m) => m.zodiacYearsMode),
+  "zodiac-pair": () => import("@/studio/modes/zodiac-pair").then((m) => m.zodiacPairMode),
 };
 
 /**

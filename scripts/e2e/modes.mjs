@@ -164,6 +164,8 @@ async function runViewport(width) {
     await page.waitForFunction(() => /Universal time/.test(document.querySelector("[data-testid=calendar-zone-line]")?.textContent ?? ""), null, { timeout: 4000 });
     await page.getByTestId("calendar-zone-select").selectOption("device");
     await page.waitForFunction(() => !/Universal time/.test(document.querySelector("[data-testid=calendar-zone-line]")?.textContent ?? ""), null, { timeout: 4000 });
+    // Escape from the menu itself: a select that still has the focus may take the key for its own list.
+    await page.getByTestId("calendar-view-pop").focus();
     await page.keyboard.press("Escape");
     await page.getByTestId("calendar-view-pop").waitFor({ state: "detached", timeout: 4000 });
     const dayCell = page.locator("[data-testid^=calendar-day-]").first();

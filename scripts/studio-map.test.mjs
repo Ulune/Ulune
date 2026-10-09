@@ -65,6 +65,9 @@ test("every page belongs to one language and one lens, except the Calendar, a se
   assert.deepEqual(lensesOf("human-design"), ["natal"], "a lens a language lacks is not there");
   assert.deepEqual(lensesOf("numerology"), ["natal", "cycles"], "numerology's cycles (from R3)");
   assert.equal(pagePath("numerology-cycles"), "/numerology/cycles");
+  assert.deepEqual(lensesOf("chinese-astrology"), ["natal", "cycles", "relationship"], "Chinese astrology's year ahead and two people (part 11)");
+  assert.equal(pagePath("zodiac-years"), "/chinese-astrology/cycles");
+  assert.equal(pagePath("zodiac-pair"), "/chinese-astrology/pair");
 });
 
 test("every 1.x address lands on its 2.0 page", () => {
@@ -79,7 +82,7 @@ test("every 1.x address lands on its 2.0 page", () => {
     numerology: "/numerology",
   };
   // 2.0's own pages have no 1.x name to carry.
-  const NEW_IN_2 = ["numerology-cycles", "zodiac"];
+  const NEW_IN_2 = ["numerology-cycles", "zodiac", "zodiac-years", "zodiac-pair"];
   assert.deepEqual(Object.keys(cases).sort(), STUDIO_PAGES.filter((p) => !NEW_IN_2.includes(p)).sort(), "every 1.0.4 name is covered");
   for (const [studio, path] of Object.entries(cases)) {
     assert.deepEqual(legacyStudioPath({ studio }), { path, view: undefined }, studio);

@@ -1,0 +1,279 @@
+/* Chinese astrology's Cycles (the year ahead) and Pair (two people) pages
+   (languages plan, part 11; studio/modes/zodiac-years.tsx, zodiac-pair.tsx). */
+
+/* The year's steps in the toolbar: ‹ 2026 ›. */
+.ulune-zky-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.ulune-zky-step,
+.ulune-zky-year-n {
+  display: inline-grid;
+  place-items: center;
+  height: var(--ctl-h);
+  border-radius: 6px;
+  color: var(--color-fg-muted);
+}
+.ulune-zky-step {
+  width: 36px;
+}
+.ulune-zky-year-n {
+  min-width: 4.5rem;
+  padding: 0 8px;
+  color: var(--color-fg);
+  font: 500 15px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.ulune-zky-year-n:not([data-now]) {
+  box-shadow: inset 0 -2px 0 var(--color-halo);
+}
+.ulune-zky-step:disabled {
+  opacity: 0.4;
+}
+@media (hover: hover) {
+  .ulune-zky-step:hover:not(:disabled),
+  .ulune-zky-year-n:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
+}
+
+.ulune-zky {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--stage-pad) var(--space-5);
+}
+.ulune-zky-k {
+  font: 600 10.5px/1.3 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
+}
+.ulune-zky-h {
+  margin: 0 0 var(--space-2);
+  font: 600 11px/1.3 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
+}
+.ulune-zky-year {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--ph, var(--color-border-strong));
+  border-radius: 10px;
+  background: var(--color-bg-elevated);
+  color: var(--color-fg);
+  text-align: left;
+}
+.ulune-zky-year.is-on {
+  background: color-mix(in oklab, var(--ph, var(--color-fg)) 12%, var(--color-bg-elevated));
+}
+.ulune-zky-year-glyph {
+  flex: none;
+}
+.ulune-zky-year-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ulune-zky-year-name {
+  font: 400 26px/1.15 var(--font-display);
+}
+.ulune-zky-py {
+  font: 400 13px/1.3 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+
+/* How each of your animals meets the year. */
+.ulune-zky-yours {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-zky-mine {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg-elevated);
+}
+.ulune-zky-animal {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font: 400 17px/1.2 var(--font-display);
+}
+.ulune-zky-kinds {
+  font: 400 12.5px/1.35 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+[data-tone="same"] {
+  --tone: var(--color-halo);
+}
+[data-tone="meet"] {
+  --tone: var(--aspect-soft);
+}
+[data-tone="tension"] {
+  --tone: var(--aspect-hard);
+}
+.ulune-zky-mine[data-tone],
+.ulune-zky-month[data-tone] {
+  box-shadow: inset 0 3px 0 var(--tone);
+}
+.ulune-zky-mine[data-tone] .ulune-zky-kinds {
+  color: var(--color-fg);
+}
+
+/* Month by month: four by three, three by four on a phone. */
+.ulune-zky-months {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+.ulune-zky-month {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  min-height: 96px;
+  padding: 10px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg-elevated);
+  color: var(--color-fg);
+}
+.ulune-zky-month[data-now] {
+  outline: 2px solid var(--color-halo);
+  outline-offset: 1px;
+}
+.ulune-zky-month.is-on {
+  background: var(--color-bg-subtle);
+}
+.ulune-zky-month-name {
+  font: 500 13px/1.2 var(--font-ui);
+}
+.ulune-zky-month-kind {
+  font: 400 11.5px/1.2 var(--font-ui);
+  color: var(--color-fg-muted);
+  text-align: center;
+}
+@container (max-width: 640px) {
+  .ulune-zky-yours {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ulune-zky-months {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .ulune-zky-yours {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ulune-zky-months {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Two people: the meetings beside the wheel. */
+.ulune-zkp-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 0 1 340px;
+  min-width: 0;
+}
+.ulune-zkp-list .ulune-zky-h {
+  margin: var(--space-2) 0 0;
+}
+.ulune-zkp-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 0;
+  font: 400 12.5px/1.3 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-zkp-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-fg);
+}
+.ulune-zkp-dot.is-b {
+  margin-left: 8px;
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--color-fg);
+}
+.ulune-zkp-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-zkp-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  min-height: var(--row-h);
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--tone, var(--color-border-strong));
+  border-radius: 8px;
+  background: var(--color-bg-elevated);
+  color: var(--color-fg);
+  text-align: left;
+}
+.ulune-zkp-row.is-on {
+  background: var(--color-bg-subtle);
+}
+.ulune-zkp-row.is-big .ulune-zkp-kinds {
+  font: 400 19px/1.2 var(--font-display);
+}
+.ulune-zkp-kinds {
+  font: 600 13px/1.3 var(--font-ui);
+}
+.ulune-zkp-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: center;
+  font: 400 12.5px/1.3 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-zkp-who {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--color-fg);
+}
+.ulune-zkp-none {
+  margin: 0;
+  font: 400 13px/1.45 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+@container (max-width: 640px) {
+  .ulune-zkp-list {
+    flex: none;
+    width: 100%;
+  }
+}
