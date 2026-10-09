@@ -1,3 +1,4 @@
+import { AnimalGlyph } from "@/components/animal-glyph";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { RELATION_NAMES, relationTone } from "@/lib/chinese/relations";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
@@ -67,7 +68,16 @@ export function ZodiacTable({
                   </th>
                   <td>{r.pillar}</td>
                   <td>{r.stem}</td>
-                  <td>{r.branch}</td>
+                  <td>
+                    {prefs.animals === "drawings" ? (
+                      <span className="ulune-zk-table-animal">
+                        <AnimalGlyph animal={r.place.branch} size={16} />
+                        {r.branch}
+                      </span>
+                    ) : (
+                      r.branch
+                    )}
+                  </td>
                   <td>{r.phase}</td>
                   <td>{r.polarity}</td>
                   <td>{r.naYin}</td>

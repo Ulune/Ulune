@@ -26,6 +26,11 @@ export const chinese = {
   cnScriptHantHint: ["As in the classical texts and most Feng Shui practice", "Comme dans les textes classiques et la plupart des pratiques du Feng Shui"],
   cnScriptHans: ["Simplified", "Simplifiés"],
   cnScriptHansHint: ["As mainland China writes them today", "Comme on les écrit aujourd’hui en Chine continentale"],
+  cnAnimals: ["The twelve animals", "Les douze animaux"],
+  cnAnimalsDrawings: ["Ulune’s drawings", "Les dessins d’Ulune"],
+  cnAnimalsDrawingsHint: ["Drawn for Ulune, in the same line as the planets", "Dessinés pour Ulune, du même trait que les planètes"],
+  cnAnimalsCharacters: ["Their characters", "Leurs caractères"],
+  cnAnimalsCharactersHint: ["As Chinese writes them: 鼠, 牛, 虎…", "Comme le chinois les écrit\u202f: 鼠, 牛, 虎…"],
   cnClock: ["The clock for the hour of birth", "L’horloge de l’heure de naissance"],
   cnClockLead: [
     "Only the day and hour pillars depend on it, and only near the edge of an hour. The year and the month follow the solar terms, which no clock moves.",

@@ -17,8 +17,11 @@ demand.
 | `lunar.ts` | The lunisolar calendar: months, leap months, Lunar New Year, conversions both ways. |
 | `pillars.ts` | The four pillars of a birth, the three clocks, the day boundary, both year animals, uncertainty flags. |
 | `names.ts` | Stems, branches, phases, the sixty pairs, the 24 terms, the animals: characters, pinyin, English, French. Independent of the rest. |
-| `prefs.ts` | The reader's settings (clock, day boundary, characters, how a term is written), kept in this browser; `chineseLabel` writes a term as chosen. |
+| `prefs.ts` | The reader's settings (clock, day boundary, characters, how a term is written, the animals drawn or written), kept in this browser; `chineseLabel` writes a term as chosen. |
 | `use-chinese-prefs.ts` | The settings for React views, followed live. |
+| `zodiac.ts`, `zodiac-reading.ts`, `zodiac-table.ts` | Chinese astrology: the four animals of a cast chart, what its page says, its table and CSV. |
+| `relations.ts` | The relations between branches (harmony, trine, clash, harm, punishment, destruction, self-punishment), by rule. |
+| `animal-glyphs.ts` | The twelve animals as Ulune's own line drawings, in the planet glyphs' language (24 × 24, round strokes). |
 | `words.ts` | The interface words (`src/lib/i18n/catalog/chinese.ts`), read apart from the app's catalog so they stay out of the first download. |
 
 ## What it computes

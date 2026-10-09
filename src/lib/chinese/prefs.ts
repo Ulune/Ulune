@@ -11,6 +11,9 @@
  * - `show`: how a Chinese term is written beside its English or French name:
  *   with its pinyin and characters (by default), with its pinyin only, or the
  *   name alone.
+ * - `animals`: how the twelve animals are drawn on the wheel, the cards and
+ *   the readings: as Ulune's drawings (by default, animal-glyphs.ts, part 9)
+ *   or as their characters (鼠, 牛, 虎…).
  *
  * Pure but for the storage: the page reads it when it runs (the server's page
  * shows the defaults), and a change is announced to the open views with the
@@ -21,12 +24,14 @@ import type { Clock, DayBoundary } from "./pillars";
 
 export type Script = "hant" | "hans";
 export type TermShow = "full" | "pinyin" | "names";
+export type AnimalShow = "drawings" | "characters";
 
 export type ChinesePrefs = {
   clock: Clock;
   dayBoundary: DayBoundary;
   script: Script;
   show: TermShow;
+  animals: AnimalShow;
 };
 
 export const CHINESE_PREFS_KEY = "ulune.chinese";
@@ -36,12 +41,14 @@ export const CLOCKS: readonly Clock[] = ["true-solar", "local-mean", "civil"];
 export const DAY_BOUNDARIES: readonly DayBoundary[] = ["23:00", "split", "midnight"];
 export const SCRIPTS: readonly Script[] = ["hant", "hans"];
 export const TERM_SHOWS: readonly TermShow[] = ["full", "pinyin", "names"];
+export const ANIMAL_SHOWS: readonly AnimalShow[] = ["drawings", "characters"];
 
 export const DEFAULT_CHINESE_PREFS: Readonly<ChinesePrefs> = {
   clock: "true-solar",
   dayBoundary: "23:00",
   script: "hant",
   show: "full",
+  animals: "drawings",
 };
 
 const oneOf = <T extends string>(list: readonly T[], value: unknown, fallback: T): T =>
@@ -56,6 +63,7 @@ export function cleanChinesePrefs(raw: unknown): ChinesePrefs {
     dayBoundary: oneOf(DAY_BOUNDARIES, o.dayBoundary, d.dayBoundary),
     script: oneOf(SCRIPTS, o.script, d.script),
     show: oneOf(TERM_SHOWS, o.show, d.show),
+    animals: oneOf(ANIMAL_SHOWS, o.animals, d.animals),
   };
 }
 

@@ -7,6 +7,7 @@
  */
 import type { ElementReading, ReadingFact } from "@/lib/chart/types";
 import { BRANCHES, PHASES, POLARITY_NAMES, SIXTY, SOLAR_TERMS, STEMS } from "./names";
+import { ANIMAL_GLYPH_INNER } from "./animal-glyphs";
 import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { LICHUN, termMs } from "./terms";
 import { solarMonthAt } from "./pillars";
@@ -14,7 +15,10 @@ import { cnWord, theAnimal, type ChineseWordKey } from "./words";
 import type { ZodiacChart, ZodiacPlace, ZodiacPlaceId } from "./zodiac";
 import { branchRelations, RELATION_NAMES, trineOf, type PlacedRelation, type RelationKind } from "./relations";
 
-type Shown = Pick<ChinesePrefs, "script" | "show">;
+type Shown = Pick<ChinesePrefs, "script" | "show"> & Partial<Pick<ChinesePrefs, "animals">>;
+
+/** An animal's mark in its reading: Ulune's drawing of it (part 9), unless the reader chose the characters. */
+const drawn = (animal: number, prefs: Shown) => ((prefs.animals ?? "drawings") === "drawings" ? ANIMAL_GLYPH_INNER[animal] : undefined);
 
 const ROLE: Record<ZodiacPlaceId, ChineseWordKey> = { year: "zkRoleYear", month: "zkRoleMonth", day: "zkRoleDay", hour: "zkRoleHour" };
 export const PLACE_WORD: Record<ZodiacPlaceId, ChineseWordKey> = { year: "zkYear", month: "zkMonth", day: "zkDay", hour: "zkHour" };
@@ -105,6 +109,7 @@ function placeReading(z: ZodiacChart, place: ZodiacPlace, locale: string, prefs:
     facts,
     sections: paragraphs.length > 1 ? [{ id: "more", title: cnWord(locale, "zkTitle"), paragraphs: paragraphs.slice(1) }] : undefined,
     mark: pair.hanzi ?? undefined,
+    markSvg: drawn(place.branch, prefs),
     about: about(locale),
   };
 }
@@ -148,6 +153,7 @@ function branchReading(z: ZodiacChart, branch: number, locale: string, prefs: Sh
     paragraphs,
     facts,
     mark: label.hanzi ?? undefined,
+    markSvg: drawn(branch, prefs),
     about: about(locale),
   };
 }

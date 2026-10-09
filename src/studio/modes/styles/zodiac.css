@@ -83,6 +83,11 @@ html.light {
 .ulune-zk-hanzi {
   font-size: 27px;
 }
+/* An animal as Ulune draws it (part 9): in the ink of the characters it stands for. */
+.ulune-zk-glyph {
+  color: var(--color-fg);
+  pointer-events: none;
+}
 .ulune-zk-name {
   font-size: 10.5px;
   fill: var(--color-fg-muted);
@@ -225,6 +230,10 @@ html.light {
   gap: 8px;
   font: 400 20px/1.2 var(--font-display);
 }
+.ulune-zk-card-glyph {
+  align-self: center;
+  color: var(--color-fg);
+}
 .ulune-zk-card-hanzi,
 .ulune-zk-card-py:lang(zh),
 .ulune-zk-hello-row span:lang(zh) {
@@ -328,6 +337,14 @@ html.light {
 }
 .ulune-zk-table tr.is-on {
   background: var(--color-bg-subtle);
+}
+.ulune-zk-table-animal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ulune-zk-table-animal svg {
+  flex: none;
 }
 .ulune-zk-table-pick {
   font: inherit;

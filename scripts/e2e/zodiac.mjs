@@ -12,6 +12,10 @@
  *     day clashes with the Snake hour, a dashed line across the ring; the
  *     two Horses punish themselves), listed with nothing chosen and opening
  *     their reading; the table's relation rows and hidden stems;
+ *   - part 9: the twelve animals as Ulune's drawings on the wheel, the cards,
+ *     the table and a reading's mark; Settings → Chinese traditions → "Their
+ *     characters" brings the characters back (chosen in Settings at 1280,
+ *     by another tab at 390);
  *   - the table view's four rows; Settings' "Name only" followed at once;
  *   - nothing sent while the page works it out; nothing scrolls sideways.
  */
@@ -77,6 +81,14 @@ async function run(width, lang) {
     if (wheel.mine.sort().join() !== "zodiac-sector-hai,zodiac-sector-si,zodiac-sector-wu") throw new Error(`${label}: marked ${wheel.mine}`);
     if (wheel.badges.sort().join() !== "day,hour,month,year") throw new Error(`${label}: badges ${wheel.badges}`);
     if (wheel.year !== String(new Date().getFullYear())) throw new Error(`${label}: this year on the rim "${wheel.year}"`);
+    // Part 9: each animal drawn, in its own cell; the cards' four drawings are the places' animals.
+    const drawn = await page.evaluate(() => ({
+      wheel: [...document.querySelectorAll("[data-testid^=zodiac-sector-] [data-animal-glyph]")].map((g) => Number(g.getAttribute("data-animal-glyph"))),
+      hanzi: document.querySelectorAll("[data-testid=zodiac-wheel] .ulune-zk-hanzi").length,
+      cards: [...document.querySelectorAll("[data-testid=zodiac-cards] [data-animal-glyph]")].map((g) => Number(g.getAttribute("data-animal-glyph"))),
+    }));
+    if (drawn.wheel.join() !== "0,1,2,3,4,5,6,7,8,9,10,11" || drawn.hanzi !== 0) throw new Error(`${label}: the wheel's drawings ${drawn.wheel} (${drawn.hanzi} characters)`);
+    if (drawn.cards.join() !== "6,6,11,5") throw new Error(`${label}: the cards' drawings ${drawn.cards}`);
     // The four cards.
     for (const [i, id] of ["year", "month", "day", "hour"].entries()) {
       const text = await page.getByTestId(`zodiac-card-${id}`).innerText();
@@ -112,6 +124,9 @@ async function run(width, lang) {
     await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.naYin, { timeout: 8000 });
     const text = await note.innerText();
     if (!text.includes(w.pillar)) throw new Error(`${label}: the year's reading "${text.slice(0, 200)}"`);
+    // The reading's mark is the Horse's drawing.
+    const mark = await page.evaluate(() => document.querySelector("[data-testid=click-note] .ob-rc-mark svg path")?.getAttribute("d")?.slice(0, 12));
+    if (!mark?.startsWith("M16.6 20.6")) throw new Error(`${label}: the year's reading's mark "${mark}"`);
 
     if (width >= 1024) {
       // The ring by keyboard: one Tab stop, the arrows round it, Enter opens the animal.
@@ -131,6 +146,8 @@ async function run(width, lang) {
     await page.getByTestId("zodiac-table").waitFor({ timeout: 10000 });
     const rows = await page.locator("[data-testid^=zodiac-row-]").count();
     if (rows !== 4) throw new Error(`${label}: ${rows} table rows`);
+    const tableDrawn = await page.locator("[data-testid=zodiac-table] [data-animal-glyph]").count();
+    if (tableDrawn !== 4) throw new Error(`${label}: ${tableDrawn} drawings in the table`);
     // Part 8: the hidden stems (the Horse holds Ding and Ji) and the relations' rows.
     const hidden = await page.getByTestId("zodiac-hidden-year").innerText();
     if (!hidden.includes("丁") || !hidden.includes("己")) throw new Error(`${label}: the year's hidden stems "${hidden}"`);
@@ -139,6 +156,34 @@ async function run(width, lang) {
     await assertNoOverflow(page);
     await setView(page, "wheel");
     await page.getByTestId("zodiac-wheel").waitFor({ timeout: 10000 });
+
+    // Settings → Chinese traditions → The twelve animals → "Their characters": the wheel's characters come back.
+    if (width >= 1024) {
+      // Nothing chosen (Escape), the side panel's link to Settings.
+      await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur());
+      await page.keyboard.press("Escape");
+      await page.getByTestId("zodiac-settings-link").click();
+      await page.getByTestId("settings-chinese-animals").waitFor({ timeout: 15000 });
+      const sample = await page.locator("[data-testid=settings-chinese-animals-sample] [data-animal-glyph]").count();
+      if (sample !== 6) throw new Error(`${label}: Settings shows ${sample} drawings`);
+      await page.getByTestId("chinese-animals-characters").check();
+      const kept = await page.evaluate(() => JSON.parse(localStorage.getItem("ulune.chinese") ?? "{}"));
+      if (kept.animals !== "characters") throw new Error(`${label}: kept ${JSON.stringify(kept)}`);
+      await page.goBack();
+      await page.getByTestId("zodiac-wheel").waitFor({ timeout: 20000 });
+    } else {
+      await page.evaluate(() => {
+        localStorage.setItem("ulune.chinese", JSON.stringify({ animals: "characters" }));
+        window.dispatchEvent(new StorageEvent("storage", { key: "ulune.chinese" }));
+      });
+    }
+    await page.waitForFunction(
+      () => document.querySelectorAll("[data-testid=zodiac-wheel] .ulune-zk-hanzi").length === 12 && !document.querySelector("[data-testid=zodiac-wheel] [data-animal-glyph]"),
+      null,
+      { timeout: 8000 },
+    );
+    if (await page.locator("[data-testid=zodiac-cards] [data-animal-glyph]").count()) throw new Error(`${label}: the cards still drawn`);
+    await page.evaluate(() => localStorage.removeItem("ulune.chinese"));
 
     // Settings → Chinese traditions, "Name only" (another tab): the cards follow at once.
     await page.evaluate(() => {

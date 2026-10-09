@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/locale";
 import { SOLAR_TERMS } from "@/lib/chinese/names";
+import { AnimalGlyph } from "@/components/animal-glyph";
 import {
+  ANIMAL_SHOWS,
   CLOCKS,
   DAY_BOUNDARIES,
   DEFAULT_CHINESE_PREFS,
@@ -39,6 +41,15 @@ const SCRIPT: Group<"script"> = {
     hint: value === "hant" ? "cnScriptHantHint" : "cnScriptHansHint",
   })),
 };
+const ANIMALS: Group<"animals"> = {
+  key: "animals",
+  title: "cnAnimals",
+  options: ANIMAL_SHOWS.map((value) => ({
+    value,
+    label: value === "drawings" ? "cnAnimalsDrawings" : "cnAnimalsCharacters",
+    hint: value === "drawings" ? "cnAnimalsDrawingsHint" : "cnAnimalsCharactersHint",
+  })),
+};
 const CLOCK: Group<"clock"> = {
   key: "clock",
   title: "cnClock",
@@ -62,7 +73,8 @@ const DAY: Group<"dayBoundary"> = {
 
 /**
  * Settings → Chinese traditions (languages plan, part 6): how Chinese terms
- * are written (with pinyin and characters, Traditional or Simplified) and how
+ * are written (with pinyin and characters, Traditional or Simplified), how the
+ * twelve animals are drawn (Ulune's drawings or their characters, part 9) and how
  * the calendar is read for a birth (the clock of the hour, when the day
  * turns). Kept in this browser only (lib/chinese/prefs.ts); the defaults are
  * the owner's answers of 6 October 2026.
@@ -125,6 +137,18 @@ export function ChineseSettings() {
         </p>,
       )}
       {radios(SCRIPT)}
+      {radios(
+        ANIMALS,
+        <p className="ob-cn-animals" aria-hidden="true" data-testid="settings-chinese-animals-sample">
+          {prefs.animals === "drawings"
+            ? [0, 1, 2, 3, 4, 5].map((i) => <AnimalGlyph key={i} animal={i} size={22} />)
+            : (prefs.script === "hans" ? "鼠 牛 虎 兔 龙 蛇" : "鼠 牛 虎 兔 龍 蛇").split(" ").map((c) => (
+                <span key={c} className="ob-cn-hanzi" lang={prefs.script === "hans" ? "zh-Hans" : "zh-Hant"}>
+                  {c}
+                </span>
+              ))}
+        </p>,
+      )}
       {radios(CLOCK)}
       {radios(DAY)}
     </section>

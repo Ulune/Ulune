@@ -8,6 +8,7 @@ import { branchAngle, zodiacChart, ZODIAC_PLACES, type ZodiacChart, type ZodiacP
 import { PLACE_ANIMAL, PLACE_WORD, branchRef, placeRef, relationLine, relationRef, zodiacReading } from "@/lib/chinese/zodiac-reading";
 import { relationTone } from "@/lib/chinese/relations";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
+import { AnimalGlyph } from "@/components/animal-glyph";
 import { LoadingLines } from "@/components/loading-lines";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
@@ -28,8 +29,9 @@ import "@/studio/modes/styles/zodiac.css";
  * the rim. Below or beside it, the four animals as cards. Everything is
  * worked out here from the cast chart, on the reader's clock and day
  * boundary (Settings → Chinese traditions); nothing is sent. The relations
- * between the animals (part 8), their glyphs (part 9), their readings
- * (part 10), Pair and the year ahead (part 11) follow.
+ * between the animals (part 8) are drawn across it; each animal is Ulune's
+ * drawing of it (part 9), or its character if the reader prefers. Their
+ * readings (part 10), Pair and the year ahead (part 11) follow.
  */
 
 export type ZodiacState = {
@@ -144,7 +146,14 @@ function ZodiacWheel({ z }: { z: ZodiacChart }) {
                   {prefs.show === "full" ? `${b[prefs.script]} ${b.pinyin}` : b.pinyin}
                 </text>
               ) : null}
-              {prefs.show === "full" ? (
+              {prefs.animals === "drawings" ? (
+                <>
+                  <AnimalGlyph animal={b.animal} size={28} x={f(mid.x - 14)} y={f(mid.y - (prefs.show === "names" ? 21 : 17))} className="ulune-zk-glyph" />
+                  <text x={f(mid.x)} y={f(mid.y + (prefs.show === "names" ? 19 : 22))} className="ulune-zk-name">
+                    {animal.name}
+                  </text>
+                </>
+              ) : prefs.show === "full" ? (
                 <>
                   <text x={f(mid.x)} y={f(mid.y - 2)} className="ulune-zk-hanzi" lang={hanziLang(prefs.script)} fontFamily={CJK}>
                     {animalChar(b.animal, prefs.script)}
@@ -298,6 +307,7 @@ function ZodiacCards({ z }: { z: ZodiacChart }) {
                 {p.uncertain ? <span className="ulune-zk-card-tilde"> ~</span> : null}
               </span>
               <span className="ulune-zk-card-animal">
+                {prefs.animals === "drawings" ? <AnimalGlyph animal={p.branch} size={24} className="ulune-zk-card-glyph" /> : null}
                 {prefs.show === "full" ? (
                   <span className="ulune-zk-card-hanzi" lang={hanziLang(prefs.script)}>
                     {animalChar(p.branch, prefs.script)}
@@ -400,7 +410,7 @@ function ZodiacHello() {
       </p>
       <p className="ulune-zk-hello-note" data-testid="zodiac-clock">
         {cnWord(locale, "zkClockLine", { clock, day })}{" "}
-        <Link to="/settings" hash="chinese" className="ob-keep-link">
+        <Link to="/settings" hash="chinese" className="ob-keep-link" data-testid="zodiac-settings-link">
           {cnWord(locale, "zkSettingsLink")}
         </Link>
       </p>

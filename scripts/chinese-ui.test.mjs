@@ -24,9 +24,9 @@ import { calendarIcs, icsKeeps } from "../src/lib/i18n/calendar-export.ts";
 import { chinese } from "../src/lib/i18n/catalog/chinese.ts";
 
 test("the settings' defaults are the owner's answers, and anything unknown falls back to them", () => {
-  assert.deepEqual(DEFAULT_CHINESE_PREFS, { clock: "true-solar", dayBoundary: "23:00", script: "hant", show: "full" });
+  assert.deepEqual(DEFAULT_CHINESE_PREFS, { clock: "true-solar", dayBoundary: "23:00", script: "hant", show: "full", animals: "drawings" });
   assert.deepEqual(cleanChinesePrefs(null), DEFAULT_CHINESE_PREFS);
-  assert.deepEqual(cleanChinesePrefs({ clock: "civil", dayBoundary: "noon", script: "hans", show: 3, extra: true }), {
+  assert.deepEqual(cleanChinesePrefs({ clock: "civil", dayBoundary: "noon", script: "hans", show: 3, animals: "photos", extra: true }), {
     ...DEFAULT_CHINESE_PREFS,
     clock: "civil",
     script: "hans",
@@ -52,8 +52,8 @@ test("the settings are kept in this browser, only where they differ, and told to
     setChinesePrefs({ script: "hans" });
     assert.deepEqual(JSON.parse(data.get(CHINESE_PREFS_KEY)), { script: "hans" });
     assert.equal(readChinesePrefs().script, "hans");
-    setChinesePrefs({ show: "names", clock: "local-mean" });
-    assert.deepEqual(JSON.parse(data.get(CHINESE_PREFS_KEY)), { clock: "local-mean", script: "hans", show: "names" });
+    setChinesePrefs({ show: "names", clock: "local-mean", animals: "characters" });
+    assert.deepEqual(JSON.parse(data.get(CHINESE_PREFS_KEY)), { clock: "local-mean", script: "hans", show: "names", animals: "characters" });
     setChinesePrefs({ ...DEFAULT_CHINESE_PREFS });
     assert.equal(data.has(CHINESE_PREFS_KEY), false, "back to the defaults: nothing kept");
     assert.equal(heard.length, 3);

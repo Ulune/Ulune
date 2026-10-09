@@ -17,6 +17,15 @@
 .ob-cn-sample {
   margin-top: 6px;
 }
+.ob-cn-animals {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 8px 0 0;
+  color: var(--color-fg);
+  font-size: 20px;
+  line-height: 22px;
+}
 .ob-cn-hanzi {
   /* The device's own Chinese font (languages plan: nothing downloaded). */
   font-family: "PingFang TC", "PingFang SC", "Noto Sans CJK TC", "Noto Sans CJK SC", "Microsoft JhengHei", "Microsoft YaHei", sans-serif;

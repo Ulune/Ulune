@@ -425,6 +425,8 @@ export type ElementReading = {
   about?: { title: string; paragraphs: string[] };
   /** Short text drawn in the reading's mark when it has no glyph (numbers, gates). */
   mark?: string;
+  /** An original drawing for the mark, the inner markup of a 24 × 24 SVG (the Chinese animals, lib/chinese/animal-glyphs.ts); drawn before `mark`. */
+  markSvg?: string;
   /** Composed (AI) text for this element, shown above the local reading. */
   ai?: string[];
   /** Short curated meaning (click note), shown as the first section. */

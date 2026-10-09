@@ -54,6 +54,11 @@ export function ReadingMark({ reading, size = 26 }: { reading: ElementReading; s
   if (reading.id.startsWith("act:")) return <PlanetGlyph id={reading.id.split(":")[2] ?? ""} size={size} />;
   if (reading.id.startsWith("sky:")) return <SkyEventMark id={reading.id.slice(4)} size={size} />;
   if (reading.id.startsWith("moon:")) return <PlanetGlyph id="moon" size={size} />;
+  if (reading.markSvg) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" className="ulune-glyph block shrink-0" aria-hidden="true" dangerouslySetInnerHTML={{ __html: reading.markSvg }} />
+    );
+  }
   if (reading.mark) return <span className="ob-rc-mark-text">{reading.mark}</span>;
   if (reading.kind === "planet" || reading.kind === "angle") {
     return <PlanetGlyph id={raw} size={size} />;
@@ -81,7 +86,7 @@ export function ReadingMark({ reading, size = 26 }: { reading: ElementReading; s
 
 
 function hasMark(reading: ElementReading) {
-  if (reading.mark) return true;
+  if (reading.mark || reading.markSvg) return true;
   if (reading.kind !== "house") return true;
   return /^house:\d+$/.test(reading.id);
 }
