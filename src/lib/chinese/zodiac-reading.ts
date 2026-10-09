@@ -2,8 +2,10 @@
  * What Chinese astrology's page says about a chosen animal (languages plan,
  * part 7): its place and what the tradition reads there, its pillar, stem,
  * branch, phase and Na Yin, when its year or month runs, and whether the
- * birth time could change it. The written portraits of each animal and
- * phase come with part 10; these are the facts and the tradition's frame.
+ * birth time could change it; and (part 10) what it says of the animal: its
+ * pair with the stem's phase, its place in the reader's life, a modern
+ * portrait, each relation in practice (zodiac-texts.ts). Every section is
+ * titled with where it comes from: the tradition, or a modern portrait.
  */
 import type { ElementReading, ReadingFact } from "@/lib/chart/types";
 import { BRANCHES, PHASES, POLARITY_NAMES, SIXTY, SOLAR_TERMS, STEMS } from "./names";
@@ -12,6 +14,7 @@ import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { LICHUN, termMs } from "./terms";
 import { solarMonthAt } from "./pillars";
 import { cnWord, theAnimal, type ChineseWordKey } from "./words";
+import { ANIMAL_PORTRAITS, PLACE_TEXTS, RELATION_PRACTICE, pairText, said } from "./zodiac-texts";
 import type { ZodiacChart, ZodiacPlace, ZodiacPlaceId } from "./zodiac";
 import { branchRelations, RELATION_NAMES, trineOf, type PlacedRelation, type RelationKind } from "./relations";
 
@@ -68,6 +71,19 @@ function dayFormat(locale: string, tz: string | undefined) {
   return (ms: number) => fmt.format(new Date(ms));
 }
 
+/** An animal's modern portrait: who it is, its gifts, what to watch. */
+function portrait(animal: number, locale: string): string[] {
+  const p = ANIMAL_PORTRAITS[animal]!;
+  return [said(p.portrait, locale), said(p.gifts, locale), said(p.watch, locale)];
+}
+
+/** The years a pair of the sixty comes back, 1900–2100 (1984 is Jia-Zi, the first): "1930, 1990, 2050". */
+export function pairYears(cycle: number): number[] {
+  const out: number[] = [];
+  for (let y = 1984 + cycle - 120; y <= 2100; y += 60) if (y >= 1900) out.push(y);
+  return out;
+}
+
 function about(locale: string): ElementReading["about"] {
   return { title: cnWord(locale, "zkAboutTitle"), paragraphs: [cnWord(locale, "zkAbout1"), cnWord(locale, "zkAbout2")] };
 }
@@ -96,18 +112,27 @@ function placeReading(z: ZodiacChart, place: ZodiacPlace, locale: string, prefs:
     const other = r.places[0] === place.id ? r.places[1] : r.places[0];
     facts.push({ label: chineseLabel(RELATION_NAMES[r.kind], locale, prefs).name, value: placeAnimal(z, other, locale), ref: relationRef(r) });
   }
-  const paragraphs = [cnWord(locale, ROLE[place.id])];
-  if (place.uncertain) paragraphs.push(cnWord(locale, z.timeUnknown ? "zkUncertainDay" : "zkUncertainNear"));
-  if (place.id === "year" && z.newYearAnimal != null) paragraphs.push(cnWord(locale, "zkNewYear", { theAnimal: theAnimal(z.newYearAnimal, locale) }));
+  if (place.id === "year") facts.push({ label: cnWord(locale, "zkYears"), value: pairYears(place.pillar.cycle).join(", ") });
+  // The pair of popular astrology: the branch's animal with its stem's phase (the Metal Horse).
+  const pair2 = said(pairText(place.branch, STEMS[place.stem]!.phase), locale);
+  const lead = place.id === "year" ? pair2 : said(PLACE_TEXTS[place.id][place.branch]!, locale);
+  const sections: NonNullable<ElementReading["sections"]> = [];
+  const time: string[] = [];
+  if (place.uncertain) time.push(cnWord(locale, z.timeUnknown ? "zkUncertainDay" : "zkUncertainNear"));
+  if (time.length) sections.push({ id: "time", title: cnWord(locale, "zkUncertainTitle"), paragraphs: time });
+  sections.push({ id: "portrait", title: cnWord(locale, "zkPortrait"), paragraphs: [...(place.id === "year" ? [] : [pair2]), ...portrait(place.branch, locale)] });
+  const tradition = [cnWord(locale, ROLE[place.id])];
+  if (place.id === "year" && z.newYearAnimal != null) tradition.push(cnWord(locale, "zkNewYear", { theAnimal: theAnimal(z.newYearAnimal, locale) }));
+  sections.push({ id: "tradition", title: cnWord(locale, "zkTradition"), paragraphs: tradition });
   return {
     id: placeRef(place.id),
     kind: "sign",
     title: pair.name,
     kicker: [cnWord(locale, PLACE_ANIMAL[place.id]), [pair.pinyin, pair.hanzi].filter(Boolean).join(" ")].filter(Boolean).join(" · "),
-    lead: paragraphs[0],
-    paragraphs,
+    lead,
+    paragraphs: [lead, ...sections.flatMap((x) => x.paragraphs)],
     facts,
-    sections: paragraphs.length > 1 ? [{ id: "more", title: cnWord(locale, "zkTitle"), paragraphs: paragraphs.slice(1) }] : undefined,
+    sections,
     mark: pair.hanzi ?? undefined,
     markSvg: drawn(place.branch, prefs),
     about: about(locale),
@@ -142,16 +167,18 @@ function branchReading(z: ZodiacChart, branch: number, locale: string, prefs: Sh
       facts.push({ label: chineseLabel(RELATION_NAMES[kind], locale, prefs).name, value: placeAnimal(z, p.id, locale), ref: placeRef(p.id) });
     }
   }
-  const paragraphs = [lead];
-  if (mine.length) paragraphs.push(cnWord(locale, "zkSectorYours", { places: mine.join(", ") }));
+  const sections: NonNullable<ElementReading["sections"]> = [];
+  if (mine.length) sections.push({ id: "yours", title: cnWord(locale, "zkTitle"), paragraphs: [cnWord(locale, "zkSectorYours", { places: mine.join(", ") })] });
+  sections.push({ id: "portrait", title: cnWord(locale, "zkPortrait"), paragraphs: portrait(branch, locale) });
   return {
     id: branchRef(branch),
     kind: "sign",
     title: label.name,
     kicker: [label.pinyin, label.hanzi].filter(Boolean).join(" ") || cnWord(locale, "zkAnimal"),
     lead,
-    paragraphs,
+    paragraphs: [lead, ...sections.flatMap((x) => x.paragraphs)],
     facts,
+    sections,
     mark: label.hanzi ?? undefined,
     markSvg: drawn(branch, prefs),
     about: about(locale),
@@ -165,7 +192,8 @@ function relationReading(z: ZodiacChart, r: PlacedRelation<ZodiacPlaceId>, local
     const p = z.places.find((x) => x.id === id)!;
     return { label: cnWord(locale, PLACE_ANIMAL[id]), value: chineseLabel(SIXTY[p.pillar.cycle]!, locale, prefs).text, ref: placeRef(id) };
   });
-  const paragraphs = [cnWord(locale, RELATION_TEXT[r.kind])];
+  const lead = cnWord(locale, RELATION_TEXT[r.kind]);
+  const tradition: string[] = [];
   if (r.kind === "trine") {
     const phase = PHASES.find((p) => p.id === trineOf(r.branches[0]).phase)!;
     facts.push({ label: cnWord(locale, "zkAnimalPhase"), value: chineseLabel(phase, locale, prefs).text });
@@ -173,7 +201,7 @@ function relationReading(z: ZodiacChart, r: PlacedRelation<ZodiacPlaceId>, local
   const whole = z.trines.find((t) => r.kind === "trine" && r.places.every((id) => t.places.includes(id)));
   if (whole) {
     const phase = PHASES.find((p) => p.id === whole.phase)!;
-    paragraphs.push(
+    tradition.push(
       cnWord(locale, "zkTrineFull", {
         places: whole.places.map((id) => cnWord(locale, PLACE_WORD[id]).toLowerCase()).join(", "),
         phase: (locale === "fr" ? phase.fr : phase.en).toLowerCase(),
@@ -185,9 +213,13 @@ function relationReading(z: ZodiacChart, r: PlacedRelation<ZodiacPlaceId>, local
     kind: "aspect",
     title: name.name,
     kicker: [placeAnimal(z, r.places[0], locale), placeAnimal(z, r.places[1], locale)].join(" – "),
-    lead: paragraphs[0],
-    paragraphs,
+    lead,
+    paragraphs: [lead, ...tradition, said(RELATION_PRACTICE[r.kind], locale)],
     facts,
+    sections: [
+      ...(tradition.length ? [{ id: "tradition", title: cnWord(locale, "zkTradition"), paragraphs: tradition }] : []),
+      { id: "practice", title: cnWord(locale, "zkInPractice"), paragraphs: [said(RELATION_PRACTICE[r.kind], locale)] },
+    ],
     mark: name.hanzi ?? undefined,
     about: about(locale),
   };

@@ -101,11 +101,13 @@ test("what the page says of a chosen place and of an animal of the wheel", () =>
   assert.equal(year.kicker, "Year animal · gēngwǔ 庚午");
   assert.deepEqual(
     year.facts.map((f) => f.label),
-    ["Pillar", "Heavenly Stem", "Earthly Branch", "The animal’s phase", "Na Yin", "Year", "Self-punishment"],
+    ["Pillar", "Heavenly Stem", "Earthly Branch", "The animal’s phase", "Na Yin", "Year", "Self-punishment", "Its years"],
   );
   assert.equal(year.facts[6].value, "month (Horse)", "part 8: the year's relations with the other places");
+  assert.equal(year.facts[7].value, "1930, 1990, 2050", "part 10: the years of the Metal Horse");
   assert.equal(year.facts[5].value, "4 Feb 1990 – 4 Feb 1991");
-  assert.match(year.lead, /how others see you/);
+  assert.match(year.lead, /^The Metal Horse is the most determined of the Horses/, "part 10: the year opens on its pair");
+  assert.match(year.sections.find((x) => x.id === "tradition").paragraphs[0], /how others see you/);
   const hour = zodiacReading(z, "zk:hour", "fr", { script: "hans", show: "names" });
   assert.equal(hour.title, "Serpent d’Eau yin", "French elides before Eau");
   const goat = zodiacReading(z, "zk:branch:7", "fr", full);

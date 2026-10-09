@@ -16,6 +16,9 @@
  *     the table and a reading's mark; Settings → Chinese traditions → "Their
  *     characters" brings the characters back (chosen in Settings at 1280,
  *     by another tab at 390);
+ *   - part 10: the year's reading opens on its pair (the Metal Horse), then
+ *     "A modern portrait" and "In the tradition"; a relation's reading ends
+ *     "In practice";
  *   - the table view's four rows; Settings' "Name only" followed at once;
  *   - nothing sent while the page works it out; nothing scrolls sideways.
  */
@@ -31,6 +34,9 @@ const WORDS = {
     year: "Year animal",
     clash: "Clash",
     clashLine: "day (Pig) – hour (Snake)",
+    pairLead: "The Metal Horse is the most determined of the Horses",
+    sections: ["A modern portrait", "In the tradition"],
+    practice: "In practice",
   },
   fr: {
     heading: "Traditions chinoises",
@@ -40,6 +46,9 @@ const WORDS = {
     year: "Animal de l’année",
     clash: "Choc",
     clashLine: "jour (Cochon) – heure (Serpent)",
+    pairLead: "Le Cheval de Métal est le plus déterminé des Chevaux",
+    sections: ["Portrait moderne", "Dans la tradition"],
+    practice: "En pratique",
   },
 };
 
@@ -112,6 +121,9 @@ async function run(width, lang) {
       await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.clash, { timeout: 8000 });
       const relNote = await page.getByTestId("click-note").innerText();
       if (!relNote.includes(w.animals[2]) || !relNote.includes(w.animals[3])) throw new Error(`${label}: the clash's reading "${relNote.slice(0, 200)}"`);
+      // (Headings are set in capitals by their style: their words are compared as written.)
+      const relWords = await page.getByTestId("click-note").evaluate((e) => e.textContent);
+      if (!relWords.includes(w.practice)) throw new Error(`${label}: the clash's reading has no "${w.practice}"`);
       const lineOn = await page.locator("[data-testid=zodiac-lines] line.is-on").count();
       if (lineOn !== 1) throw new Error(`${label}: the chosen clash's line is not marked`);
     }
@@ -124,6 +136,10 @@ async function run(width, lang) {
     await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.naYin, { timeout: 8000 });
     const text = await note.innerText();
     if (!text.includes(w.pillar)) throw new Error(`${label}: the year's reading "${text.slice(0, 200)}"`);
+    // Part 10: the pair first, then the sections titled with where they come from.
+    if (!text.includes(w.pairLead)) throw new Error(`${label}: the year's lead "${text.slice(0, 200)}"`);
+    const heads = await page.locator("[data-testid=click-note] .ob-rc-sec .ob-rc-h").evaluateAll((els) => els.map((e) => e.textContent.trim()));
+    if (!w.sections.every((h) => heads.includes(h))) throw new Error(`${label}: the year's sections ${heads.join(" | ")}`);
     // The reading's mark is the Horse's drawing.
     const mark = await page.evaluate(() => document.querySelector("[data-testid=click-note] .ob-rc-mark svg path")?.getAttribute("d")?.slice(0, 12));
     if (!mark?.startsWith("M16.6 20.6")) throw new Error(`${label}: the year's reading's mark "${mark}"`);

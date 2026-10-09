@@ -20,6 +20,7 @@ demand.
 | `prefs.ts` | The reader's settings (clock, day boundary, characters, how a term is written, the animals drawn or written), kept in this browser; `chineseLabel` writes a term as chosen. |
 | `use-chinese-prefs.ts` | The settings for React views, followed live. |
 | `zodiac.ts`, `zodiac-reading.ts`, `zodiac-table.ts` | Chinese astrology: the four animals of a cast chart, what its page says, its table and CSV. |
+| `zodiac-texts.ts` | What Chinese astrology says, in English and French: the twelve portraits, the sixty animal-and-phase pairs, the month, day and hour animals, each relation in practice. |
 | `relations.ts` | The relations between branches (harmony, trine, clash, harm, punishment, destruction, self-punishment), by rule. |
 | `animal-glyphs.ts` | The twelve animals as Ulune's own line drawings, in the planet glyphs' language (24 × 24, round strokes). |
 | `words.ts` | The interface words (`src/lib/i18n/catalog/chinese.ts`), read apart from the app's catalog so they stay out of the first download. |

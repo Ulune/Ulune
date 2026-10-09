@@ -167,9 +167,14 @@ export const chinese = {
     "Chaque pilier d’une naissance est un Tronc céleste au-dessus d’une Branche terrestre, et chaque branche a son animal. L’année change à Lichun, le début du printemps (vers le 4 février), chaque mois à son terme solaire, le jour et l’heure à l’horloge du lieu de naissance.",
   ],
   zkAbout2: [
-    "The full readings of each animal, its relations with the others and the year ahead come next; for now this page shows where your animals stand.",
-    "Les lectures complètes de chaque animal, leurs relations et l’année à venir arrivent ensuite\u202f; pour l’instant cette page montre où se trouvent vos animaux.",
+    "Where the words come from: the four places, the phases and the relations between animals are the tradition’s, as the Four Pillars read them. The portraits of the animals and of their pairs with a phase are modern: what popular books in Chinese, English and French commonly say of each, in Ulune’s words, to be read as a mirror rather than a verdict.",
+    "D’où viennent les mots\u202f: les quatre places, les phases et les relations entre animaux sont celles de la tradition, telle que la lisent les Quatre Piliers. Les portraits des animaux et de leurs couples avec une phase sont modernes\u202f: ce que les livres populaires en chinois, en anglais et en français disent couramment de chacun, dans les mots d’Ulune, à lire comme un miroir plutôt qu’un verdict.",
   ],
+  zkPortrait: ["A modern portrait", "Portrait moderne"],
+  zkTradition: ["In the tradition", "Dans la tradition"],
+  zkInPractice: ["In practice", "En pratique"],
+  zkYears: ["Its years", "Ses années"],
+  zkUncertainTitle: ["Depends on the birth time", "Dépend de l’heure de naissance"],
   // The relations between animals (languages plan, part 8).
   zkRelations: ["Between your animals", "Entre vos animaux"],
   zkRelationsNone: [
