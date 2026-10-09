@@ -13,6 +13,10 @@ const STATIC = join(ROOT, ".vercel/output/static");
 const args = process.argv.slice(2);
 const returning = args.includes("--returning");
 const asJson = args.includes("--json");
+// A reader with a private space (its flag set: the space's code loads on every page).
+const spaced = args.includes("--space");
+// A 4G phone's network (Lighthouse's "slow 4G": 150 ms round trip, 1.6 Mbit/s down, 750 kbit/s up).
+const slow4g = args.includes("--4g");
 const paths = args.filter((a) => a.startsWith("/"));
 if (!paths.length) paths.push("/", "/settings", "/nope");
 const ROW = join(OUT, "load/saved-row.json");
@@ -42,7 +46,13 @@ for (const path of paths) {
       } catch { /* storage blocked */ }
     }, row);
   }
+  if (spaced) await ctx.addInitScript(() => localStorage.setItem("ulune.space", "stay"));
   const page = await ctx.newPage();
+  if (slow4g) {
+    const cdp = await ctx.newCDPSession(page);
+    await cdp.send("Network.enable");
+    await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 150, downloadThroughput: (1.6 * 1024 * 1024) / 8, uploadThroughput: (750 * 1024) / 8 });
+  }
   const seen = [];
   let fcp = null;
   page.on("request", (req) => {

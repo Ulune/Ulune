@@ -11,6 +11,7 @@ import type { HumanDesignChart } from "@/lib/chart/human-design";
 import { bodygraphOf, onBodygraphs, setYourCharts, type YourChart, type YourNumber } from "@/encyclopedia/your-chart";
 import { aspectsOf, bodiesOf, hdOf, numbersOf } from "@/studio/your-chart-summary";
 import { useStudioStore } from "@/studio/store";
+import { importWithRetry } from "@/lib/lazy-retry";
 
 const hdKeyOf = (chart: NatalChart) => `${chart.meta.utc}|${chart.meta.timeUnknown ? 720 : ""}`;
 
@@ -60,7 +61,7 @@ export function publishYourCharts(): void {
   setYourCharts(charts.length ? { active: s.chart && !s.creating ? (s.activeId ?? "open") : null, charts } : null);
   if (charts.length && !numerology && !loadingNumerology) {
     loadingNumerology = true;
-    void import("@/lib/chart/numerology")
+    void importWithRetry(() => import("@/lib/chart/numerology"))
       .then((m) => {
         numerology = m;
         publishYourCharts();

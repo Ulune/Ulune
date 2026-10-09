@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { Shell } from "@/studio/shell/Shell";
 import { useLibraryBoot } from "@/studio/library-boot";
 import { StudioReturnTracker, useStudioReturn } from "@/studio/return-memory";
+import { importWithRetry } from "@/lib/lazy-retry";
 
 export function StudioPage() {
   // Back to the same place after a page outside the studio (R6).
@@ -18,7 +19,9 @@ export function StudioPage() {
   // own load stays as it was.
   useEffect(
     () => () => {
-      void import("@/studio/your-chart-publish").then((m) => m.watchYourCharts()).catch(() => {});
+      void importWithRetry(() => import("@/studio/your-chart-publish"))
+        .then((m) => m.watchYourCharts())
+        .catch(() => {});
     },
     [],
   );

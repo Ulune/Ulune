@@ -52,7 +52,7 @@ export function AspectDial({ angle, orb, lang }: { angle: number; orb: number; l
   return (
     <div className="ob-enc-dial" data-testid="enc-dial" data-in-orb={inOrb ? "" : undefined}>
       <div className="ob-enc-figure-panel" style={{ width: 240 }}>
-        <svg viewBox="0 0 240 240" width="240" height="240" className="f-svg" role="img" aria-labelledby={`${id}-s`}>
+        <svg viewBox="0 0 240 240" width="240" height="240" className="f-svg" role="img" aria-label={tr(lang, "encDialFigure", { angle, orb: String(orb).replace(".", lang === "fr" ? "," : ".") })} aria-describedby={`${id}-s`}>
           <circle cx={C} cy={C} r={R} className="f-line" />
           <path d={band(R - 7, R + 7, a + angle - orb, a + angle + orb)} className="f-orb" />
           {sep > 0 ? <line x1={f(ax)} y1={f(ay)} x2={f(bx)} y2={f(by)} className={inOrb ? `f-asp f-asp-${family}` : "f-asp f-asp-off"} /> : null}

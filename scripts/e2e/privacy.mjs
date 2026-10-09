@@ -70,8 +70,13 @@ async function addKey(page, provider, key) {
   return route;
 }
 
+/** A word nobody would search for: it must not leave the page. */
+const SECRET = "zqxwvquintessa";
+
 async function run() {
   const { browser, page } = await launch(1280);
+  let encFrom = 0;
+  let encTo = 0;
   const seen = [];
   page.on("request", (r) => {
     seen.push({ url: r.url(), method: r.method(), body: r.postData() ?? "" });
@@ -137,6 +142,23 @@ async function run() {
     );
     console.log("asked through the relay");
     }
+
+    // The encyclopedia with this chart open (part 22): "In your chart", the search, a page,
+    // Bookmark: nothing but its pages and the app's own files, by GET; nothing typed goes out.
+    encFrom = seen.length;
+    await page.locator("[data-testid=section-encyclopedia]:visible").first().click();
+    await page.getByTestId("enc-home").waitFor({ timeout: 15000 });
+    await page.getByTestId("enc-mine-index").waitFor({ timeout: 10000 });
+    await page.getByTestId("enc-search-input").pressSequentially(`${SECRET} moon`, { delay: 15 });
+    await page.getByTestId("enc-search-input").fill("");
+    await page.getByTestId("enc-search-input").pressSequentially("moon", { delay: 15 });
+    await page.locator('[data-testid=enc-results] [data-entry="moon"] a').first().click();
+    await page.getByTestId("enc-mine").waitFor({ timeout: 10000 });
+    await page.getByTestId("enc-bookmark").click();
+    await page.getByTestId("enc-keep-need").waitFor({ timeout: 5000 });
+    await page.waitForTimeout(1000);
+    encTo = seen.length;
+    console.log("encyclopedia read");
   } finally {
     await browser.close();
   }
@@ -191,6 +213,18 @@ async function run() {
     if (r.method !== "GET" || r.body || !(keys === "t0,v" || keys === "v,y")) failures.push(`a sky request carries more than a date: ${r.method} ${r.url.slice(0, 100)}`);
   }
   if (!skyAsks) failures.push("The calendar asked for no sky");
+
+  // The encyclopedia's part of the visit.
+  const origin = new URL(DEV).origin;
+  if (encTo <= encFrom) failures.push("the encyclopedia was not visited");
+  for (const r of seen.slice(encFrom, encTo)) {
+    const u = new URL(r.url);
+    if (u.protocol === "data:" || u.protocol === "blob:") continue;
+    if (u.origin !== origin) failures.push(`the encyclopedia asked another site: ${r.url.slice(0, 80)}`);
+    else if (r.method !== "GET") failures.push(`the encyclopedia sent ${r.method} ${u.pathname}`);
+    else if (/^\/(_serverFn|api)\//.test(u.pathname)) failures.push(`the encyclopedia called the server: ${u.pathname}`);
+  }
+  for (const r of seen) if (`${r.url} ${r.body}`.toLowerCase().includes(SECRET)) failures.push(`what was typed in the search went out: ${r.url.slice(0, 80)}`);
 
   if (failures.length) {
     console.error(failures.join("\n"));

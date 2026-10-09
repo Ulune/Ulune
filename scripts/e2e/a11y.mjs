@@ -67,6 +67,83 @@ for (const lang of ["en", "fr"]) {
     await browser.close();
   }
 }
+// The encyclopedia (part 22): its home with "In your chart", a gate's figures, the aspect dial,
+// a page's Bookmark and its note's way in, in both languages; every figure a drawing with its
+// description and a caption; the search reached, used and left by the keyboard alone.
+for (const lang of ["en", "fr"]) {
+  const { browser, page } = await launch(1280);
+  const fr = lang === "fr";
+  const tag = (t) => `${lang}/encyclopedia/${t}`;
+  const go = async (id, query) => {
+    if (!(await page.getByTestId("enc-search-input").count())) {
+      await page.getByTestId("enc-crumbs").locator("a").first().click();
+      await page.getByTestId("enc-home").waitFor({ timeout: 10000 });
+    }
+    await page.getByTestId("enc-search-input").fill("");
+    await page.getByTestId("enc-search-input").pressSequentially(query, { delay: 20 });
+    const hit = page.locator(`[data-testid=enc-results] [data-entry="${id}"] a`).first();
+    await hit.waitFor({ timeout: 8000 });
+    await hit.click();
+    await page.getByTestId("enc-entry").waitFor({ timeout: 10000 });
+    await page.waitForTimeout(800);
+  };
+  try {
+    await gotoApp(page);
+    if (fr) await setLang(page, "fr");
+    await castFixture(page, FIXTURE_A);
+    await page.locator("[data-testid=section-encyclopedia]:visible").first().click();
+    await page.getByTestId("enc-home").waitFor({ timeout: 15000 });
+    await page.getByTestId("enc-mine-index").waitFor({ timeout: 10000 });
+    problems.push(...(await scan(page, tag("home"), fr)));
+    for (const [id, q] of [["hd-gate-34", fr ? "porte 34" : "gate 34"], ["trine", fr ? "trigone" : "trine"], ["saturn", fr ? "saturne" : "saturn"]]) {
+      await go(id, q);
+      if (id === "saturn") {
+        await page.getByTestId("enc-bookmark").click();
+        await page.getByTestId("enc-keep-need").waitFor({ timeout: 5000 });
+      }
+      if (id === "trine") await page.getByTestId("enc-dial-range").waitFor({ timeout: 8000 });
+      problems.push(...(await scan(page, tag(id), fr)));
+      const figures = await page.evaluate(() =>
+        [...document.querySelectorAll("[data-testid=enc-figure]")].map((f) => ({
+          drawings: [...f.querySelectorAll("svg")].map((svg) => {
+            const label = svg.getAttribute("aria-label") || (svg.getAttribute("aria-labelledby") ? document.getElementById(svg.getAttribute("aria-labelledby"))?.textContent : "");
+            return svg.getAttribute("role") === "img" && (label ?? "").trim().length > 10;
+          }),
+          caption: (f.querySelector("figcaption")?.textContent ?? "").trim().length > 20,
+        })),
+      );
+      for (const f of figures) if (!f.caption || !f.drawings.every(Boolean)) problems.push(`${tag(id)}: a figure without its text twin ${JSON.stringify(f)}`);
+      if (id !== "saturn" && !figures.length) problems.push(`${tag(id)}: no figure`);
+    }
+    // The search by the keyboard alone: Tab to the field, type, Tab to the first result, Enter.
+    await page.getByTestId("enc-crumbs").locator("a").first().click();
+    await page.getByTestId("enc-home").waitFor({ timeout: 10000 });
+    await page.evaluate(() => document.activeElement?.blur());
+    let reached = false;
+    for (let i = 0; i < 25 && !reached; i += 1) {
+      await page.keyboard.press("Tab");
+      reached = await page.evaluate(() => document.activeElement?.getAttribute("data-testid") === "enc-search-input");
+    }
+    if (!reached) problems.push(`${tag("search")}: Tab does not reach the search`);
+    else {
+      await page.keyboard.type(fr ? "lune" : "moon", { delay: 30 });
+      await page.locator("[data-testid=enc-results] [data-entry] a").first().waitFor({ timeout: 8000 });
+      let onResult = false;
+      for (let i = 0; i < 10 && !onResult; i += 1) {
+        await page.keyboard.press("Tab");
+        onResult = await page.evaluate(() => Boolean(document.activeElement?.closest("[data-testid=enc-results] [data-entry]")));
+      }
+      if (!onResult) problems.push(`${tag("search")}: Tab does not reach the results`);
+      else {
+        await page.keyboard.press("Enter");
+        await page.getByTestId("enc-entry").waitFor({ timeout: 10000 }).catch(() => problems.push(`${tag("search")}: Enter on a result does not open it`));
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+}
+
 // The keyboard: a menu takes the focus and gives it back, arrows move along
 // tab strips, the wheel is one stop whose parts the arrows walk.
 {

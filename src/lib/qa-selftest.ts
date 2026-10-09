@@ -939,6 +939,143 @@ async function spaceSuite({ step }: Ctx) {
   });
 }
 
+// ── The encyclopedia (encyclopedia plan, part 22: Safari and an iPhone) ──────
+// From the studio by its section, with the chart drawn: the home's "In your
+// chart", the search as one types, a page's own part, a gate's three
+// figures, the aspect dial, Bookmark's way in, the French twin, a linked
+// word's card, and back to the chart.
+
+/** A field typed into as a person would, for React. */
+function typeInto(el: HTMLInputElement | null, text: string) {
+  if (!el) throw new Error("no field");
+  const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+  set?.call(el, text);
+  el.dispatchEvent(new Event("input", { bubbles: true }));
+  el.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+const visible = (sel: string) => [...document.querySelectorAll<HTMLElement>(sel)].find((el) => el.offsetParent !== null) ?? null;
+
+async function encOpen(id: string, query: string) {
+  if (!byTest("enc-search-input")) {
+    click(q('[data-testid="enc-crumbs"] a'), "the encyclopedia's home link");
+    await until(() => byTest("enc-home"), 10000);
+  }
+  typeInto(byTest<HTMLInputElement>("enc-search-input"), query);
+  const hit = await until(() => q<HTMLAnchorElement>(`[data-testid="enc-results"] [data-entry="${id}"] a`), 8000);
+  const t0 = performance.now();
+  hit.click();
+  await until(() => byTest("enc-entry") && q(`main article[data-entry="${id}"]`), 10000);
+  await sleep(800);
+  return Math.round(performance.now() - t0);
+}
+
+async function encyclopediaSuite({ step }: Ctx) {
+  await step(
+    "encyclopedia: from the studio by its section",
+    async () => {
+      const t0 = performance.now();
+      click(visible('[data-testid="section-encyclopedia"]'), "the Encyclopedia section");
+      await until(() => byTest("enc-home"), 15000);
+      return { ms: Math.round(performance.now() - t0) };
+    },
+    2500,
+  );
+  await step(
+    "home: In your chart, the pages of this chart",
+    async () => {
+      const links = await until(() => {
+        const n = document.querySelectorAll('[data-testid="enc-mine-index"] li a').length;
+        return n >= 10 ? n : 0;
+      }, 10000);
+      return { links };
+    },
+    3000,
+  );
+  await step(
+    "search as one types, then Saturn with its own part",
+    async () => {
+      const ms = await encOpen("saturn", "saturn");
+      const mine = await until(() => byTest("enc-mine")?.textContent ?? "", 10000);
+      if (!/Your Saturn|Votre Saturne/.test(mine)) throw new Error(`In your chart: ${mine.slice(0, 80)}`);
+      return { ms };
+    },
+    3000,
+  );
+  await step(
+    "Bookmark with the space locked: the way in",
+    async () => {
+      click(byTest("enc-bookmark"), "Bookmark");
+      await until(() => byTest("enc-keep-need"), 5000);
+      return { said: byTest("enc-keep-need")?.textContent?.slice(0, 80) };
+    },
+    2500,
+  );
+  await step(
+    "a linked word's card, opened and closed with Escape",
+    async () => {
+      const word = await until(() => q<HTMLElement>('[data-section="meaning"] [data-term]'), 5000);
+      const { x, y } = center(word);
+      for (const type of ["pointerover", "pointerenter"]) word.dispatchEvent(new PointerEvent(type, { bubbles: type === "pointerover", pointerType: "mouse", clientX: x, clientY: y }));
+      let by = "pointer";
+      let card = await until(() => byTest("term-card"), 2500).catch(() => null);
+      if (!card) {
+        // As the keyboard reaches it (a word's card opens on focus too).
+        by = "focus";
+        document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+        word.focus();
+        card = await until(() => byTest("term-card"), 4000);
+      }
+      const shown = card.getBoundingClientRect().height > 20;
+      word.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      await sleep(300);
+      return { term: word.getAttribute("data-term"), by, shown, closedByEscape: !byTest("term-card") || byTest("term-card")?.getBoundingClientRect().height === 0 };
+    },
+    2500,
+  );
+  await step(
+    "gate 34: the bodygraph, the hexagram, the zodiac",
+    async () => {
+      const ms = await encOpen("hd-gate-34", "gate 34");
+      const drawn = [...document.querySelectorAll('[data-testid="enc-figure"] svg')].map((svg) => Math.round(svg.getBoundingClientRect().width));
+      if (drawn.length !== 3 || drawn.some((w) => w < 80)) throw new Error(`figures ${drawn.join(", ")}`);
+      const frames = await framesFor(1500);
+      return { ms, drawn, frames };
+    },
+    3500,
+  );
+  await step(
+    "trine: the dial turned past the orb and back",
+    async () => {
+      await encOpen("trine", "trine");
+      const range = await until(() => byTest<HTMLInputElement>("enc-dial-range"), 8000);
+      typeInto(range, range.max);
+      const out = await until(() => (/Outside|Hors/.test(byTest("enc-dial-status")?.textContent ?? "") ? byTest("enc-dial-status")?.textContent : null), 4000);
+      typeInto(range, "126");
+      const back = await until(() => (/Within|Dans/.test(byTest("enc-dial-status")?.textContent ?? "") ? byTest("enc-dial-status")?.textContent : null), 4000);
+      return { out, back };
+    },
+    3500,
+  );
+  await step(
+    "the French twin, with its own part",
+    async () => {
+      await encOpen("saturn", "saturn");
+      click(byTest("enc-twin"), "the French twin");
+      await until(() => q("main h1")?.textContent === "Saturne", 10000);
+      const mine = await until(() => byTest("enc-mine")?.textContent ?? "", 10000);
+      if (!/Votre Saturne/.test(mine)) throw new Error(`Dans votre thème: ${mine.slice(0, 80)}`);
+      return { ok: true };
+    },
+    3000,
+  );
+  await step("back to the chart", async () => {
+    click(q('[data-testid="enc-back"] a, a[data-testid="enc-back"], [data-testid="enc-back"]'), "Back to your chart");
+    await until(wheel, 20000);
+    return { ok: true };
+  });
+}
+
 const SUITES: Record<string, ((ctx: Ctx) => Promise<void>)[]> = {
   natal: [natalSuite],
   "3d": [depthSuite],
@@ -946,7 +1083,8 @@ const SUITES: Record<string, ((ctx: Ctx) => Promise<void>)[]> = {
   modes: [modesSuite],
   phone: [phoneSuite],
   space: [spaceSuite],
-  safari: [natalSuite, depthSuite, timeSuite, modesSuite, phoneSuite, spaceSuite],
+  encyclopedia: [encyclopediaSuite],
+  safari: [natalSuite, depthSuite, timeSuite, modesSuite, phoneSuite, spaceSuite, encyclopediaSuite],
 };
 
 /**

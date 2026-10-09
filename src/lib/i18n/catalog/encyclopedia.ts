@@ -63,6 +63,10 @@ export const encyclopedia = {
   encShelfTabOnly: ["Kept in this tab only: sign in or unlock your private space to keep them.", "Gardées dans cet onglet seulement\u202f: connectez-vous ou déverrouillez votre espace privé pour les garder."],
   // An aspect's figure turned by the reader (part 19).
   encDialLabel: ["Turn the second point", "Déplacez le second point"],
+  encDialFigure: [
+    "Two points {angle}° apart on a circle, with Ulune’s orb of {orb}° either side shaded; the slider below moves the second point.",
+    "Deux points à {angle}° l’un de l’autre sur un cercle, l’orbe d’Ulune de {orb}° de part et d’autre en grisé\u202f; le curseur ci-dessous déplace le second point.",
+  ],
   encDialExact: ["Exact.", "Exact."],
   encDialIn: ["Within Ulune’s orb: {d} from exact.", "Dans l’orbe d’Ulune\u202f: à {d} de l’exactitude."],
   encDialOut: ["Outside Ulune’s orb: {d} from exact.", "Hors de l’orbe d’Ulune\u202f: à {d} de l’exactitude."],

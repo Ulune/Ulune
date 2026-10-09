@@ -135,7 +135,10 @@ if (want.has("bundle")) {
   // Encyclopedia parts 18–21 and their fixes (8 Oct): the bridge to "In your chart", the reading
   // opposite an angle, the offline copy's check, the space's encyclopedia records, 0.3 (the
   // rest loads later): 277.4, 277.7 when a small chunk lands within the load; limit 278.
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 278, "KB gz");
+  // Part 22 (8 Oct): the AI keys' store moved from the wheel's chunk to the shared one, so a
+  // reader with a private space no longer downloads the wheel on the encyclopedia's pages; on
+  // "/", where both load, the same code in another file: 277.7-278.0; limit 278.5.
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 278.5, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's
@@ -162,6 +165,34 @@ if (want.has("bundle")) {
   const [entry] = JSON.parse(enc.slice(enc.indexOf("[")));
   check("bundle", '"/encyclopedia/saturn" JavaScript with the load', entry.jsUpFront / 1024, 165, "KB gz");
   check("bundle", '"/encyclopedia/saturn" downloads none of the studio', entry.files.filter((f) => /\/assets\/(wheel|_studio)-/.test(f.file)).length, 0, "");
+  // The same for a reader with a private space, whose code comes with every page (encyclopedia
+  // plan, part 22: until 8 Oct 2026 it brought the chart library, and the studio's chunk with it).
+  const spaced = node([join(ROOT, "scripts/perf/load/chunks.mjs"), "/encyclopedia/saturn", "--json", "--space"]);
+  const [withSpace] = JSON.parse(spaced.slice(spaced.indexOf("[")));
+  check("bundle", '"/encyclopedia/saturn" with a private space: none of the studio', withSpace.files.filter((f) => /\/assets\/(wheel|_studio)-/.test(f.file)).length, 0, "");
+  // "A page from the server, first visit: readable in under 1 second on a 4G phone" (the plan's
+  // table): its first paint on Lighthouse's slow 4G, the network only (this machine's CPU is slow).
+  const slow = node([join(ROOT, "scripts/perf/load/chunks.mjs"), "/encyclopedia/saturn", "--json", "--4g"]);
+  const [on4g] = JSON.parse(slow.slice(slow.indexOf("[")));
+  check("bundle", '"/encyclopedia/saturn" first paint on a 4G phone', on4g.fcp ?? Infinity, 1000, "ms");
+  // The encyclopedia's own pieces (the plan's table): a page with its figure, a tradition's card
+  // texts, a language's search index, the words its readings link, the whole of it offline.
+  const { gzipSync } = await import("node:zlib");
+  const { readFileSync } = await import("node:fs");
+  const { buildEncyclopedia, readContent } = await import("../encyclopedia/build.mjs");
+  const { data } = buildEncyclopedia(readContent(join(ROOT, "content/encyclopedia")));
+  const gzKb = (v) => gzipSync(JSON.stringify(v)).length / 1024;
+  const most = (o) => Math.max(...Object.values(o).map(gzKb));
+  // (The plan: 3 to 6 KB of text plus its figure. Gate pages, with three figures, are the largest.)
+  check("bundle", "encyclopedia: the largest page, with its figure", most(data.pages), 12, "KB gz");
+  // (The plan: about 30. Astrology's, with its 580 combination pages' summaries, is the largest.)
+  check("bundle", "encyclopedia: a tradition's card texts", most(data.cards), 40, "KB gz");
+  // (The plan: about 150; 70 and 76 on 8 Oct 2026, the combinations found by their names only.)
+  check("bundle", "encyclopedia: a language's search index", most(data.search), 100, "KB gz");
+  check("bundle", "encyclopedia: the words a reading links", most(data.lexicon), 25, "KB gz");
+  const offline = JSON.parse(readFileSync(join(ROOT, ".vercel/output/static/encyclopedia-offline.json"), "utf8"));
+  // (The plan: 3 to 4 MB per language; 3.3 and 3.5 on 8 Oct 2026, the shared files included.)
+  check("bundle", "encyclopedia kept offline, one language", Math.max(offline.bytes.en, offline.bytes.fr) / 1048576 + offline.bytes.shared / 1048576, 4, "MB");
 }
 
 if (want.has("scrub")) {

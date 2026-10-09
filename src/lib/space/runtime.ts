@@ -1,5 +1,7 @@
 import { forgetAiKeys, keepAiKeysIn, type AiKeys } from "@/lib/ai/use-ai-account";
-import { fromStoredRow, unseenRows, type SavedChart, type StoredRow } from "@/lib/chart/library";
+// Types only: the library's code (and the chart engine it brings) loads when a backup is added, not with the space.
+import type { SavedChart, StoredRow } from "@/lib/chart/library";
+import { importWithRetry } from "@/lib/lazy-retry";
 import { writeSpaceFlag } from "./flag";
 import {
   AI_RECORD,
@@ -356,6 +358,7 @@ export async function importBackup(backup: SpaceBackup, way: WayIn): Promise<num
   await bridge?.beforeLock().catch(() => {});
   await importEncyclopedia(vault, records);
 
+  const { fromStoredRow, unseenRows } = await importWithRetry(() => import("@/lib/chart/library"));
   const theirOrder = (records.get(LIBRARY_RECORD) as LibraryRecord | undefined)?.order ?? [];
   const rank = new Map(theirOrder.map((id, i) => [id, i]));
   const found = new Map<string, StoredRow>();

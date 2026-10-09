@@ -81,9 +81,12 @@ export default defineConfig(({ command, isPreview }) => ({
                 // top bar's class names, the private-space button's motion check and
                 // tour, the footer's loading lines): a chunk of their own, so the
                 // encyclopedia's, the guide's and the settings' pages leave the wheel alone.
+                // The AI keys' store too: the private space's runtime holds them, and
+                // in the wheel's group it made a reader with a space download the
+                // wheel on every page (encyclopedia plan, part 22, 8 Oct 2026).
                 {
                   name: "shared",
-                  test: /[\\/]src[\\/](lib[\\/](utils|depth[\\/]env|tour[\\/](state|keys))\.ts|components[\\/]loading-lines\.tsx)|node_modules[\\/]clsx[\\/]/,
+                  test: /[\\/]src[\\/](lib[\\/](utils|depth[\\/]env|tour[\\/](state|keys)|ai[\\/]use-ai-account)\.ts|components[\\/]loading-lines\.tsx)|node_modules[\\/]clsx[\\/]/,
                   priority: 1.5,
                 },
                 // The natal wheel and all it imports (the studio's first figure),

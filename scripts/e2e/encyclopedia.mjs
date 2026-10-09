@@ -349,6 +349,30 @@ await ensureShotsDir();
     await gotoApp(page, "/encyclopedie");
     await page.getByTestId("enc-home").waitFor();
     await assertNoOverflow(page);
+    // Part 22: the figures two to a row, the dial turned by a finger's keyboard-free control,
+    // Bookmark and its way in, a combination page: nothing wider than the phone, targets 44 px.
+    for (const p of ["/encyclopedia/gate-34", "/encyclopedia/trine", "/encyclopedia/moon-in-scorpio", "/encyclopedie/saturne"]) {
+      await gotoApp(page, p);
+      await page.getByTestId("enc-entry").waitFor();
+      await page.getByTestId("enc-keep").waitFor({ timeout: 10000 });
+      await assertNoOverflow(page).catch(() => fail(`${p}: wider than the phone`));
+      for (const b of await page.locator("[data-testid=enc-keep] button").all()) {
+        const r = await b.boundingBox();
+        if (!r || r.height < 34) fail(`${p}: a keep button is ${r?.height}px tall`);
+      }
+    }
+    const range = page.getByTestId("enc-dial-range");
+    await gotoApp(page, "/encyclopedia/trine");
+    await range.waitFor({ timeout: 10000 });
+    const rb = await range.boundingBox();
+    if (!rb) fail("the dial's slider on a phone");
+    else {
+      await page.touchscreen.tap(rb.x + rb.width - 2, rb.y + rb.height / 2);
+      await page.waitForFunction(() => /^Outside/.test(document.querySelector("[data-testid=enc-dial-status]")?.textContent ?? ""), null, { timeout: 4000 }).catch(() => fail("the dial did not follow a tap"));
+    }
+    await page.getByTestId("enc-bookmark").tap();
+    await page.getByTestId("enc-keep-need").waitFor({ timeout: 5000 });
+    await page.screenshot({ path: join(SHOTS, "encyclopedia-trine-390.png"), fullPage: true });
     await context.close();
     console.log("phone sheet OK");
   } finally {
