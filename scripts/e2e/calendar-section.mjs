@@ -42,15 +42,17 @@ const WORDS = {
   en: {
     invite: "Cast a chart to add your transits",
     phases: /New Moon|First quarter|Full Moon|Last quarter/,
-    layers: { sky: "The sky", transits: "Your transits", numerology: "Personal day, month and year" },
-    langs: { astrology: "Astrology", numerology: "Numerology" },
+    layers: { sky: "The sky", transits: "Your transits", numerology: "Personal day, month and year", terms: "Solar terms" },
+    langs: { astrology: "Astrology", numerology: "Numerology", chinese: "Chinese calendar" },
+    nextTerm: "Next solar term",
     needs: "Needs a birth chart",
   },
   fr: {
     invite: "Calculez un thème pour ajouter vos transits",
     phases: /Nouvelle Lune|Premier quartier|Pleine Lune|Dernier quartier/,
-    layers: { sky: "Le ciel", transits: "Vos transits", numerology: "Jour, mois et année personnels" },
-    langs: { astrology: "Astrologie", numerology: "Numérologie" },
+    layers: { sky: "Le ciel", transits: "Vos transits", numerology: "Jour, mois et année personnels", terms: "Termes solaires" },
+    langs: { astrology: "Astrologie", numerology: "Numérologie", chinese: "Calendrier chinois" },
+    nextTerm: "Prochain terme solaire",
     needs: "Nécessite un thème natal",
   },
 };
@@ -188,6 +190,15 @@ async function skyAlone(path, width, lang) {
     if (tabs.join() !== "dock-tab-reading") throw new Error(`${label}: dock tabs ${tabs.join()}`);
     await clickDockTab(page, "reading");
     await page.getByTestId("calendar-now-moon").waitFor({ timeout: 20000 });
+    // The Chinese calendar's solar terms (languages plan, part 6), on by default: two a month,
+    // each in its day as its characters, and the next one in the side panel.
+    await page.waitForFunction(() => document.querySelectorAll("[data-testid^=calendar-term-]").length >= 2, null, { timeout: 20000 });
+    const terms = await page.locator("[data-testid^=calendar-term-]").evaluateAll((els) => els.map((e) => e.textContent.trim()));
+    if (!terms.every((t) => /^[\u4e00-\u9fff]{2}$/.test(t))) throw new Error(`${label}: the month's terms ${terms.join()}`);
+    const next = await page.getByTestId("calendar-now-term").innerText();
+    if (!/ · [a-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]+ [\u4e00-\u9fff]{2}/.test(next)) throw new Error(`${label}: the next term "${next}"`);
+    const kicker = await page.locator("[data-testid=timing-hello] .ulune-cal-now-kicker").allInnerTexts();
+    if (!kicker.some((k) => k.trim().toLowerCase() === w.nextTerm.toLowerCase())) throw new Error(`${label}: the panel's headings ${kicker.join(" | ")}`);
     await assertNoOverflow(page);
     if (width === 1280) await page.screenshot({ path: join(SHOTS, `calendar-sky-${lang}-${width}.png`) }).catch(() => {});
     // A day opens its reading, without a chart.
@@ -205,11 +216,12 @@ async function skyAlone(path, width, lang) {
       `sky:switch:true:available:${w.langs.astrology}`,
       `transits:switch:false:unavailable:${w.langs.astrology}`,
       `numerology:switch:false:unavailable:${w.langs.numerology}`,
+      `terms:switch:true:available:${w.langs.chinese}`,
     ];
     if (shape.join() !== wantShape.join()) throw new Error(`${label}: layers ${shape.join(" | ")}`);
     for (const [id, l] of Object.entries(layers)) {
       if (l.name !== w.layers[id]) throw new Error(`${label}: ${id} named "${l.name}"`);
-      if (id !== "sky" && l.line !== w.needs) throw new Error(`${label}: ${id} says "${l.line}"`);
+      if (id !== "sky" && id !== "terms" && l.line !== w.needs) throw new Error(`${label}: ${id} says "${l.line}"`);
     }
     // An unavailable switch stays off when pressed (forced: Playwright waits for aria-disabled to go).
     await page.getByTestId("calendar-layer-transits").click({ force: true });
@@ -231,6 +243,13 @@ async function skyAlone(path, width, lang) {
     await page.getByTestId("calendar-year").waitFor({ timeout: 30000 });
     await page.waitForFunction(() => document.querySelectorAll(".ulune-cal-tl-phase").length >= 12, null, { timeout: 45000 });
     if (await page.locator("[data-testid^=calendar-year-transit-], [data-testid=calendar-year-num]").count()) throw new Error(`${label}: a chart's lanes in the year`);
+    // The year's solar terms: 24 on the line (a computer), a month's on its card (a phone).
+    if (width >= 1024) {
+      const ticks = await page.locator("[data-testid=calendar-timeline-terms] button").count();
+      if (ticks !== 24) throw new Error(`${label}: ${ticks} solar terms in the year`);
+    } else if (!(await page.locator(".ulune-cal-chip-term").count())) {
+      throw new Error(`${label}: no solar terms on the month cards`);
+    }
     await assertNoOverflow(page);
     await page.getByTestId("timing-scope-month").click();
     await page.getByTestId("calendar-month").waitFor({ timeout: 20000 });
@@ -316,6 +335,19 @@ async function keyboard() {
     await page.keyboard.press("Enter");
     await page.waitForFunction(() => document.querySelector("[data-testid=calendar-layer-sky]")?.getAttribute("aria-checked") === "true", null, { timeout: 4000 });
     await page.waitForFunction(() => [...document.querySelectorAll("[data-testid^=calendar-day-]")].some((d) => Number(d.getAttribute("data-sky")) > 0), null, { timeout: 4000 });
+    // The solar terms' switch: off, the month's terms go; on, they come back.
+    await page.getByTestId("calendar-layer-terms").focus();
+    await page.keyboard.press("Space");
+    await page.waitForFunction(() => !document.querySelector("[data-testid^=calendar-term-]"), null, { timeout: 4000 });
+    await page.keyboard.press("Space");
+    await page.waitForFunction(() => document.querySelectorAll("[data-testid^=calendar-term-]").length >= 2, null, { timeout: 8000 });
+    // Settings → Chinese traditions, "Name only" (in another tab): the days follow at once.
+    await page.evaluate(() => {
+      localStorage.setItem("ulune.chinese", JSON.stringify({ show: "names" }));
+      window.dispatchEvent(new StorageEvent("storage", { key: "ulune.chinese" }));
+    });
+    await page.waitForFunction(() => [...document.querySelectorAll("[data-testid^=calendar-term-]")].every((e) => /^[A-Z][A-Za-z’ ]+$/.test(e.textContent.trim())), null, { timeout: 4000 });
+    await page.evaluate(() => localStorage.removeItem("ulune.chinese"));
     // Escape closes View and gives the focus back to its button.
     await page.keyboard.press("Escape");
     await page.getByTestId("calendar-view-pop").waitFor({ state: "detached", timeout: 4000 });

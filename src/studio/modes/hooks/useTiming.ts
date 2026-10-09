@@ -38,6 +38,23 @@ import { keptOr, useKeep } from "@/studio/return-parts";
 import { useVisibleInterval } from "@/lib/use-visible-interval";
 import { lru } from "@/lib/chart/result-cache";
 import { errorForState } from "@/lib/i18n/errors";
+import { importWithRetry } from "@/lib/lazy-retry";
+
+type TermsModule = typeof import("@/lib/chinese/terms");
+
+/**
+ * The Chinese solar terms (languages plan, part 6) between two instants, as
+ * sky events of their own kind: from the engine's table, on the device.
+ */
+function termEventsBetween(mod: TermsModule, from: number, to: number): SkyEvent[] {
+  const out: SkyEvent[] = [];
+  const first = new Date(from).getUTCFullYear() - 1;
+  const last = new Date(to).getUTCFullYear();
+  for (let year = first; year <= last; year += 1) {
+    for (const m of mod.termsOfYear(year)) if (m.ms >= from && m.ms < to) out.push({ k: "term", t: m.ms, term: m.term });
+  }
+  return out.sort((a, b) => a.t - b.t);
+}
 
 const DAY_MS = 86_400_000;
 /** Your transits already worked out in this tab, by span and chart. */
@@ -249,8 +266,33 @@ export function useTiming() {
     [spanYears, natalBodies, needed],
   );
 
-  const events = useMemo<SkyEvent[]>(() => eventsOf(wins), [wins]);
-  const nowEvents = useMemo<SkyEvent[]>(() => eventsOf(nowWins), [nowWins]);
+  // The solar terms' layer (languages plan, part 6): the Chinese engine's term table comes with it, once.
+  const [termsMod, setTermsMod] = useState<TermsModule | null>(null);
+  useEffect(() => {
+    if (!enabled || !shown.terms || termsMod) return;
+    let live = true;
+    importWithRetry(() => import("@/lib/chinese/terms"))
+      .then((m) => {
+        if (live) setTermsMod(m);
+      })
+      .catch(() => {
+        /* the calendar does without its terms until the next visit */
+      });
+    return () => {
+      live = false;
+    };
+  }, [enabled, shown.terms, termsMod]);
+  /** The terms of the span, a year before and after it, and of the days ahead (the Now panel names the next one). */
+  const termEvents = useMemo<SkyEvent[]>(() => {
+    if (!termsMod || !shown.terms) return [];
+    const from = Math.min(needed.from.getTime(), nowMs) - YEARS_AROUND_MS;
+    const to = Math.max(needed.to.getTime(), nowMs) + YEARS_AROUND_MS;
+    return termEventsBetween(termsMod, from, to);
+    // The day is enough for "now": the terms do not move within it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [termsMod, shown.terms, needed, nowDay]);
+  const events = useMemo<SkyEvent[]>(() => mergeEvents(eventsOf(wins), termEvents), [wins, termEvents]);
+  const nowEvents = useMemo<SkyEvent[]>(() => mergeEvents(eventsOf(nowWins), termEvents), [nowWins, termEvents]);
   const allEvents = useMemo(
     () => mergeEvents(events, nowEvents, spanYears.flatMap((y) => y.events)),
     [events, nowEvents, spanYears],
@@ -282,7 +324,7 @@ export function useTiming() {
       const ov = overviewOf(day);
       return {
         ...ov,
-        rows: ov.rows.filter((r) => (r.kind === "sky" ? shown.sky : shown.transits)),
+        rows: ov.rows.filter((r) => (r.kind === "sky" ? (r.ev.k === "term" ? shown.terms : shown.sky) : shown.transits)),
         voids: shown.sky ? ov.voids : [],
         effect: shown.transits ? ov.effect : [],
       };

@@ -11,10 +11,12 @@ export type WheelPrefs = {
   hover: boolean;
   /** Every aspect line shows its glyph at rest (pointing or a click shows them either way). */
   marks: boolean;
+  /** The Chinese solar terms as a quiet ring round the zodiac (languages plan, part 6). */
+  terms: boolean;
 };
 
 const KEY = "ulune.wheel.v1";
-const DEFAULTS: WheelPrefs = { hover: true, marks: false };
+const DEFAULTS: WheelPrefs = { hover: true, marks: false, terms: false };
 
 let current: WheelPrefs = DEFAULTS;
 let loaded = false;
@@ -29,6 +31,7 @@ function load(): WheelPrefs {
     return {
       hover: typeof v.hover === "boolean" ? v.hover : DEFAULTS.hover,
       marks: typeof v.marks === "boolean" ? v.marks : DEFAULTS.marks,
+      terms: typeof v.terms === "boolean" ? v.terms : DEFAULTS.terms,
     };
   } catch {
     return DEFAULTS;
@@ -45,7 +48,7 @@ export function getWheelPrefs(): WheelPrefs {
 
 export function setWheelPrefs(patch: Partial<WheelPrefs>) {
   const next = { ...getWheelPrefs(), ...patch };
-  if (next.hover === current.hover && next.marks === current.marks) return;
+  if (next.hover === current.hover && next.marks === current.marks && next.terms === current.terms) return;
   current = next;
   if (typeof window !== "undefined") {
     try {

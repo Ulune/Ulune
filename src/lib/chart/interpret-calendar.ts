@@ -51,8 +51,10 @@ import {
   signWord,
   skyEventDetail,
   skyEventTitle,
+  termWord,
   yourAspectWords,
 } from "../i18n/calendar-words";
+import { cnWord } from "../chinese/words";
 import type { Locale } from "../i18n/locale";
 import { pick } from "../i18n/pick";
 import { houseFromCusps } from "./anatomy";
@@ -271,6 +273,17 @@ export function skyEventReading(ev: SkyEvent, locale: Locale, tz: string, ctx: C
     const theme = pairTheme(ev.a as BodyId, ev.b as BodyId, locale);
     if (theme) more.push(theme);
     more.push(aspectInPractice(ev.type, locale));
+  }
+
+  if (ev.k === "term") {
+    // A Chinese solar term (languages plan, part 6): where the Sun is, what the term opens, the next one.
+    const lon = (315 + 15 * ev.term) % 360;
+    lead = cnWord(locale, "cnTermLead");
+    facts.push({ label: cnWord(locale, "cnTermSunLabel"), value: degree(lon) });
+    const next = nextEvent(events, ev.t, "term");
+    if (next) facts.push({ label: cnWord(locale, "cnTermNext"), value: `${termWord(next.term, locale)}, ${f.dayOnly(next.t)}` });
+    note = `${title} · ${f.dayOnly(ev.t)}`;
+    if (detail) more.push(`${detail}.`);
   }
 
   if (chartLines.length) sections.push({ id: "chart", title: fr ? "Dans votre thème" : "In your chart", paragraphs: chartLines });

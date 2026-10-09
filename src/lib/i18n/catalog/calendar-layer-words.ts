@@ -21,6 +21,9 @@ export const calendarLayerWords = {
   calLayerTransitsHint: ["The planets of the day on your chart", "Les planètes du jour sur votre thème"],
   calLayerNumerology: ["Personal day, month and year", "Jour, mois et année personnels"],
   calLayerNumerologyHint: ["With your cycles’ changes on your birthdays", "Avec les changements de vos cycles à vos anniversaires"],
+  calLayerLangChinese: ["Chinese calendar", "Calendrier chinois"],
+  calLayerTerms: ["Solar terms", "Termes solaires"],
+  calLayerTermsHint: ["The 24 steps of the Sun’s year, from Lichun", "Les 24 pas de l’année du Soleil, depuis Lichun"],
   calLayerNeedsChart: ["Needs a birth chart", "Nécessite un thème natal"],
   calInvite: ["Cast a chart to add your transits", "Calculez un thème pour ajouter vos transits"],
 } as const satisfies Record<string, readonly [string, string]>;

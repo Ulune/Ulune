@@ -34,9 +34,13 @@ export function calendarRows(
   num: readonly NumRow[] = [],
 ): CalRow[] {
   const rows: CalRow[] = [];
-  if (rowShown("sky", opts.layers)) {
+  const sky = rowShown("sky", opts.layers);
+  // The solar terms are sky rows, everyone's, but by their own layer (languages plan, part 6).
+  const terms = Boolean(opts.layers.terms);
+  if (sky || terms) {
     for (const ev of events) {
       if (ev.t < from || ev.t >= to) continue;
+      if (!(ev.k === "term" ? terms : sky)) continue;
       if (!opts.moon && isMoonOwn(ev)) continue;
       rows.push({ kind: "sky", t: ev.t, id: `sky:${skyEventId(ev)}`, ev });
     }

@@ -97,6 +97,10 @@ import type { WheelHiddenNote as HiddenNoteType } from "@/components/wheel-hidde
 // The note for a hidden pick (C1) loads with the first pick: most visits never need it.
 const loadHiddenNote = () => import("@/components/wheel-hidden-note");
 const LazyHiddenNote = lazyNamed(loadHiddenNote, "WheelHiddenNote");
+/** The Chinese solar terms' ring (languages plan, part 6): its own download, when the Look tab switches it on. */
+const LazyTermsRing = lazyNamed(() => import("./wheel-terms-ring"), "WheelTermsRing");
+const termsRingOn = () => getWheelPrefs().terms;
+const termsRingOff = () => false;
 
 function HiddenNoteGate(props: Parameters<typeof HiddenNoteType>[0]) {
   const pinned = useSyncExternalStore(props.selection.subscribe, props.selection.get, () => null);
@@ -358,6 +362,8 @@ const CFG_FILL_MAX = 3;
 /** A stellium's bracket just outside the zodiac, and its count. */
 const STELLIUM_R = R_OUTER + 7;
 const STELLIUM_LABEL_R = R_OUTER + 17;
+/** The solar terms' names (languages plan, part 6), between the stellium brackets and the angles' labels. */
+const R_TERM_NAME = R_OUTER + 13;
 
 /**
  * Both viewBoxes leave the same slim margin past the furthest ink, so the
@@ -1000,6 +1006,7 @@ const ChartWheelView = memo(function ChartWheelView({
   const synastryMode = outerKind === "synastry";
   const progressedMode = outerKind === "progressions";
   const biWheel = showTransits;
+  const termsRing = useSyncExternalStore(subscribeWheelPrefs, termsRingOn, termsRingOff);
   const layer: AspectLayer = biWheel ? aspectLayer : "natal";
   const showNatalLayer = layerShowsNatal(layer);
   const showOuterLayer = biWheel && layerShowsOuter(layer);
@@ -2492,6 +2499,18 @@ const ChartWheelView = memo(function ChartWheelView({
           interactive
           hoverProps={hoverProps}
         />
+        {termsRing && depthView !== "3d" ? (
+          <Suspense fallback={null}>
+            <LazyTermsRing
+              at={(ecl, r) => polar(ecl, r, asc)}
+              single={!showTransits}
+              radii={{ outer: R_OUTER, signOut: R_SIGN_OUT, name: R_TERM_NAME }}
+              chart={chart}
+              visible={visible}
+              stelliums={overlayOn(overlays, "stelliums")}
+            />
+          </Suspense>
+        ) : null}
 
         {/* Tick bands are tagged so the 1° band can drop out on a small wheel,
             where 360 marks 2px apart read as a grey ring, not as degrees. */}

@@ -4,8 +4,9 @@ Pure TypeScript, no server code and no React: it runs in the browser and in
 Node alike, and nothing it computes leaves the device. Every Chinese language
 in Ulune (the zodiac, BaZi, Feng Shui, then Nine Star Ki, Zi Wei Dou Shu and
 the almanac) reads time through it, so they agree with each other and with the
-natal wheel. Nothing here is imported by today's pages: a Chinese page loads it
-on demand.
+natal wheel. Nothing here is in any page's first download: the Calendar loads
+`terms.ts` with its solar terms' layer, and the Chinese pages load the rest on
+demand.
 
 | File | What it holds |
 | --- | --- |
@@ -16,6 +17,9 @@ on demand.
 | `lunar.ts` | The lunisolar calendar: months, leap months, Lunar New Year, conversions both ways. |
 | `pillars.ts` | The four pillars of a birth, the three clocks, the day boundary, both year animals, uncertainty flags. |
 | `names.ts` | Stems, branches, phases, the sixty pairs, the 24 terms, the animals: characters, pinyin, English, French. Independent of the rest. |
+| `prefs.ts` | The reader's settings (clock, day boundary, characters, how a term is written), kept in this browser; `chineseLabel` writes a term as chosen. |
+| `use-chinese-prefs.ts` | The settings for React views, followed live. |
+| `words.ts` | The interface words (`src/lib/i18n/catalog/chinese.ts`), read apart from the app's catalog so they stay out of the first download. |
 
 ## What it computes
 

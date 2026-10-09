@@ -9,12 +9,24 @@ import { seasonOf, skyEventId, type PhaseIndex, type SkyEvent } from "@/lib/char
 import type { SkyWindow } from "@/lib/chart/sky-window";
 import { civilKey, daysInMonth, mondayIndex, utcFromCivil, type CivilDate } from "@/lib/chart/timing-window";
 import type { TimingHit } from "@/lib/chart/types";
-import { CALENDAR_UI, dailyPhaseWord, fill, numChangeShort, numChangeTitle, signWord, skyEventShort, skyEventTitle, yourAspectWords } from "@/lib/i18n/calendar-words";
+import { CALENDAR_UI, dailyPhaseWord, fill, numChangeShort, numChangeTitle, signWord, skyEventShort, skyEventTitle, termWord, yourAspectWords } from "@/lib/i18n/calendar-words";
 import type { SkyAspect } from "@/lib/chart/sky-events";
 import { dateFormat } from "@/lib/intl-cache";
 import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
 import { cn } from "@/lib/utils";
+import { SOLAR_TERMS } from "@/lib/chinese/names";
+import type { ChinesePrefs } from "@/lib/chinese/prefs";
+import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
+import { cnWord } from "@/lib/chinese/words";
+
+/** A term in a day cell: its characters when the reader shows them, else its name. */
+function termShort(term: number, locale: string, prefs: ChinesePrefs): string {
+  const t = SOLAR_TERMS[((term % 24) + 24) % 24]!;
+  if (prefs.show === "full") return t[prefs.script];
+  if (prefs.show === "pinyin") return t.pinyin;
+  return locale === "fr" ? t.fr : t.en;
+}
 
 /** Colour never alone: a joining ring is doubled, a tense one squared, a flowing one round. */
 const FAMILY: Record<string, string> = { conjunction: "conj", trine: "soft", sextile: "soft", square: "hard", opposition: "hard" };
@@ -26,6 +38,8 @@ const WEEKDAYS = {
 
 type Day = {
   headlines: SkyEvent[];
+  /** A Chinese solar term that day (languages plan, part 6; its layer on). */
+  term: Extract<SkyEvent, { k: "term" }> | null;
   moonIngress: Extract<SkyEvent, { k: "ingress" }> | null;
   phase: PhaseIndex | null;
   mine: TimingHit[];
@@ -64,6 +78,8 @@ export function CalendarMonth({
 }) {
   const { locale } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
+  // How the reader writes Chinese terms (Settings): the cell's short form follows it.
+  const cnPrefs = useChinesePrefs();
 
   const byDay = useMemo(() => {
     const key = dateFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" });
@@ -72,7 +88,7 @@ export function CalendarMonth({
       const k = key.format(new Date(ms));
       let d = map.get(k);
       if (!d) {
-        d = { headlines: [], moonIngress: null, phase: null, mine: [], voidFrom: null };
+        d = { headlines: [], term: null, moonIngress: null, phase: null, mine: [], voidFrom: null };
         map.set(k, d);
       }
       return d;
@@ -83,6 +99,7 @@ export function CalendarMonth({
       if (isHeadline(ev)) day(ev.t).headlines.push(ev);
       // The day a void of course begins, as Moon calendars mark it.
       if (ev.k === "void") day(ev.t).voidFrom = ev.t;
+      if (ev.k === "term") day(ev.t).term = ev;
     }
     for (const h of hits) if (h.moving !== "moon") day(Date.parse(h.exactUtc)).mine.push(h);
     for (const d of map.values()) d.headlines.sort((a, b) => headlineRank(a) - headlineRank(b) || a.t - b.t);
@@ -217,6 +234,7 @@ export function CalendarMonth({
             dayName.format(Date.UTC(date.year, date.month - 1, date.day, 12)),
             moonWords,
             ...heads.map((ev) => `${skyEventTitle(ev, locale, time)}, ${time(ev.t)}`),
+            d?.term ? `${cnWord(locale, "cnTerm")}${locale === "fr" ? "\u202f: " : ": "}${termWord(d.term.term, locale)}, ${time(d.term.t)}` : "",
             // Your transits by name (review 3 Oct, T7), not only how many.
             ...mine.map((h) => `${yourAspectWords(h.moving, h.type as SkyAspect, h.natal, locale)}, ${time(Date.parse(h.exactUtc))}`),
             pd != null ? fill(CALENDAR_UI.num.cellDay, locale, { n: pd }) : "",
@@ -263,6 +281,18 @@ export function CalendarMonth({
                       <SignMark sign={ingress.sign} size={10} /> {time(ingress.t)}
                     </span>
                   ) : null}
+                </span>
+              ) : null}
+              {d?.term ? (
+                // The day's solar term, in a quiet line of its own: its characters, or its name.
+                <span
+                  className="ulune-cal-termline"
+                  data-testid={`calendar-term-${key}`}
+                  aria-hidden
+                  lang={cnPrefs.show === "full" ? (cnPrefs.script === "hans" ? "zh-Hans" : "zh-Hant") : undefined}
+                  title={`${termWord(d.term.term, locale)} · ${time(d.term.t)}`}
+                >
+                  {termShort(d.term.term, locale, cnPrefs)}
                 </span>
               ) : null}
               {heads.length ? (
@@ -320,8 +350,20 @@ export function CalendarMonth({
 }
 
 /** The key to the month's symbols: the Moon always, then those of each layer shown. */
-export function CalendarLegend({ sky = true, yours = true, num = false }: { sky?: boolean; yours?: boolean; num?: boolean }) {
+export function CalendarLegend({
+  sky = true,
+  yours = true,
+  num = false,
+  terms = false,
+}: {
+  sky?: boolean;
+  yours?: boolean;
+  num?: boolean;
+  /** The Chinese solar terms' layer (languages plan, part 6). */
+  terms?: boolean;
+}) {
   const { locale } = useI18n();
+  const cnPrefs = useChinesePrefs();
   const l = CALENDAR_UI.legend;
   return (
     <p className="ulune-cal-legend" data-testid="calendar-legend">
@@ -369,6 +411,14 @@ export function CalendarLegend({ sky = true, yours = true, num = false }: { sky?
             <i className="ulune-cal-dot" style={{ background: "var(--color-halo)" }} /> {pick(CALENDAR_UI.num.legendTurn, locale)}
           </span>
         </>
+      ) : null}
+      {terms ? (
+        <span data-testid="calendar-legend-terms">
+          <span className="ulune-cal-termline ulune-cal-termline--legend" aria-hidden lang={cnPrefs.show === "full" ? (cnPrefs.script === "hans" ? "zh-Hans" : "zh-Hant") : undefined}>
+            {termShort(0, locale, cnPrefs)}
+          </span>{" "}
+          {cnWord(locale, "cnTerm").toLowerCase()}
+        </span>
       ) : null}
     </p>
   );

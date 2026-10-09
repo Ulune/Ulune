@@ -114,6 +114,8 @@ export function CalendarTable({
       const ev = r.ev;
       if (ev.k === "phase" || ev.k === "eclipse" || ev.k === "station") return degree(ev.lon);
       if (ev.k === "ingress") return signWord(ev.sign, locale);
+      // A solar term: the Sun's degree, which is the term (languages plan, part 6).
+      if (ev.k === "term") return degree((315 + 15 * ev.term) % 360);
       // Two moving bodies: where each stands (review 3 Oct, B6).
       if (ev.k === "aspect") {
         const a = lonAt(ev.a, ev.t);

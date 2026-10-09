@@ -382,6 +382,13 @@ export type BirthInput = {
    * with the name they were set for (another name leaves them aside).
    */
   numerologyY?: { name: string; roles: string };
+  /**
+   * The Chinese traditions' yin or yang count of the birth (languages plan,
+   * decision 4), given or not: read only by BaZi's luck pillars, the Kua
+   * number and Zi Wei Dou Shu, which show both versions without it. Kept on
+   * the device with the chart, like numerology's names, and never sent.
+   */
+  chineseCount?: "yang" | "yin";
 };
 
 export type PlaceHit = {

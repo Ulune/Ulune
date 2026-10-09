@@ -322,6 +322,28 @@ html.light .ulune-moon {
   align-items: center;
   gap: 2px;
 }
+/* The Chinese solar terms (languages plan, part 6): a quiet line in a day
+   cell, their characters in the device's own Chinese font (nothing downloaded). */
+.ulune-cal-termline {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--color-fg-muted);
+  font: 500 11px/1.3 var(--font-ui);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ulune-cal-termline--legend {
+  display: inline;
+  margin: 0;
+}
+.ulune-cal-term-icon,
+.ulune-cal-chip-term {
+  color: var(--color-fg-muted);
+}
+.ulune-cal-term-deg {
+  font: 500 10px/1 var(--font-mono);
+}
 /* Narrow cells (a phone): the words go, one sky line stays, smaller rings. */
 @container (max-width: 560px) {
   .ulune-cal-you-one {
@@ -815,7 +837,8 @@ html.light .ulune-moon {
 }
 .ulune-cal-tl-phase,
 .ulune-cal-tl-eclipse,
-.ulune-cal-tl-season {
+.ulune-cal-tl-season,
+.ulune-cal-tl-term {
   position: absolute;
   top: 6px;
   display: flex;
@@ -833,7 +856,8 @@ html.light .ulune-moon {
   box-shadow: 0 0 0 2px var(--color-bg);
 }
 .ulune-cal-tl-eclipse small,
-.ulune-cal-tl-season small {
+.ulune-cal-tl-season small,
+.ulune-cal-tl-term small {
   padding: 0 2px;
   border-radius: 3px;
   background: var(--color-bg);
@@ -851,12 +875,34 @@ html.light .ulune-moon {
 .ulune-cal-tl-season small {
   color: var(--color-fg-subtle);
 }
+.ulune-cal-tl-term small {
+  color: var(--color-fg-muted);
+}
+/* After the shared label rules: their font shorthand would reset it. */
+.ulune-cal-termline:lang(zh),
+.ulune-cal-tl-term small,
+.ulune-cal-chip-term {
+  font-family: "PingFang TC", "PingFang SC", "Noto Sans CJK TC", "Noto Sans CJK SC", "Microsoft JhengHei", "Microsoft YaHei", var(--font-ui), sans-serif;
+}
 .ulune-cal-tl-phase.is-on,
 .ulune-cal-tl-eclipse.is-on,
-.ulune-cal-tl-season.is-on {
+.ulune-cal-tl-season.is-on,
+.ulune-cal-tl-term.is-on {
   outline: 2px solid var(--color-fg);
   outline-offset: 2px;
   border-radius: 6px;
+}
+/* The year's solar terms (languages plan, part 6): a tick each, room under it for "today". */
+.ulune-cal-tl-row.is-terms {
+  margin-bottom: 12px;
+}
+.ulune-cal-tl-row.is-terms .ulune-cal-tl-track {
+  height: 30px;
+}
+.ulune-cal-tl-term i {
+  width: 1px;
+  height: 8px;
+  background: var(--color-fg-subtle);
 }
 .ulune-cal-tl-sign {
   position: absolute;

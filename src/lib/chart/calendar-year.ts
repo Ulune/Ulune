@@ -40,6 +40,8 @@ export type YearLayout = {
   phases: Extract<SkyEvent, { k: "phase" }>[];
   eclipses: Extract<SkyEvent, { k: "eclipse" }>[];
   seasons: Extract<SkyEvent, { k: "ingress" }>[];
+  /** The Chinese solar terms of the year (languages plan, part 6), when their layer is on. */
+  terms: Extract<SkyEvent, { k: "term" }>[];
   /** Per body: its signs through the year and its retrograde stretches. */
   bodies: Array<{ body: YearBody; segments: YearSegment[]; retro: YearSpan[] }>;
   /** Stations and sign changes (the Moon's aside) inside the year. */
@@ -88,11 +90,13 @@ export function yearLayout(
   const seasons: YearLayout["seasons"] = [];
   const stations: YearLayout["stations"] = [];
   const ingresses: YearLayout["ingresses"] = [];
+  const terms: YearLayout["terms"] = [];
   for (const ev of events) {
     if (!inYear(ev.t)) continue;
     if (ev.k === "phase" && (ev.phase === 0 || ev.phase === 2)) phases.push(ev);
     else if (ev.k === "eclipse") eclipses.push(ev);
     else if (ev.k === "station") stations.push(ev);
+    else if (ev.k === "term") terms.push(ev);
     else if (ev.k === "ingress" && ev.body !== "moon") {
       if (ev.body === "sun" && ev.sign % 3 === 0) seasons.push(ev);
       ingresses.push(ev);
@@ -150,7 +154,7 @@ export function yearLayout(
     .map((g) => ({ ...g, windows: g.windows.sort((a, b) => a.from - b.from), passes: g.passes.sort((a, b) => a - b) }))
     .sort((a, b) => b.weight - a.weight || (a.passes[0] ?? a.windows[0]!.from) - (b.passes[0] ?? b.windows[0]!.from));
 
-  return { year, from, to, months, phases, eclipses, seasons, bodies, stations, ingresses, transits, ready };
+  return { year, from, to, months, phases, eclipses, seasons, terms, bodies, stations, ingresses, transits, ready };
 }
 
 /** The weightiest dozen (not the North Node's), then in time order: the timeline's default. */

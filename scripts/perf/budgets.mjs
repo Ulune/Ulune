@@ -138,7 +138,10 @@ if (want.has("bundle")) {
   // Part 22 (8 Oct): the AI keys' store moved from the wheel's chunk to the shared one, so a
   // reader with a private space no longer downloads the wheel on the encyclopedia's pages; on
   // "/", where both load, the same code in another file: 277.7-278.0; limit 278.5.
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 278.5, "KB gz");
+  // Languages plan, part 6 (9 Oct): the yin or yang count kept with a chart, the form's
+  // way to its field, the solar terms as sky events and the wheel's way to their ring,
+  // 0.5-0.9 (their words, names and table load when used): 278.2-278.6; limit 279.
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 279, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's
@@ -153,8 +156,9 @@ if (want.has("bundle")) {
   // calendar's month marks and file menu, the pair switch: limit 52. Ulune 2.0's
   // reorganisation, R2–R5 (7 Oct 2026): the sections and lens bars in the shell's
   // sheet, the Calendar's layers menu and its sky without a chart: 52.2, limit 53;
-  // the sheets the first paint waits for stay within their 32.5.)
-  check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 53, "KB gz");
+  // the sheets the first paint waits for stay within their 32.5. Languages plan, part 6
+  // (9 Oct): the solar terms in the Calendar's day, year and key, 0.3: 53.1, limit 53.5.)
+  check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 53.5, "KB gz");
   const largest = Math.max(...home.files.filter((f) => f.type === "script").map((f) => f.gz ?? 0));
   // (The natal wheel's chunk: 79.4-80.2 since parts 96-97, as shared modules land in it or not; limit 81.
   // 77.4 since R6, TanStack Start's client and the helpers the other pages share having left it.)

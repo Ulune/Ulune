@@ -20,10 +20,10 @@
 import type { CalendarWordKey } from "@/lib/i18n/calendar-layer-words";
 import type { CalRow } from "./calendar-rows";
 
-export type CalendarLayerId = "sky" | "transits" | "numerology";
+export type CalendarLayerId = "sky" | "transits" | "numerology" | "terms";
 
 /** The language a layer belongs to: the View menu names it above its switches. */
-export type LayerLanguage = "astrology" | "numerology";
+export type LayerLanguage = "astrology" | "numerology" | "chinese";
 
 /** Who a row of the events table is for: everyone (the sky) or the chart's person. */
 export type RowKind = CalRow["kind"];
@@ -70,16 +70,27 @@ export const CALENDAR_LAYERS: readonly CalendarLayer[] = [
     label: "calLayerNumerology",
     hint: "calLayerNumerologyHint",
   },
-  // The Chinese languages register their layers here, each with its language
-  // and the row kind it adds to calendar-rows.ts, for example:
-  //   { id: "solar-terms", language: "chinese", defaultOn: true, needsChart: false, rows: ["term"], … },
-  //   { id: "day-pillar", language: "bazi", defaultOn: false, needsChart: false, rows: ["pillar"], … },
+  // The Chinese calendar (languages plan, part 6): the 24 solar terms, the
+  // same for everyone, on by default. They are sky events of their own kind
+  // ("term", added on the device), so their rows are the sky's: calendar-rows.ts
+  // gives them by this layer, not the sky's. The day's pillar, lunar dates and
+  // the flying stars follow with their languages (parts 11 and 25).
+  {
+    id: "terms",
+    language: "chinese",
+    defaultOn: true,
+    needsChart: false,
+    rows: [],
+    label: "calLayerTerms",
+    hint: "calLayerTermsHint",
+  },
 ];
 
 /** The heading each language's switches stand under. */
 export const LAYER_LANGUAGE_LABEL: Record<LayerLanguage, CalendarWordKey> = {
   astrology: "calLayerLangAstrology",
   numerology: "calLayerLangNumerology",
+  chinese: "calLayerLangChinese",
 };
 
 /** The reader's switches, as kept: a layer never switched follows its default. */

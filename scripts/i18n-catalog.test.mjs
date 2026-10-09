@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { CATALOG } from "../src/lib/i18n/catalog/index.ts";
 import { calendarLayerWords } from "../src/lib/i18n/catalog/calendar-layer-words.ts";
 import { pickerWords } from "../src/lib/i18n/catalog/picker-words.ts";
+import { chinese } from "../src/lib/i18n/catalog/chinese.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const CAT_DIR = join(ROOT, "src/lib/i18n/catalog");
@@ -67,9 +68,9 @@ test("no English literal in aria-label", () => {
   assert.deepEqual(hits, []);
 });
 
-test("the catalogs read on their own, outside the index (the calendar's layers, the language picker), are complete too", () => {
+test("the catalogs read on their own, outside the index (the calendar's layers, the language picker, the Chinese traditions), are complete too", () => {
   // Kept out of the index so they stay out of the first download; held to the same rules.
-  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords })) {
+  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords, chinese })) {
     for (const [key, [en, fr]] of Object.entries(words)) {
       assert.ok(en && en.trim(), `${name}.${key}: English missing`);
       assert.ok(fr && fr.trim(), `${name}.${key}: French missing`);
@@ -79,4 +80,13 @@ test("the catalogs read on their own, outside the index (the calendar's layers, 
       assert.ok(!/« |«[^\u202f]| »|[^\u202f]»/.test(fr), `${name}.${key}: « » without narrow spaces in "${fr}"`);
     }
   }
+});
+
+test("every Chinese traditions word is said somewhere", () => {
+  const corpus = walk(join(ROOT, "src"))
+    .filter((p) => !p.startsWith(CAT_DIR))
+    .map((p) => readFileSync(p, "utf8"))
+    .join("\n");
+  const unused = Object.keys(chinese).filter((key) => !new RegExp(`["'\`]${key}["'\`]`).test(corpus));
+  assert.deepEqual(unused, []);
 });

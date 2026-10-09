@@ -56,6 +56,17 @@ export function SkyEventIcon({ ev, size = 13 }: { ev: SkyEvent; size?: number })
       </span>
     );
   }
+  // A solar term: the Sun at its degree of its sign (15° Aquarius for Lichun), in the terms' quiet ink.
+  if (ev.k === "term") {
+    const lon = (315 + 15 * ev.term) % 360;
+    return (
+      <span className="ulune-cal-icon ulune-cal-term-icon" aria-hidden>
+        <PlanetGlyph id="sun" size={size} />
+        <span className="ulune-cal-term-deg">{lon % 30}°</span>
+        <SignMark sign={Math.floor(lon / 30)} size={size - 1} />
+      </span>
+    );
+  }
   if (seasonOf(ev) != null) {
     return (
       <span className="ulune-cal-icon" style={{ color: "var(--aspect-conj)" }} aria-hidden>

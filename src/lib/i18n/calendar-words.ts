@@ -10,6 +10,9 @@ import { aspectLinkPhrase, aspectName, bodyAgree, bodyBare, bodyLabel, bodyPrep,
 import source from "./calendar-ui.json" with { type: "json" };
 import type { AppLocale } from "./messages";
 import { pick } from "./pick";
+import { SOLAR_TERMS } from "@/lib/chinese/names";
+import { chineseLabel, readChinesePrefs } from "@/lib/chinese/prefs";
+import { animalOf, cnWord } from "@/lib/chinese/words";
 
 export const CALENDAR_UI = source;
 
@@ -22,6 +25,29 @@ export function fill(pair: Pair, locale: AppLocale, vars: Record<string, string 
 
 export function signWord(sign: number, locale: AppLocale): string {
   return signName(SIGN_IDS[((sign % 12) + 12) % 12]!, locale);
+}
+
+/**
+ * A solar term's name as the reader chose to see it in Settings (with its
+ * pinyin and characters by default): "Start of Spring · lìchūn 立春".
+ */
+export function termWord(term: number, locale: AppLocale): string {
+  return chineseLabel(SOLAR_TERMS[((term % 24) + 24) % 24]!, locale, readChinesePrefs()).text;
+}
+
+/**
+ * Where the Sun is at a term, and its place in the solar month: "The Sun at
+ * 15° Aquarius · Opens the Tiger month", "The Sun at 0° Pisces · The middle of
+ * the Tiger month".
+ */
+export function termDetail(term: number, locale: AppLocale): string {
+  const t = ((term % 24) + 24) % 24;
+  const lon = SOLAR_TERMS[t]!.longitude;
+  const sun = cnWord(locale, "cnTermSun", { degree: `${lon % 30}° ${signWord(Math.floor(lon / 30), locale)}` });
+  // A jie opens a solar month; a principal term (zhongqi) falls in its middle.
+  const animal = animalOf(Math.floor(t / 2) + 2, locale);
+  const what = cnWord(locale, t % 2 === 0 ? "cnTermOpens" : "cnTermMiddle", { animal });
+  return `${sun} · ${what}`;
 }
 
 /** New Moon, First quarter, Full Moon, Last quarter. */
@@ -105,6 +131,8 @@ export function skyEventTitle(
       const end = later ? `${shortDay(ev.end)}${locale === "fr" ? " à " : ", "}${time(ev.end)}` : time(ev.end);
       return fill(source.sky.voidUntil, locale, { time: end });
     }
+    case "term":
+      return termWord(ev.term, locale);
   }
 }
 
@@ -118,6 +146,8 @@ export function skyEventDetail(ev: SkyEvent, locale: AppLocale, degree: (lon: nu
       return degree(ev.lon);
     case "void":
       return ev.last ? fill(source.sky.voidAfter, locale, { aspect: lastAspectWords(ev.last.body, ev.last.type, locale) }) : "";
+    case "term":
+      return termDetail(ev.term, locale);
     default:
       return "";
   }

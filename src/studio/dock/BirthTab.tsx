@@ -41,6 +41,7 @@ export function BirthTab({
   const addingPartnerFor = useStudioStore((s) => s.pair.addingPartnerFor);
   const setInput = useStudioStore((s) => s.setInput);
   const setNumerologyNames = useStudioStore((s) => s.setNumerologyNames);
+  const setChineseCount = useStudioStore((s) => s.setChineseCount);
   const onNumerology = useStudioStore((s) => s.page === "numerology" || s.page === "numerology-cycles");
   const cast = useStudioStore((s) => s.cast);
   const beginEdit = useStudioStore((s) => s.beginEdit);
@@ -137,6 +138,7 @@ export function BirthTab({
         onCast={(next) => void cast(next)}
         namesOpen={onNumerology && mode !== "partner"}
         onNames={mode === "edit" ? setNumerologyNames : undefined}
+        onChineseCount={mode === "edit" ? setChineseCount : undefined}
       />
       <p className="ob-cast-note" data-testid="cast-note">
         {t("castNote")}

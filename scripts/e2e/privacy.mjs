@@ -25,7 +25,7 @@ import {
 } from "./_lib.mjs";
 
 /** The first chart also gets numerology's two names (part 64): they stay on the device too. */
-const A = { ...FIXTURE_A, birthName: "Quintessa Marie Aurelia", currentName: "Quintessa Vale" };
+const A = { ...FIXTURE_A, birthName: "Quintessa Marie Aurelia", currentName: "Quintessa Vale", chineseCount: "yin" };
 const NAMES = [A.name, A.birthName, A.currentName, "Quintessa", FIXTURE_B.name, "Oslo", "Paris"];
 const DATES = ["15/06/1990", "1990-06-15", "03/11/1987", "1987-11-03"];
 const PERSONAL = [...NAMES, ...DATES];
@@ -182,7 +182,7 @@ async function run() {
   const casts = fnCalls.filter((r) => decodeFnName(r.url).startsWith("castChart"));
   if (casts.length < 2) failures.push(`expected 2 casts, saw ${casts.length}`);
   for (const c of casts) {
-    if (/"name"|"placeLabel"|"birthName"|"currentName"|"numerologyY"/.test(c.body)) failures.push(`a cast carries a name or place field: ${c.body.slice(0, 200)}`);
+    if (/"name"|"placeLabel"|"birthName"|"currentName"|"numerologyY"|"chineseCount"/.test(c.body)) failures.push(`a cast carries a name, place or count field: ${c.body.slice(0, 200)}`);
     if (!/"latitude"/.test(c.body) || !/"date"/.test(c.body)) failures.push("a cast lacks its date or coordinates");
   }
   if (!AI_ON) {
@@ -224,6 +224,8 @@ async function run() {
     else if (r.method !== "GET") failures.push(`the encyclopedia sent ${r.method} ${u.pathname}`);
     else if (/^\/(_serverFn|api)\//.test(u.pathname)) failures.push(`the encyclopedia called the server: ${u.pathname}`);
   }
+  // The Chinese traditions' count (languages plan, part 6) stays on the device.
+  for (const r of seen) if (/chineseCount|"yin"/.test(r.body)) failures.push(`the yin or yang count went out: ${r.url.slice(0, 80)}`);
   for (const r of seen) if (`${r.url} ${r.body}`.toLowerCase().includes(SECRET)) failures.push(`what was typed in the search went out: ${r.url.slice(0, 80)}`);
 
   if (failures.length) {

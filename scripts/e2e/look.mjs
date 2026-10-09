@@ -259,6 +259,21 @@ async function runViewport(width) {
     await scale.fill("100");
     console.log(`${width} stroke+scale`);
 
+    // The Chinese solar terms' ring (languages plan, part 6): off by default; on, 24 ticks
+    // round the birth chart with their names (a few left to the angles' labels), the port unmoved.
+    if (await page.getByTestId("wheel-terms-ring").count()) throw new Error("the terms' ring is on by default");
+    await page.locator("[data-wheel-pref=terms]").click();
+    await page.getByTestId("wheel-terms-ring").waitFor({ timeout: 8000 });
+    const ring = await page.evaluate(() => {
+      const g = document.querySelector("[data-testid=wheel-terms-ring]");
+      return { ticks: g.querySelectorAll("line").length, names: [...g.querySelectorAll("text")].map((t) => t.textContent) };
+    });
+    if (ring.ticks !== 24 || ring.names.length < 16 || !ring.names.every((n) => /^[\u4e00-\u9fff]{2}$/.test(n))) throw new Error(`the terms' ring ${JSON.stringify(ring)}`);
+    samePort(beforePort, await portSize(page), "terms ring");
+    await page.locator("[data-wheel-pref=terms]").click();
+    await page.getByTestId("wheel-terms-ring").waitFor({ state: "detached", timeout: 4000 });
+    console.log(`${width} terms ring`);
+
     await page.locator('[data-pairing="editorial"]').click();
     await openLook(page, "profiles");
     const save = page.locator("[data-look-save]");

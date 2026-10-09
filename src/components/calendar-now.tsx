@@ -19,6 +19,7 @@ import {
   yourAspectWords,
 } from "@/lib/i18n/calendar-words";
 import { dateFormat } from "@/lib/intl-cache";
+import { cnWord } from "@/lib/chinese/words";
 import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
 import { formatDegree, cn } from "@/lib/utils";
@@ -161,6 +162,9 @@ export function CalendarNow({
         .slice(0, 4)
     : [];
 
+  // The Chinese calendar (languages plan, part 6): the next solar term, its layer on (the events hold terms only then).
+  const nextTerm = events.find((ev) => ev.k === "term" && ev.t > nowMs) ?? null;
+
   return (
     <section data-testid="timing-hello" className="ulune-cal-now ulune-panel" aria-label={pick(p.now, locale)}>
       <h3 className="ulune-cal-now-kicker">{pick(p.now, locale)}</h3>
@@ -236,6 +240,20 @@ export function CalendarNow({
               />
             );
           })}
+        </>
+      ) : null}
+      {nextTerm ? (
+        <>
+          <h3 className="ulune-cal-now-kicker">{cnWord(locale, "cnTermNext")}</h3>
+          <Line
+            testId="calendar-now-term"
+            id={`sky:${skyEventId(nextTerm)}`}
+            selected={selectedId === `sky:${skyEventId(nextTerm)}`}
+            onSelect={onSelect}
+            icon={<SkyEventIcon ev={nextTerm} size={15} />}
+            title={skyEventTitle(nextTerm, locale, time, shortDay)}
+            detail={[`${when(nextTerm.t)} · ${time(nextTerm.t)}`, skyEventDetail(nextTerm, locale, degree)].filter(Boolean).join(" · ")}
+          />
         </>
       ) : null}
     </section>

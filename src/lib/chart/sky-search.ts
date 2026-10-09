@@ -279,7 +279,7 @@ export function findSkyEvents(
   return sortSkyEvents(events);
 }
 
-const KIND_ORDER: Record<SkyEvent["k"], number> = { eclipse: 0, phase: 1, station: 2, ingress: 3, aspect: 4, void: 5 };
+const KIND_ORDER: Record<SkyEvent["k"], number> = { eclipse: 0, phase: 1, station: 2, ingress: 3, term: 4, aspect: 5, void: 6 };
 
 /** In time order (a void by its start), eclipses before the phase they fall on. */
 export function sortSkyEvents(events: SkyEvent[]): SkyEvent[] {

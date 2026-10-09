@@ -210,6 +210,8 @@ type StudioState = LibrarySlice &
      * with the chart at once: they change no position, so no new cast.
      */
     setNumerologyNames: (next: Pick<BirthInput, "birthName" | "currentName">) => void;
+    /** The Chinese traditions' yin or yang count (languages plan, part 6), kept like the names: no cast. */
+    setChineseCount: (next: BirthInput["chineseCount"]) => void;
     setPage: (page: StudioPage) => void;
     setNavPage: (page: StudioPage | null) => void;
     setView: (view: StudioView) => void;
@@ -594,6 +596,12 @@ export const useStudioStore = create<StudioState>((set, get) => ({
       return { ...rest, ...(birthName ? { birthName } : {}), ...(currentName ? { currentName } : {}) };
     });
   },
+  setChineseCount: (next) => {
+    keepWithChart((input) => {
+      const { chineseCount: _drop, ...rest } = input;
+      return next === "yang" || next === "yin" ? { ...rest, chineseCount: next } : rest;
+    });
+  },
   setPage: (page) => set({ page, navPage: null }),
   setNavPage: (navPage) => set({ navPage }),
   setView: (view) => set({ view }),
@@ -673,8 +681,12 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   setProgressionTarget: (at) => set({ time: { ...get().time, progressionTarget: at } }),
 }));
 
-/** What a chart keeps beside its birth, changed without a cast: numerology's names and Y's (parts 60, 64). */
-type Kept = Pick<BirthInput, "birthName" | "currentName" | "numerologyY">;
+/**
+ * What a chart keeps beside its birth, changed without a cast: numerology's
+ * names and Y's (parts 60, 64), the Chinese traditions' yin or yang count
+ * (languages plan, part 6).
+ */
+type Kept = Pick<BirthInput, "birthName" | "currentName" | "numerologyY" | "chineseCount">;
 
 function keptOf(input: BirthInput): Kept {
   const birthName = (input.birthName ?? "").trim();
@@ -683,11 +695,12 @@ function keptOf(input: BirthInput): Kept {
     ...(birthName ? { birthName } : {}),
     ...(currentName ? { currentName } : {}),
     ...(input.numerologyY ? { numerologyY: input.numerologyY } : {}),
+    ...(input.chineseCount === "yang" || input.chineseCount === "yin" ? { chineseCount: input.chineseCount } : {}),
   };
 }
 
 function withoutKept(input: BirthInput): BirthInput {
-  const { birthName: _b, currentName: _c, numerologyY: _y, ...rest } = input;
+  const { birthName: _b, currentName: _c, numerologyY: _y, chineseCount: _n, ...rest } = input;
   return rest;
 }
 

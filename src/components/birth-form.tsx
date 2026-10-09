@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { searchPlaces } from "@/lib/chart/functions";
 import { isAbortError } from "@/lib/chart/abort";
 import {
@@ -42,6 +42,9 @@ import { AnchoredPopover } from "./anchored-popover";
 import { MaskedInput } from "./masked-input";
 import { Button } from "./ui/button";
 import { Input, Label } from "./ui/input";
+import { lazyNamed } from "@/lib/lazy-component";
+
+const BirthChineseCount = lazyNamed(() => import("./birth-chinese-count"), "BirthChineseCount");
 
 const PLACE_DEBOUNCE_MS = 120;
 /** After HH:MM, wait this long for seconds (HH:MM:SS) before moving on to the place. */
@@ -179,10 +182,12 @@ type Props = {
    * field is left (they move no position, so they need no new cast).
    */
   onNames?: (names: Pick<BirthInput, "birthName" | "currentName">) => void;
+  /** For a chart already cast: the Chinese traditions' yin or yang count, kept at once the same way. */
+  onChineseCount?: (next: BirthInput["chineseCount"]) => void;
 };
 
 function stamp(v: BirthInput) {
-  return `${v.name}|${v.birthName ?? ""}|${v.currentName ?? ""}|${v.date}|${v.time}|${v.placeLabel}|${v.latitude}|${v.longitude}|${v.houseSystem ?? "placidus"}|${v.tz ?? "auto"}|${v.fold ?? ""}`;
+  return `${v.name}|${v.birthName ?? ""}|${v.currentName ?? ""}|${v.date}|${v.time}|${v.placeLabel}|${v.latitude}|${v.longitude}|${v.houseSystem ?? "placidus"}|${v.tz ?? "auto"}|${v.fold ?? ""}|${v.chineseCount ?? ""}`;
 }
 
 const FIELD_IDS = new Set([
@@ -197,7 +202,19 @@ const FIELD_IDS = new Set([
   "birth-fold",
 ]);
 
-export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, onCast, onBeginEdit, namesOpen, onNames }: Props) {
+export function BirthForm({
+  value,
+  castMeta,
+  busy,
+  submitLabel,
+  mode,
+  onChange,
+  onCast,
+  onBeginEdit,
+  namesOpen,
+  onNames,
+  onChineseCount,
+}: Props) {
   const { locale, t } = useI18n();
   const [draft, setDraft] = useState(() => ({ ...value, date: dateForField(value.date) }));
   const [namesShown, setNamesShown] = useState(() => Boolean(namesOpen));
@@ -571,7 +588,7 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
       : null;
   // Options open by themselves when they hold something to read or a choice
   // away from the default; after that the reader opens and closes them.
-  const wantOptions = tzValue !== "auto" || Boolean(timeNotice);
+  const wantOptions = tzValue !== "auto" || Boolean(timeNotice) || Boolean(value.chineseCount);
   const [optionsOpen, setOptionsOpen] = useState(wantOptions);
   useEffect(() => {
     if (wantOptions) setOptionsOpen(true);
@@ -1001,6 +1018,21 @@ export function BirthForm({ value, castMeta, busy, submitLabel, mode, onChange, 
             </p>
           ) : null}
         </div>
+        {/* The Chinese traditions' count (languages plan, part 6): its code and words come when the options open. */}
+        {optionsOpen ? (
+          <Suspense fallback={null}>
+            <BirthChineseCount
+              value={draft.chineseCount}
+              selectClass={SELECT_CLASS}
+              onChoose={(chineseCount) => {
+                patch({ chineseCount });
+                const { chineseCount: _drop, ...rest } = draftRef.current;
+                onChange(chineseCount ? { ...rest, chineseCount } : rest);
+                onChineseCount?.(chineseCount);
+              }}
+            />
+          </Suspense>
+        ) : null}
       </details>
       <Button
         type="submit"

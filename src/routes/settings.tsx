@@ -10,6 +10,7 @@ import { keepWhole } from "@/components/keep-whole";
 import { pageHead } from "@/lib/page-head";
 import { problemMailto } from "@/lib/contact";
 import { TermLinksSetting } from "@/encyclopedia/TermLinksSetting";
+import { ChineseSettings } from "@/components/chinese-settings";
 
 export const Route = createFileRoute("/settings")({
   // Nothing here for a search engine: the page is about this browser.
@@ -55,6 +56,7 @@ function Settings() {
           </p>
         </section>
         <TermLinksSetting />
+        <ChineseSettings />
         <p className="font-mono text-xs text-fg-subtle" data-testid="app-version">
           <Link to="/changes" className="ob-notice-link">
             Ulune {APP_VERSION} · {t("whatsNew")}

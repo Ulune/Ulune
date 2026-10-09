@@ -15,6 +15,10 @@ import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
 import { dateFormat } from "@/lib/intl-cache";
 import { cn } from "@/lib/utils";
+import { SOLAR_TERMS } from "@/lib/chinese/names";
+import { readChinesePrefs, type ChinesePrefs } from "@/lib/chinese/prefs";
+import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
+import { cnWord } from "@/lib/chinese/words";
 
 const Y = CALENDAR_UI.year;
 
@@ -100,6 +104,7 @@ function yearChanges(num: NumerologyCalendar | null | undefined, year: number, t
 function YearTimeline({ layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth, num }: Props) {
   const f = useFormats(tz);
   const { locale } = f;
+  const cnPrefs = useChinesePrefs();
   const [all, setAll] = useState(false);
   const span = layout.to - layout.from;
   const x = (ms: number) => Math.min(1, Math.max(0, (ms - layout.from) / span));
@@ -208,6 +213,18 @@ function YearTimeline({ layout, tz, nowMs, showSky, showYours, selectedId, onSel
             </div>
           ))}
         </>
+      ) : null}
+      {layout.terms.length ? (
+        // The Chinese solar terms (languages plan, part 6): a tick each, the twelve that open a month
+        // named by their characters (names are too long for the line: they are in each tick's title).
+        <div className="ulune-cal-tl-row is-terms" data-testid="calendar-timeline-terms">
+          <span className="ulune-cal-tl-label">{cnWord(locale, "cnTerms")}</span>
+          <span className="ulune-cal-tl-track">
+            {layout.terms.map((ev) =>
+              mark(ev, "ulune-cal-tl-term", <i aria-hidden />, ev.term % 2 === 0 && cnPrefs.show === "full" ? termTick(ev.term, locale, cnPrefs) : undefined),
+            )}
+          </span>
+        </div>
       ) : null}
       {num ? <NumLane layout={layout} tz={tz} num={num} x={x} pct={pct} selectedId={selectedId} onSelect={onSelect} /> : null}
       {showYours ? (
@@ -411,6 +428,9 @@ function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelec
               .filter((ev) => inMonth(ev.t))
               .sort((a, b) => a.t - b.t)
           : [];
+        // The month's solar terms, with their layer (languages plan, part 6).
+        for (const ev of layout.terms) if (inMonth(ev.t)) sky.push(ev);
+        sky.sort((a, b) => a.t - b.t);
         const yours = showYours
           ? shownTransits
               .map((t) => ({ t, days: t.passes.filter(inMonth) }))
@@ -484,7 +504,15 @@ function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelec
   );
 }
 
+/** A term on the year's line or a month's card: its characters when the reader shows them, else its name. */
+function termTick(term: number, locale: string, prefs: ChinesePrefs): string {
+  const t = SOLAR_TERMS[((term % 24) + 24) % 24]!;
+  if (prefs.show === "full") return t[prefs.script];
+  return locale === "fr" ? t.fr : t.en;
+}
+
 function ChipFace({ ev, locale }: { ev: SkyEvent; locale: "en" | "fr" }) {
+  if (ev.k === "term") return <span className="ulune-cal-chip-term">{termTick(ev.term, locale, readChinesePrefs())}</span>;
   if (ev.k === "phase") return <MoonGlyph elong={ev.phase * 90} size={11} title={phaseWord(ev.phase, locale)} />;
   if (ev.k === "eclipse") {
     return (

@@ -84,7 +84,14 @@ export type SkyEvent =
    */
   | { k: "void"; t: number; end: number; sign: number; last?: { body: SkyBody; type: SkyAspect } }
   /** Greatest eclipse; `lon` is the Sun's (solar) or the Moon's (lunar); `mag` is NASA's magnitude (umbral for a lunar eclipse, penumbral when it has no umbral phase). */
-  | { k: "eclipse"; t: number; kind: "solar" | "lunar"; type: EclipseType; lon: number; mag: number };
+  | { k: "eclipse"; t: number; kind: "solar" | "lunar"; type: EclipseType; lon: number; mag: number }
+  /**
+   * A Chinese solar term (languages plan, part 6): the Sun at `term` × 15° from
+   * Lichun (0, 315°) to Dahan (23, 300°). Never from the server: the
+   * Calendar adds them on the device, from the Chinese engine's table
+   * (lib/chinese/terms.ts), when their layer is on.
+   */
+  | { k: "term"; t: number; term: number };
 
 export type SkyEventKind = SkyEvent["k"];
 
@@ -109,5 +116,7 @@ export function skyEventId(ev: SkyEvent): string {
       return `void-${ev.end}`;
     case "eclipse":
       return `eclipse-${ev.kind}-${ev.t}`;
+    case "term":
+      return `term-${ev.term}-${ev.t}`;
   }
 }

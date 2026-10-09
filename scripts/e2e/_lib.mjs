@@ -138,6 +138,12 @@ export async function castFixture(page, fixture) {
   await page.locator("#birth-date").fill(fixture.date);
   await page.locator("#birth-time").fill(fixture.time);
   await pickPlace(page, fixture.place);
+  // The Chinese traditions' yin or yang count (languages plan, part 6), when the fixture has one.
+  if (fixture.chineseCount) {
+    const options = page.getByTestId("birth-options");
+    if (!(await options.evaluate((el) => el.open))) await options.locator("summary").click();
+    await page.getByTestId("birth-count").selectOption(fixture.chineseCount);
+  }
   await page.getByTestId("cast-submit").click();
   await page.getByTestId("studio-natal").waitFor({ timeout: 45000 });
   // With a space, a reload right after the cast must find the chart kept.

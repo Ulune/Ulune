@@ -31,7 +31,7 @@ const SLOW_MOVERS = new Set<string>(["mars", "jupiter", "saturn", "uranus", "nep
 export function icsKeeps(r: CalRow, kind: IcsKind): boolean {
   if (kind === "all") return true;
   if (r.kind === "num") return true;
-  if (r.kind === "sky") return isHeadline(r.ev);
+  if (r.kind === "sky") return isHeadline(r.ev) || r.ev.k === "term";
   return kind === "mine" && SLOW_MOVERS.has(r.hit.moving);
 }
 

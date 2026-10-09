@@ -67,7 +67,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 
 /** The second chart of the space also gets numerology's two names (part 64), sealed with it. */
-const B_NAMED = { ...FIXTURE_B, birthName: "Quintessa Marie Aurelia", currentName: "Quintessa Vale" };
+const B_NAMED = { ...FIXTURE_B, birthName: "Quintessa Marie Aurelia", currentName: "Quintessa Vale", chineseCount: "yang" };
 const PERSONAL = [FIXTURE_A.name, FIXTURE_B.name, B_NAMED.birthName, B_NAMED.currentName, "15/06/1990", "1990-06-15", "03/11/1987", "1987-11-03", "Paris", "Oslo"];
 // Personal keys under either name: Ulune's, or those the prototype wrote (legacy names).
 const PERSONAL_KEYS = /^(orbis|ulune)\.(charts|firstview|synastry\.partner|composite\.partner|account|login)/;
@@ -284,6 +284,11 @@ async function run() {
       await page.getByTestId("studio-natal").waitFor({ timeout: 30000 });
       if (await page.getByTestId("space-sheet").count()) throw new Error("asked to unlock a space that stays signed in");
       if ((await libraryNames(page)).length !== 2) throw new Error("the charts after a reload, signed in");
+      // The Chinese traditions' count (languages plan, part 6) came back with its chart, sealed in the space.
+      await clickDockTab(page, "birth");
+      const count = page.getByTestId("birth-count");
+      await count.waitFor({ timeout: 10000 });
+      if ((await count.inputValue()) !== "yang") throw new Error(`the yin or yang count after a reload: "${await count.inputValue()}"`);
       console.log("stays signed in after a reload");
 
       // Locking when Ulune closes (a shared computer): a reload asks to unlock.

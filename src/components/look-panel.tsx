@@ -37,6 +37,8 @@ import type { PlanetId } from "@/lib/chart/types";
 import { setDepthPrefs, useDepthPrefs } from "@/lib/depth/prefs";
 import { supportsWebGL } from "./depth/gl/support";
 import { whenIdle } from "@/lib/lazy-component";
+import { setWheelPrefs, useWheelPrefs } from "@/lib/chart/wheel-prefs";
+import { cnWord } from "@/lib/chinese/words";
 
 const GLYPH_LABEL: Record<GlyphFamily, MessageKey> = {
   noto: "lookGlyphsNoto",
@@ -234,6 +236,7 @@ export type LookPanelPage = "type" | "elements" | "aspects" | "planets" | "all";
 
 export function LookPanel({ page = "all" }: { page?: LookPanelPage }) {
   const depth = useDepthPrefs();
+  const wheel = useWheelPrefs();
   /**
    * The 3D view needs WebGL: checked once the page is idle (the server cannot
    * know, and the probe costs a context); the button shows meanwhile.
@@ -545,6 +548,20 @@ export function LookPanel({ page = "all" }: { page?: LookPanelPage }) {
               </div>
             </>
           ) : null}
+          {/* The Chinese solar terms as a ring round the zodiac (languages plan, part 6), off by default. */}
+          <p className="ulune-kicker mt-[var(--space-4)] text-fg-muted">{cnWord(locale, "cnTerms")}</p>
+          <p className="mt-1 text-xs text-fg-muted">{cnWord(locale, "cnTermRingHint")}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5" data-testid="look-terms">
+            <button
+              type="button"
+              data-wheel-pref="terms"
+              aria-pressed={wheel.terms}
+              onClick={() => setWheelPrefs({ terms: !wheel.terms })}
+              className={`${PRESET} ${wheel.terms ? CHIP_ON : CHIP_OFF}`}
+            >
+              {cnWord(locale, "cnTermRing")}
+            </button>
+          </div>
         </div>
       ) : null}
 

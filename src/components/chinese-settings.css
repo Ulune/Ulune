@@ -1,0 +1,29 @@
+/* Settings' card for the Chinese traditions (chinese-settings.tsx). */
+.ob-cn-group {
+  display: flex;
+  flex-direction: column;
+  margin: 14px 0 0;
+  padding: 0;
+  border: 0;
+}
+.ob-cn-legend {
+  padding: 0;
+  font: 600 14px/1.4 var(--font-ui);
+  color: var(--color-fg);
+}
+.ob-cn-lead {
+  margin: 4px 0 0;
+}
+.ob-cn-sample {
+  margin-top: 6px;
+}
+.ob-cn-hanzi {
+  /* The device's own Chinese font (languages plan: nothing downloaded). */
+  font-family: "PingFang TC", "PingFang SC", "Noto Sans CJK TC", "Noto Sans CJK SC", "Microsoft JhengHei", "Microsoft YaHei", sans-serif;
+}
+/* A wide window: down the right, under Your data. */
+@media (min-width: 1024px) {
+  .ulune-settings--grid > #chinese {
+    grid-column: 2;
+  }
+}

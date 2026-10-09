@@ -70,7 +70,7 @@ function TimingBar({ table = false }: { table?: boolean }) {
       numOn={!!timing.numTitle && selectedId === timing.numTitle.id}
       onNum={pick}
       onJump={timing.setCivil}
-      legend={timing.scope === "month" ? <CalendarLegend sky={timing.shown.sky} yours={timing.shown.transits} num={!!timing.numShown} /> : null}
+      legend={timing.scope === "month" ? <CalendarLegend sky={timing.shown.sky} yours={timing.shown.transits} num={!!timing.numShown} terms={timing.shown.terms} /> : null}
     />
   );
 }

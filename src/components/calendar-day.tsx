@@ -81,7 +81,8 @@ export function CalendarDay({
   // The hours: every three, at their true place (a day of 23 or 25 hours when the clocks change).
   const hours = [0, 3, 6, 9, 12, 15, 18, 21].map((h) => ({ h, x: frac(utcFromCivil({ ...civil, hour: h, minute: 0 }, tz).getTime()) }));
 
-  const rows = ov.rows.filter((r) => (r.kind === "sky" ? showSky : showYours));
+  // A solar term is in the events only with its layer on (languages plan, part 6): it shows whatever the sky's switch says.
+  const rows = ov.rows.filter((r) => (r.kind === "sky" ? r.ev.k === "term" || showSky : showYours));
   const windowOf = (r: Extract<DayRow, { kind: "you" }>) =>
     ov.effect.find((w) => w.moving === r.hit.moving && w.type === r.hit.type && w.natal === r.hit.natal) ?? null;
 
