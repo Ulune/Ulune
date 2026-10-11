@@ -410,6 +410,71 @@ export const chinese = {
   bzPartStarsHint: ["Each star in your chart and the pillars it falls in.", "Chaque étoile de votre thème et les piliers où elle tombe."],
   bzStarCol: ["Star", "Étoile"],
   bzPlacesCol: ["Pillars", "Piliers"],
+  // BaZi's interactions between the pillars (languages plan, part 14).
+  bzIxHead: ["Between your pillars", "Entre vos piliers"],
+  bzIxNone: [
+    "No combination, clash, harm, punishment or destruction joins your pillars: each stands on its own.",
+    "Aucune combinaison, aucun choc, aucune nuisance, punition ou destruction ne relie vos piliers\u202f: chacun se tient seul.",
+  ],
+  bzIxTransforms: ["transforms", "se transforme"],
+  bzIxBinds: ["binds without transforming", "se lie sans se transformer"],
+  bzIxLeans: ["leans towards it", "y penche"],
+  bzIxSide: ["side by side", "côte à côte"],
+  bzIxApart: ["apart", "à distance"],
+  bzIxAllThree: ["all three", "les trois"],
+  bzIxStems: ["Stems", "Troncs"],
+  bzIxBranches: ["Branches", "Branches"],
+  bzIxNeighbours: ["Neighbouring pillars", "Piliers voisins"],
+  bzYes: ["Yes", "Oui"],
+  bzNo: ["No", "Non"],
+  bzIxResult: ["Result", "Résultat"],
+  bzIxTransformTitle: ["Transformation", "Transformation"],
+  bzCondNeighboursYes: ["{a} and {b} stand side by side.", "{a} et {b} sont côte à côte."],
+  bzCondNeighboursNo: [
+    "{a} and {b} stand apart: at a distance, they bind without transforming.",
+    "{a} et {b} sont séparés\u202f: à distance, ils se lient sans se transformer.",
+  ],
+  bzCondSeasonYes: ["The month branch {month} supports {phase}.", "La branche du mois {month} soutient {thePhase}."],
+  bzCondSeasonNo: ["The month branch {month} does not support {phase}.", "La branche du mois {month} ne soutient pas {thePhase}."],
+  bzCondUnbrokenYes: ["Nothing else in the chart clashes with them.", "Rien d’autre dans le thème ne les heurte."],
+  bzCondUnbrokenNo: [
+    "{breaker} of your {pillar} clashes with {target}, which keeps the bond from holding.",
+    "{breaker} de votre {pillar} heurte {target}, ce qui empêche le lien de tenir.",
+  ],
+  bzCondUncontestedYes: ["No third one seeks the same partner.", "Aucun tiers ne recherche le même partenaire."],
+  bzCondUncontestedNo: [
+    "{rival} of your {pillar} also seeks {target}: a contested bond.",
+    "{rival} de votre {pillar} recherche aussi {target}\u202f: un lien disputé.",
+  ],
+  bzCondComplete: ["All three branches stand in the chart.", "Les trois branches sont présentes dans le thème."],
+  bzIxVerdictYes: ["Every condition is met: together they turn into {phase}.", "Toutes les conditions sont réunies\u202f: ensemble, ils se changent en {phase}."],
+  bzIxVerdictNo: [
+    "Not every condition is met: they hold together without turning into {phase}.",
+    "Toutes les conditions ne sont pas réunies\u202f: ils se tiennent ensemble sans se changer en {phase}.",
+  ],
+  bzIxHalf: [
+    "A half trine does not transform on its own: it leans towards {phase}, and the missing branch, brought by a luck pillar or a year, can complete it.",
+    "Un demi-trigone ne se transforme pas seul\u202f: il penche vers {thePhase}, et la branche manquante, apportée par un pilier de chance ou une année, peut le compléter.",
+  ],
+  bzIxDayMaster: [
+    "Your Day Master is one of them: most schools hold that the self binds but seldom turns into another phase.",
+    "Votre Maître du jour en fait partie\u202f: la plupart des écoles tiennent que le soi se lie mais se change rarement en une autre phase.",
+  ],
+  bzIxWuWei: [
+    "Wu and Wei, the Sun and the Moon of the branches, make Fire in most books, Earth in some.",
+    "Wu et Wei, le Soleil et la Lune des branches, forment le Feu dans la plupart des livres, la Terre dans certains.",
+  ],
+  bzAbout4: [
+    "The interactions are the Zi Ping school’s. Each school weighs differently whether a combination transforms; Ulune states its conditions (neighbouring pillars, the month’s season, no clash, no rival) and shows each one.",
+    "Les interactions sont celles de l’école Zi Ping. Chaque école juge à sa façon si une combinaison se transforme\u202f; Ulune énonce ses conditions (piliers voisins, saison du mois, aucun choc, aucun rival) et les montre une à une.",
+  ],
+  bzPartIx: ["Between the pillars", "Entre les piliers"],
+  bzPartIxHint: [
+    "Each combination, clash, harm, punishment and destruction between the pillars, and whether the combinations transform.",
+    "Chaque combinaison, choc, nuisance, punition et destruction entre les piliers, et si les combinaisons se transforment.",
+  ],
+  bzIxKindCol: ["Interaction", "Interaction"],
+  bzIxItemsCol: ["Stems or branches", "Troncs ou branches"],
   // The relations between animals (languages plan, part 8).
   zkRelations: ["Between your animals", "Entre vos animaux"],
   zkRelationsNone: [

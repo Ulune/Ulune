@@ -14,6 +14,8 @@ import { DAY_MASTER_NAME, TEN_GODS, familyOf, tenGodById, tenGodOf, type BaziCha
 import { DAY_MASTER_IMAGES, FAMILY_NAMES, TEN_GOD_TEXTS } from "./bazi-texts";
 import { STARS, TRINE_PHASES, baziSigns, stageOf, starById, trineOfBranch, type BaziSigns, type StarBase, type StarId, type StarSource } from "./bazi-signs";
 import { STAGE_TEXTS, STAR_TEXTS } from "./bazi-signs-texts";
+import { INTERACTION_NAMES, baziInteractions, interactionTone, type Condition, type Interaction } from "./bazi-interactions";
+import { INTERACTION_TEXTS, PUNISHMENT_GROUP_TEXTS } from "./bazi-interactions-texts";
 import { said } from "./zodiac-texts";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
@@ -32,6 +34,8 @@ export const stageRef = (place: BaziPlaceId): string => `bz:stage:${place}`;
 export const naYinRef = (place: BaziPlaceId): string => `bz:nayin:${place}`;
 export const EMPTY_REF = "bz:empty";
 export const starRef = (id: StarId): string => `bz:star:${id}`;
+/** Part 14: an interaction between pillars, by its id ("harmony:year-month"). */
+export const ixRef = (id: string): string => `bz:ix:${id}`;
 
 /** A phase as a sentence needs it: "Fire" in English; in French with its article ("le Feu", "la Terre", "l’Eau") or partitive ("du Feu", "de la Terre", "de l’Eau"). */
 function phaseWords(id: PhaseId, locale: string): { the: string; The: string; some: string; name: string } {
@@ -63,9 +67,10 @@ export function whyGod(dayMaster: number, stem: number, locale: string, prefs: S
   });
 }
 
-function about(locale: string, signs = false): ElementReading["about"] {
+function about(locale: string, signs = false, interactions = false): ElementReading["about"] {
   const paragraphs = [cnWord(locale, "bzAbout1"), cnWord(locale, "bzAbout2")];
   if (signs) paragraphs.push(cnWord(locale, "bzAbout3"));
+  if (interactions) paragraphs.push(cnWord(locale, "bzAbout4"));
   return { title: cnWord(locale, "bzAboutTitle"), paragraphs };
 }
 
@@ -374,6 +379,81 @@ function starReading(c: BaziChart, signs: BaziSigns, id: StarId, locale: string,
   };
 }
 
+/** A stem or a branch an interaction joins, as the readings name it. */
+function ixItem(ix: Pick<Interaction, "level">, item: number, locale: string, prefs: Shown): string {
+  return chineseLabel(ix.level === "stem" ? STEMS[item]! : BRANCHES[item]!, locale, prefs).text;
+}
+
+/** An interaction's outcome in a few words, for the list and the table: "Fire · transforms", "side by side". */
+export function ixStatus(ix: Interaction, locale: string): string {
+  if (interactionTone(ix.kind) === "meet") {
+    const word = ix.transforms ? "bzIxTransforms" : ix.kind === "half-trine" ? "bzIxLeans" : "bzIxBinds";
+    return `${phaseWords(ix.phase!, locale).name} · ${cnWord(locale, word)}`;
+  }
+  if (ix.places.length > 2) return cnWord(locale, "bzIxAllThree");
+  return cnWord(locale, ix.neighbours ? "bzIxSide" : "bzIxApart");
+}
+
+/** One of the transformation's conditions, in a sentence. */
+function conditionLine(ix: Interaction, cond: Condition, locale: string, prefs: Shown): string {
+  const ph = ix.phase ? phaseWords(ix.phase, locale) : null;
+  const pillarOf = (place: BaziPlaceId) => cnWord(locale, PILLAR_WORD[place]).toLowerCase();
+  switch (cond.id) {
+    case "neighbours":
+      return cnWord(locale, cond.met ? "bzCondNeighboursYes" : "bzCondNeighboursNo", { a: ixItem(ix, ix.items[0]!, locale, prefs), b: ixItem(ix, ix.items[1]!, locale, prefs) });
+    case "season":
+      return cnWord(locale, cond.met ? "bzCondSeasonYes" : "bzCondSeasonNo", { month: chineseLabel(BRANCHES[cond.month!]!, locale, prefs).text, phase: ph!.name, thePhase: ph!.the });
+    case "unbroken":
+      return cond.met
+        ? cnWord(locale, "bzCondUnbrokenYes")
+        : cnWord(locale, "bzCondUnbrokenNo", { breaker: ixItem(ix, cond.breaker!.item, locale, prefs), pillar: pillarOf(cond.breaker!.place), target: ixItem(ix, cond.breaker!.target, locale, prefs) });
+    case "uncontested":
+      return cond.met
+        ? cnWord(locale, "bzCondUncontestedYes")
+        : cnWord(locale, "bzCondUncontestedNo", { rival: ixItem(ix, cond.rival!.item, locale, prefs), pillar: pillarOf(cond.rival!.place), target: ixItem(ix, cond.rival!.target, locale, prefs) });
+    case "complete":
+      return cnWord(locale, "bzCondComplete");
+  }
+}
+
+/** An interaction between pillars: what it does, what it joins, and whether it transforms, condition by condition. */
+function ixReading(c: BaziChart, ix: Interaction, locale: string, prefs: Shown): ElementReading {
+  const name = chineseLabel(INTERACTION_NAMES[ix.kind], locale, prefs);
+  const lead = said(INTERACTION_TEXTS[ix.kind], locale);
+  const ph = ix.phase ? phaseWords(ix.phase, locale) : null;
+  const facts: ReadingFact[] = ix.places.map((place, i) => ({
+    label: cnWord(locale, PILLAR_WORD[place]),
+    value: ixItem(ix, ix.items[i]!, locale, prefs),
+    ref: ix.level === "stem" ? stemRef(place) : branchCellRef(place),
+  }));
+  if (ix.phase) facts.push({ label: cnWord(locale, "bzPhase"), value: chineseLabel(PHASES.find((x) => x.id === ix.phase)!, locale, prefs).text });
+  if (interactionTone(ix.kind) === "meet") facts.push({ label: cnWord(locale, "bzIxResult"), value: ixStatus(ix, locale) });
+  else if (ix.places.length === 2) facts.push({ label: cnWord(locale, "bzIxNeighbours"), value: cnWord(locale, ix.neighbours ? "bzYes" : "bzNo") });
+  const sections: NonNullable<ElementReading["sections"]> = [];
+  if (ix.group) sections.push({ id: "group", title: name.name, paragraphs: [said(PUNISHMENT_GROUP_TEXTS[ix.group], locale)] });
+  if (ix.conditions) {
+    const paragraphs = ix.conditions.map((cond) => conditionLine(ix, cond, locale, prefs));
+    paragraphs.push(cnWord(locale, ix.transforms ? "bzIxVerdictYes" : "bzIxVerdictNo", { phase: ph!.name }));
+    if (ix.kind === "stem-combination" && ix.places.includes("day")) paragraphs.push(cnWord(locale, "bzIxDayMaster"));
+    if (ix.kind === "harmony" && ix.items.includes(6) && ix.items.includes(7)) paragraphs.push(cnWord(locale, "bzIxWuWei"));
+    sections.push({ id: "transform", title: cnWord(locale, "bzIxTransformTitle"), paragraphs });
+  } else if (ix.kind === "half-trine") {
+    sections.push({ id: "transform", title: cnWord(locale, "bzIxTransformTitle"), paragraphs: [cnWord(locale, "bzIxHalf", { phase: ph!.name, thePhase: ph!.the })] });
+  }
+  return {
+    id: ixRef(ix.id),
+    kind: "aspect",
+    title: name.name,
+    kicker: [ix.places.map((p) => cnWord(locale, PILLAR_WORD[p])).join(" · "), cnWord(locale, ix.level === "stem" ? "bzIxStems" : "bzIxBranches")].join(" · "),
+    lead,
+    paragraphs: [lead, ...sections.flatMap((x) => x.paragraphs)],
+    facts,
+    sections: sections.length ? sections : undefined,
+    mark: name.hanzi ?? undefined,
+    about: about(locale, false, true),
+  };
+}
+
 /** The reading of a selection on the board, or null when it is not the board's. */
 export function baziReading(c: BaziChart, ref: string | null, locale: string, prefs: Shown): ElementReading | null {
   if (!ref) return null;
@@ -400,5 +480,10 @@ export function baziReading(c: BaziChart, ref: string | null, locale: string, pr
   if (ref === EMPTY_REF) return emptyReading(c, baziSigns(c), locale, prefs);
   const st = /^bz:star:([a-z-]+)$/.exec(ref);
   if (st && STARS.some((x) => x.id === st[1])) return starReading(c, baziSigns(c), st[1] as StarId, locale, prefs);
+  // Part 14: an interaction between pillars.
+  if (ref.startsWith("bz:ix:")) {
+    const ix = baziInteractions(c).find((x) => ixRef(x.id) === ref);
+    return ix ? ixReading(c, ix, locale, prefs) : null;
+  }
   return null;
 }

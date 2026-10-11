@@ -3,9 +3,10 @@ import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
 import { TEN_GODS, type BaziChart } from "@/lib/chinese/bazi";
-import { EMPTY_REF, PILLAR_WORD, godRef, naYinRef, stageRef, starRef, stemRef } from "@/lib/chinese/bazi-reading";
+import { EMPTY_REF, PILLAR_WORD, godRef, ixRef, ixStatus, naYinRef, stageRef, starRef, stemRef } from "@/lib/chinese/bazi-reading";
+import { INTERACTION_NAMES, baziInteractions } from "@/lib/chinese/bazi-interactions";
 import { STARS, baziSigns } from "@/lib/chinese/bazi-signs";
-import { baziTableCsv, baziTextParts, hiddenGodsLine, starPlaces, stemGodName } from "@/lib/chinese/bazi-table";
+import { baziTableCsv, baziTextParts, hiddenGodsLine, ixItemShort, starPlaces, stemGodName } from "@/lib/chinese/bazi-table";
 import { partRows } from "@/lib/csv";
 import { useI18n } from "@/lib/i18n/locale";
 import { DataTable } from "@/studio/tables/DataTable";
@@ -25,6 +26,7 @@ export function BaziTable({ c, name = "", selectedId, onSelect }: { c: BaziChart
   const partText = (id: string) => () => text().find((p) => p.id === id)?.lines.join("\n") ?? "";
   const csvOf = (kinds: string[]) => () => partRows(baziTableCsv(c), kinds);
   const signs = baziSigns(c);
+  const interactions = baziInteractions(c);
   const pick = (id: string, label: string) => (
     <button type="button" className="ulune-zk-table-pick" onClick={() => onSelect(id)}>
       {label}
@@ -160,6 +162,37 @@ export function BaziTable({ c, name = "", selectedId, onSelect }: { c: BaziChart
         </DataTable>
       ) : (
         <p className="text-sm text-fg-muted">{w("bzStarsNone")}</p>
+      ),
+    },
+    {
+      id: "interactions",
+      label: w("bzPartIx"),
+      hint: w("bzPartIxHint"),
+      copyText: partText("interactions"),
+      table: csvOf(["ix"]),
+      children: interactions.length ? (
+        <DataTable className="ulune-zk-tbl" wide>
+          <thead>
+            <tr>
+              <th data-col="kind">{w("bzIxKindCol")}</th>
+              <th>{w("bzPlacesCol")}</th>
+              <th>{w("bzIxItemsCol")}</th>
+              <th>{w("bzIxResult")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {interactions.map((ix) => (
+              <tr key={ix.id} data-testid={`bazi-ixrow-${ix.id}`} data-selected={selectedId === ixRef(ix.id) ? "1" : undefined}>
+                <th scope="row">{pick(ixRef(ix.id), chineseLabel(INTERACTION_NAMES[ix.kind], locale, prefs).text)}</th>
+                <td>{starPlaces(ix.places, locale)}</td>
+                <td>{ix.items.map((n) => ixItemShort(ix, n, locale, prefs)).join(" · ")}</td>
+                <td>{ixStatus(ix, locale)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      ) : (
+        <p className="text-sm text-fg-muted">{w("bzIxNone")}</p>
       ),
     },
   ];

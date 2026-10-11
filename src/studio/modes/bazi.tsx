@@ -7,7 +7,8 @@ import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
 import { DAY_MASTER_NAME, TEN_GODS, baziChart, tenGodById, type BaziChart, type BaziPillar } from "@/lib/chinese/bazi";
 import { DAY_MASTER_IMAGES } from "@/lib/chinese/bazi-texts";
-import { EMPTY_REF, PILLAR_WORD, baziReading, branchCellRef, godRef, hiddenRef, naYinRef, stageRef, starRef, stemRef } from "@/lib/chinese/bazi-reading";
+import { EMPTY_REF, PILLAR_WORD, baziReading, branchCellRef, godRef, hiddenRef, ixRef, ixStatus, naYinRef, stageRef, starRef, stemRef } from "@/lib/chinese/bazi-reading";
+import { INTERACTION_NAMES, baziInteractions, interactionTone, type Interaction } from "@/lib/chinese/bazi-interactions";
 import { STARS, baziSigns, type BaziSigns, type PillarSigns } from "@/lib/chinese/bazi-signs";
 import { PLACE_WORD } from "@/lib/chinese/zodiac-places";
 import { said } from "@/lib/chinese/zodiac-texts";
@@ -37,11 +38,15 @@ import "@/studio/modes/styles/bazi.css";
  * sent. Part 13 adds under each column the Day Master's life stage in its
  * branch, the pillar's Na Yin, an empty branch's mark and the symbolic stars
  * that fall there; beside the board, the stars and the empty branches.
+ * Part 14 adds under the board the interactions between the pillars
+ * (combinations, clashes, harms, punishments, destructions), each saying
+ * whether it transforms; choosing one outlines the cells it joins.
  */
 
 export type BaziState = {
   bazi: BaziChart | null;
   signs: BaziSigns | null;
+  interactions: Interaction[];
   enabled: boolean;
 };
 
@@ -61,7 +66,7 @@ function Term({ name, big }: { name: { name: string; pinyin: string | null; hanz
   );
 }
 
-function Column({ p, signs }: { p: BaziPillar; signs: PillarSigns | undefined }) {
+function Column({ p, signs, linked }: { p: BaziPillar; signs: PillarSigns | undefined; linked: Interaction | null }) {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const w = useWheelView();
@@ -89,7 +94,7 @@ function Column({ p, signs }: { p: BaziPillar; signs: PillarSigns | undefined })
       </button>
       <button
         type="button"
-        className={cn("ulune-bz-cell is-stem", w.selectedId === sRef && "is-on")}
+        className={cn("ulune-bz-cell is-stem", w.selectedId === sRef && "is-on", linked?.level === "stem" && linked.places.includes(p.id) && "is-linked")}
         data-phase={stem.phase}
         data-testid={`bazi-stem-${p.id}`}
         aria-pressed={w.selectedId === sRef}
@@ -101,7 +106,7 @@ function Column({ p, signs }: { p: BaziPillar; signs: PillarSigns | undefined })
       </button>
       <button
         type="button"
-        className={cn("ulune-bz-cell is-branch", w.selectedId === bRef && "is-on")}
+        className={cn("ulune-bz-cell is-branch", w.selectedId === bRef && "is-on", linked?.level === "branch" && linked.places.includes(p.id) && "is-linked")}
         data-phase={branch.phase}
         data-testid={`bazi-branch-${p.id}`}
         aria-pressed={w.selectedId === bRef}
@@ -276,6 +281,58 @@ function StarsList({ c, signs }: { c: BaziChart; signs: BaziSigns }) {
   );
 }
 
+/** Under the board: the interactions between the pillars, the meetings first. */
+function InteractionsList({ list }: { list: Interaction[] }) {
+  const { locale } = useI18n();
+  const prefs = useChinesePrefs();
+  const w = useWheelView();
+  const item = (ix: Interaction, n: number) => {
+    const l = chineseLabel(ix.level === "stem" ? STEMS[n]! : BRANCHES[n]!, locale, { ...prefs, show: prefs.show === "full" ? "full" : "names" });
+    return [l.hanzi, l.name].filter(Boolean).join(" ");
+  };
+  return (
+    <section className="ulune-bz-ix" aria-labelledby="bz-ix-h" data-testid="bazi-interactions">
+      <h2 id="bz-ix-h" className="ulune-bz-h">
+        {cnWord(locale, "bzIxHead")}
+      </h2>
+      {list.length ? (
+        <ul>
+          {list.map((ix) => {
+            const ref = ixRef(ix.id);
+            return (
+              <li key={ix.id}>
+                <button
+                  type="button"
+                  className={cn("ulune-bz-ixrow", w.selectedId === ref && "is-on")}
+                  data-testid={`bazi-ix-${ix.id}`}
+                  data-tone={interactionTone(ix.kind)}
+                  data-transforms={ix.transforms ? "1" : undefined}
+                  aria-pressed={w.selectedId === ref}
+                  onClick={() => w.choose(ref)}
+                  {...previewProps(ref)}
+                >
+                  <span className="ulune-bz-ixrow-top">
+                    <span className="ulune-bz-ixrow-kind">{chineseLabel(INTERACTION_NAMES[ix.kind], locale, prefs).text}</span>
+                    <span className="ulune-bz-ixrow-status" data-testid={`bazi-ix-status-${ix.id}`}>
+                      {ixStatus(ix, locale)}
+                    </span>
+                  </span>
+                  <span className="ulune-bz-ixrow-sub">
+                    <span lang={prefs.show === "full" ? hanziLang(prefs.script) : undefined}>{ix.items.map((n) => item(ix, n)).join(" · ")}</span>
+                    <span className="ulune-bz-ixrow-at">{ix.places.map((p) => cnWord(locale, PLACE_WORD[p])).join(" · ")}</span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p className="ulune-bz-none">{cnWord(locale, "bzIxNone")}</p>
+      )}
+    </section>
+  );
+}
+
 /** Without a birth time, the hour's column says what it would add. */
 function MissingHour() {
   const { locale } = useI18n();
@@ -328,20 +385,26 @@ function BaziFigure() {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const data = useModeData("bazi");
+  const w = useWheelView();
   const c = data?.bazi;
   if (!c) return null;
   // Hour to year (the year on the right), as the tradition writes them, or year to hour.
   const cols = [...c.pillars];
   const hour = cols.find((p) => p.id === "hour");
   const order = prefs.pillarOrder === "classical" ? ["hour", "day", "month", "year"] : ["year", "month", "day", "hour"];
+  const interactions = data?.interactions ?? [];
+  const linked = w.selectedId?.startsWith("bz:ix:") ? (interactions.find((x) => ixRef(x.id) === w.selectedId) ?? null) : null;
   return (
     <div className="ulune-bz" data-testid="bazi" data-chart-pick>
-      <div className="ulune-bz-board" role="group" aria-label={cnWord(locale, "bzBoard")} data-testid="bazi-board" data-order={prefs.pillarOrder}>
+      <div className="ulune-bz-main">
+        <div className="ulune-bz-board" role="group" aria-label={cnWord(locale, "bzBoard")} data-testid="bazi-board" data-order={prefs.pillarOrder}>
         {order.map((id) => {
           if (id === "hour" && !hour) return <MissingHour key="hour" />;
           const p = cols.find((x) => x.id === id)!;
-          return <Column key={id} p={p} signs={data?.signs?.pillars.find((x) => x.place === id)} />;
+          return <Column key={id} p={p} signs={data?.signs?.pillars.find((x) => x.place === id)} linked={linked} />;
         })}
+        </div>
+        <InteractionsList list={interactions} />
       </div>
       <div className="ulune-bz-side">
         <GodsList c={c} />
@@ -419,8 +482,9 @@ function useBaziRuntime(): ModeRuntime<BaziState> {
     [enabled, chart, prefs.clock, prefs.dayBoundary],
   );
   const signs = useMemo(() => (bazi ? baziSigns(bazi) : null), [bazi]);
+  const interactions = useMemo(() => (bazi ? baziInteractions(bazi) : []), [bazi]);
   const reading = useMemo(() => (bazi ? baziReading(bazi, selectedId, locale, prefs) : null), [bazi, selectedId, locale, prefs]);
-  const data = useMemo(() => ({ bazi, signs, enabled }), [bazi, signs, enabled]);
+  const data = useMemo(() => ({ bazi, signs, interactions, enabled }), [bazi, signs, interactions, enabled]);
   return useMemo(() => ({ data, reading }), [data, reading]);
 }
 

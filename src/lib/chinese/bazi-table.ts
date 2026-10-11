@@ -3,7 +3,8 @@
  * part 17): the four pillars with each stem's god, each branch and its
  * hidden stems with theirs, and how often each god stands in the chart;
  * from part 13 the Day Master's stage in each branch, each pillar's Na Yin,
- * the empty branches and the symbolic stars; as
+ * the empty branches and the symbolic stars; from part 14 the interactions
+ * between the pillars and whether they transform; as
  * text for Copy and as CSV in the tables' common shape (a section column,
  * ids rather than words).
  */
@@ -11,7 +12,8 @@ import { BRANCHES, SIXTY, STEMS } from "./names";
 import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord } from "./words";
 import { DAY_MASTER_NAME, TEN_GODS, tenGodById, type BaziChart, type BaziPillar } from "./bazi";
-import { PILLAR_WORD } from "./bazi-reading";
+import { PILLAR_WORD, ixStatus } from "./bazi-reading";
+import { INTERACTION_NAMES, baziInteractions, type Interaction } from "./bazi-interactions";
 import { STARS, baziSigns, type PillarSigns } from "./bazi-signs";
 import { PLACE_WORD } from "./zodiac-places";
 
@@ -57,7 +59,23 @@ export function baziTextParts(c: BaziChart, locale: string, prefs: Shown, name =
     { id: "gods", lines: [`${cnWord(locale, "bzPartGods")} (${cnWord(locale, "bzGodsKey")})`, ...gods] },
     { id: "signs", lines: [cnWord(locale, "bzPartSigns"), ...signLines] },
     { id: "stars", lines: [cnWord(locale, "bzStarsHead"), ...starLines] },
+    { id: "interactions", lines: [cnWord(locale, "bzPartIx"), ...ixLines(c, locale, prefs, colon)] },
   ];
+}
+
+/** A stem or branch an interaction joins, short: "卯 mǎo" or "Rabbit". */
+export function ixItemShort(ix: Interaction, n: number, locale: string, prefs: Shown): string {
+  const l = chineseLabel(ix.level === "stem" ? STEMS[n]! : BRANCHES[n]!, locale, prefs);
+  return prefs.show === "names" ? l.name : `${l.name} ${[l.hanzi, l.pinyin].filter(Boolean).join(" ")}`;
+}
+
+function ixLines(c: BaziChart, locale: string, prefs: Shown, colon: string): string[] {
+  const list = baziInteractions(c);
+  if (!list.length) return [cnWord(locale, "bzIxNone")];
+  return list.map(
+    (ix) =>
+      `${chineseLabel(INTERACTION_NAMES[ix.kind], locale, prefs).text}${colon}${starPlaces(ix.places, locale)} · ${ix.items.map((n) => ixItemShort(ix, n, locale, prefs)).join(" · ")} · ${ixStatus(ix, locale)}`,
+  );
 }
 
 /** The pillars a star falls in, short: "Year · Month". */
@@ -99,5 +117,22 @@ export function baziTableCsv(c: BaziChart): string {
   rows.push([]);
   rows.push(["star", "id", "places"]);
   for (const h of signs.stars) rows.push(["star", h.id, h.places.join("|")]);
+  rows.push([]);
+  rows.push(["ix", "id", "kind", "level", "places", "items", "phase", "neighbours", "transforms", "conditions"]);
+  for (const ix of baziInteractions(c)) {
+    const items = ix.items.map((n) => (ix.level === "stem" ? STEMS[n]! : BRANCHES[n]!).id).join("|");
+    rows.push([
+      "ix",
+      ix.id,
+      ix.kind,
+      ix.level,
+      ix.places.join("|"),
+      items,
+      ix.phase ?? "",
+      ix.neighbours ? "1" : "0",
+      ix.transforms == null ? "" : ix.transforms ? "1" : "0",
+      (ix.conditions ?? []).map((x) => `${x.id}:${x.met ? 1 : 0}`).join("|"),
+    ]);
+  }
   return rows.map((r) => r.map(cell).join(",")).join("\n");
 }

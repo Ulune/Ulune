@@ -13,6 +13,10 @@
  *     Heavenly Virtue on the day, General on the month, Travelling Horse on
  *     the hour), no empty pillar; a stage's reading says why, a star's how
  *     it is found; the stars panel and the empty branches;
+ *   - (part 14) under the board the interactions between the pillars: the
+ *     day and hour's clash and the year and month's self-punishment, side
+ *     by side; choosing the clash outlines the day and hour branches and
+ *     reads it;
  *   - the table; Settings' "Year to hour" followed at once;
  *   - nothing sent while the page works it out; nothing scrolls sideways.
  */
@@ -29,6 +33,8 @@ const WORDS = {
     stageWhy: "being yin, goes backward",
     starHow: "of the Wood trine",
     empty: "Tiger · Rabbit",
+    side: "side by side",
+    clash: "opposite branches",
   },
   fr: {
     heading: "Traditions chinoises",
@@ -39,6 +45,8 @@ const WORDS = {
     stageWhy: "étant yin, recule",
     starHow: "du trigone du Bois",
     empty: "Tigre · Lapin",
+    side: "côte à côte",
+    clash: "branches face à face",
   },
 };
 
@@ -128,6 +136,24 @@ async function run(width, lang) {
     await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.starHow, { timeout: 8000 });
     if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
 
+    // Part 14: the interactions under the board; the clash outlines its two branches and reads.
+    const ix = await page.evaluate(() =>
+      [...document.querySelectorAll("[data-testid^=bazi-ix-]:not([data-testid^=bazi-ix-status-])")].map((r) => [
+        r.getAttribute("data-testid").slice(8),
+        r.querySelector(".ulune-bz-ixrow-status").textContent.trim(),
+      ]),
+    );
+    if (ix.map((x) => x[0]).join() !== "clash:day-hour,self-punishment:year-month") throw new Error(`${label}: interactions ${ix.map((x) => x[0])}`);
+    if (!ix.every((x) => x[1] === w.side)) throw new Error(`${label}: interaction statuses ${ix.map((x) => x[1])}`);
+    await page.getByTestId("bazi-ix-clash:day-hour").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.getByTestId("bazi-ix-clash:day-hour").click();
+    const linkedCells = await page.evaluate(() => [...document.querySelectorAll(".ulune-bz-cell.is-linked")].map((c) => c.getAttribute("data-testid")).sort().join());
+    if (linkedCells !== "bazi-branch-day,bazi-branch-hour") throw new Error(`${label}: outlined cells ${linkedCells}`);
+    if (width < 1024) await clickDockTab(page, "reading");
+    await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.clash, { timeout: 8000 });
+    if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
+    await assertNoOverflow(page);
+
     // The table: four pillars, ten gods.
     await setView(page, "table");
     await page.getByTestId("bazi-table").waitFor({ timeout: 10000 });
@@ -139,6 +165,8 @@ async function run(width, lang) {
     if (signRows !== 5) throw new Error(`${label}: ${signRows} rows of stages and Na Yin`);
     const starRows = await page.locator("[data-testid^=bazi-starrow-t-]").count();
     if (starRows !== 5) throw new Error(`${label}: ${starRows} stars in the table`);
+    const ixRows = await page.locator("[data-testid^=bazi-ixrow-]").count();
+    if (ixRows !== 2) throw new Error(`${label}: ${ixRows} interactions in the table`);
     await assertNoOverflow(page);
     await setView(page, "wheel");
     await page.getByTestId("bazi-board").waitFor({ timeout: 10000 });
