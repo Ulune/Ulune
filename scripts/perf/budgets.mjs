@@ -148,7 +148,11 @@ if (want.has("bundle")) {
   // Part 12 (9 Oct): BaZi in the map, the picker (its card, mark and words) and the palette,
   // 0.3 (its page, texts and table load when opened): 279.4, 279.7 in one run of five (a
   // small chunk landing within the load); limit 280.
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 280, "KB gz");
+  // Part 16 (11 Oct): BaZi's Cycles page (the luck pillars) in the map, the routes, the meta and
+  // the palette, 0.2 (its page, texts and table load when opened): 279.6, 280.4 when a small
+  // chunk lands within the load; limit 281. A pass to trim the first load before the release
+  // is due (each new page adds its route and map entry here).
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 281, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's

@@ -21,7 +21,6 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StudioIndexRouteImport } from './routes/_studio.index'
-import { Route as StudioBaziRouteImport } from './routes/_studio.bazi'
 import { Route as StudioCalendarRouteImport } from './routes/_studio.calendar'
 import { Route as StudioCalendrierRouteImport } from './routes/_studio.calendrier'
 import { Route as StudioHumanDesignRouteImport } from './routes/_studio.human-design'
@@ -38,6 +37,8 @@ import { Route as StudioAstrologyCompositeRouteImport } from './routes/_studio.a
 import { Route as StudioAstrologyProgressionsRouteImport } from './routes/_studio.astrology.progressions'
 import { Route as StudioAstrologySynastryRouteImport } from './routes/_studio.astrology.synastry'
 import { Route as StudioAstrologyTransitsRouteImport } from './routes/_studio.astrology.transits'
+import { Route as StudioBaziIndexRouteImport } from './routes/_studio.bazi.index'
+import { Route as StudioBaziCyclesRouteImport } from './routes/_studio.bazi.cycles'
 import { Route as StudioChineseAstrologyIndexRouteImport } from './routes/_studio.chinese-astrology.index'
 import { Route as StudioChineseAstrologyCyclesRouteImport } from './routes/_studio.chinese-astrology.cycles'
 import { Route as StudioChineseAstrologyPairRouteImport } from './routes/_studio.chinese-astrology.pair'
@@ -101,11 +102,6 @@ const TermsRoute = TermsRouteImport.update({
 const StudioIndexRoute = StudioIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => StudioRoute,
-} as any)
-const StudioBaziRoute = StudioBaziRouteImport.update({
-  id: '/bazi',
-  path: '/bazi',
   getParentRoute: () => StudioRoute,
 } as any)
 const StudioCalendarRoute = StudioCalendarRouteImport.update({
@@ -190,6 +186,16 @@ const StudioAstrologyTransitsRoute = StudioAstrologyTransitsRouteImport.update({
   path: '/astrology/transits',
   getParentRoute: () => StudioRoute,
 } as any)
+const StudioBaziIndexRoute = StudioBaziIndexRouteImport.update({
+  id: '/bazi/',
+  path: '/bazi/',
+  getParentRoute: () => StudioRoute,
+} as any)
+const StudioBaziCyclesRoute = StudioBaziCyclesRouteImport.update({
+  id: '/bazi/cycles',
+  path: '/bazi/cycles',
+  getParentRoute: () => StudioRoute,
+} as any)
 const StudioChineseAstrologyIndexRoute =
   StudioChineseAstrologyIndexRouteImport.update({
     id: '/chinese-astrology/',
@@ -231,7 +237,6 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/bazi': typeof StudioBaziRoute
   '/calendar': typeof StudioCalendarRoute
   '/calendrier': typeof StudioCalendrierRoute
   '/human-design': typeof StudioHumanDesignRoute
@@ -247,10 +252,12 @@ export interface FileRoutesByFullPath {
   '/astrology/progressions': typeof StudioAstrologyProgressionsRoute
   '/astrology/synastry': typeof StudioAstrologySynastryRoute
   '/astrology/transits': typeof StudioAstrologyTransitsRoute
+  '/bazi/cycles': typeof StudioBaziCyclesRoute
   '/chinese-astrology/cycles': typeof StudioChineseAstrologyCyclesRoute
   '/chinese-astrology/pair': typeof StudioChineseAstrologyPairRoute
   '/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/astrology/': typeof StudioAstrologyIndexRoute
+  '/bazi/': typeof StudioBaziIndexRoute
   '/chinese-astrology/': typeof StudioChineseAstrologyIndexRoute
   '/numerology/': typeof StudioNumerologyIndexRoute
 }
@@ -265,7 +272,6 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/bazi': typeof StudioBaziRoute
   '/calendar': typeof StudioCalendarRoute
   '/calendrier': typeof StudioCalendrierRoute
   '/human-design': typeof StudioHumanDesignRoute
@@ -282,10 +288,12 @@ export interface FileRoutesByTo {
   '/astrology/progressions': typeof StudioAstrologyProgressionsRoute
   '/astrology/synastry': typeof StudioAstrologySynastryRoute
   '/astrology/transits': typeof StudioAstrologyTransitsRoute
+  '/bazi/cycles': typeof StudioBaziCyclesRoute
   '/chinese-astrology/cycles': typeof StudioChineseAstrologyCyclesRoute
   '/chinese-astrology/pair': typeof StudioChineseAstrologyPairRoute
   '/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/astrology': typeof StudioAstrologyIndexRoute
+  '/bazi': typeof StudioBaziIndexRoute
   '/chinese-astrology': typeof StudioChineseAstrologyIndexRoute
   '/numerology': typeof StudioNumerologyIndexRoute
 }
@@ -302,7 +310,6 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/_studio/bazi': typeof StudioBaziRoute
   '/_studio/calendar': typeof StudioCalendarRoute
   '/_studio/calendrier': typeof StudioCalendrierRoute
   '/_studio/human-design': typeof StudioHumanDesignRoute
@@ -319,10 +326,12 @@ export interface FileRoutesById {
   '/_studio/astrology/progressions': typeof StudioAstrologyProgressionsRoute
   '/_studio/astrology/synastry': typeof StudioAstrologySynastryRoute
   '/_studio/astrology/transits': typeof StudioAstrologyTransitsRoute
+  '/_studio/bazi/cycles': typeof StudioBaziCyclesRoute
   '/_studio/chinese-astrology/cycles': typeof StudioChineseAstrologyCyclesRoute
   '/_studio/chinese-astrology/pair': typeof StudioChineseAstrologyPairRoute
   '/_studio/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/_studio/astrology/': typeof StudioAstrologyIndexRoute
+  '/_studio/bazi/': typeof StudioBaziIndexRoute
   '/_studio/chinese-astrology/': typeof StudioChineseAstrologyIndexRoute
   '/_studio/numerology/': typeof StudioNumerologyIndexRoute
 }
@@ -340,7 +349,6 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/terms'
-    | '/bazi'
     | '/calendar'
     | '/calendrier'
     | '/human-design'
@@ -356,10 +364,12 @@ export interface FileRouteTypes {
     | '/astrology/progressions'
     | '/astrology/synastry'
     | '/astrology/transits'
+    | '/bazi/cycles'
     | '/chinese-astrology/cycles'
     | '/chinese-astrology/pair'
     | '/numerology/cycles'
     | '/astrology/'
+    | '/bazi/'
     | '/chinese-astrology/'
     | '/numerology/'
   fileRoutesByTo: FileRoutesByTo
@@ -374,7 +384,6 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/terms'
-    | '/bazi'
     | '/calendar'
     | '/calendrier'
     | '/human-design'
@@ -391,10 +400,12 @@ export interface FileRouteTypes {
     | '/astrology/progressions'
     | '/astrology/synastry'
     | '/astrology/transits'
+    | '/bazi/cycles'
     | '/chinese-astrology/cycles'
     | '/chinese-astrology/pair'
     | '/numerology/cycles'
     | '/astrology'
+    | '/bazi'
     | '/chinese-astrology'
     | '/numerology'
   id:
@@ -410,7 +421,6 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/terms'
-    | '/_studio/bazi'
     | '/_studio/calendar'
     | '/_studio/calendrier'
     | '/_studio/human-design'
@@ -427,10 +437,12 @@ export interface FileRouteTypes {
     | '/_studio/astrology/progressions'
     | '/_studio/astrology/synastry'
     | '/_studio/astrology/transits'
+    | '/_studio/bazi/cycles'
     | '/_studio/chinese-astrology/cycles'
     | '/_studio/chinese-astrology/pair'
     | '/_studio/numerology/cycles'
     | '/_studio/astrology/'
+    | '/_studio/bazi/'
     | '/_studio/chinese-astrology/'
     | '/_studio/numerology/'
   fileRoutesById: FileRoutesById
@@ -541,13 +553,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof StudioIndexRouteImport
-      parentRoute: typeof StudioRoute
-    }
-    '/_studio/bazi': {
-      id: '/_studio/bazi'
-      path: '/bazi'
-      fullPath: '/bazi'
-      preLoaderRoute: typeof StudioBaziRouteImport
       parentRoute: typeof StudioRoute
     }
     '/_studio/calendar': {
@@ -662,6 +667,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudioAstrologyTransitsRouteImport
       parentRoute: typeof StudioRoute
     }
+    '/_studio/bazi/': {
+      id: '/_studio/bazi/'
+      path: '/bazi'
+      fullPath: '/bazi/'
+      preLoaderRoute: typeof StudioBaziIndexRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/_studio/bazi/cycles': {
+      id: '/_studio/bazi/cycles'
+      path: '/bazi/cycles'
+      fullPath: '/bazi/cycles'
+      preLoaderRoute: typeof StudioBaziCyclesRouteImport
+      parentRoute: typeof StudioRoute
+    }
     '/_studio/chinese-astrology/': {
       id: '/_studio/chinese-astrology/'
       path: '/chinese-astrology'
@@ -701,7 +720,6 @@ declare module '@tanstack/react-router' {
 }
 
 interface StudioRouteChildren {
-  StudioBaziRoute: typeof StudioBaziRoute
   StudioCalendarRoute: typeof StudioCalendarRoute
   StudioCalendrierRoute: typeof StudioCalendrierRoute
   StudioHumanDesignRoute: typeof StudioHumanDesignRoute
@@ -710,16 +728,17 @@ interface StudioRouteChildren {
   StudioAstrologyProgressionsRoute: typeof StudioAstrologyProgressionsRoute
   StudioAstrologySynastryRoute: typeof StudioAstrologySynastryRoute
   StudioAstrologyTransitsRoute: typeof StudioAstrologyTransitsRoute
+  StudioBaziCyclesRoute: typeof StudioBaziCyclesRoute
   StudioChineseAstrologyCyclesRoute: typeof StudioChineseAstrologyCyclesRoute
   StudioChineseAstrologyPairRoute: typeof StudioChineseAstrologyPairRoute
   StudioNumerologyCyclesRoute: typeof StudioNumerologyCyclesRoute
   StudioAstrologyIndexRoute: typeof StudioAstrologyIndexRoute
+  StudioBaziIndexRoute: typeof StudioBaziIndexRoute
   StudioChineseAstrologyIndexRoute: typeof StudioChineseAstrologyIndexRoute
   StudioNumerologyIndexRoute: typeof StudioNumerologyIndexRoute
 }
 
 const StudioRouteChildren: StudioRouteChildren = {
-  StudioBaziRoute: StudioBaziRoute,
   StudioCalendarRoute: StudioCalendarRoute,
   StudioCalendrierRoute: StudioCalendrierRoute,
   StudioHumanDesignRoute: StudioHumanDesignRoute,
@@ -728,10 +747,12 @@ const StudioRouteChildren: StudioRouteChildren = {
   StudioAstrologyProgressionsRoute: StudioAstrologyProgressionsRoute,
   StudioAstrologySynastryRoute: StudioAstrologySynastryRoute,
   StudioAstrologyTransitsRoute: StudioAstrologyTransitsRoute,
+  StudioBaziCyclesRoute: StudioBaziCyclesRoute,
   StudioChineseAstrologyCyclesRoute: StudioChineseAstrologyCyclesRoute,
   StudioChineseAstrologyPairRoute: StudioChineseAstrologyPairRoute,
   StudioNumerologyCyclesRoute: StudioNumerologyCyclesRoute,
   StudioAstrologyIndexRoute: StudioAstrologyIndexRoute,
+  StudioBaziIndexRoute: StudioBaziIndexRoute,
   StudioChineseAstrologyIndexRoute: StudioChineseAstrologyIndexRoute,
   StudioNumerologyIndexRoute: StudioNumerologyIndexRoute,
 }

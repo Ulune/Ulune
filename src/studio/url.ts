@@ -18,6 +18,8 @@ export const STUDIO_PAGES = [
   "zodiac-pair",
   // 2.0: BaZi, the Four Pillars (languages plan, part 12).
   "bazi",
+  // 2.0: its Cycles lens, the luck pillars and the flow of years (part 16).
+  "bazi-luck",
 ] as const;
 
 export type StudioPage = (typeof STUDIO_PAGES)[number];

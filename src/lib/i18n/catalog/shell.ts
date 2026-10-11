@@ -39,6 +39,7 @@ export const shell = {
   pageZodiacYears: ["Chinese astrology: the year ahead", "Astrologie chinoise\u202f: l’année à venir"],
   pageZodiacPair: ["Chinese astrology: two people", "Astrologie chinoise\u202f: deux personnes"],
   pageBazi: ["BaZi, the Four Pillars", "BaZi, les Quatre Piliers"],
+  pageBaziLuck: ["BaZi: the luck pillars", "BaZi\u202f: les piliers de chance"],
   pageProgressions: ["Progressions", "Progressions"],
   pageSynastry: ["Synastry", "Synastrie"],
   pageTiming: ["Calendar", "Calendrier"],
