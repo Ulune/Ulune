@@ -16,6 +16,8 @@ import { STARS, TRINE_PHASES, baziSigns, stageOf, starById, trineOfBranch, type 
 import { STAGE_TEXTS, STAR_TEXTS } from "./bazi-signs-texts";
 import { INTERACTION_NAMES, baziInteractions, interactionTone, type Condition, type Interaction } from "./bazi-interactions";
 import { INTERACTION_TEXTS, PUNISHMENT_GROUP_TEXTS } from "./bazi-interactions-texts";
+import { PHASE_IDS, STRUCTURE_NAMES, baziBalance, type BaziBalance } from "./bazi-balance";
+import { STRENGTH_TEXTS, STRUCTURE_TEXTS } from "./bazi-balance-texts";
 import { said } from "./zodiac-texts";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
@@ -36,6 +38,12 @@ export const EMPTY_REF = "bz:empty";
 export const starRef = (id: StarId): string => `bz:star:${id}`;
 /** Part 14: an interaction between pillars, by its id ("harmony:year-month"). */
 export const ixRef = (id: string): string => `bz:ix:${id}`;
+/** Part 15: the balance's method, a phase's count, the strength, the structure, the favourable phases. */
+export const BALANCE_REF = "bz:balance";
+export const phaseRef = (id: PhaseId): string => `bz:phase:${id}`;
+export const STRENGTH_REF = "bz:strength";
+export const STRUCTURE_REF = "bz:structure";
+export const FAVOURABLE_REF = "bz:favourable";
 
 /** A phase as a sentence needs it: "Fire" in English; in French with its article ("le Feu", "la Terre", "l’Eau") or partitive ("du Feu", "de la Terre", "de l’Eau"). */
 function phaseWords(id: PhaseId, locale: string): { the: string; The: string; some: string; name: string } {
@@ -67,10 +75,11 @@ export function whyGod(dayMaster: number, stem: number, locale: string, prefs: S
   });
 }
 
-function about(locale: string, signs = false, interactions = false): ElementReading["about"] {
+function about(locale: string, signs = false, interactions = false, analysis = false): ElementReading["about"] {
   const paragraphs = [cnWord(locale, "bzAbout1"), cnWord(locale, "bzAbout2")];
   if (signs) paragraphs.push(cnWord(locale, "bzAbout3"));
   if (interactions) paragraphs.push(cnWord(locale, "bzAbout4"));
+  if (analysis) paragraphs.push(cnWord(locale, "bzAbout5"));
   return { title: cnWord(locale, "bzAboutTitle"), paragraphs };
 }
 
@@ -454,6 +463,199 @@ function ixReading(c: BaziChart, ix: Interaction, locale: string, prefs: Shown):
   };
 }
 
+/** Points as the reader writes numbers: "2.7", « 2,7 ». */
+export const fmtPoints = (n: number, locale: string): string => new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-GB", { maximumFractionDigits: 1 }).format(n);
+/** A share as a percentage: "30%", « 30 % ». */
+export const fmtShare = (share: number, locale: string): string => `${Math.round(share * 100)}${locale === "fr" ? "\u202f%" : "%"}`;
+
+const FAMILY_WORD: Record<GodFamily, ChineseWordKey> = { peer: "bzFamPeer", output: "bzFamOutput", wealth: "bzFamWealth", power: "bzFamPower", resource: "bzFamResource" };
+const STRENGTH_WORD: Record<BaziBalance["strength"], ChineseWordKey> = { strong: "bzStrong", balanced: "bzBalanced", weak: "bzWeak" };
+export const strengthWord = (b: BaziBalance, locale: string): string => cnWord(locale, STRENGTH_WORD[b.strength]);
+const phaseName = (id: PhaseId, locale: string) => phaseWords(id, locale).name;
+export const phaseList = (ids: readonly PhaseId[], locale: string): string => ids.map((x) => phaseName(x, locale)).join(", ");
+
+/** The five phases and how they are counted. */
+function balanceReading(b: BaziBalance, locale: string, prefs: Shown): ElementReading {
+  const lead = cnWord(locale, "bzBalLead");
+  const total = fmtPoints(b.total, locale);
+  return {
+    id: BALANCE_REF,
+    kind: "sign",
+    title: cnWord(locale, "bzBalHead"),
+    kicker: cnWord(locale, "bzBalHow"),
+    lead,
+    paragraphs: [lead, cnWord(locale, "bzBalMethod")],
+    facts: [
+      ...b.phases.map((p) => ({
+        label: chineseLabel(PHASES.find((x) => x.id === p.phase)!, locale, prefs).text,
+        value: `${cnWord(locale, "bzPoints", { n: fmtPoints(p.points, locale), total })} · ${fmtShare(p.share, locale)}`,
+        ref: phaseRef(p.phase),
+      })),
+      { label: cnWord(locale, "bzSupportShare"), value: fmtShare(b.support, locale) },
+    ],
+    sections: [{ id: "method", title: cnWord(locale, "bzBalMethodTitle"), paragraphs: [cnWord(locale, "bzBalMethod")] }],
+    mark: "五行",
+    about: about(locale, false, false, true),
+  };
+}
+
+/** One phase: its share, how it meets the Day Master, where it comes from. */
+function phaseReading(c: BaziChart, b: BaziBalance, id: PhaseId, locale: string, prefs: Shown): ElementReading {
+  const p = b.phases.find((x) => x.phase === id)!;
+  const label = chineseLabel(PHASES.find((x) => x.id === id)!, locale, prefs);
+  const sorted = [...b.phases].sort((x, y) => x.points - y.points);
+  const lines = p.points
+    ? [cnWord(locale, "bzPhaseShare", { phase: label.name, n: fmtPoints(p.points, locale), total: fmtPoints(b.total, locale), pct: fmtShare(p.share, locale) })]
+    : [cnWord(locale, "bzPhaseAbsent", { phase: label.name })];
+  if (p.points && sorted.at(-1)!.phase === id) lines.push(cnWord(locale, "bzPhaseMost"));
+  else if (p.points && sorted[0]!.phase === id) lines.push(cnWord(locale, "bzPhaseLeast"));
+  const lead = lines.join(" ");
+  const facts: ReadingFact[] = [{ label: cnWord(locale, "bzToDm"), value: said(FAMILY_NAMES[p.family], locale), ref: stemRef("day") }];
+  for (const part of p.parts) {
+    const pillar = c.pillars.find((x) => x.id === part.place)!;
+    facts.push({
+      label: `${cnWord(locale, PILLAR_WORD[part.place])} · ${part.kind === "stem" ? cnWord(locale, "bzStemPart") : cnWord(locale, QI_WORD[part.index!]!).toLowerCase()}`,
+      value: `${chineseLabel(STEMS[part.stem]!, locale, prefs).text} · ${fmtPoints(part.points, locale)}`,
+      ref: part.kind === "stem" ? stemRef(pillar.id) : hiddenRef(pillar.id, part.index!),
+    });
+  }
+  return {
+    id: phaseRef(id),
+    kind: "sign",
+    title: label.name,
+    kicker: [cnWord(locale, "bzBalHead"), fmtShare(p.share, locale)].join(" · "),
+    lead,
+    paragraphs: [lead, cnWord(locale, "bzBalMethod")],
+    facts,
+    sections: [{ id: "method", title: cnWord(locale, "bzBalMethodTitle"), paragraphs: [cnWord(locale, "bzBalMethod")] }],
+    mark: label.hanzi ?? undefined,
+    about: about(locale, false, false, true),
+  };
+}
+
+/** The Day Master's strength: the three tests, each with its answer, and the rule. */
+function strengthReading(c: BaziChart, b: BaziBalance, locale: string, prefs: Shown): ElementReading {
+  const dm = STEMS[c.dayMaster]!;
+  const ph = phaseWords(b.dmPhase, locale);
+  const t = b.tests;
+  const season = cnWord(locale, t.season.met ? "bzTestSeasonYes" : "bzTestSeasonNo", {
+    month: chineseLabel(BRANCHES[t.season.month]!, locale, prefs).text,
+    main: short(STEMS[t.season.main]!, locale, prefs),
+    mainPhase: phaseName(STEMS[t.season.main]!.phase, locale),
+    family: cnWord(locale, FAMILY_WORD[t.season.family]),
+    dm: short(dm, locale, prefs),
+  });
+  const rootList = t.root.roots.map((r) => {
+    const p = c.pillars.find((x) => x.id === r.place)!;
+    return `${chineseLabel(BRANCHES[p.branch]!, locale, prefs).text} (${cnWord(locale, PILLAR_WORD[r.place]).toLowerCase()}, ${cnWord(locale, QI_WORD[r.index]!).toLowerCase()} ${r.weight})`;
+  });
+  const root = t.root.met
+    ? cnWord(locale, "bzTestRootYes", { phase: ph.name, somePhase: ph.some, list: rootList.join(", ") })
+    : cnWord(locale, "bzTestRootNo", { phase: ph.name, thePhase: ph.the });
+  const support = cnWord(locale, t.support.met ? "bzTestSupportYes" : "bzTestSupportNo", { n: t.support.helpers.length, m: t.support.others.length, phase: ph.name, somePhase: ph.some });
+  const rule = cnWord(locale, "bzStrengthRule", { score: b.score });
+  const lead = said(STRENGTH_TEXTS[b.strength], locale);
+  const yes = (m: boolean) => cnWord(locale, m ? "bzYes" : "bzNo");
+  return {
+    id: STRENGTH_REF,
+    kind: "sign",
+    title: `${chineseLabel(DAY_MASTER_NAME, locale, prefs).name} · ${strengthWord(b, locale)}`,
+    kicker: cnWord(locale, "bzStrengthTitle"),
+    lead,
+    paragraphs: [lead, season, root, support, rule],
+    facts: [
+      { label: cnWord(locale, "bzTestSeason"), value: yes(t.season.met), ref: branchCellRef("month") },
+      { label: cnWord(locale, "bzTestRoot"), value: yes(t.root.met), ref: t.root.roots[0] ? hiddenRef(t.root.roots[0].place, t.root.roots[0].index) : undefined },
+      { label: cnWord(locale, "bzTestSupport"), value: yes(t.support.met) },
+      { label: cnWord(locale, "bzSupportShare"), value: fmtShare(b.support, locale), ref: BALANCE_REF },
+    ],
+    sections: [{ id: "tests", title: cnWord(locale, "bzTests"), paragraphs: [season, root, support, rule] }],
+    mark: dm[prefs.script],
+    about: about(locale, false, false, true),
+  };
+}
+
+/** The structure: its frame, and how it was found from the month; a "follow" structure when flagged. */
+function structureReading(c: BaziChart, b: BaziBalance, locale: string, prefs: Shown): ElementReading {
+  const st = b.structure;
+  const name = chineseLabel(STRUCTURE_NAMES[st.id], locale, prefs);
+  const month = c.pillars.find((x) => x.id === "month")!;
+  const monthText = chineseLabel(BRANCHES[month.branch]!, locale, prefs).text;
+  let how: string;
+  if (st.via === "lu") how = cnWord(locale, "bzStructLu", { month: monthText });
+  else if (st.via === "ren") how = cnWord(locale, "bzStructRen", { month: monthText });
+  else {
+    const god = chineseLabel(tenGodOf(c.dayMaster, st.stem!), locale, prefs).name;
+    how =
+      st.via === "revealed"
+        ? cnWord(locale, "bzStructRevealed", { stem: short(STEMS[st.stem!]!, locale, prefs), month: monthText, pillar: cnWord(locale, PILLAR_WORD[st.shownAt!]).toLowerCase(), god })
+        : cnWord(locale, "bzStructMain", { stem: short(STEMS[st.stem!]!, locale, prefs), god });
+  }
+  const lead = said(STRUCTURE_TEXTS[st.id], locale);
+  const sections: NonNullable<ElementReading["sections"]> = [{ id: "how", title: cnWord(locale, "bzStructWhy"), paragraphs: [how, cnWord(locale, "bzStructNote")] }];
+  const facts: ReadingFact[] = [{ label: cnWord(locale, "bzPillarMonth"), value: monthText, ref: branchCellRef("month") }];
+  if (st.stem != null) {
+    const i = month.hidden.findIndex((h) => h.stem === st.stem);
+    facts.push({ label: cnWord(locale, "zkStem"), value: chineseLabel(STEMS[st.stem]!, locale, prefs).text, ref: st.via === "revealed" ? stemRef(st.shownAt!) : hiddenRef("month", Math.max(0, i)) });
+  }
+  if (b.special) {
+    const sp = chineseLabel(STRUCTURE_NAMES[b.special], locale, prefs);
+    facts.push({ label: cnWord(locale, "bzSpecialFlag"), value: sp.text });
+    sections.push({
+      id: "special",
+      title: `${cnWord(locale, "bzSpecialFlag")} · ${sp.name}`,
+      paragraphs: [cnWord(locale, b.special === "follow-strong" ? "bzSpecialStrong" : "bzSpecialWeak", { pct: fmtShare(b.support, locale) }), said(STRUCTURE_TEXTS[b.special], locale)],
+    });
+  }
+  return {
+    id: STRUCTURE_REF,
+    kind: "sign",
+    title: name.name,
+    kicker: [cnWord(locale, "bzStructure"), [name.pinyin, name.hanzi].filter(Boolean).join(" ")].filter(Boolean).join(" · "),
+    lead,
+    paragraphs: [lead, ...sections.flatMap((x) => x.paragraphs)],
+    facts,
+    sections,
+    mark: name.hanzi ?? undefined,
+    about: about(locale, false, false, true),
+  };
+}
+
+/** The favourable phases, by balance and by climate. */
+function favourableReading(c: BaziChart, b: BaziBalance, locale: string, prefs: Shown): ElementReading {
+  const f = b.favourable;
+  const good = phaseList(f.good, locale);
+  const most = phaseName(f.good[0]!, locale);
+  const byBalance = b.special
+    ? cnWord(locale, "bzFavFollow", { good })
+    : cnWord(locale, b.strength === "weak" ? "bzFavWeak" : b.strength === "strong" ? "bzFavStrong" : "bzFavBalancedLine", { good, most });
+  const month = chineseLabel(BRANCHES[c.pillars.find((x) => x.id === "month")!.branch]!, locale, prefs).text;
+  const byClimate = cnWord(locale, f.season === "winter" ? "bzClimateWinter" : f.season === "summer" ? "bzClimateSummer" : "bzClimateMild", { month });
+  const lead = cnWord(locale, "bzFavLead");
+  const facts: ReadingFact[] = [
+    { label: cnWord(locale, "bzFavBalance"), value: good, ref: phaseRef(f.good[0]!) },
+    ...(b.strength !== "balanced" || b.special ? [{ label: cnWord(locale, "bzFavMost"), value: chineseLabel(PHASES.find((x) => x.id === f.good[0])!, locale, prefs).text, ref: phaseRef(f.good[0]!) }] : []),
+    { label: cnWord(locale, "bzUnfav"), value: phaseList(f.bad, locale) },
+    { label: cnWord(locale, "bzFavClimate"), value: f.climate ? chineseLabel(PHASES.find((x) => x.id === f.climate)!, locale, prefs).text : cnWord(locale, "bzClimateNone"), ref: f.climate ? phaseRef(f.climate) : undefined },
+    { label: cnWord(locale, "bzStrength"), value: strengthWord(b, locale), ref: STRENGTH_REF },
+  ];
+  return {
+    id: FAVOURABLE_REF,
+    kind: "sign",
+    title: cnWord(locale, "bzFavTitle"),
+    kicker: [cnWord(locale, "bzFavBalance"), cnWord(locale, "bzFavClimate")].join(" · "),
+    lead,
+    paragraphs: [lead, byBalance, byClimate],
+    facts,
+    sections: [
+      { id: "balance", title: cnWord(locale, "bzFavBalance"), paragraphs: [byBalance] },
+      { id: "climate", title: cnWord(locale, "bzFavClimate"), paragraphs: [byClimate] },
+    ],
+    mark: "用神",
+    about: about(locale, false, false, true),
+  };
+}
+
 /** The reading of a selection on the board, or null when it is not the board's. */
 export function baziReading(c: BaziChart, ref: string | null, locale: string, prefs: Shown): ElementReading | null {
   if (!ref) return null;
@@ -480,6 +682,13 @@ export function baziReading(c: BaziChart, ref: string | null, locale: string, pr
   if (ref === EMPTY_REF) return emptyReading(c, baziSigns(c), locale, prefs);
   const st = /^bz:star:([a-z-]+)$/.exec(ref);
   if (st && STARS.some((x) => x.id === st[1])) return starReading(c, baziSigns(c), st[1] as StarId, locale, prefs);
+  // Part 15: the analysis.
+  if (ref === BALANCE_REF) return balanceReading(baziBalance(c), locale, prefs);
+  if (ref === STRENGTH_REF) return strengthReading(c, baziBalance(c), locale, prefs);
+  if (ref === STRUCTURE_REF) return structureReading(c, baziBalance(c), locale, prefs);
+  if (ref === FAVOURABLE_REF) return favourableReading(c, baziBalance(c), locale, prefs);
+  const ph = /^bz:phase:([a-z]+)$/.exec(ref);
+  if (ph && PHASE_IDS.includes(ph[1] as PhaseId)) return phaseReading(c, baziBalance(c), ph[1] as PhaseId, locale, prefs);
   // Part 14: an interaction between pillars.
   if (ref.startsWith("bz:ix:")) {
     const ix = baziInteractions(c).find((x) => ixRef(x.id) === ref);

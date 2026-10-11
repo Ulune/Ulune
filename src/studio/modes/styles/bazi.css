@@ -315,6 +315,97 @@
   font-family: "PingFang TC", "PingFang SC", "Noto Sans CJK TC", "Noto Sans CJK SC", "Microsoft JhengHei", "Microsoft YaHei", var(--font-ui), sans-serif;
 }
 
+/* Part 15, first beside the board: the five phases as bars, then the strength, structure and favourable phases. */
+.ulune-bz-bal-h {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.ulune-bz-how {
+  min-height: 28px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font: 400 11.5px/1.2 var(--font-ui);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-fg-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.ulune-bz-how:hover,
+.ulune-bz-how[aria-pressed="true"] {
+  color: var(--color-fg);
+}
+.ulune-bz-bars {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 var(--space-2);
+}
+.ulune-bz-bar {
+  display: grid;
+  grid-template-columns: 6.5em minmax(0, 1fr) 2.2em;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  min-height: 32px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  color: var(--color-fg-muted);
+  text-align: left;
+  font: 400 13px/1.2 var(--font-ui);
+}
+.ulune-bz-bar.is-dm .ulune-bz-bar-label {
+  color: var(--color-fg);
+  font-weight: 600;
+}
+.ulune-bz-bar.is-on,
+.ulune-bz-bar:hover {
+  background: var(--color-bg-subtle);
+}
+.ulune-bz-bar:focus-visible,
+.ulune-bz-how:focus-visible {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 1px;
+}
+.ulune-bz-bar-label :lang(zh) {
+  font-family: "PingFang TC", "PingFang SC", "Noto Sans CJK TC", "Noto Sans CJK SC", "Microsoft JhengHei", "Microsoft YaHei", var(--font-ui), sans-serif;
+}
+.ulune-bz-bar-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-bg-subtle);
+  overflow: hidden;
+}
+.ulune-bz-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ph);
+}
+.ulune-bz-bar-n {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg);
+}
+.ulune-bz-sum {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-border);
+}
+.ulune-bz-sumrow-k {
+  flex: none;
+  color: var(--color-fg-muted);
+}
+.ulune-bz-sumrow-v {
+  min-width: 0;
+  text-align: right;
+}
+
 /* The Ten Gods beside the board. */
 .ulune-bz-h {
   margin: 0 0 var(--space-2);

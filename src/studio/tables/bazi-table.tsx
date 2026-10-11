@@ -6,7 +6,7 @@ import { TEN_GODS, type BaziChart } from "@/lib/chinese/bazi";
 import { EMPTY_REF, PILLAR_WORD, godRef, ixRef, ixStatus, naYinRef, stageRef, starRef, stemRef } from "@/lib/chinese/bazi-reading";
 import { INTERACTION_NAMES, baziInteractions } from "@/lib/chinese/bazi-interactions";
 import { STARS, baziSigns } from "@/lib/chinese/bazi-signs";
-import { baziTableCsv, baziTextParts, hiddenGodsLine, ixItemShort, starPlaces, stemGodName } from "@/lib/chinese/bazi-table";
+import { balanceRows, baziTableCsv, baziTextParts, hiddenGodsLine, ixItemShort, starPlaces, stemGodName } from "@/lib/chinese/bazi-table";
 import { partRows } from "@/lib/csv";
 import { useI18n } from "@/lib/i18n/locale";
 import { DataTable } from "@/studio/tables/DataTable";
@@ -27,6 +27,7 @@ export function BaziTable({ c, name = "", selectedId, onSelect }: { c: BaziChart
   const csvOf = (kinds: string[]) => () => partRows(baziTableCsv(c), kinds);
   const signs = baziSigns(c);
   const interactions = baziInteractions(c);
+  const bal = balanceRows(c, locale, prefs);
   const pick = (id: string, label: string) => (
     <button type="button" className="ulune-zk-table-pick" onClick={() => onSelect(id)}>
       {label}
@@ -193,6 +194,47 @@ export function BaziTable({ c, name = "", selectedId, onSelect }: { c: BaziChart
         </DataTable>
       ) : (
         <p className="text-sm text-fg-muted">{w("bzIxNone")}</p>
+      ),
+    },
+    {
+      id: "balance",
+      label: w("bzPartBalance"),
+      hint: w("bzPartBalanceHint"),
+      copyText: partText("balance"),
+      table: csvOf(["phase", "analysis"]),
+      children: (
+        <>
+          <DataTable className="ulune-zk-tbl">
+            <thead>
+              <tr>
+                <th data-col="phase">{w("bzPhase")}</th>
+                <th>{w("bzPointsCol")}</th>
+                <th>{w("bzShareCol")}</th>
+                <th>{w("bzToDm")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bal.phases.map((p, i) => (
+                <tr key={i} data-testid={`bazi-phaserow-${i}`}>
+                  <th scope="row">{p.phase}</th>
+                  <td>{p.points}</td>
+                  <td>{p.share}</td>
+                  <td>{p.family}</td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+          <DataTable className="ulune-zk-tbl">
+            <tbody>
+              {bal.summary.map(([k, v], i) => (
+                <tr key={i} data-testid={`bazi-sumrow-${i}`}>
+                  <th scope="row">{k}</th>
+                  <td>{v}</td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </>
       ),
     },
   ];

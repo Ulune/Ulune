@@ -4,7 +4,9 @@
  * hidden stems with theirs, and how often each god stands in the chart;
  * from part 13 the Day Master's stage in each branch, each pillar's Na Yin,
  * the empty branches and the symbolic stars; from part 14 the interactions
- * between the pillars and whether they transform; as
+ * between the pillars and whether they transform; from part 15 the phases'
+ * count, the strength and its tests, the structure and the favourable
+ * phases; as
  * text for Copy and as CSV in the tables' common shape (a section column,
  * ids rather than words).
  */
@@ -12,7 +14,11 @@ import { BRANCHES, SIXTY, STEMS } from "./names";
 import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord } from "./words";
 import { DAY_MASTER_NAME, TEN_GODS, tenGodById, type BaziChart, type BaziPillar } from "./bazi";
-import { PILLAR_WORD, ixStatus } from "./bazi-reading";
+import { PILLAR_WORD, fmtPoints, fmtShare, ixStatus, phaseList, strengthWord } from "./bazi-reading";
+import { PHASES } from "./names";
+import { STRUCTURE_NAMES, baziBalance } from "./bazi-balance";
+import { said } from "./zodiac-texts";
+import { FAMILY_NAMES } from "./bazi-texts";
 import { INTERACTION_NAMES, baziInteractions, type Interaction } from "./bazi-interactions";
 import { STARS, baziSigns, type PillarSigns } from "./bazi-signs";
 import { PLACE_WORD } from "./zodiac-places";
@@ -60,7 +66,40 @@ export function baziTextParts(c: BaziChart, locale: string, prefs: Shown, name =
     { id: "signs", lines: [cnWord(locale, "bzPartSigns"), ...signLines] },
     { id: "stars", lines: [cnWord(locale, "bzStarsHead"), ...starLines] },
     { id: "interactions", lines: [cnWord(locale, "bzPartIx"), ...ixLines(c, locale, prefs, colon)] },
+    { id: "balance", lines: [cnWord(locale, "bzPartBalance"), ...balanceLines(c, locale, prefs, colon)] },
   ];
+}
+
+/** The analysis as rows: [label, value], for the text, the table and its tests. */
+export function balanceRows(c: BaziChart, locale: string, prefs: Shown): { phases: { phase: string; points: string; share: string; family: string }[]; summary: [string, string][] } {
+  const b = baziBalance(c);
+  const yes = (m: boolean) => cnWord(locale, m ? "bzYes" : "bzNo");
+  const summary: [string, string][] = [
+    [cnWord(locale, "bzStrength"), `${strengthWord(b, locale)} (${b.score})`],
+    [cnWord(locale, "bzTestSeason"), yes(b.tests.season.met)],
+    [cnWord(locale, "bzTestRoot"), yes(b.tests.root.met)],
+    [cnWord(locale, "bzTestSupport"), yes(b.tests.support.met)],
+    [cnWord(locale, "bzSupportShare"), fmtShare(b.support, locale)],
+    [cnWord(locale, "bzStructure"), chineseLabel(STRUCTURE_NAMES[b.structure.id], locale, prefs).text],
+  ];
+  if (b.special) summary.push([cnWord(locale, "bzSpecialFlag"), chineseLabel(STRUCTURE_NAMES[b.special], locale, prefs).text]);
+  summary.push([cnWord(locale, "bzFavBalance"), phaseList(b.favourable.good, locale)]);
+  summary.push([cnWord(locale, "bzUnfav"), phaseList(b.favourable.bad, locale)]);
+  summary.push([cnWord(locale, "bzFavClimate"), b.favourable.climate ? phaseList([b.favourable.climate], locale) : cnWord(locale, "bzClimateNone")]);
+  return {
+    phases: b.phases.map((p) => ({
+      phase: chineseLabel(PHASES.find((x) => x.id === p.phase)!, locale, prefs).text,
+      points: fmtPoints(p.points, locale),
+      share: fmtShare(p.share, locale),
+      family: said(FAMILY_NAMES[p.family], locale),
+    })),
+    summary,
+  };
+}
+
+function balanceLines(c: BaziChart, locale: string, prefs: Shown, colon: string): string[] {
+  const r = balanceRows(c, locale, prefs);
+  return [...r.phases.map((p) => `${p.phase}${colon}${p.points} · ${p.share} · ${p.family}`), ...r.summary.map(([k, v]) => `${k}${colon}${v}`)];
 }
 
 /** A stem or branch an interaction joins, short: "卯 mǎo" or "Rabbit". */
@@ -134,5 +173,24 @@ export function baziTableCsv(c: BaziChart): string {
       (ix.conditions ?? []).map((x) => `${x.id}:${x.met ? 1 : 0}`).join("|"),
     ]);
   }
+  const b = baziBalance(c);
+  rows.push([]);
+  rows.push(["phase", "id", "points", "share", "family"]);
+  for (const p of b.phases) rows.push(["phase", p.phase, String(p.points), p.share.toFixed(3), p.family]);
+  rows.push([]);
+  rows.push(["analysis", "field", "value"]);
+  rows.push(["analysis", "total", String(b.total)]);
+  rows.push(["analysis", "support", b.support.toFixed(3)]);
+  rows.push(["analysis", "inSeason", b.tests.season.met ? "1" : "0"]);
+  rows.push(["analysis", "rooted", b.tests.root.met ? "1" : "0"]);
+  rows.push(["analysis", "supported", b.tests.support.met ? "1" : "0"]);
+  rows.push(["analysis", "score", String(b.score)]);
+  rows.push(["analysis", "strength", b.strength]);
+  rows.push(["analysis", "structure", b.structure.id]);
+  rows.push(["analysis", "structureVia", b.structure.via]);
+  rows.push(["analysis", "special", b.special ?? ""]);
+  rows.push(["analysis", "favourable", b.favourable.good.join("|")]);
+  rows.push(["analysis", "unfavourable", b.favourable.bad.join("|")]);
+  rows.push(["analysis", "climate", b.favourable.climate ?? ""]);
   return rows.map((r) => r.map(cell).join(",")).join("\n");
 }

@@ -17,6 +17,10 @@
  *     day and hour's clash and the year and month's self-punishment, side
  *     by side; choosing the clash outlines the day and hour branches and
  *     reads it;
+ *   - (part 15) beside the board, the five phases (Fire and Water 2.7, Wood
+ *     0.3), a weak Day Master, the Seven Killings structure, Earth and Metal
+ *     favourable with Water by climate; the strength's reading shows its
+ *     tests, the method is one tap away;
  *   - the table; Settings' "Year to hour" followed at once;
  *   - nothing sent while the page works it out; nothing scrolls sideways.
  */
@@ -35,6 +39,12 @@ const WORDS = {
     empty: "Tiger · Rabbit",
     side: "side by side",
     clash: "opposite branches",
+    bars: { wood: "0.3", fire: "2.7", earth: "1.2", metal: "2.1", water: "2.7" },
+    strength: "Weak",
+    structure: "Seven Killings structure",
+    fav: "Earth, Metal · by climate Water",
+    tests: "born out of season",
+    method: "count twice",
   },
   fr: {
     heading: "Traditions chinoises",
@@ -47,6 +57,12 @@ const WORDS = {
     empty: "Tigre · Lapin",
     side: "côte à côte",
     clash: "branches face à face",
+    bars: { wood: "0,3", fire: "2,7", earth: "1,2", metal: "2,1", water: "2,7" },
+    strength: "Faible",
+    structure: "Structure des Sept Tueurs",
+    fav: "Terre, Métal · par le climat Eau",
+    tests: "né hors saison",
+    method: "comptent double",
   },
 };
 
@@ -154,6 +170,29 @@ async function run(width, lang) {
     if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
     await assertNoOverflow(page);
 
+    // Part 15: the five phases, the strength, the structure, the favourable phases.
+    const bal = await page.evaluate(() => ({
+      bars: Object.fromEntries([...document.querySelectorAll("[data-testid^=bazi-phase-]")].map((b) => [b.getAttribute("data-phase"), b.querySelector(".ulune-bz-bar-n").textContent.trim()])),
+      dm: document.querySelector(".ulune-bz-bar.is-dm")?.getAttribute("data-phase"),
+      strength: document.querySelector("[data-testid=bazi-strength] .ulune-bz-sumrow-v")?.textContent.trim(),
+      structure: document.querySelector("[data-testid=bazi-structure] .ulune-bz-sumrow-v")?.textContent.trim(),
+      fav: document.querySelector("[data-testid=bazi-favourable] .ulune-bz-sumrow-v")?.textContent.trim(),
+    }));
+    if (JSON.stringify(bal.bars) !== JSON.stringify(w.bars)) throw new Error(`${label}: the phases ${JSON.stringify(bal.bars)}`);
+    if (bal.dm !== "metal") throw new Error(`${label}: the Day Master's phase ${bal.dm}`);
+    if (bal.strength !== w.strength || bal.structure !== w.structure || bal.fav !== w.fav) throw new Error(`${label}: the analysis ${JSON.stringify(bal)}`);
+    await page.getByTestId("bazi-strength").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.getByTestId("bazi-strength").click();
+    if (width < 1024) await clickDockTab(page, "reading");
+    await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.tests, { timeout: 8000 });
+    if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
+    await page.getByTestId("bazi-balance-how").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.getByTestId("bazi-balance-how").click();
+    if (width < 1024) await clickDockTab(page, "reading");
+    await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.method, { timeout: 8000 });
+    if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
+    await assertNoOverflow(page);
+
     // The table: four pillars, ten gods.
     await setView(page, "table");
     await page.getByTestId("bazi-table").waitFor({ timeout: 10000 });
@@ -167,6 +206,9 @@ async function run(width, lang) {
     if (starRows !== 5) throw new Error(`${label}: ${starRows} stars in the table`);
     const ixRows = await page.locator("[data-testid^=bazi-ixrow-]").count();
     if (ixRows !== 2) throw new Error(`${label}: ${ixRows} interactions in the table`);
+    const phaseRows = await page.locator("[data-testid^=bazi-phaserow-]").count();
+    const sumRows = await page.locator("[data-testid^=bazi-sumrow-]").count();
+    if (phaseRows !== 5 || sumRows !== 9) throw new Error(`${label}: the balance's table ${phaseRows} phases, ${sumRows} lines`);
     await assertNoOverflow(page);
     await setView(page, "wheel");
     await page.getByTestId("bazi-board").waitFor({ timeout: 10000 });

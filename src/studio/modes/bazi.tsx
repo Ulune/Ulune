@@ -7,7 +7,29 @@ import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
 import { DAY_MASTER_NAME, TEN_GODS, baziChart, tenGodById, type BaziChart, type BaziPillar } from "@/lib/chinese/bazi";
 import { DAY_MASTER_IMAGES } from "@/lib/chinese/bazi-texts";
-import { EMPTY_REF, PILLAR_WORD, baziReading, branchCellRef, godRef, hiddenRef, ixRef, ixStatus, naYinRef, stageRef, starRef, stemRef } from "@/lib/chinese/bazi-reading";
+import {
+  BALANCE_REF,
+  EMPTY_REF,
+  FAVOURABLE_REF,
+  PILLAR_WORD,
+  STRENGTH_REF,
+  STRUCTURE_REF,
+  baziReading,
+  branchCellRef,
+  fmtPoints,
+  godRef,
+  hiddenRef,
+  ixRef,
+  ixStatus,
+  naYinRef,
+  phaseList,
+  phaseRef,
+  stageRef,
+  starRef,
+  stemRef,
+  strengthWord,
+} from "@/lib/chinese/bazi-reading";
+import { STRUCTURE_NAMES, baziBalance, type BaziBalance } from "@/lib/chinese/bazi-balance";
 import { INTERACTION_NAMES, baziInteractions, interactionTone, type Interaction } from "@/lib/chinese/bazi-interactions";
 import { STARS, baziSigns, type BaziSigns, type PillarSigns } from "@/lib/chinese/bazi-signs";
 import { PLACE_WORD } from "@/lib/chinese/zodiac-places";
@@ -41,12 +63,16 @@ import "@/studio/modes/styles/bazi.css";
  * Part 14 adds under the board the interactions between the pillars
  * (combinations, clashes, harms, punishments, destructions), each saying
  * whether it transforms; choosing one outlines the cells it joins.
+ * Part 15 adds, first beside the board, the five phases counted (with the
+ * method one tap away), the Day Master's strength, the structure and the
+ * favourable phases, each opening the reading that shows its working.
  */
 
 export type BaziState = {
   bazi: BaziChart | null;
   signs: BaziSigns | null;
   interactions: Interaction[];
+  balance: BaziBalance | null;
   enabled: boolean;
 };
 
@@ -281,6 +307,80 @@ function StarsList({ c, signs }: { c: BaziChart; signs: BaziSigns }) {
   );
 }
 
+/** Beside the board, first: the five phases counted, then the strength, the structure and the favourable phases. */
+function BalancePanel({ b }: { b: BaziBalance }) {
+  const { locale } = useI18n();
+  const prefs = useChinesePrefs();
+  const w = useWheelView();
+  const max = Math.max(...b.phases.map((p) => p.points), 1);
+  const row = (ref: string, testId: string, k: string, v: string) => (
+    <li>
+      <button
+        type="button"
+        className={cn("ulune-bz-godrow ulune-bz-sumrow", w.selectedId === ref && "is-on")}
+        data-testid={testId}
+        aria-pressed={w.selectedId === ref}
+        onClick={() => w.choose(ref)}
+        {...previewProps(ref)}
+      >
+        <span className="ulune-bz-sumrow-k">{k}</span>
+        <span className="ulune-bz-sumrow-v">{v}</span>
+      </button>
+    </li>
+  );
+  const fav = phaseList(b.favourable.good, locale);
+  const climate = b.favourable.climate ? ` · ${cnWord(locale, "bzFavClimate").toLowerCase()} ${phaseList([b.favourable.climate], locale)}` : "";
+  return (
+    <section className="ulune-bz-gods ulune-bz-bal" aria-labelledby="bz-bal-h" data-testid="bazi-balance">
+      <h2 id="bz-bal-h" className="ulune-bz-h ulune-bz-bal-h">
+        <span>{cnWord(locale, "bzBalHead")}</span>
+        <button type="button" className="ulune-bz-how" data-testid="bazi-balance-how" aria-pressed={w.selectedId === BALANCE_REF} onClick={() => w.choose(BALANCE_REF)}>
+          {cnWord(locale, "bzBalHow")}
+        </button>
+      </h2>
+      <ul className="ulune-bz-bars">
+        {b.phases.map((p) => {
+          const ref = phaseRef(p.phase);
+          const label = chineseLabel(PHASES.find((x) => x.id === p.phase)!, locale, { ...prefs, show: prefs.show === "full" ? "full" : "names" });
+          return (
+            <li key={p.phase}>
+              <button
+                type="button"
+                className={cn("ulune-bz-bar", w.selectedId === ref && "is-on", p.phase === b.dmPhase && "is-dm")}
+                data-phase={p.phase}
+                data-testid={`bazi-phase-${p.phase}`}
+                aria-pressed={w.selectedId === ref}
+                aria-label={`${label.name}: ${cnWord(locale, "bzPoints", { n: fmtPoints(p.points, locale), total: fmtPoints(b.total, locale) })}`}
+                onClick={() => w.choose(ref)}
+                {...previewProps(ref)}
+              >
+                <span className="ulune-bz-bar-label">
+                  {label.hanzi ? <span lang={hanziLang(prefs.script)}>{label.hanzi} </span> : null}
+                  {label.name}
+                </span>
+                <span className="ulune-bz-bar-track" aria-hidden>
+                  <span className="ulune-bz-bar-fill" style={{ width: `${(p.points / max) * 100}%` }} />
+                </span>
+                <span className="ulune-bz-bar-n">{fmtPoints(p.points, locale)}</span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <ul className="ulune-bz-sum">
+        {row(STRENGTH_REF, "bazi-strength", cnWord(locale, "bzStrength"), strengthWord(b, locale))}
+        {row(
+          STRUCTURE_REF,
+          "bazi-structure",
+          cnWord(locale, "bzStructure"),
+          `${chineseLabel(STRUCTURE_NAMES[b.structure.id], locale, { ...prefs, show: "names" }).name}${b.special ? ` · ${cnWord(locale, "bzSpecialFlag").toLowerCase()} ${chineseLabel(STRUCTURE_NAMES[b.special], locale, { ...prefs, show: "names" }).name}` : ""}`,
+        )}
+        {row(FAVOURABLE_REF, "bazi-favourable", cnWord(locale, "bzFav"), `${fav}${climate}`)}
+      </ul>
+    </section>
+  );
+}
+
 /** Under the board: the interactions between the pillars, the meetings first. */
 function InteractionsList({ list }: { list: Interaction[] }) {
   const { locale } = useI18n();
@@ -407,6 +507,7 @@ function BaziFigure() {
         <InteractionsList list={interactions} />
       </div>
       <div className="ulune-bz-side">
+        {data?.balance ? <BalancePanel b={data.balance} /> : null}
         <GodsList c={c} />
         {data?.signs ? <StarsList c={c} signs={data.signs} /> : null}
       </div>
@@ -436,6 +537,28 @@ function BaziHello() {
             <span>{dm.text}</span>
           </button>
         </li>
+        {data?.balance ? (
+          <>
+            <li>
+              <button type="button" className="ulune-zk-hello-row" data-testid="bazi-hello-strength" onClick={() => w.pick(STRENGTH_REF)}>
+                <b>{cnWord(locale, "bzStrength")}</b>
+                <span>{strengthWord(data.balance, locale)}</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" className="ulune-zk-hello-row" data-testid="bazi-hello-structure" onClick={() => w.pick(STRUCTURE_REF)}>
+                <b>{cnWord(locale, "bzStructure")}</b>
+                <span>{chineseLabel(STRUCTURE_NAMES[data.balance.structure.id], locale, prefs).text}</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" className="ulune-zk-hello-row" data-testid="bazi-hello-favourable" onClick={() => w.pick(FAVOURABLE_REF)}>
+                <b>{cnWord(locale, "bzFav")}</b>
+                <span>{phaseList(data.balance.favourable.good, locale)}</span>
+              </button>
+            </li>
+          </>
+        ) : null}
       </ol>
       <p className="ulune-zk-hello-p">{said(DAY_MASTER_IMAGES[c.dayMaster]!, locale)}</p>
       {c.timeUnknown ? <p className="ulune-zk-hello-p">{cnWord(locale, "bzNoHour")}</p> : null}
@@ -483,8 +606,9 @@ function useBaziRuntime(): ModeRuntime<BaziState> {
   );
   const signs = useMemo(() => (bazi ? baziSigns(bazi) : null), [bazi]);
   const interactions = useMemo(() => (bazi ? baziInteractions(bazi) : []), [bazi]);
+  const balance = useMemo(() => (bazi ? baziBalance(bazi) : null), [bazi]);
   const reading = useMemo(() => (bazi ? baziReading(bazi, selectedId, locale, prefs) : null), [bazi, selectedId, locale, prefs]);
-  const data = useMemo(() => ({ bazi, signs, interactions, enabled }), [bazi, signs, interactions, enabled]);
+  const data = useMemo(() => ({ bazi, signs, interactions, balance, enabled }), [bazi, signs, interactions, balance, enabled]);
   return useMemo(() => ({ data, reading }), [data, reading]);
 }
 
