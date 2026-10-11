@@ -1,7 +1,9 @@
 /*
  * BaZi's table (languages plan, part 12; its full form with every layer is
  * part 17): the four pillars with each stem's god, each branch and its
- * hidden stems with theirs, and how often each god stands in the chart; as
+ * hidden stems with theirs, and how often each god stands in the chart;
+ * from part 13 the Day Master's stage in each branch, each pillar's Na Yin,
+ * the empty branches and the symbolic stars; as
  * text for Copy and as CSV in the tables' common shape (a section column,
  * ids rather than words).
  */
@@ -10,6 +12,8 @@ import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord } from "./words";
 import { DAY_MASTER_NAME, TEN_GODS, tenGodById, type BaziChart, type BaziPillar } from "./bazi";
 import { PILLAR_WORD } from "./bazi-reading";
+import { STARS, baziSigns, type PillarSigns } from "./bazi-signs";
+import { PLACE_WORD } from "./zodiac-places";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 
@@ -38,10 +42,27 @@ export function baziTextParts(c: BaziChart, locale: string, prefs: Shown, name =
       `${cnWord(locale, PILLAR_WORD[p.id])}${p.uncertain ? " ~" : ""}${colon}${chineseLabel(SIXTY[p.pillar.cycle]!, locale, prefs).text} · ${stemGodName(p, locale, prefs)} · ${cnWord(locale, "zkHidden")} ${hiddenGodsLine(p, locale, prefs)}`,
   );
   const gods = TEN_GODS.map((g) => `${chineseLabel(g, locale, prefs).text}${colon}${c.gods[g.id].shown} · ${c.gods[g.id].hidden}`);
+  const signs = baziSigns(c);
+  const signLines = signs.pillars.map(
+    (s) =>
+      `${cnWord(locale, PILLAR_WORD[s.place])}${colon}${cnWord(locale, "bzStage")} ${chineseLabel(s.stage, locale, prefs).text} · ${cnWord(locale, "zkNaYin")} ${chineseLabel(s.naYin, locale, prefs).text}${s.empty ? ` · ${cnWord(locale, "bzEmptyBadge")}` : ""}`,
+  );
+  const [a, b] = signs.empty;
+  signLines.push(`${cnWord(locale, "bzEmptyHead")}${colon}${chineseLabel(BRANCHES[a]!, locale, prefs).text} · ${chineseLabel(BRANCHES[b]!, locale, prefs).text}`);
+  const starLines = signs.stars.length
+    ? signs.stars.map((h) => `${chineseLabel(STARS.find((x) => x.id === h.id)!, locale, prefs).text}${colon}${starPlaces(h.places, locale)}`)
+    : [cnWord(locale, "bzStarsNone")];
   return [
     { id: "pillars", lines: [`${name ? `${name} · ` : ""}${cnWord(locale, "bzPartPillars")}`, ...pillars] },
     { id: "gods", lines: [`${cnWord(locale, "bzPartGods")} (${cnWord(locale, "bzGodsKey")})`, ...gods] },
+    { id: "signs", lines: [cnWord(locale, "bzPartSigns"), ...signLines] },
+    { id: "stars", lines: [cnWord(locale, "bzStarsHead"), ...starLines] },
   ];
+}
+
+/** The pillars a star falls in, short: "Year · Month". */
+export function starPlaces(places: readonly PillarSigns["place"][], locale: string): string {
+  return places.map((p) => cnWord(locale, PLACE_WORD[p])).join(" · ");
 }
 
 export function baziTableCsv(c: BaziChart): string {
@@ -70,5 +91,13 @@ export function baziTableCsv(c: BaziChart): string {
   rows.push([]);
   rows.push(["god", "id", "family", "shown", "hidden"]);
   for (const g of TEN_GODS) rows.push(["god", g.id, g.family, String(c.gods[g.id].shown), String(c.gods[g.id].hidden)]);
+  const signs = baziSigns(c);
+  rows.push([]);
+  rows.push(["signs", "place", "stage", "stageHanzi", "naYin", "naYinPhase", "empty"]);
+  for (const s of signs.pillars) rows.push(["signs", s.place, s.stage.id, s.stage.hant, s.naYin.hant, s.naYin.phase, s.empty ? "1" : "0"]);
+  rows.push(["signs", "emptyBranches", signs.empty.map((x) => BRANCHES[x]!.id).join("|")]);
+  rows.push([]);
+  rows.push(["star", "id", "places"]);
+  for (const h of signs.stars) rows.push(["star", h.id, h.places.join("|")]);
   return rows.map((r) => r.map(cell).join(",")).join("\n");
 }

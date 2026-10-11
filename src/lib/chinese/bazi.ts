@@ -63,7 +63,7 @@ export const DAY_MASTER_NAME: ChineseName = { hant: "日主", hans: "日主", pi
 const phaseIndex = (p: PhaseId) => PHASES.findIndex((x) => x.id === p);
 
 /** The family of a phase against the Day Master's, by the generating cycle (Wood → Fire → Earth → Metal → Water). */
-function familyOf(dm: PhaseId, other: PhaseId): GodFamily {
+export function familyOf(dm: PhaseId, other: PhaseId): GodFamily {
   const step = (phaseIndex(other) - phaseIndex(dm) + 5) % 5;
   // 0 the same; 1 the one it produces; 2 the one it controls; 3 the one that controls it; 4 the one that produces it.
   return (["peer", "output", "wealth", "power", "resource"] as const)[step]!;

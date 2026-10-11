@@ -8,6 +8,11 @@
  *     Officer, Rob Wealth), the hidden stems (3, 2, 2, 2);
  *   - the Ten Gods beside the board, the Companion absent;
  *   - a stem's reading says why it is its god; a hidden stem's says its qi;
+ *   - (part 13) under each column the Day Master's life stage and the Na
+ *     Yin; the stars (Nobleman on the year and month, Golden Carriage and
+ *     Heavenly Virtue on the day, General on the month, Travelling Horse on
+ *     the hour), no empty pillar; a stage's reading says why, a star's how
+ *     it is found; the stars panel and the empty branches;
  *   - the table; Settings' "Year to hour" followed at once;
  *   - nothing sent while the page works it out; nothing scrolls sideways.
  */
@@ -15,8 +20,26 @@ import { join } from "node:path";
 import { FIXTURE_A, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, gotoApp, launch, setLang, setView } from "./_lib.mjs";
 
 const WORDS = {
-  en: { heading: "Chinese traditions", gods: { hour: "Eating God", day: "Day Master", month: "Hurting Officer", year: "Rob Wealth" }, why: "produces Water", qi: "Residual qi" },
-  fr: { heading: "Traditions chinoises", gods: { hour: "Dieu nourricier", day: "Maître du jour", month: "Officier blessant", year: "Rival" }, why: "produit l’Eau", qi: "Qi résiduel" },
+  en: {
+    heading: "Chinese traditions",
+    gods: { hour: "Eating God", day: "Day Master", month: "Hurting Officer", year: "Rob Wealth" },
+    why: "produces Water",
+    qi: "Residual qi",
+    stages: { hour: "Death", day: "Bath", month: "Sickness", year: "Sickness" },
+    stageWhy: "being yin, goes backward",
+    starHow: "of the Wood trine",
+    empty: "Tiger · Rabbit",
+  },
+  fr: {
+    heading: "Traditions chinoises",
+    gods: { hour: "Dieu nourricier", day: "Maître du jour", month: "Officier blessant", year: "Rival" },
+    why: "produit l’Eau",
+    qi: "Qi résiduel",
+    stages: { hour: "Mort", day: "Bain", month: "Maladie", year: "Maladie" },
+    stageWhy: "étant yin, recule",
+    starHow: "du trigone du Bois",
+    empty: "Tigre · Lapin",
+  },
 };
 
 async function run(width, lang) {
@@ -74,6 +97,37 @@ async function run(width, lang) {
     if (width < 1024) await clickDockTab(page, "reading");
     await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.qi, { timeout: 8000 });
 
+    // Part 13: the stages and Na Yin under each column, the stars, no empty pillar.
+    const signs = await page.evaluate(() => ({
+      stages: Object.fromEntries([...document.querySelectorAll("[data-testid^=bazi-stage-]")].map((g) => [g.getAttribute("data-testid").slice(11), g.querySelector(".ulune-bz-sign-v").textContent.trim()])),
+      nayin: document.querySelectorAll("[data-testid^=bazi-nayin-]").length,
+      chips: [...document.querySelectorAll("[data-testid^=bazi-star-]")].map((g) => g.getAttribute("data-testid").slice(10)).sort(),
+      empty: document.querySelectorAll("[data-testid^=bazi-empty-]").length,
+      rows: [...document.querySelectorAll("[data-testid^=bazi-starrow-]")].map((g) => g.getAttribute("data-testid").slice(13)),
+      emptyRow: document.querySelector("[data-testid=bazi-empty]")?.textContent ?? "",
+    }));
+    for (const [id, st] of Object.entries(w.stages)) if (!signs.stages[id]?.endsWith(st)) throw new Error(`${label}: the ${id} stage "${signs.stages[id]}"`);
+    if (signs.nayin !== 4) throw new Error(`${label}: ${signs.nayin} Na Yin`);
+    const chips = ["day-golden-carriage", "day-heavenly-virtue", "hour-travelling-horse", "month-general", "month-nobleman", "year-nobleman"];
+    if (signs.chips.join() !== chips.join()) throw new Error(`${label}: star chips ${signs.chips}`);
+    if (signs.empty !== 0) throw new Error(`${label}: ${signs.empty} empty pillars`);
+    if (signs.rows.join() !== "nobleman,golden-carriage,travelling-horse,general,heavenly-virtue") throw new Error(`${label}: stars ${signs.rows}`);
+    if (!signs.emptyRow.replace(/[\u3400-\u9fff] /g, "").includes(w.empty)) throw new Error(`${label}: empty branches "${signs.emptyRow}"`);
+    await assertNoOverflow(page);
+    // A stage's reading says why; a star's how it is found.
+    await page.getByTestId("bazi-stage-hour").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.getByTestId("bazi-stage-hour").click();
+    if (width < 1024) await clickDockTab(page, "reading");
+    await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.stageWhy, { timeout: 8000 }).catch(async () => {
+      throw new Error(`${label}: the hour's stage reading "${(await page.getByTestId("click-note").textContent().catch(() => "")).slice(0, 300)}"`);
+    });
+    if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
+    await page.getByTestId("bazi-star-hour-travelling-horse").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.getByTestId("bazi-star-hour-travelling-horse").click();
+    if (width < 1024) await clickDockTab(page, "reading");
+    await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.starHow, { timeout: 8000 });
+    if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
+
     // The table: four pillars, ten gods.
     await setView(page, "table");
     await page.getByTestId("bazi-table").waitFor({ timeout: 10000 });
@@ -81,6 +135,10 @@ async function run(width, lang) {
     if (rows !== 4) throw new Error(`${label}: ${rows} pillars in the table`);
     const hidCell = await page.getByTestId("bazi-hidden-cell-hour").innerText();
     if (!hidCell.includes(w.gods.year)) throw new Error(`${label}: the hour's hidden stems "${hidCell}"`);
+    const signRows = await page.locator("[data-testid^=bazi-signrow-]").count();
+    if (signRows !== 5) throw new Error(`${label}: ${signRows} rows of stages and Na Yin`);
+    const starRows = await page.locator("[data-testid^=bazi-starrow-t-]").count();
+    if (starRows !== 5) throw new Error(`${label}: ${starRows} stars in the table`);
     await assertNoOverflow(page);
     await setView(page, "wheel");
     await page.getByTestId("bazi-board").waitFor({ timeout: 10000 });

@@ -7,7 +7,9 @@ import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
 import { DAY_MASTER_NAME, TEN_GODS, baziChart, tenGodById, type BaziChart, type BaziPillar } from "@/lib/chinese/bazi";
 import { DAY_MASTER_IMAGES } from "@/lib/chinese/bazi-texts";
-import { PILLAR_WORD, baziReading, branchCellRef, godRef, hiddenRef, stemRef } from "@/lib/chinese/bazi-reading";
+import { EMPTY_REF, PILLAR_WORD, baziReading, branchCellRef, godRef, hiddenRef, naYinRef, stageRef, starRef, stemRef } from "@/lib/chinese/bazi-reading";
+import { STARS, baziSigns, type BaziSigns, type PillarSigns } from "@/lib/chinese/bazi-signs";
+import { PLACE_WORD } from "@/lib/chinese/zodiac-places";
 import { said } from "@/lib/chinese/zodiac-texts";
 import { hanziLang } from "@/lib/chinese/animal-chars";
 import { previewProps } from "@/lib/depth/preview-bus";
@@ -32,11 +34,14 @@ import "@/studio/modes/styles/bazi.css";
  * saying its phase in words. Beside the board, the Ten Gods with how often
  * each stands in the chart. Every cell opens its reading. Worked out here
  * from the cast chart, on the reader's clock and day boundary; nothing is
- * sent. The life stages, Na Yin, empty branches and stars come with part 13.
+ * sent. Part 13 adds under each column the Day Master's life stage in its
+ * branch, the pillar's Na Yin, an empty branch's mark and the symbolic stars
+ * that fall there; beside the board, the stars and the empty branches.
  */
 
 export type BaziState = {
   bazi: BaziChart | null;
+  signs: BaziSigns | null;
   enabled: boolean;
 };
 
@@ -56,7 +61,7 @@ function Term({ name, big }: { name: { name: string; pinyin: string | null; hanz
   );
 }
 
-function Column({ p }: { p: BaziPillar }) {
+function Column({ p, signs }: { p: BaziPillar; signs: PillarSigns | undefined }) {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const w = useWheelView();
@@ -133,6 +138,140 @@ function Column({ p }: { p: BaziPillar }) {
           );
         })}
       </ul>
+      {signs ? <Signs place={p.id} s={signs} /> : null}
+    </section>
+  );
+}
+
+/** Under a column: the Day Master's stage in its branch, its Na Yin, an empty branch, its stars. */
+function Signs({ place, s }: { place: BaziPillar["id"]; s: PillarSigns }) {
+  const { locale } = useI18n();
+  const prefs = useChinesePrefs();
+  const w = useWheelView();
+  const stage = chineseLabel(s.stage, locale, prefs);
+  const ny = chineseLabel(s.naYin, locale, prefs);
+  const sRef = stageRef(place);
+  const nRef = naYinRef(place);
+  return (
+    <div className="ulune-bz-signs">
+      <button
+        type="button"
+        className={cn("ulune-bz-sign", w.selectedId === sRef && "is-on")}
+        data-testid={`bazi-stage-${place}`}
+        data-stage={s.stage.id}
+        aria-pressed={w.selectedId === sRef}
+        onClick={() => w.choose(sRef)}
+        {...previewProps(sRef)}
+      >
+        <span className="ulune-bz-sign-k">{cnWord(locale, "bzStage")}</span>
+        <span className="ulune-bz-sign-v">
+          {stage.hanzi ? <span lang={hanziLang(prefs.script)}>{stage.hanzi} </span> : null}
+          {stage.name}
+        </span>
+      </button>
+      <button
+        type="button"
+        className={cn("ulune-bz-sign", w.selectedId === nRef && "is-on")}
+        data-testid={`bazi-nayin-${place}`}
+        data-phase={s.naYin.phase}
+        aria-pressed={w.selectedId === nRef}
+        onClick={() => w.choose(nRef)}
+        {...previewProps(nRef)}
+      >
+        <span className="ulune-bz-sign-k">{cnWord(locale, "zkNaYin")}</span>
+        <span className="ulune-bz-sign-v">
+          {ny.hanzi ? <span lang={hanziLang(prefs.script)}>{ny.hanzi} </span> : null}
+          {ny.name}
+        </span>
+      </button>
+      {s.empty ? (
+        <button
+          type="button"
+          className={cn("ulune-bz-emptymark", w.selectedId === EMPTY_REF && "is-on")}
+          data-testid={`bazi-empty-${place}`}
+          onClick={() => w.choose(EMPTY_REF)}
+        >
+          {cnWord(locale, "bzEmptyBadge")}
+        </button>
+      ) : null}
+      {s.stars.length ? (
+        <ul className="ulune-bz-chips" aria-label={cnWord(locale, "bzStarsHead")}>
+          {s.stars.map((id) => {
+            const ref = starRef(id);
+            return (
+              <li key={id}>
+                <button
+                  type="button"
+                  className={cn("ulune-bz-chip", w.selectedId === ref && "is-on")}
+                  data-testid={`bazi-star-${place}-${id}`}
+                  aria-pressed={w.selectedId === ref}
+                  onClick={() => w.choose(ref)}
+                >
+                  {chineseLabel(STARS.find((x) => x.id === id)!, locale, { ...prefs, show: "names" }).name}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
+/** Beside the board, under the gods: the stars in the chart and the empty branches. */
+function StarsList({ c, signs }: { c: BaziChart; signs: BaziSigns }) {
+  const { locale } = useI18n();
+  const prefs = useChinesePrefs();
+  const w = useWheelView();
+  const [a, b] = signs.empty;
+  const br = (i: number) => {
+    const l = chineseLabel(BRANCHES[i]!, locale, prefs);
+    return [l.hanzi, l.name].filter(Boolean).join(" ");
+  };
+  const order = c.pillars.map((p) => p.id);
+  return (
+    <section className="ulune-bz-gods ulune-bz-stars" aria-labelledby="bz-stars-h" data-testid="bazi-stars">
+      <h2 id="bz-stars-h" className="ulune-bz-h">
+        {cnWord(locale, "bzStarsHead")}
+      </h2>
+      {signs.stars.length ? (
+        <ul>
+          {signs.stars.map((hit) => {
+            const ref = starRef(hit.id);
+            const star = STARS.find((x) => x.id === hit.id)!;
+            return (
+              <li key={hit.id}>
+                <button
+                  type="button"
+                  className={cn("ulune-bz-godrow", w.selectedId === ref && "is-on")}
+                  data-testid={`bazi-starrow-${hit.id}`}
+                  aria-pressed={w.selectedId === ref}
+                  onClick={() => w.choose(ref)}
+                  {...previewProps(ref)}
+                >
+                  <span className="ulune-bz-godrow-name">{chineseLabel(star, locale, prefs).text}</span>
+                  <span className="ulune-bz-starrow-at">{order.filter((p) => hit.places.includes(p)).map((p) => cnWord(locale, PLACE_WORD[p])).join(" · ")}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p className="ulune-bz-none">{cnWord(locale, "bzStarsNone")}</p>
+      )}
+      <button
+        type="button"
+        className={cn("ulune-bz-godrow ulune-bz-emptyrow", w.selectedId === EMPTY_REF && "is-on")}
+        data-testid="bazi-empty"
+        aria-pressed={w.selectedId === EMPTY_REF}
+        onClick={() => w.choose(EMPTY_REF)}
+        {...previewProps(EMPTY_REF)}
+      >
+        <span className="ulune-bz-godrow-name">{cnWord(locale, "bzEmptyHead")}</span>
+        <span className="ulune-bz-starrow-at" lang={prefs.show === "full" ? hanziLang(prefs.script) : undefined}>
+          {br(a)} · {br(b)}
+        </span>
+      </button>
     </section>
   );
 }
@@ -201,10 +340,13 @@ function BaziFigure() {
         {order.map((id) => {
           if (id === "hour" && !hour) return <MissingHour key="hour" />;
           const p = cols.find((x) => x.id === id)!;
-          return <Column key={id} p={p} />;
+          return <Column key={id} p={p} signs={data?.signs?.pillars.find((x) => x.place === id)} />;
         })}
       </div>
-      <GodsList c={c} />
+      <div className="ulune-bz-side">
+        <GodsList c={c} />
+        {data?.signs ? <StarsList c={c} signs={data.signs} /> : null}
+      </div>
     </div>
   );
 }
@@ -276,8 +418,9 @@ function useBaziRuntime(): ModeRuntime<BaziState> {
         : null,
     [enabled, chart, prefs.clock, prefs.dayBoundary],
   );
+  const signs = useMemo(() => (bazi ? baziSigns(bazi) : null), [bazi]);
   const reading = useMemo(() => (bazi ? baziReading(bazi, selectedId, locale, prefs) : null), [bazi, selectedId, locale, prefs]);
-  const data = useMemo(() => ({ bazi, enabled }), [bazi, enabled]);
+  const data = useMemo(() => ({ bazi, signs, enabled }), [bazi, signs, enabled]);
   return useMemo(() => ({ data, reading }), [data, reading]);
 }
 

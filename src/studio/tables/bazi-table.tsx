@@ -1,10 +1,11 @@
-import { SIXTY } from "@/lib/chinese/names";
+import { BRANCHES, SIXTY } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
 import { TEN_GODS, type BaziChart } from "@/lib/chinese/bazi";
-import { PILLAR_WORD, godRef, stemRef } from "@/lib/chinese/bazi-reading";
-import { baziTableCsv, baziTextParts, hiddenGodsLine, stemGodName } from "@/lib/chinese/bazi-table";
+import { EMPTY_REF, PILLAR_WORD, godRef, naYinRef, stageRef, starRef, stemRef } from "@/lib/chinese/bazi-reading";
+import { STARS, baziSigns } from "@/lib/chinese/bazi-signs";
+import { baziTableCsv, baziTextParts, hiddenGodsLine, starPlaces, stemGodName } from "@/lib/chinese/bazi-table";
 import { partRows } from "@/lib/csv";
 import { useI18n } from "@/lib/i18n/locale";
 import { DataTable } from "@/studio/tables/DataTable";
@@ -12,8 +13,9 @@ import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePa
 
 /**
  * BaZi's table (languages plan, part 12; the full one with every layer is
- * part 17): the four pillars with their gods and hidden stems, and the Ten
- * Gods by how often they stand in the chart; Copy and CSV.
+ * part 17): the four pillars with their gods and hidden stems, the Ten
+ * Gods by how often they stand in the chart, and (part 13) the stages, Na
+ * Yin, empty branches and symbolic stars; Copy and CSV.
  */
 export function BaziTable({ c, name = "", selectedId, onSelect }: { c: BaziChart; name?: string; selectedId: string | null; onSelect: (id: string) => void }) {
   const { locale, t } = useI18n();
@@ -22,6 +24,12 @@ export function BaziTable({ c, name = "", selectedId, onSelect }: { c: BaziChart
   const text = () => baziTextParts(c, locale, prefs, name);
   const partText = (id: string) => () => text().find((p) => p.id === id)?.lines.join("\n") ?? "";
   const csvOf = (kinds: string[]) => () => partRows(baziTableCsv(c), kinds);
+  const signs = baziSigns(c);
+  const pick = (id: string, label: string) => (
+    <button type="button" className="ulune-zk-table-pick" onClick={() => onSelect(id)}>
+      {label}
+    </button>
+  );
   const parts: TablePart[] = [
     {
       id: "pillars",
@@ -92,6 +100,66 @@ export function BaziTable({ c, name = "", selectedId, onSelect }: { c: BaziChart
             })}
           </tbody>
         </DataTable>
+      ),
+    },
+    {
+      id: "signs",
+      label: w("bzPartSigns"),
+      hint: w("bzPartSignsHint"),
+      copyText: partText("signs"),
+      table: csvOf(["signs"]),
+      children: (
+        <DataTable className="ulune-zk-tbl" wide>
+          <thead>
+            <tr>
+              <th data-col="place">{w("zkPlace")}</th>
+              <th>{w("bzStage")}</th>
+              <th>{w("zkNaYin")}</th>
+              <th>{w("bzEmptyBadge")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {signs.pillars.map((s) => (
+              <tr key={s.place} data-testid={`bazi-signrow-${s.place}`} data-selected={selectedId === stageRef(s.place) || selectedId === naYinRef(s.place) ? "1" : undefined}>
+                <th scope="row">{w(PILLAR_WORD[s.place])}</th>
+                <td>{pick(stageRef(s.place), chineseLabel(s.stage, locale, prefs).text)}</td>
+                <td>{pick(naYinRef(s.place), chineseLabel(s.naYin, locale, prefs).text)}</td>
+                <td>{s.empty ? pick(EMPTY_REF, w("bzEmptyBadge")) : "–"}</td>
+              </tr>
+            ))}
+            <tr data-testid="bazi-signrow-empty" data-selected={selectedId === EMPTY_REF ? "1" : undefined}>
+              <th scope="row">{pick(EMPTY_REF, w("bzEmptyHead"))}</th>
+              <td colSpan={3}>{signs.empty.map((b) => chineseLabel(BRANCHES[b]!, locale, prefs).text).join(" · ")}</td>
+            </tr>
+          </tbody>
+        </DataTable>
+      ),
+    },
+    {
+      id: "stars",
+      label: w("bzStarsHead"),
+      hint: w("bzPartStarsHint"),
+      copyText: partText("stars"),
+      table: csvOf(["star"]),
+      children: signs.stars.length ? (
+        <DataTable className="ulune-zk-tbl">
+          <thead>
+            <tr>
+              <th data-col="star">{w("bzStarCol")}</th>
+              <th>{w("bzPlacesCol")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {signs.stars.map((h) => (
+              <tr key={h.id} data-testid={`bazi-starrow-t-${h.id}`} data-selected={selectedId === starRef(h.id) ? "1" : undefined}>
+                <th scope="row">{pick(starRef(h.id), chineseLabel(STARS.find((x) => x.id === h.id)!, locale, prefs).text)}</th>
+                <td>{starPlaces(h.places, locale)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      ) : (
+        <p className="text-sm text-fg-muted">{w("bzStarsNone")}</p>
       ),
     },
   ];

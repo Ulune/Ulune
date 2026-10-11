@@ -328,6 +328,88 @@ export const chinese = {
   bzShownCol: ["Shown", "Visibles"],
   bzHiddenCol: ["Hidden", "Cachés"],
   bzPartGodsHint: ["How often each god stands in the chart, shown and hidden.", "Combien de fois chaque dieu figure dans le thème, visible et caché."],
+  // BaZi's stages, Na Yin, empty branches and stars (languages plan, part 13).
+  bzStage: ["Life stage", "Stade de vie"],
+  bzStagesTitle: ["The twelve stages", "Les douze stades"],
+  bzStageWhy: ["Why this stage", "Pourquoi ce stade"],
+  bzPhase: ["Phase", "Phase"],
+  bzEmptyWhyTitle: ["Why these branches", "Pourquoi ces branches"],
+  bzStageWhyYang: [
+    "Your Day Master {dm} is born in {birth} and, being yang, goes forward round the branches: in {branch} it is at its {stage} stage.",
+    "Votre Maître du jour {dm} naît en {birth} et, étant yang, avance dans l’ordre des branches\u202f: en {branch}, il est au stade «\u202f{stage}\u202f».",
+  ],
+  bzStageWhyYin: [
+    "Your Day Master {dm} is born in {birth} and, being yin, goes backward round the branches: in {branch} it is at its {stage} stage.",
+    "Votre Maître du jour {dm} naît en {birth} et, étant yin, recule dans l’ordre des branches\u202f: en {branch}, il est au stade «\u202f{stage}\u202f».",
+  ],
+  bzStagesNote: [
+    "The twelve stages follow the Day Master’s phase round the twelve branches as a year follows its seasons, from a seed to the harvest and back to a seed. Their names are the tradition’s; they say how strong the phase is in each branch, not what will happen, and nothing about health.",
+    "Les douze stades suivent la phase du Maître du jour à travers les douze branches comme une année suit ses saisons, de la graine à la moisson et de nouveau à la graine. Leurs noms sont ceux de la tradition\u202f; ils disent la force de la phase dans chaque branche, non ce qui arrivera, et rien de la santé.",
+  ],
+  bzNaYinLead: [
+    "The Na Yin (納音, “received sound”) gives each two pairs of the sixty-cycle one of thirty images, each with its phase: an older layer of the tradition, which the Zi Ping school keeps as a nuance. A pillar’s Na Yin is its tone, heard beside its stem and branch.",
+    "Le Na Yin (納音, «\u202fson reçu\u202f») donne à chaque couple de paires du cycle de soixante l’une de trente images, chacune avec sa phase\u202f: une strate plus ancienne de la tradition, que l’école Zi Ping garde comme une nuance. Le Na Yin d’un pilier est sa tonalité, entendue à côté de son tronc et de sa branche.",
+  ],
+  bzToDm: ["To your Day Master", "Pour votre Maître du jour"],
+  bzEmptyHead: ["Empty branches", "Branches vides"],
+  bzEmptyBadge: ["Empty branch", "Branche vide"],
+  bzEmptyLead: [
+    "Each ten-day week of the sixty-cycle pairs its ten stems with ten of the twelve branches and leaves two out: the empty branches (空亡, kōngwáng), counted from the week your day pillar is in. A pillar on an empty branch is read as quieter, its promise slower to show: more inward than outward.",
+    "Chaque décade du cycle de soixante associe ses dix troncs à dix des douze branches et en laisse deux de côté\u202f: les branches vides (空亡, kōngwáng), comptées depuis la décade de votre pilier du jour. Un pilier sur une branche vide se lit plus discret, sa promesse plus lente à paraître\u202f: plus intérieure qu’extérieure.",
+  ],
+  bzEmptyWhy: [
+    "Your day pillar {day} is in the week that begins with {first}: its stems meet the branches from {from} to {to}, and leave out {a} and {b}.",
+    "Votre pilier du jour {day} appartient à la décade qui commence par {first}\u202f: ses troncs rencontrent les branches de {from} à {to}, et laissent de côté {a} et {b}.",
+  ],
+  bzWeek: ["Ten-day week", "Décade"],
+  bzEmptyPillars: ["On an empty branch", "Sur une branche vide"],
+  bzEmptyNone: ["None of your pillars", "Aucun de vos piliers"],
+  bzStarsHead: ["Symbolic stars", "Étoiles symboliques"],
+  bzStarsNone: [
+    "None of the fourteen stars Ulune reads falls in your chart.",
+    "Aucune des quatorze étoiles que lit Ulune ne tombe dans votre thème.",
+  ],
+  bzStarsNote: [
+    "The stars are secondary signs: most schools read them after the Day Master, the gods and the balance of the phases, as nuances rather than verdicts.",
+    "Les étoiles sont des signes secondaires\u202f: la plupart des écoles les lisent après le Maître du jour, les dieux et l’équilibre des phases, comme des nuances plutôt que des verdicts.",
+  ],
+  bzStarHow: ["How it is found", "Comment on la trouve"],
+  bzStarFromDm: [
+    "From your Day Master {dm}, the tradition looks for this star in {targets}.",
+    "Depuis votre Maître du jour {dm}, la tradition cherche cette étoile dans {targets}.",
+  ],
+  bzStarFromBranch: [
+    "From the branch {branch} of your {pillar}, the tradition looks for this star in {targets}.",
+    "Depuis la branche {branch} de votre {pillar}, la tradition cherche cette étoile dans {targets}.",
+  ],
+  bzStarFromTrine: [
+    "From the branch {branch} of your {pillar}, of the {phase} trine, the tradition looks for this star in {targets}.",
+    "Depuis la branche {branch} de votre {pillar}, du trigone {somePhase}, la tradition cherche cette étoile dans {targets}.",
+  ],
+  bzStarWonders: [
+    "{list} follow each other in this order on three pillars side by side ({places}): one of the three orders the tradition calls the Three Wonders.",
+    "{list} se suivent dans cet ordre sur trois piliers voisins ({places})\u202f: l’un des trois ordres que la tradition appelle les Trois Merveilles.",
+  ],
+  bzInBranch: ["the branch {list}", "la branche {list}"],
+  bzInStem: ["the stem {list}", "le tronc {list}"],
+  bzOr: ["or", "ou"],
+  bzBaseDm: ["Read from the Day Master", "Lue depuis le Maître du jour"],
+  bzBaseBranches: ["Read from the year and day branches", "Lue depuis les branches de l’année et du jour"],
+  bzBaseMonth: ["Read from the month branch", "Lue depuis la branche du mois"],
+  bzBaseYear: ["Read from the year branch", "Lue depuis la branche de l’année"],
+  bzBaseStems: ["Read from the stems in order", "Lue dans l’ordre des troncs"],
+  bzAbout3: [
+    "The life stages, the Na Yin and the empty branches are counted as the Zi Ping school counts them, Earth’s stages following Fire’s. The stars are found as most books give them, the Sword Edge for the yang Day Masters only, the yin stems’ being disputed; Ulune reads them as secondary signs.",
+    "Les stades de vie, le Na Yin et les branches vides sont comptés comme les compte l’école Zi Ping, les stades de la Terre suivant ceux du Feu. Les étoiles sont trouvées comme la plupart des livres les donnent, la Lame pour les Maîtres du jour yang seulement, celle des troncs yin étant discutée\u202f; Ulune les lit comme des signes secondaires.",
+  ],
+  bzPartSigns: ["Stages, Na Yin and empty branches", "Stades, Na Yin et branches vides"],
+  bzPartSignsHint: [
+    "The Day Master’s stage in each pillar’s branch, each pillar’s Na Yin, and the branches left empty by the day’s week.",
+    "Le stade du Maître du jour dans la branche de chaque pilier, le Na Yin de chaque pilier, et les branches que laisse vides la décade du jour.",
+  ],
+  bzPartStarsHint: ["Each star in your chart and the pillars it falls in.", "Chaque étoile de votre thème et les piliers où elle tombe."],
+  bzStarCol: ["Star", "Étoile"],
+  bzPlacesCol: ["Pillars", "Piliers"],
   // The relations between animals (languages plan, part 8).
   zkRelations: ["Between your animals", "Entre vos animaux"],
   zkRelationsNone: [
