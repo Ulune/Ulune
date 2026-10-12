@@ -18,6 +18,7 @@ import { INTERACTION_NAMES, baziInteractions, interactionTone, type Condition, t
 import { INTERACTION_TEXTS, PUNISHMENT_GROUP_TEXTS } from "./bazi-interactions-texts";
 import { PHASE_IDS, STRUCTURE_NAMES, baziBalance, type BaziBalance } from "./bazi-balance";
 import { STRENGTH_TEXTS, STRUCTURE_TEXTS } from "./bazi-balance-texts";
+import { GOD_PRESENCE, PHASE_EXCESS, PHASE_LACK, pairLine } from "./bazi-readings-texts";
 import { said } from "./zodiac-texts";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
@@ -198,8 +199,9 @@ function godReading(c: BaziChart, id: TenGodId, locale: string, prefs: Shown): E
   }
   const lead = said(TEN_GOD_TEXTS[id], locale);
   const n = c.gods[id];
-  const paragraphs = [lead];
-  if (!n.shown && !n.hidden) paragraphs.push(cnWord(locale, "bzGodNone"));
+  // Part 18: how it stands in this chart, shown, only hidden, or absent.
+  const presence = n.shown ? "shown" : n.hidden ? "hidden" : "absent";
+  const paragraphs = [lead, said(GOD_PRESENCE[id][presence], locale)];
   return {
     id: godRef(id),
     kind: "aspect",
@@ -208,7 +210,7 @@ function godReading(c: BaziChart, id: TenGodId, locale: string, prefs: Shown): E
     lead,
     paragraphs,
     facts,
-    sections: paragraphs.length > 1 ? [{ id: "none", title: cnWord(locale, "bzInChart"), paragraphs: paragraphs.slice(1) }] : undefined,
+    sections: [{ id: presence, title: cnWord(locale, "bzInChart"), paragraphs: paragraphs.slice(1) }],
     mark: name.hanzi ?? undefined,
     about: about(locale),
   };
@@ -428,7 +430,9 @@ function conditionLine(ix: Interaction, cond: Condition, locale: string, prefs: 
 /** An interaction between pillars: what it does, what it joins, and whether it transforms, condition by condition. */
 function ixReading(c: BaziChart, ix: Interaction, locale: string, prefs: Shown): ElementReading {
   const name = chineseLabel(INTERACTION_NAMES[ix.kind], locale, prefs);
-  const lead = said(INTERACTION_TEXTS[ix.kind], locale);
+  // Part 18: the kind's meaning, then this pair's or group's own line.
+  const own = pairLine(ix.kind, ix.level, ix.items, ix.phase);
+  const lead = [said(INTERACTION_TEXTS[ix.kind], locale), own ? said(own, locale) : null].filter(Boolean).join(" ");
   const ph = ix.phase ? phaseWords(ix.phase, locale) : null;
   const facts: ReadingFact[] = ix.places.map((place, i) => ({
     label: cnWord(locale, PILLAR_WORD[place]),
@@ -499,7 +503,11 @@ function balanceReading(b: BaziBalance, locale: string, prefs: Shown): ElementRe
   };
 }
 
-/** One phase: its share, how it meets the Day Master, where it comes from. */
+/** A phase is "much" from this share of the chart's points (2.5 of 9), "little" under this one (half a point of 9). */
+export const PHASE_MUCH = 0.275;
+export const PHASE_LITTLE = 0.06;
+
+/** One phase: its share, how it meets the Day Master, where it comes from, and (part 18) what much or little of it says. */
 function phaseReading(c: BaziChart, b: BaziBalance, id: PhaseId, locale: string, prefs: Shown): ElementReading {
   const p = b.phases.find((x) => x.phase === id)!;
   const label = chineseLabel(PHASES.find((x) => x.id === id)!, locale, prefs);
@@ -510,6 +518,8 @@ function phaseReading(c: BaziChart, b: BaziBalance, id: PhaseId, locale: string,
   if (p.points && sorted.at(-1)!.phase === id) lines.push(cnWord(locale, "bzPhaseMost"));
   else if (p.points && sorted[0]!.phase === id) lines.push(cnWord(locale, "bzPhaseLeast"));
   const lead = lines.join(" ");
+  // Part 18: much of it, or little.
+  const level = p.share >= PHASE_MUCH ? said(PHASE_EXCESS[id], locale) : p.share < PHASE_LITTLE ? said(PHASE_LACK[id], locale) : null;
   const facts: ReadingFact[] = [{ label: cnWord(locale, "bzToDm"), value: said(FAMILY_NAMES[p.family], locale), ref: stemRef("day") }];
   for (const part of p.parts) {
     const pillar = c.pillars.find((x) => x.id === part.place)!;
@@ -525,9 +535,12 @@ function phaseReading(c: BaziChart, b: BaziBalance, id: PhaseId, locale: string,
     title: label.name,
     kicker: [cnWord(locale, "bzBalHead"), fmtShare(p.share, locale)].join(" · "),
     lead,
-    paragraphs: [lead, cnWord(locale, "bzBalMethod")],
+    paragraphs: [lead, ...(level ? [level] : []), cnWord(locale, "bzBalMethod")],
     facts,
-    sections: [{ id: "method", title: cnWord(locale, "bzBalMethodTitle"), paragraphs: [cnWord(locale, "bzBalMethod")] }],
+    sections: [
+      ...(level ? [{ id: p.share >= PHASE_MUCH ? "much" : "little", title: cnWord(locale, "bzPhaseLevelTitle"), paragraphs: [level] }] : []),
+      { id: "method", title: cnWord(locale, "bzBalMethodTitle"), paragraphs: [cnWord(locale, "bzBalMethod")] },
+    ],
     mark: label.hanzi ?? undefined,
     about: about(locale, false, false, true),
   };

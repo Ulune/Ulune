@@ -76,7 +76,7 @@ test("what the board says: the Day Master's image, each god and why it is that g
   assert.equal(hidden.kicker, "Pilier de l’heure · Qi résiduel · 10");
   const god = baziReading(c, godRef("companion"), "en", full);
   assert.equal(god.facts.length, 0);
-  assert.match(god.sections[0].paragraphs[0], /stands nowhere in your chart/);
+  assert.match(god.sections[0].paragraphs[0], /^No Companion stands in your chart/);
   const sk = baziReading(c, godRef("seven-killings"), "en", full);
   assert.deepEqual(sk.facts.map((f) => f.ref), ["bz:hidden:year:0", "bz:hidden:month:0"]);
   assert.equal(baziReading(c, "bz:stem:hour", "en", full).facts.at(-1).value, "Eating God · shíshén 食神");

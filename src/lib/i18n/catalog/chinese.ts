@@ -301,10 +301,6 @@ export const chinese = {
     "A hidden stem is a phase held inside a branch: its main qi is the branch’s own, the middle and residual qi are smaller. The tradition counts them by their weight.",
     "Un tronc caché est une phase contenue dans une branche\u202f: son qi principal est celui de la branche, les qi médian et résiduel sont plus petits. La tradition les compte selon leur poids.",
   ],
-  bzGodNone: [
-    "It stands nowhere in your chart, shown or hidden: the tradition reads an absence too, as a quality to find around you or to grow.",
-    "Il ne figure nulle part dans votre thème, ni visible ni caché\u202f: la tradition lit aussi une absence, comme une qualité à trouver autour de soi ou à faire grandir.",
-  ],
   bzAboutTitle: ["About the four pillars", "À propos des quatre piliers"],
   bzAbout1: [
     "BaZi (八字, “eight characters”) reads a birth as four pillars, the year, the month, the day and the hour, each a Heavenly Stem over an Earthly Branch, with the stems each branch holds hidden. The Day Master, the day’s stem, is the self; every other stem is one of the Ten Gods.",
@@ -687,6 +683,8 @@ export const chinese = {
     "Chaque pilier, avec le pilier de chance en cours et celui de l’année, selon chaque couche\u202f: tronc et dieu, branche, troncs cachés, stade de vie, Na Yin, branche vide, étoiles, ce qu’il relie ou rencontre, et ses points.",
   ],
   bzLinksCol: ["Joins or meets", "Relie ou rencontre"],
+  // BaZi's readings (languages plan, part 18).
+  bzPhaseLevelTitle: ["Much or little", "Beaucoup ou peu"],
   // The relations between animals (languages plan, part 8).
   zkRelations: ["Between your animals", "Entre vos animaux"],
   zkRelationsNone: [

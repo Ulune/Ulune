@@ -13,6 +13,8 @@ import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord, type ChineseWordKey } from "./words";
 import { tenGodById, type BaziChart, type BaziPlaceId } from "./bazi";
 import { TEN_GOD_TEXTS } from "./bazi-texts";
+import { LUCK_GOD_TEXTS, YEAR_GOD_TEXTS, pairLine } from "./bazi-readings-texts";
+import type { Both } from "./zodiac-texts";
 import { INTERACTION_NAMES } from "./bazi-interactions";
 import { PILLAR_WORD, baziReading, branchCellRef, stemRef } from "./bazi-reading";
 import type { FlowYear, Luck, LuckCount, LuckPillar, Meeting, TimePillar } from "./bazi-luck";
@@ -82,16 +84,25 @@ function pillarFacts(t: { pillar: LuckPillar["pillar"]; god: LuckPillar["god"]; 
   ];
 }
 
-function godTheme(t: { god: LuckPillar["god"] }, locale: string, prefs: Shown) {
+/** What the pillar's god brings: a luck pillar's decade or a year by its own texts (part 18), a month or a day by what the god stands for. */
+function godTheme(t: { god: LuckPillar["god"] }, locale: string, prefs: Shown, texts: Readonly<Record<LuckPillar["god"], Both>> = TEN_GOD_TEXTS) {
   const god = chineseLabel(tenGodById(t.god), locale, { ...prefs, show: "names" }).name;
-  return { id: "god", title: cnWord(locale, "bzlGodTheme", { god }), paragraphs: [said(TEN_GOD_TEXTS[t.god], locale)] };
+  const paragraphs = [said(texts[t.god], locale)];
+  if (texts !== TEN_GOD_TEXTS) paragraphs.push(said(TEN_GOD_TEXTS[t.god], locale));
+  return { id: "god", title: cnWord(locale, "bzlGodTheme", { god }), paragraphs };
 }
 
 function meetsSection(meets: Meeting[], locale: string, prefs: Shown) {
   return {
     id: "meets",
     title: cnWord(locale, "bzlMeetsTitle"),
-    paragraphs: meets.length ? meets.map((m) => meetingShort(m, locale, prefs) + (m.phase ? ` · ${chineseLabel(PHASES.find((x) => x.id === m.phase)!, locale, { ...prefs, show: "names" }).name}` : "")) : [cnWord(locale, "bzlMeetsNone")],
+    paragraphs: meets.length
+      ? meets.map((m) => {
+          const head = meetingShort(m, locale, prefs) + (m.phase ? ` · ${chineseLabel(PHASES.find((x) => x.id === m.phase)!, locale, { ...prefs, show: "names" }).name}` : "");
+          const own = pairLine(m.kind, m.level, m.items, m.phase);
+          return own ? `${head}${locale === "fr" ? "\u202f: " : ": "}${said(own, locale)}` : head;
+        })
+      : [cnWord(locale, "bzlMeetsNone")],
   };
 }
 
@@ -102,7 +113,7 @@ function luckPillarReading(x: LuckContext, l: Luck, p: LuckPillar, locale: strin
   const from = dateIn(p.fromMs, locale, x.tz, { month: "short", year: "numeric" });
   const to = dateIn(p.toMs, locale, x.tz, { month: "short", year: "numeric" });
   const lead = cnWord(locale, "bzlLuckLead", { from, to, god: godName(p.god, locale, prefs), branchGod: godName(p.branchGod, locale, prefs) });
-  const sections = [godTheme(p, locale, prefs), meetsSection(p.meets, locale, prefs)];
+  const sections = [godTheme(p, locale, prefs, LUCK_GOD_TEXTS), meetsSection(p.meets, locale, prefs)];
   const ages = cnWord(locale, "bzlAges", { from: Math.floor(p.fromAge), to: Math.floor(p.toAge) });
   return {
     id: luckRef(l.count, p.index),
@@ -138,7 +149,7 @@ function yearReading(x: LuckContext, locale: string, prefs: Shown): ElementReadi
     for (const m of l.meets) facts.push(meetingFact(m, locale, prefs, l.pillar ? luckRef(l.count, l.pillar.index) : undefined));
   }
   const meets = [...y.meets, ...y.luck.flatMap((l) => l.meets)];
-  const sections = [godTheme(y, locale, prefs), meetsSection(meets, locale, prefs), { id: "flow", title: cnWord(locale, "bzBalHow"), paragraphs: [cnWord(locale, "bzlFlowNote")] }];
+  const sections = [godTheme(y, locale, prefs, YEAR_GOD_TEXTS), meetsSection(meets, locale, prefs), { id: "flow", title: cnWord(locale, "bzBalHow"), paragraphs: [cnWord(locale, "bzlFlowNote")] }];
   return {
     id: FLOW_YEAR_REF,
     kind: "sign",

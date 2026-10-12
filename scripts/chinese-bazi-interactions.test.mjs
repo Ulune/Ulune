@@ -120,7 +120,7 @@ test("what an interaction says, and why it transforms or not", () => {
   const b = baziChart(SAMPLE_B);
   const h = baziReading(b, ixRef("harmony:year-month"), "en", full);
   assert.equal(h.title, "Harmony");
-  assert.equal(h.lead, INTERACTION_TEXTS.harmony[0]);
+  assert.equal(h.lead, `${INTERACTION_TEXTS.harmony[0]} The Rabbit and the Dog, Mao and Xu: gentleness and loyalty, making Fire.`);
   assert.deepEqual(h.facts.map((f) => f.ref ?? f.value), ["bz:branch:year", "bz:branch:month", "Fire · huǒ 火", "Fire · binds without transforming"]);
   assert.deepEqual(h.sections[0].paragraphs, [
     "Rabbit · mǎo 卯 and Dog · xū 戌 stand side by side.",

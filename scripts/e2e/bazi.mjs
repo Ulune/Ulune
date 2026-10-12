@@ -21,6 +21,7 @@
  *     0.3), a weak Day Master, the Seven Killings structure, Earth and Metal
  *     favourable with Water by climate; the strength's reading shows its
  *     tests, the method is one tap away;
+ *   - (part 18) an absent god's and a scarce phase's readings;
  *   - the table: first (part 17) every pillar by every layer, with both
  *     counts' luck pillars and this year; Settings' "Year to hour" followed
  *     at once;
@@ -47,6 +48,8 @@ const WORDS = {
     fav: "Earth, Metal · by climate Water",
     tests: "born out of season",
     method: "count twice",
+    absent: "No Companion stands in your chart",
+    little: "Little Wood",
   },
   fr: {
     heading: "Traditions chinoises",
@@ -65,6 +68,8 @@ const WORDS = {
     fav: "Terre, Métal · par le climat Eau",
     tests: "né hors saison",
     method: "comptent double",
+    absent: "Aucun Compagnon dans votre thème",
+    little: "Peu de Bois",
   },
 };
 
@@ -194,6 +199,20 @@ async function run(width, lang) {
     await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.method, { timeout: 8000 });
     if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
     await assertNoOverflow(page);
+
+    // Part 18: an absent god's reading, and a phase the chart holds little of.
+    for (const [id, t] of [
+      ["bazi-god-companion", w.absent],
+      ["bazi-phase-wood", w.little],
+    ]) {
+      await page.getByTestId(id).evaluate((el) => el.scrollIntoView({ block: "center" }));
+      await page.getByTestId(id).click();
+      if (width < 1024) await clickDockTab(page, "reading");
+      await page.waitForFunction((x) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(x), t, { timeout: 8000 }).catch(async () => {
+        throw new Error(`${label}: ${id}'s reading "${(await page.getByTestId("click-note").textContent().catch(() => "")).slice(0, 300)}"`);
+      });
+      if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
+    }
 
     // The table: four pillars, ten gods.
     await setView(page, "table");

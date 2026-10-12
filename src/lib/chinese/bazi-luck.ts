@@ -52,6 +52,8 @@ export type Meeting = {
   level: "stem" | "branch";
   /** The places it meets (one for a pair; two for a trine or trio it completes). */
   with: MeetPlace[];
+  /** The stems or branches it joins: the new pillar's first, then those it meets. */
+  items: number[];
   phase?: PhaseId;
 };
 
@@ -62,13 +64,13 @@ export function meetingsOf(stem: number, branch: number, placed: readonly { plac
   const out: Meeting[] = [];
   for (const p of placed) {
     const combo = stemCombination(stem, p.stem);
-    if (combo) out.push({ kind: "stem-combination", level: "stem", with: [p.place], phase: combo });
-    if (stemClash(stem, p.stem)) out.push({ kind: "stem-clash", level: "stem", with: [p.place] });
+    if (combo) out.push({ kind: "stem-combination", level: "stem", with: [p.place], items: [stem, p.stem], phase: combo });
+    if (stemClash(stem, p.stem)) out.push({ kind: "stem-clash", level: "stem", with: [p.place], items: [stem, p.stem] });
     const h = harmonyPhase(branch, p.branch);
-    if (h) out.push({ kind: "harmony", level: "branch", with: [p.place], phase: h });
+    if (h) out.push({ kind: "harmony", level: "branch", with: [p.place], items: [branch, p.branch], phase: h });
     for (const k of branchRelations(branch, p.branch)) {
       if (k === "harmony" || k === "trine") continue;
-      out.push({ kind: k, level: "branch", with: [p.place] });
+      out.push({ kind: k, level: "branch", with: [p.place], items: [branch, p.branch] });
     }
   }
   // Trines and seasonal trios the new branch completes with two of the placed branches.
@@ -80,7 +82,7 @@ export function meetingsOf(stem: number, branch: number, placed: readonly { plac
       if (!g.branches.includes(branch)) continue;
       const others = g.branches.filter((b) => b !== branch);
       const found = others.map((b) => placed.find((p) => p.branch === b));
-      if (found.every(Boolean)) out.push({ kind, level: "branch", with: found.map((p) => p!.place), phase: g.phase });
+      if (found.every(Boolean)) out.push({ kind, level: "branch", with: found.map((p) => p!.place), items: [branch, ...others], phase: g.phase });
     }
   }
   return out.sort((a, b) => MEETING_ORDER.indexOf(a.kind) - MEETING_ORDER.indexOf(b.kind));
