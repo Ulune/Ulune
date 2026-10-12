@@ -25,19 +25,22 @@ export const fsPracticeRef = (count: FsCount): string => `fs:${count}:practice`;
 const cap = (s: string) => s.replace(/^\p{Ll}/u, (x) => x.toUpperCase());
 
 /**
- * A direction in a sentence: "north-east" or "the north-east" in English;
- * "au nord-est" / "à l’est" or "le nord-est" / "l’est" in French.
+ * A direction in a sentence: "north-east", "the north-east", "of the
+ * north-east", "in the north-east" in English; "au nord-est" / "à l’est",
+ * "le nord-est" / "l’est", "du nord-est" / "de l’est", "au nord-est" in French.
  */
-export function dirIn(d: DirectionId, locale: string, form: "to" | "the"): string {
+export function dirIn(d: DirectionId, locale: string, form: "to" | "the" | "of" | "in"): string {
   const dir = directionById(d);
-  if (locale !== "fr") return form === "the" ? `the ${dir.en.toLowerCase()}` : dir.en.toLowerCase();
-  const own = dir.fr.toLowerCase();
+  const own = (locale === "fr" ? dir.fr : dir.en).toLowerCase();
+  if (locale !== "fr") return form === "to" ? own : form === "the" ? `the ${own}` : form === "of" ? `of the ${own}` : `in the ${own}`;
   const vowel = d === "e" || d === "w";
-  return form === "to" ? (vowel ? `à l’${own}` : `au ${own}`) : vowel ? `l’${own}` : `le ${own}`;
+  if (form === "to" || form === "in") return vowel ? `à l’${own}` : `au ${own}`;
+  if (form === "of") return vowel ? `de l’${own}` : `du ${own}`;
+  return vowel ? `l’${own}` : `le ${own}`;
 }
 
 /** "de Croissance", "d’Harmonie": a mansion's name after "direction" in French. */
-const deName = (name: string) => (/^[AEIOUYÉÈÊH]/i.test(name) ? `d’${name}` : `de ${name}`);
+export const deName = (name: string) => (/^[AEIOUYÉÈÊH]/i.test(name) ? `d’${name}` : `de ${name}`);
 
 export const countLabel = (count: FsCount, locale: string): string => cnWord(locale, count === "yang" ? "bzlCountYang" : "bzlCountYin");
 export const groupLabel = (fs: FengShui, locale: string): string => cnWord(locale, fs.group === "east" ? "fsGroupEast" : "fsGroupWest");

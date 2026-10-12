@@ -26,6 +26,7 @@ export const LENS_LABEL: Record<LensId, MessageKey> = {
   natal: "lensNatal",
   cycles: "lensCycles",
   relationship: "lensRelationship",
+  home: "lensHome",
 };
 
 export const TRADITION_LABEL: Record<TraditionId, PickerWordKey> = {

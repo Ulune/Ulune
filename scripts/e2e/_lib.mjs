@@ -224,6 +224,7 @@ export const PAGE_PLACE = {
   "bazi-luck": ["bazi", "cycles"],
   "bazi-pair": ["bazi", "relationship"],
   fengshui: ["feng-shui", "natal"],
+  "fengshui-home": ["feng-shui", "home"],
 };
 
 /** Clicks an element by its test id, drawn or not (a folded sub-mode, a chip a phone hides); false when it is not there. */

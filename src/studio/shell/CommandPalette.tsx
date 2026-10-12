@@ -17,8 +17,8 @@ function isTyping(el: EventTarget | null) {
 /**
  * ⌘K / Ctrl+K: jump to any section, language, lens, mode, chart, body, Look
  * profile or setting (CommandPaletteDialog.tsx, loaded ahead at idle).
- * Also: L opens the language picker, Alt+1 to Alt+3 choose the lens (Natal,
- * Cycles, Relationship), T toggles the table, Esc clears the selection; 1 to
+ * Also: L opens the language picker, Alt+1 to Alt+4 choose the lens (Natal,
+ * Cycles, Relationship, Home), T toggles the table, Esc clears the selection; 1 to
  * 4 choose the rings (rings-menu.tsx).
  */
 export function CommandPalette() {
@@ -46,7 +46,7 @@ export function CommandPalette() {
       const s = useStudioStore.getState();
       const busy = () => Boolean(document.querySelector("[role=dialog], [role=menu]"));
       if (e.altKey) {
-        // Alt+1 to Alt+3: the lens, in the language on screen (the last one,
+        // Alt+1 to Alt+4: the lens, in the language on screen (the last one,
         // from the Calendar), when it has that lens. By the key's place, as
         // Alt with a digit types another sign on a Mac.
         const n = /^Digit([1-9])$/.exec(e.code);

@@ -67,7 +67,7 @@ test("each language's ⓘ leads to its home in the encyclopedia, in the reader's
 });
 
 test("the bars' order: each language's lenses and sub-modes, then the Calendar", () => {
-  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "timing"]);
+  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-home", "timing"]);
   assert.deepEqual([...PAGE_ORDER].sort(), [...STUDIO_PAGES].sort(), "every page once");
 });
 
@@ -137,6 +137,7 @@ test("every section, lens, tradition and language has its words in English and F
     ["Natal", "Natal"],
     ["Cycles", "Cycles"],
     ["Relationship", "Relation"],
+    ["Home", "Logement"],
   ]);
   assert.deepEqual(CATALOG[LANGUAGE_WORDS["human-design"].name], ["Human Design", "Human Design"], "Ulune keeps the name in French");
   assert.equal(CATALOG[LANGUAGE_WORDS.numerology.name][1], "Numérologie");

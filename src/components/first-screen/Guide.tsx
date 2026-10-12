@@ -38,7 +38,8 @@ function useDoList(): { id: string; mark: ReactNode; label: string; body: Messag
     {
       id: "lenses",
       mark: <Aperture {...iconProps} />,
-      label: LENSES.map((lens) => t(LENS_LABEL[lens])).join(" · "),
+      // The three lenses every language may have; Home (Feng Shui's place) waits for the guide's Chinese pages (languages plan, part 29).
+      label: LENSES.filter((lens) => lens !== "home").map((lens) => t(LENS_LABEL[lens])).join(" · "),
       body: "guideDoLenses",
     },
     { id: "calendar", mark: <CalendarIcon {...iconProps} />, label: t(SECTION_LABEL.calendar), body: "guideDoCalendar" },

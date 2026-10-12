@@ -11,6 +11,7 @@ export const sections = {
   lensNatal: ["Natal", "Natal"],
   lensCycles: ["Cycles", "Cycles"],
   lensRelationship: ["Relationship", "Relation"],
+  lensHome: ["Home", "Logement"],
   // Between a lens and its sub-mode when they share a tab ("Cycles: Transits").
   lensColon: [": ", " : "],
   lensFold: ["{lens}: {page}", "{lens} : {page}"],

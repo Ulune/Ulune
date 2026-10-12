@@ -31,6 +31,7 @@ const LOADERS: Record<LazyPage, () => Promise<ModeDef>> = {
   "bazi-luck": () => import("@/studio/modes/bazi-luck").then((m) => m.baziLuckMode),
   "bazi-pair": () => import("@/studio/modes/bazi-pair").then((m) => m.baziPairMode),
   fengshui: () => import("@/studio/modes/fengshui").then((m) => m.fengShuiMode),
+  "fengshui-home": () => import("@/studio/modes/fengshui-home").then((m) => m.fengShuiHomeMode),
 };
 
 /**

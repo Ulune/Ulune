@@ -23,7 +23,6 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StudioIndexRouteImport } from './routes/_studio.index'
 import { Route as StudioCalendarRouteImport } from './routes/_studio.calendar'
 import { Route as StudioCalendrierRouteImport } from './routes/_studio.calendrier'
-import { Route as StudioFengShuiRouteImport } from './routes/_studio.feng-shui'
 import { Route as StudioHumanDesignRouteImport } from './routes/_studio.human-design'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiReportRouteImport } from './routes/api/report'
@@ -44,6 +43,8 @@ import { Route as StudioBaziPairRouteImport } from './routes/_studio.bazi.pair'
 import { Route as StudioChineseAstrologyIndexRouteImport } from './routes/_studio.chinese-astrology.index'
 import { Route as StudioChineseAstrologyCyclesRouteImport } from './routes/_studio.chinese-astrology.cycles'
 import { Route as StudioChineseAstrologyPairRouteImport } from './routes/_studio.chinese-astrology.pair'
+import { Route as StudioFengShuiIndexRouteImport } from './routes/_studio.feng-shui.index'
+import { Route as StudioFengShuiHomeRouteImport } from './routes/_studio.feng-shui.home'
 import { Route as StudioNumerologyIndexRouteImport } from './routes/_studio.numerology.index'
 import { Route as StudioNumerologyCyclesRouteImport } from './routes/_studio.numerology.cycles'
 
@@ -114,11 +115,6 @@ const StudioCalendarRoute = StudioCalendarRouteImport.update({
 const StudioCalendrierRoute = StudioCalendrierRouteImport.update({
   id: '/calendrier',
   path: '/calendrier',
-  getParentRoute: () => StudioRoute,
-} as any)
-const StudioFengShuiRoute = StudioFengShuiRouteImport.update({
-  id: '/feng-shui',
-  path: '/feng-shui',
   getParentRoute: () => StudioRoute,
 } as any)
 const StudioHumanDesignRoute = StudioHumanDesignRouteImport.update({
@@ -226,6 +222,16 @@ const StudioChineseAstrologyPairRoute =
     path: '/chinese-astrology/pair',
     getParentRoute: () => StudioRoute,
   } as any)
+const StudioFengShuiIndexRoute = StudioFengShuiIndexRouteImport.update({
+  id: '/feng-shui/',
+  path: '/feng-shui/',
+  getParentRoute: () => StudioRoute,
+} as any)
+const StudioFengShuiHomeRoute = StudioFengShuiHomeRouteImport.update({
+  id: '/feng-shui/home',
+  path: '/feng-shui/home',
+  getParentRoute: () => StudioRoute,
+} as any)
 const StudioNumerologyIndexRoute = StudioNumerologyIndexRouteImport.update({
   id: '/numerology/',
   path: '/numerology/',
@@ -251,7 +257,6 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/calendar': typeof StudioCalendarRoute
   '/calendrier': typeof StudioCalendrierRoute
-  '/feng-shui': typeof StudioFengShuiRoute
   '/human-design': typeof StudioHumanDesignRoute
   '/api/health': typeof ApiHealthRoute
   '/api/report': typeof ApiReportRoute
@@ -269,10 +274,12 @@ export interface FileRoutesByFullPath {
   '/bazi/pair': typeof StudioBaziPairRoute
   '/chinese-astrology/cycles': typeof StudioChineseAstrologyCyclesRoute
   '/chinese-astrology/pair': typeof StudioChineseAstrologyPairRoute
+  '/feng-shui/home': typeof StudioFengShuiHomeRoute
   '/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/astrology/': typeof StudioAstrologyIndexRoute
   '/bazi/': typeof StudioBaziIndexRoute
   '/chinese-astrology/': typeof StudioChineseAstrologyIndexRoute
+  '/feng-shui/': typeof StudioFengShuiIndexRoute
   '/numerology/': typeof StudioNumerologyIndexRoute
 }
 export interface FileRoutesByTo {
@@ -288,7 +295,6 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/calendar': typeof StudioCalendarRoute
   '/calendrier': typeof StudioCalendrierRoute
-  '/feng-shui': typeof StudioFengShuiRoute
   '/human-design': typeof StudioHumanDesignRoute
   '/api/health': typeof ApiHealthRoute
   '/api/report': typeof ApiReportRoute
@@ -307,10 +313,12 @@ export interface FileRoutesByTo {
   '/bazi/pair': typeof StudioBaziPairRoute
   '/chinese-astrology/cycles': typeof StudioChineseAstrologyCyclesRoute
   '/chinese-astrology/pair': typeof StudioChineseAstrologyPairRoute
+  '/feng-shui/home': typeof StudioFengShuiHomeRoute
   '/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/astrology': typeof StudioAstrologyIndexRoute
   '/bazi': typeof StudioBaziIndexRoute
   '/chinese-astrology': typeof StudioChineseAstrologyIndexRoute
+  '/feng-shui': typeof StudioFengShuiIndexRoute
   '/numerology': typeof StudioNumerologyIndexRoute
 }
 export interface FileRoutesById {
@@ -328,7 +336,6 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_studio/calendar': typeof StudioCalendarRoute
   '/_studio/calendrier': typeof StudioCalendrierRoute
-  '/_studio/feng-shui': typeof StudioFengShuiRoute
   '/_studio/human-design': typeof StudioHumanDesignRoute
   '/api/health': typeof ApiHealthRoute
   '/api/report': typeof ApiReportRoute
@@ -347,10 +354,12 @@ export interface FileRoutesById {
   '/_studio/bazi/pair': typeof StudioBaziPairRoute
   '/_studio/chinese-astrology/cycles': typeof StudioChineseAstrologyCyclesRoute
   '/_studio/chinese-astrology/pair': typeof StudioChineseAstrologyPairRoute
+  '/_studio/feng-shui/home': typeof StudioFengShuiHomeRoute
   '/_studio/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/_studio/astrology/': typeof StudioAstrologyIndexRoute
   '/_studio/bazi/': typeof StudioBaziIndexRoute
   '/_studio/chinese-astrology/': typeof StudioChineseAstrologyIndexRoute
+  '/_studio/feng-shui/': typeof StudioFengShuiIndexRoute
   '/_studio/numerology/': typeof StudioNumerologyIndexRoute
 }
 export interface FileRouteTypes {
@@ -369,7 +378,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/calendar'
     | '/calendrier'
-    | '/feng-shui'
     | '/human-design'
     | '/api/health'
     | '/api/report'
@@ -387,10 +395,12 @@ export interface FileRouteTypes {
     | '/bazi/pair'
     | '/chinese-astrology/cycles'
     | '/chinese-astrology/pair'
+    | '/feng-shui/home'
     | '/numerology/cycles'
     | '/astrology/'
     | '/bazi/'
     | '/chinese-astrology/'
+    | '/feng-shui/'
     | '/numerology/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -406,7 +416,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/calendar'
     | '/calendrier'
-    | '/feng-shui'
     | '/human-design'
     | '/api/health'
     | '/api/report'
@@ -425,10 +434,12 @@ export interface FileRouteTypes {
     | '/bazi/pair'
     | '/chinese-astrology/cycles'
     | '/chinese-astrology/pair'
+    | '/feng-shui/home'
     | '/numerology/cycles'
     | '/astrology'
     | '/bazi'
     | '/chinese-astrology'
+    | '/feng-shui'
     | '/numerology'
   id:
     | '__root__'
@@ -445,7 +456,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_studio/calendar'
     | '/_studio/calendrier'
-    | '/_studio/feng-shui'
     | '/_studio/human-design'
     | '/api/health'
     | '/api/report'
@@ -464,10 +474,12 @@ export interface FileRouteTypes {
     | '/_studio/bazi/pair'
     | '/_studio/chinese-astrology/cycles'
     | '/_studio/chinese-astrology/pair'
+    | '/_studio/feng-shui/home'
     | '/_studio/numerology/cycles'
     | '/_studio/astrology/'
     | '/_studio/bazi/'
     | '/_studio/chinese-astrology/'
+    | '/_studio/feng-shui/'
     | '/_studio/numerology/'
   fileRoutesById: FileRoutesById
 }
@@ -591,13 +603,6 @@ declare module '@tanstack/react-router' {
       path: '/calendrier'
       fullPath: '/calendrier'
       preLoaderRoute: typeof StudioCalendrierRouteImport
-      parentRoute: typeof StudioRoute
-    }
-    '/_studio/feng-shui': {
-      id: '/_studio/feng-shui'
-      path: '/feng-shui'
-      fullPath: '/feng-shui'
-      preLoaderRoute: typeof StudioFengShuiRouteImport
       parentRoute: typeof StudioRoute
     }
     '/_studio/human-design': {
@@ -740,6 +745,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudioChineseAstrologyPairRouteImport
       parentRoute: typeof StudioRoute
     }
+    '/_studio/feng-shui/': {
+      id: '/_studio/feng-shui/'
+      path: '/feng-shui'
+      fullPath: '/feng-shui/'
+      preLoaderRoute: typeof StudioFengShuiIndexRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/_studio/feng-shui/home': {
+      id: '/_studio/feng-shui/home'
+      path: '/feng-shui/home'
+      fullPath: '/feng-shui/home'
+      preLoaderRoute: typeof StudioFengShuiHomeRouteImport
+      parentRoute: typeof StudioRoute
+    }
     '/_studio/numerology/': {
       id: '/_studio/numerology/'
       path: '/numerology'
@@ -760,7 +779,6 @@ declare module '@tanstack/react-router' {
 interface StudioRouteChildren {
   StudioCalendarRoute: typeof StudioCalendarRoute
   StudioCalendrierRoute: typeof StudioCalendrierRoute
-  StudioFengShuiRoute: typeof StudioFengShuiRoute
   StudioHumanDesignRoute: typeof StudioHumanDesignRoute
   StudioIndexRoute: typeof StudioIndexRoute
   StudioAstrologyCompositeRoute: typeof StudioAstrologyCompositeRoute
@@ -771,17 +789,18 @@ interface StudioRouteChildren {
   StudioBaziPairRoute: typeof StudioBaziPairRoute
   StudioChineseAstrologyCyclesRoute: typeof StudioChineseAstrologyCyclesRoute
   StudioChineseAstrologyPairRoute: typeof StudioChineseAstrologyPairRoute
+  StudioFengShuiHomeRoute: typeof StudioFengShuiHomeRoute
   StudioNumerologyCyclesRoute: typeof StudioNumerologyCyclesRoute
   StudioAstrologyIndexRoute: typeof StudioAstrologyIndexRoute
   StudioBaziIndexRoute: typeof StudioBaziIndexRoute
   StudioChineseAstrologyIndexRoute: typeof StudioChineseAstrologyIndexRoute
+  StudioFengShuiIndexRoute: typeof StudioFengShuiIndexRoute
   StudioNumerologyIndexRoute: typeof StudioNumerologyIndexRoute
 }
 
 const StudioRouteChildren: StudioRouteChildren = {
   StudioCalendarRoute: StudioCalendarRoute,
   StudioCalendrierRoute: StudioCalendrierRoute,
-  StudioFengShuiRoute: StudioFengShuiRoute,
   StudioHumanDesignRoute: StudioHumanDesignRoute,
   StudioIndexRoute: StudioIndexRoute,
   StudioAstrologyCompositeRoute: StudioAstrologyCompositeRoute,
@@ -792,10 +811,12 @@ const StudioRouteChildren: StudioRouteChildren = {
   StudioBaziPairRoute: StudioBaziPairRoute,
   StudioChineseAstrologyCyclesRoute: StudioChineseAstrologyCyclesRoute,
   StudioChineseAstrologyPairRoute: StudioChineseAstrologyPairRoute,
+  StudioFengShuiHomeRoute: StudioFengShuiHomeRoute,
   StudioNumerologyCyclesRoute: StudioNumerologyCyclesRoute,
   StudioAstrologyIndexRoute: StudioAstrologyIndexRoute,
   StudioBaziIndexRoute: StudioBaziIndexRoute,
   StudioChineseAstrologyIndexRoute: StudioChineseAstrologyIndexRoute,
+  StudioFengShuiIndexRoute: StudioFengShuiIndexRoute,
   StudioNumerologyIndexRoute: StudioNumerologyIndexRoute,
 }
 

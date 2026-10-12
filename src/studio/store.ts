@@ -401,6 +401,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
         page === "bazi-luck" ||
         page === "bazi-pair" ||
         page === "fengshui" ||
+        page === "fengshui-home" ||
         page === "design";
       set((s) => ({
         chart: result.chart,

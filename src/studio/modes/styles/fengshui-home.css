@@ -1,0 +1,270 @@
+/* Feng Shui's home page (languages plan, part 22; studio/modes/fengshui-home.tsx):
+   the dial of the 24 mountains, the facing input with the phone's compass,
+   and the cards. The page's frame, cards and headings are fengshui.css's;
+   phase colours zodiac.css's. */
+.ulune-fsh-body {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+.ulune-fsh-dial {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  font-family: var(--font-ui);
+}
+.ulune-fsh-rim {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-border-strong);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fsh-mountain {
+  cursor: pointer;
+  outline: none;
+}
+.ulune-fsh-cell {
+  fill: color-mix(in oklab, var(--ph) 8%, transparent);
+  stroke: var(--color-border);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transition: fill var(--motion-ui, 160ms) ease;
+}
+.ulune-fsh-mountain:hover .ulune-fsh-cell,
+.ulune-fsh-mountain.is-on .ulune-fsh-cell {
+  fill: color-mix(in oklab, var(--ph) 30%, transparent);
+}
+.ulune-fsh-mountain.is-facing .ulune-fsh-cell {
+  fill: color-mix(in oklab, var(--color-halo) 34%, transparent);
+  stroke: var(--color-halo);
+  stroke-width: 2;
+}
+.ulune-fsh-mountain.is-sitting .ulune-fsh-cell {
+  stroke: var(--color-fg-muted);
+  stroke-width: 1.6;
+  stroke-dasharray: 4 3;
+}
+.ulune-fsh-mountain.is-on .ulune-fsh-cell {
+  stroke: var(--color-fg);
+  stroke-width: 2;
+}
+.ulune-fsh-mountain:focus-visible .ulune-fsh-cell {
+  stroke: var(--color-fg);
+  stroke-width: 2.5;
+}
+.ulune-fsh-mountain text,
+.ulune-fsh-dirs text,
+.ulune-fsh-core text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--color-fg);
+  pointer-events: none;
+}
+.ulune-fsh-hanzi {
+  font-size: 15px;
+}
+.ulune-fsh-name {
+  font-size: 9.5px;
+}
+.ulune-fsh-dircell {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fsh-dir {
+  font-size: 13px;
+  font-weight: 650;
+}
+.ulune-fsh-tri {
+  font-size: 16px;
+  fill: var(--ph) !important;
+}
+.ulune-fsh-face {
+  stroke: var(--color-halo);
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fsh-head {
+  fill: var(--color-halo);
+}
+.ulune-fsh-sit {
+  stroke: var(--color-fg-muted);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fsh-live line {
+  stroke: var(--color-fg);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fsh-live circle {
+  fill: var(--color-fg);
+}
+.ulune-fsh-core {
+  cursor: pointer;
+}
+.ulune-fsh-core circle {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-border-strong);
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fsh-core.is-on circle,
+.ulune-fsh-core:hover circle {
+  stroke: var(--color-halo);
+  stroke-width: 2;
+}
+.ulune-fsh-core-n {
+  font: 400 26px/1 var(--font-display);
+}
+.ulune-fsh-core-sub {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--color-fg-subtle) !important;
+}
+
+/* The form. */
+.ulune-fsh-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg-elevated);
+}
+.ulune-fsh-form .ulune-fs-h {
+  margin: 0;
+}
+.ulune-fsh-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ulune-fsh-label {
+  font: 500 13px/1.3 var(--font-ui);
+  color: var(--color-fg);
+}
+.ulune-fsh-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 400 15px/1 var(--font-ui);
+}
+.ulune-fsh-input input {
+  width: 7.5em;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: inherit;
+}
+.ulune-fsh-input.is-year input {
+  width: 5.5em;
+}
+.ulune-fsh-input input[aria-invalid="true"] {
+  border-color: var(--color-danger, var(--color-fg));
+}
+.ulune-fsh-input input:focus-visible {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 1px;
+}
+.ulune-fsh-source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.ulune-fsh-source legend {
+  float: left;
+  margin-right: var(--space-2);
+}
+.ulune-fsh-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  font: 400 13px/1.3 var(--font-ui);
+}
+.ulune-fsh-small {
+  margin: 0;
+  font: 400 12px/1.45 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-fsh-small.is-warn {
+  color: var(--color-fg);
+  font-weight: 500;
+}
+.ulune-fsh-compass {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+.ulune-fsh-heading {
+  margin: 0;
+  font: 400 15px/1.3 var(--font-ui);
+}
+.ulune-fsh-heading b {
+  font: 400 26px/1 var(--font-display);
+}
+.ulune-fsh-avg {
+  margin: 0;
+  font: 500 14px/1.4 var(--font-ui);
+}
+.ulune-fsh-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.ulune-fsh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: 500 14px/1.2 var(--font-ui);
+}
+.ulune-fsh-btn.is-main {
+  background: var(--color-fg);
+  color: var(--color-bg);
+  border-color: var(--color-fg);
+}
+.ulune-fsh-btn:disabled {
+  opacity: 0.5;
+}
+.ulune-fsh-btn:focus-visible {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 2px;
+}
+.ulune-fsh-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ulune-fs-card.is-warn {
+  border-color: var(--color-fg-muted);
+  border-style: dashed;
+}
+
+@container (max-width: 720px) {
+  .ulune-fsh-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
