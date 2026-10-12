@@ -29,6 +29,7 @@ const LOADERS: Record<LazyPage, () => Promise<ModeDef>> = {
   "zodiac-pair": () => import("@/studio/modes/zodiac-pair").then((m) => m.zodiacPairMode),
   bazi: () => import("@/studio/modes/bazi").then((m) => m.baziMode),
   "bazi-luck": () => import("@/studio/modes/bazi-luck").then((m) => m.baziLuckMode),
+  "bazi-pair": () => import("@/studio/modes/bazi-pair").then((m) => m.baziPairMode),
 };
 
 /**

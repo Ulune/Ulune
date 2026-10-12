@@ -70,13 +70,13 @@ export const LANGUAGES: readonly Language[] = [
     lenses: { natal: ["zodiac"], cycles: ["zodiac-years"], relationship: ["zodiac-pair"] },
   },
   // BaZi, the Four Pillars (languages plan, part 12): its pillar board, and
-  // since part 16 its Cycles (the luck pillars and the years); Pair comes
-  // with part 19.
+  // since part 16 its Cycles (the luck pillars and the years), since part
+  // 19 its Relationship (two charts side by side).
   {
     id: "bazi",
     path: "/bazi",
     group: "chinese",
-    lenses: { natal: ["bazi"], cycles: ["bazi-luck"] },
+    lenses: { natal: ["bazi"], cycles: ["bazi-luck"], relationship: ["bazi-pair"] },
   },
 ];
 
@@ -129,6 +129,7 @@ export const PAGE_PATHS: Readonly<Record<StudioPage, string>> = {
   "zodiac-pair": "/chinese-astrology/pair",
   bazi: "/bazi",
   "bazi-luck": "/bazi/cycles",
+  "bazi-pair": "/bazi/pair",
   timing: CALENDAR_PATHS.en,
 };
 

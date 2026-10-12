@@ -40,6 +40,7 @@ export const shell = {
   pageZodiacPair: ["Chinese astrology: two people", "Astrologie chinoise\u202f: deux personnes"],
   pageBazi: ["BaZi, the Four Pillars", "BaZi, les Quatre Piliers"],
   pageBaziLuck: ["BaZi: the luck pillars", "BaZi\u202f: les piliers de chance"],
+  pageBaziPair: ["BaZi: two charts", "BaZi\u202f: deux thèmes"],
   pageProgressions: ["Progressions", "Progressions"],
   pageSynastry: ["Synastry", "Synastrie"],
   pageTiming: ["Calendar", "Calendrier"],

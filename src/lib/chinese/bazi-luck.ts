@@ -60,7 +60,12 @@ export type Meeting = {
 const MEETING_ORDER: readonly Meeting["kind"][] = ["stem-combination", "stem-clash", "season", "trine", "harmony", "clash", "punishment", "self-punishment", "harm", "destruction"];
 
 /** What a pillar arriving in time (a luck pillar, a year, a month, a day) meets among placed pillars. */
-export function meetingsOf(stem: number, branch: number, placed: readonly { place: MeetPlace; stem: number; branch: number }[]): Meeting[] {
+export function meetingsOf(
+  stem: number,
+  branch: number,
+  placed: readonly { place: MeetPlace; stem: number; branch: number }[],
+  options: { pairTrines?: boolean } = {},
+): Meeting[] {
   const out: Meeting[] = [];
   for (const p of placed) {
     const combo = stemCombination(stem, p.stem);
@@ -69,7 +74,12 @@ export function meetingsOf(stem: number, branch: number, placed: readonly { plac
     const h = harmonyPhase(branch, p.branch);
     if (h) out.push({ kind: "harmony", level: "branch", with: [p.place], items: [branch, p.branch], phase: h });
     for (const k of branchRelations(branch, p.branch)) {
-      if (k === "harmony" || k === "trine") continue;
+      if (k === "harmony") continue;
+      // Two branches of one trine: between two people's pillars (Pair) a meeting of its own; in time, only a whole trine counts.
+      if (k === "trine") {
+        if (options.pairTrines) out.push({ kind: "trine", level: "branch", with: [p.place], items: [branch, p.branch], phase: TRINES.find((t) => t.branches.includes(branch))!.phase });
+        continue;
+      }
       out.push({ kind: k, level: "branch", with: [p.place], items: [branch, p.branch] });
     }
   }

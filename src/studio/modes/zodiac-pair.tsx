@@ -1,8 +1,7 @@
-import { Suspense, useCallback, useEffect, useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { AnimalGlyph } from "@/components/animal-glyph";
 import { LoadingLines } from "@/components/loading-lines";
 import { chartDisplayName } from "@/lib/chart/library";
-import type { NatalChart } from "@/lib/chart/types";
 import { BRANCHES } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { relationTone } from "@/lib/chinese/relations";
@@ -20,6 +19,7 @@ import { useModeData } from "@/studio/modes/data";
 import { useZodiacOf } from "@/studio/modes/hooks/useZodiac";
 import { MODE_META } from "@/studio/modes/meta";
 import { PairSelects, type PairPick } from "@/studio/modes/pair-selects";
+import { usePairPick } from "@/studio/modes/hooks/usePairPick";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { AnimalWheel, type WheelBadge, type WheelLine } from "@/studio/modes/zodiac-wheel";
@@ -261,47 +261,6 @@ function PairData() {
   );
 }
 
-/** The two people, as synastry chooses them (A the chart shown, B its partner). */
-function usePairPick(enabled: boolean): { pick: PairPick; inner: NatalChart | null; chartB: NatalChart | null } {
-  const rows = useStudioStore((s) => s.rows);
-  const activeId = useStudioStore((s) => s.activeId);
-  const chartA = useStudioStore((s) => s.chart);
-  const partnerId = useStudioStore((s) => s.pair.partnerId);
-  const setPartner = useStudioStore((s) => s.setPartner);
-  const applySaved = useStudioStore((s) => s.applySaved);
-  const beginAddPartner = useStudioStore((s) => s.beginAddPartner);
-  const ids = useMemo(() => rows.map((row) => row.id), [rows]);
-  const aId = activeId && ids.includes(activeId) ? activeId : (ids[0] ?? null);
-  const others = useMemo(() => rows.filter((row) => row.id !== aId), [rows, aId]);
-  const cleared = partnerId === "";
-  const resolvedBId = cleared ? null : partnerId && others.some((row) => row.id === partnerId) ? partnerId : (others[0]?.id ?? null);
-  useEffect(() => {
-    if (!enabled || cleared) return;
-    if (resolvedBId && resolvedBId !== partnerId) setPartner("synastry", resolvedBId);
-  }, [enabled, cleared, resolvedBId, partnerId, setPartner]);
-  const inner = aId && aId === activeId && chartA ? chartA : aId ? (rows.find((row) => row.id === aId)?.chart ?? null) : null;
-  const chartB = rows.find((row) => row.id === resolvedBId)?.chart ?? null;
-  const selectA = useCallback(
-    (id: string) => {
-      const row = rows.find((r) => r.id === id);
-      if (row) applySaved(row);
-    },
-    [rows, applySaved],
-  );
-  const selectB = useCallback((id: string) => setPartner("synastry", id), [setPartner]);
-  const addSecond = useCallback(() => beginAddPartner("zodiac-pair"), [beginAddPartner]);
-  const swap = useCallback(() => {
-    if (!aId || !resolvedBId) return;
-    const row = rows.find((r) => r.id === resolvedBId);
-    if (!row) return;
-    const oldA = aId;
-    applySaved(row);
-    setPartner("synastry", oldA);
-  }, [aId, resolvedBId, rows, applySaved, setPartner]);
-  const pick = useMemo(() => ({ rows, aId, resolvedBId, others, selectA, selectB, addSecond, swap }), [rows, aId, resolvedBId, others, selectA, selectB, addSecond, swap]);
-  return { pick, inner, chartB };
-}
-
 function usePairRuntime(): ModeRuntime<ZodiacPairState> {
   const { locale, t } = useI18n();
   const prefs = useChinesePrefs();
@@ -309,7 +268,7 @@ function usePairRuntime(): ModeRuntime<ZodiacPairState> {
   const chart = useStudioStore((s) => s.chart);
   const selectedId = useStudioStore((s) => s.selectedId);
   const enabled = page === "zodiac-pair" && Boolean(chart);
-  const { pick, inner, chartB } = usePairPick(enabled);
+  const { pick, inner, chartB } = usePairPick(enabled, "zodiac-pair");
   const a = useZodiacOf(inner, prefs, enabled);
   const b = useZodiacOf(chartB, prefs, enabled);
   const names = useMemo(

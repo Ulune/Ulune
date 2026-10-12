@@ -1,7 +1,7 @@
 import { Suspense, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { LoadingLines } from "@/components/loading-lines";
-import { BRANCHES, PHASES, STEMS } from "@/lib/chinese/names";
+import { BRANCHES, PHASES, SIXTY, STEMS, type PhaseId } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
@@ -30,6 +30,11 @@ import {
   strengthWord,
 } from "@/lib/chinese/bazi-reading";
 import { STRUCTURE_NAMES, baziBalance, type BaziBalance } from "@/lib/chinese/bazi-balance";
+import { STRENGTH_TEXTS, STRUCTURE_TEXTS } from "@/lib/chinese/bazi-balance-texts";
+import { LUCK_GOD_TEXTS } from "@/lib/chinese/bazi-readings-texts";
+import { flowYear, flowYearOf, luckAt, luckPillars, type Luck, type LuckCount } from "@/lib/chinese/bazi-luck";
+import { ageWords, countWord, luckReading, luckRef } from "@/lib/chinese/bazi-luck-reading";
+import "@/studio/modes/styles/first-read.css";
 import { INTERACTION_NAMES, baziInteractions, interactionTone, type Interaction } from "@/lib/chinese/bazi-interactions";
 import { STARS, baziSigns, type BaziSigns, type PillarSigns } from "@/lib/chinese/bazi-signs";
 import { PLACE_WORD } from "@/lib/chinese/zodiac-places";
@@ -73,6 +78,8 @@ export type BaziState = {
   signs: BaziSigns | null;
   interactions: Interaction[];
   balance: BaziBalance | null;
+  /** The luck pillars, one per count given (both without one), for the first read. */
+  lucks: Luck[];
   enabled: boolean;
 };
 
@@ -515,52 +522,110 @@ function BaziFigure() {
   );
 }
 
-/** The side panel with nothing chosen: the Day Master and its image, the board in a sentence, the clock read. */
+/** A text's first sentence, for the first read's steps. */
+const firstSentence = (t: string) => t.split(/(?<=[.!?])\s/)[0] ?? t;
+
+/**
+ * The first read (languages plan, part 19: "a guided path through Day
+ * Master, balance, strength and the current luck pillar"), in the side panel
+ * with nothing chosen, as Human Design's: numbered steps, each a line or two
+ * and opening its reading, then where to go next.
+ */
 function BaziHello() {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const data = useModeData("bazi");
   const w = useWheelView();
   const c = data?.bazi;
-  if (!c) return null;
+  if (!c || !data) return null;
+  const b = data.balance;
   const dm = chineseLabel(STEMS[c.dayMaster]!, locale, prefs);
   const clock = cnWord(locale, prefs.clock === "true-solar" ? "cnClockSolar" : prefs.clock === "local-mean" ? "cnClockMean" : "cnClockCivil").toLowerCase();
   const day = cnWord(locale, prefs.dayBoundary === "23:00" ? "zkDayAt23" : prefs.dayBoundary === "split" ? "zkDaySplit" : "zkDayMidnight");
+  type Step = { id: string; ref: string; label: string; value: string; text: string };
+  const steps: Step[] = [{ id: "dm", ref: stemRef("day"), label: chineseLabel(DAY_MASTER_NAME, locale, prefs).name, value: dm.text, text: firstSentence(said(DAY_MASTER_IMAGES[c.dayMaster]!, locale)) }];
+  if (b) {
+    const sorted = [...b.phases].sort((x, y) => y.points - x.points);
+    const most = sorted.filter((x) => x.points === sorted[0]!.points);
+    const least = sorted.at(-1)!;
+    const names = (ids: readonly { phase: PhaseId }[]) => phaseList(ids.map((x) => x.phase), locale);
+    steps.push(
+      {
+        id: "phases",
+        ref: BALANCE_REF,
+        label: cnWord(locale, "bzBalHead"),
+        value: cnWord(locale, "bzFirstMostLeast", { most: names(most), least: names([least]) }),
+        text: cnWord(locale, "bzFirstPhases", { most: names(most), mostN: fmtPoints(most[0]!.points, locale), total: fmtPoints(b.total, locale), least: names([least]), leastN: fmtPoints(least.points, locale) }),
+      },
+      { id: "strength", ref: STRENGTH_REF, label: cnWord(locale, "bzStrength"), value: strengthWord(b, locale), text: firstSentence(said(STRENGTH_TEXTS[b.strength], locale)) },
+      {
+        id: "structure",
+        ref: STRUCTURE_REF,
+        label: cnWord(locale, "bzStructure"),
+        value: chineseLabel(STRUCTURE_NAMES[b.structure.id], locale, { ...prefs, show: "names" }).name,
+        text: firstSentence(said(STRUCTURE_TEXTS[b.structure.id], locale)),
+      },
+      {
+        id: "favourable",
+        ref: FAVOURABLE_REF,
+        label: cnWord(locale, "bzFav"),
+        value: `${phaseList(b.favourable.good, locale)}${b.favourable.climate ? ` · ${cnWord(locale, "bzFavClimate").toLowerCase()} ${phaseList([b.favourable.climate], locale)}` : ""}`,
+        text: cnWord(locale, "bzFavLead").split(/(?<=[.!?])\s/)[0] ?? "",
+      },
+    );
+  }
+  for (const l of data.lucks) {
+    const now = luckAt(l, Date.now());
+    const label = `${cnWord(locale, "bzlInLuck")}${data.lucks.length > 1 ? ` · ${countWord(l.count, locale)}` : ""}`;
+    steps.push(
+      now
+        ? {
+            id: `luck-${l.count}`,
+            ref: luckRef(l.count, now.index),
+            label,
+            value: `${chineseLabel(SIXTY[now.pillar.cycle]!, locale, { ...prefs, show: "names" }).name} · ${cnWord(locale, "bzlAges", { from: Math.floor(now.fromAge), to: Math.floor(now.toAge) })}`,
+            text: said(LUCK_GOD_TEXTS[now.god], locale),
+          }
+        : { id: `luck-${l.count}`, ref: luckRef(l.count, 1), label, value: "", text: cnWord(locale, "bzFirstLuckBefore", { age: ageWords(l.start, locale) }) },
+    );
+  }
   return (
-    <section className="ulune-zk-hello" data-testid="bazi-hello">
-      <h2 className="ulune-zk-hello-h">{cnWord(locale, "bzTitle")}</h2>
+    <section className="ulune-hd-first ulune-bz-first" data-testid="bazi-hello" aria-labelledby="ulune-bz-first-title">
+      <h3 id="ulune-bz-first-title" className="ulune-kicker ulune-hd-first-title">
+        {cnWord(locale, "bzFirstTitle")}
+      </h3>
       <p className="ulune-zk-hello-p">{cnWord(locale, "bzLead")}</p>
-      <ol className="ulune-zk-hello-list">
-        <li>
-          <button type="button" className="ulune-zk-hello-row" data-testid="bazi-hello-dm" onClick={() => w.pick(stemRef("day"))}>
-            <b>{chineseLabel(DAY_MASTER_NAME, locale, prefs).name}</b>
-            <span>{dm.text}</span>
-          </button>
-        </li>
-        {data?.balance ? (
-          <>
-            <li>
-              <button type="button" className="ulune-zk-hello-row" data-testid="bazi-hello-strength" onClick={() => w.pick(STRENGTH_REF)}>
-                <b>{cnWord(locale, "bzStrength")}</b>
-                <span>{strengthWord(data.balance, locale)}</span>
-              </button>
-            </li>
-            <li>
-              <button type="button" className="ulune-zk-hello-row" data-testid="bazi-hello-structure" onClick={() => w.pick(STRUCTURE_REF)}>
-                <b>{cnWord(locale, "bzStructure")}</b>
-                <span>{chineseLabel(STRUCTURE_NAMES[data.balance.structure.id], locale, prefs).text}</span>
-              </button>
-            </li>
-            <li>
-              <button type="button" className="ulune-zk-hello-row" data-testid="bazi-hello-favourable" onClick={() => w.pick(FAVOURABLE_REF)}>
-                <b>{cnWord(locale, "bzFav")}</b>
-                <span>{phaseList(data.balance.favourable.good, locale)}</span>
-              </button>
-            </li>
-          </>
-        ) : null}
+      <ol className="ulune-hd-steps">
+        {steps.map((st, i) => (
+          <li key={st.id}>
+            <button
+              type="button"
+              data-testid={`bazi-hello-${st.id}`}
+              className={cn("ulune-hd-step", w.selectedId === st.ref && "is-on")}
+              aria-label={`${i + 1}. ${st.label}${st.value ? `: ${st.value}` : ""}. ${st.text}`}
+              onClick={() => w.pick(st.ref)}
+              {...previewProps(st.ref)}
+            >
+              <span className="ulune-hd-step-n" aria-hidden>
+                {i + 1}
+              </span>
+              <span className="ulune-hd-step-body">
+                <span className="ulune-hd-step-head">
+                  <span className="ulune-kicker ulune-hd-step-k">{st.label}</span>
+                  {st.value ? <span className="ulune-hd-step-v">{st.value}</span> : null}
+                </span>
+                <span className="ulune-hd-step-text">{st.text}</span>
+              </span>
+            </button>
+          </li>
+        ))}
       </ol>
-      <p className="ulune-zk-hello-p">{said(DAY_MASTER_IMAGES[c.dayMaster]!, locale)}</p>
+      <p className="ulune-hd-first-next" data-testid="bazi-first-next">
+        {cnWord(locale, "bzFirstNext")}{" "}
+        <Link to="/bazi/cycles" className="ob-keep-link" data-testid="bazi-first-cycles">
+          {cnWord(locale, "bzFirstCycles")}
+        </Link>
+      </p>
       {c.timeUnknown ? <p className="ulune-zk-hello-p">{cnWord(locale, "bzNoHour")}</p> : null}
       <p className="ulune-zk-hello-note" data-testid="bazi-clock">
         {cnWord(locale, "zkClockLine", { clock, day })}{" "}
@@ -608,8 +673,22 @@ function useBaziRuntime(): ModeRuntime<BaziState> {
   const signs = useMemo(() => (bazi ? baziSigns(bazi) : null), [bazi]);
   const interactions = useMemo(() => (bazi ? baziInteractions(bazi) : []), [bazi]);
   const balance = useMemo(() => (bazi ? baziBalance(bazi) : null), [bazi]);
-  const reading = useMemo(() => (bazi ? baziReading(bazi, selectedId, locale, prefs) : null), [bazi, selectedId, locale, prefs]);
-  const data = useMemo(() => ({ bazi, signs, interactions, balance, enabled }), [bazi, signs, interactions, balance, enabled]);
+  const count = useStudioStore((s) => s.input.chineseCount);
+  const lucks = useMemo(() => {
+    if (!bazi) return [];
+    const counts: LuckCount[] = count === "yang" || count === "yin" ? [count] : ["yang", "yin"];
+    return counts.map((n) => luckPillars(bazi, n));
+  }, [bazi, count]);
+  const reading = useMemo(() => {
+    if (!bazi) return null;
+    // The first read's luck pillar opens its reading here, as on the Cycles page.
+    if (selectedId?.startsWith("bz:luck:")) {
+      const year = flowYear(bazi, flowYearOf(Date.now()), lucks);
+      return luckReading({ c: bazi, lucks, year, day: null, tz: chart?.meta.timezone }, selectedId, locale, prefs);
+    }
+    return baziReading(bazi, selectedId, locale, prefs);
+  }, [bazi, lucks, selectedId, locale, prefs, chart]);
+  const data = useMemo(() => ({ bazi, signs, interactions, balance, lucks, enabled }), [bazi, signs, interactions, balance, lucks, enabled]);
   return useMemo(() => ({ data, reading }), [data, reading]);
 }
 

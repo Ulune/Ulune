@@ -4,6 +4,7 @@ import type { ZodiacYearsState } from "@/studio/modes/zodiac-years";
 import type { ZodiacPairState } from "@/studio/modes/zodiac-pair";
 import type { BaziState } from "@/studio/modes/bazi";
 import type { BaziLuckState } from "@/studio/modes/bazi-luck";
+import type { BaziPairState } from "@/studio/modes/bazi-pair";
 import type { ElementReading } from "@/lib/chart/types";
 import type { CompositeState } from "@/studio/modes/composite";
 import type { DesignState } from "@/studio/modes/design";
@@ -42,6 +43,7 @@ export type ModeData = {
   "zodiac-pair": ZodiacPairState;
   bazi: BaziState;
   "bazi-luck": BaziLuckState;
+  "bazi-pair": BaziPairState;
 };
 
 const slots: Partial<Record<StudioPage, ModeRuntime>> = {};

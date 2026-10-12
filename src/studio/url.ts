@@ -20,6 +20,8 @@ export const STUDIO_PAGES = [
   "bazi",
   // 2.0: its Cycles lens, the luck pillars and the flow of years (part 16).
   "bazi-luck",
+  // 2.0: its Relationship lens, two charts side by side (part 19).
+  "bazi-pair",
 ] as const;
 
 export type StudioPage = (typeof STUDIO_PAGES)[number];

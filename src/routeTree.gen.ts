@@ -39,6 +39,7 @@ import { Route as StudioAstrologySynastryRouteImport } from './routes/_studio.as
 import { Route as StudioAstrologyTransitsRouteImport } from './routes/_studio.astrology.transits'
 import { Route as StudioBaziIndexRouteImport } from './routes/_studio.bazi.index'
 import { Route as StudioBaziCyclesRouteImport } from './routes/_studio.bazi.cycles'
+import { Route as StudioBaziPairRouteImport } from './routes/_studio.bazi.pair'
 import { Route as StudioChineseAstrologyIndexRouteImport } from './routes/_studio.chinese-astrology.index'
 import { Route as StudioChineseAstrologyCyclesRouteImport } from './routes/_studio.chinese-astrology.cycles'
 import { Route as StudioChineseAstrologyPairRouteImport } from './routes/_studio.chinese-astrology.pair'
@@ -196,6 +197,11 @@ const StudioBaziCyclesRoute = StudioBaziCyclesRouteImport.update({
   path: '/bazi/cycles',
   getParentRoute: () => StudioRoute,
 } as any)
+const StudioBaziPairRoute = StudioBaziPairRouteImport.update({
+  id: '/bazi/pair',
+  path: '/bazi/pair',
+  getParentRoute: () => StudioRoute,
+} as any)
 const StudioChineseAstrologyIndexRoute =
   StudioChineseAstrologyIndexRouteImport.update({
     id: '/chinese-astrology/',
@@ -253,6 +259,7 @@ export interface FileRoutesByFullPath {
   '/astrology/synastry': typeof StudioAstrologySynastryRoute
   '/astrology/transits': typeof StudioAstrologyTransitsRoute
   '/bazi/cycles': typeof StudioBaziCyclesRoute
+  '/bazi/pair': typeof StudioBaziPairRoute
   '/chinese-astrology/cycles': typeof StudioChineseAstrologyCyclesRoute
   '/chinese-astrology/pair': typeof StudioChineseAstrologyPairRoute
   '/numerology/cycles': typeof StudioNumerologyCyclesRoute
@@ -289,6 +296,7 @@ export interface FileRoutesByTo {
   '/astrology/synastry': typeof StudioAstrologySynastryRoute
   '/astrology/transits': typeof StudioAstrologyTransitsRoute
   '/bazi/cycles': typeof StudioBaziCyclesRoute
+  '/bazi/pair': typeof StudioBaziPairRoute
   '/chinese-astrology/cycles': typeof StudioChineseAstrologyCyclesRoute
   '/chinese-astrology/pair': typeof StudioChineseAstrologyPairRoute
   '/numerology/cycles': typeof StudioNumerologyCyclesRoute
@@ -327,6 +335,7 @@ export interface FileRoutesById {
   '/_studio/astrology/synastry': typeof StudioAstrologySynastryRoute
   '/_studio/astrology/transits': typeof StudioAstrologyTransitsRoute
   '/_studio/bazi/cycles': typeof StudioBaziCyclesRoute
+  '/_studio/bazi/pair': typeof StudioBaziPairRoute
   '/_studio/chinese-astrology/cycles': typeof StudioChineseAstrologyCyclesRoute
   '/_studio/chinese-astrology/pair': typeof StudioChineseAstrologyPairRoute
   '/_studio/numerology/cycles': typeof StudioNumerologyCyclesRoute
@@ -365,6 +374,7 @@ export interface FileRouteTypes {
     | '/astrology/synastry'
     | '/astrology/transits'
     | '/bazi/cycles'
+    | '/bazi/pair'
     | '/chinese-astrology/cycles'
     | '/chinese-astrology/pair'
     | '/numerology/cycles'
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/astrology/synastry'
     | '/astrology/transits'
     | '/bazi/cycles'
+    | '/bazi/pair'
     | '/chinese-astrology/cycles'
     | '/chinese-astrology/pair'
     | '/numerology/cycles'
@@ -438,6 +449,7 @@ export interface FileRouteTypes {
     | '/_studio/astrology/synastry'
     | '/_studio/astrology/transits'
     | '/_studio/bazi/cycles'
+    | '/_studio/bazi/pair'
     | '/_studio/chinese-astrology/cycles'
     | '/_studio/chinese-astrology/pair'
     | '/_studio/numerology/cycles'
@@ -681,6 +693,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudioBaziCyclesRouteImport
       parentRoute: typeof StudioRoute
     }
+    '/_studio/bazi/pair': {
+      id: '/_studio/bazi/pair'
+      path: '/bazi/pair'
+      fullPath: '/bazi/pair'
+      preLoaderRoute: typeof StudioBaziPairRouteImport
+      parentRoute: typeof StudioRoute
+    }
     '/_studio/chinese-astrology/': {
       id: '/_studio/chinese-astrology/'
       path: '/chinese-astrology'
@@ -729,6 +748,7 @@ interface StudioRouteChildren {
   StudioAstrologySynastryRoute: typeof StudioAstrologySynastryRoute
   StudioAstrologyTransitsRoute: typeof StudioAstrologyTransitsRoute
   StudioBaziCyclesRoute: typeof StudioBaziCyclesRoute
+  StudioBaziPairRoute: typeof StudioBaziPairRoute
   StudioChineseAstrologyCyclesRoute: typeof StudioChineseAstrologyCyclesRoute
   StudioChineseAstrologyPairRoute: typeof StudioChineseAstrologyPairRoute
   StudioNumerologyCyclesRoute: typeof StudioNumerologyCyclesRoute
@@ -748,6 +768,7 @@ const StudioRouteChildren: StudioRouteChildren = {
   StudioAstrologySynastryRoute: StudioAstrologySynastryRoute,
   StudioAstrologyTransitsRoute: StudioAstrologyTransitsRoute,
   StudioBaziCyclesRoute: StudioBaziCyclesRoute,
+  StudioBaziPairRoute: StudioBaziPairRoute,
   StudioChineseAstrologyCyclesRoute: StudioChineseAstrologyCyclesRoute,
   StudioChineseAstrologyPairRoute: StudioChineseAstrologyPairRoute,
   StudioNumerologyCyclesRoute: StudioNumerologyCyclesRoute,

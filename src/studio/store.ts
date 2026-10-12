@@ -399,6 +399,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
         page === "zodiac-pair" ||
         page === "bazi" ||
         page === "bazi-luck" ||
+        page === "bazi-pair" ||
         page === "design";
       set((s) => ({
         chart: result.chart,
@@ -642,8 +643,8 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   },
   finishAddPartner: (newId) => {
     const mode = get().pair.addingPartnerFor;
-    // Chinese astrology's Pair (part 11) compares with synastry's partner: one second person for both.
-    if (mode === "synastry" || mode === "zodiac-pair") {
+    // Chinese astrology's Pair (part 11) and BaZi's (part 19) compare with synastry's partner: one second person for all.
+    if (mode === "synastry" || mode === "zodiac-pair" || mode === "bazi-pair") {
       set({ pair: { ...get().pair, partnerId: newId, addingPartnerFor: null, anchorId: null } });
     } else if (mode === "composite") {
       set({

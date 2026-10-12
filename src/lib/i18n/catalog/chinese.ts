@@ -242,7 +242,6 @@ export const chinese = {
   zkYears: ["Its years", "Ses années"],
   zkUncertainTitle: ["Depends on the birth time", "Dépend de l’heure de naissance"],
   // BaZi, the Four Pillars (languages plan, part 12).
-  bzTitle: ["Your four pillars", "Vos quatre piliers"],
   bzLead: [
     "BaZi reads a birth as eight characters: four pillars, each a Heavenly Stem over an Earthly Branch. The day’s stem is you, the Day Master; every other stem, shown or hidden in a branch, is one of the Ten Gods.",
     "Le BaZi lit une naissance en huit caractères\u202f: quatre piliers, chacun un Tronc céleste au-dessus d’une Branche terrestre. Le tronc du jour, c’est vous, le Maître du jour\u202f; chaque autre tronc, visible ou caché dans une branche, est l’un des Dix Dieux.",
@@ -685,6 +684,84 @@ export const chinese = {
   bzLinksCol: ["Joins or meets", "Relie ou rencontre"],
   // BaZi's readings (languages plan, part 18).
   bzPhaseLevelTitle: ["Much or little", "Beaucoup ou peu"],
+  // BaZi's first read and Pair (languages plan, part 19).
+  bzFirstTitle: ["Your first read", "Votre première lecture"],
+  bzFirstPhases: [
+    "Your chart holds most {most} ({mostN} of {total} points) and least {least} ({leastN}).",
+    "Votre thème tient surtout {most} ({mostN} sur {total} points), et le moins {least} ({leastN}).",
+  ],
+  bzFirstMostLeast: ["most {most} · least {least}", "surtout {most} · le moins {least}"],
+  bzFirstLuckBefore: ["Your first luck pillar starts at {age}.", "Votre premier pilier de chance commence à {age}."],
+  bzFirstNext: [
+    "Then the Cycles lens follows every luck pillar and year, the board every cell, and the table every layer.",
+    "Ensuite, l’objectif Cycles suit chaque pilier de chance et chaque année, le tableau chaque case, et la table chaque couche.",
+  ],
+  bzFirstCycles: ["Open Cycles", "Ouvrir les Cycles"],
+  bzpTitle: ["Two charts", "Deux thèmes"],
+  bzpEmpty: ["Cast a birth chart, then choose a second one, to compare two charts.", "Calculez un thème natal, puis choisissez-en un second, pour comparer deux thèmes."],
+  bzpLead: [
+    "BaZi compares two charts as the tradition does for a couple or any close bond: the Day Masters, the day branches (the partner palace), what the pillars meet, and what each chart’s phases bring the other.",
+    "Le BaZi compare deux thèmes comme la tradition le fait pour un couple ou tout lien proche\u202f: les Maîtres du jour, les branches du jour (le palais du partenaire), ce que les piliers rencontrent, et ce que les phases de chacun apportent à l’autre.",
+  ],
+  bzpDmHead: ["The Day Masters", "Les Maîtres du jour"],
+  bzpDmGods: [
+    "To {a}, {b}’s Day Master is the {godAB}; to {b}, {a}’s is the {godBA}.",
+    "Pour {a}, le Maître du jour de {b} est le dieu {godAB}\u202f; pour {b}, celui de {a} est le dieu {godBA}.",
+  ],
+  bzpFamPeer: [
+    "{a} and {b} share a Day Master’s phase: peers who recognise each other, moved by the same things, and at times wanting the same ground.",
+    "{a} et {b} partagent la phase de leur Maître du jour\u202f: des pairs qui se reconnaissent, mus par les mêmes choses, et parfois désireux du même terrain.",
+  ],
+  bzpFamOutput: [
+    "{a}’s Day Master produces {b}’s: {a} inspires and feeds, {b} takes the idea further. A bond where giving comes easily from one side.",
+    "Le Maître du jour de {a} produit celui de {b}\u202f: {a} inspire et nourrit, {b} porte l’idée plus loin. Un lien où le don vient facilement d’un côté.",
+  ],
+  bzpFamWealth: [
+    "{a}’s Day Master controls {b}’s: {a} tends to steer and organise, {b} to ground and give form. A practical bond, at its best with respect.",
+    "Le Maître du jour de {a} contrôle celui de {b}\u202f: {a} tend à orienter et organiser, {b} à ancrer et donner forme. Un lien concret, à son meilleur avec du respect.",
+  ],
+  bzpFamPower: [
+    "{b}’s Day Master controls {a}’s: {b} brings structure and challenge, {a} rises to it. A bond that shapes, at its best when the pressure is kind.",
+    "Le Maître du jour de {b} contrôle celui de {a}\u202f: {b} apporte structure et défi, {a} s’y élève. Un lien qui façonne, à son meilleur quand la pression est bienveillante.",
+  ],
+  bzpFamResource: [
+    "{b}’s Day Master produces {a}’s: {b} supports and nourishes, {a} grows. A bond of care that runs mostly one way.",
+    "Le Maître du jour de {b} produit celui de {a}\u202f: {b} soutient et nourrit, {a} grandit. Un lien de soin qui va surtout dans un sens.",
+  ],
+  bzpPalaceHead: ["The partner palaces", "Les palais du partenaire"],
+  bzpPalaceLead: [
+    "The day branch is each chart’s partner palace (夫妻宮), the seat of close bonds: how two day branches meet colours how two people live side by side.",
+    "La branche du jour est le palais du partenaire de chaque thème (夫妻宮), le siège des liens proches\u202f: la façon dont deux branches du jour se rencontrent colore la façon dont deux personnes vivent côte à côte.",
+  ],
+  bzpPalaceSame: ["{a} and {b} share the same day branch, {branch}: familiar ground.", "{a} et {b} ont la même branche du jour, {branch}\u202f: un terrain familier."],
+  bzpPalaceNone: [
+    "{a}’s {ba} and {b}’s {bb} neither join nor clash: two palaces that leave each other free.",
+    "{ba} chez {a} et {bb} chez {b} ne se lient ni ne se heurtent\u202f: deux palais qui se laissent libres.",
+  ],
+  bzpPalaceMeet: ["{a}’s {ba} and {b}’s {bb}: {kinds}.", "{ba} chez {a} et {bb} chez {b}\u202f: {kinds}."],
+  bzpMeetHead: ["Between the two charts", "Entre les deux thèmes"],
+  bzpMeetFrom: ["{b}’s {pillar}", "{pillar} de {b}"],
+  bzpMeetsNone: ["No pillar of {b} meets one of {a}’s.", "Aucun pilier de {b} ne rencontre ceux de {a}."],
+  bzpMeetLead: ["{b}’s {pillar}, {pair}, meets {a}’s chart:", "{pillar} de {b}, {pair}, rencontre le thème de {a}\u202f:"],
+  bzpPhasesHead: ["What each brings the other", "Ce que chacun apporte à l’autre"],
+  bzpGiftFavoured: ["{from} holds plenty of {phase} ({pct}), which {to}’s chart favours.", "{from} tient beaucoup de {phase} ({pct}), que le thème de {to} favorise."],
+  bzpGiftLacking: ["{from} holds plenty of {phase} ({pct}), which {to}’s chart holds little of.", "{from} tient beaucoup de {phase} ({pct}), dont le thème de {to} a peu."],
+  bzpGiftNone: [
+    "Neither holds much of what the other favours or lacks: each brings its own balance.",
+    "Aucun ne tient beaucoup de ce que l’autre favorise ou dont il manque\u202f: chacun apporte son propre équilibre.",
+  ],
+  bzpGiftsLead: [
+    "The phases one chart favours or holds little of, that the other holds plenty of (a fifth of its points or more): what each can bring the other.",
+    "Les phases qu’un thème favorise ou dont il a peu, que l’autre tient en abondance (un cinquième de ses points ou plus)\u202f: ce que chacun peut apporter à l’autre.",
+  ],
+  bzpAbout: [
+    "Pair reads a bond, not a verdict on it: the Ten Gods between the Day Masters, the partner palaces and the phases are the Zi Ping school’s, as for one chart.",
+    "La comparaison lit un lien, non un verdict sur lui\u202f: les Dix Dieux entre les Maîtres du jour, les palais du partenaire et les phases sont ceux de l’école Zi Ping, comme pour un seul thème.",
+  ],
+  bzpPartMain: ["The two charts", "Les deux thèmes"],
+  bzpPartMainHint: ["The Day Masters, the partner palaces and what each brings the other.", "Les Maîtres du jour, les palais du partenaire et ce que chacun apporte à l’autre."],
+  bzpPartMeets: ["Between the pillars", "Entre les piliers"],
+  bzpPartMeetsHint: ["Each pillar of the second chart and what it meets in the first.", "Chaque pilier du second thème et ce qu’il rencontre dans le premier."],
   // The relations between animals (languages plan, part 8).
   zkRelations: ["Between your animals", "Entre vos animaux"],
   zkRelationsNone: [
