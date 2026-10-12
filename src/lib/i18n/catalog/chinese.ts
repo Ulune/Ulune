@@ -680,6 +680,13 @@ export const chinese = {
   bzlBranchGodCol: ["Branch’s god", "Dieu de la branche"],
   bzlMeetsCol: ["Meets", "Rencontre"],
   bzlCountCol: ["Count", "Compte"],
+  // BaZi's full table (languages plan, part 17).
+  bzPartFull: ["The chart, layer by layer", "Le thème, couche par couche"],
+  bzPartFullHint: [
+    "Each pillar, with the luck pillar running now and this year’s, by every layer: stem and god, branch, hidden stems, life stage, Na Yin, empty branch, stars, what it joins or meets, and its points.",
+    "Chaque pilier, avec le pilier de chance en cours et celui de l’année, selon chaque couche\u202f: tronc et dieu, branche, troncs cachés, stade de vie, Na Yin, branche vide, étoiles, ce qu’il relie ou rencontre, et ses points.",
+  ],
+  bzLinksCol: ["Joins or meets", "Relie ou rencontre"],
   // The relations between animals (languages plan, part 8).
   zkRelations: ["Between your animals", "Entre vos animaux"],
   zkRelationsNone: [

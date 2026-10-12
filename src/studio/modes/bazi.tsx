@@ -578,11 +578,12 @@ const BaziTable = lazyNamed(loadTable, "BaziTable");
 function BaziData() {
   const data = useModeData("bazi");
   const w = useWheelView();
+  const count = useStudioStore((s) => s.input.chineseCount);
   const c = data?.bazi;
   if (!c) return null;
   return (
     <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
-      <BaziTable c={c} name={w.chart?.meta.name ?? ""} selectedId={w.selectedId} onSelect={w.pick} />
+      <BaziTable c={c} name={w.chart?.meta.name ?? ""} count={count === "yang" || count === "yin" ? count : undefined} selectedId={w.selectedId} onSelect={w.pick} />
     </Suspense>
   );
 }

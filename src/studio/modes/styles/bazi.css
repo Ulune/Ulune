@@ -523,3 +523,10 @@
     padding-inline: 3px;
   }
 }
+
+/* Part 17, the full table: the luck pillar's and the year's rows, named like the chart's but not chosen from here. */
+.ulune-bz-static-row {
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 500;
+}

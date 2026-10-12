@@ -21,7 +21,9 @@
  *     0.3), a weak Day Master, the Seven Killings structure, Earth and Metal
  *     favourable with Water by climate; the strength's reading shows its
  *     tests, the method is one tap away;
- *   - the table; Settings' "Year to hour" followed at once;
+ *   - the table: first (part 17) every pillar by every layer, with both
+ *     counts' luck pillars and this year; Settings' "Year to hour" followed
+ *     at once;
  *   - nothing sent while the page works it out; nothing scrolls sideways.
  */
 import { join } from "node:path";
@@ -196,6 +198,13 @@ async function run(width, lang) {
     // The table: four pillars, ten gods.
     await setView(page, "table");
     await page.getByTestId("bazi-table").waitFor({ timeout: 10000 });
+    // Part 17: the full table first, every pillar by every layer, the luck pillars (both counts) and the year of the moment.
+    const fullRows = await page.locator("[data-testid^=bazi-full-]").evaluateAll((els) => els.map((e) => e.getAttribute("data-testid").slice(10)));
+    if (fullRows.join() !== "year,month,day,hour,luck-yang,luck-yin,flow-year") throw new Error(`${label}: the full table's rows ${fullRows}`);
+    const dayRow = await page.getByTestId("bazi-full-day").evaluate((e) => e.textContent);
+    if (!dayRow.includes(w.gods.day) || !dayRow.includes(w.stages.day)) throw new Error(`${label}: the full table's day "${dayRow}"`);
+    const firstPart = await page.locator("[data-testid=bazi-table] section, [data-testid=bazi-table] [id^=table-part-]").first().getAttribute("id").catch(() => "");
+    if (firstPart && !firstPart.includes("full")) throw new Error(`${label}: the table's first part ${firstPart}`);
     const rows = await page.locator("[data-testid^=bazi-row-]").count();
     if (rows !== 4) throw new Error(`${label}: ${rows} pillars in the table`);
     const hidCell = await page.getByTestId("bazi-hidden-cell-hour").innerText();

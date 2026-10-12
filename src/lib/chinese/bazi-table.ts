@@ -6,7 +6,8 @@
  * the empty branches and the symbolic stars; from part 14 the interactions
  * between the pillars and whether they transform; from part 15 the phases'
  * count, the strength and its tests, the structure and the favourable
- * phases; as
+ * phases; from part 17 the full table, every pillar (and the luck pillar
+ * and year of the moment) by every layer; as
  * text for Copy and as CSV in the tables' common shape (a section column,
  * ids rather than words).
  */
@@ -22,6 +23,7 @@ import { FAMILY_NAMES } from "./bazi-texts";
 import { INTERACTION_NAMES, baziInteractions, type Interaction } from "./bazi-interactions";
 import { STARS, baziSigns, type PillarSigns } from "./bazi-signs";
 import { PLACE_WORD } from "./zodiac-places";
+import { FULL_CSV_HEAD, baziFullRows, fullLines, type FullTime } from "./bazi-full";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 
@@ -43,7 +45,7 @@ export function stemGodName(p: BaziPillar, locale: string, prefs: Shown): string
   return p.god ? chineseLabel(tenGodById(p.god), locale, prefs).text : chineseLabel(DAY_MASTER_NAME, locale, prefs).text;
 }
 
-export function baziTextParts(c: BaziChart, locale: string, prefs: Shown, name = ""): { id: string; lines: string[] }[] {
+export function baziTextParts(c: BaziChart, locale: string, prefs: Shown, name = "", time?: FullTime): { id: string; lines: string[] }[] {
   const colon = locale === "fr" ? " : " : ": ";
   const pillars = c.pillars.map(
     (p) =>
@@ -61,7 +63,8 @@ export function baziTextParts(c: BaziChart, locale: string, prefs: Shown, name =
     ? signs.stars.map((h) => `${chineseLabel(STARS.find((x) => x.id === h.id)!, locale, prefs).text}${colon}${starPlaces(h.places, locale)}`)
     : [cnWord(locale, "bzStarsNone")];
   return [
-    { id: "pillars", lines: [`${name ? `${name} · ` : ""}${cnWord(locale, "bzPartPillars")}`, ...pillars] },
+    { id: "full", lines: [`${name ? `${name} · ` : ""}${cnWord(locale, "bzPartFull")}`, ...fullLines(baziFullRows(c, locale, prefs, time), locale)] },
+    { id: "pillars", lines: [cnWord(locale, "bzPartPillars"), ...pillars] },
     { id: "gods", lines: [`${cnWord(locale, "bzPartGods")} (${cnWord(locale, "bzGodsKey")})`, ...gods] },
     { id: "signs", lines: [cnWord(locale, "bzPartSigns"), ...signLines] },
     { id: "stars", lines: [cnWord(locale, "bzStarsHead"), ...starLines] },
@@ -122,13 +125,16 @@ export function starPlaces(places: readonly PillarSigns["place"][], locale: stri
   return places.map((p) => cnWord(locale, PLACE_WORD[p])).join(" · ");
 }
 
-export function baziTableCsv(c: BaziChart): string {
+export function baziTableCsv(c: BaziChart, time?: FullTime): string {
   const rows: string[][] = [["section", "field", "value"]];
   rows.push(["bazi", "birthUtc", new Date(c.birthMs).toISOString()]);
   rows.push(["bazi", "clock", c.four.clock]);
   rows.push(["bazi", "dayBoundary", c.four.dayBoundary]);
   rows.push(["bazi", "dayMaster", STEMS[c.dayMaster]!.id]);
   rows.push(["bazi", "timeUnknown", c.timeUnknown ? "1" : "0"]);
+  rows.push([]);
+  rows.push(FULL_CSV_HEAD);
+  for (const r of baziFullRows(c, "en", { script: "hant", show: "full" }, time)) rows.push(r.ids);
   rows.push([]);
   rows.push(["pillar", "place", "pillar", "hanzi", "stem", "stemGod", "branch", "hiddenStems", "uncertain"]);
   for (const p of c.pillars) {

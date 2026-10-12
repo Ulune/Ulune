@@ -107,8 +107,10 @@ test("every text in both languages, in Ulune's typography and tone", () => {
 test("the table as text and as CSV", () => {
   const c = baziChart(CAMILLE);
   const parts = baziTextParts(c, "en", { script: "hant", show: "full" }, "Camille");
-  assert.equal(parts[0].lines[0], "Camille · The four pillars");
-  assert.equal(parts[0].lines[3], "Day pillar: Yin Metal Pig · xīnhài 辛亥 · Day Master · rìzhǔ 日主 · Hidden stems 壬 rén 70 Hurting Officer · 甲 jiǎ 30 Direct Wealth");
+  const pillars = parts.find((p) => p.id === "pillars").lines;
+  assert.equal(parts[0].lines[0], "Camille · The chart, layer by layer");
+  assert.equal(pillars[0], "The four pillars");
+  assert.equal(pillars[3], "Day pillar: Yin Metal Pig · xīnhài 辛亥 · Day Master · rìzhǔ 日主 · Hidden stems 壬 rén 70 Hurting Officer · 甲 jiǎ 30 Direct Wealth");
   const csv = baziTableCsv(c).split("\n");
   assert.ok(csv.includes("bazi,dayMaster,xin"));
   assert.ok(csv.includes("pillar,hour,gui-si,癸巳,gui,eating-god,si,bing:60:direct-officer|wu:30:direct-resource|geng:10:rob-wealth,0"), csv.join("\n"));

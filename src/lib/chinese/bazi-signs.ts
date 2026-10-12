@@ -236,6 +236,34 @@ export function starsOf(c: BaziChart): StarHit[] {
 }
 
 
+/**
+ * The stars a pillar arriving in time (a luck pillar, a year) brings to the
+ * chart: the same tables, read from the chart's Day Master, year, day and
+ * month, falling on the new pillar's branch or stem (the Three Wonders,
+ * which need three pillars side by side, aside).
+ */
+export function starsForPillar(c: BaziChart, stem: number, branch: number): StarId[] {
+  const dm = c.dayMaster;
+  const year = c.pillars.find((p) => p.id === "year")!;
+  const month = c.pillars.find((p) => p.id === "month")!;
+  const day = c.pillars.find((p) => p.id === "day")!;
+  const out: StarId[] = [];
+  if (NOBLEMAN[dm]!.includes(branch)) out.push("nobleman");
+  if (ACADEMIC[dm] === branch) out.push("academic");
+  if (PROSPERITY[dm] === branch) out.push("prosperity-star");
+  if ((PROSPERITY[dm]! + 2) % 12 === branch) out.push("golden-carriage");
+  if (SWORD_EDGE[dm] != null && SWORD_EDGE[dm] === branch) out.push("sword-edge");
+  for (const id of ["peach-blossom", "travelling-horse", "canopy", "general"] as const) {
+    if (TRINE_STARS[id][trineOfBranch(year.branch)] === branch || TRINE_STARS[id][trineOfBranch(day.branch)] === branch) out.push(id);
+  }
+  const hv = HEAVENLY_VIRTUE[month.branch]!;
+  if (hv.s != null ? hv.s === stem : hv.b === branch) out.push("heavenly-virtue");
+  if (MONTHLY_VIRTUE[trineOfBranch(month.branch)] === stem) out.push("monthly-virtue");
+  if ((((3 - year.branch) % 12) + 12) % 12 === branch) out.push("red-phoenix");
+  if ((((9 - year.branch) % 12) + 12) % 12 === branch) out.push("heavenly-joy");
+  return out;
+}
+
 // ── All of it, pillar by pillar ──────────────────────────────────────────────
 
 export type PillarSigns = {

@@ -7,24 +7,48 @@ import { EMPTY_REF, PILLAR_WORD, godRef, ixRef, ixStatus, naYinRef, stageRef, st
 import { INTERACTION_NAMES, baziInteractions } from "@/lib/chinese/bazi-interactions";
 import { STARS, baziSigns } from "@/lib/chinese/bazi-signs";
 import { balanceRows, baziTableCsv, baziTextParts, hiddenGodsLine, ixItemShort, starPlaces, stemGodName } from "@/lib/chinese/bazi-table";
+import { baziFullRows, type FullTime } from "@/lib/chinese/bazi-full";
+import { flowYear, flowYearOf, luckPillars, type LuckCount } from "@/lib/chinese/bazi-luck";
 import { partRows } from "@/lib/csv";
+import { useMemo } from "react";
 import { useI18n } from "@/lib/i18n/locale";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
 /**
- * BaZi's table (languages plan, part 12; the full one with every layer is
- * part 17): the four pillars with their gods and hidden stems, the Ten
- * Gods by how often they stand in the chart, and (part 13) the stages, Na
- * Yin, empty branches and symbolic stars; Copy and CSV.
+ * BaZi's table (languages plan, parts 12–17): first the full table (part
+ * 17), every pillar, the luck pillar running now and this year's included,
+ * by every layer; then the four pillars with their gods and hidden stems,
+ * the Ten Gods by how often they stand in the chart, the stages, Na Yin,
+ * empty branches and symbolic stars, the interactions, the balance and
+ * strength; Copy and CSV.
  */
-export function BaziTable({ c, name = "", selectedId, onSelect }: { c: BaziChart; name?: string; selectedId: string | null; onSelect: (id: string) => void }) {
+export function BaziTable({
+  c,
+  name = "",
+  count,
+  selectedId,
+  onSelect,
+}: {
+  c: BaziChart;
+  name?: string;
+  /** The birth's yin or yang count, if given: one luck pillar row, else one per count. */
+  count?: LuckCount;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}) {
   const { locale, t } = useI18n();
   const prefs = useChinesePrefs();
   const w = (key: Parameters<typeof cnWord>[1]) => cnWord(locale, key);
-  const text = () => baziTextParts(c, locale, prefs, name);
+  const time = useMemo<FullTime>(() => {
+    const nowMs = Date.now();
+    const lucks = (count ? [count] : (["yang", "yin"] as const)).map((n) => luckPillars(c, n));
+    return { lucks, year: flowYear(c, flowYearOf(nowMs), lucks), nowMs };
+  }, [c, count]);
+  const full = baziFullRows(c, locale, prefs, time);
+  const text = () => baziTextParts(c, locale, prefs, name, time);
   const partText = (id: string) => () => text().find((p) => p.id === id)?.lines.join("\n") ?? "";
-  const csvOf = (kinds: string[]) => () => partRows(baziTableCsv(c), kinds);
+  const csvOf = (kinds: string[]) => () => partRows(baziTableCsv(c, time), kinds);
   const signs = baziSigns(c);
   const interactions = baziInteractions(c);
   const bal = balanceRows(c, locale, prefs);
@@ -34,6 +58,49 @@ export function BaziTable({ c, name = "", selectedId, onSelect }: { c: BaziChart
     </button>
   );
   const parts: TablePart[] = [
+    {
+      id: "full",
+      label: w("bzPartFull"),
+      hint: w("bzPartFullHint"),
+      copyText: partText("full"),
+      table: csvOf(["full"]),
+      children: (
+        <DataTable className="ulune-zk-tbl ulune-bz-full" wide>
+          <thead>
+            <tr>
+              <th data-col="place">{w("zkPlace")}</th>
+              <th>{w("zkPillar")}</th>
+              <th>{w("bzGod")}</th>
+              <th>{w("zkBranch")}</th>
+              <th>{w("zkHidden")}</th>
+              <th>{w("bzStage")}</th>
+              <th>{w("zkNaYin")}</th>
+              <th>{w("bzEmptyBadge")}</th>
+              <th>{w("bzStarsHead")}</th>
+              <th>{w("bzLinksCol")}</th>
+              <th>{w("bzPointsCol")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {full.map((r) => (
+              <tr key={r.id} data-testid={`bazi-full-${r.id}`} data-kind={r.kind} data-selected={r.place && selectedId === stemRef(r.place) ? "1" : undefined}>
+                <th scope="row">{r.place ? pick(stemRef(r.place), r.label) : <span className="ulune-zk-table-pick ulune-bz-static-row">{r.label}</span>}</th>
+                <td>{r.pillar}</td>
+                <td>{r.stemGod}</td>
+                <td>{r.branch}</td>
+                <td>{r.hidden}</td>
+                <td>{r.stage}</td>
+                <td>{r.naYin}</td>
+                <td>{r.empty}</td>
+                <td>{r.stars}</td>
+                <td>{r.links}</td>
+                <td>{r.points}</td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      ),
+    },
     {
       id: "pillars",
       label: w("bzPartPillars"),
@@ -241,7 +308,7 @@ export function BaziTable({ c, name = "", selectedId, onSelect }: { c: BaziChart
   const file = `${name || "bazi"} bazi`;
   return (
     <div data-testid="bazi-table" data-chart-pick data-selected={selectedId ?? ""} className="min-w-0">
-      <TablePage name="bazi" label={t("tableSections")} parts={parts} fileStem={file} actions={<TableActions text={() => text().map((p) => p.lines.join("\n")).join("\n\n")} csv={() => baziTableCsv(c)} fileName={file} />} />
+      <TablePage name="bazi" label={t("tableSections")} parts={parts} fileStem={file} actions={<TableActions text={() => text().map((p) => p.lines.join("\n")).join("\n\n")} csv={() => baziTableCsv(c, time)} fileName={file} />} />
     </div>
   );
 }
