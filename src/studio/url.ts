@@ -22,6 +22,8 @@ export const STUDIO_PAGES = [
   "bazi-luck",
   // 2.0: its Relationship lens, two charts side by side (part 19).
   "bazi-pair",
+  // 2.0: Feng Shui, its personal half: the Kua and the Eight Mansions (part 21).
+  "fengshui",
 ] as const;
 
 export type StudioPage = (typeof STUDIO_PAGES)[number];

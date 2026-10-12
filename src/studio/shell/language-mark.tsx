@@ -19,6 +19,9 @@ export function LanguageMark({ id, className }: { id: LanguageId; className?: st
       ) : id === "bazi" ? (
         // The four pillars side by side.
         <path d="M2.6 3v10M6.2 3v10M9.8 3v10M13.4 3v10" strokeLinecap="round" />
+      ) : id === "feng-shui" ? (
+        // A compass rose: the four cardinal points long, the four between short.
+        <path d="M8 1.2v13.6M1.2 8h13.6M3.6 3.6l1.6 1.6M12.4 3.6l-1.6 1.6M3.6 12.4l1.6-1.6M12.4 12.4l-1.6-1.6" strokeLinecap="round" />
       ) : id === "chinese-astrology" ? (
         // The wheel of the twelve, its four cardinal animals marked (Rat, Rabbit, Horse, Rooster).
         <>

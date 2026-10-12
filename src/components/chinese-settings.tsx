@@ -6,6 +6,7 @@ import {
   ANIMAL_SHOWS,
   CLOCKS,
   PILLAR_ORDERS,
+  COMPASS_TOPS,
   DAY_BOUNDARIES,
   DEFAULT_CHINESE_PREFS,
   SCRIPTS,
@@ -58,6 +59,15 @@ const ORDER: Group<"pillarOrder"> = {
     value,
     label: value === "classical" ? "bzOrderClassical" : "bzOrderYearFirst",
     hint: value === "classical" ? "bzOrderClassicalHint" : "bzOrderYearFirstHint",
+  })),
+};
+const COMPASS: Group<"compass"> = {
+  key: "compass",
+  title: "fsCompass",
+  options: COMPASS_TOPS.map((value) => ({
+    value,
+    label: value === "north" ? "fsCompassNorth" : "fsCompassSouth",
+    hint: value === "north" ? "fsCompassNorthHint" : "fsCompassSouthHint",
   })),
 };
 const CLOCK: Group<"clock"> = {
@@ -160,6 +170,7 @@ export function ChineseSettings() {
         </p>,
       )}
       {radios(ORDER)}
+      {radios(COMPASS)}
       {radios(CLOCK)}
       {radios(DAY)}
     </section>

@@ -26,6 +26,7 @@ demand.
 | `day-cycle.ts` | The day's place in the sixty-day cycle alone, for the Calendar's month (no tables). |
 | `calendar-chinese.ts` | What the Calendar loads for its day's-animal reading. |
 | `bazi.ts`, `bazi-reading.ts`, `bazi-texts.ts`, `bazi-table.ts` | BaZi, the Four Pillars: the Day Master, the Ten Gods of every stem shown and hidden, what the board says, its table. |
+| `fengshui.ts`, `fengshui-texts.ts`, `fengshui-reading.ts`, `fengshui-table.ts` | Feng Shui, the personal half: the Kua number from the solar year and the yin or yang count, its trigram and group, the Eight Mansions' eight directions, the practical lines, what the page says, its table. |
 | `animal-glyphs.ts` | The twelve animals as Ulune's own line drawings, in the planet glyphs' language (24 × 24, round strokes). |
 | `words.ts` | The interface words (`src/lib/i18n/catalog/chinese.ts`), read apart from the app's catalog so they stay out of the first download. |
 

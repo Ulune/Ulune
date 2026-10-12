@@ -121,7 +121,7 @@ export function ReadingTab() {
             onGo={go}
             back={trail.length ? trail[trail.length - 1].title : null}
             onBack={back}
-            mode={page === "numerology-cycles" ? "numerology" : page === "zodiac" || page === "zodiac-years" || page === "zodiac-pair" || page === "bazi" || page === "bazi-luck" || page === "bazi-pair" ? undefined : page}
+            mode={page === "numerology-cycles" ? "numerology" : page === "zodiac" || page === "zodiac-years" || page === "zodiac-pair" || page === "bazi" || page === "bazi-luck" || page === "bazi-pair" || page === "fengshui" ? undefined : page}
             tradition={languageOf(page) ?? "astrology"}
           />
         </div>

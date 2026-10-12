@@ -41,6 +41,7 @@ export const shell = {
   pageBazi: ["BaZi, the Four Pillars", "BaZi, les Quatre Piliers"],
   pageBaziLuck: ["BaZi: the luck pillars", "BaZi\u202f: les piliers de chance"],
   pageBaziPair: ["BaZi: two charts", "BaZi\u202f: deux thèmes"],
+  pageFengShui: ["Feng Shui: your Kua and directions", "Feng Shui\u202f: votre Kua et vos directions"],
   pageProgressions: ["Progressions", "Progressions"],
   pageSynastry: ["Synastry", "Synastrie"],
   pageTiming: ["Calendar", "Calendrier"],

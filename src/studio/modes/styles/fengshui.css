@@ -1,0 +1,281 @@
+/* Feng Shui's personal page (languages plan, part 21; studio/modes/fengshui.tsx):
+   the compass rose of the Kua, the directions as lists and the practical
+   lines. Phase colours are zodiac.css's. Supportive wedges are tinted,
+   challenging ones hatched, and every wedge says its mansion in words, so
+   colour is never the only signal. */
+.ulune-fs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--stage-pad) var(--space-5);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  container-type: inline-size;
+}
+.ulune-fs-note {
+  margin: 0;
+  font: 400 13px/1.45 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-fs-counts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+}
+.ulune-fs-counts[data-n="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.ulune-fs-count {
+  min-width: 0;
+}
+.ulune-fs-count-h,
+.ulune-fs-h {
+  margin: 0 0 var(--space-2);
+  font: 600 11px/1.3 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
+}
+.ulune-fs-count-h {
+  font-size: 12px;
+  color: var(--color-fg);
+}
+.ulune-fs-body {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+.ulune-fs-counts[data-n="2"] .ulune-fs-body {
+  flex-direction: column;
+  align-items: stretch;
+}
+.ulune-fs-rose-box {
+  flex: 0 1 min(520px, 58%);
+  min-width: 0;
+  aspect-ratio: 1;
+}
+.ulune-fs-counts[data-n="2"] .ulune-fs-rose-box {
+  flex: none;
+  width: min(100%, 420px);
+  margin: 0 auto;
+}
+.ulune-fs-side {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* The rose. */
+.ulune-fs-rose {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  font-family: var(--font-ui);
+}
+.ulune-fs-rim {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-border-strong);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fs-wedge {
+  cursor: pointer;
+  outline: none;
+}
+.ulune-fs-cell {
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transition: fill var(--motion-ui, 160ms) ease;
+}
+.ulune-fs-wedge.is-good .ulune-fs-cell {
+  fill: color-mix(in oklab, var(--color-halo) 16%, transparent);
+}
+.ulune-fs-wedge.is-good:hover .ulune-fs-cell,
+.ulune-fs-wedge.is-good.is-on .ulune-fs-cell {
+  fill: color-mix(in oklab, var(--color-halo) 34%, transparent);
+}
+.ulune-fs-hatch {
+  stroke: color-mix(in oklab, var(--color-fg-muted) 30%, transparent);
+  stroke-width: 1.4;
+}
+.ulune-fs-wedge.is-hard:hover .ulune-fs-cell,
+.ulune-fs-wedge.is-hard.is-on .ulune-fs-cell {
+  stroke: var(--color-fg-muted);
+  stroke-width: 1.6;
+}
+.ulune-fs-wedge.is-on .ulune-fs-cell {
+  stroke: var(--color-fg);
+  stroke-width: 2;
+}
+.ulune-fs-wedge:focus-visible .ulune-fs-cell {
+  stroke: var(--color-fg);
+  stroke-width: 2.5;
+}
+.ulune-fs-wedge text,
+.ulune-fs-centre text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--color-fg);
+  pointer-events: none;
+}
+/* The words stand on a margin of the ground, so the hatching never crosses them. */
+.ulune-fs-wedge.is-hard text {
+  paint-order: stroke;
+  stroke: var(--color-bg-elevated);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.ulune-fs-tri {
+  font-size: 20px;
+  fill: var(--ph) !important;
+}
+.ulune-fs-dir {
+  font-size: 14px;
+  font-weight: 650;
+}
+.ulune-fs-mansion {
+  font-size: 10.5px;
+  fill: var(--color-fg-muted) !important;
+}
+.ulune-fs-centre {
+  cursor: pointer;
+}
+.ulune-fs-centre circle {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fs-centre.is-on circle,
+.ulune-fs-centre:hover circle {
+  stroke: var(--color-halo);
+  stroke-width: 2;
+}
+.ulune-fs-centre-sub {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--color-fg-subtle) !important;
+}
+.ulune-fs-centre-n {
+  font: 400 34px/1 var(--font-display);
+}
+.ulune-fs-centre-tri {
+  font-size: 12px;
+  fill: var(--color-fg-muted) !important;
+}
+
+/* The cards and the lists. */
+.ulune-fs-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  min-height: 44px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg-elevated);
+  color: var(--color-fg);
+  text-align: left;
+}
+.ulune-fs-card .ulune-fs-h {
+  margin: 0;
+}
+.ulune-fs-card.is-on,
+.ulune-fs-card:hover {
+  background: var(--color-bg-subtle);
+}
+.ulune-fs-card-line {
+  font: 400 13px/1.45 var(--font-ui);
+}
+.ulune-fs-card-note {
+  font: 400 12px/1.4 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-fs-list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-fs-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 2px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 2px;
+  vertical-align: -1px;
+}
+.ulune-fs-list.is-good .ulune-fs-swatch {
+  background: color-mix(in oklab, var(--color-halo) 30%, transparent);
+}
+.ulune-fs-list.is-hard .ulune-fs-swatch {
+  background: repeating-linear-gradient(45deg, color-mix(in oklab, var(--color-fg-muted) 45%, transparent) 0 1.4px, transparent 1.4px 4px);
+}
+.ulune-fs-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 6px 6px 10px;
+  border-bottom: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-border);
+  color: var(--color-fg);
+  text-align: left;
+}
+.ulune-fs-list.is-good .ulune-fs-row {
+  border-left-color: color-mix(in oklab, var(--color-halo) 70%, transparent);
+}
+.ulune-fs-list.is-hard .ulune-fs-row {
+  border-left-style: dashed;
+  border-left-color: var(--color-fg-muted);
+}
+.ulune-fs-row.is-on,
+.ulune-fs-row:hover {
+  background: var(--color-bg-subtle);
+}
+.ulune-fs-row-name {
+  font: 500 13px/1.3 var(--font-ui);
+  min-width: 0;
+}
+.ulune-fs-row-dir {
+  flex: none;
+  font: 400 12px/1.3 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-fs-card:focus-visible,
+.ulune-fs-row:focus-visible {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 1px;
+}
+.ulune-fs-tbl-kind {
+  color: var(--color-fg-muted);
+}
+
+/* A narrow stage (a phone, a tablet upright): the rose on top, the lists under it; two counts one under the other. */
+@container (max-width: 720px) {
+  .ulune-fs-counts[data-n="2"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ulune-fs-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ulune-fs-rose-box {
+    flex: none;
+    width: min(100%, 420px);
+    margin: 0 auto;
+  }
+}

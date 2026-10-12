@@ -17,6 +17,9 @@
  * - `pillarOrder`: how BaZi's four pillars stand side by side: hour to year,
  *   as the tradition writes them (the year on the right, by default), or
  *   year to hour (part 12).
+ * - `compass`: which way Feng Shui's compass rose is turned: the north at
+ *   the top, as maps draw it (by default), or the south, as the Chinese
+ *   compass is drawn (part 21).
  *
  * Pure but for the storage: the page reads it when it runs (the server's page
  * shows the defaults), and a change is announced to the open views with the
@@ -29,6 +32,7 @@ export type Script = "hant" | "hans";
 export type TermShow = "full" | "pinyin" | "names";
 export type AnimalShow = "drawings" | "characters";
 export type PillarOrder = "classical" | "year-first";
+export type CompassTop = "north" | "south";
 
 export type ChinesePrefs = {
   clock: Clock;
@@ -37,6 +41,7 @@ export type ChinesePrefs = {
   show: TermShow;
   animals: AnimalShow;
   pillarOrder: PillarOrder;
+  compass: CompassTop;
 };
 
 export const CHINESE_PREFS_KEY = "ulune.chinese";
@@ -48,6 +53,7 @@ export const SCRIPTS: readonly Script[] = ["hant", "hans"];
 export const TERM_SHOWS: readonly TermShow[] = ["full", "pinyin", "names"];
 export const ANIMAL_SHOWS: readonly AnimalShow[] = ["drawings", "characters"];
 export const PILLAR_ORDERS: readonly PillarOrder[] = ["classical", "year-first"];
+export const COMPASS_TOPS: readonly CompassTop[] = ["north", "south"];
 
 export const DEFAULT_CHINESE_PREFS: Readonly<ChinesePrefs> = {
   clock: "true-solar",
@@ -56,6 +62,7 @@ export const DEFAULT_CHINESE_PREFS: Readonly<ChinesePrefs> = {
   show: "full",
   animals: "drawings",
   pillarOrder: "classical",
+  compass: "north",
 };
 
 const oneOf = <T extends string>(list: readonly T[], value: unknown, fallback: T): T =>
@@ -72,6 +79,7 @@ export function cleanChinesePrefs(raw: unknown): ChinesePrefs {
     show: oneOf(TERM_SHOWS, o.show, d.show),
     animals: oneOf(ANIMAL_SHOWS, o.animals, d.animals),
     pillarOrder: oneOf(PILLAR_ORDERS, o.pillarOrder, d.pillarOrder),
+    compass: oneOf(COMPASS_TOPS, o.compass, d.compass),
   };
 }
 

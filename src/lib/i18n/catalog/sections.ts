@@ -23,6 +23,8 @@ export const sections = {
   langChineseAstrologyShort: ["Chinese", "Chinoise"],
   langBazi: ["BaZi", "BaZi"],
   langBaziShort: ["BaZi", "BaZi"],
+  langFengShui: ["Feng Shui", "Feng Shui"],
+  langFengShuiShort: ["Feng Shui", "Feng Shui"],
   langButton: ["{name}, choose another language", "{name}, choisir un autre langage"],
   langPicker: ["Choose a language", "Choisir un langage"],
   // The skip link on the Calendar (Shell.tsx), beside "Skip to the form" and "Skip to the chart".

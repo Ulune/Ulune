@@ -16,7 +16,7 @@
 import type { StudioPage, StudioView } from "./url";
 
 export type SectionId = "charts" | "calendar" | "encyclopedia";
-export type LanguageId = "astrology" | "human-design" | "numerology" | "chinese-astrology" | "bazi";
+export type LanguageId = "astrology" | "human-design" | "numerology" | "chinese-astrology" | "bazi" | "feng-shui";
 export type LensId = "natal" | "cycles" | "relationship";
 /** The traditions the language picker groups its cards under, in order. */
 export type TraditionId = "western" | "chinese";
@@ -78,6 +78,15 @@ export const LANGUAGES: readonly Language[] = [
     group: "chinese",
     lenses: { natal: ["bazi"], cycles: ["bazi-luck"], relationship: ["bazi-pair"] },
   },
+  // Feng Shui (languages plan, part 21): its personal half first, the Kua
+  // number and the Eight Mansions on a compass rose; the home (the Flying
+  // Stars) comes with parts 22 to 27.
+  {
+    id: "feng-shui",
+    path: "/feng-shui",
+    group: "chinese",
+    lenses: { natal: ["fengshui"] },
+  },
 ];
 
 /** The Calendar's path in each interface language. */
@@ -130,6 +139,7 @@ export const PAGE_PATHS: Readonly<Record<StudioPage, string>> = {
   bazi: "/bazi",
   "bazi-luck": "/bazi/cycles",
   "bazi-pair": "/bazi/pair",
+  fengshui: "/feng-shui",
   timing: CALENDAR_PATHS.en,
 };
 

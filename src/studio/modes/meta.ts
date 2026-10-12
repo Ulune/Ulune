@@ -126,6 +126,13 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
     emptyTestId: "studio-bazi-pair-empty",
     noPicture: true,
   },
+  fengshui: {
+    id: "fengshui",
+    labelKey: "pageFengShui",
+    needsChart: true,
+    stageTestId: "studio-fengshui",
+    emptyTestId: "studio-fengshui-empty",
+  },
 };
 
 export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
@@ -143,5 +150,6 @@ export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
   bazi: "pageBazi",
   "bazi-luck": "pageBaziLuck",
   "bazi-pair": "pageBaziPair",
+  fengshui: "pageFengShui",
   design: "pageDesign",
 };

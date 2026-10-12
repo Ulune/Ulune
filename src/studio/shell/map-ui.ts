@@ -53,4 +53,5 @@ export const LANGUAGE_WORDS: Record<LanguageId, { name: MessageKey; short: Messa
     needs: "langNeedsDate",
   },
   bazi: { name: "langBazi", short: "langBaziShort", line: "langBaziLine", needs: "langNeedsDatePillar" },
+  "feng-shui": { name: "langFengShui", short: "langFengShuiShort", line: "langFengShuiLine", needs: "langNeedsDateOnly" },
 };

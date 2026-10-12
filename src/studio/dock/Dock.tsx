@@ -79,7 +79,8 @@ export function Dock() {
     studioPage === "zodiac-pair" ||
     studioPage === "bazi" ||
     studioPage === "bazi-luck" ||
-    studioPage === "bazi-pair";
+    studioPage === "bazi-pair" ||
+    studioPage === "fengshui";
   // The Calendar without a chart (reorganisation plan, R5): the sky's readings only; the
   // birth form comes on the stage when asked for, as for a new chart.
   const skyOnly = useStudioStore((s) => !s.chart && s.page === "timing");

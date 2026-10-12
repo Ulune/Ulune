@@ -91,7 +91,7 @@ async function computer() {
     const cards = await page.locator("[data-testid^=lang-card-]").evaluateAll((els) => els.map((e) => [e.dataset.testid, e.getAttribute("aria-current")]));
     check(
       JSON.stringify(cards) ===
-        JSON.stringify([["lang-card-astrology", "true"], ["lang-card-human-design", null], ["lang-card-numerology", null], ["lang-card-chinese-astrology", null], ["lang-card-bazi", null]]),
+        JSON.stringify([["lang-card-astrology", "true"], ["lang-card-human-design", null], ["lang-card-numerology", null], ["lang-card-chinese-astrology", null], ["lang-card-bazi", null], ["lang-card-feng-shui", null]]),
       `cards ${JSON.stringify(cards)}`,
     );
     for (const [id, path] of [["astrology", "/encyclopedia/astrology"], ["human-design", "/encyclopedia/human-design"], ["numerology", "/encyclopedia/numerology"]]) {
@@ -294,7 +294,7 @@ async function phone() {
     check(Math.abs(sheet.bottom - 844) <= 1, `the sheet ends at ${sheet.bottom}`);
     check(
       JSON.stringify(sheet.cards.map((c) => c.id)) ===
-        JSON.stringify(["lang-card-astrology", "lang-card-numerology", "lang-card-human-design", "lang-card-chinese-astrology", "lang-card-bazi"]),
+        JSON.stringify(["lang-card-astrology", "lang-card-numerology", "lang-card-human-design", "lang-card-chinese-astrology", "lang-card-bazi", "lang-card-feng-shui"]),
       `the sheet's order ${sheet.cards.map((c) => c.id)}`,
     );
     check(sheet.cards[0].top === sheet.cards[1].top && sheet.cards[2].top > sheet.cards[0].top, `not two columns: ${JSON.stringify(sheet.cards)}`);
