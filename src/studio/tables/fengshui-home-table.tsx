@@ -7,6 +7,8 @@ import { homeTableCsv, homeTextParts } from "@/lib/chinese/fengshui-home-table";
 import { FLIGHT } from "@/lib/chinese/fengshui-stars";
 import { chartName, formationName, fssChartRef, fssPalaceRef, palaceName } from "@/lib/chinese/fengshui-stars-reading";
 import { AFFLICTION_IDS, FSY_MONTH_REF, FSY_YEAR_REF, afflictionName, afflictionPlace, fsyAffRef, monthLine, yearLine } from "@/lib/chinese/fengshui-years-reading";
+import { roomsIn } from "@/lib/chinese/fengshui-rooms";
+import { listWords, roomLines, roomName } from "@/lib/chinese/fengshui-rooms-reading";
 import { countLabel, directionName } from "@/lib/chinese/fengshui-reading";
 import { partRows } from "@/lib/csv";
 import { useI18n } from "@/lib/i18n/locale";
@@ -103,6 +105,40 @@ export function FengShuiHomeTable({ ctx, name, selectedId, onSelect }: { ctx: Ho
         <p className="ulune-fsh-small">{w(ctx.home ? "fssNeedYear" : "fshNoFacing")}</p>
       ),
     },
+    ...(ctx.rooms?.length
+      ? [
+          {
+            id: "rooms",
+            label: w("fsrHead"),
+            hint: w("fsrPartHint"),
+            copyText: partText("rooms"),
+            table: csvOf(["room"]),
+            children: (
+              <DataTable className="ulune-zk-tbl" wide>
+                <thead>
+                  <tr>
+                    <th>{w("fssPalaceCol")}</th>
+                    <th>{w("fsrRoomsCol")}</th>
+                    {ctx.stars ? <th>{w("fsrReadCol")}</th> : null}
+                  </tr>
+                </thead>
+                <tbody>
+                  {FLIGHT.filter((p) => roomsIn(ctx.rooms!, p).length).map((p) => {
+                    const id = ctx.stars ? fssPalaceRef("main", p) : null;
+                    return (
+                      <tr key={p} data-testid={`fengshui-rooms-row-${p}`} data-selected={id && selectedId === id ? "1" : undefined}>
+                        <th scope="row">{id ? pick(id, palaceName(p, locale)) : palaceName(p, locale)}</th>
+                        <td>{listWords(roomsIn(ctx.rooms!, p).map((r) => roomName(r.kind, locale)), locale)}</td>
+                        {ctx.stars ? <td>{roomLines(ctx.stars.main, p, ctx.rooms!, ctx.stars.now, locale).slice(1).join(" ")}</td> : null}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </DataTable>
+            ),
+          } satisfies TablePart,
+        ]
+      : []),
     ...(ctx.years
       ? [
           {

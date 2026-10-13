@@ -590,3 +590,138 @@
   color: var(--color-fg);
   background: var(--color-bg-subtle);
 }
+
+/* The rooms on the home's plan, and the home kept (part 26). */
+.ulune-fsr-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+.ulune-fsr-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg);
+}
+.ulune-fsr-cell.is-centre {
+  background: var(--color-bg-subtle);
+}
+.ulune-fsr-cell.is-front {
+  border-color: var(--color-halo);
+}
+.ulune-fsr-dir {
+  align-self: flex-start;
+  min-height: 24px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--color-fg-subtle);
+  font: 600 11px/24px var(--font-ui);
+  letter-spacing: 0.05em;
+}
+button.ulune-fsr-dir {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+button.ulune-fsr-dir.is-on,
+button.ulune-fsr-dir:hover {
+  color: var(--color-fg);
+}
+.ulune-fsr-dir:focus-visible,
+.ulune-fsr-x:focus-visible,
+.ulune-fsr-add:focus-visible,
+.ulune-fsk-pick:focus-visible,
+.ulune-fsk-link:focus-visible {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 1px;
+}
+.ulune-fsr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-fsr-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  min-width: 0;
+  padding-left: 6px;
+  border-radius: 6px;
+  background: var(--color-bg-subtle);
+  font: 500 12px/1.2 var(--font-ui);
+  color: var(--color-fg);
+}
+.ulune-fsr-chip > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ulune-fsr-x {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--color-fg-muted);
+  font: 400 15px/1 var(--font-ui);
+  cursor: pointer;
+}
+.ulune-fsr-x:hover {
+  color: var(--color-fg);
+}
+.ulune-fsr-add,
+.ulune-fsk-pick {
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 4px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: 6px;
+  background: var(--color-bg);
+  color: var(--color-fg-muted);
+  font: 400 12px/1 var(--font-ui);
+}
+.ulune-fsk-pick {
+  min-height: 40px;
+  border-style: solid;
+  color: var(--color-fg);
+  font-size: 14px;
+}
+.ulune-fsh-input.is-name input {
+  width: 100%;
+  max-width: 20em;
+}
+.ulune-fsk-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-fg);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+@media (pointer: coarse) {
+  .ulune-fsr-x {
+    width: 40px;
+    height: 40px;
+  }
+  .ulune-fsr-add {
+    min-height: 40px;
+  }
+}
+.ulune-fsp-rooms {
+  font: 500 9.5px/1 var(--font-ui);
+  fill: var(--color-fg-muted);
+}

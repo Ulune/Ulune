@@ -19,6 +19,11 @@
  *   - (part 25) the year's and the month's stars: the card, its readings,
  *     the year's numbers on the palaces with the 5 Yellow's marked, the
  *     year's layer switched off and on, the afflictions on the luopan;
+ *   - (part 26) rooms placed on the home's plan (the north-east's kitchen and
+ *     bathroom, the north's bedroom), named on the palaces and read in the
+ *     palace's reading, one removed; the home kept in a private space (at
+ *     1280 in English): sealed, back after a reload, a new home, forgotten,
+ *     gone from the page when the space locks;
  *   - a mountain's reading, the arrows walking round the dial;
  *   - on a phone: the compass on request, the plate turning under its
  *     thread (Wu at the top at 172.5°), three readings,
@@ -29,7 +34,7 @@
  */
 import { join } from "node:path";
 import { chromium } from "playwright";
-import { FIXTURE_A, SHOTS, VIEWPORTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, setLang, setView } from "./_lib.mjs";
+import { FIXTURE_A, SHOTS, VIEWPORTS, assertNoOverflow, castFixture, clickDockTab, createSpace, ensureShotsDir, goStudioPage, gotoApp, readSpaceRecord, setLang, setView } from "./_lib.mjs";
 
 const WORDS = {
   en: {
@@ -49,6 +54,9 @@ const WORDS = {
     five: "The 5, the Lo Shu’s own centre, flies",
     year: "the year’s star in the centre is the",
     month: "the month’s star in the centre is the",
+    roomsHere: "In this palace: your kitchen and your bathroom.",
+    label: "Kitchen · Bath",
+    kitchen: "Kitchen",
   },
   fr: {
     first: "Votre logement, pas à pas",
@@ -67,6 +75,9 @@ const WORDS = {
     five: "Le 5, le centre propre du Lo Shu, vole",
     year: "l’étoile de l’année au centre est le",
     month: "l’étoile du mois au centre est le",
+    roomsHere: "Dans ce palais\u202f: votre cuisine et votre salle d’eau.",
+    label: "Cuisine · Eau",
+    kitchen: "Cuisine",
   },
 };
 const note = (page) => page.getByTestId("click-note").evaluate((e) => e.textContent ?? "").catch(() => "");
@@ -219,6 +230,27 @@ async function run(width, lang) {
     if (phone) await clickDockTab(page, "reading");
     await waitNote(page, w.month, label, "the month's reading");
     if (phone) await clickDockTab(page, "reading").catch(() => {});
+    // (part 26) Rooms on the home's plan: named on the palaces, read in the palace's reading; one removed.
+    await page.getByTestId("fengshui-rooms-grid").waitFor({ timeout: 4000 });
+    const planCells = await page.evaluate(() => [...document.querySelectorAll("[data-testid=fengshui-rooms-grid] [data-palace]")].map((e) => e.getAttribute("data-palace")).join());
+    if (planCells !== "nw,n,ne,w,c,e,sw,s,se") throw new Error(`${label}: the rooms' plan ${planCells}`);
+    await page.getByTestId("fengshui-rooms-add-ne").selectOption("kitchen");
+    await page.getByTestId("fengshui-rooms-add-ne").selectOption("bathroom");
+    await page.getByTestId("fengshui-rooms-add-n").selectOption("bedroom");
+    const roomLabel = await text(page, "fengshui-stars-rooms-main-ne");
+    if (roomLabel !== w.label) throw new Error(`${label}: the north-east's rooms "${roomLabel}"`);
+    await page.getByTestId("fengshui-stars-main-ne").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.getByTestId("fengshui-stars-main-ne").click();
+    if (phone) await clickDockTab(page, "reading");
+    await waitNote(page, w.roomsHere, label, "the north-east's rooms in its reading");
+    if (phone) await clickDockTab(page, "reading").catch(() => {});
+    await page.locator("[data-testid^=fengshui-room-remove-][data-kind=bathroom]").click();
+    await page.waitForFunction((t) => document.querySelector("[data-testid=fengshui-stars-rooms-main-ne]")?.textContent === t, w.kitchen, { timeout: 4000 });
+    if ((await page.locator("[data-testid^=fengshui-room-remove-]").count()) !== 2) throw new Error(`${label}: rooms after one removed`);
+    await assertNoOverflow(page);
+    await page.getByTestId("fengshui-rooms").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.screenshot({ path: join(SHOTS, `fengshui-rooms-${lang}-${width}.png`) }).catch(() => {});
+
     // Back to the luopan for the mountains.
     await page.getByTestId("fengshui-home-fig-luopan").click();
     await page.getByTestId("fengshui-home-degrees").waitFor({ timeout: 4000 });
@@ -283,6 +315,8 @@ async function run(width, lang) {
       home: [...document.querySelectorAll("[data-testid^=fengshui-home-mrow-][data-home]")].map((r) => r.getAttribute("data-testid").slice(21)),
     }));
     const starRows = await page.locator("[data-testid^=fengshui-stars-row-main-]").count();
+    const roomRows = await page.evaluate(() => [...document.querySelectorAll("[data-testid^=fengshui-rooms-row-]")].map((r) => r.getAttribute("data-testid").slice(19)).join());
+    if (roomRows !== "ne,n") throw new Error(`${label}: the rooms' rows ${roomRows}`);
     if (rows.lines !== 6 || rows.mountains !== 24 || rows.home.length !== 2 || starRows !== 9) throw new Error(`${label}: the table ${JSON.stringify(rows)} ${starRows}`);
     await assertNoOverflow(page);
     await setView(page, "wheel");
@@ -307,8 +341,95 @@ async function run(width, lang) {
   }
 }
 
+/** (part 26) The home kept in a private space, at 1280 in English. */
+async function kept() {
+  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  const context = await browser.newContext({ viewport: VIEWPORTS[1280] });
+  const page = await context.newPage();
+  page.setDefaultTimeout(20000);
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(String(e)));
+  const NAME = "Zqxv cabin";
+  const facing = () => page.getByTestId("fengshui-home-facing").inputValue();
+  const status = () => text(page, "fengshui-keep-status");
+  try {
+    await gotoApp(page);
+    await castFixture(page, FIXTURE_A);
+    await goStudioPage(page, "fengshui-home");
+    await page.getByTestId("fengshui-keep").waitFor({ timeout: 20000 });
+    // No space: not kept, and the way in.
+    if (!(await status()).includes("This home isn’t kept")) throw new Error(`kept: the status without a space "${await status()}"`);
+    await page.getByTestId("fengshui-keep-sign-in").waitFor({ timeout: 4000 });
+    await createSpace(page);
+    const sent = [];
+    page.on("request", (r) => {
+      const u = new URL(r.url());
+      if (r.method() !== "GET" || /_serverFn|\/api\//.test(u.pathname)) sent.push(`${r.method()} ${u.pathname}`);
+    });
+    // Nothing to keep yet; then a facing, a year and a bedroom, kept and named.
+    await page.waitForFunction(() => document.querySelector("[data-testid=fengshui-keep-save]")?.disabled === true, null, { timeout: 8000 });
+    await page.getByTestId("fengshui-home-facing").fill("180");
+    await page.getByTestId("fengshui-home-year").fill("1998");
+    await page.getByTestId("fengshui-rooms-add-n").selectOption("bedroom");
+    await page.getByTestId("fengshui-keep-save").click();
+    await page.getByTestId("fengshui-keep-name").waitFor({ timeout: 8000 });
+    await page.getByTestId("fengshui-keep-name").fill(NAME);
+    await page.waitForTimeout(900);
+    const rec = await readSpaceRecord(page, "fs/homes");
+    const h = rec?.homes?.[0];
+    if (!h || rec.homes.length !== 1 || h.name !== NAME || h.typed !== "180" || h.year !== "1998" || h.rooms.length !== 1 || h.rooms[0].kind !== "bedroom" || h.rooms[0].palace !== "n" || rec.activeId !== h.id) {
+      throw new Error(`kept: the sealed record ${JSON.stringify(rec)?.slice(0, 300)}`);
+    }
+    // Nothing of it in the browser's plain storage.
+    const plain = await page.evaluate(() => JSON.stringify([{ ...localStorage }, { ...sessionStorage }]));
+    if (plain.includes("Zqxv")) throw new Error("kept: the home's name in plain storage");
+    await page.screenshot({ path: join(SHOTS, "fengshui-home-kept-en-1280.png") }).catch(() => {});
+    // After a reload (the space stays open on this device), the home comes back by itself.
+    await page.reload();
+    await page.getByTestId("fengshui-keep").waitFor({ timeout: 30000 });
+    await page.waitForFunction(() => document.querySelector("[data-testid=fengshui-home-facing]")?.value === "180", null, { timeout: 15000 });
+    if ((await page.getByTestId("fengshui-keep-name").inputValue()) !== NAME) throw new Error("kept: the name after a reload");
+    if ((await page.locator("[data-testid^=fengshui-room-remove-][data-kind=bedroom]").count()) !== 1) throw new Error("kept: the bedroom after a reload");
+    // A new home: an empty page, not kept; the kept one chosen again.
+    await page.getByTestId("fengshui-keep-pick").selectOption("");
+    await page.waitForFunction(() => document.querySelector("[data-testid=fengshui-home-facing]")?.value === "", null, { timeout: 4000 });
+    if (await page.locator("[data-testid^=fengshui-room-remove-]").count()) throw new Error("kept: rooms in a new home");
+    await page.getByTestId("fengshui-keep-pick").selectOption({ label: NAME });
+    await page.waitForFunction(() => document.querySelector("[data-testid=fengshui-home-facing]")?.value === "180", null, { timeout: 4000 });
+    // Forgotten: out of the space, still on the page, unkept.
+    await page.getByTestId("fengshui-keep-forget").click();
+    await page.getByTestId("fengshui-keep-forget-sure").click();
+    await page.waitForFunction(() => /no longer kept/.test(document.querySelector("[data-testid=fengshui-keep-status]")?.textContent ?? ""), null, { timeout: 4000 });
+    await page.waitForTimeout(300);
+    const after = await readSpaceRecord(page, "fs/homes");
+    if (after?.homes?.length !== 0) throw new Error(`kept: forgotten but sealed ${JSON.stringify(after)}`);
+    if ((await facing()) !== "180") throw new Error("kept: the page lost the forgotten home");
+    // Kept again, then the space locked: the kept home goes from the page.
+    await page.getByTestId("fengshui-keep-save").click();
+    await page.getByTestId("fengshui-keep-name").waitFor({ timeout: 8000 });
+    await page.getByTestId("space-button").click();
+    await page.getByTestId("space-lock-now").click();
+    await page.waitForFunction(() => document.querySelector("[data-testid=space-button]")?.getAttribute("data-space") === "locked", null, { timeout: 10000 });
+    await page.waitForFunction(() => {
+      const f = document.querySelector("[data-testid=fengshui-home-facing]");
+      return !f || f.value === "";
+    }, null, { timeout: 8000 });
+    if (await page.locator("[data-testid^=fengshui-room-remove-]").count()) throw new Error("kept: rooms left after the space locked");
+    if (sent.length) throw new Error(`kept: sent ${sent.join(", ")}`);
+    if (errors.length) throw new Error(`kept: ${errors.join(" | ")}`);
+    console.log("fengshui-home kept OK");
+  } finally {
+    await browser.close();
+  }
+}
+
 await ensureShotsDir();
 const failures = [];
+try {
+  await kept();
+} catch (e) {
+  failures.push(String(e?.message ?? e));
+}
 for (const [width, lang] of [
   [1280, "en"],
   [390, "en"],

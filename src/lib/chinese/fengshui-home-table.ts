@@ -11,6 +11,8 @@ import { MOUNTAINS, houseMatch, norm360 } from "./fengshui-home";
 import { countLabel, directionName } from "./fengshui-reading";
 import { FLIGHT } from "./fengshui-stars";
 import { chartName, formationName, palaceName } from "./fengshui-stars-reading";
+import { roomFit, roomsIn } from "./fengshui-rooms";
+import { listWords, roomLines, roomName } from "./fengshui-rooms-reading";
 import { AFFLICTION_IDS, afflictionName, afflictionPlace, monthLine, yearLine } from "./fengshui-years-reading";
 import { edgeLine, facingLine, fmtDecl, fmtDeg, houseLine, matchLines, mountainCode, periodLines, sourceLine, type HomeContext } from "./fengshui-home-reading";
 
@@ -46,8 +48,17 @@ export function homeTextParts(c: HomeContext, name: string, locale: string, pref
     for (const id of AFFLICTION_IDS) years.push(`  ${afflictionName(id, locale, prefs)}${colon}${afflictionPlace(y, id, locale, prefs)}`);
     for (const p of FLIGHT) years.push(`  ${palaceName(p, locale)}${colon}${cnWord(locale, "fsyTableCell", { y: y.yearChart[p], m: y.monthChart[p] })}`);
   }
+  const rooms = c.rooms ?? [];
+  const roomText: string[] = [cnWord(locale, "fsrHead")];
+  for (const p of FLIGHT) {
+    const here = roomsIn(rooms, p);
+    if (!here.length) continue;
+    roomText.push(`${palaceName(p, locale)}${colon}${listWords(here.map((r) => roomName(r.kind, locale)), locale)}`);
+    if (c.stars) roomText.push(...roomLines(c.stars.main, p, rooms, c.stars.now, locale).slice(1).map((l) => `  ${l}`));
+  }
   return [
     { id: "facing", lines: facing },
+    ...(rooms.length ? [{ id: "rooms", lines: roomText }] : []),
     { id: "stars", lines: stars },
     ...(c.years ? [{ id: "years", lines: years }] : []),
     {
@@ -91,6 +102,16 @@ export function homeTableCsv(c: HomeContext): string {
         rows.push(["stars", v, p, String(x.mountain), String(x.water), String(x.period), String(x.base)]);
       }
       rows.push(["stars", v, "formations", chart.formations.join("|"), "", "", ""]);
+    }
+  }
+  if (c.rooms?.length) {
+    rows.push([]);
+    rows.push(["room", "id", "kind", "palace", "fit"]);
+    for (const p of FLIGHT) {
+      for (const r of roomsIn(c.rooms, p)) {
+        const f = c.stars ? roomFit(r.kind, c.stars.main, p, c.stars.now) : null;
+        rows.push(["room", r.id, r.kind, p, f ? `${f.use}:${f.fit}:${f.reads}:${f.n}` : ""]);
+      }
     }
   }
   if (c.years) {

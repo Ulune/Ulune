@@ -10,6 +10,8 @@ import { chartName, fssPalaceRef, gridRows, palaceName, planRows, type ChartVari
 import { directionName } from "@/lib/chinese/fengshui-reading";
 import type { YearStars } from "@/lib/chinese/fengshui-years";
 import { afflictionName } from "@/lib/chinese/fengshui-years-reading";
+import { listWords, roomName, roomsLabel } from "@/lib/chinese/fengshui-rooms-reading";
+import { roomsIn, type HomeRoom } from "@/lib/chinese/fengshui-rooms";
 import { CJK, hanziLang } from "@/lib/chinese/animal-chars";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
@@ -213,7 +215,7 @@ const GAP = 4;
 const PAD_Y = 30;
 
 /** One chart as the nine palaces. */
-export function PalaceFigure({ v, c, facing, now, years }: { v: ChartVariant; c: FlyingChart; facing: DirectionId; now: number; years: YearStars | null }) {
+export function PalaceFigure({ v, c, facing, now, years, rooms = [] }: { v: ChartVariant; c: FlyingChart; facing: DirectionId; now: number; years: YearStars | null; rooms?: readonly HomeRoom[] }) {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const w = useWheelView();
@@ -279,7 +281,7 @@ export function PalaceFigure({ v, c, facing, now, years }: { v: ChartVariant; c:
               role="button"
               tabIndex={p === stop ? 0 : -1}
               aria-pressed={w.selectedId === ref}
-              aria-label={`${palaceName(p, locale)}: ${cnWord(locale, "fssMountainStar").toLowerCase()} ${st.mountain}, ${cnWord(locale, "fssWaterStar").toLowerCase()} ${st.water}, ${cnWord(locale, "fssPeriodStar").toLowerCase()} ${st.period}${years ? `, ${cnWord(locale, "fsyYearStar").toLowerCase()} ${years.yearChart[p]}, ${cnWord(locale, "fsyMonthStar").toLowerCase()} ${years.monthChart[p]}` : ""}`}
+              aria-label={`${palaceName(p, locale)}: ${cnWord(locale, "fssMountainStar").toLowerCase()} ${st.mountain}, ${cnWord(locale, "fssWaterStar").toLowerCase()} ${st.water}, ${cnWord(locale, "fssPeriodStar").toLowerCase()} ${st.period}${years ? `, ${cnWord(locale, "fsyYearStar").toLowerCase()} ${years.yearChart[p]}, ${cnWord(locale, "fsyMonthStar").toLowerCase()} ${years.monthChart[p]}` : ""}${roomsIn(rooms, p).length ? `; ${listWords(roomsIn(rooms, p).map((r) => roomName(r.kind, locale).toLowerCase()), locale)}` : ""}`}
               onClick={() => w.choose(ref)}
               {...previewProps(ref)}
             >
@@ -288,6 +290,11 @@ export function PalaceFigure({ v, c, facing, now, years }: { v: ChartVariant; c:
               <text x={x0 + CELL / 2} y={y0 + 14} className="ulune-fsp-dir">
                 {short(p)}
               </text>
+              {roomsIn(rooms, p).length ? (
+                <text x={x0 + CELL / 2} y={y0 + 27} className="ulune-fsp-rooms" data-testid={`fengshui-stars-rooms-${v}-${p}`}>
+                  {roomsLabel(rooms, p, locale)}
+                </text>
+              ) : null}
               {num(st.mountain, CELL * 0.3, 50, "ulune-fsp-star")}
               {num(st.water, CELL * 0.7, 50, "ulune-fsp-star")}
               {num(st.period, CELL / 2, 84, "ulune-fsp-period")}
@@ -371,7 +378,7 @@ export function FigurePane({ live }: { live: number | null }) {
               ))}
             </div>
           </div>
-          <PalaceFigure v={v} c={chart} facing={home.facingDirection} now={stars!.now} years={years} />
+          <PalaceFigure v={v} c={chart} facing={home.facingDirection} now={stars!.now} years={years} rooms={data?.ctx.rooms ?? []} />
           <p className="ulune-fsh-small ulune-fsp-legend">
             {cnWord(locale, "fssLegend")} {years ? cnWord(locale, "fsyLegend") : null}
           </p>

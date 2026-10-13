@@ -10,6 +10,7 @@
  *   enc/bookmarks  the encyclopedia's pages kept (src/encyclopedia/keep.ts)
  *   enc/note/<id>  the reader's note on an encyclopedia page
  *   enc/recent     the encyclopedia's pages recently read
+ *   fs/homes       Feng Shui's homes kept (lib/chinese/fengshui-home-record.ts)
  */
 
 export const CHART_RECORD = "chart/";
@@ -20,6 +21,9 @@ export const BACKUP_RECORD = "state/backup";
 export const ENC_BOOKMARKS_RECORD = "enc/bookmarks";
 export const ENC_NOTE_RECORD = "enc/note/";
 export const ENC_RECENT_RECORD = "enc/recent";
+export const FS_HOMES_RECORD = "fs/homes";
+/** Said on the window when the homes kept changed underneath (a backup's joined; studio/modes/fengshui-homes.ts listens). */
+export const FS_CHANGED = "ulune:homes-kept";
 /** Said on the window when the encyclopedia's records changed underneath (a backup's joined; src/encyclopedia/keep.ts listens). */
 export const ENC_CHANGED = "ulune:encyclopedia-kept";
 

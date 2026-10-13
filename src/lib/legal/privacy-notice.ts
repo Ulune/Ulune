@@ -8,7 +8,7 @@
 export type NoticeBlock = { h?: string; p?: string; list?: string[] };
 export type Notice = { title: string; updated: string; blocks: NoticeBlock[]; who: { h: string; p: string } };
 
-export const PRIVACY_UPDATED = "2026-10-09";
+export const PRIVACY_UPDATED = "2026-10-13";
 
 export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
   en: {
@@ -22,7 +22,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         h: "Kept on your device",
         list: [
           "Display settings (appearance, language, looks, views, the hints and the tour you closed), in your browser’s storage, in the clear.",
-          "If you sign in: your charts, the partners you pair them with, a copy of the last chart for a quick start, and your encyclopedia bookmarks, notes and pages read. They are sealed in your browser’s database with AES-256-GCM, under a key that only your passphrase, a passkey or your recovery code opens. Ulune never receives them.",
+          "If you sign in: your charts, the partners you pair them with, a copy of the last chart for a quick start, your encyclopedia bookmarks, notes and pages read, and the homes you keep for Feng Shui. They are sealed in your browser’s database with AES-256-GCM, under a key that only your passphrase, a passkey or your recovery code opens. Ulune never receives them.",
           "You stay signed in on your device: the browser keeps the key so it can’t be read out of it, and anyone using that browser can open your space. On a shared computer, choose to lock it when Ulune closes; then nothing but the sealed space is kept.",
           "Backups you download, and the copy you send to another device of yours (Add another device), are sealed the same way and go only where you send them, by AirDrop, a file or a message of your choosing; Ulune never receives them. A readable copy, if you ask for one, is not sealed: keep it private.",
           "While you are just looking, charts stay in the open tab and go when it closes.",
@@ -41,6 +41,10 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
       {
         h: "The encyclopedia",
         p: "Searching and reading the encyclopedia sends nothing but the request for each page you open, and for Ulune’s own files, the same for everyone. Its search runs on your device: what you type in it is never sent. “In your chart” is worked out on your device from the chart open in the tab. Your bookmarks and notes are kept only in your private space, encrypted on this device like your charts; the pages you read are kept there too while it is open, otherwise only until the tab closes, and you can clear them.",
+      },
+      {
+        h: "The Chinese traditions",
+        p: "The Chinese zodiac, BaZi and Feng Shui are worked out on your device, from tables that come with Ulune: nothing is sent while a Chinese page calculates. Feng Shui’s compass is read only after you tap “Use the compass” (your phone may ask for your permission then), only while its page is open, and its readings never leave your device. The home you describe there (its facing, the year it was built, its rooms) stays in the open tab and goes when it closes, unless you keep it: it is then sealed in your private space like your charts.",
       },
       {
         h: "Your choices and rights",
@@ -69,7 +73,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         h: "Gardé sur votre appareil",
         list: [
           "Les réglages d’affichage (apparence, langue, styles, vues, les astuces et la visite que vous avez fermées), dans le stockage de votre navigateur, en clair.",
-          "Si vous vous connectez\u202f: vos thèmes, les partenaires que vous leur associez, une copie du dernier thème pour un démarrage rapide, et vos marque-pages, notes et pages lues de l’encyclopédie. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
+          "Si vous vous connectez\u202f: vos thèmes, les partenaires que vous leur associez, une copie du dernier thème pour un démarrage rapide, vos marque-pages, notes et pages lues de l’encyclopédie, et les logements que vous gardez pour le Feng Shui. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
           "Vous restez connecté sur votre appareil\u202f: le navigateur garde la clé sans qu’on puisse l’en extraire, et toute personne utilisant ce navigateur peut ouvrir votre espace. Sur un ordinateur partagé, choisissez de le verrouiller à la fermeture d’Ulune\u202f; seul l’espace scellé est alors gardé.",
           "Les sauvegardes que vous téléchargez, et la copie que vous envoyez à un autre de vos appareils (Ajouter un autre appareil), sont scellées de la même façon et ne vont que là où vous les envoyez, par AirDrop, un fichier ou un message de votre choix\u202f; Ulune ne les reçoit jamais. Une copie lisible, si vous en demandez une, n’est pas scellée\u202f: gardez-la pour vous.",
           "Tant que vous regardez sans vous connecter, les thèmes restent dans l’onglet ouvert et sont effacés à sa fermeture.",
@@ -88,6 +92,10 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
       {
         h: "L’encyclopédie",
         p: "Chercher et lire dans l’encyclopédie n’envoie rien d’autre que la demande de chaque page ouverte, et des fichiers d’Ulune, les mêmes pour tous. Sa recherche se fait sur votre appareil\u202f: ce que vous y tapez n’est jamais envoyé. «\u202fDans votre thème\u202f» est calculé sur votre appareil à partir du thème ouvert dans l’onglet. Vos marque-pages et vos notes sont gardés uniquement dans votre espace privé, chiffrés sur cet appareil comme vos thèmes\u202f; les pages lues y sont gardées aussi tant qu’il est ouvert, sinon seulement jusqu’à la fermeture de l’onglet, et vous pouvez les effacer.",
+      },
+      {
+        h: "Les traditions chinoises",
+        p: "Le zodiaque chinois, le BaZi et le Feng Shui se calculent sur votre appareil, à partir de tables fournies avec Ulune\u202f: rien n’est envoyé pendant qu’une page chinoise calcule. La boussole du Feng Shui n’est lue qu’après que vous avez touché «\u202fUtiliser la boussole\u202f» (votre téléphone peut alors vous demander votre accord), seulement tant que sa page est ouverte, et ses lectures ne quittent jamais votre appareil. Le logement que vous y décrivez (son orientation, son année de construction, ses pièces) reste dans l’onglet ouvert et s’efface à sa fermeture, sauf si vous le gardez\u202f: il est alors scellé dans votre espace privé comme vos thèmes.",
       },
       {
         h: "Vos choix et vos droits",

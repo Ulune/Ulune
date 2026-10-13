@@ -10,6 +10,8 @@ import {
   ENC_BOOKMARKS_RECORD,
   ENC_CHANGED,
   ENC_NOTE_RECORD,
+  FS_CHANGED,
+  FS_HOMES_RECORD,
   LIBRARY_RECORD,
   PAIR_RECORD,
   type BackupRecord,
@@ -357,6 +359,7 @@ export async function importBackup(backup: SpaceBackup, way: WayIn): Promise<num
   const bridge = spaceBridge();
   await bridge?.beforeLock().catch(() => {});
   await importEncyclopedia(vault, records);
+  await importHomes(vault, records);
 
   const { fromStoredRow, unseenRows } = await importWithRetry(() => import("@/lib/chart/library"));
   const theirOrder = (records.get(LIBRARY_RECORD) as LibraryRecord | undefined)?.order ?? [];
@@ -420,11 +423,27 @@ async function importEncyclopedia(vault: Vault, records: Map<string, unknown>): 
   window.dispatchEvent(new Event(ENC_CHANGED));
 }
 
+/** A backup's homes (Feng Shui, part 26) join the open space's: those it doesn't hold, or holds older. */
+async function importHomes(vault: Vault, records: Map<string, unknown>): Promise<void> {
+  if (!records.has(FS_HOMES_RECORD)) return;
+  const { cleanHomes, joinHomes } = await importWithRetry(() => import("@/lib/chinese/fengshui-home-record"));
+  const ours = cleanHomes(await vault.get(FS_HOMES_RECORD).catch(() => null));
+  const joined = joinHomes(ours, cleanHomes(records.get(FS_HOMES_RECORD)));
+  if (!joined) return;
+  await vault.put(FS_HOMES_RECORD, joined);
+  window.dispatchEvent(new Event(FS_CHANGED));
+}
+
 /**
  * The open space's charts and partners, read, for the readable copy the
  * reader downloads from Your data (their AI keys stay out of it).
  */
-export async function readableCopy(): Promise<{ charts: StoredRow[]; partners: PairRecord | null; encyclopedia: { bookmarks: unknown[]; notes: unknown[] } } | null> {
+export async function readableCopy(): Promise<{
+  charts: StoredRow[];
+  partners: PairRecord | null;
+  encyclopedia: { bookmarks: unknown[]; notes: unknown[] };
+  fengShui: { homes: unknown[] };
+} | null> {
   const vault = openVault();
   if (!vault) return null;
   await spaceBridge()?.beforeLock().catch(() => {});
@@ -438,7 +457,9 @@ export async function readableCopy(): Promise<{ charts: StoredRow[]; partners: P
   // The encyclopedia's bookmarks and notes (part 20): the reader's too.
   const bookmarks = (await vault.get<unknown[]>(ENC_BOOKMARKS_RECORD).catch(() => null)) ?? [];
   const { rows: notes } = await vault.list<unknown>(ENC_NOTE_RECORD);
-  return { charts, partners, encyclopedia: { bookmarks, notes: notes.map(([, n]) => n) } };
+  // Feng Shui's homes (part 26): the facing, year and rooms as the reader gave them.
+  const homes = ((await vault.get<{ homes?: unknown[] }>(FS_HOMES_RECORD).catch(() => null))?.homes ?? []) as unknown[];
+  return { charts, partners, encyclopedia: { bookmarks, notes: notes.map(([, n]) => n) }, fengShui: { homes } };
 }
 
 /* ------------------------------------------------ after a while away */

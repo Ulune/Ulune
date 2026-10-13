@@ -17,6 +17,8 @@ import { mountainById, type PeriodId } from "./fengshui-home";
 import { dirIn, directionName } from "./fengshui-reading";
 import type { DirectionId } from "./fengshui";
 import { FLIGHT, LO_SHU_ROWS, starOf, starState, type FlyingChart, type FormationId, type PalaceId, type StarNumber } from "./fengshui-stars";
+import type { HomeRoom } from "./fengshui-rooms";
+import { roomLines } from "./fengshui-rooms-reading";
 import { FORMATION_NAMES, FORMATION_TEXTS, STATE_TEXTS } from "./fengshui-stars-texts";
 import type { YearStars } from "./fengshui-years";
 import { palaceYearLines } from "./fengshui-years-reading";
@@ -24,7 +26,14 @@ import { said } from "./zodiac-texts";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 export type ChartVariant = "main" | "ti";
-export type HomeStars = { main: FlyingChart; ti: FlyingChart | null; now: PeriodId; years?: YearStars | null };
+export type HomeStars = {
+  main: FlyingChart;
+  ti: FlyingChart | null;
+  now: PeriodId;
+  years?: YearStars | null;
+  /** The rooms the reader placed (part 26). */
+  rooms?: readonly HomeRoom[];
+};
 
 export const fssChartRef = (v: ChartVariant): string => `fss:${v}`;
 export const fssPalaceRef = (v: ChartVariant, p: PalaceId): string => `fss:${v}:palace:${p}`;
@@ -139,6 +148,7 @@ function palaceReading(v: ChartVariant, c: FlyingChart, p: PalaceId, stars: Home
     cnWord(locale, "fssStarLine", { kind: cnWord(locale, key), star: starText(n, locale, prefs), phase: phaseName(n, locale), state: stateWord(n, stars.now, locale) });
   const lines = [line("fssMountainStar", x.mountain), line("fssWaterStar", x.water), line("fssPeriodStar", x.period), ...(stars.years ? palaceYearLines(stars.years, p, locale) : [])];
   const states = [...new Set([x.mountain, x.water].map((n) => starState(n, stars.now).state))].map((s) => said(STATE_TEXTS[s], locale));
+  const rooms = roomLines(c, p, stars.rooms ?? [], stars.now, locale);
   const facts: ReadingFact[] = [
     { label: cnWord(locale, "fssMountainStar"), value: starText(x.mountain, locale, prefs) },
     { label: cnWord(locale, "fssWaterStar"), value: starText(x.water, locale, prefs) },
@@ -151,9 +161,10 @@ function palaceReading(v: ChartVariant, c: FlyingChart, p: PalaceId, stars: Home
     title: palaceName(p, locale),
     kicker: `${x.mountain} ${x.water} · ${x.period}${stars.ti ? ` · ${cnWord(locale, v === "ti" ? "fssTi" : "fssMain")}` : ""}`,
     lead,
-    paragraphs: [lead, ...lines, ...states, cnWord(locale, "fssStatesNow", { now: stars.now })],
+    paragraphs: [lead, ...rooms, ...lines, ...states, cnWord(locale, "fssStatesNow", { now: stars.now })],
     facts,
     sections: [
+      ...(rooms.length ? [{ id: "rooms", title: cnWord(locale, "fsrHereHead"), paragraphs: rooms }] : []),
       { id: "stars", title: cnWord(locale, "fssHead"), paragraphs: [...lines, cnWord(locale, "fssStatesNow", { now: stars.now })] },
       { id: "states", title: cnWord(locale, "fssStatesHead"), paragraphs: states },
     ],

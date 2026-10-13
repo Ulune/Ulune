@@ -41,6 +41,7 @@ import { useStudioStore } from "@/studio/store";
 import { compassSupported, useCompass } from "@/studio/modes/hooks/useCompass";
 import { parseFacing, parseYear, useHomeInput } from "@/studio/modes/fengshui-home-state";
 import { FigurePane } from "@/studio/modes/fengshui-home-figures";
+import { KeepCard, RoomsCard } from "@/studio/modes/fengshui-home-rooms";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/first-read.css";
 import "@/studio/modes/styles/fengshui.css";
@@ -57,7 +58,10 @@ import "@/studio/modes/styles/fengshui-home.css";
  * mountain, how near its edge the facing stands, the house's trigram and
  * group beside the reader's Kua, and the period from the year it was built.
  * Everything is worked out here; the compass is read only on request, only
- * while this page is open, and nothing is sent or kept beyond this visit.
+ * while this page is open, and nothing is sent. Part 26 adds the rooms,
+ * placed on the home's plan, and the home kept in the private space
+ * (fengshui-home-rooms.tsx, fengshui-homes.ts); otherwise nothing is kept
+ * beyond this visit.
  */
 
 export type FengShuiHomeState = { ctx: HomeContext; enabled: boolean };
@@ -377,7 +381,9 @@ function HomeFigure() {
       <div className="ulune-fsh-body">
         <FigurePane live={compass.state === "live" ? compass.heading : null} />
         <div className="ulune-fs-side">
+          <KeepCard />
           <HomeForm compass={compass} />
+          <RoomsCard />
           <HomeCards />
         </div>
       </div>
@@ -481,6 +487,7 @@ function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
   const typed = useHomeInput((s) => s.typed);
   const source = useHomeInput((s) => s.source);
   const yearTyped = useHomeInput((s) => s.year);
+  const rooms = useHomeInput((s) => s.rooms);
   const enabled = page === "fengshui-home" && Boolean(chart);
   // The year's and the month's stars (part 25): today's, worked out once a day.
   const todayKey = new Date().toDateString();
@@ -507,10 +514,11 @@ function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
       people,
       place: chart?.meta.placeLabel?.split(",")[0]?.trim() || "—",
       declination: decl,
-      stars: homeStars(home, period, new Date().getFullYear(), years),
+      stars: homeStars(home, period, new Date().getFullYear(), years, rooms),
       years,
+      rooms,
     };
-  }, [typed, source, yearTyped, people, decl, chart, years]);
+  }, [typed, source, yearTyped, people, decl, chart, years, rooms]);
   const reading = useMemo(() => (enabled ? homeReading(ctx, selectedId, locale, prefs) : null), [enabled, ctx, selectedId, locale, prefs]);
   const data = useMemo(() => ({ ctx, enabled }), [ctx, enabled]);
   return useMemo(() => ({ data, reading }), [data, reading]);

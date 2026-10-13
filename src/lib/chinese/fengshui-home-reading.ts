@@ -20,6 +20,7 @@ import { flyingChart } from "./fengshui-stars";
 import { starsReading, type HomeStars } from "./fengshui-stars-reading";
 import { yearsReading } from "./fengshui-years-reading";
 import type { YearStars } from "./fengshui-years";
+import type { HomeRoom } from "./fengshui-rooms";
 import { countLabel, deName, dirIn, directionName, fsDirRef, fsKuaRef, groupLabel, mansionName } from "./fengshui-reading";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
@@ -42,14 +43,16 @@ export type HomeContext = {
   stars?: HomeStars | null;
   /** The year's and the month's stars now (part 25), the same for every home. */
   years?: YearStars | null;
+  /** The rooms the reader placed (part 26), with or without a chart of stars. */
+  rooms?: readonly HomeRoom[];
 };
 
 /** The home's Flying Star charts: the main one, the replacement near a mountain's edge, and the present period for the stars' states. */
-export function homeStars(home: Home | null, period: HomeContext["period"], nowYear: number, years: YearStars | null = null): HomeStars | null {
+export function homeStars(home: Home | null, period: HomeContext["period"], nowYear: number, years: YearStars | null = null, rooms: readonly HomeRoom[] = []): HomeStars | null {
   if (!home || !period) return null;
   const main = flyingChart(period.period, home.facingMountain.id, home.sittingMountain.id);
   const ti = home.edge.level === "clear" ? null : flyingChart(period.period, home.facingMountain.id, home.sittingMountain.id, true);
-  return { main, ti, now: periodOf(nowYear).period, years };
+  return { main, ti, now: periodOf(nowYear).period, years, rooms };
 }
 
 /** "172.5°" or "172,5°". */

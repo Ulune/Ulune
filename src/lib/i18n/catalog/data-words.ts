@@ -18,12 +18,12 @@ export const dataWords = {
   ],
   dataSpaceTitle: ["In your private space", "Dans votre espace privé"],
   dataSpaceOpen: [
-    "Your charts and partners, your encyclopedia bookmarks and notes, encrypted, on this device only. Backups you download are encrypted too.",
-    "Vos thèmes et partenaires, vos marque-pages et notes de l’encyclopédie, chiffrés, sur cet appareil seulement. Les sauvegardes que vous téléchargez sont chiffrées aussi.",
+    "Your charts and partners, your encyclopedia bookmarks and notes, the homes you keep, encrypted, on this device only. Backups you download are encrypted too.",
+    "Vos thèmes et partenaires, vos marque-pages et notes de l’encyclopédie, les logements que vous gardez, chiffrés, sur cet appareil seulement. Les sauvegardes que vous téléchargez sont chiffrées aussi.",
   ],
   dataSpaceLocked: [
-    "Your charts and partners, your encyclopedia bookmarks and notes, encrypted and locked, on this device only.",
-    "Vos thèmes et partenaires, vos marque-pages et notes de l’encyclopédie, chiffrés et verrouillés, sur cet appareil seulement.",
+    "Your charts and partners, your encyclopedia bookmarks and notes, the homes you keep, encrypted and locked, on this device only.",
+    "Vos thèmes et partenaires, vos marque-pages et notes de l’encyclopédie, les logements que vous gardez, chiffrés et verrouillés, sur cet appareil seulement.",
   ],
   dataSpaceNone: [
     "Nothing: there is no private space here. Charts stay in the open tab and go when it closes.",
@@ -50,14 +50,14 @@ export const dataWords = {
   ],
   dataExport: ["Download a readable copy", "Télécharger une copie lisible"],
   dataExportHint: [
-    "The readable copy holds your display settings, and your charts, partners, bookmarks and notes while your space is open, in a file anyone can read: keep it private.",
-    "La copie lisible contient vos réglages d’affichage, et vos thèmes, partenaires, marque-pages et notes quand votre espace est ouvert, dans un fichier que tout le monde peut lire\u202f: gardez-le pour vous.",
+    "The readable copy holds your display settings, and your charts, partners, bookmarks, notes and homes while your space is open, in a file anyone can read: keep it private.",
+    "La copie lisible contient vos réglages d’affichage, et vos thèmes, partenaires, marque-pages, notes et logements quand votre espace est ouvert, dans un fichier que tout le monde peut lire\u202f: gardez-le pour vous.",
   ],
   dataExported: ["Data downloaded", "Données téléchargées"],
   dataWipe: ["Erase everything on this device", "Tout effacer de cet appareil"],
   dataWipeConfirm: [
-    "This erases your private space (charts, partners, bookmarks and notes), your settings and the offline copy of Ulune from this browser. It can’t be undone; a backup you downloaded still opens.",
-    "Cela efface de ce navigateur votre espace privé (thèmes, partenaires, marque-pages et notes), vos réglages et la copie hors ligne d’Ulune. C’est définitif\u202f; une sauvegarde téléchargée s’ouvre toujours.",
+    "This erases your private space (charts, partners, bookmarks, notes and homes), your settings and the offline copy of Ulune from this browser. It can’t be undone; a backup you downloaded still opens.",
+    "Cela efface de ce navigateur votre espace privé (thèmes, partenaires, marque-pages, notes et logements), vos réglages et la copie hors ligne d’Ulune. C’est définitif\u202f; une sauvegarde téléchargée s’ouvre toujours.",
   ],
   dataWipeGo: ["Erase everything", "Tout effacer"],
   dataOffline: [
