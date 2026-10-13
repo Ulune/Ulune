@@ -12,7 +12,11 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { useI18n } from "@/lib/i18n/locale";
-import type { MessageKey } from "@/lib/i18n/messages";
+import { bookT } from "@/lib/i18n/words-book";
+import { spaceWords } from "@/lib/i18n/catalog/space-words";
+/** A key of the app's catalog or of this component's own book. */
+type MessageKey = CatalogKey | keyof typeof spaceWords;
+import type { MessageKey as CatalogKey } from "@/lib/i18n/messages";
 import { devicesText, type DevicesKey } from "@/lib/i18n/space-devices";
 import { dateFormat } from "@/lib/intl-cache";
 import { MIN_PASSPHRASE, formatRecoveryCode, newSpaceSeed, normalizePassphrase } from "@/lib/space/crypto";
@@ -148,7 +152,7 @@ function gone(err: unknown): boolean {
   return named(err, "SpaceLocked") || (err instanceof Error && err.message === "space-locked");
 }
 
-type Translate = ReturnType<typeof useI18n>["t"];
+type Translate = ReturnType<typeof bookT<typeof spaceWords>>;
 
 /** What went wrong, for the reader. `making`: a passkey was being made. */
 function problem(err: unknown, t: Translate, making: boolean): string {
@@ -184,7 +188,8 @@ function PassField({
   shown: boolean;
   onToggle?: () => void;
 }) {
-  const { t } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(spaceWords, tc, locale);
   return (
     <div className="ob-space-field">
       <label htmlFor={id}>{label}</label>
@@ -223,7 +228,8 @@ function ManagerHint() {
 }
 
 export function SpaceSheet() {
-  const { t, locale } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(spaceWords, tc, locale);
   const d = (key: DevicesKey) => devicesText(locale, key);
   const sheet = useSpace((s) => s.sheet);
   const sheetFor = useSpace((s) => s.sheetFor);

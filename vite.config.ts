@@ -54,6 +54,8 @@ export default defineConfig(({ command, isPreview }) => ({
   environments: {
     client: {
       build: {
+        // ULUNE_MAPS=1 npm run build: with source maps, to see what each chunk holds (the first-load trim, 13 Oct 2026).
+        sourcemap: process.env.ULUNE_MAPS === "1",
         rollupOptions: {
           output: {
             // React and the router in chunks of their own: an app deploy

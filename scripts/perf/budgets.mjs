@@ -152,7 +152,11 @@ if (want.has("bundle")) {
   // the palette, 0.2 (its page, texts and table load when opened): 279.6, 280.4 when a small
   // chunk lands within the load; limit 281. A pass to trim the first load before the release
   // is due (each new page adds its route and map entry here).
-  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 281, "KB gz");
+  // The first-load trim (13 Oct 2026): the private space sheet's and settings' words, Your data's and
+  // the AI accounts' (a book each, src/lib/i18n/catalog/*-words.ts, loaded with their code) left the
+  // app's catalog: 280.3 (281.1 when a small chunk lands within the load) -> 274.2-274.9; limit 276,
+  // so the next pages' routes and map entries spend the room deliberately.
+  check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 276, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
   // table's, fetched when idle, grew with part 49: limit 46; numerology's

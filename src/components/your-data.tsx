@@ -4,7 +4,11 @@ import { Download, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AI_ENABLED } from "@/lib/features";
 import { useI18n } from "@/lib/i18n/locale";
-import type { MessageKey } from "@/lib/i18n/messages";
+import { bookT } from "@/lib/i18n/words-book";
+import { dataWords } from "@/lib/i18n/catalog/data-words";
+/** A key of the app's catalog or of this component's own book. */
+type MessageKey = CatalogKey | keyof typeof dataWords;
+import type { MessageKey as CatalogKey } from "@/lib/i18n/messages";
 import { offlineChoice, offlineSupported, turnOfflineOff, turnOfflineOn } from "@/lib/offline";
 import { tr } from "@/encyclopedia/words";
 import { dropEncyclopedia, encManifest, encSize, keepEncyclopedia, keptEncyclopedia, type EncLangs, type EncManifest } from "@/lib/encyclopedia-offline";
@@ -64,7 +68,8 @@ function saveFile(name: string, text: string): void {
  * that leaves it, a readable copy to download, and erasing all of it.
  */
 export function YourData() {
-  const { t } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(dataWords, tc, locale);
   const status = useSpace((s) => s.status);
   const [count, setCount] = useState(0);
   const [confirm, setConfirm] = useState(false);

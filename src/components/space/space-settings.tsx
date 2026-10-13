@@ -1,7 +1,11 @@
 import { Download, KeyRound, Lock, Send, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/locale";
-import type { AppLocale, MessageKey } from "@/lib/i18n/messages";
+import { bookT } from "@/lib/i18n/words-book";
+import { spaceWords } from "@/lib/i18n/catalog/space-words";
+/** A key of the app's catalog or of this component's own book. */
+type MessageKey = CatalogKey | keyof typeof spaceWords;
+import type { AppLocale, MessageKey as CatalogKey } from "@/lib/i18n/messages";
 import { devicesText, type DevicesKey } from "@/lib/i18n/space-devices";
 import { dateFormat } from "@/lib/intl-cache";
 import { inSafariTab } from "@/lib/space/home-screen";
@@ -17,11 +21,12 @@ const LOCKS: { id: LockMode; label: MessageKey; hint?: (t: Translate, locale: Ap
   { id: "close", label: "spaceLockClose", hint: (_t, locale) => devicesText(locale, "lockCloseHint") },
 ];
 
-type Translate = ReturnType<typeof useI18n>["t"];
+type Translate = ReturnType<typeof bookT<typeof spaceWords>>;
 
 /** Your other devices: the space sent to one of them, sealed, through the share sheet (nothing goes through Ulune). */
 function OtherDevices() {
-  const { t, locale } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(spaceWords, tc, locale);
   const d = (key: DevicesKey) => devicesText(locale, key);
   return (
     <div className="ob-space-ways" data-testid="space-devices">
@@ -48,7 +53,8 @@ function OtherDevices() {
  * without the recovery code).
  */
 function WaysIn() {
-  const { t, locale } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(spaceWords, tc, locale);
   const hasPassphrase = useSpace((s) => s.hasPassphrase);
   const passkeys = useSpace((s) => s.passkeys);
   const [canAdd, setCanAdd] = useState<boolean | null>(null);
@@ -144,7 +150,8 @@ function WaysIn() {
  * this browser promises to keep the space.
  */
 function Backup() {
-  const { t, locale } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(spaceWords, tc, locale);
   const backupAt = useSpace((s) => s.backupAt);
   const backupDue = useSpace((s) => s.backupDue);
   const [kept, setKept] = useState<boolean | null>(null);
@@ -218,7 +225,8 @@ function Backup() {
 
 /** Settings → the private space: what it is now, when it locks, its backup, and what opens it. */
 export function SpaceSettings() {
-  const { t, locale } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(spaceWords, tc, locale);
   const status = useSpace((s) => s.status);
   const lock = useSpace((s) => s.lock);
   // The choice shows at once; the space takes it a moment later.

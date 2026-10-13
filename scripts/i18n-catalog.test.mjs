@@ -6,6 +6,9 @@ import { CATALOG } from "../src/lib/i18n/catalog/index.ts";
 import { calendarLayerWords } from "../src/lib/i18n/catalog/calendar-layer-words.ts";
 import { pickerWords } from "../src/lib/i18n/catalog/picker-words.ts";
 import { chinese } from "../src/lib/i18n/catalog/chinese.ts";
+import { spaceWords } from "../src/lib/i18n/catalog/space-words.ts";
+import { dataWords } from "../src/lib/i18n/catalog/data-words.ts";
+import { aiWords } from "../src/lib/i18n/catalog/ai-words.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const CAT_DIR = join(ROOT, "src/lib/i18n/catalog");
@@ -68,9 +71,9 @@ test("no English literal in aria-label", () => {
   assert.deepEqual(hits, []);
 });
 
-test("the catalogs read on their own, outside the index (the calendar's layers, the language picker, the Chinese traditions), are complete too", () => {
+test("the catalogs read on their own, outside the index (the calendar's layers, the language picker, the Chinese traditions, the space sheet's, Your data's and the AI accounts' books), are complete too", () => {
   // Kept out of the index so they stay out of the first download; held to the same rules.
-  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords, chinese })) {
+  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords, chinese, spaceWords, dataWords, aiWords })) {
     for (const [key, [en, fr]] of Object.entries(words)) {
       assert.ok(en && en.trim(), `${name}.${key}: English missing`);
       assert.ok(fr && fr.trim(), `${name}.${key}: French missing`);
@@ -90,3 +93,18 @@ test("every Chinese traditions word is said somewhere", () => {
   const unused = Object.keys(chinese).filter((key) => !new RegExp(`["'\`]${key}["'\`]`).test(corpus));
   assert.deepEqual(unused, []);
 });
+
+test("every word of the books kept out of the first download is said somewhere, and by the code that loads it", () => {
+  const read = (p) => readFileSync(join(ROOT, p), "utf8");
+  for (const [words, files] of [
+    [spaceWords, ["src/components/space/space-sheet.tsx", "src/components/space/space-settings.tsx"]],
+    [dataWords, ["src/components/your-data.tsx"]],
+    [aiWords, ["src/components/ai-accounts.tsx"]],
+  ]) {
+    const corpus = files.map(read).join("\n");
+    const unsaid = Object.keys(words).filter((key) => !new RegExp(`["'\`]${key}["'\`]`).test(corpus));
+    assert.deepEqual(unsaid, []);
+    for (const key of Object.keys(words)) assert.ok(!(key in CATALOG), `${key} in both the catalog and a book`);
+  }
+});
+

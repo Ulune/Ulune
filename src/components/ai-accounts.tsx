@@ -7,11 +7,14 @@ import { callsDirectly } from "@/lib/ai/call";
 import { readingAiLabel } from "@/lib/i18n/reading-ai";
 import { popoverPlacement } from "@/lib/popover-place";
 import { useI18n } from "@/lib/i18n/locale";
+import { bookT } from "@/lib/i18n/words-book";
+import { aiWords } from "@/lib/i18n/catalog/ai-words";
 import { AiStarGlyph } from "./reading-ai-star";
 import { toast } from "@/lib/toast";
 
 export function AiAccountsButton() {
-  const { t, locale } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(aiWords, tc, locale);
   const { active } = useAiAccount();
   const { open, toggle, setOpen } = useAiSurface();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -77,7 +80,8 @@ export function AiAccountsButton() {
 }
 
 export function AiAccountsPanel({ compose }: { compose?: ReactNode }) {
-  const { t } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(aiWords, tc, locale);
   const ai = useAiAccount();
   const [drafts, setDrafts] = useState<Partial<Record<AiProvider, string>>>({});
   const [busy, setBusy] = useState<AiProvider | null>(null);
