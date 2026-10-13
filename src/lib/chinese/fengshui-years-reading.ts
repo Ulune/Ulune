@@ -11,6 +11,7 @@ import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord } from "./words";
 import { mountainById } from "./fengshui-home";
 import { dirIn, directionName } from "./fengshui-reading";
+import { DIRECTION_IDS } from "./fengshui";
 import { starOf, type PalaceId } from "./fengshui-stars";
 import type { AfflictionId, YearStars } from "./fengshui-years";
 import { AFFLICTION_HOW, AFFLICTION_NAMES, AFFLICTION_TEXTS } from "./fengshui-years-texts";
@@ -18,6 +19,8 @@ import { mountainCode } from "./fengshui-home-reading";
 import { said } from "./zodiac-texts";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
+/** The year's notes per sector (part 27), from the texts loaded with the page. */
+type YearTexts = Pick<typeof import("./fengshui-readings-texts"), "ANNUAL_NOTES">;
 
 export const FSY_YEAR_REF = "fsy:year";
 export const FSY_MONTH_REF = "fsy:month";
@@ -63,10 +66,18 @@ export const yearLine = (y: YearStars, locale: string): string => cnWord(locale,
 export const monthLine = (y: YearStars, locale: string, timeZone?: string): string =>
   cnWord(locale, "fsyMonthLead", { from: dateWord(y.monthFrom, locale, timeZone), to: dateWord(y.monthTo - 1, locale, timeZone), star: starName(y.month, locale) });
 
-/** A palace's visitors this year and this month. */
-export function palaceYearLines(y: YearStars, p: PalaceId, locale: string): string[] {
+/** The year's note for a palace (part 27): what the year's star visiting it brings; the 5 Yellow's own line where it flies. */
+export function yearNote(y: YearStars, p: PalaceId, locale: string, texts: YearTexts | null): string | null {
+  const n = y.yearChart[p];
+  if (n === 5) return cnWord(locale, "fsyPalaceFive");
+  return texts ? said(texts.ANNUAL_NOTES[n], locale) : null;
+}
+
+/** A palace's visitors this year and this month, and the year's note for it. */
+export function palaceYearLines(y: YearStars, p: PalaceId, locale: string, texts: YearTexts | null = null): string[] {
   const lines = [cnWord(locale, "fsyPalaceLine", { ystar: starName(y.yearChart[p], locale), mstar: starName(y.monthChart[p], locale) })];
-  if (y.afflictions.fiveYellow === p) lines.push(cnWord(locale, "fsyPalaceFive"));
+  const note = yearNote(y, p, locale, texts);
+  if (note) lines.push(note);
   return lines;
 }
 
@@ -74,8 +85,20 @@ function about(locale: string): ElementReading["about"] {
   return { title: cnWord(locale, "fssAboutTitle"), paragraphs: [cnWord(locale, "fssAbout1"), cnWord(locale, "fssAbout2")] };
 }
 
-function yearReading(y: YearStars, locale: string, prefs: Shown): ElementReading {
+/** The year's note for each sector (part 27): "North: …", the centre first. */
+export function sectorNotes(y: YearStars, locale: string, texts: YearTexts | null): string[] {
+  if (!texts) return [];
+  const colon = locale === "fr" ? "\u202f: " : ": ";
+  const lower = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
+  return (["c", ...DIRECTION_IDS] as PalaceId[]).map((p) => {
+    const note = y.yearChart[p] === 5 ? cnWord(locale, "fsySectorFive") : lower(yearNote(y, p, locale, texts)!);
+    return `${p === "c" ? cnWord(locale, "fssCentre") : directionName(p, locale)}${colon}${note}`;
+  });
+}
+
+function yearReading(y: YearStars, locale: string, prefs: Shown, texts: YearTexts | null): ElementReading {
   const lead = yearLine(y, locale);
+  const sectors = sectorNotes(y, locale, texts);
   const quiet = AFFLICTION_IDS.map((id) => `${afflictionName(id, locale, prefs)}${locale === "fr" ? "\u202f: " : ": "}${afflictionPlace(y, id, locale, prefs)}`);
   return {
     id: FSY_YEAR_REF,
@@ -83,7 +106,7 @@ function yearReading(y: YearStars, locale: string, prefs: Shown): ElementReading
     title: cnWord(locale, "fsyYearTitle", { year: y.solarYear }),
     kicker: starText(y.year, locale, prefs),
     lead,
-    paragraphs: [lead, cnWord(locale, "fsyHowYear"), ...quiet],
+    paragraphs: [lead, cnWord(locale, "fsyHowYear"), ...quiet, ...sectors],
     facts: [
       { label: cnWord(locale, "fsyYearStar"), value: starText(y.year, locale, prefs) },
       { label: cnWord(locale, "fsyMonthStar"), value: starText(y.month, locale, prefs), ref: FSY_MONTH_REF },
@@ -92,6 +115,7 @@ function yearReading(y: YearStars, locale: string, prefs: Shown): ElementReading
     sections: [
       { id: "how", title: cnWord(locale, "fssHowHead"), paragraphs: [cnWord(locale, "fsyHowYear")] },
       { id: "quiet", title: cnWord(locale, "fsyQuietHead"), paragraphs: quiet },
+      ...(sectors.length ? [{ id: "sectors", title: cnWord(locale, "fsySectorsHead"), paragraphs: sectors }] : []),
     ],
     mark: starOf(y.year)[prefs.script],
     about: about(locale),
@@ -142,9 +166,9 @@ function afflictionReading(y: YearStars, id: AfflictionId, locale: string, prefs
 }
 
 /** A year's or month's reading, or null for a ref of another kind. */
-export function yearsReading(y: YearStars | null, ref: string, locale: string, prefs: Shown): ElementReading | null {
+export function yearsReading(y: YearStars | null, ref: string, locale: string, prefs: Shown, texts: YearTexts | null = null): ElementReading | null {
   if (!y || !ref.startsWith("fsy:")) return null;
-  if (ref === FSY_YEAR_REF) return yearReading(y, locale, prefs);
+  if (ref === FSY_YEAR_REF) return yearReading(y, locale, prefs, texts);
   if (ref === FSY_MONTH_REF) return monthReading(y, locale, prefs);
   const m = /^fsy:aff:([a-z-]+)$/.exec(ref);
   if (m && (AFFLICTION_IDS as readonly string[]).includes(m[1]!)) return afflictionReading(y, m[1] as AfflictionId, locale, prefs);

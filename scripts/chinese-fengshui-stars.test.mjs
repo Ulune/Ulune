@@ -169,6 +169,6 @@ test("what the page says: the chart, its casting, a palace, a formation; the tab
   assert.equal(parts[1].lines[1], "Period 8 · Zi mountain, Wu facing · 子山午向");
   assert.equal(parts[1].lines.length, 3 + 9);
   const csv = homeTableCsv(ctx).split("\n");
-  assert.ok(csv.includes("stars,main,s,8,8,3,9"));
-  assert.ok(csv.includes("stars,main,formations,double-facing,,,"));
+  assert.ok(csv.includes("stars,main,s,8,8,3,9,8-8"));
+  assert.ok(csv.includes("stars,main,formations,double-facing,,,,"));
 });

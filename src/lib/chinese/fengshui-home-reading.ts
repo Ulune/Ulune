@@ -17,7 +17,7 @@ import { cnWord } from "./words";
 import { MANSIONS, TRIGRAMS, type FengShui, type FsCount } from "./fengshui";
 import { MOUNTAINS, houseMatch, mountainById, norm360, periodOf, type Home, type Mountain, type MountainId, type PeriodId } from "./fengshui-home";
 import { flyingChart } from "./fengshui-stars";
-import { starsReading, type HomeStars } from "./fengshui-stars-reading";
+import { starsReading, type FsReadingTexts, type HomeStars } from "./fengshui-stars-reading";
 import { yearsReading } from "./fengshui-years-reading";
 import type { YearStars } from "./fengshui-years";
 import type { HomeRoom } from "./fengshui-rooms";
@@ -45,14 +45,23 @@ export type HomeContext = {
   years?: YearStars | null;
   /** The rooms the reader placed (part 26), with or without a chart of stars. */
   rooms?: readonly HomeRoom[];
+  /** The stars' and pairs' texts (part 27), once loaded with the page. */
+  texts?: FsReadingTexts | null;
 };
 
 /** The home's Flying Star charts: the main one, the replacement near a mountain's edge, and the present period for the stars' states. */
-export function homeStars(home: Home | null, period: HomeContext["period"], nowYear: number, years: YearStars | null = null, rooms: readonly HomeRoom[] = []): HomeStars | null {
+export function homeStars(
+  home: Home | null,
+  period: HomeContext["period"],
+  nowYear: number,
+  years: YearStars | null = null,
+  rooms: readonly HomeRoom[] = [],
+  texts: FsReadingTexts | null = null,
+): HomeStars | null {
   if (!home || !period) return null;
   const main = flyingChart(period.period, home.facingMountain.id, home.sittingMountain.id);
   const ti = home.edge.level === "clear" ? null : flyingChart(period.period, home.facingMountain.id, home.sittingMountain.id, true);
-  return { main, ti, now: periodOf(nowYear).period, years, rooms };
+  return { main, ti, now: periodOf(nowYear).period, years, rooms, texts };
 }
 
 /** "172.5°" or "172,5°". */
@@ -281,7 +290,7 @@ function howReading(c: HomeContext, locale: string): ElementReading {
 export function homeReading(c: HomeContext, ref: string | null, locale: string, prefs: Shown): ElementReading | null {
   if (!ref) return null;
   if (ref.startsWith("fss:")) return starsReading(c.stars ?? null, ref, locale, prefs);
-  if (ref.startsWith("fsy:")) return yearsReading(c.years ?? null, ref, locale, prefs);
+  if (ref.startsWith("fsy:")) return yearsReading(c.years ?? null, ref, locale, prefs, c.texts ?? null);
   if (ref === FSH_HOW_REF) return howReading(c, locale);
   if (ref === FSH_PERIOD_REF) return periodReading(c, locale);
   const mt = /^fsh:mountain:([a-z]+)$/.exec(ref);

@@ -5,7 +5,8 @@ import { MOUNTAINS, norm360 } from "@/lib/chinese/fengshui-home";
 import { FSH_FACING_REF, FSH_PERIOD_REF, edgeLine, facingLine, fmtDeg, fshHouseRef, fshMountainRef, houseLine, matchLines, mountainCode, periodLines, sourceLine, type HomeContext } from "@/lib/chinese/fengshui-home-reading";
 import { homeTableCsv, homeTextParts } from "@/lib/chinese/fengshui-home-table";
 import { FLIGHT } from "@/lib/chinese/fengshui-stars";
-import { chartName, formationName, fssChartRef, fssPalaceRef, palaceName } from "@/lib/chinese/fengshui-stars-reading";
+import { chartName, formationName, fssChartRef, fssPalaceRef, pairName, palaceName } from "@/lib/chinese/fengshui-stars-reading";
+import * as READING_TEXTS from "@/lib/chinese/fengshui-readings-texts";
 import { AFFLICTION_IDS, FSY_MONTH_REF, FSY_YEAR_REF, afflictionName, afflictionPlace, fsyAffRef, monthLine, yearLine } from "@/lib/chinese/fengshui-years-reading";
 import { roomsIn } from "@/lib/chinese/fengshui-rooms";
 import { listWords, roomLines, roomName } from "@/lib/chinese/fengshui-rooms-reading";
@@ -16,7 +17,9 @@ import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
 /** Feng Shui's home page as a table (languages plan, part 22); Copy and CSV. */
-export function FengShuiHomeTable({ ctx, name, selectedId, onSelect }: { ctx: HomeContext; name: string; selectedId: string | null; onSelect: (id: string) => void }) {
+export function FengShuiHomeTable({ ctx: given, name, selectedId, onSelect }: { ctx: HomeContext; name: string; selectedId: string | null; onSelect: (id: string) => void }) {
+  // The pairs' names (part 27) come with the table, whether or not the page has its texts yet.
+  const ctx: HomeContext = given.stars && !given.stars.texts ? { ...given, texts: READING_TEXTS, stars: { ...given.stars, texts: READING_TEXTS } } : given;
   const { locale, t } = useI18n();
   const prefs = useChinesePrefs();
   const w = (key: Parameters<typeof cnWord>[1]) => cnWord(locale, key);
@@ -80,6 +83,7 @@ export function FengShuiHomeTable({ ctx, name, selectedId, onSelect }: { ctx: Ho
                     <th>{w("fssWaterStar")}</th>
                     <th>{w("fssPeriodStar")}</th>
                     <th>{w("fssBaseCol")}</th>
+                    <th>{w("fssPairCol")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -93,6 +97,7 @@ export function FengShuiHomeTable({ ctx, name, selectedId, onSelect }: { ctx: Ho
                         <td>{x.water}</td>
                         <td>{x.period}</td>
                         <td>{x.base}</td>
+                        <td>{pairName(x.mountain, x.water, READING_TEXTS, locale, { ...prefs, show: "names" })}</td>
                       </tr>
                     );
                   })}

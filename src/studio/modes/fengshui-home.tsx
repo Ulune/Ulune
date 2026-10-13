@@ -32,6 +32,8 @@ import { AFFLICTION_IDS, FSY_MONTH_REF, FSY_YEAR_REF, afflictionName, affliction
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
+import { importWithRetry } from "@/lib/lazy-retry";
+import type { FsReadingTexts } from "@/lib/chinese/fengshui-stars-reading";
 import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
 import { MODE_META } from "@/studio/modes/meta";
@@ -477,6 +479,31 @@ function HomeData() {
   );
 }
 
+/*
+ * The stars' and pairs' texts (part 27): their own download, fetched once the
+ * page is shown, kept for the visit. The readings go without them until then.
+ */
+let textsLoaded: FsReadingTexts | null = null;
+const loadTexts = () => importWithRetry(() => import("@/lib/chinese/fengshui-readings-texts"), { attempts: 2 });
+
+function useReadingTexts(enabled: boolean): FsReadingTexts | null {
+  const [texts, setTexts] = useState<FsReadingTexts | null>(textsLoaded);
+  useEffect(() => {
+    if (!enabled || texts) return;
+    let alive = true;
+    void loadTexts()
+      .then((m) => {
+        textsLoaded = m;
+        if (alive) setTexts(m);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [enabled, texts]);
+  return texts;
+}
+
 function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
@@ -489,6 +516,7 @@ function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
   const yearTyped = useHomeInput((s) => s.year);
   const rooms = useHomeInput((s) => s.rooms);
   const enabled = page === "fengshui-home" && Boolean(chart);
+  const texts = useReadingTexts(enabled);
   // The year's and the month's stars (part 25): today's, worked out once a day.
   const todayKey = new Date().toDateString();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -514,11 +542,12 @@ function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
       people,
       place: chart?.meta.placeLabel?.split(",")[0]?.trim() || "—",
       declination: decl,
-      stars: homeStars(home, period, new Date().getFullYear(), years, rooms),
+      stars: homeStars(home, period, new Date().getFullYear(), years, rooms, texts),
       years,
       rooms,
+      texts,
     };
-  }, [typed, source, yearTyped, people, decl, chart, years, rooms]);
+  }, [typed, source, yearTyped, people, decl, chart, years, rooms, texts]);
   const reading = useMemo(() => (enabled ? homeReading(ctx, selectedId, locale, prefs) : null), [enabled, ctx, selectedId, locale, prefs]);
   const data = useMemo(() => ({ ctx, enabled }), [ctx, enabled]);
   return useMemo(() => ({ data, reading }), [data, reading]);

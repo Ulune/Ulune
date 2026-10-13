@@ -19,6 +19,8 @@
  *   - (part 25) the year's and the month's stars: the card, its readings,
  *     the year's numbers on the palaces with the 5 Yellow's marked, the
  *     year's layer switched off and on, the afflictions on the luopan;
+ *   - (part 27) the south palace's pair of stars (8 and 6, "Standing and
+ *     wealth"), and the 8 White's own reading opened from the palace's facts;
  *   - (part 26) rooms placed on the home's plan (the north-east's kitchen and
  *     bathroom, the north's bedroom), named on the palaces and read in the
  *     palace's reading, one removed; the home kept in a private space (at
@@ -55,6 +57,8 @@ const WORDS = {
     year: "the year’s star in the centre is the",
     month: "the month’s star in the centre is the",
     roomsHere: "In this palace: your kitchen and your bathroom.",
+    pair: "Mountain 8 and water 6: Standing and wealth",
+    star8: "The 8 White, Zuo Fu, is earth, the trigram Gen",
     label: "Kitchen · Bath",
     kitchen: "Kitchen",
   },
@@ -76,6 +80,8 @@ const WORDS = {
     year: "l’étoile de l’année au centre est le",
     month: "l’étoile du mois au centre est le",
     roomsHere: "Dans ce palais\u202f: votre cuisine et votre salle d’eau.",
+    pair: "Montagne 8 et eau 6\u202f: Le rang et la richesse",
+    star8: "Le 8 Blanc, Zuo Fu, est la terre, le trigramme Gen",
     label: "Cuisine · Eau",
     kitchen: "Cuisine",
   },
@@ -186,6 +192,10 @@ async function run(width, lang) {
     await page.getByTestId("fengshui-stars-main-s").click();
     if (phone) await clickDockTab(page, "reading");
     await waitNote(page, w.palace, label, "the south palace's reading");
+    // (part 27) The pair of mountain and water read together, and the mountain star's own reading from its fact.
+    await waitNote(page, w.pair, label, "the south palace's pair");
+    await page.locator("[data-testid=click-note] [data-ref='fss:star:8']").first().click();
+    await waitNote(page, w.star8, label, "the 8 White's reading");
     if (phone) await clickDockTab(page, "reading").catch(() => {});
     await page.getByTestId("fengshui-home-facing").fill("170");
     await page.getByTestId("fengshui-stars-chart-ti").waitFor({ timeout: 4000 });

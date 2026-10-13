@@ -10,7 +10,8 @@ import { cnWord } from "./words";
 import { MOUNTAINS, houseMatch, norm360 } from "./fengshui-home";
 import { countLabel, directionName } from "./fengshui-reading";
 import { FLIGHT } from "./fengshui-stars";
-import { chartName, formationName, palaceName } from "./fengshui-stars-reading";
+import { chartName, formationName, pairName, palaceName } from "./fengshui-stars-reading";
+import { pairKey } from "./fengshui-pairs";
 import { roomFit, roomsIn } from "./fengshui-rooms";
 import { listWords, roomLines, roomName } from "./fengshui-rooms-reading";
 import { AFFLICTION_IDS, afflictionName, afflictionPlace, monthLine, yearLine } from "./fengshui-years-reading";
@@ -36,7 +37,8 @@ export function homeTextParts(c: HomeContext, name: string, locale: string, pref
       stars.push(`${cnWord(locale, "fssFormationsHead")}${colon}${chart.formations.length ? chart.formations.map((f) => formationName(f, locale, prefs)).join(", ") : cnWord(locale, "fssNoFormation")}`);
       for (const p of FLIGHT) {
         const x = chart.palaces[p];
-        stars.push(`  ${palaceName(p, locale)}${colon}${cnWord(locale, "fssPalaceLead", { m: x.mountain, w: x.water, p: x.period, b: x.base })}`);
+        const pair = c.stars.texts ? ` · ${pairName(x.mountain, x.water, c.stars.texts, locale, prefs)}` : "";
+        stars.push(`  ${palaceName(p, locale)}${colon}${cnWord(locale, "fssPalaceLead", { m: x.mountain, w: x.water, p: x.period, b: x.base })}${pair}`);
       }
     }
   } else stars.push(cnWord(locale, c.home ? "fssNeedYear" : "fshNoFacing"));
@@ -94,14 +96,14 @@ export function homeTableCsv(c: HomeContext): string {
   if (c.declination != null) rows.push(["facing", "placeDeclination", c.declination.toFixed(2)]);
   if (c.stars) {
     rows.push([]);
-    rows.push(["stars", "chart", "palace", "mountain", "water", "period", "base"]);
+    rows.push(["stars", "chart", "palace", "mountain", "water", "period", "base", "pair"]);
     for (const [v, chart] of [["main", c.stars.main], ["ti", c.stars.ti]] as const) {
       if (!chart) continue;
       for (const p of FLIGHT) {
         const x = chart.palaces[p];
-        rows.push(["stars", v, p, String(x.mountain), String(x.water), String(x.period), String(x.base)]);
+        rows.push(["stars", v, p, String(x.mountain), String(x.water), String(x.period), String(x.base), pairKey(x.mountain, x.water)]);
       }
-      rows.push(["stars", v, "formations", chart.formations.join("|"), "", "", ""]);
+      rows.push(["stars", v, "formations", chart.formations.join("|"), "", "", "", ""]);
     }
   }
   if (c.rooms?.length) {
