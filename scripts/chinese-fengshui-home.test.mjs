@@ -157,11 +157,11 @@ test("what the page says: the facing, the house and you, a mountain, the period,
 test("the table: the facing's lines and the 24 mountains, your home's marked; CSV with ids", () => {
   const ctx = { home: homeOf(170, "phone", 2.1), period: { year: 2024, ...periodOf(2024) }, people: [yang], place: "Paris", declination: 2.1 };
   const parts = homeTextParts(ctx, "Camille", "en", full);
-  assert.deepEqual(parts.map((p) => p.id), ["facing", "mountains"]);
+  assert.deepEqual(parts.map((p) => p.id), ["facing", "stars", "mountains"]);
   assert.equal(parts[0].lines[0], "Camille · Your home’s facing");
   assert.match(parts[0].lines[2], /^Only 2\.5° from Wu: this close to an edge/);
-  assert.equal(parts[1].lines.length, 25);
-  assert.match(parts[1].lines.find((l) => l.startsWith("S1")), /Bing · bǐng 丙: 157\.5° – 172\.5°, south · Facing$/);
+  assert.equal(parts[2].lines.length, 25);
+  assert.match(parts[2].lines.find((l) => l.startsWith("S1")), /Bing · bǐng 丙: 157\.5° – 172\.5°, south · Facing$/);
   const csv = homeTableCsv(ctx).split("\n");
   assert.ok(csv.includes("facing,mountain,bing"));
   assert.ok(csv.includes("facing,edge,replacement:2.50:wu"));

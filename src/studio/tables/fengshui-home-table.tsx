@@ -4,6 +4,8 @@ import { cnWord } from "@/lib/chinese/words";
 import { MOUNTAINS, norm360 } from "@/lib/chinese/fengshui-home";
 import { FSH_FACING_REF, FSH_PERIOD_REF, edgeLine, facingLine, fmtDeg, fshHouseRef, fshMountainRef, houseLine, matchLines, mountainCode, periodLines, sourceLine, type HomeContext } from "@/lib/chinese/fengshui-home-reading";
 import { homeTableCsv, homeTextParts } from "@/lib/chinese/fengshui-home-table";
+import { FLIGHT } from "@/lib/chinese/fengshui-stars";
+import { chartName, formationName, fssChartRef, fssPalaceRef, palaceName } from "@/lib/chinese/fengshui-stars-reading";
 import { countLabel, directionName } from "@/lib/chinese/fengshui-reading";
 import { partRows } from "@/lib/csv";
 import { useI18n } from "@/lib/i18n/locale";
@@ -51,6 +53,53 @@ export function FengShuiHomeTable({ ctx, name, selectedId, onSelect }: { ctx: Ho
             ))}
           </tbody>
         </DataTable>
+      ),
+    },
+    {
+      id: "stars",
+      label: w("fssHead"),
+      hint: w("fssPartHint"),
+      copyText: partText("stars"),
+      table: ctx.stars ? csvOf(["stars"]) : undefined,
+      children: ctx.stars ? (
+        <>
+          {([["main", ctx.stars.main], ["ti", ctx.stars.ti]] as const).map(([v, chart]) =>
+            chart ? (
+              <DataTable key={v} className="ulune-zk-tbl" wide>
+                <caption className="ulune-fss-caption">
+                  {pick(fssChartRef(v), `${ctx.stars!.ti ? `${w(v === "ti" ? "fssTi" : "fssMain")} · ` : ""}${chartName(chart, locale, prefs)}`)}
+                  {chart.formations.length ? ` · ${chart.formations.map((f) => formationName(f, locale, prefs)).join(", ")}` : ""}
+                </caption>
+                <thead>
+                  <tr>
+                    <th>{w("fssPalaceCol")}</th>
+                    <th>{w("fssMountainStar")}</th>
+                    <th>{w("fssWaterStar")}</th>
+                    <th>{w("fssPeriodStar")}</th>
+                    <th>{w("fssBaseCol")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {FLIGHT.map((p) => {
+                    const x = chart.palaces[p];
+                    const id = fssPalaceRef(v, p);
+                    return (
+                      <tr key={p} data-testid={`fengshui-stars-row-${v}-${p}`} data-selected={selectedId === id ? "1" : undefined}>
+                        <th scope="row">{pick(id, palaceName(p, locale))}</th>
+                        <td>{x.mountain}</td>
+                        <td>{x.water}</td>
+                        <td>{x.period}</td>
+                        <td>{x.base}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </DataTable>
+            ) : null,
+          )}
+        </>
+      ) : (
+        <p className="ulune-fsh-small">{w(ctx.home ? "fssNeedYear" : "fshNoFacing")}</p>
       ),
     },
     {

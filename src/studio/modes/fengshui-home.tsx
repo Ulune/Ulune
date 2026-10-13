@@ -4,7 +4,7 @@ import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
 import { DIRECTIONS, fengShuiOf, trigramOfDirection, type FengShui, type FsCount } from "@/lib/chinese/fengshui";
-import { MOUNTAINS, SPREAD_WARN, averageBearing, homeOf, periodOf, type MountainId } from "@/lib/chinese/fengshui-home";
+import { MOUNTAINS, SPREAD_WARN, averageBearing, homeOf, periodOf, type MountainId, type PeriodId } from "@/lib/chinese/fengshui-home";
 import {
   FSH_FACING_REF,
   FSH_HOW_REF,
@@ -16,6 +16,7 @@ import {
   fshHouseRef,
   fshMountainRef,
   homeReading,
+  homeStars,
   houseLine,
   howLines,
   matchLines,
@@ -25,6 +26,8 @@ import {
   type HomeContext,
 } from "@/lib/chinese/fengshui-home-reading";
 import { countLabel } from "@/lib/chinese/fengshui-reading";
+import { starState, type FlyingChart, type PalaceId } from "@/lib/chinese/fengshui-stars";
+import { chartName, formationName, fssChartRef, fssFormationRef, fssPalaceRef, gridRows, palaceName, type ChartVariant } from "@/lib/chinese/fengshui-stars-reading";
 import { declination, decimalYear } from "@/lib/chinese/geomag";
 import { CJK, hanziLang } from "@/lib/chinese/animal-chars";
 import { previewProps } from "@/lib/depth/preview-bus";
@@ -409,7 +412,95 @@ function HomeCards() {
         </p>
       )}
       <Card refId={FSH_PERIOD_REF} testId="fengshui-home-period" title={cnWord(locale, "fshPeriodHead")} lines={periodLines(ctx, locale)} />
+      {home ? <StarsCard /> : null}
     </div>
+  );
+}
+
+/** One chart as the nine palaces: the mountain star top left, the water star top right, the period star below. */
+function StarGrid({ v, c, now }: { v: ChartVariant; c: FlyingChart; now: PeriodId }) {
+  const { locale } = useI18n();
+  const prefs = useChinesePrefs();
+  const w = useWheelView();
+  const rows = gridRows(prefs.compass);
+  const short = (p: PalaceId) => (p === "c" ? "" : DIRECTIONS.find((d) => d.id === p)!.short[locale === "fr" ? "fr" : "en"]);
+  return (
+    <div className="ulune-fss-grid" role="group" aria-label={chartName(c, locale, prefs)} data-testid={`fengshui-stars-grid-${v}`} data-top={prefs.compass}>
+      {rows.flat().map((p) => {
+        const x = c.palaces[p];
+        const ref = fssPalaceRef(v, p);
+        return (
+          <button
+            key={p}
+            type="button"
+            className={cn("ulune-fss-cell", p === "c" && "is-centre", w.selectedId === ref && "is-on")}
+            data-palace={p}
+            data-testid={`fengshui-stars-${v}-${p}`}
+            aria-pressed={w.selectedId === ref}
+            aria-label={`${palaceName(p, locale)}: ${cnWord(locale, "fssMountainStar").toLowerCase()} ${x.mountain}, ${cnWord(locale, "fssWaterStar").toLowerCase()} ${x.water}, ${cnWord(locale, "fssPeriodStar").toLowerCase()} ${x.period}`}
+            onClick={() => w.choose(ref)}
+            {...previewProps(ref)}
+          >
+            <span className="ulune-fss-dir">{short(p)}</span>
+            <span className="ulune-fss-mw">
+              <b data-state={starState(x.mountain, now).state} data-now={x.mountain === now || undefined}>{x.mountain}</b>
+              <b data-state={starState(x.water, now).state} data-now={x.water === now || undefined}>{x.water}</b>
+            </span>
+            <span className="ulune-fss-p">{x.period}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function StarsCard() {
+  const { locale } = useI18n();
+  const prefs = useChinesePrefs();
+  const w = useWheelView();
+  const data = useModeData("fengshui-home");
+  const stars = data?.ctx.stars;
+  if (!stars) {
+    return (
+      <section className="ulune-fsh-form ulune-fss" data-testid="fengshui-stars-none">
+        <h2 className="ulune-fs-h">{cnWord(locale, "fssHead")}</h2>
+        <p className="ulune-fsh-small">{cnWord(locale, "fssNeedYear")}</p>
+      </section>
+    );
+  }
+  const charts = ([["main", stars.main], ["ti", stars.ti]] as const).filter((x): x is readonly [ChartVariant, FlyingChart] => Boolean(x[1]));
+  return (
+    <section className="ulune-fsh-form ulune-fss" data-testid="fengshui-stars" aria-labelledby="fss-h">
+      <h2 id="fss-h" className="ulune-fs-h">
+        {cnWord(locale, "fssHead")}
+      </h2>
+      {stars.ti ? <p className="ulune-fsh-small is-warn">{cnWord(locale, "fssTiNote")}</p> : null}
+      <div className={cn("ulune-fss-charts", charts.length > 1 && "is-two")}>
+        {charts.map(([v, c]) => (
+          <div key={v} className="ulune-fss-chart" data-testid={`fengshui-stars-chart-${v}`}>
+            <button type="button" className={cn("ulune-fss-name", w.selectedId === fssChartRef(v) && "is-on")} data-testid={`fengshui-stars-name-${v}`} onClick={() => w.choose(fssChartRef(v))} {...previewProps(fssChartRef(v))}>
+              {charts.length > 1 ? <span className="ulune-fs-h">{cnWord(locale, v === "ti" ? "fssTi" : "fssMain")}</span> : null}
+              <span>{chartName(c, locale, prefs)}</span>
+            </button>
+            <StarGrid v={v} c={c} now={stars.now} />
+            <ul className="ulune-fss-forms">
+              {c.formations.length ? (
+                c.formations.map((f) => (
+                  <li key={f}>
+                    <button type="button" className={cn("ulune-fs-row", w.selectedId === fssFormationRef(f) && "is-on")} data-testid={`fengshui-stars-formation-${v}-${f}`} onClick={() => w.choose(fssFormationRef(f))} {...previewProps(fssFormationRef(f))}>
+                      <span className="ulune-fs-row-name">{formationName(f, locale, prefs)}</span>
+                    </button>
+                  </li>
+                ))
+              ) : (
+                <li className="ulune-fsh-small">{cnWord(locale, "fssNoFormation")}</li>
+              )}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <p className="ulune-fsh-small">{cnWord(locale, "fssLegend")}</p>
+    </section>
   );
 }
 
@@ -454,6 +545,17 @@ function HomeHello() {
           text: matchLines(home, fs, locale)[0]!,
         })),
         { id: "period", ref: FSH_PERIOD_REF, label: cnWord(locale, "fshPeriodHead"), value: ctx.period ? cnWord(locale, "fshPeriodN", { n: ctx.period.period }) : "", text: periodLines(ctx, locale)[0]! },
+        ...(ctx.stars
+          ? [
+              {
+                id: "stars",
+                ref: fssChartRef("main"),
+                label: cnWord(locale, "fssHead"),
+                value: ctx.stars.main.formations.map((f) => formationName(f, locale, { ...prefs, show: "names" })).join(" · "),
+                text: chartName(ctx.stars.main, locale, prefs),
+              },
+            ]
+          : []),
       ]
     : howLines(locale).map((text, i) => ({ id: `how-${i + 1}`, ref: FSH_HOW_REF, label: cnWord(locale, "fshHowHead"), value: "", text }));
   return (
@@ -530,12 +632,15 @@ function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
   const ctx = useMemo<HomeContext>(() => {
     const deg = parseFacing(typed);
     const y = parseYear(yearTyped);
+    const home = deg == null ? null : homeOf(deg, source, decl);
+    const period = y == null ? null : { year: y, ...periodOf(y) };
     return {
-      home: deg == null ? null : homeOf(deg, source, decl),
-      period: y == null ? null : { year: y, ...periodOf(y) },
+      home,
+      period,
       people,
       place: chart?.meta.placeLabel?.split(",")[0]?.trim() || "—",
       declination: decl,
+      stars: homeStars(home, period, new Date().getFullYear()),
     };
   }, [typed, source, yearTyped, people, decl, chart]);
   const reading = useMemo(() => (enabled ? homeReading(ctx, selectedId, locale, prefs) : null), [enabled, ctx, selectedId, locale, prefs]);

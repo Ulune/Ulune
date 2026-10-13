@@ -268,3 +268,117 @@
     align-items: stretch;
   }
 }
+
+/* The Flying Stars (part 23): each chart as the nine palaces, three by three. */
+.ulune-fss-charts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+.ulune-fss-charts.is-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.ulune-fss-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.ulune-fss-name {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 32px;
+  color: var(--color-fg);
+  font: 500 13px/1.35 var(--font-ui);
+  text-align: left;
+}
+.ulune-fss-name .ulune-fs-h {
+  margin: 0;
+}
+.ulune-fss-name.is-on,
+.ulune-fss-name:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ulune-fss-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px;
+  max-width: 264px;
+}
+.ulune-fss-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  min-height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+.ulune-fss-cell.is-centre {
+  background: var(--color-bg-subtle);
+}
+.ulune-fss-cell.is-on,
+.ulune-fss-cell:hover {
+  border-color: var(--color-fg);
+}
+.ulune-fss-cell:focus-visible {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 1px;
+}
+.ulune-fss-dir {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  right: 0;
+  font: 600 8.5px/1 var(--font-ui);
+  letter-spacing: 0.04em;
+  color: var(--color-fg-subtle);
+}
+.ulune-fss-mw {
+  display: flex;
+  gap: 0.7em;
+  font: 500 17px/1.1 var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+.ulune-fss-mw b {
+  font-weight: 500;
+}
+.ulune-fss-mw b[data-state="timely"] {
+  color: var(--color-halo);
+}
+.ulune-fss-mw b[data-now] {
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ulune-fss-mw b[data-state="dormant"] {
+  color: var(--color-fg-muted);
+}
+.ulune-fss-p {
+  font: 400 12px/1.1 var(--font-ui);
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+.ulune-fss-forms {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@container (max-width: 520px) {
+  .ulune-fss-charts.is-two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.ulune-fss-caption {
+  caption-side: top;
+  padding: var(--space-2) 0;
+  text-align: left;
+  font: 400 13px/1.4 var(--font-ui);
+}

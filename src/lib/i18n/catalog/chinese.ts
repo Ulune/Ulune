@@ -1026,6 +1026,80 @@ export const chinese = {
   fshToCol: ["To", "À"],
   fshMountainCol: ["Mountain", "Montagne"],
   fshHomeCol: ["Your home", "Votre logement"],
+  // Feng Shui, the Flying Stars: the chart, the formations, the replacement chart (languages plan, part 23).
+  fssHead: ["The Flying Stars", "Les Étoiles volantes"],
+  fssNeedYear: [
+    "Give the year the home was built to cast its Flying Star chart.",
+    "Indiquez l’année de construction du logement pour calculer son thème des Étoiles volantes.",
+  ],
+  fssChartName: ["Period {p} · {sitting} mountain, {facing} facing", "Période {p} · montagne {sitting}, façade {facing}"],
+  fssMain: ["Main chart", "Thème principal"],
+  fssTi: ["Replacement chart", "Thème de remplacement"],
+  fssTiNote: [
+    "The facing stands near its mountain’s edge: many schools read the replacement chart (Ti Gua) here, others the main one. Both are shown.",
+    "L’orientation se tient près du bord de sa montagne : beaucoup d’écoles lisent ici le thème de remplacement (Ti Gua), d’autres le thème principal. Les deux sont montrés.",
+  ],
+  fssNoFormation: [
+    "No formation runs through the whole chart: each palace is read on its own.",
+    "Aucune formation ne traverse tout le thème : chaque palais se lit pour lui-même.",
+  ],
+  fssLegend: [
+    "In each palace: the mountain star top left, the water star top right, the period star below.",
+    "Dans chaque palais : l’étoile de la montagne en haut à gauche, l’étoile de l’eau en haut à droite, l’étoile de la période en dessous.",
+  ],
+  fssPeriodChart: [
+    "The period chart: {p} in the centre, flown forward through the nine palaces in the Lo Shu’s order, centre, north-west, west, north-east, south, north, south-west, east, south-east.",
+    "Le thème de la période : {p} au centre, envolé vers l’avant à travers les neuf palais dans l’ordre du Lo Shu, centre, nord-ouest, ouest, nord-est, sud, nord, sud-ouest, est, sud-est.",
+  ],
+  fssCast: [
+    "The {kind}: the period chart’s {met}, in the {side} palace, goes to the centre. In palace {met}, {by} holds the place {own} holds in its own; being {pol}, the star flies {way}.",
+    "L’{kind} : le {met} du thème de la période, dans le palais {side}, va au centre. Dans le palais {met}, {by} tient la place que {own} tient dans le sien ; étant {pol}, l’étoile vole {way}.",
+  ],
+  fssCastFive: [
+    "The {kind}: the period chart’s 5, in the {side} palace, has no palace of its own, so {own} itself decides; being {pol}, the star flies {way}.",
+    "L’{kind} : le 5 du thème de la période, dans le palais {side}, n’a pas de palais propre, si bien que {own} décide lui-même ; étant {pol}, l’étoile vole {way}.",
+  ],
+  fssCastReplaced: [
+    "In the replacement chart, {by}’s replacement star, {centre}, goes to the centre in place of {met}.",
+    "Dans le thème de remplacement, l’étoile de remplacement de {by}, le {centre}, va au centre à la place du {met}.",
+  ],
+  fssKindMountain: ["mountain star", "étoile de la montagne"],
+  fssKindWater: ["water star", "étoile de l’eau"],
+  fssSideSitting: ["sitting", "du dos"],
+  fssSideFacing: ["facing", "de la façade"],
+  fssPalaceName: ["{dir} palace", "Palais {ofDir}"],
+  fssCentre: ["The centre", "Le centre"],
+  fssPalaceLead: [
+    "Mountain star {m}, water star {w}, period star {p}; the Lo Shu’s own number here is {b}.",
+    "Étoile de la montagne {m}, étoile de l’eau {w}, étoile de la période {p} ; le nombre propre du Lo Shu ici est le {b}.",
+  ],
+  fssMountainStar: ["Mountain star", "Étoile de la montagne"],
+  fssWaterStar: ["Water star", "Étoile de l’eau"],
+  fssPeriodStar: ["Period star", "Étoile de la période"],
+  fssStarLine: ["{kind}: {star}, {phase}, {state}.", "{kind} : {star}, {phase}, {state}."],
+  fssStateCurrent: ["timely, the period’s own star", "en phase, l’étoile même de la période"],
+  fssStateComing: ["timely, one of the two rising", "en phase, l’une des deux qui montent"],
+  fssStateWaning: ["waning", "déclinante"],
+  fssStateDormant: ["dormant", "en sommeil"],
+  fssStatesNow: ["States as of Period {now}, the present period.", "États selon la Période {now}, la période présente."],
+  fssFormationsHead: ["Formations", "Formations"],
+  fssStatesHead: ["Their state now", "Leur état aujourd’hui"],
+  fssHowHead: ["How it is cast", "Comment il se calcule"],
+  fssAboutTitle: ["About the Flying Stars", "À propos des Étoiles volantes"],
+  fssAbout1: [
+    "The Flying Stars (Xuan Kong Fei Xing) read a home through time: nine stars, the numbers of the Lo Shu square, fly through its nine palaces from the period it was built in and the mountain it faces. The mountain stars are read for people and the bonds between them, the water stars for activity and resources.",
+    "Les Étoiles volantes (Xuan Kong Fei Xing) lisent un logement dans le temps : neuf étoiles, les nombres du carré Lo Shu, volent à travers ses neuf palais à partir de la période de sa construction et de la montagne vers laquelle il est tourné. Les étoiles de la montagne se lisent pour les personnes et leurs liens, les étoiles de l’eau pour l’activité et les ressources.",
+  ],
+  fssAbout2: [
+    "Ulune casts the chart by the classical rules, shows the replacement chart near a mountain’s edge and names the formations that run through the whole chart. Worked out on this device; nothing is sent.",
+    "Ulune calcule le thème selon les règles classiques, montre le thème de remplacement près du bord d’une montagne et nomme les formations qui traversent tout le thème. Calculé sur cet appareil ; rien n’est envoyé.",
+  ],
+  fssPartHint: [
+    "The nine palaces with their mountain, water and period stars, and the formations of the chart.",
+    "Les neuf palais avec leurs étoiles de la montagne, de l’eau et de la période, et les formations du thème.",
+  ],
+  fssPalaceCol: ["Palace", "Palais"],
+  fssBaseCol: ["Lo Shu", "Lo Shu"],
   // The relations between animals (languages plan, part 8).
   zkRelations: ["Between your animals", "Entre vos animaux"],
   zkRelationsNone: [

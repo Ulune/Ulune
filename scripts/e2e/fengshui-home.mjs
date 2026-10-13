@@ -10,6 +10,9 @@
  *     the other as the yin count's Kua 8; 170°: near Wu's edge, a
  *     replacement chart's zone; from a map, turned magnetic;
  *   - the year 1998: Period 7; a wrong year said so;
+ *   - (part 23) the Flying Stars: Period 7, sitting Zi facing Wu, double
+ *     stars at the sitting and the Combination of Ten; the south palace's
+ *     reading; near an edge, the replacement chart beside the main one;
  *   - a mountain's reading, the arrows walking round the dial;
  *   - on a phone: the compass on request, its needle, three readings,
  *     their average used as the facing; on a computer, no compass button;
@@ -34,6 +37,7 @@ const WORDS = {
     phone: "Read with this phone’s compass",
     map: "Read on a map (180° true)",
     east: " E",
+    palace: "Mountain star 8, water star 6, period star 2",
   },
   fr: {
     first: "Votre logement, pas à pas",
@@ -47,6 +51,7 @@ const WORDS = {
     phone: "Lue avec la boussole de ce téléphone",
     map: "Lue sur une carte (180° géographique)",
     east: " E",
+    palace: "Étoile de la montagne 8, étoile de l’eau 6, étoile de la période 2",
   },
 };
 const note = (page) => page.getByTestId("click-note").evaluate((e) => e.textContent ?? "").catch(() => "");
@@ -141,6 +146,25 @@ async function run(width, lang) {
     const period = await text(page, "fengshui-home-period");
     if (!period.includes(w.period)) throw new Error(`${label}: the period "${period}"`);
 
+    // The Flying Stars (part 23): Period 7, sitting Zi facing Wu; near an edge, the replacement chart too.
+    await page.getByTestId("fengshui-home-facing").fill("180");
+    await page.getByTestId("fengshui-stars").waitFor({ timeout: 4000 });
+    const stars = await page.evaluate(() => ({
+      charts: [...document.querySelectorAll("[data-testid^=fengshui-stars-chart-]")].map((e) => e.getAttribute("data-testid").slice(21)),
+      cells: document.querySelectorAll("[data-testid=fengshui-stars-grid-main] .ulune-fss-cell").length,
+      forms: [...document.querySelectorAll("[data-testid^=fengshui-stars-formation-main-]")].map((e) => e.getAttribute("data-testid").slice(30)),
+      top: document.querySelector("[data-testid=fengshui-stars-grid-main] .ulune-fss-cell")?.getAttribute("data-palace"),
+    }));
+    if (stars.charts.join() !== "main" || stars.cells !== 9 || stars.forms.join() !== "double-sitting,ten-mountain" || stars.top !== "nw") throw new Error(`${label}: the stars ${JSON.stringify(stars)}`);
+    await page.getByTestId("fengshui-stars-main-s").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.getByTestId("fengshui-stars-main-s").click();
+    if (phone) await clickDockTab(page, "reading");
+    await waitNote(page, w.palace, label, "the south palace's reading");
+    if (phone) await clickDockTab(page, "reading").catch(() => {});
+    await page.getByTestId("fengshui-home-facing").fill("170");
+    await page.getByTestId("fengshui-stars-chart-ti").waitFor({ timeout: 4000 });
+    await page.screenshot({ path: join(SHOTS, `fengshui-stars-${lang}-${width}.png`) }).catch(() => {});
+
     // A mountain's reading; the arrows walk round the dial.
     await page.getByTestId("fengshui-home-facing").fill("180");
     const wu = page.getByTestId("fengshui-home-mountain-wu");
@@ -190,7 +214,8 @@ async function run(width, lang) {
       mountains: document.querySelectorAll("[data-testid^=fengshui-home-mrow-]").length,
       home: [...document.querySelectorAll("[data-testid^=fengshui-home-mrow-][data-home]")].map((r) => r.getAttribute("data-testid").slice(21)),
     }));
-    if (rows.lines !== 6 || rows.mountains !== 24 || rows.home.length !== 2) throw new Error(`${label}: the table ${JSON.stringify(rows)}`);
+    const starRows = await page.locator("[data-testid^=fengshui-stars-row-main-]").count();
+    if (rows.lines !== 6 || rows.mountains !== 24 || rows.home.length !== 2 || starRows !== 9) throw new Error(`${label}: the table ${JSON.stringify(rows)} ${starRows}`);
     await assertNoOverflow(page);
     await setView(page, "wheel");
     await page.getByTestId("fengshui-home").waitFor({ timeout: 10000 });

@@ -15,7 +15,9 @@ import { BRANCHES, PHASES, STEMS } from "./names";
 import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord } from "./words";
 import { MANSIONS, TRIGRAMS, type FengShui, type FsCount } from "./fengshui";
-import { MOUNTAINS, houseMatch, mountainById, norm360, type Home, type Mountain, type MountainId, type PeriodId } from "./fengshui-home";
+import { MOUNTAINS, houseMatch, mountainById, norm360, periodOf, type Home, type Mountain, type MountainId, type PeriodId } from "./fengshui-home";
+import { flyingChart } from "./fengshui-stars";
+import { starsReading, type HomeStars } from "./fengshui-stars-reading";
 import { countLabel, deName, dirIn, directionName, fsDirRef, fsKuaRef, groupLabel, mansionName } from "./fengshui-reading";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
@@ -34,7 +36,17 @@ export type HomeContext = {
   /** What the declination was taken for: the chart's place, its value (east positive), or null without one. */
   place: string;
   declination: number | null;
+  /** The Flying Star charts, once both a facing and a year are given (part 23). */
+  stars?: HomeStars | null;
 };
+
+/** The home's Flying Star charts: the main one, the replacement near a mountain's edge, and the present period for the stars' states. */
+export function homeStars(home: Home | null, period: HomeContext["period"], nowYear: number): HomeStars | null {
+  if (!home || !period) return null;
+  const main = flyingChart(period.period, home.facingMountain.id, home.sittingMountain.id);
+  const ti = home.edge.level === "clear" ? null : flyingChart(period.period, home.facingMountain.id, home.sittingMountain.id, true);
+  return { main, ti, now: periodOf(nowYear).period };
+}
 
 /** "172.5°" or "172,5°". */
 export function fmtDeg(d: number, locale: string, digits = 1): string {
@@ -261,6 +273,7 @@ function howReading(c: HomeContext, locale: string): ElementReading {
 /** The page's reading of a selection, or null. */
 export function homeReading(c: HomeContext, ref: string | null, locale: string, prefs: Shown): ElementReading | null {
   if (!ref) return null;
+  if (ref.startsWith("fss:")) return starsReading(c.stars ?? null, ref, locale, prefs);
   if (ref === FSH_HOW_REF) return howReading(c, locale);
   if (ref === FSH_PERIOD_REF) return periodReading(c, locale);
   const mt = /^fsh:mountain:([a-z]+)$/.exec(ref);
