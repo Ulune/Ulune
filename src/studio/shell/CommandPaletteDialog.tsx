@@ -16,7 +16,9 @@ import { setDepthPrefs, useDepthPrefs } from "@/lib/depth/prefs";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { useI18n } from "@/lib/i18n/locale";
 import { useLookProfiles } from "@/lib/look-provider";
+import { placeWord } from "@/lib/i18n/places-words";
 import { useTheme } from "@/lib/theme";
+import { openKeptHome, readHomeList, useHomeList } from "@/studio/modes/fengshui-home-list";
 import { PAGE_LABEL } from "@/studio/modes/meta";
 import { useStudioStore } from "@/studio/store";
 import {
@@ -30,10 +32,14 @@ import {
   pagesOf,
 } from "@/studio/map";
 import { LANGUAGE_WORDS, LENS_LABEL } from "@/studio/shell/map-ui";
+import { languageAliases, paletteFinds, paletteWords, typedWords } from "@/studio/shell/palette-find";
 import { useStudioUrl } from "@/studio/use-studio-url";
 
-/** `find`: listed only once something is typed (aspects, signs, houses, words: too many to show at rest). */
-type Cmd = { id: string; section: string; label: string; hint?: string; keys?: string; find?: boolean; run: () => void };
+/**
+ * `find`: listed only once something is typed (aspects, signs, houses, words: too many to show at rest).
+ * `terms`: other names it is found by, never shown (a Chinese language's pinyin and characters: palette-find.ts).
+ */
+type Cmd = { id: string; section: string; label: string; hint?: string; terms?: string; keys?: string; find?: boolean; run: () => void };
 
 const PRESET_LABEL: Record<NamedPresetId, MessageKey> = {
   minimal: "presetMinimal",
@@ -45,8 +51,11 @@ const PRESET_LABEL: Record<NamedPresetId, MessageKey> = {
 
 /**
  * The palette itself (CommandPalette.tsx opens it): every section, language,
- * lens, mode, chart, body, Look profile and setting, searched as you type.
- * Its own download, fetched when the page is idle so ⌘K still opens at once.
+ * lens, mode, chart, home kept (reorganisation plan, R9), body, Look profile
+ * and setting, searched as you type, case and accents aside, the Chinese
+ * languages by their pinyin and characters too (palette-find.ts, languages
+ * plan, part 28). Its own download, fetched when the page is idle so ⌘K
+ * still opens at once.
  */
 export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
   const { locale, setLocale, t } = useI18n();
@@ -61,6 +70,11 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
   const view = useStudioStore((s) => s.view);
   const chartView = useChartView();
   const depth = useDepthPrefs();
+  // The homes kept in the open private space (fengshui-home-list.ts), read if they aren't yet.
+  const homes = useHomeList((s) => s.homes);
+  useEffect(() => {
+    void readHomeList();
+  }, []);
   const [q, setQ] = useState("");
   // The encyclopedia's entries, after everything else (src/encyclopedia/palette.ts).
   const pages = useEncyclopediaCommands(q, locale);
@@ -88,10 +102,19 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
         run: () => void navigate({ href: locale === "fr" ? ENCYCLOPEDIA_PATHS.fr : ENCYCLOPEDIA_PATHS.en }),
       },
     );
+    // A Chinese language, its lenses and its pages are also found by its pinyin and characters (part 28).
     const secLanguages = pickerWord(locale, "paletteLanguages");
     for (const l of LANGUAGES) {
       const words = LANGUAGE_WORDS[l.id];
-      list.push({ id: `lang:${l.id}`, section: secLanguages, label: t(words.name), hint: pickerWord(locale, words.line), keys: l.id === here ? "L" : undefined, run: () => setPage(pageFor(l.id)) });
+      list.push({
+        id: `lang:${l.id}`,
+        section: secLanguages,
+        label: t(words.name),
+        hint: pickerWord(locale, words.line),
+        terms: languageAliases(l.id),
+        keys: l.id === here ? "L" : undefined,
+        run: () => setPage(pageFor(l.id)),
+      });
     }
     const secLenses = t("lensesLabel");
     for (const l of LANGUAGES) {
@@ -103,6 +126,7 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
           section: secLenses,
           label: t(LENS_LABEL[lens]),
           hint: t(LANGUAGE_WORDS[l.id].name),
+          terms: languageAliases(l.id),
           keys: l.id === here ? `Alt+${LENSES.indexOf(lens) + 1}` : undefined,
           run: () => setPage(pageFor(l.id, lens)),
         });
@@ -115,7 +139,14 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
         for (const p of pagesOf(l.id, lens)) {
           // A page named as its language (Human Design) is the language's own entry.
           if (t(PAGE_LABEL[p]) === name) continue;
-          list.push({ id: `mode:${p}`, section: secModes, label: t(PAGE_LABEL[p]), hint: `${name} › ${t(LENS_LABEL[lens])}`, run: () => setPage(p) });
+          list.push({
+            id: `mode:${p}`,
+            section: secModes,
+            label: t(PAGE_LABEL[p]),
+            hint: `${name} › ${t(LENS_LABEL[lens])}`,
+            terms: languageAliases(l.id),
+            run: () => setPage(p),
+          });
         }
       }
     }
@@ -139,6 +170,20 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
       });
     }
     list.push({ id: "chart:new", section: secCharts, label: t("newNatal"), run: () => useStudioStore.getState().startNew() });
+    // A home opens on Feng Shui's Home page, as from the switcher; the chart stays.
+    const secHomes = placeWord(locale, "placesHomes");
+    for (const h of homes) {
+      list.push({
+        id: `home:${h.id}`,
+        section: secHomes,
+        label: h.name,
+        hint: t("langFengShui"),
+        run: () =>
+          void openKeptHome(h.id).then((ok) => {
+            if (ok) setPage("fengshui-home");
+          }),
+      });
+    }
     if (chart) {
       const secBodies = t("paletteBodies");
       for (const p of chart.planets) {
@@ -233,17 +278,15 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
       { id: "set:open", section: secSettings, label: t("shellSettings"), run: () => void navigate({ to: "/settings" }) },
     );
     return list;
-  }, [t, locale, page, rows, chart, view, look, setPage, setView, setTheme, setLocale, navigate, chartView, depth.view]);
+  }, [t, locale, page, rows, homes, chart, view, look, setPage, setView, setTheme, setLocale, navigate, chartView, depth.view]);
 
+  // Each command's words, case and accents set aside once (palette-find.ts): "bazi", "bāzì" and 八字 find BaZi.
+  const hays = useMemo(() => cmds.map((c) => paletteWords(c.label, c.hint, c.section, c.terms)), [cmds]);
   const results = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    if (!needle) return cmds.filter((c) => !c.find);
-    const words = needle.split(/\s+/);
-    return cmds.filter((c) => {
-      const hay = `${c.label} ${c.hint ?? ""} ${c.section}`.toLowerCase();
-      return words.every((w) => hay.includes(w));
-    }).concat(pages);
-  }, [cmds, q, pages]);
+    const words = typedWords(q);
+    if (!words.length) return cmds.filter((c) => !c.find);
+    return cmds.filter((_, i) => paletteFinds(words, hays[i]!)).concat(pages);
+  }, [cmds, hays, q, pages]);
 
   if (typeof document === "undefined") return null;
 

@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useSyncExternalStore } from "react";
+import { Suspense, useMemo, useRef, useSyncExternalStore } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LoadingLines } from "@/components/loading-lines";
 import { BRANCHES, SIXTY, STEMS } from "@/lib/chinese/names";
@@ -31,6 +31,7 @@ import { useModeData } from "@/studio/modes/data";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import { useKeptScroll } from "@/studio/return-parts";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/zodiac-time.css";
@@ -174,6 +175,9 @@ function LuckFigure() {
   const tz = w.chart?.meta.timezone;
   const c = data?.bazi;
   const y = data?.year;
+  // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
+  const scroller = useRef<HTMLDivElement>(null);
+  useKeptScroll(scroller, "bazi-luck-scroll", Boolean(c && y));
   if (!c || !y || !data) return null;
   const both = data.lucks.length > 1;
   const now = Date.now();
@@ -183,7 +187,7 @@ function LuckFigure() {
   const yearGod = chineseLabel(tenGodById(y.god), locale, { ...prefs, show: "names" }).name;
   const day = y.year === thisYear ? data.day : null;
   return (
-    <div className="ulune-bzl" data-testid="bazi-luck" data-chart-pick>
+    <div ref={scroller} className="ulune-bzl" data-testid="bazi-luck" data-chart-pick>
       <header className="ulune-bzl-head">
         <h2 className="ulune-bzl-title">{cnWord(locale, "bzlTitle")}</h2>
         <button type="button" className="ulune-bz-how" data-testid="bazi-luck-how" aria-pressed={w.selectedId === LUCK_HOW_REF} onClick={() => w.choose(LUCK_HOW_REF)}>

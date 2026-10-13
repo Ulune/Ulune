@@ -34,6 +34,8 @@ export type Language = {
   group?: TraditionId;
   /** Its home in the encyclopedia, under ENCYCLOPEDIA_PATHS, in each interface language (none until its pages are written). */
   home?: { en: string; fr: string };
+  /** The release it came with ("2.0"): its card in the picker says "new" for the reader's first four weeks with that release (new-languages.ts). Left out for 1.x's languages. */
+  since?: string;
   /** Its lenses in order, each with its sub-modes (the first is the default). A lens it lacks is absent, never shown. */
   lenses: Partial<Record<LensId, readonly StudioPage[]>>;
 };
@@ -68,6 +70,7 @@ export const LANGUAGES: readonly Language[] = [
     id: "chinese-astrology",
     path: "/chinese-astrology",
     group: "chinese",
+    since: "2.0",
     lenses: { natal: ["zodiac"], cycles: ["zodiac-years"], relationship: ["zodiac-pair"] },
   },
   // BaZi, the Four Pillars (languages plan, part 12): its pillar board, and
@@ -77,6 +80,7 @@ export const LANGUAGES: readonly Language[] = [
     id: "bazi",
     path: "/bazi",
     group: "chinese",
+    since: "2.0",
     lenses: { natal: ["bazi"], cycles: ["bazi-luck"], relationship: ["bazi-pair"] },
   },
   // Feng Shui (languages plan, part 21): its personal half, the Kua number
@@ -86,6 +90,7 @@ export const LANGUAGES: readonly Language[] = [
     id: "feng-shui",
     path: "/feng-shui",
     group: "chinese",
+    since: "2.0",
     lenses: { natal: ["fengshui"], home: ["fengshui-home"] },
   },
 ];
@@ -209,7 +214,9 @@ export function pagesOf(id: LanguageId, lens: LensId): readonly StudioPage[] {
 }
 
 /* What is remembered, on the device only: the last page in each lens of each
-   language, and the order the languages were last used in. */
+   language, the order the languages were last used in, and the day the
+   picker was first opened since a release brought languages (their "new"
+   label). */
 
 export const REMEMBER_KEY = "ulune.studio.last.v2";
 type Remembered = {
@@ -218,8 +225,19 @@ type Remembered = {
   recent?: LanguageId[];
   lens?: Partial<Record<LanguageId, LensId>>;
   pages?: Partial<Record<string, StudioPage>>;
+  /** The day this device first opened the language picker since each release that brought languages: { "2.0": "2026-10-13" } (new-languages.ts, which reads it with care). */
+  seen?: unknown;
 };
 type Store = Pick<Storage, "getItem" | "setItem">;
+
+/** This device's storage, or none where even reaching it throws (storage switched off: nothing is remembered, nothing breaks). */
+export function deviceStore(): Store | undefined {
+  try {
+    return globalThis.localStorage;
+  } catch {
+    return undefined;
+  }
+}
 
 function read(store: Store | undefined): Remembered {
   if (!store) return {};
@@ -231,7 +249,7 @@ function read(store: Store | undefined): Remembered {
   }
 }
 
-export function rememberPage(page: StudioPage, store: Store | undefined = globalThis.localStorage): void {
+export function rememberPage(page: StudioPage, store: Store | undefined = deviceStore()): void {
   const lang = languageOf(page);
   const lens = lensOf(page);
   if (!store || !lang || !lens) return;
@@ -241,6 +259,8 @@ export function rememberPage(page: StudioPage, store: Store | undefined = global
     recent: [lang, ...recentOf(r).filter((id) => id !== lang)],
     lens: { ...r.lens, [lang]: lens },
     pages: { ...r.pages, [`${lang}/${lens}`]: page },
+    // Kept as it was: when the new languages' label ends (languages plan, part 28).
+    seen: r.seen,
   };
   try {
     store.setItem(REMEMBER_KEY, JSON.stringify(next));
@@ -253,7 +273,7 @@ export function rememberPage(page: StudioPage, store: Store | undefined = global
 export function pageFor(
   id: LanguageId,
   lens?: LensId,
-  store: Store | undefined = globalThis.localStorage,
+  store: Store | undefined = deviceStore(),
 ): StudioPage {
   const r = read(store);
   const lenses = lensesOf(id);
@@ -265,7 +285,7 @@ export function pageFor(
   return last && pages.includes(last) ? last : (pages[0] ?? "natal");
 }
 
-export function lastLanguage(store: Store | undefined = globalThis.localStorage): LanguageId {
+export function lastLanguage(store: Store | undefined = deviceStore()): LanguageId {
   const id = read(store).lang;
   return id && LANGUAGES.some((l) => l.id === id) ? id : "astrology";
 }
@@ -279,7 +299,7 @@ function recentOf(r: Remembered): LanguageId[] {
 }
 
 /** The languages used on this device, the most recent first. */
-export function recentLanguages(store: Store | undefined = globalThis.localStorage): LanguageId[] {
+export function recentLanguages(store: Store | undefined = deviceStore()): LanguageId[] {
   return recentOf(read(store));
 }
 

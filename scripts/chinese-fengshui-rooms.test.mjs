@@ -3,12 +3,18 @@
  * with its palace's stars, what the palace's reading and the table say of
  * it, the figure's label, the record as read back from the private space or
  * a backup (only well-formed homes and rooms), how a backup's homes join,
- * and the texts' typography and tone. Made-up homes only.
+ * and the texts' typography and tone. Made-up homes only. And (reorganisation
+ * plan, R9) the homes as the chart switcher lists them: the same homes as the
+ * record, and each one's line under its name, in both languages.
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { homeOf, periodOf } from "../src/lib/chinese/fengshui-home.ts";
-import { homeReading, homeStars } from "../src/lib/chinese/fengshui-home-reading.ts";
+import { homeOf, mountainAt, periodOf } from "../src/lib/chinese/fengshui-home.ts";
+import { fmtDeg, homeReading, homeStars } from "../src/lib/chinese/fengshui-home-reading.ts";
+import { cleanHomeCore, cleanHomeList } from "../src/lib/chinese/fengshui-home-core.ts";
+import { facingOf, homeLine, mountainNameAt } from "../src/lib/chinese/fengshui-home-line.ts";
+import { parseFacing } from "../src/studio/modes/fengshui-home-state.ts";
+import { placesWords } from "../src/lib/i18n/catalog/places-words.ts";
 import { fssPalaceRef } from "../src/lib/chinese/fengshui-stars-reading.ts";
 import { ROOMS_MAX, ROOM_KINDS, cleanRooms, roomFit, roomUse } from "../src/lib/chinese/fengshui-rooms.ts";
 import { ROOM_FIT_TEXTS, ROOM_NAMES, ROOMS_HERE } from "../src/lib/chinese/fengshui-rooms-texts.ts";
@@ -152,6 +158,52 @@ test("homes kept, forgotten, and joined from a backup", () => {
   assert.deepEqual(joined.homes.map((x) => x.name), ["A3", "B", "C"]);
   assert.equal(joined.activeId, "a");
   assert.equal(joinHomes(joined, theirs), null, "nothing new the second time");
+});
+
+test("the switcher's homes (R9): the record's homes without their rooms, in the same order", () => {
+  const raw = {
+    homes: [
+      { id: "h1", name: "  Zqxv   cabin ", typed: "180", source: "compass", year: "1998", rooms: [{ id: "a", kind: "bedroom", palace: "n" }], savedAt: 3 },
+      { id: "h1", name: "Twice" },
+      { id: "bad id" },
+      "junk",
+      { id: "h2", typed: "90", source: "satellite" },
+      ...Array.from({ length: 20 }, (_, i) => ({ id: `x${i}` })),
+    ],
+    activeId: "h2",
+  };
+  const full = cleanHomes(raw);
+  const light = cleanHomeList(raw, cleanHomeCore);
+  assert.deepEqual(light.homes.map((h) => h.id), full.homes.map((h) => h.id));
+  assert.equal(light.homes.length, HOMES_MAX);
+  assert.equal(light.activeId, "h2");
+  assert.deepEqual(light.homes.map(({ id, name, typed, source, year, savedAt }) => ({ id, name, typed, source, year, savedAt })), full.homes.map(({ rooms: _r, ...core }) => core));
+  assert.deepEqual(light.homes[0], { id: "h1", name: "Zqxv cabin", typed: "180", source: "compass", year: "1998", savedAt: 3 });
+  assert.equal("rooms" in light.homes[0], false);
+  assert.deepEqual(cleanHomeList(null, cleanHomeCore), { homes: [], activeId: null });
+});
+
+test("a home's line in the switcher, in both languages", () => {
+  const h = (typed, source = "compass", year = "") => ({ typed, source, year });
+  assert.equal(homeLine(h("172.5"), "en"), "172.5° · Wu");
+  assert.equal(homeLine(h("172,5"), "fr"), "172,5° · Wu");
+  assert.equal(homeLine(h("180", "phone", "1998"), "en"), "180° · Wu", "the facing before the year");
+  assert.equal(homeLine(h(" 90° "), "fr"), "90° · Mao");
+  assert.equal(homeLine(h("0"), "en"), "0° · Zi");
+  assert.equal(homeLine(h("337.5"), "en"), "337.5° · Ren");
+  // A map's bearing is true north's: its mountain waits for the declination, on the home page.
+  assert.equal(homeLine(h("180", "map"), "en"), "180° on a map");
+  assert.equal(homeLine(h("180.25", "map"), "fr"), "180,3° sur une carte");
+  // No facing: the year; neither: nothing.
+  assert.equal(homeLine(h("", "compass", "1998"), "en"), "Built in 1998");
+  assert.equal(homeLine(h("400", "compass", "1998"), "fr"), "Construit en 1998");
+  assert.equal(homeLine(h("", "compass", "98"), "en"), "");
+  assert.equal(homeLine(h(""), "fr"), "");
+  // The page's own reading of a facing, its mountains and its degrees, said without its engine.
+  for (const t of ["172.5", "172,5", "172.5°", " 90 ", "0", "359.9", "360", "-5", "abc", "", "1e2", "12.", "180.25"]) assert.equal(facingOf(t), parseFacing(t), t);
+  for (let d = 0; d < 360; d += 0.25) assert.equal(mountainNameAt(d), mountainAt(d).en, String(d));
+  for (const d of [0, 7.5, 172.5, 180.25, 359.95]) for (const l of ["en", "fr"]) assert.equal(homeLine(h(String(d)), l).split(" · ")[0], fmtDeg(d, l));
+  for (const [en, fr] of Object.values(placesWords)) for (const t of [en, fr]) assert.doesNotMatch(t, /'/);
 });
 
 test("the texts in both languages, in Ulune's typography and tone", () => {

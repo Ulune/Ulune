@@ -63,27 +63,96 @@
 }
 .ob-langs-top {
   display: flex;
-  align-items: center;
+  /* The mark beside the name's first line, however many lines follow. */
+  align-items: flex-start;
   gap: 8px;
   min-width: 0;
-  /* Room for ⓘ in the corner. */
+}
+/* Room for ⓘ in the corner, on the cards that have one. */
+.ob-langs-card.has-info .ob-langs-top {
   padding-right: 24px;
 }
 .ob-langs-mark {
   flex: 0 0 auto;
   width: 16px;
   height: 16px;
+  margin-top: 1px;
 }
-.ob-langs-name {
+.ob-langs-title {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
   min-width: 0;
+}
+.ob-langs-nameline {
   font-size: 15px;
   font-weight: 600;
   line-height: 1.2;
 }
 .ob-langs-tick {
-  flex: 0 0 auto;
+  display: inline-block;
   width: 15px;
   height: 15px;
+  vertical-align: -2px;
+}
+/* The space before the tick and "new" goes after what precedes them, so a "new" that wraps starts its line flush. */
+.ob-langs-name:not(:last-child),
+.ob-langs-tick:not(:last-child) {
+  margin-right: 8px;
+}
+/* A Chinese language's own name (languages plan, part 28): its pinyin and characters, as Settings says. */
+.ob-langs-own {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 6px;
+  row-gap: 4px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--color-fg-muted);
+}
+.ob-langs-hanzi {
+  /* The device's own Chinese font (languages plan: nothing downloaded). */
+  font-family: "PingFang TC", "PingFang SC", "Noto Sans CJK TC", "Noto Sans CJK SC", "Microsoft JhengHei", "Microsoft YaHei", var(--font-ui), sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+.ob-langs-hanzi:lang(zh-Hans) {
+  font-family: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", "PingFang TC", "Noto Sans CJK TC", var(--font-ui), sans-serif;
+}
+/* "New" on 2.0's languages for the reader's first four weeks with it: words in a quiet outline, never a colour alone. */
+.ob-langs-new {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-muted);
+  font: 600 11px/1 var(--font-ui);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.ob-langs-nameline .ob-langs-new {
+  vertical-align: 1px;
+}
+.ob-langs-card.is-on .ob-langs-new {
+  background: var(--color-bg-elevated);
+}
+/* A phone's narrow cards: "new" on a line of its own, under the pinyin and characters (or the name), the same on every card. */
+.ob-langsheet .ob-langs-nameline > .ob-langs-new {
+  display: flex;
+  width: fit-content;
+  margin-top: 4px;
+}
+.ob-langsheet .ob-langs-own > .ob-langs-new {
+  order: 2;
+}
+.ob-langsheet .ob-langs-own:has(> .ob-langs-new)::after {
+  content: "";
+  order: 1;
+  flex-basis: 100%;
 }
 .ob-langs-line {
   font-size: 13px;
@@ -122,7 +191,7 @@
   outline-offset: 1px;
 }
 @media (pointer: coarse) {
-  .ob-langs-top {
+  .ob-langs-card.has-info .ob-langs-top {
     padding-right: 32px;
   }
   .ob-langs-info {

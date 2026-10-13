@@ -11,13 +11,21 @@
  *     excepted, as WCAG allows).
  *
  *   - A phone: the Transits wheel starts within 110 px of the top (part 96).
+ *   - The Chinese pages (languages plan, part 28), on a finger: every control
+ *     of the page itself (a pillar's god, a chip, a row, a field, a palace's
+ *     name) is at least 44 × 44 px, as touch asks; a radio counts by its
+ *     label, a word inside a sentence is text. Feng Shui's Home is measured
+ *     with a facing, a year and a room given, its stars and plan drawn.
  *
- * Pages: Chart, Transits, Calendar, Synastry, Human Design, Numerology.
+ * Pages: Chart, Transits, Calendar, Synastry, Human Design, Numerology and
+ * its Cycles; Chinese astrology and its Cycles, BaZi and its luck pillars,
+ * Feng Shui and its Home.
  */
 import { chromium } from "playwright";
 import { DEV, FIXTURE_A, FIXTURE_B, castFixture, clickDockTab, goStudioPage, gotoApp, pickPlace } from "./_lib.mjs";
 
-const PAGES = ["natal", "transits", "timing", "synastry", "design", "numerology", "numerology-cycles"];
+const CHINESE = ["zodiac", "zodiac-years", "bazi", "bazi-luck", "fengshui", "fengshui-home"];
+const PAGES = ["natal", "transits", "timing", "synastry", "design", "numerology", "numerology-cycles", ...CHINESE];
 const CHROME = ".ob-top, .ob-sections, .ob-strip, .ob-foot, .ob-panel-head, .ulune-time-scrub-head";
 const CONTROL = "button, a.ob-section, input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select";
 
@@ -78,6 +86,34 @@ async function tooSmall(page) {
   });
 }
 
+/** A Chinese page's own controls on a finger under 44 × 44 px (inline words in a sentence are text). */
+async function pageTargets(page) {
+  return page.evaluate(() => {
+    const out = [];
+    const figure = document.querySelector(".ob-figure");
+    if (!figure) return ["no figure"];
+    const sel = "button, a[href], select, input:not([type=hidden]):not([type=radio]):not([type=checkbox]), label:has(> input[type=radio]), label:has(> input[type=checkbox])";
+    for (const el of figure.querySelectorAll(sel)) {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height || getComputedStyle(el).visibility === "hidden") continue;
+      if (el.closest("svg, [aria-hidden=true]")) continue;
+      if (window.inSentence(el)) continue;
+      if (r.width < 43.5 || r.height < 43.5) {
+        out.push(`${(el.getAttribute("aria-label") || el.textContent || el.value || el.tagName).trim().replace(/\s+/g, " ").slice(0, 30)} ${Math.round(r.width)}×${Math.round(r.height)}`);
+      }
+    }
+    return out;
+  });
+}
+
+/** Feng Shui's Home with what a reader gives it: a facing, the year built and a room (part 26), so its plan and stars are drawn. */
+async function fillHome(page) {
+  await page.getByTestId("fengshui-home-facing").fill("180");
+  await page.getByTestId("fengshui-home-year").fill("1998");
+  await page.getByTestId("fengshui-rooms-add-n").selectOption("bedroom");
+  await page.getByTestId("fengshui-stars").waitFor({ timeout: 8000 });
+}
+
 async function addPartner(page) {
   await page.getByTestId("synastry-add-second").or(page.getByTestId("synastry-add-second-wheel")).first().click();
   await page.locator("form[data-mode=partner]").waitFor({ timeout: 8000 });
@@ -113,6 +149,7 @@ async function run() {
           await addPartner(page);
           partner = true;
         }
+        if (mode === "fengshui-home") await fillHome(page);
         await page.waitForTimeout(1200);
         const list = await controls(page);
         if (!list.length) problems.push(`${device.name} ${mode}: no controls found in the bars`);
@@ -125,6 +162,9 @@ async function run() {
           }
         }
         for (const s of await tooSmall(page)) problems.push(`${device.name} ${mode}: under 24 × 24: ${s}`);
+        if (device.name === "finger" && CHINESE.includes(mode)) {
+          for (const s of await pageTargets(page)) problems.push(`finger ${mode}: under 44 × 44 on the page: ${s}`);
+        }
         // The phone's one toolbar row (part 96): the Transits wheel starts right under it.
         if (device.name === "finger" && mode === "transits") {
           const top = await page.evaluate(() => document.querySelector(".ob-figure svg")?.getBoundingClientRect().top ?? 999);

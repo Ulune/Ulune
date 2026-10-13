@@ -263,6 +263,13 @@
 .ulune-fs-tbl-kind {
   color: var(--color-fg-muted);
 }
+/* A finger (languages plan, part 28): the directions' rows (and the Home page's, which share them) are 44 px tall. */
+@media (pointer: coarse) {
+  .ulune-fs-row {
+    min-height: 44px;
+    align-items: center;
+  }
+}
 
 /* A narrow stage (a phone, a tablet upright): the rose on top, the lists under it; two counts one under the other. */
 @container (max-width: 720px) {

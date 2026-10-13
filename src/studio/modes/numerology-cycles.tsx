@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import { LoadingLines } from "@/components/loading-lines";
 import { chartNameOf } from "@/lib/chart/library";
 import { personalMonthOf } from "@/lib/chart/numerology-cycles";
@@ -15,6 +15,7 @@ import type { NumerologyState } from "@/studio/modes/numerology";
 import { NumerologyYearStepper, NumerologyYearSteps } from "@/studio/modes/numerology-controls";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import { useKeptScroll } from "@/studio/return-parts";
 import { useStudioStore } from "@/studio/store";
 import { NumerologyLifeLine } from "@/studio/tables/numerology-life";
 import "@/studio/modes/styles/num.css";
@@ -49,12 +50,17 @@ function CyclesFigure() {
       return { m: i + 1, short: fmt.format(at).replace(/\.$/, ""), long: long.format(at), value: personalMonthOf(py, i + 1) };
     });
   }, [py, year, locale]);
+  // Its own scroll comes back where it was when the studio does (reorganisation R6), as the
+  // Chinese pages' (languages plan, part 28). The last argument wakes the hook once it is drawn.
+  const scroller = useRef<HTMLDivElement>(null);
+  const drawn = Boolean(numbers && numbers.lifePath.number != null);
+  useKeptScroll(scroller, "numerology-cycles-scroll", drawn);
   if (!numbers || numbers.lifePath.number == null) return null;
   const today = new Date();
   const isNow = year === today.getFullYear();
   const nowMonth = today.getMonth() + 1;
   return (
-    <div className="ulune-numc" data-testid="num-cycles" data-chart-pick>
+    <div ref={scroller} className="ulune-numc" data-testid="num-cycles" data-chart-pick>
       <NumerologyYearStepper numbers={numbers} locale={locale} selectedId={w.selectedId} onSelect={w.choose} stepper={false} />
       <section className="ulune-numc-sec" aria-labelledby="numc-months">
         <h2 id="numc-months" className="ulune-numc-h">

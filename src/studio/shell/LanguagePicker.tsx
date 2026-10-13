@@ -13,11 +13,16 @@ import {
 import { createPortal } from "react-dom";
 import { AnchoredPopover } from "@/components/anchored-popover";
 import { PathLink } from "@/components/path-link";
+import { hanziLang } from "@/lib/chinese/animal-chars";
+import { LANGUAGE_NAMES } from "@/lib/chinese/language-names";
+import { chineseLabel, readChinesePrefs, type ChinesePrefs } from "@/lib/chinese/prefs";
+import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { useI18n } from "@/lib/i18n/locale";
 import { usePresence } from "@/lib/presence";
 import { cn } from "@/lib/utils";
 import { isWide } from "@/studio/dock/dock-layout";
-import { languageGroups, languageHomePath, pickerOrder, recentLanguages, type LanguageId } from "@/studio/map";
+import { LANGUAGES, languageGroups, languageHomePath, pickerOrder, recentLanguages, type LanguageId } from "@/studio/map";
+import { isNewLanguage, pickerSeen } from "@/studio/new-languages";
 import { LanguageMark } from "@/studio/shell/language-mark";
 import { LANGUAGE_WORDS, TRADITION_LABEL } from "@/studio/shell/map-ui";
 import { pickerWord } from "@/studio/shell/picker-words";
@@ -40,18 +45,37 @@ type Props = {
  * button on a computer; a bottom sheet of two columns on a phone, the two
  * languages used last first. The arrows move between the cards, Enter opens
  * one, Escape closes and the focus goes back to the button.
+ *
+ * Since languages plan part 28, a Chinese language's card also gives its own
+ * name, its pinyin and characters as Settings → Chinese traditions says
+ * (bāzì 八字), and 2.0's languages say "new" for the reader's first four
+ * weeks with 2.0 (new-languages.ts).
  */
 export function LanguagePicker({ open, anchor, current, onClose, onPick }: Props) {
   const { t } = useI18n();
-  // Decided as it opens: a computer's panel or a phone's sheet, and the order the languages were used in.
+  // Decided as it opens: a computer's panel or a phone's sheet, the order the languages were used in, and
+  // which are new (the first opening since 2.0 is kept, as a date: new-languages.ts).
   const [wide, setWide] = useState(isWide);
   const [recent, setRecent] = useState(() => recentLanguages());
+  const [news, setNews] = useState<ReadonlySet<LanguageId>>(() => new Set());
   useLayoutEffect(() => {
     if (!open) return;
     setWide(isWide());
     setRecent(recentLanguages());
+    const now = Date.now();
+    const seen = pickerSeen(now);
+    setNews(new Set(LANGUAGES.filter((l) => isNewLanguage(l.id, seen, now)).map((l) => l.id)));
   }, [open]);
-  const body = <Cards current={current} recent={recent} recentFirst={!wide} onPick={onPick} onLeave={onClose} />;
+  // The reader's Chinese settings, followed live. The picker is drawn on a press, never on the server,
+  // so its first frame reads them at once (the hook's own first frame has the defaults).
+  const live = useChinesePrefs();
+  const [first] = useState(readChinesePrefs);
+  const [settled, setSettled] = useState(false);
+  useEffect(() => setSettled(true), []);
+  const prefs = settled ? live : first;
+  const body = (
+    <Cards current={current} recent={recent} recentFirst={!wide} news={news} prefs={prefs} onPick={onPick} onLeave={onClose} />
+  );
   if (wide) {
     return (
       <AnchoredPopover
@@ -61,7 +85,8 @@ export function LanguagePicker({ open, anchor, current, onClose, onPick }: Props
         role="dialog"
         aria-label={t("langPicker")}
         hideLabel={t("hidePanel")}
-        width={440}
+        // Two columns of cards wide enough for a Chinese name's line ("shēngxiào 生肖 Nouveau") in either language.
+        width={520}
         testId="lang-picker"
       >
         <div className="ob-pop ob-langs-pop">{body}</div>
@@ -79,12 +104,16 @@ function Cards({
   current,
   recent,
   recentFirst,
+  news,
+  prefs,
   onPick,
   onLeave,
 }: {
   current: LanguageId;
   recent: LanguageId[];
   recentFirst: boolean;
+  news: ReadonlySet<LanguageId>;
+  prefs: ChinesePrefs;
   onPick: (id: LanguageId) => void;
   onLeave: () => void;
 }) {
@@ -110,8 +139,18 @@ function Cards({
                 const on = id === current;
                 const name = t(words.name);
                 const ids = `${uid}-${id}`;
+                // A Chinese language's own name, as the reader chose to see Chinese terms (none with "Name only").
+                const own = LANGUAGE_NAMES[id] ? chineseLabel(LANGUAGE_NAMES[id], locale, prefs) : null;
+                const hasOwn = Boolean(own?.pinyin || own?.hanzi);
+                // "New" on 2.0's languages, for the reader's first weeks with it; said after the name ("BaZi, New").
+                const fresh = news.has(id) ? pickerWord(locale, "langNew") : null;
+                const tag = fresh ? (
+                  <span className="ob-langs-new" data-testid={`lang-new-${id}`}>
+                    {fresh}
+                  </span>
+                ) : null;
                 return (
-                  <li key={id} className={cn("ob-langs-card", on && "is-on")}>
+                  <li key={id} className={cn("ob-langs-card", on && "is-on", home(id) != null && "has-info")}>
                     <button
                       type="button"
                       className="ob-langs-main"
@@ -119,16 +158,38 @@ function Cards({
                       data-lang-card
                       data-autofocus={on || undefined}
                       aria-current={on ? "true" : undefined}
-                      aria-labelledby={`${ids}-name`}
+                      aria-labelledby={fresh ? undefined : `${ids}-name`}
+                      aria-label={fresh ? `${name}, ${fresh}` : undefined}
                       aria-describedby={`${ids}-line ${ids}-needs`}
                       onClick={() => onPick(id)}
                     >
                       <span className="ob-langs-top">
                         <LanguageMark id={id} className="ob-langs-mark" />
-                        <span id={`${ids}-name`} className="ob-langs-name">
-                          {name}
+                        <span className="ob-langs-title">
+                          <span className="ob-langs-nameline">
+                            <span id={`${ids}-name`} className="ob-langs-name">
+                              {name}
+                            </span>
+                            {on ? <Check className="ob-langs-tick" strokeWidth={2.25} aria-hidden /> : null}
+                            {hasOwn ? null : tag}
+                          </span>
+                          {/* Its pinyin and characters, each marked with its language; the button's own name stays the reader's word. */}
+                          {own && hasOwn ? (
+                            <span className="ob-langs-own" data-testid={`lang-own-${id}`}>
+                              {own.pinyin ? (
+                                <span className="ob-langs-pinyin" lang="zh-Latn-pinyin">
+                                  {own.pinyin}
+                                </span>
+                              ) : null}{" "}
+                              {own.hanzi ? (
+                                <span className="ob-langs-hanzi" lang={hanziLang(prefs.script)}>
+                                  {own.hanzi}
+                                </span>
+                              ) : null}
+                              {tag}
+                            </span>
+                          ) : null}
                         </span>
-                        {on ? <Check className="ob-langs-tick" strokeWidth={2.25} aria-hidden /> : null}
                       </span>
                       <span id={`${ids}-line`} className="ob-langs-line">
                         {pickerWord(locale, words.line)}

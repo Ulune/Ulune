@@ -26,6 +26,12 @@
  *     palace's reading, one removed; the home kept in a private space (at
  *     1280 in English): sealed, back after a reload, a new home, forgotten,
  *     gone from the page when the space locks;
+ *   - (reorganisation plan, R9) the kept home in the chart switcher, under
+ *     the people, with its facing ("180° · Wu"), marked while the Home page
+ *     has it open; chosen there from the Natal page or from the Home page
+ *     with a new home on it, and found by name in ⌘K: the Home page opens
+ *     with it, the chart unchanged; with the space locked, no homes, and on
+ *     the Home page the way to unlock them, which brings them back;
  *   - a mountain's reading, the arrows walking round the dial;
  *   - on a phone: the compass on request, the plate turning under its
  *     thread (Wu at the top at 172.5°), three readings,
@@ -36,7 +42,7 @@
  */
 import { join } from "node:path";
 import { chromium } from "playwright";
-import { FIXTURE_A, SHOTS, VIEWPORTS, assertNoOverflow, castFixture, clickDockTab, createSpace, ensureShotsDir, goStudioPage, gotoApp, readSpaceRecord, setLang, setView } from "./_lib.mjs";
+import { FIXTURE_A, SHOTS, VIEWPORTS, assertNoOverflow, castFixture, clickDockTab, createSpace, ensureShotsDir, goStudioPage, gotoApp, readSpaceRecord, setLang, setView, unlockSpace } from "./_lib.mjs";
 
 const WORDS = {
   en: {
@@ -362,6 +368,34 @@ async function kept() {
   const NAME = "Zqxv cabin";
   const facing = () => page.getByTestId("fengshui-home-facing").inputValue();
   const status = () => text(page, "fengshui-keep-status");
+  // The chart switcher (R9): its people, its homes, its groups' headings.
+  const switcher = page.getByTestId("chart-picker");
+  const openSwitcher = async () => {
+    if (!(await switcher.isVisible().catch(() => false))) await page.getByTestId("chart-chip").click();
+    await switcher.waitFor({ timeout: 8000 });
+  };
+  const closeSwitcher = async () => {
+    await page.keyboard.press("Escape");
+    await switcher.waitFor({ state: "hidden" }).catch(() => {});
+  };
+  const people = () => page.locator("[data-testid=chart-row]").evaluateAll((els) => els.map((e) => e.getAttribute("data-name")));
+  const homeRows = () =>
+    page.locator("[data-testid=home-row]").evaluateAll((els) =>
+      els.map((e) => ({ name: e.getAttribute("data-name"), text: e.textContent, on: e.querySelector("button")?.getAttribute("aria-current") === "true" })),
+    );
+  const heads = () => page.locator("[data-testid=chart-picker] .ob-picker-head").evaluateAll((els) => els.map((e) => e.textContent));
+  const emptyPage = async () => {
+    await page.getByTestId("fengshui-keep-pick").selectOption("");
+    await page.waitForFunction(() => document.querySelector("[data-testid=fengshui-home-facing]")?.value === "", null, { timeout: 4000 });
+  };
+  const keptBack = async (how) => {
+    await page.waitForURL((u) => u.pathname === "/feng-shui/home", { timeout: 15000 });
+    await page.waitForFunction(() => document.querySelector("[data-testid=fengshui-home-facing]")?.value === "180", null, { timeout: 15000 }).catch(async () => {
+      throw new Error(`kept: ${how}, the facing "${await facing().catch(() => "")}"`);
+    });
+    if ((await page.locator("[data-testid^=fengshui-room-remove-][data-kind=bedroom]").count()) !== 1) throw new Error(`kept: ${how}, no bedroom`);
+    if ((await page.getByTestId("chart-chip").innerText()).trim() !== FIXTURE_A.name) throw new Error(`kept: ${how}, the chart changed`);
+  };
   try {
     await gotoApp(page);
     await castFixture(page, FIXTURE_A);
@@ -400,6 +434,51 @@ async function kept() {
     await page.waitForFunction(() => document.querySelector("[data-testid=fengshui-home-facing]")?.value === "180", null, { timeout: 15000 });
     if ((await page.getByTestId("fengshui-keep-name").inputValue()) !== NAME) throw new Error("kept: the name after a reload");
     if ((await page.locator("[data-testid^=fengshui-room-remove-][data-kind=bedroom]").count()) !== 1) throw new Error("kept: the bedroom after a reload");
+
+    // (R9) The chart switcher: the home under the people, with its facing, marked as the one open here.
+    await openSwitcher();
+    await page.getByTestId("home-row").waitFor({ timeout: 8000 });
+    const peopleBefore = await people();
+    let rows = await homeRows();
+    if (rows.length !== 1 || rows[0].name !== NAME || !rows[0].text.includes("180° · Wu") || !rows[0].on) throw new Error(`kept: the switcher's homes ${JSON.stringify(rows)}`);
+    if ((await heads()).join() !== "People,Homes") throw new Error(`kept: the switcher's groups ${await heads()}`);
+    if (peopleBefore.join() !== FIXTURE_A.name) throw new Error(`kept: the switcher's people ${peopleBefore}`);
+    // A home is never a person: no edit, remove or pair on its row.
+    if (await page.locator("[data-testid=home-row] [data-testid^=chart-]").count()) throw new Error("kept: a person's buttons on a home");
+    await closeSwitcher();
+    // From the Natal page, with a new home on the Home page: the kept one chosen in the switcher.
+    await emptyPage();
+    await goStudioPage(page, "natal");
+    await openSwitcher();
+    await page.getByTestId("home-row").waitFor({ timeout: 8000 });
+    if ((await homeRows())[0].on) throw new Error("kept: a home marked open away from the Home page");
+    await page.locator(`[data-testid=home-row][data-name="${NAME}"] button`).click();
+    await keptBack("chosen in the switcher from the Natal page");
+    await switcher.waitFor({ state: "hidden", timeout: 4000 });
+    // A new home, then the kept one again from the switcher, on the Home page itself.
+    await emptyPage();
+    await openSwitcher();
+    rows = await homeRows();
+    if (rows.length !== 1 || rows[0].on) throw new Error(`kept: a new home on the page, the switcher's ${JSON.stringify(rows)}`);
+    await page.locator(`[data-testid=home-row][data-name="${NAME}"] button`).click();
+    await keptBack("chosen again in the switcher");
+    // ⌘K: part of its name finds it, with Feng Shui beside it; chosen, the same.
+    await emptyPage();
+    await goStudioPage(page, "natal");
+    await page.keyboard.press("Control+k");
+    await page.getByTestId("command-palette").waitFor({ timeout: 8000 });
+    await page.keyboard.type("zqxv");
+    const homeCmd = page.locator("[data-testid^='cmd-home:']");
+    await homeCmd.first().waitFor({ timeout: 8000 });
+    const cmdText = (await homeCmd.allTextContents()).join(" | ");
+    if ((await homeCmd.count()) !== 1 || !cmdText.includes(NAME) || !cmdText.includes("Feng Shui")) throw new Error(`kept: ⌘K's homes "${cmdText}"`);
+    await page.keyboard.press("Enter");
+    await keptBack("chosen in ⌘K");
+    // The people as they were.
+    await openSwitcher();
+    if ((await people()).join() !== peopleBefore.join()) throw new Error(`kept: the switcher's people now ${await people()}`);
+    await closeSwitcher();
+
     // A new home: an empty page, not kept; the kept one chosen again.
     await page.getByTestId("fengshui-keep-pick").selectOption("");
     await page.waitForFunction(() => document.querySelector("[data-testid=fengshui-home-facing]")?.value === "", null, { timeout: 4000 });
@@ -425,6 +504,26 @@ async function kept() {
       return !f || f.value === "";
     }, null, { timeout: 8000 });
     if (await page.locator("[data-testid^=fengshui-room-remove-]").count()) throw new Error("kept: rooms left after the space locked");
+    // (R9) Locked: no homes in the switcher; on the Home page, the way to unlock them, which brings them back.
+    await openSwitcher();
+    await page.getByTestId("picker-homes-unlock").waitFor({ timeout: 8000 });
+    if (await page.getByTestId("home-row").count()) throw new Error("kept: homes in the switcher with the space locked");
+    // Away from Feng Shui, the switcher as it was: no homes' group, no headings.
+    await closeSwitcher();
+    await goStudioPage(page, "natal");
+    await openSwitcher();
+    await page.getByTestId("new-chart").waitFor({ timeout: 8000 });
+    await page.waitForTimeout(300);
+    if ((await page.getByTestId("picker-homes").count()) || (await heads()).length) throw new Error(`kept: locked, away from Feng Shui, the switcher's ${await heads()}`);
+    await closeSwitcher();
+    await goStudioPage(page, "fengshui-home");
+    await openSwitcher();
+    await page.getByTestId("picker-homes-unlock").click();
+    await unlockSpace(page);
+    await openSwitcher();
+    await page.getByTestId("home-row").waitFor({ timeout: 8000 });
+    if ((await homeRows()).length !== 1) throw new Error(`kept: the homes after unlocking ${JSON.stringify(await homeRows())}`);
+    await closeSwitcher();
     if (sent.length) throw new Error(`kept: sent ${sent.join(", ")}`);
     if (errors.length) throw new Error(`kept: ${errors.join(" | ")}`);
     console.log("fengshui-home kept OK");

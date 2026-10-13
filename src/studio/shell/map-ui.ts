@@ -54,5 +54,6 @@ export const LANGUAGE_WORDS: Record<LanguageId, { name: MessageKey; short: Messa
     needs: "langNeedsDate",
   },
   bazi: { name: "langBazi", short: "langBaziShort", line: "langBaziLine", needs: "langNeedsDatePillar" },
-  "feng-shui": { name: "langFengShui", short: "langFengShuiShort", line: "langFengShuiLine", needs: "langNeedsDateOnly" },
+  // A date for its own page; a home, which its Home lens reads, only if the reader wants (languages plan, part 28).
+  "feng-shui": { name: "langFengShui", short: "langFengShuiShort", line: "langFengShuiLine", needs: "langNeedsDateHome" },
 };

@@ -21,7 +21,10 @@ export const sections = {
   langHumanDesignShort: ["HD", "HD"],
   langNumerology: ["Numerology", "Numérologie"],
   langChineseAstrology: ["Chinese astrology", "Astrologie chinoise"],
-  langChineseAstrologyShort: ["Chinese", "Chinoise"],
+  // The short names a narrow toolbar gives beside the lens tabs and on the chips (languages plan,
+  // part 28): Chinese astrology reads the Chinese zodiac's animals, as the privacy notice says;
+  // "Chinoise" alone read as an unfinished phrase. BaZi and Feng Shui are short already.
+  langChineseAstrologyShort: ["Zodiac", "Zodiaque"],
   langBazi: ["BaZi", "BaZi"],
   langBaziShort: ["BaZi", "BaZi"],
   langFengShui: ["Feng Shui", "Feng Shui"],

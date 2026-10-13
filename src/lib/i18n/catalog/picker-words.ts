@@ -1,7 +1,8 @@
 /**
  * picker-words: [English, French]. The language picker's own words (page
- * reorganisation plan, R3): each card's line and what it needs, the headings
- * of the traditions, the link to a language's home in the encyclopedia, the
+ * reorganisation plan, R3): each card's line and what it needs, the "new"
+ * label on 2.0's languages (languages plan, part 28), the headings of the
+ * traditions, the link to a language's home in the encyclopedia, the
  * palette's heading for languages, and the language button's one-time hint
  * for readers who knew 1.x (R8).
  *
@@ -39,9 +40,12 @@ export const pickerWords = {
   langNeedsTime: ["Needs the birth time", "Demande l’heure de naissance"],
   langNeedsDatePillar: ["A date is enough; the time adds the hour pillar", "Une date suffit\u202f; l’heure ajoute le pilier de l’heure"],
   langNeedsDate: ["A date is enough; the time adds the hour", "Une date suffit\u202f; l’heure ajoute la quatrième"],
-  langNeedsDateOnly: ["A date is enough", "Une date suffit"],
+  // Feng Shui's (part 28): its own page needs a date; its Home lens reads a home the reader describes.
+  langNeedsDateHome: ["A date is enough; a home is optional", "Une date suffit\u202f; un logement est facultatif"],
   langNeedsName: ["Needs a name and a date", "Demande un nom et une date"],
   langAbout: ["{name} in the encyclopedia", "{name} dans l’encyclopédie"],
+  // On 2.0's languages' cards for the reader's first four weeks with it (src/studio/new-languages.ts).
+  langNew: ["New", "Nouveau"],
   traditionWestern: ["Western traditions", "Traditions occidentales"],
   traditionChinese: ["Chinese traditions", "Traditions chinoises"],
   paletteLanguages: ["Languages", "Langages"],

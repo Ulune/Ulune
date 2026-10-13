@@ -615,6 +615,8 @@
 }
 .ulune-fsr-dir {
   align-self: flex-start;
+  /* "E" or "S" alone: the box stays a 24 px target (part 28). */
+  min-width: 24px;
   min-height: 24px;
   padding: 0 4px;
   border: 0;
@@ -712,13 +714,43 @@ button.ulune-fsr-dir:hover {
   text-underline-offset: 3px;
   cursor: pointer;
 }
+/* A finger (part 26, then part 28): every control of the page is at least
+   44 px tall, the palaces' names and the room's × as wide. */
 @media (pointer: coarse) {
   .ulune-fsr-x {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
-  .ulune-fsr-add {
-    min-height: 40px;
+  .ulune-fsr-dir {
+    min-width: 44px;
+    min-height: 44px;
+    text-align: left;
+  }
+  .ulune-fsr-add,
+  .ulune-fsk-pick,
+  .ulune-fsh-input input,
+  .ulune-fsh-radio,
+  .ulune-fsh-seg-btn,
+  .ulune-fss-name {
+    min-height: 44px;
+  }
+  /* Room for a room's name beside its ×: the plan's squares a little
+     tighter; where the two still do not fit side by side (a long name, the
+     smallest phones) the × goes under the name, at the right, rather than
+     cutting a word in two. */
+  .ulune-fsr-grid {
+    gap: 3px;
+  }
+  .ulune-fsr-cell {
+    padding: 4px;
+  }
+  .ulune-fsr-chip {
+    flex-wrap: wrap;
+    gap: 0;
+    padding-left: 4px;
+  }
+  .ulune-fsr-x {
+    margin-left: auto;
   }
 }
 .ulune-fsp-rooms {

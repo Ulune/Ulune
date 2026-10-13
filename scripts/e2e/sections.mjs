@@ -8,10 +8,21 @@
  * keys L and Alt+1 to Alt+3; the language button's one-time hint for a
  * reader of 1.x (R8), never for a new reader.
  *
+ * The Chinese languages (languages plan, part 28): their eight pages in the
+ * overflow check; Alt+1 to Alt+4 by the lenses each has (Feng Shui's Home is
+ * Alt+4, BaZi has no Home), and each reopening on the lens it was left on,
+ * by the picker and by a chip; ⌘K finding each by its pinyin and characters
+ * (bāzì, 八字, 風水, 风水, fengshui, 生肖), case and accents aside; on a phone
+ * the language button gives its mark alone at 360 px and the short name,
+ * whole, at 430 px (Zodiac, BaZi, Feng Shui; Zodiaque in French).
+ *
  * The chart is the sample (1 January 2000, noon, Greenwich: nobody's birth).
  */
 import { chromium } from "playwright";
 import { DEV, clickTestId, goStudioPage, gotoApp, openMenu, setLang, studioPageNow, waitStudioPage } from "./_lib.mjs";
+
+/** The eight Chinese pages (src/studio/map.ts): Chinese astrology's three, BaZi's three, Feng Shui's two. */
+const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-home"];
 
 const fail = [];
 const check = (ok, msg) => {
@@ -357,7 +368,7 @@ async function french() {
 
 /** No page wider than the screen, and no toolbar wider than its row, from 360 to 1440 px, in both languages. */
 async function overflow() {
-  const pages = ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", "timing"];
+  const pages = ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", ...CHINESE, "timing"];
   for (const lang of ["en", "fr"]) {
     for (const width of [360, 390, 768, 1024, 1280, 1440]) {
       const touch = width < 1024;
@@ -389,6 +400,204 @@ async function overflow() {
     }
   }
   console.log("no overflow OK");
+}
+
+/**
+ * The Chinese languages' keys and memory (languages plan, part 28): Alt+1 to
+ * Alt+4 choose a lens the language has and nothing else (Feng Shui: Natal and
+ * Home; BaZi: Natal, Cycles, Relationship); a language reopens on the lens it
+ * was left on, by the picker's card and by its chip, as this device keeps it.
+ */
+async function chinese() {
+  const { context, page, errors } = await open(1280);
+  const path = () => new URL(page.url()).pathname;
+  const blur = () => page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : null));
+  /** A key, from no field; `to` the page it leads to (else it leads nowhere). */
+  const press = async (combo, from, to) => {
+    await blur();
+    await page.keyboard.press(combo);
+    if (to) await waitStudioPage(page, to).catch(() => {});
+    else await page.waitForTimeout(500);
+    const now = await studioPageNow(page);
+    check(now === (to ?? from), `${combo} on ${from} went to ${now} (${path()}), not ${to ?? "nowhere"}`);
+  };
+  try {
+    await sample(page);
+    // Feng Shui: Alt+4 its Home, Alt+2 nothing (no Cycles), Alt+1 its Natal.
+    await goStudioPage(page, "fengshui");
+    await press("Alt+4", "fengshui", "fengshui-home");
+    check(path() === "/feng-shui/home", `Feng Shui's Home at ${path()}`);
+    check((await attr(page, "lens-home", "aria-selected")) === "true", "Alt+4 did not choose the Home lens");
+    await press("Alt+2", "fengshui-home");
+    await press("Alt+3", "fengshui-home");
+    await press("Alt+1", "fengshui-home", "fengshui");
+    check(path() === "/feng-shui", `Feng Shui's Natal at ${path()}`);
+    // BaZi: Alt+2 its luck pillars, Alt+3 its pair page, Alt+4 nothing (no Home), Alt+1 its board.
+    await goStudioPage(page, "bazi");
+    await press("Alt+2", "bazi", "bazi-luck");
+    check(path() === "/bazi/cycles", `BaZi's luck pillars at ${path()}`);
+    await press("Alt+3", "bazi-luck", "bazi-pair");
+    check(path() === "/bazi/pair", `BaZi's pair page at ${path()}`);
+    await press("Alt+4", "bazi-pair");
+    await press("Alt+1", "bazi-pair", "bazi");
+    console.log("Chinese keys OK");
+
+    // Left on Cycles, BaZi reopens on Cycles: by the picker's card, then by its chip.
+    await press("Alt+2", "bazi", "bazi-luck");
+    await goStudioPage(page, "natal");
+    await page.getByTestId("lang-button").click();
+    await page.getByTestId("lang-picker").waitFor();
+    await page.getByTestId("lang-card-bazi").click();
+    await waitStudioPage(page, "bazi-luck").catch(() => {});
+    check((await studioPageNow(page)) === "bazi-luck", `BaZi reopened by its card on ${await studioPageNow(page)}`);
+    check((await attr(page, "lens-cycles", "aria-selected")) === "true", "BaZi reopened without its Cycles lens chosen");
+    await page.getByTestId("lang-picker").waitFor({ state: "detached", timeout: 4000 }).catch(() => {});
+    await clickTestId(page, "lang-chip-astrology");
+    await waitStudioPage(page, "natal");
+    check(await clickTestId(page, "lang-chip-bazi"), "no BaZi chip beside astrology");
+    await waitStudioPage(page, "bazi-luck").catch(() => {});
+    check((await studioPageNow(page)) === "bazi-luck", `BaZi reopened by its chip on ${await studioPageNow(page)}`);
+    // Feng Shui left on its Home reopens there too.
+    await goStudioPage(page, "fengshui-home");
+    await clickTestId(page, "lang-chip-bazi");
+    await waitStudioPage(page, "bazi-luck").catch(() => {});
+    await page.getByTestId("lang-button").click();
+    await page.getByTestId("lang-picker").waitFor();
+    await page.getByTestId("lang-card-feng-shui").click();
+    await waitStudioPage(page, "fengshui-home").catch(() => {});
+    check((await studioPageNow(page)) === "fengshui-home", `Feng Shui reopened by its card on ${await studioPageNow(page)}`);
+    // What this device keeps (map.ts): each language's last lens, nothing about the chart.
+    const kept = await page.evaluate(() => JSON.parse(localStorage.getItem("ulune.studio.last.v2") ?? "{}"));
+    check(kept.lens?.bazi === "cycles" && kept.lens?.["feng-shui"] === "home", `the lenses kept on this device ${JSON.stringify(kept.lens)}`);
+    check(!errors.length, `Chinese: page errors: ${errors.join(" | ")}`);
+    console.log("Chinese memory OK");
+  } finally {
+    await context.close();
+  }
+}
+
+/**
+ * ⌘K finds a language by its name whatever the accents and case, and a
+ * Chinese one by its pinyin and characters, Traditional or Simplified
+ * (languages plan, part 28); Enter opens it. In English, then in French.
+ */
+async function palette() {
+  const { context, page, errors } = await open(1280);
+  const box = page.locator("[data-testid=command-palette] input");
+  /** The languages ⌘K lists for what is typed. */
+  const languages = async (typed) => {
+    if (!(await box.isVisible().catch(() => false))) {
+      await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : null));
+      await page.keyboard.press("Control+k");
+      await page.getByTestId("command-palette").waitFor({ timeout: 8000 });
+    }
+    await box.fill(typed);
+    await page.waitForTimeout(120);
+    return page.locator("[data-testid^='cmd-lang:']").evaluateAll((els) => els.map((e) => e.getAttribute("data-testid").slice(9)));
+  };
+  const FINDS = [
+    ["bāzì", "bazi"],
+    ["bazi", "bazi"],
+    ["八字", "bazi"],
+    ["風水", "feng-shui"],
+    ["风水", "feng-shui"],
+    ["fengshui", "feng-shui"],
+    ["FĒNGSHUǏ", "feng-shui"],
+    ["shengxiao", "chinese-astrology"],
+    ["生肖", "chinese-astrology"],
+  ];
+  try {
+    await sample(page);
+    for (const [typed, id] of FINDS) {
+      const got = await languages(typed);
+      check(JSON.stringify(got) === JSON.stringify([id]), `⌘K "${typed}" lists the languages ${JSON.stringify(got)}, not ["${id}"]`);
+    }
+    // The lens of a Chinese language, by its characters and the lens's name.
+    await languages("八字 cycles");
+    const lenses = await page.locator("[data-testid^='cmd-lens:']").evaluateAll((els) => els.map((e) => e.getAttribute("data-testid")));
+    check(JSON.stringify(lenses) === JSON.stringify(["cmd-lens:bazi:cycles"]), `⌘K "八字 cycles" lists the lenses ${JSON.stringify(lenses)}`);
+    // Enter opens the first: 風水 opens Feng Shui.
+    await languages("風水");
+    const first = await page.locator("[data-testid=command-palette] [role=option]").first().getAttribute("data-testid");
+    check(first === "cmd-lang:feng-shui", `⌘K "風水" lists ${first} first`);
+    await page.keyboard.press("Enter");
+    await waitStudioPage(page, "fengshui").catch(() => {});
+    check((await studioPageNow(page)) === "fengshui", `⌘K "風水" and Enter opened ${await studioPageNow(page)}`);
+    // In French: without its accent, Numérologie; the pinyin as in English.
+    await setLang(page, "fr");
+    for (const [typed, id] of [["numerologie", "numerology"], ["fēngshuǐ", "feng-shui"], ["astrologie chinoise", "chinese-astrology"]]) {
+      const got = await languages(typed);
+      check(JSON.stringify(got) === JSON.stringify([id]), `fr: ⌘K "${typed}" lists the languages ${JSON.stringify(got)}, not ["${id}"]`);
+    }
+    // On a phone's width, a language's name is whole: its line beside it is what gets cut.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await languages("astrologie chinoise");
+    const cut = await page.locator("[data-testid='cmd-lang:chinese-astrology'] .ob-palette-label").evaluate((e) => e.scrollWidth > e.clientWidth + 1);
+    check(!cut, "fr 390: ⌘K cuts “Astrologie chinoise” for its line");
+    await page.keyboard.press("Escape");
+    check(!errors.length, `palette: page errors: ${errors.join(" | ")}`);
+  } finally {
+    await context.close();
+  }
+  console.log("⌘K by pinyin and characters OK");
+}
+
+/**
+ * A phone's language button on the Chinese pages (part 28): at 360 px the
+ * language's mark alone beside the lens tabs (its name stays in its label);
+ * at 430 px, the largest phones, its short name, whole, on the toolbar's one
+ * row; in English and French.
+ */
+async function phoneNames() {
+  const SHORT = {
+    en: { zodiac: "Zodiac", bazi: "BaZi", fengshui: "Feng Shui" },
+    fr: { zodiac: "Zodiaque", bazi: "BaZi", fengshui: "Feng Shui" },
+  };
+  const FULL = {
+    en: { zodiac: "Chinese astrology", bazi: "BaZi", fengshui: "Feng Shui" },
+    fr: { zodiac: "Astrologie chinoise", bazi: "BaZi", fengshui: "Feng Shui" },
+  };
+  for (const lang of ["en", "fr"]) {
+    for (const width of [360, 430]) {
+      const { context, page, errors } = await open(width, 800, true);
+      try {
+        if (lang === "fr") await setLang(page, "fr");
+        await sample(page);
+        for (const id of ["zodiac", "bazi", "fengshui"]) {
+          const where = `${lang} ${width} ${id}`;
+          await goStudioPage(page, id);
+          await page.waitForTimeout(250);
+          const r = await page.evaluate(() => {
+            const btn = document.querySelector("[data-testid=lang-button]");
+            const b = btn.getBoundingClientRect();
+            const drawn = [...btn.querySelectorAll(".ob-lang-name, .ob-lang-short")].filter((e) => e.getClientRects().length);
+            const top = (sel) => Math.round(document.querySelector(sel)?.getBoundingClientRect().top ?? -1);
+            return {
+              words: drawn.map((e) => e.textContent),
+              inside: drawn.every((e) => {
+                const r = e.getBoundingClientRect();
+                return r.left >= b.left - 0.5 && r.right <= b.right + 0.5 && r.right <= document.documentElement.clientWidth;
+              }),
+              mark: Boolean(btn.querySelector("svg")?.getClientRects().length),
+              label: btn.getAttribute("aria-label") ?? "",
+              rows: new Set([top("[data-testid=lang-button]"), top("[data-testid=lens-natal]"), top("[data-testid=stage-more]")]).size,
+              h: Math.round(b.height),
+            };
+          });
+          const want = width < 420 ? [] : [SHORT[lang][id]];
+          check(JSON.stringify(r.words) === JSON.stringify(want), `${where}: the language button reads ${JSON.stringify(r.words)}, not ${JSON.stringify(want)}`);
+          check(r.inside && r.mark, `${where}: the button's mark or name is cut (${JSON.stringify(r)})`);
+          check(r.label.includes(FULL[lang][id]), `${where}: the button is named "${r.label}", without the language's full name`);
+          check(r.rows === 1, `${where}: the toolbar is not one row`);
+          check(r.h >= 40, `${where}: the language button is ${r.h} px tall`);
+        }
+        check(!errors.length, `${lang} ${width}: page errors: ${errors.join(" | ")}`);
+      } finally {
+        await context.close();
+      }
+    }
+  }
+  console.log("phone short names OK");
 }
 
 /**
@@ -510,7 +719,7 @@ async function fromOne() {
   console.log("the 1.x reader's hint OK");
 }
 
-for (const fn of [computer, wide, phone, french, overflow, fromOne]) {
+for (const fn of [computer, wide, phone, french, overflow, chinese, palette, phoneNames, fromOne]) {
   try {
     await fn();
   } catch (err) {

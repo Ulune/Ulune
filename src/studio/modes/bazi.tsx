@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { LoadingLines } from "@/components/loading-lines";
 import { BRANCHES, PHASES, SIXTY, STEMS, type PhaseId } from "@/lib/chinese/names";
@@ -48,6 +48,7 @@ import { useModeData } from "@/studio/modes/data";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import { useKeptScroll } from "@/studio/return-parts";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/bazi.css";
@@ -494,6 +495,9 @@ function BaziFigure() {
   const data = useModeData("bazi");
   const w = useWheelView();
   const c = data?.bazi;
+  // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
+  const scroller = useRef<HTMLDivElement>(null);
+  useKeptScroll(scroller, "bazi-scroll", Boolean(c));
   if (!c) return null;
   // Hour to year (the year on the right), as the tradition writes them, or year to hour.
   const cols = [...c.pillars];
@@ -502,7 +506,7 @@ function BaziFigure() {
   const interactions = data?.interactions ?? [];
   const linked = w.selectedId?.startsWith("bz:ix:") ? (interactions.find((x) => ixRef(x.id) === w.selectedId) ?? null) : null;
   return (
-    <div className="ulune-bz" data-testid="bazi" data-chart-pick>
+    <div ref={scroller} className="ulune-bz" data-testid="bazi" data-chart-pick>
       <div className="ulune-bz-main">
         <div className="ulune-bz-board" role="group" aria-label={cnWord(locale, "bzBoard")} data-testid="bazi-board" data-order={prefs.pillarOrder}>
         {order.map((id) => {

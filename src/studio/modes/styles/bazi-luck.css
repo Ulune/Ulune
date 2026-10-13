@@ -252,3 +252,10 @@
     font-size: 10.5px;
   }
 }
+/* A finger (languages plan, part 28): "How they are counted" and the slider's track are 44 px tall. */
+@media (pointer: coarse) {
+  .ulune-bz-how,
+  .ulune-bzl-slider input {
+    min-height: 44px;
+  }
+}

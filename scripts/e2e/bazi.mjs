@@ -2,7 +2,8 @@
  * BaZi's pillar board (languages plan, part 12), at /bazi, at 1280 and
  * 390 px, in English and French, with Fixture A (made up: 15/06/1990, 12:00,
  * Paris), a Xin (Yin Metal) Day Master:
- *   - reached by its card in the language picker, under Chinese traditions;
+ *   - reached by its card in the language picker, under Chinese traditions,
+ *     its card giving its own name, bāzì 八字, and saying it is new (part 28);
  *   - the four columns hour to year (the year on the right), the day's
  *     marked as the Day Master, each stem's god (Eating God, Hurting
  *     Officer, Rob Wealth), the hidden stems (3, 2, 2, 2);
@@ -33,6 +34,7 @@ import { FIXTURE_A, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureSh
 const WORDS = {
   en: {
     heading: "Chinese traditions",
+    fresh: "New",
     gods: { hour: "Eating God", day: "Day Master", month: "Hurting Officer", year: "Rob Wealth" },
     why: "produces Water",
     qi: "Residual qi",
@@ -53,6 +55,7 @@ const WORDS = {
   },
   fr: {
     heading: "Traditions chinoises",
+    fresh: "Nouveau",
     gods: { hour: "Dieu nourricier", day: "Maître du jour", month: "Officier blessant", year: "Rival" },
     why: "produit l’Eau",
     qi: "Qi résiduel",
@@ -86,6 +89,14 @@ async function run(width, lang) {
     await page.getByTestId("lang-button").click();
     await page.getByTestId("lang-card-bazi").waitFor({ timeout: 8000 });
     if (await page.getByTestId("lang-info-bazi").count()) throw new Error(`${label}: an ⓘ to a home that does not exist yet`);
+    // Part 28: its own name in pinyin and characters (Traditional, marked as such), and "new" on a first visit.
+    const card = await page.getByTestId("lang-card-bazi").evaluate((b) => ({
+      pinyin: b.querySelector("[lang=zh-Latn-pinyin]")?.textContent,
+      hanzi: b.querySelector("[lang=zh-Hant]")?.textContent,
+      fresh: b.querySelector("[data-testid=lang-new-bazi]")?.textContent,
+      label: b.getAttribute("aria-label"),
+    }));
+    if (card.pinyin !== "bāzì" || card.hanzi !== "八字" || card.fresh !== w.fresh || card.label !== `BaZi, ${w.fresh}`) throw new Error(`${label}: the picker's card ${JSON.stringify(card)}`);
     const sent = [];
     page.on("request", (r) => {
       const u = new URL(r.url());

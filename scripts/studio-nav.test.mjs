@@ -1,8 +1,10 @@
 // The 2.0 navigation's pure parts (page reorganisation, R2 to R4): the
 // picker's headings and order, the chips beside the language button, the
 // order the bars switch in, each language's home in the encyclopedia, and
-// the words every section, lens and language needs in both languages; and
-// who gets the language button's one-time hint (R8).
+// the words every section, lens and language needs in both languages; who
+// gets the language button's one-time hint (R8); and (languages plan, part
+// 28) the "new" label on 2.0's languages, the Chinese languages' own names,
+// and ⌘K finding a language by them, case and accents aside.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
@@ -15,12 +17,17 @@ import {
   languageGroups,
   languageHomePath,
   lensesOf,
+  pageFor,
   pickerOrder,
   REMEMBER_KEY,
+  deviceStore,
   recentLanguages,
   rememberPage,
 } from "../src/studio/map.ts";
+import { NEW_LANGUAGE_DAYS, isNewLanguage, pickerSeen } from "../src/studio/new-languages.ts";
+import { LANGUAGE_NAMES } from "../src/lib/chinese/names.ts";
 import { LANG_HINT_KEY, MARKS_1X, decideLangHint } from "../src/studio/shell/lang-hint.ts";
+import { languageAliases, paletteFinds, paletteWords, typedWords } from "../src/studio/shell/palette-find.ts";
 import { STUDIO_PAGES } from "../src/studio/url.ts";
 import { LANGUAGE_WORDS, LENS_LABEL, SECTION_LABEL, TRADITION_LABEL } from "../src/studio/shell/map-ui.ts";
 import { CATALOG } from "../src/lib/i18n/catalog/index.ts";
@@ -187,4 +194,136 @@ test("the language button's hint: a reader of 1.x gets it until it is done, a ne
   const wheelOnly = memory();
   wheelOnly.setItem("ulune.hint.wheel.v1", "1");
   assert.equal(decideLangHint(wheelOnly), "done");
+});
+
+const DAY = 86_400_000;
+
+test("the “new” label: 2.0's languages, for the reader's first four weeks from the first opening of the picker since 2.0 (languages plan, part 28)", () => {
+  assert.deepEqual(LANGUAGES.filter((l) => l.since).map((l) => [l.id, l.since]), [
+    ["chinese-astrology", "2.0"],
+    ["bazi", "2.0"],
+    ["feng-shui", "2.0"],
+  ]);
+  assert.equal(NEW_LANGUAGE_DAYS, 28);
+  const chinese = ["chinese-astrology", "bazi", "feng-shui"];
+  const western = ["astrology", "human-design", "numerology"];
+  const newOnes = (seen, now) => LANGUAGES.filter((l) => isNewLanguage(l.id, seen, now)).map((l) => l.id);
+
+  // A first visit: the picker opens at 09:30 on 13 October, the day is kept (a date, nothing else).
+  const store = memory();
+  rememberPage("natal", store);
+  const first = Date.UTC(2026, 9, 13, 9, 30);
+  const seen = pickerSeen(first, store);
+  assert.deepEqual(seen, { "2.0": "2026-10-13" });
+  const kept = JSON.parse(store.getItem(REMEMBER_KEY));
+  assert.deepEqual(kept.seen, { "2.0": "2026-10-13" });
+  assert.equal(kept.lang, "astrology", "what was remembered stays");
+  assert.deepEqual(newOnes(seen, first), chinese, "the three Chinese languages, not the Western ones");
+  for (const id of western) assert.equal(isNewLanguage(id, seen, first), false, id);
+
+  // Later openings keep the first day; going from page to page keeps it too.
+  assert.deepEqual(pickerSeen(first + 3 * DAY, store), { "2.0": "2026-10-13" });
+  rememberPage("bazi", store);
+  rememberPage("fengshui-home", store);
+  assert.deepEqual(JSON.parse(store.getItem(REMEMBER_KEY)).seen, { "2.0": "2026-10-13" });
+  assert.equal(pageFor("feng-shui", undefined, store), "fengshui-home", "and the pages are still remembered");
+
+  // Day 27: still new; day 28 (from midnight of the first day) and day 29: not any more.
+  const day0 = Date.UTC(2026, 9, 13);
+  assert.deepEqual(newOnes(pickerSeen(day0 + 27 * DAY + 23 * 3_600_000, store), day0 + 27 * DAY + 23 * 3_600_000), chinese, "day 27");
+  assert.deepEqual(newOnes(pickerSeen(day0 + 28 * DAY, store), day0 + 28 * DAY), [], "day 28");
+  assert.deepEqual(newOnes(pickerSeen(day0 + 29 * DAY, store), day0 + 29 * DAY), [], "day 29");
+
+  // Storage unavailable (private mode, switched off, full): nothing kept, so new for this visit.
+  assert.equal(pickerSeen(first, null), null);
+  const broken = { getItem: () => { throw new Error("denied"); }, setItem: () => { throw new Error("denied"); } };
+  assert.equal(pickerSeen(first, broken), null, "a storage that throws is not kept, and nothing throws");
+  const full = { getItem: () => null, setItem: () => { throw new Error("quota"); } };
+  assert.equal(pickerSeen(first, full), null, "nor a full one");
+  assert.deepEqual(newOnes(null, first + 400 * DAY), chinese);
+  for (const id of western) assert.equal(isNewLanguage(id, null, first), false, `${id}, even then`);
+
+  // A day that is not a date is written again, from today.
+  const odd = memory();
+  odd.setItem(REMEMBER_KEY, JSON.stringify({ lang: "bazi", seen: { "2.0": "soon" } }));
+  assert.deepEqual(pickerSeen(first, odd), { "2.0": "2026-10-13" });
+  assert.equal(JSON.parse(odd.getItem(REMEMBER_KEY)).lang, "bazi");
+  odd.setItem(REMEMBER_KEY, JSON.stringify({ seen: ["2026-10-13"] }));
+  assert.deepEqual(pickerSeen(first + DAY, odd), { "2.0": "2026-10-14" });
+  // A day still to come (the device's clock was a year ahead at the first opening): today instead,
+  // so "new" does not last until then; a day past stays as it was.
+  const ahead = memory();
+  ahead.setItem(REMEMBER_KEY, JSON.stringify({ seen: { "2.0": "2027-10-13" } }));
+  assert.deepEqual(pickerSeen(first, ahead), { "2.0": "2026-10-13" });
+  assert.deepEqual(newOnes(pickerSeen(first + 29 * DAY, ahead), first + 29 * DAY), [], "four weeks on, from today");
+  ahead.setItem(REMEMBER_KEY, JSON.stringify({ seen: { "2.0": "2026-10-01" } }));
+  assert.deepEqual(pickerSeen(first, ahead), { "2.0": "2026-10-01" });
+});
+
+test("storage switched off (reaching it throws, as with cookies blocked): nothing is remembered, nothing throws (part 28)", () => {
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    get() {
+      throw new Error("SecurityError: access is denied for this document");
+    },
+  });
+  try {
+    assert.equal(deviceStore(), undefined);
+    assert.doesNotThrow(() => rememberPage("bazi-luck"));
+    assert.equal(pageFor("bazi", "relationship"), "bazi-pair", "the switcher's pair button");
+    assert.equal(pageFor("astrology", "relationship"), "synastry");
+    assert.deepEqual(recentLanguages(), []);
+    assert.equal(pickerSeen(Date.UTC(2026, 9, 13)), null);
+  } finally {
+    delete globalThis.localStorage;
+  }
+});
+
+test("⌘K finds a language by its name, case and accents aside, and a Chinese one by its pinyin and characters (languages plan, part 28)", () => {
+  // The palette's entries for the languages, their lenses and pages, as CommandPaletteDialog.tsx makes them.
+  const say = (key) => CATALOG[key][0];
+  const entries = [];
+  for (const l of LANGUAGES) {
+    const name = say(LANGUAGE_WORDS[l.id].name);
+    entries.push({ id: `lang:${l.id}`, hay: paletteWords(name, pickerWords[LANGUAGE_WORDS[l.id].line][0], "Languages", languageAliases(l.id)) });
+    for (const lens of lensesOf(l.id)) entries.push({ id: `lens:${l.id}:${lens}`, hay: paletteWords(say(LENS_LABEL[lens]), name, "Lenses", languageAliases(l.id)) });
+  }
+  const found = (typed) => entries.filter((e) => paletteFinds(typedWords(typed), e.hay)).map((e) => e.id);
+  const languages = (typed) => found(typed).filter((id) => id.startsWith("lang:"));
+
+  assert.equal(languageAliases("bazi"), "bāzì 八字", "Traditional and Simplified alike: once");
+  assert.equal(languageAliases("feng-shui"), "fēngshuǐ 風水 风水");
+  assert.equal(languageAliases("chinese-astrology"), "shēngxiào 生肖");
+  for (const id of ["astrology", "human-design", "numerology"]) assert.equal(languageAliases(id), "", id);
+
+  for (const typed of ["bazi", "BaZi", "bāzì", "BĀZÌ", "八字", "ｂａｚｉ"]) assert.deepEqual(languages(typed), ["lang:bazi"], typed);
+  for (const typed of ["fengshui", "feng shui", "fēngshuǐ", "Feng Shui", "風水", "风水"]) assert.deepEqual(languages(typed), ["lang:feng-shui"], typed);
+  for (const typed of ["shengxiao", "shēngxiào", "生肖"]) assert.deepEqual(languages(typed), ["lang:chinese-astrology"], typed);
+  // As by its name, a Chinese language's lenses are found by its pinyin and characters, and narrowed by a lens's name.
+  assert.deepEqual(found("八字"), ["lang:bazi", "lens:bazi:natal", "lens:bazi:cycles", "lens:bazi:relationship"]);
+  assert.deepEqual(found("bāzì cycles"), ["lens:bazi:cycles"]);
+  assert.deepEqual(found("風水　home"), ["lens:feng-shui:home"], "an ideographic space between the words");
+  // Accents aside in French too; nothing typed, nothing narrowed.
+  assert.ok(paletteFinds(typedWords("numerologie"), paletteWords("Numérologie")));
+  assert.ok(paletteFinds(typedWords("ÉCLIPSE"), paletteWords("éclipse")));
+  assert.deepEqual(typedWords("  "), []);
+  assert.deepEqual(languages("八"), ["lang:bazi"], "a character alone");
+  assert.deepEqual(languages("水"), ["lang:feng-shui"]);
+  assert.deepEqual(languages("zz"), []);
+});
+
+test("the Chinese languages' own names on their cards: characters, pinyin, and the picker's names (languages plan, part 28)", () => {
+  const chinese = languageGroups().find((g) => g.group === "chinese").languages.map((l) => l.id);
+  assert.deepEqual(Object.keys(LANGUAGE_NAMES).sort(), [...chinese].sort(), "one for each Chinese language");
+  for (const id of chinese) {
+    const n = LANGUAGE_NAMES[id];
+    assert.deepEqual([n.en, n.fr], CATALOG[LANGUAGE_WORDS[id].name], `${id}: the same names as the picker's`);
+  }
+  assert.deepEqual(
+    Object.values(LANGUAGE_NAMES).map((n) => `${n.hant} ${n.hans} ${n.pinyin}`),
+    ["生肖 生肖 shēngxiào", "八字 八字 bāzì", "風水 风水 fēngshuǐ"],
+  );
+  // Feng Shui's card says what it needs: a date; a home only if the reader wants its Home lens.
+  assert.deepEqual(pickerWords[LANGUAGE_WORDS["feng-shui"].needs], ["A date is enough; a home is optional", "Une date suffit\u202f; un logement est facultatif"]);
+  assert.deepEqual(pickerWords.langNew, ["New", "Nouveau"]);
 });

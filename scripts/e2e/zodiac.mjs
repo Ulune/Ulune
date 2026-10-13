@@ -2,7 +2,8 @@
  * Chinese astrology's page (languages plan, part 7), at /chinese-astrology,
  * at 1280 and 390 px, in English and French:
  *   - reached by its card in the language picker, under "Chinese traditions"
- *     (no ⓘ yet: its encyclopedia pages come later);
+ *     (no ⓘ yet: its encyclopedia pages come later), its card giving its own
+ *     name, shēngxiào 生肖, and saying it is new (part 28);
  *   - Fixture A (made up: 15/06/1990, 12:00, Paris): the wheel of the twelve
  *     with its four animals marked (Horse year and month, Pig day, Snake
  *     hour), this year's on the rim, the four cards;
@@ -28,6 +29,7 @@ import { FIXTURE_A, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureSh
 const WORDS = {
   en: {
     heading: "Chinese traditions",
+    fresh: "New",
     animals: ["Horse", "Horse", "Pig", "Snake"],
     pillar: "Yang Metal Horse",
     naYin: "Earth by the roadside",
@@ -40,6 +42,7 @@ const WORDS = {
   },
   fr: {
     heading: "Traditions chinoises",
+    fresh: "Nouveau",
     animals: ["Cheval", "Cheval", "Cochon", "Serpent"],
     pillar: "Cheval de Métal yang",
     naYin: "Terre du bord de la route",
@@ -69,6 +72,13 @@ async function run(width, lang) {
     const headings = await page.locator(".ob-langs-head").evaluateAll((els) => els.map((e) => e.textContent.trim()));
     if (!headings.includes(w.heading)) throw new Error(`${label}: picker headings ${headings.join(" | ")}`);
     if (await page.getByTestId("lang-info-chinese-astrology").count()) throw new Error(`${label}: an ⓘ to a home that does not exist yet`);
+    // Part 28: its own name in pinyin and characters (Traditional, marked as such), and "new" on a first visit.
+    const card = await page.getByTestId("lang-card-chinese-astrology").evaluate((b) => ({
+      pinyin: b.querySelector("[lang=zh-Latn-pinyin]")?.textContent,
+      hanzi: b.querySelector("[lang=zh-Hant]")?.textContent,
+      fresh: b.querySelector("[data-testid=lang-new-chinese-astrology]")?.textContent,
+    }));
+    if (card.pinyin !== "shēngxiào" || card.hanzi !== "生肖" || card.fresh !== w.fresh) throw new Error(`${label}: the picker's card ${JSON.stringify(card)}`);
     // From here, nothing goes out while the page works the animals out.
     const sent = [];
     page.on("request", (r) => {

@@ -89,7 +89,7 @@ export const shell = {
   librarySortName: ["Name", "Nom"],
   librarySortBirth: ["Birth date", "Date de naissance"],
   libraryNone: ["No chart matches.", "Aucun thème ne correspond."],
-  libraryPair: ["Compare with {name} (synastry)", "Comparer avec {name} (synastrie)"],
+  libraryPair: ["Compare with {name} ({page})", "Comparer avec {name} ({page})"],
   paletteTitle: ["Go to…", "Aller à…"],
   palettePlaceholder: [
     "Search modes, charts, planets, settings",

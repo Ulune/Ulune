@@ -7,69 +7,32 @@
  * Everything else (the mountains, the period, the stars) is worked out again
  * from it, never stored.
  *
+ * A home without its rooms, and the rules a home is read back by, are in
+ * fengshui-home-core.ts (reorganisation plan, R9): the chart switcher lists
+ * the homes from those alone.
+ *
  * Pure; tested in scripts/chinese-fengshui-rooms.test.mjs.
  */
+import { cleanHomeCore, cleanHomeList, HOMES_MAX, type HomeCore } from "./fengshui-home-core";
 import { cleanRooms, type HomeRoom } from "./fengshui-rooms";
 
-export type KeptSource = "compass" | "map" | "phone";
+export { HOMES_MAX, HOME_NAME_MAX, cleanName, type KeptSource } from "./fengshui-home-core";
 
-export type KeptHome = {
-  id: string;
-  /** The reader's name for it ("Home", "The cabin"); never empty. */
-  name: string;
-  /** The facing as typed ("172.5"), or "". */
-  typed: string;
-  source: KeptSource;
-  /** The year as typed ("1998"), or "". */
-  year: string;
-  rooms: HomeRoom[];
-  savedAt: number;
-};
+export type KeptHome = HomeCore & { rooms: HomeRoom[] };
 
 export type HomesRecord = { homes: KeptHome[]; activeId: string | null };
 
-export const HOMES_MAX = 12;
-export const HOME_NAME_MAX = 60;
 export const EMPTY_HOMES: HomesRecord = { homes: [], activeId: null };
-
-const SOURCES: readonly KeptSource[] = ["compass", "map", "phone"];
-
-/** A name as kept: one line, trimmed, at most HOME_NAME_MAX characters; the fallback when empty. */
-export function cleanName(v: unknown, fallback: string): string {
-  const s = typeof v === "string" ? v.replace(/\p{Cc}+/gu, " ").replace(/\s+/g, " ").trim() : "";
-  return [...(s || fallback)].slice(0, HOME_NAME_MAX).join("");
-}
 
 /** One home as read back from the space or a backup, or null if it is not one. */
 export function cleanHome(v: unknown): KeptHome | null {
-  if (!v || typeof v !== "object") return null;
-  const o = v as Record<string, unknown>;
-  if (typeof o.id !== "string" || !/^[\w-]{1,40}$/.test(o.id)) return null;
-  const typed = typeof o.typed === "string" ? o.typed.slice(0, 12) : "";
-  const year = typeof o.year === "string" ? o.year.slice(0, 4) : "";
-  return {
-    id: o.id,
-    name: cleanName(o.name, "—"),
-    typed,
-    source: SOURCES.includes(o.source as KeptSource) ? (o.source as KeptSource) : "compass",
-    year,
-    rooms: cleanRooms(o.rooms),
-    savedAt: typeof o.savedAt === "number" && Number.isFinite(o.savedAt) ? o.savedAt : 0,
-  };
+  const core = cleanHomeCore(v);
+  return core ? { ...core, rooms: cleanRooms((v as Record<string, unknown>).rooms) } : null;
 }
 
 /** The record as read back: well-formed homes only, each id once, at most HOMES_MAX. */
 export function cleanHomes(v: unknown): HomesRecord {
-  if (!v || typeof v !== "object") return EMPTY_HOMES;
-  const o = v as Record<string, unknown>;
-  const homes: KeptHome[] = [];
-  for (const h of Array.isArray(o.homes) ? o.homes : []) {
-    const home = cleanHome(h);
-    if (home && !homes.some((x) => x.id === home.id)) homes.push(home);
-    if (homes.length >= HOMES_MAX) break;
-  }
-  const activeId = typeof o.activeId === "string" && homes.some((h) => h.id === o.activeId) ? o.activeId : null;
-  return { homes, activeId };
+  return cleanHomeList(v, cleanHome);
 }
 
 /**

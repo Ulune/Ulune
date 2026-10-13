@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useSyncExternalStore } from "react";
+import { Suspense, useMemo, useRef, useSyncExternalStore } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimalGlyph } from "@/components/animal-glyph";
 import { LoadingLines } from "@/components/loading-lines";
@@ -20,6 +20,7 @@ import { useZodiacOf } from "@/studio/modes/hooks/useZodiac";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import { useKeptScroll } from "@/studio/return-parts";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac-time.css";
 
@@ -88,12 +89,15 @@ function YearsFigure() {
   const long = useDayFormat({ day: "numeric", month: "short", year: "numeric" });
   const y = data?.ahead;
   const z = data?.zodiac;
+  // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
+  const scroller = useRef<HTMLDivElement>(null);
+  useKeptScroll(scroller, "zodiac-years-scroll", Boolean(y && z));
   if (!y || !z) return null;
   const pair = chineseLabel(SIXTY[y.pillar.cycle]!, locale, prefs);
   const now = Date.now();
   const kind = (k: MeetKind) => chineseLabel(meetName(k, true), locale, prefs).name;
   return (
-    <div className="ulune-zky" data-testid="zodiac-years" data-chart-pick>
+    <div ref={scroller} className="ulune-zky" data-testid="zodiac-years" data-chart-pick>
       <button
         type="button"
         className={cn("ulune-zky-year", w.selectedId === yearRef && "is-on")}

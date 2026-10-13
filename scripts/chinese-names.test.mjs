@@ -1,17 +1,18 @@
 /*
  * The names of the Chinese calendar's parts (src/lib/chinese/names.ts):
  * order, polarity and phase, the sixty pairs, the solar terms, Traditional
- * and Simplified characters, pinyin and French typography. (Characters and
- * pinyin were also checked once against pypinyin, OpenCC and CC-CEDICT;
- * README.md.)
+ * and Simplified characters, pinyin and French typography; and the Chinese
+ * languages' own names on the picker's cards (languages plan, part 28).
+ * (Characters and pinyin were also checked once against pypinyin, OpenCC
+ * and CC-CEDICT; README.md.)
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ANIMALS, BRANCHES, FAMILY_NAMES, PHASES, POLARITY_NAMES, SIXTY, SOLAR_TERMS, STEMS, hanzi } from "../src/lib/chinese/names.ts";
+import { ANIMALS, BRANCHES, FAMILY_NAMES, LANGUAGE_NAMES, PHASES, POLARITY_NAMES, SIXTY, SOLAR_TERMS, STEMS, hanzi } from "../src/lib/chinese/names.ts";
 import { cycleOf } from "../src/lib/chinese/pillars.ts";
 import { isJie, termLongitude } from "../src/lib/chinese/terms.ts";
 
-const ALL = [...PHASES, ...Object.values(POLARITY_NAMES), ...STEMS, ...BRANCHES, ...ANIMALS, ...SIXTY, ...SOLAR_TERMS, ...Object.values(FAMILY_NAMES)];
+const ALL = [...PHASES, ...Object.values(POLARITY_NAMES), ...STEMS, ...BRANCHES, ...ANIMALS, ...SIXTY, ...SOLAR_TERMS, ...Object.values(FAMILY_NAMES), ...Object.values(LANGUAGE_NAMES)];
 
 test("ten stems and twelve branches in order, yang and yin alternating, each phase twice among the stems", () => {
   assert.equal(STEMS.map((s) => s.hant).join(""), "甲乙丙丁戊己庚辛壬癸");
@@ -80,7 +81,7 @@ test("Traditional and Simplified characters differ exactly where the scripts do"
   const differ = ALL.filter((n) => n.hant !== n.hans).map((n) => `${n.hant}/${n.hans}`);
   assert.deepEqual(
     [...new Set(differ)].sort(),
-    ["二十四節氣/二十四节气", "小滿/小满", "穀雨/谷雨", "處暑/处暑", "芒種/芒种", "農曆/农历", "陰/阴", "陽/阳", "雞/鸡", "馬/马", "驚蟄/惊蛰", "龍/龙", "豬/猪"].sort(),
+    ["二十四節氣/二十四节气", "小滿/小满", "穀雨/谷雨", "處暑/处暑", "芒種/芒种", "農曆/农历", "陰/阴", "陽/阳", "雞/鸡", "馬/马", "驚蟄/惊蛰", "龍/龙", "豬/猪", "風水/风水"].sort(),
   );
   for (const n of ALL) assert.equal([...n.hant].length, [...n.hans].length, n.hant);
   assert.equal(hanzi(ANIMALS[4]), "龍", "Traditional by default");
@@ -114,4 +115,17 @@ test("English and French names: every entry has both, with typographic apostroph
   // The pairs in French: the animal, then its stem, "de" elided before Eau.
   assert.equal(SIXTY[0].fr, "Rat de Bois yang");
   assert.equal(SIXTY[29].fr, "Serpent d’Eau yin");
+});
+
+test("the Chinese languages' own names: Chinese astrology is the twelve animals' 生肖, BaZi 八字, Feng Shui 風水 (风水)", () => {
+  assert.deepEqual(Object.keys(LANGUAGE_NAMES), ["chinese-astrology", "bazi", "feng-shui"]);
+  const { "chinese-astrology": zodiac, bazi, "feng-shui": fengShui } = LANGUAGE_NAMES;
+  // The zodiac's name is the twelve animals' own.
+  assert.deepEqual([zodiac.hant, zodiac.hans, zodiac.pinyin], [FAMILY_NAMES.animals.hant, FAMILY_NAMES.animals.hans, FAMILY_NAMES.animals.pinyin]);
+  assert.deepEqual([bazi.hant, bazi.hans, bazi.pinyin], ["八字", "八字", "bāzì"]);
+  // 風 fēng (first tone), 水 shuǐ (third), as Water is among the phases.
+  assert.deepEqual([fengShui.hant, fengShui.hans, fengShui.pinyin], ["風水", "风水", "fēngshuǐ"]);
+  assert.ok(fengShui.pinyin.endsWith(PHASES.find((p) => p.id === "water").pinyin));
+  assert.equal(hanzi(fengShui, "hans"), "风水");
+  assert.equal(hanzi(fengShui), "風水", "Traditional by default");
 });

@@ -1,14 +1,41 @@
 import { ChevronDown, Pencil, Plus, Users, X } from "lucide-react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { AnchoredPopover } from "@/components/anchored-popover";
 import { chartDisplayName } from "@/lib/chart/library";
 import { formatEuropeanDate } from "@/lib/chart/parse-birth";
 import { useI18n } from "@/lib/i18n/locale";
+import { whenIdle } from "@/lib/lazy-component";
+import { importWithRetry } from "@/lib/lazy-retry";
+import { useSpace } from "@/lib/space/state";
 import { cn } from "@/lib/utils";
+import { languageOf, lensesOf, pageFor } from "@/studio/map";
+import { PAGE_LABEL } from "@/studio/modes/meta";
 import { UluneMark } from "@/studio/shell/ulune-mark";
 import { useStudioStore } from "@/studio/store";
+import type { StudioPage } from "@/studio/url";
 import { toast } from "@/lib/toast";
+
+/*
+ * The chart switcher, "People and places" (reorganisation plan, R9): the
+ * charts, then the homes a private space keeps for Feng Shui
+ * (picker-places.tsx, its own download, fetched at idle once a space exists
+ * so the switcher opens with them). Its pair button compares in the language
+ * on screen (languages plan, part 28).
+ */
+type Places = typeof import("@/studio/shell/picker-places");
+let placesMod: Places | undefined;
+const loadPlaces = () => importWithRetry(() => import("@/studio/shell/picker-places"), { attempts: 2 }).then((m) => (placesMod = m));
+
+/**
+ * Where the pair button compares: in the Relationship lens of the language on
+ * screen (BaZi's from BaZi), else in astrology's, on the page last used in it
+ * (Synastry or Composite), as a press on that lens would lead.
+ */
+function pairPageOf(page: StudioPage): StudioPage {
+  const lang = languageOf(page);
+  return pageFor(lang && lensesOf(lang).includes("relationship") ? lang : "astrology", "relationship");
+}
 
 export function ChartPicker() {
   const { t } = useI18n();
@@ -26,6 +53,21 @@ export function ChartPicker() {
   const [sort, setSort] = useState<"recent" | "name" | "birth">("recent");
   const setPartner = useStudioStore((s) => s.setPartner);
   const { setPage } = useStudioUrl({ hydrate: false });
+  const page = useStudioStore((s) => s.page);
+  // The homes' code once a space exists (open: its homes; locked, on Feng Shui's pages: the way to unlock them), at idle.
+  const status = useSpace((s) => s.status);
+  const wantPlaces = status === "open" || status === "locked";
+  const [places, setPlaces] = useState(placesMod);
+  // The "People" heading only when that code was here as the switcher opened: the charts never move under the pointer.
+  const [placesAtOpen, setPlacesAtOpen] = useState(placesMod);
+  useEffect(() => {
+    if (!wantPlaces || places) return;
+    const load = () => void loadPlaces().then(setPlaces, () => {});
+    if (!open) return whenIdle(load, 4000);
+    load();
+  }, [wantPlaces, places, open]);
+  // Read from this device's memory only while the switcher is open (never on the server, as the shell's other reads).
+  const pairPage = open ? pairPageOf(page) : "synastry";
   const many = rows.length > 6;
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -66,7 +108,11 @@ export function ChartPicker() {
         aria-expanded={open}
         aria-haspopup="dialog"
         title={chip}
-        onClick={() => (open ? close() : setOpen(true))}
+        onClick={() => {
+          if (open) return close();
+          setPlacesAtOpen(placesMod);
+          setOpen(true);
+        }}
         className="ob-chip"
       >
         <UluneMark className="ob-chip-mark" />
@@ -83,6 +129,7 @@ export function ChartPicker() {
         hideLabel={t("charts")}
       >
         <div data-testid="chart-picker" className="ob-pop ob-picker">
+          {placesAtOpen ? <placesAtOpen.PeopleHead /> : null}
           {many ? (
             <div className="ob-picker-tools">
               <input
@@ -113,6 +160,7 @@ export function ChartPicker() {
               {shown.map((row) => {
                 const on = row.id === activeId && (!creating || addingPartner);
                 const label = chartDisplayName(row.input, t("untitled"));
+                const pair = t("libraryPair", { name: label, page: t(PAGE_LABEL[pairPage]) });
                 const confirming = confirmId === row.id;
                 return (
                   <li
@@ -194,11 +242,12 @@ export function ChartPicker() {
                           <button
                             type="button"
                             data-testid="chart-pair"
-                            title={t("libraryPair", { name: label })}
-                            aria-label={t("libraryPair", { name: label })}
+                            title={pair}
+                            aria-label={pair}
                             onClick={() => {
-                              setPartner("synastry", row.id);
-                              setPage("synastry");
+                              // Composite keeps its own partner; the other pages share synastry's.
+                              setPartner(pairPage === "composite" ? "composite" : "synastry", row.id);
+                              setPage(pairPage);
                               close();
                             }}
                             className="ob-icon-btn ob-icon-btn--quiet"
@@ -225,6 +274,7 @@ export function ChartPicker() {
             <Plus className="size-4" strokeWidth={1.75} aria-hidden />
             {t("new")}
           </button>
+          {places ? <places.PickerPlaces go={setPage} onClose={close} /> : null}
         </div>
       </AnchoredPopover>
     </>

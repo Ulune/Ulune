@@ -2169,8 +2169,9 @@ html.theme-switching::view-transition-new(root) {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+/* The hint takes the room the label leaves: on a phone it is cut first, never the name chosen (part 28). */
 .ob-palette-hint {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
   overflow: hidden;
   color: var(--color-fg-subtle);

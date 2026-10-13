@@ -1,0 +1,59 @@
+/* The chart switcher's homes (picker-places.tsx, reorganisation plan R9:
+   "People and places"): they download with it. Two headed groups, People and
+   Homes; a home's row with its house icon, its name and its facing. */
+
+.ob-picker-head {
+  margin: 0;
+  padding: 6px 10px 4px;
+  font: 600 11px/1.3 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
+}
+/* People with no chart yet: New stands under the heading, not under a line. */
+.ob-picker-head + .ob-picker-new {
+  margin-top: 0;
+  border-top: 0;
+}
+.ob-picker-places {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--color-border);
+}
+/* Twelve homes at most: the list grows with the switcher, which scrolls as a whole. */
+.ob-picker-homes {
+  max-height: none;
+  overflow: visible;
+}
+.ob-picker-name.ob-picker-home {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.ob-picker-home > svg {
+  flex: 0 0 auto;
+  color: var(--color-fg-subtle);
+}
+.ob-picker-home.is-on > svg {
+  color: var(--color-fg-muted);
+}
+.ob-picker-home-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.ob-picker-home-text > .truncate {
+  max-width: 100%;
+}
+.ob-picker-home[aria-busy="true"] {
+  cursor: progress;
+  opacity: 0.7;
+}
+/* Locked: one quiet line, which unlocks. */
+.ob-picker-unlock {
+  font-size: 13px;
+  line-height: 1.35;
+}

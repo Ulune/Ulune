@@ -4,6 +4,12 @@
  * 15/06/1990, 12:00, Paris) and no yin or yang count, so both Kua numbers:
  *   - reached by its card in the language picker, under Chinese traditions,
  *     with no ⓘ yet;
+ *   - (part 28) the picker's cards on a first visit: the three Chinese
+ *     languages say "new" (their spoken names too), the Western ones do not;
+ *     the Chinese ones give their pinyin and characters as Settings says
+ *     (Traditional, Simplified, "Name and pinyin", "Name only", followed at
+ *     once); Feng Shui's says a home is optional; the first opening's day is
+ *     kept, and 30 days on nothing says "new";
  *   - the first read in the side panel: the Kua, its group, the best
  *     direction and the practice, for each count;
  *   - two roses: Kua 1 (Kan, East group: the south-east, east, south and
@@ -42,6 +48,124 @@ const WORDS = {
 };
 const note = (page) => page.getByTestId("click-note").evaluate((e) => e.textContent ?? "").catch(() => "");
 
+// The picker's cards (languages plan, part 28).
+const CARDS = {
+  en: {
+    fresh: "New",
+    needs: "A date is enough; a home is optional",
+    names: { "chinese-astrology": "Chinese astrology", bazi: "BaZi", "feng-shui": "Feng Shui" },
+  },
+  fr: {
+    fresh: "Nouveau",
+    needs: "Une date suffit\u202f; un logement est facultatif",
+    names: { "chinese-astrology": "Astrologie chinoise", bazi: "BaZi", "feng-shui": "Feng Shui" },
+  },
+};
+const CHINESE = ["chinese-astrology", "bazi", "feng-shui"];
+const WESTERN = ["astrology", "human-design", "numerology"];
+/** Each language's pinyin, Traditional and Simplified characters. */
+const OWN = { "chinese-astrology": ["shēngxiào", "生肖", "生肖"], bazi: ["bāzì", "八字", "八字"], "feng-shui": ["fēngshuǐ", "風水", "风水"] };
+
+/** What each card of the open picker says: "new", its spoken name, its pinyin and characters, what it needs. */
+const readCards = (page) =>
+  page.evaluate(() =>
+    Object.fromEntries(
+      [...document.querySelectorAll("[data-testid=lang-picker] [data-testid^=lang-card-]")].map((b) => {
+        const id = b.getAttribute("data-testid").slice(10);
+        const hanzi = b.querySelector(".ob-langs-hanzi");
+        return [
+          id,
+          {
+            fresh: b.querySelector(`[data-testid=lang-new-${id}]`)?.textContent ?? null,
+            label: b.getAttribute("aria-label"),
+            pinyin: b.querySelector("[lang=zh-Latn-pinyin]")?.textContent ?? null,
+            hanzi: hanzi?.textContent ?? null,
+            hanziLang: hanzi?.getAttribute("lang") ?? null,
+            cjk: /[\u3400-\u9fff]/.test(b.textContent),
+            needs: b.querySelector(".ob-langs-needs")?.textContent ?? null,
+          },
+        ];
+      }),
+    ),
+  );
+
+/** Settings → Chinese traditions, changed in another tab: the open views follow at once. */
+const setChinese = (page, prefs) =>
+  page.evaluate((p) => {
+    if (p) localStorage.setItem("ulune.chinese", JSON.stringify(p));
+    else localStorage.removeItem("ulune.chinese");
+    window.dispatchEvent(new StorageEvent("storage", { key: "ulune.chinese" }));
+  }, prefs);
+
+/** The picker open on a first visit (its picture saved as `shot`); it is left open. */
+async function pickerCards(page, label, lang, shot) {
+  const c = CARDS[lang];
+  let cards = await readCards(page);
+  for (const id of CHINESE) {
+    if (cards[id]?.fresh !== c.fresh) throw new Error(`${label}: ${id}'s card says ${JSON.stringify(cards[id]?.fresh)}, not "${c.fresh}"`);
+    if (cards[id].label !== `${c.names[id]}, ${c.fresh}`) throw new Error(`${label}: ${id}'s card is named "${cards[id].label}"`);
+  }
+  for (const id of WESTERN) {
+    if (cards[id]?.fresh !== null || cards[id].label !== null) throw new Error(`${label}: ${id}'s card says it is new (${JSON.stringify(cards[id])})`);
+  }
+  if ((await page.getByRole("button", { name: `BaZi, ${c.fresh}`, exact: true }).count()) !== 1) throw new Error(`${label}: no button named "BaZi, ${c.fresh}"`);
+  // The day of this first opening is kept with the studio's other marks, as a date and nothing more.
+  const seen = await page.evaluate(() => JSON.parse(localStorage.getItem("ulune.studio.last.v2") ?? "{}").seen);
+  const keys = Object.keys(seen ?? {});
+  if (keys.join() !== "2.0" || !/^\d{4}-\d{2}-\d{2}$/.test(seen["2.0"]) || Math.abs(Date.parse(seen["2.0"]) - Date.now()) > 2 * 86_400_000) {
+    throw new Error(`${label}: kept ${JSON.stringify(seen)}`);
+  }
+
+  // Their own names as Settings says: by default the pinyin and the Traditional characters, each marked with its language.
+  for (const [id, [pinyin, hant]] of Object.entries(OWN)) {
+    if (cards[id].pinyin !== pinyin || cards[id].hanzi !== hant || cards[id].hanziLang !== "zh-Hant") throw new Error(`${label}: ${id}'s own name ${JSON.stringify(cards[id])}`);
+  }
+  for (const id of WESTERN) if (cards[id].cjk || cards[id].pinyin) throw new Error(`${label}: ${id}'s card has Chinese`);
+  // Feng Shui's card: a date is enough, a home only if the reader wants one.
+  if (cards["feng-shui"].needs !== c.needs) throw new Error(`${label}: Feng Shui needs "${cards["feng-shui"].needs}"`);
+  await page.screenshot({ path: shot }).catch(() => {});
+
+  // Simplified characters: 风水.
+  await setChinese(page, { script: "hans" });
+  await page.waitForFunction(() => document.querySelector("[data-testid=lang-card-feng-shui] .ob-langs-hanzi")?.getAttribute("lang") === "zh-Hans", null, { timeout: 4000 });
+  cards = await readCards(page);
+  for (const [id, [pinyin, , hans]] of Object.entries(OWN)) {
+    if (cards[id].pinyin !== pinyin || cards[id].hanzi !== hans) throw new Error(`${label}: ${id} in Simplified ${JSON.stringify(cards[id])}`);
+  }
+  // "Name and pinyin": no characters.
+  await setChinese(page, { show: "pinyin" });
+  await page.waitForFunction(() => !/[\u3400-\u9fff]/.test(document.querySelector("[data-testid=lang-picker]")?.textContent ?? "字"), null, { timeout: 4000 });
+  cards = await readCards(page);
+  for (const [id, [pinyin]] of Object.entries(OWN)) if (cards[id].pinyin !== pinyin || cards[id].hanzi !== null) throw new Error(`${label}: ${id} with pinyin only ${JSON.stringify(cards[id])}`);
+  // "Name only": neither, and "new" stays, beside the name.
+  await setChinese(page, { show: "names" });
+  await page.waitForFunction(() => !document.querySelector("[data-testid=lang-picker] [lang=zh-Latn-pinyin]"), null, { timeout: 4000 });
+  cards = await readCards(page);
+  for (const id of CHINESE) {
+    if (cards[id].cjk || cards[id].pinyin || cards[id].fresh !== c.fresh) throw new Error(`${label}: ${id} with the name only ${JSON.stringify(cards[id])}`);
+  }
+  await assertNoOverflow(page);
+  await setChinese(page, null);
+  await page.waitForFunction(() => document.querySelectorAll("[data-testid=lang-picker] .ob-langs-hanzi").length === 3, null, { timeout: 4000 });
+
+  // Four weeks on (the first opening moved 30 days back): nothing says "new" any more.
+  await page.waitForFunction(() => document.activeElement?.closest("[data-testid=lang-picker]"), null, { timeout: 4000 }).catch(() => {});
+  await page.keyboard.press("Escape");
+  await page.getByTestId("lang-picker").waitFor({ state: "detached", timeout: 4000 });
+  await page.evaluate(() => {
+    const kept = JSON.parse(localStorage.getItem("ulune.studio.last.v2") ?? "{}");
+    kept.seen = { "2.0": new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10) };
+    localStorage.setItem("ulune.studio.last.v2", JSON.stringify(kept));
+  });
+  await page.getByTestId("lang-button").click();
+  await page.getByTestId("lang-card-feng-shui").waitFor({ timeout: 8000 });
+  cards = await readCards(page);
+  for (const id of [...CHINESE, ...WESTERN]) {
+    if (cards[id]?.fresh !== null || cards[id].label !== null) throw new Error(`${label}: 30 days on, ${id} ${JSON.stringify(cards[id])}`);
+  }
+  if (cards.bazi.hanzi !== "八字") throw new Error(`${label}: 30 days on, BaZi's characters ${JSON.stringify(cards.bazi)}`);
+}
+
 async function waitNote(page, text, label, what) {
   await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), text, { timeout: 8000 }).catch(async () => {
     throw new Error(`${label}: ${what} "${(await note(page)).slice(0, 300)}"`);
@@ -71,6 +195,7 @@ async function run(width, lang) {
     await page.getByTestId("lang-button").click();
     await page.getByTestId("lang-card-feng-shui").waitFor({ timeout: 8000 });
     if (await page.getByTestId("lang-info-feng-shui").count()) throw new Error(`${label}: an ⓘ to a home that does not exist yet`);
+    await pickerCards(page, label, lang, join(SHOTS, `fengshui-picker-${lang}-${width}.png`));
     const sent = [];
     page.on("request", (r) => {
       const u = new URL(r.url());

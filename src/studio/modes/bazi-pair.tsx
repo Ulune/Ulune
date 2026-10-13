@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import { LoadingLines } from "@/components/loading-lines";
 import { chartDisplayName } from "@/lib/chart/library";
 import type { NatalChart } from "@/lib/chart/types";
@@ -35,6 +35,7 @@ import { MODE_META } from "@/studio/modes/meta";
 import { PairSelects, type PairPick } from "@/studio/modes/pair-selects";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import { useKeptScroll } from "@/studio/return-parts";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/zodiac-time.css";
@@ -135,6 +136,9 @@ function PairFigure() {
   const w = useWheelView();
   const data = useModeData("bazi-pair");
   const partnerBirth = useStudioStore((s) => s.pair.addingPartnerFor === "bazi-pair");
+  // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
+  const scroller = useRef<HTMLDivElement>(null);
+  useKeptScroll(scroller, "bazi-pair-scroll", Boolean(data?.a && data.b && data.pair));
   if (!data?.a) return null;
   if (!data.b || !data.pair) {
     if (partnerBirth) return <div data-testid="bazi-pair-need-second" className="hidden" />;
@@ -153,7 +157,7 @@ function PairFigure() {
   }
   const { a, b, pair, names } = data;
   return (
-    <div className="ulune-bzp" data-testid="bazi-pair" data-chart-pick>
+    <div ref={scroller} className="ulune-bzp" data-testid="bazi-pair" data-chart-pick>
       <div className="ulune-bzp-boards">
         <MiniBoard person="a" c={a} name={names.a} />
         <MiniBoard person="b" c={b} name={names.b} />

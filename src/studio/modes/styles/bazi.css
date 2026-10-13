@@ -524,6 +524,38 @@
   }
 }
 
+/* A finger (languages plan, part 28): every control of the board and beside
+   it is at least 44 px tall, the chips at least as wide, the words centred in
+   the taller boxes. The page grows a little longer; a press finds its cell. */
+@media (pointer: coarse) {
+  .ulune-bz-god,
+  .ulune-bz-sign,
+  .ulune-bz-hid,
+  .ulune-bz-chip,
+  .ulune-bz-emptymark,
+  .ulune-bz-how,
+  .ulune-bz-bar,
+  .ulune-bz-godrow {
+    min-height: 44px;
+  }
+  .ulune-bz-sign,
+  .ulune-bz-hid {
+    justify-content: center;
+  }
+  /* As tall as a finger, a pill would turn into a ball: a rounded box, as the board's cells. */
+  .ulune-bz-chip,
+  .ulune-bz-emptymark {
+    display: inline-flex;
+    align-items: center;
+    min-width: 44px;
+    padding-block: 4px;
+    border-radius: 8px;
+  }
+  .ulune-bz-godrow {
+    align-items: center;
+  }
+}
+
 /* Part 17, the full table: the luck pillar's and the year's rows, named like the chart's but not chosen from here. */
 .ulune-bz-static-row {
   text-transform: none;

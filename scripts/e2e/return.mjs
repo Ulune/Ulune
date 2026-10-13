@@ -14,12 +14,17 @@
  *     let go on the page's ground does not; switching lens inside the studio
  *     lets it go, as before;
  *   - a phone: the sheet open in full on a scrolled reading, a pin;
- *   - a page opened afresh (a search engine's visitor) has no way "back".
+ *   - a page opened afresh (a search engine's visitor) has no way "back";
+ *   - the Chinese pages, which scroll in themselves (languages plan, part
+ *     28): BaZi's luck pillars on a computer, a block chosen and the page
+ *     scrolled, by Back and by the link; Feng Shui's Home on a phone, its
+ *     facing, year and room given and the page scrolled, back from Settings
+ *     by Back and from the encyclopedia by the link.
  *
  * The chart is the sample (1 January 2000, noon, Greenwich: nobody's birth).
  */
 import { chromium } from "playwright";
-import { DEV, clickDockTab, goStudioPage, gotoApp, setView, waitStudioPage } from "./_lib.mjs";
+import { DEV, clickDockTab, goStudioPage, gotoApp, openMenu, setView, waitStudioPage } from "./_lib.mjs";
 
 const fail = [];
 const check = (ok, msg) => {
@@ -291,6 +296,116 @@ async function phone() {
   console.log("phone OK");
 }
 
+/** A Chinese page's own scroller, its choices and its fields, as a reader would see them (part 28). */
+const chineseLook = (page, scroller) =>
+  page.evaluate((sel) => {
+    const el = document.querySelector(sel);
+    const value = (id) => document.querySelector(`[data-testid=${id}]`)?.value ?? null;
+    return {
+      url: location.pathname + location.search,
+      page: document.querySelector("[data-testid=studio-nav]")?.getAttribute("data-page") ?? null,
+      chosen: [...(el?.querySelectorAll("[aria-pressed=true]") ?? [])].map((b) => b.getAttribute("data-testid")),
+      reading: document.querySelector("[data-testid=dock] .ulune-dock-scroll h2, [data-testid=dock] .ulune-dock-scroll h3")?.textContent?.trim().slice(0, 40) ?? null,
+      facing: value("fengshui-home-facing"),
+      year: value("fengshui-home-year"),
+      rooms: [...document.querySelectorAll("[data-testid^=fengshui-room-remove-]")].map((b) => `${b.closest("[data-palace]")?.getAttribute("data-palace")}:${b.getAttribute("data-kind")}`),
+      scroll: el && el.getClientRects().length ? Math.round(el.scrollTop) : null,
+    };
+  }, scroller);
+
+/** The same place, the same choices, the scroll within a few pixels. */
+function near(label, before, after) {
+  same(label, before, after, ["url", "page", "chosen", "reading", "facing", "year", "rooms"]);
+  check(after.scroll != null && Math.abs(after.scroll - before.scroll) <= 3, `${label}: the page was scrolled to ${before.scroll}, came back at ${after.scroll}`);
+}
+
+/** Scrolls a page's own scroller to `top` (or as far as it goes). */
+const scrollTo = (page, sel, top) =>
+  page.evaluate(
+    ([s, t]) => {
+      const el = document.querySelector(s);
+      if (el) el.scrollTop = Math.min(t, el.scrollHeight - el.clientHeight);
+    },
+    [sel, top],
+  );
+
+/** BaZi's luck pillars on a computer (part 28): a block chosen, the page scrolled in itself; back by Back, then by the link. */
+async function luck() {
+  const { context, page, errors } = await open(1280);
+  try {
+    await sample(page);
+    await goStudioPage(page, "bazi-luck");
+    await page.getByTestId("bazi-luck").waitFor({ timeout: 20000 });
+    await page.getByTestId("bazi-luck-yang-3").click();
+    await page.waitForTimeout(500);
+    await scrollTo(page, ".ulune-bzl", 200);
+    await page.waitForTimeout(300);
+    const before = await chineseLook(page, ".ulune-bzl");
+    check(JSON.stringify(before.chosen) === JSON.stringify(["bazi-luck-yang-3"]), `the luck block chosen before leaving: ${JSON.stringify(before.chosen)}`);
+    check(before.scroll > 80, `the luck pillars did not scroll (${before.scroll})`);
+    check(Boolean(before.reading), "no reading for the luck block");
+
+    // 1. Out by the top bar's Encyclopedia, back by the browser's Back.
+    await leave(page);
+    await page.goBack();
+    await landed(page);
+    near("BaZi's luck, Back", before, await chineseLook(page, ".ulune-bzl"));
+
+    // 2. Out again, an entry read, back by "Back to your chart".
+    await leave(page);
+    await page.locator("main a[href='/encyclopedia/astrology']").first().click();
+    await page.getByTestId("enc-tradition").waitFor({ timeout: 15000 });
+    check((await page.getByTestId("enc-back").textContent())?.includes("Back to your chart"), "no “Back to your chart” from BaZi’s luck pillars");
+    await page.getByTestId("enc-back").click();
+    await landed(page);
+    near("BaZi's luck, the link", before, await chineseLook(page, ".ulune-bzl"));
+    check(!errors.length, `luck: ${errors.join(" | ")}`);
+  } finally {
+    await context.close();
+  }
+  console.log("BaZi's luck OK");
+}
+
+/** Feng Shui's Home on a phone (part 28): a facing, a year and a room given, the page scrolled; back from Settings and from the encyclopedia. */
+async function home() {
+  const { context, page, errors } = await open(390, 844, true);
+  try {
+    await sample(page);
+    await goStudioPage(page, "fengshui-home");
+    await page.getByTestId("fengshui-home").waitFor({ timeout: 20000 });
+    await page.getByTestId("fengshui-home-facing").fill("180");
+    await page.getByTestId("fengshui-home-year").fill("1998");
+    await page.getByTestId("fengshui-rooms-add-n").selectOption("bedroom");
+    await page.getByTestId("fengshui-stars").waitFor({ timeout: 8000 });
+    await scrollTo(page, ".ulune-fsh", 900);
+    await page.waitForTimeout(300);
+    const before = await chineseLook(page, ".ulune-fsh");
+    check(before.facing === "180" && before.year === "1998", `the home before leaving: ${before.facing}° ${before.year}`);
+    check(JSON.stringify(before.rooms) === JSON.stringify(["n:bedroom"]), `the rooms before leaving: ${JSON.stringify(before.rooms)}`);
+    check(before.scroll > 600, `Feng Shui's Home did not scroll (${before.scroll})`);
+
+    // 1. Out to Settings by the account menu, back by the browser's Back.
+    await openMenu(page);
+    await page.getByTestId("menu-settings").click();
+    await page.getByTestId("settings-page").waitFor({ timeout: 15000 });
+    await page.waitForTimeout(400);
+    await page.goBack();
+    await page.waitForFunction(() => !/\/settings/.test(location.pathname), null, { timeout: 15000 });
+    await page.waitForTimeout(1800);
+    near("Feng Shui's Home, from Settings", before, await chineseLook(page, ".ulune-fsh"));
+
+    // 2. Out by the bottom bar's Encyclopedia, back by "Back to your chart".
+    await leave(page);
+    await page.getByTestId("enc-back").click();
+    await landed(page);
+    near("Feng Shui's Home, from the encyclopedia", before, await chineseLook(page, ".ulune-fsh"));
+    check(!errors.length, `home: ${errors.join(" | ")}`);
+  } finally {
+    await context.close();
+  }
+  console.log("Feng Shui's Home OK");
+}
+
 /** A page opened afresh, as from a search engine: nothing to go back to. */
 async function fresh() {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
@@ -315,7 +430,7 @@ async function fresh() {
   console.log("fresh OK");
 }
 
-for (const fn of [computer, pins, phone, fresh]) {
+for (const fn of [computer, pins, phone, luck, home, fresh]) {
   try {
     await fn();
   } catch (err) {

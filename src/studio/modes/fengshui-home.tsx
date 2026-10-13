@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useId, useMemo, useState } from "react";
+import { Suspense, useEffect, useId, useMemo, useRef, useState } from "react";
 import { LoadingLines } from "@/components/loading-lines";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
@@ -39,6 +39,7 @@ import { useModeData } from "@/studio/modes/data";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import { useKeptScroll } from "@/studio/return-parts";
 import { useStudioStore } from "@/studio/store";
 import { compassSupported, useCompass } from "@/studio/modes/hooks/useCompass";
 import { parseFacing, parseYear, useHomeInput } from "@/studio/modes/fengshui-home-state";
@@ -377,9 +378,12 @@ function StarsCard() {
 function HomeFigure() {
   const data = useModeData("fengshui-home");
   const compass = useCompass();
+  // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
+  const scroller = useRef<HTMLDivElement>(null);
+  useKeptScroll(scroller, "fengshui-home-scroll", Boolean(data?.enabled));
   if (!data?.enabled) return null;
   return (
-    <div className="ulune-fs ulune-fsh" data-testid="fengshui-home" data-chart-pick>
+    <div ref={scroller} className="ulune-fs ulune-fsh" data-testid="fengshui-home" data-chart-pick>
       <div className="ulune-fsh-body">
         <FigurePane live={compass.state === "live" ? compass.heading : null} />
         <div className="ulune-fs-side">

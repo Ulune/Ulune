@@ -17,6 +17,7 @@ import { useModeData } from "@/studio/modes/data";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import { useKeptScroll } from "@/studio/return-parts";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/first-read.css";
@@ -239,10 +240,13 @@ function CountBlock({ fs, both }: { fs: FengShui; both: boolean }) {
 function FengShuiFigure() {
   const { locale } = useI18n();
   const data = useModeData("fengshui");
+  // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
+  const scroller = useRef<HTMLDivElement>(null);
+  useKeptScroll(scroller, "fengshui-scroll", Boolean(data?.list.length));
   if (!data?.list.length) return null;
   const both = data.list.length > 1;
   return (
-    <div className="ulune-fs" data-testid="fengshui" data-chart-pick data-counts={data.list.length}>
+    <div ref={scroller} className="ulune-fs" data-testid="fengshui" data-chart-pick data-counts={data.list.length}>
       {both ? (
         <p className="ulune-fs-note" data-testid="fengshui-both-note">
           {cnWord(locale, "fsBothNote")}

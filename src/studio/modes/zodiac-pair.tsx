@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import { AnimalGlyph } from "@/components/animal-glyph";
 import { LoadingLines } from "@/components/loading-lines";
 import { chartDisplayName } from "@/lib/chart/library";
@@ -23,6 +23,7 @@ import { usePairPick } from "@/studio/modes/hooks/usePairPick";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { AnimalWheel, type WheelBadge, type WheelLine } from "@/studio/modes/zodiac-wheel";
+import { useKeptScroll } from "@/studio/return-parts";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/zodiac-time.css";
@@ -158,6 +159,9 @@ function PairFigure() {
   const { locale } = useI18n();
   const data = useModeData("zodiac-pair");
   const partnerBirth = useStudioStore((s) => s.pair.addingPartnerFor === "zodiac-pair");
+  // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
+  const scroller = useRef<HTMLDivElement>(null);
+  useKeptScroll(scroller, "zodiac-pair-scroll", Boolean(data?.a && data.b));
   if (!data?.a) return null;
   if (!data.b) {
     if (partnerBirth) return <div data-testid="zodiac-pair-need-second" className="hidden" />;
@@ -179,7 +183,7 @@ function PairFigure() {
   const days = meetings.find((m) => m.a === "day" && m.b === "day");
   const rest = meetings.filter((m) => m !== years && m !== days);
   return (
-    <div className="ulune-zk ulune-zkp" data-testid="zodiac-pair" data-chart-pick>
+    <div ref={scroller} className="ulune-zk ulune-zkp" data-testid="zodiac-pair" data-chart-pick>
       <div className="ulune-zk-wheel-box">
         <PairWheel a={a} b={b} names={names} meetings={meetings} />
       </div>

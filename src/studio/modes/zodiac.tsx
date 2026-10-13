@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { BRANCHES, SIXTY } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
@@ -19,6 +19,7 @@ import { useModeData } from "@/studio/modes/data";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import { useKeptScroll } from "@/studio/return-parts";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 
@@ -168,9 +169,13 @@ function ZodiacCards({ z }: { z: ZodiacChart }) {
 function ZodiacFigure() {
   const data = useModeData("zodiac");
   const z = data?.zodiac;
+  // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
+  // The last argument wakes the hook when the page is first drawn.
+  const scroller = useRef<HTMLDivElement>(null);
+  useKeptScroll(scroller, "zodiac-scroll", Boolean(z));
   if (!z) return null;
   return (
-    <div className="ulune-zk" data-testid="zodiac" data-chart-pick>
+    <div ref={scroller} className="ulune-zk" data-testid="zodiac" data-chart-pick>
       <div className="ulune-zk-wheel-box">
         <ZodiacWheel z={z} />
       </div>

@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { EMPTY_HOMES, HOMES_MAX, cleanHomes, cleanName, dropHome, putHome, type HomesRecord, type KeptHome } from "@/lib/chinese/fengshui-home-record";
 import { FS_CHANGED, FS_HOMES_RECORD } from "@/lib/space/records";
 import { openVault, useSpace, whenSpaceLocks } from "@/lib/space/state";
+import type { Vault } from "@/lib/space/vault";
+import { followHomes } from "@/studio/modes/fengshui-home-list";
 import { useHomeInput } from "@/studio/modes/fengshui-home-state";
 
 /*
@@ -11,6 +13,8 @@ import { useHomeInput } from "@/studio/modes/fengshui-home-state";
  * the reader makes them; the home last open comes back with the page. When
  * the space locks, the homes and the kept home on the page go from memory.
  * Without an open space nothing is kept: the page's home stays in this tab.
+ * The chart switcher and ⌘K list the homes from fengshui-home-list.ts, which
+ * follows this store once it has read the space (reorganisation plan, R9).
  */
 
 type Homes = {
@@ -23,7 +27,8 @@ type Homes = {
 
 export const useHomes = create<Homes>(() => ({ ready: false, open: false, rec: EMPTY_HOMES }));
 
-let loading: Promise<void> | null = null;
+/** The read under way, and the space it reads (a space locked and opened again is read anew). */
+let loading: { vault: Vault; done: Promise<void> } | null = null;
 let watching = false;
 let timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -41,19 +46,23 @@ export function loadHomes(): Promise<void> {
     return Promise.resolve();
   }
   if (useHomes.getState().open && useHomes.getState().ready) return Promise.resolve();
-  loading ??= (async () => {
+  if (loading?.vault === vault) return loading.done;
+  const done = (async () => {
     try {
       const rec = cleanHomes(await vault.get(FS_HOMES_RECORD));
+      // The space locked while it was read (part 28): what it keeps went with it, and nothing comes back.
+      if (openVault() !== vault) return;
       useHomes.setState({ ready: true, open: true, rec });
       const last = rec.homes.find((h) => h.id === rec.activeId);
       if (last && isEmpty()) useHomeInput.getState().openHome(last);
     } catch {
-      useHomes.setState({ ready: true });
+      if (openVault() === vault) useHomes.setState({ ready: true });
     } finally {
-      loading = null;
+      if (loading?.vault === vault) loading = null;
     }
   })();
-  return loading;
+  loading = { vault, done };
+  return done;
 }
 
 function watch(): void {
@@ -73,6 +82,15 @@ function watch(): void {
   window.addEventListener(FS_CHANGED, () => {
     useHomes.setState({ ready: false, open: false });
     void loadHomes();
+  });
+  // The switcher's and ⌘K's list (R9): the homes as this store holds them, and the one the page has open.
+  const follow = () => {
+    const h = useHomes.getState();
+    if (h.ready) followHomes(h.open ? h.rec.homes : [], useHomeInput.getState().keptId);
+  };
+  useHomes.subscribe(follow);
+  useHomeInput.subscribe((s, prev) => {
+    if (s.keptId !== prev.keptId) follow();
   });
   // A kept home's changes, sealed a moment after the last one.
   useHomeInput.subscribe((s, prev) => {
@@ -128,9 +146,14 @@ export async function keepThisHome(defaultName: string): Promise<boolean> {
   return ok;
 }
 
-/** A kept home opened on the page, or a new, empty one (null). */
-export async function chooseHome(id: string | null): Promise<void> {
+/**
+ * A kept home opened on the page, or a new, empty one (null). True when that
+ * kept home is on the page once done; never when the space locked meanwhile
+ * (its homes went from memory with it, and stay gone).
+ */
+export async function chooseHome(id: string | null): Promise<boolean> {
   await loadHomes();
+  const vault = openVault();
   const { rec } = useHomes.getState();
   const home = id ? rec.homes.find((h) => h.id === id) : null;
   if (timer) {
@@ -138,9 +161,11 @@ export async function chooseHome(id: string | null): Promise<void> {
     timer = null;
     await saveOpenHome();
   }
+  if (home && (!vault || openVault() !== vault)) return false;
   if (home) useHomeInput.getState().openHome(home);
   else useHomeInput.getState().clearHome();
   await write({ ...useHomes.getState().rec, activeId: home?.id ?? null });
+  return Boolean(home) && openVault() === vault && useHomeInput.getState().keptId === home?.id;
 }
 
 /** The kept home on the page forgotten: taken out of the space; the page keeps it in this tab, unkept. */

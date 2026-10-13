@@ -12,14 +12,16 @@
  *     what each brings the other (Metal to TraceQA, Fire to Sample B), the
  *     meetings of Sample B's four pillars; a card's and a cell's readings;
  *     the table;
+ *   - (part 28) from BaZi, the chart switcher's pair button opens BaZi's own
+ *     Relationship page with that person, not astrology's Synastry;
  *   - nothing sent; nothing scrolls sideways.
  */
 import { join } from "node:path";
 import { FIXTURE_A, FIXTURE_B, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, gotoApp, goStudioPage, launch, setLang, setView } from "./_lib.mjs";
 
 const WORDS = {
-  en: { dm: "Sample B’s Day Master is the Seven Killings", back: "is the Indirect Wealth", palace: "clash", gifts: ["Sample B holds plenty of Metal", "TraceQA holds plenty of Fire"], fam: "Sample B’s Day Master controls TraceQA’s", luck: "A decade of", first: "Your first read", cell: "TraceQA ·" },
-  fr: { dm: "le Maître du jour de Sample B est le dieu Sept Tueurs", back: "est le dieu Richesse indirecte", palace: "choc", gifts: ["Sample B tient beaucoup de Métal", "TraceQA tient beaucoup de Feu"], fam: "Le Maître du jour de Sample B contrôle celui de TraceQA", luck: "Une décennie", first: "Votre première lecture", cell: "TraceQA ·" },
+  en: { dm: "Sample B’s Day Master is the Seven Killings", back: "is the Indirect Wealth", palace: "clash", gifts: ["Sample B holds plenty of Metal", "TraceQA holds plenty of Fire"], fam: "Sample B’s Day Master controls TraceQA’s", luck: "A decade of", first: "Your first read", cell: "TraceQA ·", compare: "Compare with Sample B (BaZi: two charts)" },
+  fr: { dm: "le Maître du jour de Sample B est le dieu Sept Tueurs", back: "est le dieu Richesse indirecte", palace: "choc", gifts: ["Sample B tient beaucoup de Métal", "TraceQA tient beaucoup de Feu"], fam: "Le Maître du jour de Sample B contrôle celui de TraceQA", luck: "Une décennie", first: "Votre première lecture", cell: "TraceQA ·", compare: "Comparer avec Sample B (BaZi\u202f: deux thèmes)" },
 };
 const note = (page) => page.getByTestId("click-note").evaluate((e) => e.textContent ?? "").catch(() => "");
 
@@ -60,6 +62,16 @@ async function run(width, lang) {
     await waitNote(page, w.luck, label, "the first read's luck pillar");
     await page.screenshot({ path: join(SHOTS, `bazi-first-${lang}-${width}.png`) }).catch(() => {});
     await page.keyboard.press("Escape").catch(() => {});
+
+    // ── The switcher's pair button (part 28): from BaZi, BaZi's own Relationship page ──
+    await page.getByTestId("chart-chip").click();
+    const pairButton = page.locator(`[data-testid=chart-row][data-name="${FIXTURE_B.name}"] [data-testid=chart-pair]`);
+    const pairSays = await pairButton.getAttribute("aria-label");
+    if (pairSays !== w.compare) throw new Error(`${label}: the pair button says "${pairSays}"`);
+    await pairButton.click();
+    await page.getByTestId("bazi-pair").waitFor({ timeout: 20000 });
+    if (new URL(page.url()).pathname !== "/bazi/pair") throw new Error(`${label}: the pair button led to ${page.url()}`);
+    if (await page.getByTestId("studio-synastry").count()) throw new Error(`${label}: the pair button opened Synastry`);
 
     // ── Pair ──
     await goStudioPage(page, "bazi-pair");
