@@ -6,6 +6,7 @@ import { FSH_FACING_REF, FSH_PERIOD_REF, edgeLine, facingLine, fmtDeg, fshHouseR
 import { homeTableCsv, homeTextParts } from "@/lib/chinese/fengshui-home-table";
 import { FLIGHT } from "@/lib/chinese/fengshui-stars";
 import { chartName, formationName, fssChartRef, fssPalaceRef, palaceName } from "@/lib/chinese/fengshui-stars-reading";
+import { AFFLICTION_IDS, FSY_MONTH_REF, FSY_YEAR_REF, afflictionName, afflictionPlace, fsyAffRef, monthLine, yearLine } from "@/lib/chinese/fengshui-years-reading";
 import { countLabel, directionName } from "@/lib/chinese/fengshui-reading";
 import { partRows } from "@/lib/csv";
 import { useI18n } from "@/lib/i18n/locale";
@@ -102,6 +103,57 @@ export function FengShuiHomeTable({ ctx, name, selectedId, onSelect }: { ctx: Ho
         <p className="ulune-fsh-small">{w(ctx.home ? "fssNeedYear" : "fshNoFacing")}</p>
       ),
     },
+    ...(ctx.years
+      ? [
+          {
+            id: "years",
+            label: w("fsyHead"),
+            hint: w("fsyPartHint"),
+            copyText: partText("years"),
+            table: csvOf(["years"]),
+            children: (() => {
+              const y = ctx.years!;
+              const lead: [string, string, string][] = [
+                [FSY_YEAR_REF, w("fsyYearStar"), yearLine(y, locale)],
+                [FSY_MONTH_REF, w("fsyMonthStar"), monthLine(y, locale)],
+                ...AFFLICTION_IDS.map((id) => [fsyAffRef(id), afflictionName(id, locale, prefs), afflictionPlace(y, id, locale, prefs)] as [string, string, string]),
+              ];
+              return (
+                <>
+                  <DataTable className="ulune-zk-tbl">
+                    <tbody>
+                      {lead.map(([id, k, v], i) => (
+                        <tr key={i} data-testid={`fengshui-years-row-${i}`} data-selected={selectedId === id ? "1" : undefined}>
+                          <th scope="row">{pick(id, k)}</th>
+                          <td>{v}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </DataTable>
+                  <DataTable className="ulune-zk-tbl" wide>
+                    <thead>
+                      <tr>
+                        <th>{w("fssPalaceCol")}</th>
+                        <th>{w("fsyYearCol")}</th>
+                        <th>{w("fsyMonthCol")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {FLIGHT.map((p) => (
+                        <tr key={p} data-testid={`fengshui-years-prow-${p}`} data-five={y.afflictions.fiveYellow === p ? "1" : undefined}>
+                          <th scope="row">{palaceName(p, locale)}</th>
+                          <td>{y.yearChart[p]}</td>
+                          <td>{y.monthChart[p]}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </DataTable>
+                </>
+              );
+            })(),
+          } satisfies TablePart,
+        ]
+      : []),
     {
       id: "mountains",
       label: w("fshMountainsHead"),

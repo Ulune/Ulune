@@ -29,6 +29,11 @@ export const calendarLayerWords = {
     "Each day’s pillar and animal, and the days that clash with your year animal",
     "Le pilier et l’animal de chaque jour, et les jours en choc avec votre animal de l’année",
   ],
+  calLayerStars: ["Flying stars", "Étoiles volantes"],
+  calLayerStarsHint: [
+    "Feng Shui’s stars of the month and the year, changing with each month’s solar term and at Lichun",
+    "Les étoiles du mois et de l’année du Feng Shui, qui changent à chaque terme solaire du mois et à Lichun",
+  ],
   calLayerNeedsChart: ["Needs a birth chart", "Nécessite un thème natal"],
   calInvite: ["Cast a chart to add your transits", "Calculez un thème pour ajouter vos transits"],
 } as const satisfies Record<string, readonly [string, string]>;

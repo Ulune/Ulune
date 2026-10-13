@@ -11,6 +11,7 @@ import { MOUNTAINS, houseMatch, norm360 } from "./fengshui-home";
 import { countLabel, directionName } from "./fengshui-reading";
 import { FLIGHT } from "./fengshui-stars";
 import { chartName, formationName, palaceName } from "./fengshui-stars-reading";
+import { AFFLICTION_IDS, afflictionName, afflictionPlace, monthLine, yearLine } from "./fengshui-years-reading";
 import { edgeLine, facingLine, fmtDecl, fmtDeg, houseLine, matchLines, mountainCode, periodLines, sourceLine, type HomeContext } from "./fengshui-home-reading";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
@@ -37,9 +38,18 @@ export function homeTextParts(c: HomeContext, name: string, locale: string, pref
       }
     }
   } else stars.push(cnWord(locale, c.home ? "fssNeedYear" : "fshNoFacing"));
+  const years: string[] = [cnWord(locale, "fsyHead")];
+  if (c.years) {
+    const y = c.years;
+    years.push(yearLine(y, locale), monthLine(y, locale));
+    years.push(`${cnWord(locale, "fsyQuietHead")}${colon}`);
+    for (const id of AFFLICTION_IDS) years.push(`  ${afflictionName(id, locale, prefs)}${colon}${afflictionPlace(y, id, locale, prefs)}`);
+    for (const p of FLIGHT) years.push(`  ${palaceName(p, locale)}${colon}${cnWord(locale, "fsyTableCell", { y: y.yearChart[p], m: y.monthChart[p] })}`);
+  }
   return [
     { id: "facing", lines: facing },
     { id: "stars", lines: stars },
+    ...(c.years ? [{ id: "years", lines: years }] : []),
     {
       id: "mountains",
       lines: [
@@ -82,6 +92,22 @@ export function homeTableCsv(c: HomeContext): string {
       }
       rows.push(["stars", v, "formations", chart.formations.join("|"), "", "", ""]);
     }
+  }
+  if (c.years) {
+    const y = c.years;
+    rows.push([]);
+    rows.push(["years", "field", "value"]);
+    rows.push(["years", "solarYear", String(y.solarYear)]);
+    rows.push(["years", "yearStar", String(y.year)]);
+    rows.push(["years", "monthStar", String(y.month)]);
+    rows.push(["years", "monthFrom", new Date(y.monthFrom).toISOString()]);
+    rows.push(["years", "monthTo", new Date(y.monthTo).toISOString()]);
+    rows.push(["years", "fiveYellow", y.afflictions.fiveYellow]);
+    rows.push(["years", "monthFiveYellow", y.afflictions.monthFiveYellow]);
+    rows.push(["years", "taiSui", y.afflictions.taiSui]);
+    rows.push(["years", "yearBreaker", y.afflictions.yearBreaker]);
+    rows.push(["years", "threeKillings", `${y.afflictions.threeKillings.direction}:${y.afflictions.threeKillings.mountains.join("|")}`]);
+    for (const p of FLIGHT) rows.push(["years", `palace-${p}`, `${y.yearChart[p]}:${y.monthChart[p]}`]);
   }
   rows.push([]);
   rows.push(["mountain", "id", "from", "to", "direction", "home"]);

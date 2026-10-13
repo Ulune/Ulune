@@ -21,6 +21,7 @@ import { animalChar } from "@/lib/chinese/animal-chars";
 import { dayAnimalAt } from "@/lib/chinese/day-cycle";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { animalOf, cnWord } from "@/lib/chinese/words";
+import type { StarChange } from "@/lib/chinese/fengshui-calendar";
 
 /** A term in a day cell: its characters when the reader shows them, else its name. */
 function termShort(term: number, locale: string, prefs: ChinesePrefs): string {
@@ -47,6 +48,8 @@ type Day = {
   mine: TimingHit[];
   /** When the Moon goes void of course that day (review 3 Oct, T8). */
   voidFrom: number | null;
+  /** Feng Shui's month star changing that day, and at Lichun the year's (languages plan, part 25; its layer on). */
+  star: StarChange | null;
 };
 
 export function CalendarMonth({
@@ -63,6 +66,7 @@ export function CalendarMonth({
   onShiftMonth,
   num = null,
   animals = null,
+  stars = null,
 }: {
   civil: CivilDate;
   tz: string;
@@ -80,6 +84,8 @@ export function CalendarMonth({
   num?: NumerologyCalendar | null;
   /** The day's animal (with its layer on, part 11): each day's, and your year animal's for the clash days. */
   animals?: { yearBranch: number | null; glyphs: readonly string[] | null } | null;
+  /** Feng Shui's flying stars (with their layer on, part 25): the month's star from each month's jie, the year's from Lichun. */
+  stars?: { changes: readonly StarChange[] } | null;
 }) {
   const { locale } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
@@ -93,7 +99,7 @@ export function CalendarMonth({
       const k = key.format(new Date(ms));
       let d = map.get(k);
       if (!d) {
-        d = { headlines: [], term: null, moonIngress: null, phase: null, mine: [], voidFrom: null };
+        d = { headlines: [], term: null, moonIngress: null, phase: null, mine: [], voidFrom: null, star: null };
         map.set(k, d);
       }
       return d;
@@ -107,9 +113,10 @@ export function CalendarMonth({
       if (ev.k === "term") day(ev.t).term = ev;
     }
     for (const h of hits) if (h.moving !== "moon") day(Date.parse(h.exactUtc)).mine.push(h);
+    for (const c of stars?.changes ?? []) day(c.t).star = c;
     for (const d of map.values()) d.headlines.sort((a, b) => headlineRank(a) - headlineRank(b) || a.t - b.t);
     return map;
-  }, [events, hits, tz]);
+  }, [events, hits, tz, stars]);
 
   const first: CivilDate = { year: civil.year, month: civil.month, day: 1 };
   const pad = mondayIndex(first);
@@ -248,6 +255,8 @@ export function CalendarMonth({
             pd != null ? fill(CALENDAR_UI.num.cellDay, locale, { n: pd }) : "",
             ...turns.map((c) => numChangeTitle(c, locale)),
             da ? cnWord(locale, "zkDayTitle", { animal: animalOf(da.branch, locale) }) : "",
+            d?.star ? cnWord(locale, "fsyCalMonth", { n: d.star.month }) : "",
+            d?.star?.year != null ? cnWord(locale, "fsyCalYear", { n: d.star.year }) : "",
             clash ? cnWord(locale, "zkCalClash") : "",
           ]
             .filter(Boolean)
@@ -301,6 +310,13 @@ export function CalendarMonth({
                       <SignMark sign={ingress.sign} size={10} /> {time(ingress.t)}
                     </span>
                   ) : null}
+                </span>
+              ) : null}
+              {d?.star ? (
+                // Feng Shui's stars from that day: the month's, and at Lichun the year's.
+                <span className="ulune-cal-star" data-testid={`calendar-star-${key}`} data-month={d.star.month} data-year={d.star.year ?? undefined} aria-hidden title={[cnWord(locale, "fsyCalMonth", { n: d.star.month }), d.star.year != null ? cnWord(locale, "fsyCalYear", { n: d.star.year }) : ""].filter(Boolean).join(" · ")}>
+                  ★{d.star.month}
+                  {d.star.year != null ? <b>{d.star.year}</b> : null}
                 </span>
               ) : null}
               {d?.term ? (
@@ -376,6 +392,7 @@ export function CalendarLegend({
   num = false,
   terms = false,
   animals = false,
+  stars = false,
 }: {
   sky?: boolean;
   yours?: boolean;
@@ -384,6 +401,8 @@ export function CalendarLegend({
   terms?: boolean;
   /** The day's animal (part 11): the clash days' mark, with a chart. */
   animals?: boolean;
+  /** Feng Shui's flying stars (part 25): the month's star from its day. */
+  stars?: boolean;
 }) {
   const { locale } = useI18n();
   const cnPrefs = useChinesePrefs();
@@ -441,6 +460,14 @@ export function CalendarLegend({
             {termShort(0, locale, cnPrefs)}
           </span>{" "}
           {cnWord(locale, "cnTerm").toLowerCase()}
+        </span>
+      ) : null}
+      {stars ? (
+        <span data-testid="calendar-legend-stars">
+          <span className="ulune-cal-star" aria-hidden>
+            ★8
+          </span>{" "}
+          {cnWord(locale, "fsyCalLegend")}
         </span>
       ) : null}
       {animals ? (

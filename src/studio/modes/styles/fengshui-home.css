@@ -547,3 +547,46 @@
     align-self: center;
   }
 }
+
+/* The year's and the month's stars (part 25). */
+.ulune-fsp-year,
+.ulune-fsp-month {
+  font: 600 12px/1 var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+.ulune-fsp-year {
+  fill: var(--color-fg);
+}
+.ulune-fsp-month {
+  fill: var(--color-fg-muted);
+}
+/* The year's 5 Yellow: a dashed frame inside the palace, so the front's outline stays. */
+.ulune-fsp-five {
+  fill: none;
+  stroke: var(--color-fg-muted);
+  stroke-width: 1.4;
+  stroke-dasharray: 5 4;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+.ulune-fsh-aff {
+  fill: var(--color-fg-muted);
+  stroke: none;
+  pointer-events: none;
+}
+.ulune-fsh-aff[data-aff="tai-sui"] {
+  fill: var(--color-halo);
+}
+.ulune-fsh-aff[data-aff="three-killings"] {
+  fill: color-mix(in oklab, var(--color-fg-muted) 55%, transparent);
+}
+.ulune-fsh-toggle {
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: var(--color-bg-elevated);
+  align-self: flex-start;
+}
+.ulune-fsh-toggle.is-on {
+  color: var(--color-fg);
+  background: var(--color-bg-subtle);
+}

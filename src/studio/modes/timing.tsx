@@ -70,7 +70,7 @@ function TimingBar({ table = false }: { table?: boolean }) {
       numOn={!!timing.numTitle && selectedId === timing.numTitle.id}
       onNum={pick}
       onJump={timing.setCivil}
-      legend={timing.scope === "month" ? <CalendarLegend sky={timing.shown.sky} yours={timing.shown.transits} num={!!timing.numShown} terms={timing.shown.terms} animals={Boolean(timing.animals?.yearBranch != null)} /> : null}
+      legend={timing.scope === "month" ? <CalendarLegend sky={timing.shown.sky} yours={timing.shown.transits} num={!!timing.numShown} terms={timing.shown.terms} animals={Boolean(timing.animals?.yearBranch != null)} stars={Boolean(timing.stars)} /> : null}
     />
   );
 }
@@ -119,6 +119,7 @@ function TimingFigure() {
           onSelect={pick}
           num={num && timing.dayView ? numDayOf(num, timing.civil) : null}
           animals={timing.animals}
+          stars={timing.stars}
         />
       ) : null}
       {timing.scope === "month" ? (
@@ -137,6 +138,7 @@ function TimingFigure() {
             onShiftMonth={timing.shift}
             num={num}
             animals={timing.animals}
+            stars={timing.stars}
           />
         </>
       ) : null}

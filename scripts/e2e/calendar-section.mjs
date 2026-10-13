@@ -42,7 +42,7 @@ const WORDS = {
   en: {
     invite: "Cast a chart to add your transits",
     phases: /New Moon|First quarter|Full Moon|Last quarter/,
-    layers: { sky: "The sky", transits: "Your transits", numerology: "Personal day, month and year", terms: "Solar terms", animals: "The day’s animal" },
+    layers: { sky: "The sky", transits: "Your transits", numerology: "Personal day, month and year", terms: "Solar terms", animals: "The day’s animal", stars: "Flying stars" },
     langs: { astrology: "Astrology", numerology: "Numerology", chinese: "Chinese calendar" },
     nextTerm: "Next solar term",
     needs: "Needs a birth chart",
@@ -50,7 +50,7 @@ const WORDS = {
   fr: {
     invite: "Calculez un thème pour ajouter vos transits",
     phases: /Nouvelle Lune|Premier quartier|Pleine Lune|Dernier quartier/,
-    layers: { sky: "Le ciel", transits: "Vos transits", numerology: "Jour, mois et année personnels", terms: "Termes solaires", animals: "L’animal du jour" },
+    layers: { sky: "Le ciel", transits: "Vos transits", numerology: "Jour, mois et année personnels", terms: "Termes solaires", animals: "L’animal du jour", stars: "Étoiles volantes" },
     langs: { astrology: "Astrologie", numerology: "Numérologie", chinese: "Calendrier chinois" },
     nextTerm: "Prochain terme solaire",
     needs: "Nécessite un thème natal",
@@ -219,11 +219,13 @@ async function skyAlone(path, width, lang) {
       `terms:switch:true:available:${w.langs.chinese}`,
       // The day's animal (languages plan, part 11): everyone's, off until asked for.
       `animals:switch:false:available:${w.langs.chinese}`,
+      // Feng Shui's flying stars (part 25): everyone's, off until asked for.
+      `stars:switch:false:available:${w.langs.chinese}`,
     ];
     if (shape.join() !== wantShape.join()) throw new Error(`${label}: layers ${shape.join(" | ")}`);
     for (const [id, l] of Object.entries(layers)) {
       if (l.name !== w.layers[id]) throw new Error(`${label}: ${id} named "${l.name}"`);
-      if (id !== "sky" && id !== "terms" && id !== "animals" && l.line !== w.needs) throw new Error(`${label}: ${id} says "${l.line}"`);
+      if (id !== "sky" && id !== "terms" && id !== "animals" && id !== "stars" && l.line !== w.needs) throw new Error(`${label}: ${id} says "${l.line}"`);
     }
     // An unavailable switch stays off when pressed (forced: Playwright waits for aria-disabled to go).
     await page.getByTestId("calendar-layer-transits").click({ force: true });
@@ -343,6 +345,27 @@ async function keyboard() {
     await page.waitForFunction(() => !document.querySelector("[data-testid^=calendar-term-]"), null, { timeout: 4000 });
     await page.keyboard.press("Space");
     await page.waitForFunction(() => document.querySelectorAll("[data-testid^=calendar-term-]").length >= 2, null, { timeout: 8000 });
+    // The flying stars' switch (part 25): on, the month's jie carries its star and the key says so; the day has its bar.
+    await page.getByTestId("calendar-layer-stars").focus();
+    await page.keyboard.press("Space");
+    await page.waitForFunction(() => document.querySelectorAll("[data-testid^=calendar-star-]").length >= 1, null, { timeout: 8000 });
+    const badge = await page.locator("[data-testid^=calendar-star-]").first().evaluate((e) => ({ month: e.getAttribute("data-month"), text: e.textContent, label: e.getAttribute("aria-label") ?? e.getAttribute("title") ?? "" }));
+    if (!/^[1-9]$/.test(badge.month ?? "") || !badge.text.includes(`★${badge.month}`) || !/Month star \d to the centre/.test(badge.label)) throw new Error(`a star's badge ${JSON.stringify(badge)}`);
+    if (!(await page.locator("[data-testid=calendar-legend-stars]").count())) throw new Error("no key to the flying stars");
+    await page.keyboard.press("Escape");
+    await page.getByTestId("calendar-view-pop").waitFor({ state: "detached", timeout: 4000 });
+    await page.getByTestId("timing-scope-day").click();
+    await page.getByTestId("calendar-stars").waitFor({ timeout: 20000 });
+    const bar = await page.getByTestId("calendar-stars").textContent();
+    if (!/The year’s \d .+ and the month’s \d .+ in the centre/.test(bar ?? "")) throw new Error(`the day's stars "${bar}"`);
+    await page.getByTestId("timing-scope-month").click();
+    await page.getByTestId("calendar-month").waitFor({ timeout: 20000 });
+    await page.getByTestId("calendar-view").focus();
+    await page.keyboard.press("Enter");
+    await page.getByTestId("calendar-view-pop").waitFor({ timeout: 8000 });
+    await page.getByTestId("calendar-layer-stars").focus();
+    await page.keyboard.press("Space");
+    await page.waitForFunction(() => !document.querySelector("[data-testid^=calendar-star-]"), null, { timeout: 4000 });
     // Settings → Chinese traditions, "Name only" (in another tab): the days follow at once.
     await page.evaluate(() => {
       localStorage.setItem("ulune.chinese", JSON.stringify({ show: "names" }));

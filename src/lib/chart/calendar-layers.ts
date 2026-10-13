@@ -20,7 +20,7 @@
 import type { CalendarWordKey } from "@/lib/i18n/calendar-layer-words";
 import type { CalRow } from "./calendar-rows";
 
-export type CalendarLayerId = "sky" | "transits" | "numerology" | "terms" | "animals";
+export type CalendarLayerId = "sky" | "transits" | "numerology" | "terms" | "animals" | "stars";
 
 /** The language a layer belongs to: the View menu names it above its switches. */
 export type LayerLanguage = "astrology" | "numerology" | "chinese";
@@ -95,6 +95,18 @@ export const CALENDAR_LAYERS: readonly CalendarLayer[] = [
     rows: [],
     label: "calLayerAnimals",
     hint: "calLayerAnimalsHint",
+  },
+  // Feng Shui's flying stars (languages plan, part 25): the month's star from
+  // each month's opening solar term, the year's from Lichun, the same for
+  // everyone. Off by default; it draws in the month and the day, no rows.
+  {
+    id: "stars",
+    language: "chinese",
+    defaultOn: false,
+    needsChart: false,
+    rows: [],
+    label: "calLayerStars",
+    hint: "calLayerStarsHint",
   },
 ];
 

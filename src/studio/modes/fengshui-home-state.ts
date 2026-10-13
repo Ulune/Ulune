@@ -22,6 +22,9 @@ type HomeInput = {
   figure: HomeFigureId;
   chart: "main" | "ti";
   orient: PalaceOrient;
+  /** The year's and the month's stars on the figures (part 25). */
+  yearLayer: boolean;
+  setYearLayer: (on: boolean) => void;
   setFigure: (figure: HomeFigureId) => void;
   setChart: (chart: "main" | "ti") => void;
   setOrient: (orient: PalaceOrient) => void;
@@ -40,6 +43,8 @@ export const useHomeInput = create<HomeInput>((set) => ({
   figure: "auto",
   chart: "main",
   orient: "home",
+  yearLayer: true,
+  setYearLayer: (yearLayer) => set({ yearLayer }),
   setFigure: (figure) => set({ figure }),
   setChart: (chart) => set({ chart }),
   setOrient: (orient) => set({ orient }),

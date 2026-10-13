@@ -27,6 +27,8 @@ import { countLabel } from "@/lib/chinese/fengshui-reading";
 import type { FlyingChart } from "@/lib/chinese/fengshui-stars";
 import { chartName, formationName, fssChartRef, fssFormationRef, type ChartVariant } from "@/lib/chinese/fengshui-stars-reading";
 import { declination, decimalYear } from "@/lib/chinese/geomag";
+import { yearStarsAt } from "@/lib/chinese/fengshui-years";
+import { AFFLICTION_IDS, FSY_MONTH_REF, FSY_YEAR_REF, afflictionName, afflictionPlace, fsyAffRef, monthLine, yearLine } from "@/lib/chinese/fengshui-years-reading";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
@@ -271,7 +273,50 @@ function HomeCards() {
       )}
       <Card refId={FSH_PERIOD_REF} testId="fengshui-home-period" title={cnWord(locale, "fshPeriodHead")} lines={periodLines(ctx, locale)} />
       {home ? <StarsCard /> : null}
+      <YearsCard />
     </div>
+  );
+}
+
+/** The year's and the month's stars, and where the year asks for quiet (part 25). */
+function YearsCard() {
+  const { locale } = useI18n();
+  const prefs = useChinesePrefs();
+  const w = useWheelView();
+  const y = useModeData("fengshui-home")?.ctx.years;
+  if (!y) return null;
+  return (
+    <section className="ulune-fsh-form ulune-fsy" data-testid="fengshui-years"
+      aria-labelledby="fsy-h"
+      data-year={y.solarYear}
+      data-star={y.year}
+      data-month-star={y.month}
+      data-five={y.afflictions.fiveYellow}
+      data-tai-sui={y.afflictions.taiSui}
+      data-breaker={y.afflictions.yearBreaker}
+      data-killings={y.afflictions.threeKillings.mountains.join(" ")}
+    >
+      <h2 id="fsy-h" className="ulune-fs-h">
+        {cnWord(locale, "fsyHead")}
+      </h2>
+      <button type="button" className={cn("ulune-fss-name", w.selectedId === FSY_YEAR_REF && "is-on")} data-testid="fengshui-years-year" onClick={() => w.choose(FSY_YEAR_REF)} {...previewProps(FSY_YEAR_REF)}>
+        <span>{yearLine(y, locale)}</span>
+      </button>
+      <button type="button" className={cn("ulune-fss-name", w.selectedId === FSY_MONTH_REF && "is-on")} data-testid="fengshui-years-month" onClick={() => w.choose(FSY_MONTH_REF)} {...previewProps(FSY_MONTH_REF)}>
+        <span>{monthLine(y, locale)}</span>
+      </button>
+      <h3 className="ulune-fs-h">{cnWord(locale, "fsyQuietHead")}</h3>
+      <ul className="ulune-fss-forms">
+        {AFFLICTION_IDS.map((id) => (
+          <li key={id}>
+            <button type="button" className={cn("ulune-fs-row", w.selectedId === fsyAffRef(id) && "is-on")} data-testid={`fengshui-years-aff-${id}`} onClick={() => w.choose(fsyAffRef(id))} {...previewProps(fsyAffRef(id))}>
+              <span className="ulune-fs-row-name">{afflictionName(id, locale, prefs)}</span>
+              <span className="ulune-fs-row-dir">{afflictionPlace(y, id, locale, prefs)}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -362,6 +407,7 @@ function HomeHello() {
           text: matchLines(home, fs, locale)[0]!,
         })),
         { id: "period", ref: FSH_PERIOD_REF, label: cnWord(locale, "fshPeriodHead"), value: ctx.period ? cnWord(locale, "fshPeriodN", { n: ctx.period.period }) : "", text: periodLines(ctx, locale)[0]! },
+        ...(ctx.years ? [{ id: "year", ref: FSY_YEAR_REF, label: cnWord(locale, "fsyHead"), value: String(ctx.years.solarYear), text: yearLine(ctx.years, locale) }] : []),
         ...(ctx.stars
           ? [
               {
@@ -436,6 +482,10 @@ function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
   const source = useHomeInput((s) => s.source);
   const yearTyped = useHomeInput((s) => s.year);
   const enabled = page === "fengshui-home" && Boolean(chart);
+  // The year's and the month's stars (part 25): today's, worked out once a day.
+  const todayKey = new Date().toDateString();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const years = useMemo(() => (enabled ? yearStarsAt(Date.now()) : null), [enabled, todayKey]);
   const people = useMemo(() => {
     if (!enabled || !chart) return [];
     const birth = { utc: chart.meta.utc, date: chart.meta.date, time: chart.meta.time, longitude: chart.meta.longitude, timeUnknown: chart.meta.timeUnknown };
@@ -457,9 +507,10 @@ function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
       people,
       place: chart?.meta.placeLabel?.split(",")[0]?.trim() || "—",
       declination: decl,
-      stars: homeStars(home, period, new Date().getFullYear()),
+      stars: homeStars(home, period, new Date().getFullYear(), years),
+      years,
     };
-  }, [typed, source, yearTyped, people, decl, chart]);
+  }, [typed, source, yearTyped, people, decl, chart, years]);
   const reading = useMemo(() => (enabled ? homeReading(ctx, selectedId, locale, prefs) : null), [enabled, ctx, selectedId, locale, prefs]);
   const data = useMemo(() => ({ ctx, enabled }), [ctx, enabled]);
   return useMemo(() => ({ data, reading }), [data, reading]);

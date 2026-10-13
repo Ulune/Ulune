@@ -52,6 +52,7 @@ export function CalendarDay({
   onSelect,
   num = null,
   animals = null,
+  stars = null,
 }: {
   ov: DayOverview;
   civil: CivilDate;
@@ -67,6 +68,8 @@ export function CalendarDay({
   num?: { pd: number; pm: number; py: number; changes: NumerologyCalendar["changes"] } | null;
   /** The day's animal (with its layer on, part 11), and your year animal's for a clash day. */
   animals?: { yearBranch: number | null; glyphs: readonly string[] | null } | null;
+  /** Feng Shui's flying stars (with their layer on, part 25): the year's and the month's of any instant. */
+  stars?: { at: (ms: number) => { year: number; month: number }; name: (n: number, locale: string) => string } | null;
 }) {
   const { locale } = useI18n();
   const cnPrefs = useChinesePrefs();
@@ -116,6 +119,9 @@ export function CalendarDay({
     return fill(D.closest, locale, { orb: formatArc(w.minOrb) });
   };
 
+  // Feng Shui's stars at the day's noon (UT): the day a star changes, the evening's.
+  const dayStars = stars ? stars.at(Date.UTC(civil.year, civil.month - 1, civil.day, 12)) : null;
+  const starLabel = (n: number) => stars?.name(n, locale) ?? String(n);
   const da = animals ? dayAnimalAt(civil.year, civil.month, civil.day) : null;
   const clash = Boolean(da && animals?.yearBranch != null && da.clashes === animals.yearBranch);
   const cnId = `cnday:${key}`;
@@ -138,6 +144,19 @@ export function CalendarDay({
         </span>
       </button>
 
+      {dayStars ? (
+        <div className="ulune-cal-numday">
+          <div className="ulune-cal-numbar ulune-cal-starbar" data-testid="calendar-stars" data-year={dayStars.year} data-month={dayStars.month}>
+            <span className="ulune-cal-numbar-n ulune-cal-star" aria-hidden>
+              ★{dayStars.month}
+            </span>
+            <span className="ulune-cal-numbar-text">
+              <span className="ulune-cal-numbar-title">{cnWord(locale, "fsyCalDayTitle")}</span>
+              <span className="ulune-cal-numbar-line">{cnWord(locale, "fsyCalDay", { y: starLabel(dayStars.year), m: starLabel(dayStars.month) })}</span>
+            </span>
+          </div>
+        </div>
+      ) : null}
       {da && dayPair ? (
         <div className="ulune-cal-numday">
           <button

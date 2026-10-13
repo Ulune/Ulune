@@ -16,6 +16,9 @@
  *   - (part 24) the replacement chart on the figure; the nine palaces as a
  *     plan of the home (facing east: the east at the bottom) or as the books
  *     (south at the top); the luopan's ring of degrees;
+ *   - (part 25) the year's and the month's stars: the card, its readings,
+ *     the year's numbers on the palaces with the 5 Yellow's marked, the
+ *     year's layer switched off and on, the afflictions on the luopan;
  *   - a mountain's reading, the arrows walking round the dial;
  *   - on a phone: the compass on request, the plate turning under its
  *     thread (Wu at the top at 172.5°), three readings,
@@ -43,6 +46,9 @@ const WORDS = {
     east: " E",
     palace: "Mountain star 8, water star 6, period star 2",
     frontEast: "Front · East",
+    five: "The 5, the Lo Shu’s own centre, flies",
+    year: "the year’s star in the centre is the",
+    month: "the month’s star in the centre is the",
   },
   fr: {
     first: "Votre logement, pas à pas",
@@ -58,6 +64,9 @@ const WORDS = {
     east: " E",
     palace: "Étoile de la montagne 8, étoile de l’eau 6, étoile de la période 2",
     frontEast: "Façade · Est",
+    five: "Le 5, le centre propre du Lo Shu, vole",
+    year: "l’étoile de l’année au centre est le",
+    month: "l’étoile du mois au centre est le",
   },
 };
 const note = (page) => page.getByTestId("click-note").evaluate((e) => e.textContent ?? "").catch(() => "");
@@ -184,9 +193,38 @@ async function run(width, lang) {
     await page.screenshot({ path: join(SHOTS, `fengshui-palaces-${lang}-${width}.png`) }).catch(() => {});
     await page.getByTestId("fengshui-stars-orient-home").click();
     await page.getByTestId("fengshui-home-facing").fill("180");
+
+    // (part 25) The year's and the month's stars, whatever today is: the card says them; the palaces carry the year's numbers.
+    const yr = await page.getByTestId("fengshui-years").evaluate((e) => Object.fromEntries(["year", "star", "monthStar", "five", "taiSui", "breaker", "killings"].map((k) => [k, e.dataset[k]])));
+    if (!/^20\d\d$/.test(yr.year) || !/^[1-9]$/.test(yr.star) || !/^[1-9]$/.test(yr.monthStar)) throw new Error(`${label}: the year's card ${JSON.stringify(yr)}`);
+    const yearText = await text(page, "fengshui-years-year");
+    if (!yearText.includes(yr.year) || !yearText.includes(w.year)) throw new Error(`${label}: the year's line "${yearText}"`);
+    if (yr.year === "2026" && (yr.five !== "s" || yr.taiSui !== "wu" || yr.breaker !== "zi" || yr.killings !== "ren zi gui")) throw new Error(`${label}: 2026's afflictions ${JSON.stringify(yr)}`);
+    const centreYear = await text(page, "fengshui-stars-year-main-c");
+    const fiveCell = await page.evaluate(() => document.querySelector("[data-testid=fengshui-stars-grid-main] .is-five")?.getAttribute("data-palace"));
+    const fiveYear = fiveCell ? await text(page, `fengshui-stars-year-main-${fiveCell}`) : "";
+    if (centreYear !== yr.star || fiveCell !== yr.five || fiveYear !== "5") throw new Error(`${label}: the palaces' year ${centreYear} ${fiveCell} ${fiveYear}`);
+    await page.getByTestId("fengshui-home-year-layer").click();
+    await page.waitForFunction(() => !document.querySelector("[data-testid^=fengshui-stars-year-main-]"), null, { timeout: 4000 });
+    if ((await page.getByTestId("fengshui-home-year-layer").getAttribute("aria-pressed")) !== "false") throw new Error(`${label}: the year's layer still pressed`);
+    await page.getByTestId("fengshui-home-year-layer").click();
+    await page.getByTestId("fengshui-stars-year-main-c").waitFor({ timeout: 4000 });
+    await page.getByTestId("fengshui-years-aff-five-yellow").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.getByTestId("fengshui-years-aff-five-yellow").click();
+    if (phone) await clickDockTab(page, "reading");
+    await waitNote(page, w.five, label, "the 5 Yellow's reading");
+    if (phone) await clickDockTab(page, "reading").catch(() => {});
+    await page.getByTestId("fengshui-years-month").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.getByTestId("fengshui-years-month").click();
+    if (phone) await clickDockTab(page, "reading");
+    await waitNote(page, w.month, label, "the month's reading");
+    if (phone) await clickDockTab(page, "reading").catch(() => {});
     // Back to the luopan for the mountains.
     await page.getByTestId("fengshui-home-fig-luopan").click();
     await page.getByTestId("fengshui-home-degrees").waitFor({ timeout: 4000 });
+    // (part 25) The year's afflictions on the luopan's rim.
+    const arcs = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll("[data-testid^=fengshui-home-aff-]")].map((e) => [e.getAttribute("data-testid").slice(18), e.getAttribute("data-aff")])));
+    if (arcs[yr.taiSui] !== "tai-sui" || arcs[yr.breaker] !== "year-breaker" || !yr.killings.split(" ").every((m) => arcs[m] === "three-killings" || m === yr.breaker) || Object.keys(arcs).length < 4) throw new Error(`${label}: the luopan's afflictions ${JSON.stringify(arcs)}`);
     await page.screenshot({ path: join(SHOTS, `fengshui-stars-${lang}-${width}.png`) }).catch(() => {});
 
     // A mountain's reading; the arrows walk round the dial.

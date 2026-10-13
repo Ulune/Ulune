@@ -18,6 +18,8 @@ import { MANSIONS, TRIGRAMS, type FengShui, type FsCount } from "./fengshui";
 import { MOUNTAINS, houseMatch, mountainById, norm360, periodOf, type Home, type Mountain, type MountainId, type PeriodId } from "./fengshui-home";
 import { flyingChart } from "./fengshui-stars";
 import { starsReading, type HomeStars } from "./fengshui-stars-reading";
+import { yearsReading } from "./fengshui-years-reading";
+import type { YearStars } from "./fengshui-years";
 import { countLabel, deName, dirIn, directionName, fsDirRef, fsKuaRef, groupLabel, mansionName } from "./fengshui-reading";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
@@ -38,14 +40,16 @@ export type HomeContext = {
   declination: number | null;
   /** The Flying Star charts, once both a facing and a year are given (part 23). */
   stars?: HomeStars | null;
+  /** The year's and the month's stars now (part 25), the same for every home. */
+  years?: YearStars | null;
 };
 
 /** The home's Flying Star charts: the main one, the replacement near a mountain's edge, and the present period for the stars' states. */
-export function homeStars(home: Home | null, period: HomeContext["period"], nowYear: number): HomeStars | null {
+export function homeStars(home: Home | null, period: HomeContext["period"], nowYear: number, years: YearStars | null = null): HomeStars | null {
   if (!home || !period) return null;
   const main = flyingChart(period.period, home.facingMountain.id, home.sittingMountain.id);
   const ti = home.edge.level === "clear" ? null : flyingChart(period.period, home.facingMountain.id, home.sittingMountain.id, true);
-  return { main, ti, now: periodOf(nowYear).period };
+  return { main, ti, now: periodOf(nowYear).period, years };
 }
 
 /** "172.5°" or "172,5°". */
@@ -274,6 +278,7 @@ function howReading(c: HomeContext, locale: string): ElementReading {
 export function homeReading(c: HomeContext, ref: string | null, locale: string, prefs: Shown): ElementReading | null {
   if (!ref) return null;
   if (ref.startsWith("fss:")) return starsReading(c.stars ?? null, ref, locale, prefs);
+  if (ref.startsWith("fsy:")) return yearsReading(c.years ?? null, ref, locale, prefs);
   if (ref === FSH_HOW_REF) return howReading(c, locale);
   if (ref === FSH_PERIOD_REF) return periodReading(c, locale);
   const mt = /^fsh:mountain:([a-z]+)$/.exec(ref);

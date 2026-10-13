@@ -8,6 +8,8 @@ import { FSH_FACING_REF, fmtDeg, fshMountainRef, mountainCode, mountainPhase } f
 import { starState, type FlyingChart, type PalaceId } from "@/lib/chinese/fengshui-stars";
 import { chartName, fssPalaceRef, gridRows, palaceName, planRows, type ChartVariant } from "@/lib/chinese/fengshui-stars-reading";
 import { directionName } from "@/lib/chinese/fengshui-reading";
+import type { YearStars } from "@/lib/chinese/fengshui-years";
+import { afflictionName } from "@/lib/chinese/fengshui-years-reading";
 import { CJK, hanziLang } from "@/lib/chinese/animal-chars";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
@@ -70,7 +72,7 @@ const DEGREE_PATH = DEGREE_TICKS.filter((t) => !t.major).map((t) => `M${t.x1} ${
 const DEGREE_MAJOR = DEGREE_TICKS.filter((t) => t.major).map((t) => `M${t.x1} ${t.y1}L${t.x2} ${t.y2}`).join("");
 
 /** The luopan. `live` is the phone's heading while its compass reads, or null. */
-export function Luopan({ live }: { live: number | null }) {
+export function Luopan({ live, years = null }: { live: number | null; years?: YearStars | null }) {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const w = useWheelView();
@@ -124,7 +126,8 @@ export function Luopan({ live }: { live: number | null }) {
           const mid = at(angle, (R_MID + R_OUT) / 2);
           const facing = home?.facingMountain.id === m.id;
           const sitting = home?.sittingMountain.id === m.id;
-          const spoken = [`${l.name}${l.pinyin ? ` (${l.pinyin})` : ""}`, mountainCode(m, locale), facing ? cnWord(locale, "fshDialFacing").toLowerCase() : "", sitting ? cnWord(locale, "fshDialSitting").toLowerCase() : ""].filter(Boolean).join(", ");
+          const aff = !years ? null : years.afflictions.taiSui === m.id ? "tai-sui" : years.afflictions.yearBreaker === m.id ? "year-breaker" : years.afflictions.threeKillings.mountains.includes(m.id) ? "three-killings" : null;
+          const spoken = [`${l.name}${l.pinyin ? ` (${l.pinyin})` : ""}`, mountainCode(m, locale), facing ? cnWord(locale, "fshDialFacing").toLowerCase() : "", sitting ? cnWord(locale, "fshDialSitting").toLowerCase() : "", aff ? afflictionName(aff, locale, prefs).toLowerCase() : ""].filter(Boolean).join(", ");
           return (
             <g
               key={m.id}
@@ -140,6 +143,7 @@ export function Luopan({ live }: { live: number | null }) {
               {...previewProps(ref)}
             >
               <path d={ring(angle, 7.5, R_MID, R_OUT)} className="ulune-fsh-cell" />
+              {aff ? <path d={ring(angle, 6.5, R_OUT - 7, R_OUT - 2)} className="ulune-fsh-aff" data-aff={aff} data-testid={`fengshui-home-aff-${m.id}`} /> : null}
               {l.hanzi ? (
                 <text x={f(mid.x)} y={f(mid.y)} className="ulune-fsh-hanzi" lang={hanziLang(prefs.script)} fontFamily={CJK}>
                   {l.hanzi}
@@ -209,7 +213,7 @@ const GAP = 4;
 const PAD_Y = 30;
 
 /** One chart as the nine palaces. */
-export function PalaceFigure({ v, c, facing, now }: { v: ChartVariant; c: FlyingChart; facing: DirectionId; now: number }) {
+export function PalaceFigure({ v, c, facing, now, years }: { v: ChartVariant; c: FlyingChart; facing: DirectionId; now: number; years: YearStars | null }) {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const w = useWheelView();
@@ -271,21 +275,32 @@ export function PalaceFigure({ v, c, facing, now }: { v: ChartVariant; c: Flying
               key={p}
               data-palace={p}
               data-testid={`fengshui-stars-${v}-${p}`}
-              className={cn("ulune-fss-cell ulune-fsp-cell", p === "c" && "is-centre", p === facing && orient === "home" && "is-front", w.selectedId === ref && "is-on")}
+              className={cn("ulune-fss-cell ulune-fsp-cell", p === "c" && "is-centre", p === facing && orient === "home" && "is-front", years?.afflictions.fiveYellow === p && "is-five", w.selectedId === ref && "is-on")}
               role="button"
               tabIndex={p === stop ? 0 : -1}
               aria-pressed={w.selectedId === ref}
-              aria-label={`${palaceName(p, locale)}: ${cnWord(locale, "fssMountainStar").toLowerCase()} ${st.mountain}, ${cnWord(locale, "fssWaterStar").toLowerCase()} ${st.water}, ${cnWord(locale, "fssPeriodStar").toLowerCase()} ${st.period}`}
+              aria-label={`${palaceName(p, locale)}: ${cnWord(locale, "fssMountainStar").toLowerCase()} ${st.mountain}, ${cnWord(locale, "fssWaterStar").toLowerCase()} ${st.water}, ${cnWord(locale, "fssPeriodStar").toLowerCase()} ${st.period}${years ? `, ${cnWord(locale, "fsyYearStar").toLowerCase()} ${years.yearChart[p]}, ${cnWord(locale, "fsyMonthStar").toLowerCase()} ${years.monthChart[p]}` : ""}`}
               onClick={() => w.choose(ref)}
               {...previewProps(ref)}
             >
               <rect x={x0} y={y0} width={CELL} height={CELL} rx={8} className="ulune-fsp-box" />
+              {years?.afflictions.fiveYellow === p ? <rect x={x0 + 4} y={y0 + 4} width={CELL - 8} height={CELL - 8} rx={5} className="ulune-fsp-five" /> : null}
               <text x={x0 + CELL / 2} y={y0 + 14} className="ulune-fsp-dir">
                 {short(p)}
               </text>
               {num(st.mountain, CELL * 0.3, 50, "ulune-fsp-star")}
               {num(st.water, CELL * 0.7, 50, "ulune-fsp-star")}
               {num(st.period, CELL / 2, 84, "ulune-fsp-period")}
+              {years ? (
+                <>
+                  <text x={x0 + 14} y={y0 + CELL - 12} className="ulune-fsp-year" data-testid={`fengshui-stars-year-${v}-${p}`}>
+                    {years.yearChart[p]}
+                  </text>
+                  <text x={x0 + CELL - 14} y={y0 + CELL - 12} className="ulune-fsp-month">
+                    {years.monthChart[p]}
+                  </text>
+                </>
+              ) : null}
             </g>
           );
         })}
@@ -309,6 +324,9 @@ export function FigurePane({ live }: { live: number | null }) {
   const setOrient = useHomeInput((s) => s.setOrient);
   const stars = data?.ctx.stars ?? null;
   const home = data?.ctx.home ?? null;
+  const yearLayer = useHomeInput((s) => s.yearLayer);
+  const setYearLayer = useHomeInput((s) => s.setYearLayer);
+  const years = yearLayer ? (data?.ctx.years ?? null) : null;
   // The compass's plate needs the luopan; without a chart there are no stars to show.
   const shown = live != null || !stars ? "luopan" : figure === "auto" ? "stars" : figure;
   const v: ChartVariant = chartPick === "ti" && stars?.ti ? "ti" : "main";
@@ -316,17 +334,22 @@ export function FigurePane({ live }: { live: number | null }) {
   const seg = (on: boolean) => cn("ulune-fsh-seg-btn", on && "is-on");
   return (
     <div className="ulune-fsh-figure">
-      <div className="ulune-fsh-seg" role="group" aria-label={cnWord(locale, "fsfFigure")}>
-        <button type="button" className={seg(shown === "luopan")} aria-pressed={shown === "luopan"} data-testid="fengshui-home-fig-luopan" onClick={() => setFigure("luopan")}>
-          {cnWord(locale, "fsfLuopan")}
-        </button>
-        <button type="button" className={seg(shown === "stars")} aria-pressed={shown === "stars"} data-testid="fengshui-home-fig-stars" disabled={!stars || live != null} onClick={() => setFigure("stars")}>
-          {cnWord(locale, "fssHead")}
+      <div className="ulune-fsp-bar">
+        <div className="ulune-fsh-seg" role="group" aria-label={cnWord(locale, "fsfFigure")}>
+          <button type="button" className={seg(shown === "luopan")} aria-pressed={shown === "luopan"} data-testid="fengshui-home-fig-luopan" onClick={() => setFigure("luopan")}>
+            {cnWord(locale, "fsfLuopan")}
+          </button>
+          <button type="button" className={seg(shown === "stars")} aria-pressed={shown === "stars"} data-testid="fengshui-home-fig-stars" disabled={!stars || live != null} onClick={() => setFigure("stars")}>
+            {cnWord(locale, "fssHead")}
+          </button>
+        </div>
+        <button type="button" className={cn("ulune-fsh-seg-btn ulune-fsh-toggle", yearLayer && "is-on")} aria-pressed={yearLayer} data-testid="fengshui-home-year-layer" onClick={() => setYearLayer(!yearLayer)}>
+          {cnWord(locale, "fsyLayer")}
         </button>
       </div>
       {shown === "luopan" || !chart || !home ? (
         <div className="ulune-fs-rose-box ulune-fsh-dial-box">
-          <Luopan live={live} />
+          <Luopan live={live} years={years} />
         </div>
       ) : (
         <div className="ulune-fsp-box-wrap" data-testid="fengshui-stars-figure" data-chart={v}>
@@ -348,8 +371,10 @@ export function FigurePane({ live }: { live: number | null }) {
               ))}
             </div>
           </div>
-          <PalaceFigure v={v} c={chart} facing={home.facingDirection} now={stars!.now} />
-          <p className="ulune-fsh-small ulune-fsp-legend">{cnWord(locale, "fssLegend")}</p>
+          <PalaceFigure v={v} c={chart} facing={home.facingDirection} now={stars!.now} years={years} />
+          <p className="ulune-fsh-small ulune-fsp-legend">
+            {cnWord(locale, "fssLegend")} {years ? cnWord(locale, "fsyLegend") : null}
+          </p>
         </div>
       )}
     </div>

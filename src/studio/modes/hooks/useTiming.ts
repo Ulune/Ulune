@@ -43,6 +43,7 @@ import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 
 type TermsModule = typeof import("@/lib/chinese/terms");
 type CnModule = typeof import("@/lib/chinese/calendar-chinese");
+type StarsModule = typeof import("@/lib/chinese/fengshui-calendar");
 
 /**
  * The Chinese solar terms (languages plan, part 6) between two instants, as
@@ -309,6 +310,29 @@ export function useTiming() {
     () => (shown.animals ? { yearBranch: cnZodiac?.places[0]?.branch ?? null, glyphs: cnMod?.ANIMAL_GLYPH_INNER ?? null } : null),
     [shown.animals, cnZodiac, cnMod],
   );
+  // Feng Shui's flying stars (languages plan, part 25): the month's star at each jie, the year's at Lichun.
+  const [starsMod, setStarsMod] = useState<StarsModule | null>(null);
+  const wantStars = enabled && shown.stars;
+  useEffect(() => {
+    if (!wantStars || starsMod) return;
+    let live = true;
+    importWithRetry(() => import("@/lib/chinese/fengshui-calendar"))
+      .then((m) => {
+        if (live) setStarsMod(m);
+      })
+      .catch(() => {
+        /* the days go without their stars until the next visit */
+      });
+    return () => {
+      live = false;
+    };
+  }, [wantStars, starsMod]);
+  /** With the layer on: the stars' changes over the span (a month around it), and the stars of any instant. */
+  const stars = useMemo(() => {
+    if (!shown.stars || !starsMod) return null;
+    const pad = 40 * 86_400_000;
+    return { changes: starsMod.starChangesBetween(needed.from.getTime() - pad, needed.to.getTime() + pad), at: starsMod.yearStarsAt, name: starsMod.starName };
+  }, [shown.stars, starsMod, needed]);
   /** The terms of the span, a year before and after it, and of the days ahead (the Now panel names the next one). */
   const termEvents = useMemo<SkyEvent[]>(() => {
     if (!termsMod || !shown.terms) return [];
@@ -562,8 +586,9 @@ export function useTiming() {
       numShown,
       numRows,
       animals,
+      stars,
       numTitle,
     }),
-    [scope, civil, changeScope, shift, goToday, tz, zone, zones, prefs, updatePrefs, setLayer, shown, hasChart, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, loading, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled, numCal, numShown, numRows, numTitle, animals],
+    [scope, civil, changeScope, shift, goToday, tz, zone, zones, prefs, updatePrefs, setLayer, shown, hasChart, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, loading, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled, numCal, numShown, numRows, numTitle, animals, stars],
   );
 }
