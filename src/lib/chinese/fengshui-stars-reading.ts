@@ -15,6 +15,7 @@ import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord } from "./words";
 import { mountainById, type PeriodId } from "./fengshui-home";
 import { dirIn, directionName } from "./fengshui-reading";
+import type { DirectionId } from "./fengshui";
 import { FLIGHT, LO_SHU_ROWS, starOf, starState, type FlyingChart, type FormationId, type PalaceId, type StarNumber } from "./fengshui-stars";
 import { FORMATION_NAMES, FORMATION_TEXTS, STATE_TEXTS } from "./fengshui-stars-texts";
 import { said } from "./zodiac-texts";
@@ -31,6 +32,24 @@ export const fssFormationRef = (id: FormationId): string => `fss:formation:${id}
 export function gridRows(top: "north" | "south"): PalaceId[][] {
   const rows = LO_SHU_ROWS.map((r) => [...r]);
   return top === "south" ? rows : rows.reverse().map((r) => r.reverse());
+}
+
+/**
+ * The palaces as a plan of the home (part 24): its front at the bottom, the
+ * eight outer palaces turned round the centre in steps of 45° so the facing
+ * palace is the bottom middle, as a practitioner lays the chart on a floor
+ * plan with the entrance at the bottom.
+ */
+export function planRows(facing: DirectionId): PalaceId[][] {
+  const dirs: readonly DirectionId[] = ["n", "ne", "e", "se", "s", "sw", "w", "nw"];
+  // The outer slots clockwise from the top left; the bottom middle is the fifth.
+  const k = dirs.indexOf(facing);
+  const at = (slot: number) => dirs[(((k + slot - 5) % 8) + 8) % 8]!;
+  return [
+    [at(0), at(1), at(2)],
+    [at(7), "c", at(3)],
+    [at(6), at(5), at(4)],
+  ];
 }
 
 /** "Period 9 · Zi mountain, Wu facing · 子山午向". */

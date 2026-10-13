@@ -13,8 +13,12 @@
  *   - (part 23) the Flying Stars: Period 7, sitting Zi facing Wu, double
  *     stars at the sitting and the Combination of Ten; the south palace's
  *     reading; near an edge, the replacement chart beside the main one;
+ *   - (part 24) the replacement chart on the figure; the nine palaces as a
+ *     plan of the home (facing east: the east at the bottom) or as the books
+ *     (south at the top); the luopan's ring of degrees;
  *   - a mountain's reading, the arrows walking round the dial;
- *   - on a phone: the compass on request, its needle, three readings,
+ *   - on a phone: the compass on request, the plate turning under its
+ *     thread (Wu at the top at 172.5°), three readings,
  *     their average used as the facing; on a computer, no compass button;
  *   - the table; Settings' "South at the top" followed at once;
  *   - nothing sent while the page works or reads the compass; nothing
@@ -38,6 +42,7 @@ const WORDS = {
     map: "Read on a map (180° true)",
     east: " E",
     palace: "Mountain star 8, water star 6, period star 2",
+    frontEast: "Front · East",
   },
   fr: {
     first: "Votre logement, pas à pas",
@@ -52,6 +57,7 @@ const WORDS = {
     map: "Lue sur une carte (180° géographique)",
     east: " E",
     palace: "Étoile de la montagne 8, étoile de l’eau 6, étoile de la période 2",
+    frontEast: "Façade · Est",
   },
 };
 const note = (page) => page.getByTestId("click-note").evaluate((e) => e.textContent ?? "").catch(() => "");
@@ -163,6 +169,24 @@ async function run(width, lang) {
     if (phone) await clickDockTab(page, "reading").catch(() => {});
     await page.getByTestId("fengshui-home-facing").fill("170");
     await page.getByTestId("fengshui-stars-chart-ti").waitFor({ timeout: 4000 });
+    // (part 24) The replacement chart on the figure.
+    await page.getByTestId("fengshui-stars-pick-ti").click();
+    await page.waitForFunction(() => document.querySelector("[data-testid=fengshui-stars-figure]")?.getAttribute("data-chart") === "ti", null, { timeout: 4000 });
+    await page.getByTestId("fengshui-stars-pick-main").click();
+    // (part 24) The nine palaces as a plan of the home: facing east, the east at the bottom and the west at the top; as the books, south at the top.
+    await page.getByTestId("fengshui-home-facing").fill("90");
+    const plan = async () => page.evaluate(() => [...document.querySelectorAll("[data-testid=fengshui-stars-grid-main] [data-palace]")].map((e) => e.getAttribute("data-palace")).join());
+    if ((await plan()) !== "sw,w,nw,s,c,n,se,e,ne") throw new Error(`${label}: the plan facing east ${await plan()}`);
+    const front = await text(page, "fengshui-stars-bottom-main");
+    if (!front.includes(w.frontEast)) throw new Error(`${label}: the front "${front}"`);
+    await page.getByTestId("fengshui-stars-orient-books").click();
+    if ((await plan()) !== "se,s,sw,e,c,w,ne,n,nw") throw new Error(`${label}: as the books ${await plan()}`);
+    await page.screenshot({ path: join(SHOTS, `fengshui-palaces-${lang}-${width}.png`) }).catch(() => {});
+    await page.getByTestId("fengshui-stars-orient-home").click();
+    await page.getByTestId("fengshui-home-facing").fill("180");
+    // Back to the luopan for the mountains.
+    await page.getByTestId("fengshui-home-fig-luopan").click();
+    await page.getByTestId("fengshui-home-degrees").waitFor({ timeout: 4000 });
     await page.screenshot({ path: join(SHOTS, `fengshui-stars-${lang}-${width}.png`) }).catch(() => {});
 
     // A mountain's reading; the arrows walk round the dial.
@@ -187,6 +211,12 @@ async function run(width, lang) {
       await start.click();
       for (let i = 0; i < 4; i++) await orient(page, 187.5);
       await page.getByTestId("fengshui-home-needle").waitFor({ timeout: 4000 });
+      // (part 24) The plate turns under the thread: the mountain the phone points at, Wu, stands at the top.
+      const turn = Number(await page.getByTestId("fengshui-home-dial").getAttribute("data-turn"));
+      if (Math.abs(turn - 187.5) > 0.6) throw new Error(`${label}: the plate turned ${turn}`);
+      const wuLive = await centre(page, "fengshui-home-mountain-wu");
+      const ziLive = await centre(page, "fengshui-home-mountain-zi");
+      if (!(wuLive.y < ziLive.y)) throw new Error(`${label}: Wu is not at the top while the compass reads`);
       const heading = await text(page, "fengshui-home-heading");
       if (!/17[23]°/.test(heading)) throw new Error(`${label}: the heading "${heading}"`);
       for (const a of [187, 188, 187.5]) {

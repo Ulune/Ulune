@@ -29,7 +29,7 @@ demand.
 | `fengshui.ts`, `fengshui-texts.ts`, `fengshui-reading.ts`, `fengshui-table.ts` | Feng Shui, the personal half: the Kua number from the solar year and the yin or yang count, its trigram and group, the Eight Mansions' eight directions, the practical lines, what the page says, its table. |
 | `fengshui-home.ts`, `fengshui-home-reading.ts`, `fengshui-home-table.ts` | Feng Shui, the home: the 24 mountains and their edges, a facing's mountains and the house's trigram beside the reader's Kua, the periods, compass readings averaged, what the page says, its table. |
 | `geomag.ts`, `wmm2025.ts` | The magnetic declination from the World Magnetic Model 2025 (public domain), worked out on the device for a luopan's magnetic north. |
-| `fengshui-stars.ts`, `fengshui-stars-texts.ts`, `fengshui-stars-reading.ts` | The Flying Stars: a home's chart from its period and facing (the period, mountain and water stars in the nine palaces), the replacement chart near a mountain's edge, the formations, the stars' states, what the page says. |
+| `fengshui-stars.ts`, `fengshui-stars-texts.ts`, `fengshui-stars-reading.ts` | The Flying Stars: a home's chart from its period and facing (the period, mountain and water stars in the nine palaces), the replacement chart near a mountain's edge, the formations, the stars' states, the nine palaces as a plan of the home (part 24), what the page says. |
 | `animal-glyphs.ts` | The twelve animals as Ulune's own line drawings, in the planet glyphs' language (24 × 24, round strokes). |
 | `words.ts` | The interface words (`src/lib/i18n/catalog/chinese.ts`), read apart from the app's catalog so they stay out of the first download. |
 

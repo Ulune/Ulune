@@ -1100,6 +1100,14 @@ export const chinese = {
   ],
   fssPalaceCol: ["Palace", "Palais"],
   fssBaseCol: ["Lo Shu", "Lo Shu"],
+  // Feng Shui, the home's figures: the luopan and the nine palaces (languages plan, part 24).
+  fsfFigure: ["Figure", "Figure"],
+  fsfLuopan: ["Luopan", "Luopan"],
+  fsfOrientLabel: ["Layout of the nine palaces", "Disposition des neuf palais"],
+  fsfOrientHome: ["As the home, front at the bottom", "Comme le logement, façade en bas"],
+  fsfOrientBooks: ["As the books, south at the top", "Comme les livres, le sud en haut"],
+  fsfFront: ["Front · {dir}", "Façade · {dir}"],
+  fsfBack: ["Back · {dir}", "Dos · {dir}"],
   // The relations between animals (languages plan, part 8).
   zkRelations: ["Between your animals", "Entre vos animaux"],
   zkRelationsNone: [

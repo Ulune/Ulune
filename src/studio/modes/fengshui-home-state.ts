@@ -7,6 +7,10 @@ import { create } from "zustand";
  * only, while Ulune stays open: never in this browser's storage, never sent.
  */
 export type HomeSource = "compass" | "map" | "phone";
+/** The figure on the stage: the luopan, the Flying Stars, or whichever fits (the stars once there is a chart). */
+export type HomeFigureId = "auto" | "luopan" | "stars";
+/** How the nine palaces are laid out: as a plan of the home (its front at the bottom) or as the books draw them (south at the top). */
+export type PalaceOrient = "home" | "books";
 
 type HomeInput = {
   /** The facing as the field shows it ("172.5"); empty before one is given. */
@@ -15,6 +19,12 @@ type HomeInput = {
   /** The compass readings taken towards the next facing, up to three. */
   readings: number[];
   year: string;
+  figure: HomeFigureId;
+  chart: "main" | "ti";
+  orient: PalaceOrient;
+  setFigure: (figure: HomeFigureId) => void;
+  setChart: (chart: "main" | "ti") => void;
+  setOrient: (orient: PalaceOrient) => void;
   setTyped: (typed: string, source?: HomeSource) => void;
   setSource: (source: HomeSource) => void;
   addReading: (deg: number) => void;
@@ -27,6 +37,12 @@ export const useHomeInput = create<HomeInput>((set) => ({
   source: "compass",
   readings: [],
   year: "",
+  figure: "auto",
+  chart: "main",
+  orient: "home",
+  setFigure: (figure) => set({ figure }),
+  setChart: (chart) => set({ chart }),
+  setOrient: (orient) => set({ orient }),
   setTyped: (typed, source) => set((s) => ({ typed, source: source ?? (s.source === "phone" ? "compass" : s.source) })),
   setSource: (source) => set({ source }),
   addReading: (deg) => set((s) => ({ readings: [...s.readings, deg].slice(-3) })),

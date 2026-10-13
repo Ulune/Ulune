@@ -1,10 +1,10 @@
-import { Suspense, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { Suspense, useEffect, useId, useMemo, useState } from "react";
 import { LoadingLines } from "@/components/loading-lines";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
-import { DIRECTIONS, fengShuiOf, trigramOfDirection, type FengShui, type FsCount } from "@/lib/chinese/fengshui";
-import { MOUNTAINS, SPREAD_WARN, averageBearing, homeOf, periodOf, type MountainId, type PeriodId } from "@/lib/chinese/fengshui-home";
+import { fengShuiOf, type FengShui, type FsCount } from "@/lib/chinese/fengshui";
+import { SPREAD_WARN, averageBearing, homeOf, periodOf } from "@/lib/chinese/fengshui-home";
 import {
   FSH_FACING_REF,
   FSH_HOW_REF,
@@ -14,22 +14,19 @@ import {
   fmtDecl,
   fmtDeg,
   fshHouseRef,
-  fshMountainRef,
   homeReading,
   homeStars,
   houseLine,
   howLines,
   matchLines,
   mountainCode,
-  mountainPhase,
   periodLines,
   type HomeContext,
 } from "@/lib/chinese/fengshui-home-reading";
 import { countLabel } from "@/lib/chinese/fengshui-reading";
-import { starState, type FlyingChart, type PalaceId } from "@/lib/chinese/fengshui-stars";
-import { chartName, formationName, fssChartRef, fssFormationRef, fssPalaceRef, gridRows, palaceName, type ChartVariant } from "@/lib/chinese/fengshui-stars-reading";
+import type { FlyingChart } from "@/lib/chinese/fengshui-stars";
+import { chartName, formationName, fssChartRef, fssFormationRef, type ChartVariant } from "@/lib/chinese/fengshui-stars-reading";
 import { declination, decimalYear } from "@/lib/chinese/geomag";
-import { CJK, hanziLang } from "@/lib/chinese/animal-chars";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
@@ -41,6 +38,7 @@ import { useWheelView } from "@/studio/modes/wheel-view";
 import { useStudioStore } from "@/studio/store";
 import { compassSupported, useCompass } from "@/studio/modes/hooks/useCompass";
 import { parseFacing, parseYear, useHomeInput } from "@/studio/modes/fengshui-home-state";
+import { FigurePane } from "@/studio/modes/fengshui-home-figures";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/first-read.css";
 import "@/studio/modes/styles/fengshui.css";
@@ -61,146 +59,6 @@ import "@/studio/modes/styles/fengshui-home.css";
  */
 
 export type FengShuiHomeState = { ctx: HomeContext; enabled: boolean };
-
-const C = 200;
-const R_OUT = 192;
-const R_MID = 150;
-const R_IN = 110;
-const R_CORE = 70;
-
-const at = (angle: number, r: number) => {
-  const a = (angle * Math.PI) / 180;
-  return { x: C + r * Math.sin(a), y: C - r * Math.cos(a) };
-};
-const f = (n: number) => n.toFixed(2);
-
-function ring(angle: number, half: number, r0: number, r1: number): string {
-  const a0 = at(angle - half, r1);
-  const a1 = at(angle + half, r1);
-  const b1 = at(angle + half, r0);
-  const b0 = at(angle - half, r0);
-  return `M ${f(a0.x)} ${f(a0.y)} A ${r1} ${r1} 0 0 1 ${f(a1.x)} ${f(a1.y)} L ${f(b1.x)} ${f(b1.y)} A ${r0} ${r0} 0 0 0 ${f(b0.x)} ${f(b0.y)} Z`;
-}
-
-/** The dial: the 24 mountains, the eight directions, the facing and the sitting, and the compass's needle while it is live. */
-function HomeDial({ live }: { live: number | null }) {
-  const { locale } = useI18n();
-  const prefs = useChinesePrefs();
-  const w = useWheelView();
-  const data = useModeData("fengshui-home");
-  const ringRef = useRef<SVGGElement>(null);
-  const home = data?.ctx.home ?? null;
-  const turn = prefs.compass === "south" ? 180 : 0;
-  const chosen = MOUNTAINS.find((m) => w.selectedId === fshMountainRef(m.id));
-  const stop: MountainId = chosen?.id ?? home?.facingMountain.id ?? "zi";
-  const onKey = (e: KeyboardEvent<SVGGElement>) => {
-    const el = (e.target as Element).closest<SVGGElement>("[data-mountain]");
-    if (!el) return;
-    const i = MOUNTAINS.findIndex((m) => m.id === el.dataset.mountain);
-    let next: number | null = null;
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = (i + 1) % 24;
-    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = (i + 23) % 24;
-    else if (e.key === "Home") next = 0;
-    else if (e.key === "End") next = 23;
-    else if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      w.pick(fshMountainRef(MOUNTAINS[i]!.id));
-      return;
-    }
-    if (next == null) return;
-    e.preventDefault();
-    ringRef.current?.querySelector<SVGGElement>(`[data-mountain="${MOUNTAINS[next]!.id}"]`)?.focus();
-  };
-  const facingAt = home ? (home.facing.degrees + turn) % 360 : null;
-  return (
-    <svg viewBox="-6 -6 412 412" className="ulune-fsh-dial" role="group" aria-label={cnWord(locale, "fshDial")} data-testid="fengshui-home-dial" data-top={prefs.compass}>
-      <circle cx={C} cy={C} r={R_OUT} className="ulune-fsh-rim" />
-      <g ref={ringRef} onKeyDown={onKey}>
-        {MOUNTAINS.map((m) => {
-          const angle = (m.degrees + turn) % 360;
-          const ref = fshMountainRef(m.id);
-          const l = chineseLabel(m, locale, prefs);
-          const mid = at(angle, (R_MID + R_OUT) / 2);
-          const facing = home?.facingMountain.id === m.id;
-          const sitting = home?.sittingMountain.id === m.id;
-          const spoken = [`${l.name}${l.pinyin ? ` (${l.pinyin})` : ""}`, mountainCode(m, locale), facing ? cnWord(locale, "fshDialFacing").toLowerCase() : "", sitting ? cnWord(locale, "fshDialSitting").toLowerCase() : ""].filter(Boolean).join(", ");
-          return (
-            <g
-              key={m.id}
-              data-mountain={m.id}
-              data-phase={mountainPhase(m)}
-              data-testid={`fengshui-home-mountain-${m.id}`}
-              className={cn("ulune-fsh-mountain", facing && "is-facing", sitting && "is-sitting", w.selectedId === ref && "is-on")}
-              role="button"
-              tabIndex={m.id === stop ? 0 : -1}
-              aria-label={spoken}
-              aria-pressed={w.selectedId === ref}
-              onClick={() => w.choose(ref)}
-              {...previewProps(ref)}
-            >
-              <path d={ring(angle, 7.5, R_MID, R_OUT)} className="ulune-fsh-cell" />
-              {l.hanzi ? (
-                <text x={f(mid.x)} y={f(mid.y)} className="ulune-fsh-hanzi" lang={hanziLang(prefs.script)} fontFamily={CJK}>
-                  {l.hanzi}
-                </text>
-              ) : (
-                <text x={f(mid.x)} y={f(mid.y)} className="ulune-fsh-name">
-                  {l.name}
-                </text>
-              )}
-            </g>
-          );
-        })}
-      </g>
-      <g aria-hidden className="ulune-fsh-dirs">
-        {DIRECTIONS.map((d) => {
-          const angle = (d.degrees + turn) % 360;
-          const mid = at(angle, (R_IN + R_MID) / 2);
-          const tri = trigramOfDirection(d.id);
-          return (
-            <g key={d.id} data-dir={d.id}>
-              <path d={ring(angle, 22.5, R_IN, R_MID)} className="ulune-fsh-dircell" />
-              <text x={f(mid.x)} y={f(mid.y - 9)} className="ulune-fsh-dir">
-                {d.short[locale === "fr" ? "fr" : "en"]}
-              </text>
-              <text x={f(mid.x)} y={f(mid.y + 10)} className="ulune-fsh-tri" data-phase={tri.phase}>
-                {tri.symbol}
-              </text>
-            </g>
-          );
-        })}
-      </g>
-      {facingAt != null ? (
-        <g aria-hidden className="ulune-fsh-axis" data-testid="fengshui-home-axis" data-facing={home!.facing.degrees.toFixed(1)}>
-          <line x1={f(at(facingAt + 180, R_CORE).x)} y1={f(at(facingAt + 180, R_CORE).y)} x2={f(at(facingAt + 180, R_IN).x)} y2={f(at(facingAt + 180, R_IN).y)} className="ulune-fsh-sit" />
-          <line x1={f(at(facingAt, R_CORE).x)} y1={f(at(facingAt, R_CORE).y)} x2={f(at(facingAt, R_IN - 8).x)} y2={f(at(facingAt, R_IN - 8).y)} className="ulune-fsh-face" />
-          <path
-            d={`M ${f(at(facingAt, R_IN).x)} ${f(at(facingAt, R_IN).y)} L ${f(at(facingAt - 5.5, R_IN - 16).x)} ${f(at(facingAt - 5.5, R_IN - 16).y)} L ${f(at(facingAt + 5.5, R_IN - 16).x)} ${f(at(facingAt + 5.5, R_IN - 16).y)} Z`}
-            className="ulune-fsh-head"
-          />
-        </g>
-      ) : null}
-      {live != null ? (
-        <g aria-hidden className="ulune-fsh-live" data-testid="fengshui-home-needle">
-          <line x1={C} y1={C} x2={f(at((live + turn) % 360, R_OUT - 4).x)} y2={f(at((live + turn) % 360, R_OUT - 4).y)} />
-          <circle cx={f(at((live + turn) % 360, R_OUT - 4).x)} cy={f(at((live + turn) % 360, R_OUT - 4).y)} r={4} />
-        </g>
-      ) : null}
-      <g aria-hidden className={cn("ulune-fsh-core", w.selectedId === FSH_FACING_REF && "is-on")} onClick={() => home && w.choose(FSH_FACING_REF)}>
-        <circle cx={C} cy={C} r={R_CORE - 4} />
-        <text x={C} y={C - 20} className="ulune-fsh-core-sub">
-          {cnWord(locale, "fshDialFacing")}
-        </text>
-        <text x={C} y={C + 4} className="ulune-fsh-core-n" data-testid="fengshui-home-core">
-          {home ? fmtDeg(home.facing.degrees, locale) : "–"}
-        </text>
-        <text x={C} y={C + 28} className="ulune-fsh-core-sub">
-          {home ? mountainCode(home.facingMountain, locale) : ""}
-        </text>
-      </g>
-    </svg>
-  );
-}
 
 /** The phone's compass: start, heading, three readings, their average. Only where a finger is the pointer. */
 function CompassBlock({ compass }: { compass: ReturnType<typeof useCompass> }) {
@@ -417,43 +275,6 @@ function HomeCards() {
   );
 }
 
-/** One chart as the nine palaces: the mountain star top left, the water star top right, the period star below. */
-function StarGrid({ v, c, now }: { v: ChartVariant; c: FlyingChart; now: PeriodId }) {
-  const { locale } = useI18n();
-  const prefs = useChinesePrefs();
-  const w = useWheelView();
-  const rows = gridRows(prefs.compass);
-  const short = (p: PalaceId) => (p === "c" ? "" : DIRECTIONS.find((d) => d.id === p)!.short[locale === "fr" ? "fr" : "en"]);
-  return (
-    <div className="ulune-fss-grid" role="group" aria-label={chartName(c, locale, prefs)} data-testid={`fengshui-stars-grid-${v}`} data-top={prefs.compass}>
-      {rows.flat().map((p) => {
-        const x = c.palaces[p];
-        const ref = fssPalaceRef(v, p);
-        return (
-          <button
-            key={p}
-            type="button"
-            className={cn("ulune-fss-cell", p === "c" && "is-centre", w.selectedId === ref && "is-on")}
-            data-palace={p}
-            data-testid={`fengshui-stars-${v}-${p}`}
-            aria-pressed={w.selectedId === ref}
-            aria-label={`${palaceName(p, locale)}: ${cnWord(locale, "fssMountainStar").toLowerCase()} ${x.mountain}, ${cnWord(locale, "fssWaterStar").toLowerCase()} ${x.water}, ${cnWord(locale, "fssPeriodStar").toLowerCase()} ${x.period}`}
-            onClick={() => w.choose(ref)}
-            {...previewProps(ref)}
-          >
-            <span className="ulune-fss-dir">{short(p)}</span>
-            <span className="ulune-fss-mw">
-              <b data-state={starState(x.mountain, now).state} data-now={x.mountain === now || undefined}>{x.mountain}</b>
-              <b data-state={starState(x.water, now).state} data-now={x.water === now || undefined}>{x.water}</b>
-            </span>
-            <span className="ulune-fss-p">{x.period}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 function StarsCard() {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
@@ -482,7 +303,6 @@ function StarsCard() {
               {charts.length > 1 ? <span className="ulune-fs-h">{cnWord(locale, v === "ti" ? "fssTi" : "fssMain")}</span> : null}
               <span>{chartName(c, locale, prefs)}</span>
             </button>
-            <StarGrid v={v} c={c} now={stars.now} />
             <ul className="ulune-fss-forms">
               {c.formations.length ? (
                 c.formations.map((f) => (
@@ -499,7 +319,6 @@ function StarsCard() {
           </div>
         ))}
       </div>
-      <p className="ulune-fsh-small">{cnWord(locale, "fssLegend")}</p>
     </section>
   );
 }
@@ -511,9 +330,7 @@ function HomeFigure() {
   return (
     <div className="ulune-fs ulune-fsh" data-testid="fengshui-home" data-chart-pick>
       <div className="ulune-fsh-body">
-        <div className="ulune-fs-rose-box ulune-fsh-dial-box">
-          <HomeDial live={compass.state === "live" ? compass.heading : null} />
-        </div>
+        <FigurePane live={compass.state === "live" ? compass.heading : null} />
         <div className="ulune-fs-side">
           <HomeForm compass={compass} />
           <HomeCards />

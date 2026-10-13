@@ -10,7 +10,7 @@ import { test } from "node:test";
 import { MOUNTAINS, homeOf, periodOf } from "../src/lib/chinese/fengshui-home.ts";
 import { FLIGHT, LO_SHU, REPLACEMENT, STARS, counterpart, fly, flyingChart, formationsOf, mountainYang, starState } from "../src/lib/chinese/fengshui-stars.ts";
 import { FORMATION_NAMES, FORMATION_TEXTS, STATE_TEXTS } from "../src/lib/chinese/fengshui-stars-texts.ts";
-import { castLines, chartName, fssChartRef, fssFormationRef, fssPalaceRef, gridRows, starsReading } from "../src/lib/chinese/fengshui-stars-reading.ts";
+import { castLines, chartName, fssChartRef, fssFormationRef, fssPalaceRef, gridRows, planRows, starsReading } from "../src/lib/chinese/fengshui-stars-reading.ts";
 import { homeStars, homeReading } from "../src/lib/chinese/fengshui-home-reading.ts";
 import { homeTableCsv, homeTextParts } from "../src/lib/chinese/fengshui-home-table.ts";
 import { mountainById } from "../src/lib/chinese/fengshui-home.ts";
@@ -28,6 +28,18 @@ test("the flight path and the Lo Shu: Period 5's own chart is the square itself"
   assert.deepEqual(gridRows("north"), [["nw", "n", "ne"], ["w", "c", "e"], ["sw", "s", "se"]]);
   assert.equal(STARS.length, 9);
   assert.deepEqual(STARS.map((s) => s.phase), ["water", "earth", "wood", "wood", "earth", "metal", "metal", "earth", "fire"]);
+});
+
+test("the nine palaces as a plan of the home: its front at the bottom, the outer palaces turned in steps of 45°", () => {
+  assert.deepEqual(planRows("s"), [["nw", "n", "ne"], ["w", "c", "e"], ["sw", "s", "se"]], "facing south: north at the top, as a map");
+  assert.deepEqual(planRows("e"), [["sw", "w", "nw"], ["s", "c", "n"], ["se", "e", "ne"]], "facing east: the north on the right");
+  assert.deepEqual(planRows("n"), gridRows("south"), "facing north: the books' own layout, south at the top");
+  assert.deepEqual(planRows("ne").map((r) => r[1]), ["sw", "c", "ne"]);
+  for (const d of ["n", "ne", "e", "se", "s", "sw", "w", "nw"]) {
+    const flat = planRows(d).flat();
+    assert.equal(flat[7], d);
+    assert.deepEqual([...flat].sort(), ["c", "e", "n", "ne", "nw", "s", "se", "sw", "w"]);
+  }
 });
 
 test("the mountains' polarity: cardinal palaces yang first, corner palaces yang second and third", () => {
