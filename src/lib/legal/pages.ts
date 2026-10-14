@@ -14,7 +14,7 @@ import type { NoticeBlock } from "./privacy-notice";
 export type LegalPageId = "legal" | "terms" | "credits" | "accessibility";
 export type LegalText = { title: string; updated: string; blocks: NoticeBlock[] };
 
-export const LEGAL_UPDATED = "2026-10-07";
+export const LEGAL_UPDATED = "2026-10-14";
 
 export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = {
   legal: {
@@ -22,7 +22,9 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
       title: "Legal notice",
       updated: "Updated {date}",
       blocks: [
-        { p: "Ulune (ulune.app) is a free website for exploring astrology charts, Human Design and numerology." },
+        {
+          p: "Ulune (ulune.app) is a free website for exploring astrology charts, Human Design and numerology, and three Chinese traditions: Chinese astrology, BaZi and Feng Shui.",
+        },
         {
           h: "Publisher",
           p: "Ulune is published by {name}, a private individual, on a non-professional basis. As French law allows (loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique), the full identity of this non-professional publisher is not published here; it has been given to the host. Contact: {contact}.",
@@ -47,7 +49,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
       updated: "Mis à jour le {date}",
       blocks: [
         {
-          p: "Ulune (ulune.app) est un site gratuit pour explorer les thèmes astrologiques, le Human Design et la numérologie.",
+          p: "Ulune (ulune.app) est un site gratuit pour explorer les thèmes astrologiques, le Human Design et la numérologie, ainsi que trois traditions chinoises\u202f: l’astrologie chinoise, le BaZi et le Feng Shui.",
         },
         {
           h: "Éditeur",
@@ -78,11 +80,11 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         { p: "These terms apply to anyone using Ulune (ulune.app). By using it, you accept them." },
         {
           h: "What Ulune is",
-          p: "A free tool for drawing and exploring astrology charts, Human Design and numerology. It needs no account: what you choose to keep stays on your device, encrypted (see the [privacy notice](/privacy)).",
+          p: "A free tool for drawing and exploring astrology charts, Human Design and numerology, and three Chinese traditions: Chinese astrology, BaZi and Feng Shui. It needs no account: what you choose to keep stays on your device, encrypted (see the [privacy notice](/privacy)).",
         },
         {
           h: "For reflection, not advice",
-          p: "Ulune is for self-reflection. Astrology, Human Design and numerology are not scientifically validated, and nothing in Ulune is medical, psychological, legal or financial advice. Never stop or change a treatment because of something you read here: for your health, speak with a professional.",
+          p: "Ulune is for self-reflection. Astrology, Human Design, numerology and the Chinese traditions are not scientifically validated, and nothing in Ulune is medical, psychological, legal or financial advice. Never stop or change a treatment because of something you read here: for your health, speak with a professional.",
         },
         {
           h: "Calculations and readings",
@@ -112,11 +114,11 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Ce qu’est Ulune",
-          p: "Un outil gratuit pour tracer et explorer des thèmes astrologiques, le Human Design et la numérologie. Il ne demande aucun compte\u202f: ce que vous choisissez de garder reste sur votre appareil, chiffré (voir la [politique de confidentialité](/privacy)).",
+          p: "Un outil gratuit pour tracer et explorer des thèmes astrologiques, le Human Design et la numérologie, ainsi que trois traditions chinoises\u202f: l’astrologie chinoise, le BaZi et le Feng Shui. Il ne demande aucun compte\u202f: ce que vous choisissez de garder reste sur votre appareil, chiffré (voir la [politique de confidentialité](/privacy)).",
         },
         {
           h: "Pour réfléchir, pas pour conseiller",
-          p: "Ulune est un outil de réflexion personnelle. L’astrologie, le Human Design et la numérologie ne sont pas validés scientifiquement, et rien dans Ulune n’est un avis médical, psychologique, juridique ou financier. N’arrêtez ni ne modifiez jamais un traitement à cause de ce que vous lisez ici\u202f: pour votre santé, parlez-en à un professionnel.",
+          p: "Ulune est un outil de réflexion personnelle. L’astrologie, le Human Design, la numérologie et les traditions chinoises ne sont pas validés scientifiquement, et rien dans Ulune n’est un avis médical, psychologique, juridique ou financier. N’arrêtez ni ne modifiez jamais un traitement à cause de ce que vous lisez ici\u202f: pour votre santé, parlez-en à un professionnel.",
         },
         {
           h: "Calculs et lectures",

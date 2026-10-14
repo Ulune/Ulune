@@ -6,40 +6,50 @@ import { useI18n } from "@/lib/i18n/locale";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { GlossaryDetails } from "@/components/glossary-details";
 import { keepWhole } from "@/components/keep-whole";
-import { LENSES, type LanguageId } from "@/studio/map";
+import { LANGUAGES, LENSES, type LanguageId } from "@/studio/map";
 import { lazyNamed } from "@/lib/lazy-component";
 import { LanguageMark } from "@/studio/shell/language-mark";
 import { LANGUAGE_WORDS, LENS_LABEL, SECTION_ICON, SECTION_LABEL } from "@/studio/shell/map-ui";
+import type { QuestionId } from "./GuideAnswer";
+import { loadGuideAnswer, serverGuideAnswer } from "./guide-answers";
+import { Linked } from "./guide-linked";
 
-const LANGUAGES: { id: LanguageId; body: MessageKey }[] = [
-  { id: "astrology", body: "guideDoAstrology" },
-  { id: "human-design", body: "guideDoHumanDesign" },
-  { id: "numerology", body: "guideDoNumerology" },
-];
+/** Each language's line, for every language of the registry (src/studio/map.ts), in its order. */
+const LANGUAGE_BODY: Record<LanguageId, MessageKey> = {
+  astrology: "guideDoAstrology",
+  "human-design": "guideDoHumanDesign",
+  numerology: "guideDoNumerology",
+  "chinese-astrology": "guideDoChineseAstrology",
+  bazi: "guideDoBazi",
+  "feng-shui": "guideDoFengShui",
+};
 
 /**
  * What you can do, in the words and marks of the 2.0 map (page reorganisation,
- * R8): the three languages as the language picker shows them, the lenses (the
- * tabs beside the language), then the Calendar and the Encyclopedia with
- * their sections' icons.
+ * R8; the Chinese languages since languages plan, part 29): the six
+ * languages as the language picker shows them, the lenses (the tabs beside
+ * the language, Feng Shui's Home among them), then the Calendar and the
+ * Encyclopedia with their sections' icons. A language's line links the words
+ * of its own tradition in the encyclopedia (the Chinese ones once their pages
+ * exist); the rest link every tradition's.
  */
-function useDoList(): { id: string; mark: ReactNode; label: string; body: MessageKey }[] {
+function useDoList(): { id: string; mark: ReactNode; label: string; body: MessageKey; tradition?: string }[] {
   const { t } = useI18n();
   const iconProps = { className: "ob-guide-mode-icon", strokeWidth: 1.75, "aria-hidden": true } as const;
   const CalendarIcon = SECTION_ICON.calendar;
   const EncyclopediaIcon = SECTION_ICON.encyclopedia;
   return [
-    ...LANGUAGES.map(({ id, body }) => ({
+    ...LANGUAGES.map(({ id }) => ({
       id,
       mark: <LanguageMark id={id} className="ob-guide-mode-icon" />,
       label: t(LANGUAGE_WORDS[id].name),
-      body,
+      body: LANGUAGE_BODY[id],
+      tradition: id,
     })),
     {
       id: "lenses",
       mark: <Aperture {...iconProps} />,
-      // The three lenses every language may have; Home (Feng Shui's place) waits for the guide's Chinese pages (languages plan, part 29).
-      label: LENSES.filter((lens) => lens !== "home").map((lens) => t(LENS_LABEL[lens])).join(" · "),
+      label: LENSES.map((lens) => t(LENS_LABEL[lens])).join(" · "),
       body: "guideDoLenses",
     },
     { id: "calendar", mark: <CalendarIcon {...iconProps} />, label: t(SECTION_LABEL.calendar), body: "guideDoCalendar" },
@@ -52,14 +62,17 @@ function useDoList(): { id: string; mark: ReactNode; label: string; body: Messag
   ];
 }
 
-const QUESTIONS: { id: string; q: MessageKey; a: MessageKey }[] = [
-  { id: "time", q: "faqTimeQ", a: "faqTimeA" },
-  { id: "houses", q: "faqHousesQ", a: "faqHousesA" },
-  { id: "name", q: "faqNameQ", a: "faqNameA" },
-  { id: "free", q: "faqFreeQ", a: "faqFreeA" },
-  { id: "kept", q: "faqKeptQ", a: "faqKeptA" },
-  { id: "trust", q: "faqTrustQ", a: "faqTrustA" },
-  { id: "ai", q: "faqAiQ", a: "faqAiA" },
+/** The questions, in order; each answer loads with the guide (GuideAnswer.tsx). */
+const QUESTIONS: { id: QuestionId; q: MessageKey }[] = [
+  { id: "time", q: "faqTimeQ" },
+  { id: "houses", q: "faqHousesQ" },
+  { id: "name", q: "faqNameQ" },
+  { id: "year", q: "faqYearQ" },
+  { id: "count", q: "faqCountQ" },
+  { id: "free", q: "faqFreeQ" },
+  { id: "kept", q: "faqKeptQ" },
+  { id: "trust", q: "faqTrustQ" },
+  { id: "ai", q: "faqAiQ" },
 ];
 
 /**
@@ -67,18 +80,19 @@ const QUESTIONS: { id: string; q: MessageKey; a: MessageKey }[] = [
  * what it does, how to begin, the tour and the sample, what happens to the
  * reader's data, how precise it is, and a few answers. Plain text from the
  * catalog, rendered by the server, so it reads without JavaScript and search
- * engines read it too.
+ * engines read it too. The answers, folded under their questions, are their
+ * own download in the browser (languages plan, part 29), fetched as the page
+ * hydrates rather than with the first load every studio page pays for; the
+ * browser takes over the server's answers when they arrive. The server's
+ * routes load them before drawing a page with the guide (guide-answers.ts),
+ * and the server draws them at once, so its page holds them, without
+ * JavaScript too.
  */
-// The guide's words link to their entries (encyclopedia plan, part 16): its own download; the plain text until then.
-const LinkedText = lazyNamed(() => import("@/encyclopedia/LinkedText"), "LinkedText");
-const TRADITION_OF: Record<string, string> = { astrology: "astrology", "human-design": "human-design", numerology: "numerology" };
+const LazyAnswer = lazyNamed(loadGuideAnswer, "GuideAnswer");
 
-function Linked({ text, tradition = "all" }: { text: string; tradition?: string }) {
-  return (
-    <Suspense fallback={text}>
-      <LinkedText text={text} tradition={tradition} />
-    </Suspense>
-  );
+function Answer({ id }: { id: QuestionId }) {
+  const Now = serverGuideAnswer();
+  return Now ? <Now id={id} /> : <LazyAnswer id={id} />;
 }
 
 export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () => void }) {
@@ -100,14 +114,14 @@ export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () =
           {t("guideDoTitle")}
         </h2>
         <ul className="ob-guide-modes">
-          {doList.map(({ id, mark, label, body }) => (
+          {doList.map(({ id, mark, label, body, tradition }) => (
             <li key={id} className="ob-guide-mode" data-testid={`guide-mode-${id}`}>
               <span className="ob-guide-mode-head">
                 {mark}
                 <span className="ob-guide-mode-name">{label}</span>
               </span>
               <span className="ob-guide-mode-body">
-                <Linked text={t(body)} tradition={TRADITION_OF[id]} />
+                <Linked text={t(body)} tradition={tradition} />
               </span>
             </li>
           ))}
@@ -169,6 +183,7 @@ export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () =
           <li>{t("guidePrecise3")}</li>
           <li>{t("guidePreciseProgressions")}</li>
           <li>{t("guidePreciseNumerology")}</li>
+          <li data-testid="guide-precise-chinese">{t("guidePreciseChinese")}</li>
           <li>{keepWhole(t("guidePrecise4"))}</li>
         </ul>
         <p className="ob-guide-links">
@@ -193,12 +208,12 @@ export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () =
           {t("guideFaqTitle")}
         </h2>
         <div className="ob-guide-faq">
-          {QUESTIONS.map(({ id, q, a }) => (
+          {QUESTIONS.map(({ id, q }) => (
             <details key={id} className="ob-guide-qa" data-testid={`guide-faq-${id}`}>
               <summary>{t(q)}</summary>
-              <p className="ob-guide-p">
-                <Linked text={t(a)} />
-              </p>
+              <Suspense fallback={null}>
+                <Answer id={id} />
+              </Suspense>
             </details>
           ))}
         </div>

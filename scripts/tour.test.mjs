@@ -1,12 +1,15 @@
 // The tour (src/lib/tour, src/components/tour): its steps say something in
 // both languages, point at things the app has, and download only when the
-// tour starts. It remembers one value on the device, and nothing else.
+// tour starts. It remembers one value on the device, and nothing else. Its
+// languages step names every language of the picker (languages plan, part 29).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { TOUR_STEPS, TOUR_WORDS } from "../src/lib/tour/steps.ts";
 import { TOUR_KEY, TOUR_DONE_ATTR } from "../src/lib/tour/keys.ts";
+import { LANGUAGES } from "../src/studio/map.ts";
+import { sections } from "../src/lib/i18n/catalog/sections.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const read = (rel) => readFileSync(join(ROOT, rel), "utf8");
@@ -38,6 +41,27 @@ test("eight steps, each with a title and words in English and French", () => {
   for (const [key, pair] of Object.entries(TOUR_WORDS)) {
     assert.ok(pair[0].trim() && pair[1].trim(), key);
     assert.ok(!/\w'\w/.test(pair.join(" ")), `${key}: straight apostrophe`);
+  }
+});
+
+test("the languages step names every language the picker has, on a computer and a phone, in English and French", () => {
+  const step = TOUR_STEPS.find((s) => s.id === "modes");
+  // Each language's name in the catalog (sections.ts), as the picker shows it.
+  const NAME = {
+    astrology: "langAstrology",
+    "human-design": "langHumanDesign",
+    numerology: "langNumerology",
+    "chinese-astrology": "langChineseAstrology",
+    bazi: "langBazi",
+    "feng-shui": "langFengShui",
+  };
+  assert.deepEqual(LANGUAGES.map((l) => l.id), Object.keys(NAME), "a language the tour does not name yet");
+  for (const pair of [step.body, step.compact]) {
+    pair.forEach((text, i) => {
+      for (const key of Object.values(NAME)) {
+        assert.ok(text.toLowerCase().includes(sections[key][i].toLowerCase()), `${key} is not named in "${text}"`);
+      }
+    });
   }
 });
 

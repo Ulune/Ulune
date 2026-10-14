@@ -1,13 +1,15 @@
 import { useMemo } from "react";
 import { AnimalGlyph } from "@/components/animal-glyph";
+import { ChineseTermPieces, ChineseTermWord } from "@/encyclopedia/ChineseTermWord";
 import { SIXTY } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
+import { joinPieces } from "@/lib/chinese/term-pieces";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
 import { PLACE_WORD } from "@/lib/chinese/zodiac-reading";
 import { ZODIAC_PLACES } from "@/lib/chinese/zodiac";
 import type { YearAhead } from "@/lib/chinese/zodiac-time";
-import { meetLine, monthRef } from "@/lib/chinese/zodiac-time-reading";
+import { meetLine, meetName, monthRef } from "@/lib/chinese/zodiac-time-reading";
 import { yearsTableCsv, yearsTextLines } from "@/lib/chinese/zodiac-time-table";
 import { useI18n } from "@/lib/i18n/locale";
 import { DataTable } from "@/studio/tables/DataTable";
@@ -16,7 +18,8 @@ import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePa
 /**
  * Chinese astrology's Cycles as a table (languages plan, part 11): the
  * year's twelve solar months, their dates, pillars and animals, and how
- * each of the reader's animals meets each one; Copy and CSV.
+ * each of the reader's animals meets each one; Copy and CSV. Each term links
+ * to its encyclopedia entry once the entry is written (part 29).
  */
 export function ZodiacYearsTable({
   y,
@@ -70,14 +73,31 @@ export function ZodiacYearsTable({
                   <td>
                     <span className="ulune-zk-table-animal">
                       {prefs.animals === "drawings" ? <AnimalGlyph animal={m.pillar.branch} size={16} /> : null}
-                      {chineseLabel(SIXTY[m.pillar.cycle]!, locale, prefs).text}
+                      <ChineseTermWord family="pillar" id={SIXTY[m.pillar.cycle]!.id}>
+                        {chineseLabel(SIXTY[m.pillar.cycle]!, locale, prefs).text}
+                      </ChineseTermWord>
                     </span>
                   </td>
                   {places.map((p) => {
                     const meet = m.yours.find((x) => x.place === p)!;
                     return (
                       <td key={p} data-testid={`zodiac-years-cell-${m.index}-${p}`}>
-                        {meet.kinds.length ? meetLine(meet.kinds, locale, prefs, true) : "·"}
+                        {meet.kinds.length ? (
+                          <ChineseTermPieces
+                            text={meetLine(meet.kinds, locale, prefs, true)}
+                            pieces={() =>
+                              joinPieces(
+                                meet.kinds.map((k) => ({
+                                  text: chineseLabel(meetName(k, true), locale, prefs).text,
+                                  ...(k === "same" ? { family: "zodiac-concept" as const, id: "ben-ming-nian" } : { family: "relation" as const, id: k }),
+                                })),
+                                ", ",
+                              )
+                            }
+                          />
+                        ) : (
+                          "·"
+                        )}
                       </td>
                     );
                   })}

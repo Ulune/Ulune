@@ -10,14 +10,17 @@
  *   - the slider to 2000: the first yang block is the year's; a block's
  *     reading, and how the pillars are counted ("they agree");
  *   - the table: eighteen luck pillars, the year and twelve months;
+ *   - (part 29) the page's method notes, here on the page since the side
+ *     panel reads the year: none for Fixture A, and "How Ulune calculates" at
+ *     the end, naming the Zi Ping school and how the luck pillars start;
  *   - nothing sent; nothing scrolls sideways.
  */
 import { join } from "node:path";
 import { FIXTURE_A, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, gotoApp, goStudioPage, launch, setLang, setView } from "./_lib.mjs";
 
 const WORDS = {
-  en: { yang: "7 years 3 months", yin: "3 years 1 month", god: "Direct Officer", combo: "Stem combination · Day pillar", lead: "For ten years", agree: "they agree" },
-  fr: { yang: "7 ans 3 mois", yin: "3 ans 1 mois", god: "Officier direct", combo: "Combinaison de troncs · Pilier du jour", lead: "Pendant dix ans", agree: "ils s’accordent" },
+  en: { yang: "7 years 3 months", yin: "3 years 1 month", god: "Direct Officer", combo: "Stem combination · Day pillar", lead: "For ten years", agree: "they agree", how: "How Ulune calculates", method: ["BaZi follows the Zi Ping school", "The luck pillars step from the month pillar", "Swiss Ephemeris 2.10.03, JPL DE441"] },
+  fr: { yang: "7 ans 3 mois", yin: "3 ans 1 mois", god: "Officier direct", combo: "Combinaison de troncs · Pilier du jour", lead: "Pendant dix ans", agree: "ils s’accordent", how: "Comment Ulune calcule", method: ["Le BaZi suit l’école Zi Ping", "Les piliers de chance avancent ou reculent depuis le pilier du mois", "Swiss Ephemeris 2.10.03, JPL DE441"] },
 };
 const note = (page) => page.getByTestId("click-note").evaluate((e) => e.textContent ?? "").catch(() => "");
 
@@ -51,6 +54,12 @@ async function run(width, lang) {
     if (!bands.yang.includes(w.yang) || !bands.yin.includes(w.yin)) throw new Error(`${label}: the starts "${bands.yang}" / "${bands.yin}"`);
     if (bands.n !== 18) throw new Error(`${label}: ${bands.n} luck blocks`);
     if (bands.first.join() !== "癸未,辛巳") throw new Error(`${label}: the first luck pillars ${bands.first}`);
+    // Part 29: no note for Fixture A; at the page's end, "How Ulune calculates", folded.
+    const method = await page.evaluate(() => {
+      const how = document.querySelector("[data-testid=bazi-luck] [data-testid=method-notes]");
+      return { notes: document.querySelectorAll("[data-testid=bazi-luck] [data-testid=method-note]").length, title: how?.querySelector("summary")?.textContent?.trim(), open: how?.open, text: how?.textContent ?? "" };
+    });
+    if (method.notes || method.title !== w.how || method.open || !w.method.every((t) => method.text.includes(t))) throw new Error(`${label}: the method notes ${JSON.stringify(method).slice(0, 300)}`);
 
     // To 2026 whatever year this is.
     for (let i = 0; i < 120; i += 1) {

@@ -30,6 +30,8 @@ import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
+import { HowUluneCalculates, MethodNotes } from "@/studio/modes/chinese-notes";
+import { useMethodNotes } from "@/studio/modes/hooks/useMethodNotes";
 import { usePairPick } from "@/studio/modes/hooks/usePairPick";
 import { MODE_META } from "@/studio/modes/meta";
 import { PairSelects, type PairPick } from "@/studio/modes/pair-selects";
@@ -50,7 +52,8 @@ import "@/studio/modes/styles/bazi-pair.css";
  * page). Both boards side by side, the Day Masters outlined; under them the
  * Day Masters' relation, the partner palaces, what each brings the other and
  * every meeting between B's pillars and A's, each opening its reading.
- * Worked out here; nothing is sent.
+ * Worked out here; nothing is sent. Part 29 adds the method notes to the side
+ * panel's first read, each named for its person (chinese-notes.tsx).
  */
 
 export type BaziPairState = {
@@ -59,6 +62,8 @@ export type BaziPairState = {
   b: BaziChart | null;
   pair: BaziPair | null;
   names: PairNames;
+  /** The two cast charts, for the method notes (part 29). */
+  charts: { a: NatalChart | null; b: NatalChart | null };
   enabled: boolean;
 };
 
@@ -205,19 +210,22 @@ function PairControls() {
   return <PairSelects mode="synastry" pair={data.pick} prefix="bazi-pair" page="bazi-pair" />;
 }
 
-/** The side panel with nothing chosen: what Pair compares, then its three lines. */
+/** The side panel with nothing chosen: what Pair compares, then its three lines; first each person's method notes, last how Ulune calculates (part 29). */
 function PairHello() {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const w = useWheelView();
   const data = useModeData("bazi-pair");
+  const notes = useMethodNotes("bazi-pair", data?.charts.a ?? null, { chart: data?.charts.b ?? null, names: data?.names ?? { a: "A", b: "B" } });
   if (!data?.a) return null;
   if (!data.pair) {
     return (
       <section className="ulune-zk-hello" data-testid="bazi-pair-hello" data-empty="1">
+        <MethodNotes notes={notes} />
         <button type="button" data-testid="bazi-pair-add-second-panel" onClick={() => data.pick?.addSecond()} className="inline-flex min-h-11 items-center rounded-md font-display text-xl leading-tight text-fg hover:text-fg-muted">
           {cnWord(locale, "zkPairAdd")}
         </button>
+        <HowUluneCalculates page="bazi-pair" />
       </section>
     );
   }
@@ -228,6 +236,7 @@ function PairHello() {
   ];
   return (
     <section className="ulune-zk-hello" data-testid="bazi-pair-hello">
+      <MethodNotes notes={notes} />
       <h2 className="ulune-zk-hello-h">{cnWord(locale, "bzpTitle")}</h2>
       <p className="ulune-zk-hello-p">{cnWord(locale, "bzpLead")}</p>
       <ul className="ulune-zk-hello-list">
@@ -239,6 +248,7 @@ function PairHello() {
           </li>
         ))}
       </ul>
+      <HowUluneCalculates page="bazi-pair" />
     </section>
   );
 }
@@ -281,7 +291,7 @@ function usePairRuntime(): ModeRuntime<BaziPairState> {
   );
   const pair = useMemo(() => (a && b ? baziPair(a, b) : null), [a, b]);
   const reading = useMemo(() => (pair && a && b ? pairReading(pair, a, b, selectedId, names, locale, prefs) : null), [pair, a, b, selectedId, names, locale, prefs]);
-  const data = useMemo(() => ({ pick, a, b, pair, names, enabled }), [pick, a, b, pair, names, enabled]);
+  const data = useMemo(() => ({ pick, a, b, pair, names, charts: { a: inner, b: chartB }, enabled }), [pick, a, b, pair, names, inner, chartB, enabled]);
   return useMemo(() => ({ data, reading }), [data, reading]);
 }
 

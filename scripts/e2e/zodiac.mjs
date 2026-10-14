@@ -21,10 +21,15 @@
  *     "A modern portrait" and "In the tradition"; a relation's reading ends
  *     "In practice";
  *   - the table view's four rows; Settings' "Name only" followed at once;
- *   - nothing sent while the page works it out; nothing scrolls sideways.
+ *   - nothing sent while the page works it out; nothing scrolls sideways;
+ *   - (part 29) the method notes: none for Fixture A, and the first read
+ *     ends on "How Ulune calculates" (Lichun, not New Year; UTC+8; the
+ *     table's source); Fixture B (made up: 03/11/1987, 23:10, Oslo) is born
+ *     in the Rat hour before midnight, which the first read says of its day
+ *     animal; on the Relationship page too, named for its person.
  */
 import { join } from "node:path";
-import { FIXTURE_A, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, gotoApp, launch, setLang, setView } from "./_lib.mjs";
+import { FIXTURE_A, FIXTURE_B, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, launch, setLang, setView } from "./_lib.mjs";
 
 const WORDS = {
   en: {
@@ -39,6 +44,10 @@ const WORDS = {
     pairLead: "The Metal Horse is the most determined of the Horses",
     sections: ["A modern portrait", "In the tradition"],
     practice: "In practice",
+    how: "How Ulune calculates",
+    method: ["The year animal changes at Lichun", "not at Chinese New Year", "UTC+8", "Swiss Ephemeris 2.10.03, JPL DE441"],
+    day: "so your day animal is the next day’s",
+    whose: "so Sample B’s day animal is the next day’s",
   },
   fr: {
     heading: "Traditions chinoises",
@@ -52,8 +61,33 @@ const WORDS = {
     pairLead: "Le Cheval de Métal est le plus déterminé des Chevaux",
     sections: ["Portrait moderne", "Dans la tradition"],
     practice: "En pratique",
+    how: "Comment Ulune calcule",
+    method: ["L’animal de l’année change à Lichun", "et non au Nouvel An chinois", "UTC+8", "Swiss Ephemeris 2.10.03, JPL DE441"],
+    day: "et votre animal du jour est celui du lendemain",
+    whose: "et l’animal du jour de Sample B est celui du lendemain",
   },
 };
+
+/** Part 29: a first read's method notes (their ids and words) and its "How Ulune calculates" (its title and words). */
+async function methodNotes(page, scope) {
+  return page.evaluate((s) => {
+    const root = document.querySelector(`[data-testid="${s}"]`);
+    const how = root?.querySelector("[data-testid=method-notes]");
+    return {
+      title: how?.querySelector("summary")?.textContent?.trim() ?? null,
+      how: how?.textContent ?? "",
+      notes: [...(root?.querySelectorAll("[data-testid=method-note]") ?? [])].map((n) => ({ id: n.getAttribute("data-note"), text: n.textContent ?? "" })),
+    };
+  }, scope);
+}
+
+/** The side panel's first read, nothing chosen. */
+async function firstRead(page, width, testId) {
+  await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur());
+  await page.keyboard.press("Escape");
+  if (width < 1024) await clickDockTab(page, "reading");
+  await page.getByTestId(testId).waitFor({ timeout: 8000 });
+}
 
 async function run(width, lang) {
   const { browser, page } = await launch(width);
@@ -220,6 +254,29 @@ async function run(width, lang) {
     await page.evaluate(() => localStorage.removeItem("ulune.chinese"));
 
     if (sent.length) throw new Error(`${label}: sent ${sent.join(", ")}`);
+
+    // Part 29: Fixture A calls for no note; the first read ends on "How Ulune calculates".
+    await firstRead(page, width, "zodiac-hello");
+    const usual = await methodNotes(page, "zodiac-hello");
+    if (usual.notes.length) throw new Error(`${label}: Fixture A's notes ${JSON.stringify(usual.notes)}`);
+    if (usual.title !== w.how || !w.method.every((t) => usual.how.includes(t))) throw new Error(`${label}: "How Ulune calculates" ${usual.title} "${usual.how.slice(0, 300)}"`);
+    // Fixture B, born in the Rat hour before midnight: its day animal, said with the way to Settings.
+    await goStudioPage(page, "natal");
+    await castFixture(page, FIXTURE_B);
+    await goStudioPage(page, "zodiac");
+    await page.getByTestId("zodiac-wheel").waitFor({ timeout: 20000 });
+    await firstRead(page, width, "zodiac-hello");
+    const late = await methodNotes(page, "zodiac-hello");
+    if (late.notes.map((n) => n.id).join() !== "day-boundary" || !late.notes[0].text.includes(w.day)) throw new Error(`${label}: Fixture B's notes ${JSON.stringify(late.notes)}`);
+    // The Relationship page (Sample B shown, TraceQA beside): the note named for its person, and the language's method.
+    await goStudioPage(page, "zodiac-pair");
+    await page.getByTestId("zodiac-pair").waitFor({ timeout: 20000 });
+    await firstRead(page, width, "zodiac-pair-hello");
+    const pair = await methodNotes(page, "zodiac-pair-hello");
+    if (pair.notes.map((n) => n.id).join() !== "day-boundary" || !pair.notes[0].text.startsWith("Sample B — ") || !pair.notes[0].text.includes(w.whose)) throw new Error(`${label}: Pair's notes ${JSON.stringify(pair.notes)}`);
+    if (pair.title !== w.how || !pair.how.includes(w.method[0])) throw new Error(`${label}: Pair's "How Ulune calculates" ${pair.title}`);
+    await assertNoOverflow(page);
+
     if (errors.length) throw new Error(`${label}: ${errors.join(" | ")}`);
     console.log(`zodiac ${label} OK`);
   } finally {

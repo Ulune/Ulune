@@ -10,6 +10,7 @@ import { spaceWords } from "../src/lib/i18n/catalog/space-words.ts";
 import { dataWords } from "../src/lib/i18n/catalog/data-words.ts";
 import { aiWords } from "../src/lib/i18n/catalog/ai-words.ts";
 import { placesWords } from "../src/lib/i18n/catalog/places-words.ts";
+import { guideWords } from "../src/lib/i18n/catalog/guide-words.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const CAT_DIR = join(ROOT, "src/lib/i18n/catalog");
@@ -74,7 +75,7 @@ test("no English literal in aria-label", () => {
 
 test("the catalogs read on their own, outside the index (the calendar's layers, the language picker, the Chinese traditions, the space sheet's, Your data's, the AI accounts' and the switcher's homes' books), are complete too", () => {
   // Kept out of the index so they stay out of the first download; held to the same rules.
-  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords, chinese, spaceWords, dataWords, aiWords, placesWords })) {
+  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords, chinese, spaceWords, dataWords, aiWords, placesWords, guideWords })) {
     for (const [key, [en, fr]] of Object.entries(words)) {
       assert.ok(en && en.trim(), `${name}.${key}: English missing`);
       assert.ok(fr && fr.trim(), `${name}.${key}: French missing`);
@@ -102,6 +103,7 @@ test("every word of the books kept out of the first download is said somewhere, 
     [dataWords, ["src/components/your-data.tsx"]],
     [aiWords, ["src/components/ai-accounts.tsx"]],
     [placesWords, ["src/studio/shell/picker-places.tsx", "src/lib/chinese/fengshui-home-line.ts", "src/studio/shell/CommandPaletteDialog.tsx"]],
+    [guideWords, ["src/components/first-screen/GuideAnswer.tsx"]],
   ]) {
     const corpus = files.map(read).join("\n");
     const unsaid = Object.keys(words).filter((key) => !new RegExp(`["'\`]${key}["'\`]`).test(corpus));

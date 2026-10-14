@@ -10,7 +10,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { useModeReading } from "@/studio/modes/data";
 import { useModeDef } from "@/studio/modes/registry";
 import type { StudioPage } from "@/studio/url";
-import { languageOf } from "@/studio/map";
+import { languageById, languageOf } from "@/studio/map";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { useStudioStore } from "@/studio/store";
@@ -146,9 +146,15 @@ export function ReadingTab() {
           ) : null}
         </>
       )}
-      <GlossaryDetails page={page} selectedId={selectedId0} />
+      {/* The glossary's words are astrology's, Human Design's and numerology's: not a Chinese page's (languages plan, part 29); its terms come with the encyclopedia. */}
+      {chinesePage(page) ? null : <GlossaryDetails page={page} selectedId={selectedId0} />}
     </div>
   );
+}
+
+function chinesePage(page: StudioPage): boolean {
+  const lang = languageOf(page);
+  return lang != null && languageById(lang).group === "chinese";
 }
 
 function packKindOf(page: StudioPage): PackKind {

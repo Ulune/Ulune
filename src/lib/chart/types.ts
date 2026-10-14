@@ -384,9 +384,10 @@ export type BirthInput = {
   numerologyY?: { name: string; roles: string };
   /**
    * The Chinese traditions' yin or yang count of the birth (languages plan,
-   * decision 4), given or not: read only by BaZi's luck pillars, the Kua
-   * number and Zi Wei Dou Shu, which show both versions without it. Kept on
-   * the device with the chart, like numerology's names, and never sent.
+   * decision 4), given or not: read only by BaZi's luck pillars and the Kua
+   * number, which show both versions without it (Zi Wei Dou Shu will too,
+   * with the second wave of languages). Kept on the device with the chart,
+   * like numerology's names, and never sent.
    */
   chineseCount?: "yang" | "yin";
 };

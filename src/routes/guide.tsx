@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Guide } from "@/components/first-screen/Guide";
+import { guideAnswersReady } from "@/components/first-screen/guide-answers";
 import { SiteFooter } from "@/components/first-screen/SiteFooter";
 import { useI18n } from "@/lib/i18n/locale";
 import { pageHead } from "@/lib/page-head";
@@ -8,6 +9,8 @@ import { PageTopBar } from "@/studio/shell/PageTopBar";
 export const Route = createFileRoute("/guide")({
   // The same words as the home page's guide: the home page is the one search engines find.
   head: () => pageHead({ path: "/guide", title: "Guide · Ulune", index: false }),
+  // The server's page holds the answers too (languages plan, part 29).
+  loader: guideAnswersReady,
   component: GuidePage,
 });
 

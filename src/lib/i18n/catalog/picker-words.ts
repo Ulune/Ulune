@@ -15,7 +15,7 @@
 export const pickerWords = {
   langAstrologyLine: [
     "The sky at your birth: planets, signs, houses and aspects.",
-    "Le ciel de votre naissance : planètes, signes, maisons et aspects.",
+    "Le ciel de votre naissance\u202f: planètes, signes, maisons et aspects.",
   ],
   langHumanDesignLine: [
     "Your type, strategy and authority, on the bodygraph.",
@@ -49,11 +49,11 @@ export const pickerWords = {
   traditionWestern: ["Western traditions", "Traditions occidentales"],
   traditionChinese: ["Chinese traditions", "Traditions chinoises"],
   paletteLanguages: ["Languages", "Langages"],
-  // The language button's one-time hint for readers of 1.x (page reorganisation, R8; src/studio/shell/LanguageHint.tsx).
+  // The language button's one-time hint for readers of 1.x (page reorganisation, R8; src/studio/shell/LanguageHint.tsx), with 2.0's Chinese languages (languages plan, part 29).
   langHintTitle: ["New in Ulune 2.0", "Nouveau dans Ulune 2.0"],
   langHintBody: [
-    "Human Design and numerology are now languages, like astrology: choose them here. Time is now Cycles, Pair is Relationship, and the Calendar has a section of its own.",
-    "Le Human Design et la numérologie sont désormais des langages, comme l’astrologie : choisissez-les ici. Temps devient Cycles, Duo devient Relation, et le calendrier a sa propre section.",
+    "Human Design and numerology are now languages, like astrology, and three Chinese ones join them: Chinese astrology, BaZi and Feng Shui. Choose them here. Time is now Cycles, Pair is Relationship, and the Calendar has a section of its own.",
+    "Le Human Design et la numérologie sont désormais des langages, comme l’astrologie, et trois langages chinois les rejoignent\u202f: l’astrologie chinoise, le BaZi et le Feng Shui. Choisissez-les ici. Temps devient Cycles, Duo devient Relation, et le calendrier a sa propre section.",
   ],
   langHintOk: ["Got it", "Compris"],
 } as const satisfies Record<string, readonly [string, string]>;

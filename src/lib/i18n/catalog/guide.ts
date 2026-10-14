@@ -1,7 +1,12 @@
 /**
  * guide: [English, French]. The first screen's words: the form's first-visit
  * title and line, the guide under it (also on /guide), its questions, and the
- * footer. The tour's words ship with the tour (src/lib/tour/steps.ts).
+ * footer. The tour's words ship with the tour (src/lib/tour/steps.ts), and
+ * the answers to the guide's questions with the guide (guide-words.ts). The
+ * Chinese languages joined the guide with the languages plan, part 29: their
+ * lines in what you can do, the lenses' Home, the Calendar's layers, the
+ * Chinese calendar's precision and two questions. These words are in every
+ * page's first download, so they stay short.
  */
 export const guide = {
   firstTitle: ["Cast a birth chart", "Calculer un thème natal"],
@@ -32,10 +37,10 @@ export const guide = {
 
   guideWhatTitle: ["What Ulune is", "Ce qu’est Ulune"],
   guideWhatBody: [
-    "Ulune casts your birth chart and explains it: where the Sun, the Moon and the planets stood when and where you were born, the houses they fell in and the angles between them. Human Design and numerology read the same birth data in languages of their own; the Calendar follows the sky day by day, and the encyclopedia explains every word.",
-    "Ulune calcule votre thème natal et l’explique\u202f: où se trouvaient le Soleil, la Lune et les planètes au moment et au lieu de votre naissance, les maisons où ils tombaient et les angles qu’ils formaient entre eux. Le Human Design et la numérologie lisent les mêmes données de naissance dans leur propre langage\u202f; le calendrier suit le ciel jour après jour, et l’encyclopédie explique chaque mot.",
+    "Ulune casts your birth chart and explains it: where the Sun, the Moon and the planets stood when and where you were born, the houses they fell in and the angles between them. Human Design, numerology, Chinese astrology, BaZi and Feng Shui read the same birth data in languages of their own; the Calendar follows the sky day by day, and the encyclopedia explains the words.",
+    "Ulune calcule votre thème natal et l’explique\u202f: où se trouvaient le Soleil, la Lune et les planètes au moment et au lieu de votre naissance, les maisons où ils tombaient et les angles qu’ils formaient entre eux. Le Human Design, la numérologie, l’astrologie chinoise, le BaZi et le Feng Shui lisent les mêmes données de naissance dans leur propre langage\u202f; le calendrier suit le ciel jour après jour, et l’encyclopédie explique les mots.",
   ],
-  // What you can do, in the 2.0 map’s words (page reorganisation, R8): the three languages, the lenses, the Calendar, the encyclopedia.
+  // What you can do, in the 2.0 map’s words (page reorganisation, R8; the Chinese languages since languages plan, part 29): the six languages, the lenses, the Calendar, the encyclopedia.
   guideDoTitle: ["What you can do", "Ce que vous pouvez faire"],
   guideDoAstrology: [
     "Your birth chart as a wheel or a table, with a written reading for each planet, house and aspect.",
@@ -49,17 +54,31 @@ export const guide = {
     "The numbers of your birth date and full name at birth, and their cycles through life.",
     "Les nombres de votre date de naissance et de votre nom complet de naissance, et leurs cycles au fil de la vie.",
   ],
+  guideDoChineseAstrology: [
+    "The wheel of the twelve animals and your four, of the year, the month, the day and the hour, with the harmonies and clashes between them.",
+    "La roue des douze animaux et vos quatre animaux, de l’année, du mois, du jour et de l’heure, avec leurs harmonies et leurs chocs.",
+  ],
+  guideDoBazi: [
+    "The Four Pillars of your birth: your Day Master, the Ten Gods, the balance of the five phases and your luck pillars.",
+    "Les Quatre Piliers de votre naissance\u202f: votre Maître du jour, les Dix Dieux, l’équilibre des cinq phases et vos piliers de chance.",
+  ],
+  guideDoFengShui: [
+    "Your Kua number and your eight directions; with Home, a home’s Flying Stars, from its facing and the year it was built.",
+    "Votre nombre Kua et vos huit directions\u202f; avec Logement, les Étoiles volantes d’un logement, d’après son orientation et son année de construction.",
+  ],
   guideDoLenses: [
-    "The tabs beside the language: Natal, the birth chart itself; Cycles, the chart through time (transits, progressions; numerology’s years and life cycles); Relationship, beside a second person’s (synastry, composite).",
-    "Les onglets à côté du langage\u202f: Natal, le thème natal lui-même\u202f; Cycles, le thème au fil du temps (transits, progressions\u202f; les années et les cycles de vie de la numérologie)\u202f; Relation, à côté de celui d’une autre personne (synastrie, composite).",
+    "The tabs beside the language, as each has them: Natal, the birth chart itself; Cycles, the chart through time (transits, progressions; numerology’s years and life cycles; BaZi’s luck pillars); Relationship, beside a second person’s; Home, a place, for Feng Shui.",
+    "Les onglets à côté du langage, selon ceux qu’il a\u202f: Natal, le thème natal lui-même\u202f; Cycles, le thème au fil du temps (transits, progressions\u202f; les années et les cycles de vie de la numérologie\u202f; les piliers de chance du BaZi)\u202f; Relation, à côté de celui d’une autre personne\u202f; Logement, un lieu, pour le Feng Shui.",
   ],
+  // The Calendar's layers by language (src/lib/chart/calendar-layers.ts): those on by default, then those kept off until asked for.
   guideDoCalendar: [
-    "The sky day by day, with the dates your transits are exact and your personal year, month and day. It works without a chart too.",
-    "Le ciel jour après jour, avec les dates où vos transits sont exacts, et votre année, votre mois et votre jour personnels. Il fonctionne aussi sans thème.",
+    "Day by day, in layers by language: the sky, your transits and the solar terms; in View, you can add your personal year, month and day, the day’s animal and Feng Shui’s flying stars. It works without a chart too.",
+    "Jour après jour, en calques par langage\u202f: le ciel, vos transits et les termes solaires\u202f; dans Affichage, vous pouvez ajouter votre année, votre mois et votre jour personnels, l’animal du jour et les étoiles volantes du Feng Shui. Il fonctionne aussi sans thème.",
   ],
+  // The Chinese languages' pages come with the encyclopedia plan's parts 23 to 26: name them here then.
   guideDoEncyclopedia: [
-    "A page for each word the three languages use, from Saturn to the life path, in English and French.",
-    "Une page pour chaque mot des trois langages, de Saturne au chemin de vie, en français et en anglais.",
+    "A page for each word of astrology, Human Design and numerology, from Saturn to the life path, in English and French.",
+    "Une page pour chaque mot de l’astrologie, du Human Design et de la numérologie, de Saturne au chemin de vie, en français et en anglais.",
   ],
   guideBeginTitle: ["How to begin", "Pour commencer"],
   guideBegin1: [
@@ -124,45 +143,29 @@ export const guide = {
     "Numerology follows Hans Decoz’s Pythagorean method: each name added on its own, a Y counted by its place, master numbers and karmic debts kept. The Chaldean number stands beside it, labelled, never mixed in.",
     "La numérologie suit la méthode pythagoricienne de Hans Decoz\u202f: chaque nom additionné à part, un Y compté selon sa place, les nombres maîtres et les dettes karmiques gardés. Le nombre chaldéen se tient à côté, nommé, jamais mêlé.",
   ],
+  // The Chinese calendar engine (src/lib/chinese/README.md) and its defaults (src/lib/chinese/prefs.ts).
+  guidePreciseChinese: [
+    "The Chinese languages share one calendar: the solar terms and new moons, computed with the Swiss Ephemeris into a table for 1800 to 2200 that your device reads. The year turns at Lichun; the hour is read in true solar time and the day turns at 23:00, unless you choose otherwise in Settings.",
+    "Les langages chinois partagent un calendrier\u202f: les termes solaires et les nouvelles lunes, calculés avec la Swiss Ephemeris dans une table de 1800 à 2200 que lit votre appareil. L’année change à Lichun\u202f; l’heure se lit en temps solaire vrai et le jour change à 23\u202fh, sauf autre choix dans les Réglages.",
+  ],
   guidePrecise4: ["Ulune’s code is public, under the GNU AGPL.", "Le code d’Ulune est public, sous licence GNU AGPL."],
   guideSource: ["Source code", "Code source"],
   whatsNew: ["What’s new", "Nouveautés"],
   guideFaqTitle: ["Questions", "Questions"],
+  // The questions: their answers load with the guide itself, apart from every page's first download (guide-words.ts, said by GuideAnswer.tsx).
   faqTimeQ: ["I don’t know my birth time.", "Je ne connais pas mon heure de naissance."],
-  faqTimeA: [
-    "Tick “I don’t know the time”. Ulune uses noon: the planets move little in half a day, except the Moon, which can be up to about 7½° off. The houses and the Ascendant depend on the exact time, so they are marked approximate.",
-    "Cochez «\u202fJe ne connais pas l’heure\u202f». Ulune prend midi\u202f: les planètes bougent peu en une demi-journée, sauf la Lune, qui peut s’écarter jusqu’à 7,5° environ. Les maisons et l’Ascendant dépendent de l’heure exacte\u202f: ils sont marqués comme approximatifs.",
-  ],
   faqHousesQ: ["Which house system should I choose?", "Quel système de maisons choisir\u202f?"],
-  faqHousesA: [
-    "Placidus, the default, is the most common; whole sign is the oldest. Each has a line in the form’s options, and you can change it later by editing the chart.",
-    "Placidus, le système par défaut, est le plus courant\u202f; celui des signes entiers est le plus ancien. Chacun a sa ligne dans les options du formulaire, et vous pouvez en changer plus tard en modifiant le thème.",
-  ],
   faqFreeQ: ["Is Ulune free?", "Ulune est-il gratuit\u202f?"],
-  faqFreeA: [
-    "Yes: every chart, language and reading, with no account, subscription or advertising.",
-    "Oui\u202f: chaque thème, chaque langage et chaque lecture, sans compte, sans abonnement ni publicité.",
-  ],
   faqKeptQ: ["Where are my charts kept?", "Où sont gardés mes thèmes\u202f?"],
-  faqKeptA: [
-    "While you look, in the open tab only. In a private space, on this device, sealed; Ulune has no copy, so download a backup from the private space now and then.",
-    "Tant que vous regardez, dans l’onglet ouvert seulement. Dans un espace privé, sur cet appareil, scellés\u202f; Ulune n’en a aucune copie, alors téléchargez de temps en temps une sauvegarde depuis l’espace privé.",
-  ],
   faqTrustQ: ["Can I trust the positions?", "Puis-je me fier aux positions\u202f?"],
-  faqTrustA: [
-    "They come from the Swiss Ephemeris, which follows NASA JPL’s DE441 to a fraction of an arc-second, and Ulune’s tests compare them with reference charts. If one looks wrong, use “Report a problem”.",
-    "Elles viennent de la Swiss Ephemeris, qui suit DE441 (NASA JPL) à une fraction de seconde d’arc près, et les tests d’Ulune les comparent à des thèmes de référence. Si l’une vous semble fausse, utilisez «\u202fSignaler un problème\u202f».",
-  ],
   faqNameQ: ["Which name does numerology read?", "Quel nom la numérologie lit-elle\u202f?"],
-  faqNameA: [
-    "The full name at birth, as on the birth certificate: every given name and the family name. Type it under “Names for numerology” in the form, with the name used now if it differs: a married or chosen name adds its minor numbers. If the full name at birth is left empty, numerology reads the chart’s name. Both names stay on this device.",
-    "Le nom complet de naissance, comme sur l’acte de naissance\u202f: tous les prénoms et le nom de famille. Saisissez-le sous «\u202fNoms pour la numérologie\u202f» dans le formulaire, avec le nom utilisé aujourd’hui s’il diffère\u202f: un nom d’usage ou choisi ajoute ses nombres mineurs. Si le nom complet de naissance est laissé vide, la numérologie lit le nom du thème. Les deux noms restent sur cet appareil.",
+  // The Chinese languages' questions (languages plan, part 29; decisions 1 and 4 of 6 October 2026).
+  faqYearQ: [
+    "Why does the year animal change at Lichun, not Chinese New Year?",
+    "Pourquoi l’animal de l’année change-t-il à Lichun, pas au Nouvel An chinois\u202f?",
   ],
+  faqCountQ: ["What is the yin or yang count?", "Qu’est-ce que le compte yin ou yang\u202f?"],
   faqAiQ: ["Does Ulune use AI?", "Ulune utilise-t-il l’IA\u202f?"],
-  faqAiA: [
-    "No. The readings that come with every chart are fixed texts, the same for everyone with that placement.",
-    "Non. Les lectures qui accompagnent chaque thème sont des textes fixes, les mêmes pour tous ceux qui ont ce placement.",
-  ],
   guidePage: ["Guide", "Guide"],
   guidePageLead: [
     "What Ulune is, what it does, and what happens to your data.",

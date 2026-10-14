@@ -4,9 +4,9 @@ Pure TypeScript, no server code and no React: it runs in the browser and in
 Node alike, and nothing it computes leaves the device. Every Chinese language
 in Ulune (the zodiac, BaZi, Feng Shui, then Nine Star Ki, Zi Wei Dou Shu and
 the almanac) reads time through it, so they agree with each other and with the
-natal wheel. Nothing here is in any page's first download: the Calendar loads
-`terms.ts` with its solar terms' layer, and the Chinese pages load the rest on
-demand.
+natal wheel. Nothing here is in any page's first download but `term-live.ts`,
+a few lines the reading card reads: the Calendar loads `terms.ts` with its
+solar terms' layer, and the Chinese pages load the rest on demand.
 
 | File | What it holds |
 | --- | --- |
@@ -31,6 +31,8 @@ demand.
 | `geomag.ts`, `wmm2025.ts` | The magnetic declination from the World Magnetic Model 2025 (public domain), worked out on the device for a luopan's magnetic north. |
 | `fengshui-stars.ts`, `fengshui-stars-texts.ts`, `fengshui-stars-reading.ts` | The Flying Stars: a home's chart from its period and facing (the period, mountain and water stars in the nine palaces), the replacement chart near a mountain's edge, the formations, the stars' states, the nine palaces as a plan of the home (part 24), what the page says. |
 | `animal-glyphs.ts` | The twelve animals as Ulune's own line drawings, in the planet glyphs' language (24 × 24, round strokes). |
+| `method-notes.ts` | What the pages say of their method (part 29): the notes a birth calls for (born between 23:00 and 01:00, outside the table's years, a pillar within minutes of its change, New Year moved by the calendar of the time) and each language's "How Ulune calculates", naming its school and `TABLE_SOURCE`. |
+| `term-ids.ts`, `term-live.ts`, `term-pieces.ts`, `bazi-term-pieces.ts` | Every term's encyclopedia id and the switch that links them (part 29): the families of terms and their entries' ids, the families whose pages are written (none yet, so nothing links), and the tables' cells that name several terms, as pieces. |
 | `words.ts` | The interface words (`src/lib/i18n/catalog/chinese.ts`), read apart from the app's catalog so they stay out of the first download. |
 
 ## What it computes

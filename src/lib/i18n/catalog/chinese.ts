@@ -47,8 +47,8 @@ export const chinese = {
   cnClockCivilHint: ["The legal time of the birth, as the certificate gives it", "L’heure légale de la naissance, celle de l’acte"],
   cnDay: ["When the day turns", "Quand le jour change"],
   cnDayLead: [
-    "Schools disagree for births between 23:00 and 01:00; a chart born then says so.",
-    "Les écoles divergent pour les naissances entre 23\u202fh et 1\u202fh\u202f; un thème né à ce moment-là le signale.",
+    "Schools disagree for births between 23:00 and midnight, the first half of the Rat hour; a chart born between 23:00 and 01:00 says how it was read.",
+    "Les écoles divergent pour les naissances entre 23\u202fh et minuit, la première moitié de l’heure du Rat\u202f; un thème né entre 23\u202fh et 1\u202fh dit comment il a été lu.",
   ],
   cnDay23: ["At 23:00", "À 23\u202fh"],
   cnDay23Hint: ["The Rat hour opens the next day (the Zi Ping rule)", "L’heure du Rat ouvre le jour suivant (la règle du Zi Ping)"],
@@ -60,14 +60,14 @@ export const chinese = {
   cnDayMidnight: ["At midnight", "À minuit"],
   cnDayMidnightHint: ["As the civil calendar turns", "Comme le calendrier civil"],
 
-  // The birth form's yin or yang count (decision 4): used by three calculations only.
+  // The birth form's yin or yang count (decision 4): read by two calculations in 2.0, BaZi's luck pillars and the Kua (part 29).
   cnCount: ["Yin or yang count (Chinese traditions)", "Compte yin ou yang (traditions chinoises)"],
   cnCountNone: ["Not given", "Non indiqué"],
   cnCountYang: ["Yang: the tradition’s count for a man", "Yang\u202f: le compte de la tradition pour un homme"],
   cnCountYin: ["Yin: the tradition’s count for a woman", "Yin\u202f: le compte de la tradition pour une femme"],
   cnCountNote: [
-    "Classical Chinese traditions count a birth as yang or yin by sex. Only three calculations read it: the direction of BaZi’s luck pillars, Feng Shui’s Kua number and Zi Wei Dou Shu. Left empty, both versions are shown. Kept with the chart on this device, never sent.",
-    "Les traditions chinoises classiques comptent une naissance comme yang ou yin selon le sexe. Trois calculs seulement le lisent\u202f: le sens des piliers de chance du BaZi, le nombre Kua du Feng Shui et le Zi Wei Dou Shu. Laissé vide, les deux versions sont montrées. Gardé avec le thème sur cet appareil, jamais envoyé.",
+    "Classical Chinese traditions count a birth as yang or yin by sex. Only two calculations read it: the direction of BaZi’s luck pillars and Feng Shui’s Kua number. Left empty, both versions are shown. Kept with the chart on this device, never sent.",
+    "Les traditions chinoises classiques comptent une naissance comme yang ou yin selon le sexe. Deux calculs seulement le lisent\u202f: le sens des piliers de chance du BaZi et le nombre Kua du Feng Shui. Laissé vide, les deux versions sont montrées. Gardé avec le thème sur cet appareil, jamais envoyé.",
   ],
 
   // The solar terms, in the Calendar (its layer) and on the wheel (a Look switch).
@@ -125,13 +125,14 @@ export const chinese = {
     "Counted from Chinese New Year, as most people learned it, your year animal would be {theAnimal}. Ulune counts from Lichun, the start of spring, as the Four Pillars and Feng Shui do: births between the two dates get two answers.",
     "Compté depuis le Nouvel An chinois, comme on l’apprend le plus souvent, votre animal de l’année serait {theAnimal}. Ulune compte depuis Lichun, le début du printemps, comme les Quatre Piliers et le Feng Shui\u202f: les naissances entre les deux dates ont deux réponses.",
   ],
+  // Said in a "~" animal's reading, and by the method notes for an animal or a pillar (part 29).
   zkUncertainNear: [
-    "Your birth falls within a few minutes of this animal’s change: a birth time a little off would give the next one.",
-    "Votre naissance tombe à quelques minutes du changement de cet animal\u202f: une heure un peu différente donnerait le suivant.",
+    "The birth falls within a few minutes of its change: a birth time a little off could give the one before or after.",
+    "La naissance tombe à quelques minutes de son changement\u202f: une heure un peu différente pourrait donner le précédent ou le suivant.",
   ],
   zkUncertainDay: [
-    "Without a birth time, this animal may be the next one: it changes during your birth day.",
-    "Sans heure de naissance, cet animal peut être le suivant\u202f: il change pendant votre jour de naissance.",
+    "Without a birth time, it could be another one: it changes during the day of birth.",
+    "Sans heure de naissance, il pourrait en être un autre\u202f: il change au cours du jour de naissance.",
   ],
   zkClockLine: ["The hour on {clock}; the day turns {day}.", "L’heure en {clock}\u202f; le jour change {day}."],
   zkDayAt23: ["at 23:00", "à 23\u202fh"],
@@ -1269,5 +1270,104 @@ export const chinese = {
   zkPartRelationsHint: [
     "The classical relations between your animals, pair by pair: harmonies and trines bring together, the others rub.",
     "Les relations classiques entre vos animaux, deux à deux\u202f: harmonies et trigones rapprochent, les autres frottent.",
+  ],
+  // The method notes (languages plan, part 29; lib/chinese/method-notes.ts): what a birth calls for, then each language's "How Ulune calculates".
+  cnmSettings: ["Settings → Chinese traditions", "Réglages → Traditions chinoises"],
+  cnmTimeSolar: ["{time} by true solar time", "{time} en temps solaire vrai"],
+  cnmTimeMean: ["{time} by local mean time", "{time} en temps moyen local"],
+  cnmTimeCivil: ["{time} on the clock", "{time} à la pendule"],
+  cnmTimeAlso: ["({time} on the clock)", "({time} à la pendule)"],
+  cnmYour: ["your {place}", "votre {place}"],
+  cnmWhose: ["{who}’s {place}", "{place} de {who}"],
+  cnmDay23: [
+    "Born at {time}, in the Rat hour before midnight: by the Zi Ping rule, followed here, the day has already turned, so {whose} is the next day’s, {day}. If the day turned at midnight, as in other schools, it would be {other}.",
+    "Naissance à {time}, dans l’heure du Rat avant minuit\u202f: selon la règle du Zi Ping, suivie ici, le jour a déjà changé, et {whose} est celui du lendemain, {day}. Si le jour changeait à minuit, comme dans d’autres écoles, il serait {other}.",
+  ],
+  cnmDayMidnight: [
+    "Born at {time}, in the Rat hour before midnight: with the day turning at midnight, as you chose, {whose} is {day}. By the Zi Ping rule, which turns it at 23:00, it would be the next day’s, {other}.",
+    "Naissance à {time}, dans l’heure du Rat avant minuit\u202f: avec le jour qui change à minuit, comme vous l’avez choisi, {whose} est {day}. Selon la règle du Zi Ping, qui le fait changer à 23\u202fh, ce serait celui du lendemain, {other}.",
+  ],
+  cnmDaySplit: [
+    "Born at {time}, in the Rat hour before midnight: with the Rat hour split, as you chose, {whose} stays {day} until midnight, while the hour is already the next day’s. By the Zi Ping rule, which turns the day at 23:00, it would be the next day’s, {other}.",
+    "Naissance à {time}, dans l’heure du Rat avant minuit\u202f: avec l’heure du Rat partagée, comme vous l’avez choisi, {whose} reste {day} jusqu’à minuit, tandis que l’heure est déjà celle du lendemain. Selon la règle du Zi Ping, qui fait changer le jour à 23\u202fh, ce serait celui du lendemain, {other}.",
+  ],
+  cnmDayAfter: [
+    "Born at {time}, in the Rat hour after midnight: every school counts the new day here, so {whose} is {day} whichever rule you choose.",
+    "Naissance à {time}, dans l’heure du Rat après minuit\u202f: toutes les écoles y comptent le nouveau jour, et {whose} est {day}, quelle que soit la règle choisie.",
+  ],
+  cnmNoteFormula: [
+    "Born outside 1800–2200, the years of Ulune’s table: {what} are worked out by formula, within about 20 seconds of the ephemeris the table comes from.",
+    "Naissance hors de 1800–2200, les années de la table d’Ulune\u202f: {what} sont calculés par formule, à une vingtaine de secondes près de l’éphéméride dont vient la table.",
+  ],
+  cnmWhatTerms: ["the solar terms", "les termes solaires"],
+  cnmWhatTermsMoons: ["the solar terms and the new moons", "les termes solaires et les nouvelles lunes"],
+  cnmNewYearBeijing: [
+    "By the calendar of the time, reckoned at Beijing’s meridian from 1913 to 1928 as Ulune dates those years, Chinese New Year {year} fell on {date}. At China’s standard time (UTC+8) it would fall on {other}, and your year animal counted from New Year would be {theAnimal}.",
+    "Selon le calendrier de l’époque, calculé au méridien de Pékin de 1913 à 1928, comme Ulune date ces années, le Nouvel An chinois {year} tombait le {date}. À l’heure normale de la Chine (UTC+8), il tomberait le {other}, et votre animal de l’année compté depuis le Nouvel An serait {theAnimal}.",
+  ],
+  cnmNewYearQing: [
+    "Ulune dates Chinese New Year {year} by the modern rules, on {date}; the Qing observatory’s calendar of the time began that year on {other}: counted from that New Year, your year animal would be {theAnimal}.",
+    "Ulune date le Nouvel An chinois {year} selon les règles modernes, au {date}\u202f; le calendrier de l’observatoire des Qing commençait alors cette année le {other}\u202f: compté depuis ce Nouvel An, votre animal de l’année serait {theAnimal}.",
+  ],
+  cnmNewYearAnimal: ["Year animal from New Year", "Animal de l’année depuis le Nouvel An"],
+  cnmNearLichun: [
+    "Your birth falls within a few minutes of Lichun, when the solar year changes: a birth time a little off could give the other year, and another Kua.",
+    "Votre naissance tombe à quelques minutes de Lichun, quand l’année solaire change\u202f: une heure un peu différente pourrait donner l’autre année, et un autre Kua.",
+  ],
+  cnmHowTitle: ["How Ulune calculates", "Comment Ulune calcule"],
+  cnmHowZodiac: [
+    "The year animal changes at Lichun, the start of spring (around 4 February), not at Chinese New Year, and the month animal at the solar term that opens each month, each at its exact instant: no clock or time zone moves them.",
+    "L’animal de l’année change à Lichun, le début du printemps (vers le 4 février), et non au Nouvel An chinois, et l’animal du mois au terme solaire qui ouvre chaque mois, chacun à son instant exact\u202f: aucune horloge ni aucun fuseau horaire ne les déplace.",
+  ],
+  cnmHowNewYear: [
+    "When Chinese New Year would give another year animal, the page says so. New Year is dated by China’s calendar and its modern rules: a month begins on the day of the new moon at China’s standard time (UTC+8), or at Beijing’s meridian for 1913–1928, as those years’ calendars were reckoned; your birthplace’s date is looked up in it.",
+    "Quand le Nouvel An chinois donnerait un autre animal de l’année, la page le dit. Le Nouvel An est daté par le calendrier chinois et ses règles modernes\u202f: un mois commence le jour de la nouvelle lune à l’heure normale de la Chine (UTC+8), ou au méridien de Pékin pour 1913–1928, comme on calculait alors le calendrier\u202f; la date de votre lieu de naissance y est cherchée.",
+  ],
+  cnmHowBazi: [
+    "BaZi follows the Zi Ping school, after the Song-dynasty master Xu Ziping: the pillars, hidden stems, Ten Gods, stages and interactions. The structure follows the Zi Ping Zhen Quan; the strength is the three classic tests, scored by Ulune’s stated rule; the favourable phases by climate take the Qiong Tong Bao Jian’s view in broad form, by season.",
+    "Le BaZi suit l’école Zi Ping, d’après le maître Xu Ziping, sous les Song\u202f: les piliers, les troncs cachés, les Dix Dieux, les stades et les interactions. La structure suit le Zi Ping Zhen Quan\u202f; la force vient des trois épreuves classiques, comptées selon la règle énoncée d’Ulune\u202f; les phases favorables par le climat reprennent la vue du Qiong Tong Bao Jian dans sa forme large, par saison.",
+  ],
+  cnmHowPillars: [
+    "The year pillar changes at Lichun (around 4 February) and the month pillar at the solar term that opens each month, each at its exact instant: no clock or time zone moves them.",
+    "Le pilier de l’année change à Lichun (vers le 4 février) et le pilier du mois au terme solaire qui ouvre chaque mois, chacun à son instant exact\u202f: aucune horloge ni aucun fuseau horaire ne les déplace.",
+  ],
+  cnmHowLuck: [
+    "The luck pillars step from the month pillar: forward when the year stem’s polarity and the yin or yang count agree, backward when they differ. The first starts at an age set by the days from the birth to the next opening term (forward) or back to the last one (backward), three days to a year.",
+    "Les piliers de chance avancent ou reculent depuis le pilier du mois\u202f: en avant quand la polarité du tronc de l’année et le compte yin ou yang s’accordent, en arrière quand ils diffèrent. Le premier commence à un âge tiré des jours entre la naissance et le terme d’ouverture suivant (en avant) ou précédent (en arrière), trois jours faisant une année.",
+  ],
+  cnmHowClockDefault: [
+    "The day and the hour are read in true solar time at the birthplace, the Sun’s own hour there, and the day turns at 23:00, with the Rat hour, as the Zi Ping school counts: Ulune’s defaults, which Settings → Chinese traditions can change.",
+    "Le jour et l’heure se lisent en temps solaire vrai au lieu de naissance, l’heure du Soleil lui-même, et le jour change à 23\u202fh, avec l’heure du Rat, comme le compte l’école Zi Ping\u202f: les choix par défaut d’Ulune, que Réglages → Traditions chinoises permet de changer.",
+  ],
+  cnmHowClockChosen: [
+    "The day and the hour are read {clock} at the birthplace, and the day turns {day}, as you chose in Settings → Chinese traditions. Ulune’s defaults are true solar time and 23:00, the Zi Ping rule.",
+    "Le jour et l’heure se lisent {clock} au lieu de naissance, et le jour change {day}, comme vous l’avez choisi dans Réglages → Traditions chinoises. Par défaut, Ulune prend le temps solaire vrai et 23\u202fh, la règle du Zi Ping.",
+  ],
+  cnmClockSolar: ["in true solar time", "en temps solaire vrai"],
+  cnmClockMean: ["in local mean time", "en temps moyen local"],
+  cnmClockCivil: ["on the clock on the wall", "à l’heure de la pendule"],
+  cnmHowKua: [
+    "The Kua and its eight directions follow the Eight Mansions school (Ba Zhai, whose classic is the Ba Zhai Ming Jing): the Kua comes from the solar year, which turns at Lichun, and the yin or yang count. A Kua of 5 has no trigram: it becomes 2 (Kun) for the yang count and 8 (Gen) for the yin count, as most schools do.",
+    "Le Kua et ses huit directions suivent l’école des Huit Demeures (Ba Zhai, dont le classique est le Ba Zhai Ming Jing)\u202f: le Kua vient de l’année solaire, qui change à Lichun, et du compte yin ou yang. Un Kua 5 n’a pas de trigramme\u202f: il devient 2 (Kun) pour le compte yang et 8 (Gen) pour le compte yin, comme dans la plupart des écoles.",
+  ],
+  cnmHowHome: [
+    "The home follows the Xuan Kong Flying Stars: the facing, magnetic as a luopan reads it, falls in one of the 24 mountains of 15°. Within 3° of a mountain’s edge the replacement chart (Ti Gua) is shown beside the main one; within 1.5° the facing is on the void line between two.",
+    "Le logement suit les Étoiles volantes du Xuan Kong\u202f: l’orientation, magnétique comme la lit un luopan, tombe dans l’une des 24 montagnes de 15°. À moins de 3° du bord d’une montagne, le thème de remplacement (Ti Gua) est montré à côté du principal\u202f; à 1,5° ou moins, l’orientation est sur la ligne vide entre deux.",
+  ],
+  cnmHowPeriod: [
+    "A home’s period is the twenty years in which it was built or last fully renovated, counted from 1864 (Period 1, 1864–1883; Period 9, 2024–2043). A bearing read on a map is turned magnetic with the declination of the World Magnetic Model 2025 at your chart’s place.",
+    "La période d’un logement est la vingtaine d’années où il a été construit ou entièrement rénové pour la dernière fois, comptée depuis 1864 (Période 1, 1864–1883\u202f; Période 9, 2024–2043). Une orientation lue sur une carte est rendue magnétique par la déclinaison du modèle magnétique mondial 2025 au lieu de votre thème.",
+  ],
+  cnmHowStars: [
+    "The year’s star changes at Lichun and the month’s at the solar term that opens each month, by the classical sequences: the year’s goes back one each year, the month’s one each month.",
+    "L’étoile de l’année change à Lichun, celle du mois au terme solaire qui ouvre chaque mois, selon les suites classiques\u202f: celle de l’année recule d’un chaque année, celle du mois d’un chaque mois.",
+  ],
+  cnmHowSourceTerms: [
+    "The solar terms come from Ulune’s table for 1800 to 2200, computed to the second ({source}); outside those years, from a formula for the Sun, within about 20 seconds of it. Everything is worked out on this device; nothing is sent.",
+    "Les termes solaires viennent de la table d’Ulune, de 1800 à 2200, calculée à la seconde ({source})\u202f; hors de ces années, d’une formule pour le Soleil, à une vingtaine de secondes près. Tout est calculé sur cet appareil\u202f; rien n’est envoyé.",
+  ],
+  cnmHowSourceMoons: [
+    "The solar terms and the new moons come from Ulune’s table for 1800 to 2200, computed to the second ({source}); outside those years, from formulas for the Sun and the Moon, within about 20 seconds of it. Everything is worked out on this device; nothing is sent.",
+    "Les termes solaires et les nouvelles lunes viennent de la table d’Ulune, de 1800 à 2200, calculée à la seconde ({source})\u202f; hors de ces années, de formules pour le Soleil et la Lune, à une vingtaine de secondes près. Tout est calculé sur cet appareil\u202f; rien n’est envoyé.",
   ],
 } as const satisfies Record<string, readonly [string, string]>;

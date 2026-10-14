@@ -3,6 +3,7 @@
  * English and French. One tap from every reading (the Reading tab's
  * "Glossary") and in the guide. Loaded when it is opened.
  */
+import { CHINESE_READING } from "@/lib/chinese/term-live";
 import type { AppLocale } from "./messages";
 
 export type GlossaryId =
@@ -611,8 +612,14 @@ export const GLOSSARY: Record<GlossaryId, Entry> = {
 
 export const GLOSSARY_ORDER = Object.keys(GLOSSARY) as GlossaryId[];
 
-/** The words a reading uses, from what is chosen and the mode it is in. */
+/**
+ * The words a reading uses, from what is chosen and the mode it is in. A
+ * Chinese reading (the Calendar's day animal or solar term) uses none of
+ * them: no "Words used here" under it (languages plan, part 29; its terms
+ * come with the encyclopedia's Chinese pages).
+ */
 export function glossaryFor(page: string, selectedId: string | null): GlossaryId[] {
+  if (selectedId && CHINESE_READING.test(selectedId)) return [];
   const out: GlossaryId[] = [];
   const add = (...ids: GlossaryId[]) => {
     for (const id of ids) if (!out.includes(id)) out.push(id);

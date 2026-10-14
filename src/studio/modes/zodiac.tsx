@@ -11,6 +11,8 @@ import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { AnimalGlyph } from "@/components/animal-glyph";
 import { LoadingLines } from "@/components/loading-lines";
 import { AnimalWheel, type WheelBadge } from "@/studio/modes/zodiac-wheel";
+import { HowUluneCalculates, MethodNotes } from "@/studio/modes/chinese-notes";
+import { useMethodNotes } from "@/studio/modes/hooks/useMethodNotes";
 import { animalChar, hanziLang } from "@/lib/chinese/animal-chars";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
@@ -34,7 +36,8 @@ import "@/studio/modes/styles/zodiac.css";
  * boundary (Settings → Chinese traditions); nothing is sent. The relations
  * between the animals (part 8) are drawn across it; each animal is Ulune's
  * drawing of it (part 9), or its character if the reader prefers. Their
- * readings (part 10), Pair and the year ahead (part 11) follow.
+ * readings (part 10), Pair and the year ahead (part 11) follow. Part 29 adds
+ * the method notes to the side panel's first read (chinese-notes.tsx).
  */
 
 export type ZodiacState = {
@@ -184,18 +187,23 @@ function ZodiacFigure() {
   );
 }
 
-/** The side panel with nothing chosen: what the four animals are, the clock read, the New Year note, now. */
+/**
+ * The side panel with nothing chosen: what the four animals are, the clock read, the New Year note, now;
+ * first the notes the birth calls for, last how Ulune calculates (part 29, chinese-notes.tsx).
+ */
 function ZodiacHello() {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const data = useModeData("zodiac");
   const w = useWheelView();
+  const notes = useMethodNotes("zodiac", w.chart);
   const z = data?.zodiac;
   if (!z) return null;
   const clock = cnWord(locale, prefs.clock === "true-solar" ? "cnClockSolar" : prefs.clock === "local-mean" ? "cnClockMean" : "cnClockCivil").toLowerCase();
   const day = cnWord(locale, prefs.dayBoundary === "23:00" ? "zkDayAt23" : prefs.dayBoundary === "split" ? "zkDaySplit" : "zkDayMidnight");
   return (
     <section className="ulune-zk-hello" data-testid="zodiac-hello">
+      <MethodNotes notes={notes} />
       <h2 className="ulune-zk-hello-h">{cnWord(locale, "zkTitle")}</h2>
       <p className="ulune-zk-hello-p">{cnWord(locale, "zkLead")}</p>
       <ol className="ulune-zk-hello-list">
@@ -251,6 +259,7 @@ function ZodiacHello() {
           {cnWord(locale, "zkSettingsLink")}
         </Link>
       </p>
+      <HowUluneCalculates page="zodiac" />
     </section>
   );
 }

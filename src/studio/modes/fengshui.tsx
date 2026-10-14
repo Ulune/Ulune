@@ -14,6 +14,8 @@ import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
+import { HowUluneCalculates, MethodNotes } from "@/studio/modes/chinese-notes";
+import { useMethodNotes } from "@/studio/modes/hooks/useMethodNotes";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
@@ -32,7 +34,8 @@ import "@/studio/modes/styles/fengshui.css";
  * words and opening its reading; beside the rose, the directions as lists
  * and the practical lines. The north at the top, or the south as the Chinese
  * compass is drawn (Settings → Chinese traditions). Worked out here from the
- * birth date; nothing is sent.
+ * birth date; nothing is sent. Part 29 adds the method notes to the side
+ * panel's first read (chinese-notes.tsx).
  */
 
 export type FengShuiState = {
@@ -264,12 +267,16 @@ function FengShuiFigure() {
 /** A text's first sentence, for the first read's steps. */
 const firstSentence = (t: string) => t.split(/(?<=[.!?])\s/)[0] ?? t;
 
-/** The side panel with nothing chosen: the Kua, its group, the best direction and the practice, per count. */
+/**
+ * The side panel with nothing chosen: the Kua, its group, the best direction and the practice, per count;
+ * first the notes the birth calls for, last how Ulune calculates (part 29, chinese-notes.tsx).
+ */
 function FengShuiHello() {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const w = useWheelView();
   const data = useModeData("fengshui");
+  const notes = useMethodNotes("fengshui", w.chart);
   if (!data?.list.length) return null;
   const both = data.list.length > 1;
   type Step = { id: string; ref: string; label: string; value: string; text: string };
@@ -285,6 +292,7 @@ function FengShuiHello() {
   });
   return (
     <section className="ulune-hd-first ulune-fs-first" data-testid="fengshui-hello" aria-labelledby="ulune-fs-first-title">
+      <MethodNotes notes={notes} />
       <h3 id="ulune-fs-first-title" className="ulune-kicker ulune-hd-first-title">
         {cnWord(locale, "fsFirstTitle")}
       </h3>
@@ -321,6 +329,7 @@ function FengShuiHello() {
           {cnWord(locale, "zkSettingsLink")}
         </Link>
       </p>
+      <HowUluneCalculates page="fengshui" />
     </section>
   );
 }

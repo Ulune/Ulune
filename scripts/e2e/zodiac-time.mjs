@@ -11,8 +11,11 @@
  *     the day animals in a clash (Pig–Snake), a meeting's reading, the table;
  *   - the Calendar's "The day's animal" layer: each day of the month drawn,
  *     the clash days (the Rat's, against a Horse year animal) marked; the
- *     day view's animal opening its reading;
- *   - nothing sent while Cycles and Pair work; nothing scrolls sideways.
+ *     day view's animal opening its reading, whose glossary claims none of
+ *     astrology's words;
+ *   - nothing sent while Cycles and Pair work; nothing scrolls sideways; the
+ *     registry of Chinese terms never fetched, since the encyclopedia has no
+ *     Chinese page yet (part 29).
  */
 import { FIXTURE_A, FIXTURE_B, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, gotoApp, goStudioPage, launch, openCalendarView, setLang, setView, SHOTS } from "./_lib.mjs";
 import { join } from "node:path";
@@ -37,9 +40,12 @@ async function run(width, lang) {
     await castFixture(page, FIXTURE_A);
     const sent = [];
     let watching = true;
+    // The registry of Chinese terms and its links wait for the encyclopedia's Chinese pages (part 29): never fetched before.
+    const registry = [];
     page.on("request", (r) => {
-      if (!watching) return;
       const u = new URL(r.url());
+      if (/chinese\/term-ids|ChineseTermLink|ChineseReadingTerms/.test(u.pathname)) registry.push(u.pathname);
+      if (!watching) return;
       if (r.method() !== "GET" || /_serverFn|\/api\//.test(u.pathname)) sent.push(`${r.method()} ${u.pathname}`);
     });
 
@@ -129,6 +135,11 @@ async function run(width, lang) {
     await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.day, { timeout: 15000 });
     const dayNote = await note(page);
     if (!/\p{Script=Han}/u.test(dayNote)) throw new Error(`${label}: the day's reading has no pillar "${dayNote.slice(0, 160)}"`);
+    // Its glossary claims none of astrology's words as its own (no "In this reading", no Transit).
+    await page.getByTestId("glossary").locator("summary").click();
+    await page.locator("[data-testid=glossary] .ob-glossary-body").waitFor({ timeout: 10000 });
+    if (await page.locator("[data-testid=glossary] .ob-glossary-h").count()) throw new Error(`${label}: the day's animal has words "in this reading"`);
+    await page.getByTestId("glossary").locator("summary").click();
     await assertNoOverflow(page);
     // Back to the month and the layer off, as found.
     await page.getByTestId("timing-scope-month").click();
@@ -137,6 +148,7 @@ async function run(width, lang) {
     await page.keyboard.press("Escape");
 
     if (sent.length) throw new Error(`${label}: sent ${sent.join(", ")}`);
+    if (registry.length) throw new Error(`${label}: the registry of Chinese terms was fetched before any is written: ${registry.join(", ")}`);
     if (errors.length) throw new Error(`${label}: ${errors.join(" | ")}`);
     console.log(`zodiac-time ${label} OK`);
   } finally {

@@ -26,10 +26,16 @@
  *   - the table: first (part 17) every pillar by every layer, with both
  *     counts' luck pillars and this year; Settings' "Year to hour" followed
  *     at once;
- *   - nothing sent while the page works it out; nothing scrolls sideways.
+ *   - nothing sent while the page works it out; nothing scrolls sideways;
+ *   - (part 29) the method notes: Fixture A, born at noon, calls for none,
+ *     and the first read ends on "How Ulune calculates", naming the Zi Ping
+ *     school and the table's source; Fixture B (made up: 03/11/1987, 23:10,
+ *     Oslo, 23:09 by the Sun) is born in the Rat hour before midnight, and the
+ *     first read says what the day rule gives, with the way to Settings, and
+ *     follows a change of rule at once; on Pair, the note names its person.
  */
 import { join } from "node:path";
-import { FIXTURE_A, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, gotoApp, launch, setLang, setView } from "./_lib.mjs";
+import { FIXTURE_A, FIXTURE_B, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, launch, setLang, setView } from "./_lib.mjs";
 
 const WORDS = {
   en: {
@@ -52,6 +58,12 @@ const WORDS = {
     method: "count twice",
     absent: "No Companion stands in your chart",
     little: "Little Wood",
+    how: "How Ulune calculates",
+    school: "BaZi follows the Zi Ping school",
+    born: /^Born at 23:0\d by true solar time \(23:10 on the clock\), in the Rat hour before midnight: by the Zi Ping rule/,
+    settings: "Settings → Chinese traditions",
+    chose: "with the day turning at midnight, as you chose",
+    whose: "so Sample B’s day pillar is the next day’s",
   },
   fr: {
     heading: "Traditions chinoises",
@@ -73,8 +85,35 @@ const WORDS = {
     method: "comptent double",
     absent: "Aucun Compagnon dans votre thème",
     little: "Peu de Bois",
+    how: "Comment Ulune calcule",
+    school: "Le BaZi suit l’école Zi Ping",
+    born: /^Naissance à 23\u202fh\u202f0\d en temps solaire vrai \(23\u202fh\u202f10 à la pendule\), dans l’heure du Rat avant minuit\u202f: selon la règle du Zi Ping/,
+    settings: "Réglages → Traditions chinoises",
+    chose: "avec le jour qui change à minuit, comme vous l’avez choisi",
+    whose: "et le pilier du jour de Sample B est celui du lendemain",
   },
 };
+
+/** Part 29: a first read's method notes (their ids and words) and its "How Ulune calculates" (its title and words). */
+async function methodNotes(page, scope) {
+  return page.evaluate((s) => {
+    const root = document.querySelector(`[data-testid="${s}"]`);
+    const how = root?.querySelector("[data-testid=method-notes]");
+    return {
+      title: how?.querySelector("summary")?.textContent?.trim() ?? null,
+      how: how?.textContent ?? "",
+      notes: [...(root?.querySelectorAll("[data-testid=method-note]") ?? [])].map((n) => ({ id: n.getAttribute("data-note"), text: n.textContent ?? "" })),
+    };
+  }, scope);
+}
+
+/** The side panel's first read, nothing chosen. */
+async function firstRead(page, width, testId) {
+  await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur());
+  await page.keyboard.press("Escape");
+  if (width < 1024) await clickDockTab(page, "reading");
+  await page.getByTestId(testId).waitFor({ timeout: 8000 });
+}
 
 async function run(width, lang) {
   const { browser, page } = await launch(width);
@@ -265,6 +304,41 @@ async function run(width, lang) {
     await page.evaluate(() => localStorage.removeItem("ulune.chinese"));
 
     if (sent.length) throw new Error(`${label}: sent ${sent.join(", ")}`);
+
+    // Part 29: Fixture A, born at noon, calls for no note; the first read ends on "How Ulune calculates".
+    await firstRead(page, width, "bazi-hello");
+    const usual = await methodNotes(page, "bazi-hello");
+    if (usual.notes.length) throw new Error(`${label}: Fixture A's notes ${JSON.stringify(usual.notes)}`);
+    if (usual.title !== w.how || !usual.how.includes(w.school) || !usual.how.includes("Swiss Ephemeris 2.10.03, JPL DE441")) throw new Error(`${label}: "How Ulune calculates" ${usual.title} "${usual.how.slice(0, 200)}"`);
+    // Fixture B, born at 23:10 in Oslo, 23:09 by the Sun: the Rat hour before midnight, said with the way to Settings.
+    await goStudioPage(page, "natal");
+    await castFixture(page, FIXTURE_B);
+    await goStudioPage(page, "bazi");
+    await page.getByTestId("bazi-board").waitFor({ timeout: 20000 });
+    await firstRead(page, width, "bazi-hello");
+    const late = await methodNotes(page, "bazi-hello");
+    if (late.notes.map((n) => n.id).join() !== "day-boundary" || !w.born.test(late.notes[0].text) || !late.notes[0].text.endsWith(w.settings)) throw new Error(`${label}: Fixture B's notes ${JSON.stringify(late.notes)}`);
+    if ((await page.locator("[data-testid=bazi-hello] [data-testid=method-note-settings]").getAttribute("href")) !== "/settings#chinese") throw new Error(`${label}: the note's way to Settings`);
+    await assertNoOverflow(page);
+    await page.screenshot({ path: join(SHOTS, `bazi-note-${lang}-${width}.png`) }).catch(() => {});
+    // Settings → Chinese traditions → At midnight (another tab): the note follows at once.
+    await page.evaluate(() => {
+      localStorage.setItem("ulune.chinese", JSON.stringify({ dayBoundary: "midnight" }));
+      window.dispatchEvent(new StorageEvent("storage", { key: "ulune.chinese" }));
+    });
+    await page.waitForFunction((t) => document.querySelector("[data-testid=bazi-hello] [data-testid=method-note]")?.textContent?.includes(t), w.chose, { timeout: 4000 });
+    await page.evaluate(() => {
+      localStorage.removeItem("ulune.chinese");
+      window.dispatchEvent(new StorageEvent("storage", { key: "ulune.chinese" }));
+    });
+    // Pair: Sample B shown, TraceQA beside; the note names its person, the first read ends on the language's method.
+    await goStudioPage(page, "bazi-pair");
+    await page.getByTestId("bazi-pair").waitFor({ timeout: 20000 });
+    await firstRead(page, width, "bazi-pair-hello");
+    const pair = await methodNotes(page, "bazi-pair-hello");
+    if (pair.notes.map((n) => n.id).join() !== "day-boundary" || !pair.notes[0].text.startsWith("Sample B — ") || !pair.notes[0].text.includes(w.whose)) throw new Error(`${label}: Pair's notes ${JSON.stringify(pair.notes)}`);
+    if (pair.title !== w.how || !pair.how.includes(w.school)) throw new Error(`${label}: Pair's "How Ulune calculates" ${pair.title}`);
+
     if (errors.length) throw new Error(`${label}: ${errors.join(" | ")}`);
     console.log(`bazi ${label} OK`);
   } finally {

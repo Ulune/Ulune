@@ -7,8 +7,9 @@ export type ChineseCount = NonNullable<BirthInput["chineseCount"]>;
 /**
  * The birth form's yin or yang count (languages plan, decision 4): one
  * optional choice in the form's options, worded as the Chinese traditions'
- * own count, read by three calculations only (BaZi's luck pillars, the Kua
- * number, Zi Wei Dou Shu); left empty, those pages show both versions. Kept
+ * own count, read by two calculations only (BaZi's luck pillars, the Kua
+ * number; Zi Wei Dou Shu with the second wave of languages); left empty,
+ * those pages show both versions. Kept
  * with the chart on the device like numerology's names, never sent. Its
  * words load with it, when the options open, so they stay out of the first
  * page's download.

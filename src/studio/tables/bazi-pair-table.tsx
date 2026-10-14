@@ -1,3 +1,4 @@
+import { ChineseTermPieces, ChineseTermWord } from "@/encyclopedia/ChineseTermWord";
 import { SIXTY } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
@@ -7,12 +8,13 @@ import { PILLAR_WORD } from "@/lib/chinese/bazi-reading";
 import type { BaziPair } from "@/lib/chinese/bazi-pair";
 import { PAIR_DM_REF, PAIR_GIFTS_REF, PAIR_PALACE_REF, dmLine, giftLines, meetRowLine, pairMeetRef, palaceLine, type PairNames } from "@/lib/chinese/bazi-pair-reading";
 import { pairTableCsv, pairTextParts } from "@/lib/chinese/bazi-pair-table";
+import { meetPieces } from "@/lib/chinese/bazi-term-pieces";
 import { partRows } from "@/lib/csv";
 import { useI18n } from "@/lib/i18n/locale";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
-/** BaZi's Pair as a table (languages plan, part 19); Copy and CSV. */
+/** BaZi's Pair as a table (languages plan, part 19); Copy and CSV. Its terms link to the encyclopedia once written (part 29). */
 export function BaziPairTable({ p, b, names, selectedId, onSelect }: { p: BaziPair; b: BaziChart; names: PairNames; selectedId: string | null; onSelect: (id: string) => void }) {
   const { locale, t } = useI18n();
   const prefs = useChinesePrefs();
@@ -71,8 +73,14 @@ export function BaziPairTable({ p, b, names, selectedId, onSelect }: { p: BaziPa
               return (
                 <tr key={q.id} data-testid={`bazi-pair-meetrow-${q.id}`} data-selected={selectedId === id ? "1" : undefined}>
                   <th scope="row">{pick(id, cnWord(locale, "bzpMeetFrom", { b: names.b, pillar: cnWord(locale, PILLAR_WORD[q.id]).toLowerCase() }))}</th>
-                  <td>{chineseLabel(SIXTY[q.pillar.cycle]!, locale, prefs).text}</td>
-                  <td>{meetRowLine(p, q.id, names, locale, prefs)}</td>
+                  <td>
+                    <ChineseTermWord family="pillar" id={SIXTY[q.pillar.cycle]!.id}>
+                      {chineseLabel(SIXTY[q.pillar.cycle]!, locale, prefs).text}
+                    </ChineseTermWord>
+                  </td>
+                  <td>
+                    <ChineseTermPieces text={meetRowLine(p, q.id, names, locale, prefs)} pieces={() => meetPieces(p.meetings.find((m) => m.from === q.id)?.meets ?? [], locale, prefs, "pillar")} />
+                  </td>
                 </tr>
               );
             })}

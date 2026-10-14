@@ -4,6 +4,7 @@
  * studio itself is the component of their layout, src/routes/_studio.tsx:
  * one instance for every studio path, split out of the first script once.
  */
+import { guideAnswersReady } from "@/components/first-screen/guide-answers";
 import { parseStudioSearch } from "@/lib/chart/studio";
 import { HOME_STRUCTURED_DATA, HOME_TITLE, pageHead } from "@/lib/page-head";
 
@@ -37,11 +38,14 @@ type Head = ReturnType<typeof pageHead> & { links?: { rel: string; href: string;
  * Route options for a studio page. Every one names `/` as its canonical
  * address (they are one page for search engines), except a page given a
  * head of its own: the Calendar, found by itself (src/studio/calendar-head.ts).
+ * The server draws the first screen's guide on each of them, and waits for
+ * its answers first (guide-answers.ts; languages plan, part 29).
  */
 export function studioRoute(opts: { head?: () => Head } = {}) {
   return {
     validateSearch: parseStudioSearch,
     headers: () => ({ "Cache-Control": BROWSER_CACHE, "Vercel-CDN-Cache-Control": EDGE_CACHE }),
     head: opts.head ?? homeHead,
+    loader: guideAnswersReady,
   };
 }

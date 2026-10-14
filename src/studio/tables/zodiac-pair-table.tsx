@@ -1,5 +1,6 @@
 import { AnimalGlyph } from "@/components/animal-glyph";
-import { BRANCHES } from "@/lib/chinese/names";
+import { ChineseTermWord } from "@/encyclopedia/ChineseTermWord";
+import { ANIMALS, BRANCHES } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { relationTone } from "@/lib/chinese/relations";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
@@ -15,7 +16,8 @@ import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePa
 /**
  * Chinese astrology's Pair as a table (languages plan, part 11): every
  * meeting of one person's animal with the other's, place by place, each row
- * opening its reading; Copy and CSV.
+ * opening its reading; Copy and CSV. Each animal links to its encyclopedia
+ * entry once the entry is written (part 29).
  */
 export function ZodiacPairTable({
   meetings,
@@ -35,7 +37,11 @@ export function ZodiacPairTable({
   const who = (person: string, place: PairMeeting["a"], branch: number) => (
     <span className="ulune-zk-table-animal">
       {prefs.animals === "drawings" ? <AnimalGlyph animal={branch} size={16} /> : null}
-      {person} · {w(PLACE_WORD[place]).toLowerCase()} ({chineseLabel(BRANCHES[branch]!, locale, prefs).name})
+      {person} · {w(PLACE_WORD[place]).toLowerCase()} (
+      <ChineseTermWord family="animal" id={ANIMALS[branch]!.id}>
+        {chineseLabel(BRANCHES[branch]!, locale, prefs).name}
+      </ChineseTermWord>
+      )
     </span>
   );
   const parts: TablePart[] = [

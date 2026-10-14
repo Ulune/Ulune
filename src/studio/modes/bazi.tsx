@@ -45,6 +45,8 @@ import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
+import { HowUluneCalculates, MethodNotes } from "@/studio/modes/chinese-notes";
+import { useMethodNotes } from "@/studio/modes/hooks/useMethodNotes";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
@@ -72,6 +74,7 @@ import "@/studio/modes/styles/bazi.css";
  * Part 15 adds, first beside the board, the five phases counted (with the
  * method one tap away), the Day Master's strength, the structure and the
  * favourable phases, each opening the reading that shows its working.
+ * Part 29 adds the method notes to the first read (chinese-notes.tsx).
  */
 
 export type BaziState = {
@@ -540,6 +543,8 @@ function BaziHello() {
   const prefs = useChinesePrefs();
   const data = useModeData("bazi");
   const w = useWheelView();
+  // First the notes the birth calls for, last how Ulune calculates (part 29).
+  const notes = useMethodNotes("bazi", w.chart);
   const c = data?.bazi;
   if (!c || !data) return null;
   const b = data.balance;
@@ -595,6 +600,7 @@ function BaziHello() {
   }
   return (
     <section className="ulune-hd-first ulune-bz-first" data-testid="bazi-hello" aria-labelledby="ulune-bz-first-title">
+      <MethodNotes notes={notes} />
       <h3 id="ulune-bz-first-title" className="ulune-kicker ulune-hd-first-title">
         {cnWord(locale, "bzFirstTitle")}
       </h3>
@@ -637,6 +643,7 @@ function BaziHello() {
           {cnWord(locale, "zkSettingsLink")}
         </Link>
       </p>
+      <HowUluneCalculates page="bazi" />
     </section>
   );
 }

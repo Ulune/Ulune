@@ -36,6 +36,8 @@ import { importWithRetry } from "@/lib/lazy-retry";
 import type { FsReadingTexts } from "@/lib/chinese/fengshui-stars-reading";
 import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
+import { HowUluneCalculates, MethodNotes } from "@/studio/modes/chinese-notes";
+import { useMethodNotes } from "@/studio/modes/hooks/useMethodNotes";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
@@ -64,7 +66,8 @@ import "@/studio/modes/styles/fengshui-home.css";
  * while this page is open, and nothing is sent. Part 26 adds the rooms,
  * placed on the home's plan, and the home kept in the private space
  * (fengshui-home-rooms.tsx, fengshui-homes.ts); otherwise nothing is kept
- * beyond this visit.
+ * beyond this visit. Part 29 adds the method notes to the side panel's first
+ * read (chinese-notes.tsx).
  */
 
 export type FengShuiHomeState = { ctx: HomeContext; enabled: boolean };
@@ -397,12 +400,13 @@ function HomeFigure() {
   );
 }
 
-/** The side panel with nothing chosen: how to find the facing, then what it says. */
+/** The side panel with nothing chosen: how to find the facing, then what it says; first the notes the birth calls for, last how Ulune calculates (part 29). */
 function HomeHello() {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const w = useWheelView();
   const data = useModeData("fengshui-home");
+  const notes = useMethodNotes("fengshui-home", w.chart);
   const ctx = data?.ctx;
   if (!ctx) return null;
   type Step = { id: string; ref: string; label: string; value: string; text: string };
@@ -435,6 +439,7 @@ function HomeHello() {
     : howLines(locale).map((text, i) => ({ id: `how-${i + 1}`, ref: FSH_HOW_REF, label: cnWord(locale, "fshHowHead"), value: "", text }));
   return (
     <section className="ulune-hd-first ulune-fs-first" data-testid="fengshui-home-hello" aria-labelledby="ulune-fsh-first-title">
+      <MethodNotes notes={notes} />
       <h3 id="ulune-fsh-first-title" className="ulune-kicker ulune-hd-first-title">
         {cnWord(locale, "fshFirstTitle")}
       </h3>
@@ -465,6 +470,7 @@ function HomeHello() {
         ))}
       </ol>
       <p className="ulune-zk-hello-note">{cnWord(locale, "fshAbout2")}</p>
+      <HowUluneCalculates page="fengshui-home" />
     </section>
   );
 }

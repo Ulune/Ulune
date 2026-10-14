@@ -1,3 +1,4 @@
+import { ChineseTermPieces, ChineseTermWord } from "@/encyclopedia/ChineseTermWord";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
@@ -5,6 +6,8 @@ import { MOUNTAINS, norm360 } from "@/lib/chinese/fengshui-home";
 import { FSH_FACING_REF, FSH_PERIOD_REF, edgeLine, facingLine, fmtDeg, fshHouseRef, fshMountainRef, houseLine, matchLines, mountainCode, periodLines, sourceLine, type HomeContext } from "@/lib/chinese/fengshui-home-reading";
 import { homeTableCsv, homeTextParts } from "@/lib/chinese/fengshui-home-table";
 import { FLIGHT } from "@/lib/chinese/fengshui-stars";
+import { pairKey } from "@/lib/chinese/fengshui-pairs";
+import { joinPieces } from "@/lib/chinese/term-pieces";
 import { chartName, formationName, fssChartRef, fssPalaceRef, pairName, palaceName } from "@/lib/chinese/fengshui-stars-reading";
 import * as READING_TEXTS from "@/lib/chinese/fengshui-readings-texts";
 import { AFFLICTION_IDS, FSY_MONTH_REF, FSY_YEAR_REF, afflictionName, afflictionPlace, fsyAffRef, monthLine, yearLine } from "@/lib/chinese/fengshui-years-reading";
@@ -16,7 +19,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
-/** Feng Shui's home page as a table (languages plan, part 22); Copy and CSV. */
+/** Feng Shui's home page as a table (languages plan, part 22); Copy and CSV. Its stars, pairs and formations link to the encyclopedia once written (part 29). */
 export function FengShuiHomeTable({ ctx: given, name, selectedId, onSelect }: { ctx: HomeContext; name: string; selectedId: string | null; onSelect: (id: string) => void }) {
   // The pairs' names (part 27) come with the table, whether or not the page has its texts yet.
   const ctx: HomeContext = given.stars && !given.stars.texts ? { ...given, texts: READING_TEXTS, stars: { ...given.stars, texts: READING_TEXTS } } : given;
@@ -74,7 +77,14 @@ export function FengShuiHomeTable({ ctx: given, name, selectedId, onSelect }: { 
               <DataTable key={v} className="ulune-zk-tbl" wide>
                 <caption className="ulune-fss-caption">
                   {pick(fssChartRef(v), `${ctx.stars!.ti ? `${w(v === "ti" ? "fssTi" : "fssMain")} · ` : ""}${chartName(chart, locale, prefs)}`)}
-                  {chart.formations.length ? ` · ${chart.formations.map((f) => formationName(f, locale, prefs)).join(", ")}` : ""}
+                  {chart.formations.length ? (
+                    <ChineseTermPieces
+                      text={` · ${chart.formations.map((f) => formationName(f, locale, prefs)).join(", ")}`}
+                      pieces={() => [{ text: " · " }, ...joinPieces(chart.formations.map((f) => ({ text: formationName(f, locale, prefs), family: "formation" as const, id: f })), ", ")]}
+                    />
+                  ) : (
+                    ""
+                  )}
                 </caption>
                 <thead>
                   <tr>
@@ -93,11 +103,27 @@ export function FengShuiHomeTable({ ctx: given, name, selectedId, onSelect }: { 
                     return (
                       <tr key={p} data-testid={`fengshui-stars-row-${v}-${p}`} data-selected={selectedId === id ? "1" : undefined}>
                         <th scope="row">{pick(id, palaceName(p, locale))}</th>
-                        <td>{x.mountain}</td>
-                        <td>{x.water}</td>
-                        <td>{x.period}</td>
+                        <td>
+                          <ChineseTermWord family="flying-star" id={x.mountain}>
+                            {x.mountain}
+                          </ChineseTermWord>
+                        </td>
+                        <td>
+                          <ChineseTermWord family="flying-star" id={x.water}>
+                            {x.water}
+                          </ChineseTermWord>
+                        </td>
+                        <td>
+                          <ChineseTermWord family="flying-star" id={x.period}>
+                            {x.period}
+                          </ChineseTermWord>
+                        </td>
                         <td>{x.base}</td>
-                        <td>{pairName(x.mountain, x.water, READING_TEXTS, locale, { ...prefs, show: "names" })}</td>
+                        <td>
+                          <ChineseTermWord family="pairing" id={pairKey(x.mountain, x.water)}>
+                            {pairName(x.mountain, x.water, READING_TEXTS, locale, { ...prefs, show: "names" })}
+                          </ChineseTermWord>
+                        </td>
                       </tr>
                     );
                   })}
@@ -183,8 +209,16 @@ export function FengShuiHomeTable({ ctx: given, name, selectedId, onSelect }: { 
                       {FLIGHT.map((p) => (
                         <tr key={p} data-testid={`fengshui-years-prow-${p}`} data-five={y.afflictions.fiveYellow === p ? "1" : undefined}>
                           <th scope="row">{palaceName(p, locale)}</th>
-                          <td>{y.yearChart[p]}</td>
-                          <td>{y.monthChart[p]}</td>
+                          <td>
+                            <ChineseTermWord family="flying-star" id={y.yearChart[p]}>
+                              {y.yearChart[p]}
+                            </ChineseTermWord>
+                          </td>
+                          <td>
+                            <ChineseTermWord family="flying-star" id={y.monthChart[p]}>
+                              {y.monthChart[p]}
+                            </ChineseTermWord>
+                          </td>
                         </tr>
                       ))}
                     </tbody>

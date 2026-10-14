@@ -1,11 +1,16 @@
-import { Fragment } from "react";
+import { Fragment, Suspense } from "react";
 import type { NatalChart } from "@/lib/chart/types";
+import { CHINESE_READING } from "@/lib/chinese/term-live";
 import { aspectName, bodyLabel, houseName, signName } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
 import type { AppLocale } from "@/lib/i18n/messages";
+import { lazyNamed } from "@/lib/lazy-component";
 import { TermWord } from "./TermWord";
 import type { TermKind } from "./term-ids";
 import { tr } from "./words";
+
+// A Chinese reading's (languages plan, part 29): its own download, with the registry of Chinese terms.
+const ChineseReadingTerms = lazyNamed(() => import("./ChineseReadingTerms"), "ChineseReadingTerms");
 
 /*
  * Under a chart reading in the side panel, the entries of what it is about
@@ -14,6 +19,10 @@ import { tr } from "./words";
  * an angle with its sign, a house with the sign on its cusp, an aspect with
  * its two bodies, a sign. Its own download, fetched with the first such
  * reading.
+ *
+ * A Chinese reading (languages plan, part 29) offers the entries of what it
+ * is about once their families are written (ChineseReadingTerms.tsx);
+ * nothing before.
  */
 
 type Item = { kind: TermKind; id: string | number; label: string };
@@ -44,6 +53,15 @@ function itemsFor(readingId: string, chart: NatalChart | null | undefined, local
 }
 
 export function ReadingTerms({ readingId, chart }: { readingId: string; chart?: NatalChart | null }) {
+  if (!CHINESE_READING.test(readingId)) return <ChartReadingTerms readingId={readingId} chart={chart} />;
+  return (
+    <Suspense fallback={null}>
+      <ChineseReadingTerms readingId={readingId} />
+    </Suspense>
+  );
+}
+
+function ChartReadingTerms({ readingId, chart }: { readingId: string; chart?: NatalChart | null }) {
   const { locale } = useI18n();
   const items = itemsFor(readingId, chart, locale);
   if (!items.length) return null;

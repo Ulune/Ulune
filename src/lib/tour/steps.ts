@@ -2,7 +2,9 @@
  * The tour's steps, in the order they come, with their words in English and
  * French (they download with the tour, not with the first view). Each step
  * points at one thing on screen, found by selector; when a phone and a
- * computer need different words, `compact` holds the phone's.
+ * computer need different words, `compact` holds the phone's. The "modes"
+ * step names the six languages, the Chinese ones since the languages plan,
+ * part 29; the tour keeps its eight steps.
  */
 type Pair = readonly [string, string];
 
@@ -90,12 +92,12 @@ export const TOUR_STEPS: readonly TourStep[] = [
     targets: ['[data-testid="charts-nav"]', '[data-testid="studio-nav"]'],
     title: ["Languages and lenses", "Langages et prismes"],
     body: [
-      "Other languages read this chart too: the button opens Human Design and numerology. Beside it, Cycles holds today’s transits and your progressions, Relationship a second person. The Calendar, at the top, shows the sky day by day.",
-      "D’autres langages lisent aussi ce thème\u202f: le bouton ouvre le Human Design et la numérologie. À côté, Cycles montre les transits du jour et vos progressions, Relation une deuxième personne. Le Calendrier, en haut, montre le ciel jour après jour.",
+      "Astrology is one of six languages: the button opens the others, Human Design, numerology, Chinese astrology, BaZi and Feng Shui, which read the same birth. Beside it, Cycles holds today’s transits and your progressions, Relationship a second person. The Calendar, at the top, shows the sky day by day.",
+      "L’astrologie est l’un des six langages\u202f: le bouton ouvre les autres, le Human Design, la numérologie, l’astrologie chinoise, le BaZi et le Feng Shui, qui lisent la même naissance. À côté, Cycles montre les transits du jour et vos progressions, Relation une deuxième personne. Le Calendrier, en haut, montre le ciel jour après jour.",
     ],
     compact: [
-      "Other languages read this chart too: the button opens Human Design and numerology. Beside it, Cycles holds today’s transits and your progressions, Relationship a second person. The Calendar, in the bar at the bottom, shows the sky day by day.",
-      "D’autres langages lisent aussi ce thème\u202f: le bouton ouvre le Human Design et la numérologie. À côté, Cycles montre les transits du jour et vos progressions, Relation une deuxième personne. Le Calendrier, dans la barre du bas, montre le ciel jour après jour.",
+      "Astrology is one of six languages: the button opens the others, Human Design, numerology, Chinese astrology, BaZi and Feng Shui, which read the same birth. Beside it, Cycles holds today’s transits and your progressions, Relationship a second person. The Calendar, in the bar at the bottom, shows the sky day by day.",
+      "L’astrologie est l’un des six langages\u202f: le bouton ouvre les autres, le Human Design, la numérologie, l’astrologie chinoise, le BaZi et le Feng Shui, qui lisent la même naissance. À côté, Cycles montre les transits du jour et vos progressions, Relation une deuxième personne. Le Calendrier, dans la barre du bas, montre le ciel jour après jour.",
     ],
   },
   {

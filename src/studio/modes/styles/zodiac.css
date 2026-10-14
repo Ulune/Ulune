@@ -395,3 +395,50 @@ html.light {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* The method notes (chinese-notes.tsx, languages plan, part 29): the notes a
+   birth calls for, left-aligned at the top of a first read (astrology's sit
+   centred under its caption), and "How Ulune calculates", folded at its end
+   (the About fold's look, .ob-rc-about). Every Chinese page loads this file. */
+.ulune-cn-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  max-width: 72ch;
+}
+.ulune-cn-notes .ulune-method-note {
+  justify-content: flex-start;
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  text-align: left;
+  text-wrap: pretty;
+}
+.ulune-cn-notes .ulune-method-note > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ulune-cn-notes .ulune-method-note-icon {
+  margin-top: 3px;
+}
+.ulune-cn-note-lead {
+  font-weight: 600;
+}
+.ulune-cn-how {
+  margin-top: var(--space-1);
+}
+.ulune-cn-how-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 72ch;
+  margin: 0 0 var(--space-2);
+  padding: 0 0 0 18px;
+  list-style: disc;
+  font: 400 var(--text-sm) / 1.5 var(--font-sans);
+  color: var(--color-fg-muted);
+}
+.ulune-cn-how-list li::marker {
+  color: var(--color-fg-subtle);
+}

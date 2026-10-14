@@ -28,6 +28,8 @@ import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
+import { HowUluneCalculates, MethodNotes } from "@/studio/modes/chinese-notes";
+import { useMethodNotes } from "@/studio/modes/hooks/useMethodNotes";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
@@ -47,6 +49,9 @@ import "@/studio/modes/styles/bazi-luck.css";
  * what it meets in the four pillars and in the luck pillar it falls in, its
  * twelve months, and today. Every block and row opens its reading; with
  * nothing chosen the dock reads the year. Worked out here; nothing is sent.
+ * Part 29: the method notes, here on the page since the dock reads the year
+ * (under the title the notes the birth calls for, at the end how Ulune
+ * calculates; chinese-notes.tsx).
  */
 
 export type BaziLuckState = {
@@ -178,6 +183,8 @@ function LuckFigure() {
   // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
   const scroller = useRef<HTMLDivElement>(null);
   useKeptScroll(scroller, "bazi-luck-scroll", Boolean(c && y));
+  // With nothing chosen the side panel reads the year: this page's first read is here, so are its method notes (part 29).
+  const notes = useMethodNotes("bazi-luck", w.chart);
   if (!c || !y || !data) return null;
   const both = data.lucks.length > 1;
   const now = Date.now();
@@ -194,6 +201,7 @@ function LuckFigure() {
           {cnWord(locale, "bzBalHow")}
         </button>
       </header>
+      <MethodNotes notes={notes} />
       {both ? (
         <p className="ulune-bzl-note" data-testid="bazi-luck-both">
           {cnWord(locale, "bzlBothNote")}
@@ -300,6 +308,7 @@ function LuckFigure() {
           </button>
         </section>
       ) : null}
+      <HowUluneCalculates page="bazi-luck" />
     </div>
   );
 }

@@ -1,5 +1,8 @@
 import { AnimalGlyph } from "@/components/animal-glyph";
+import { ChineseTermPieces, ChineseTermWord } from "@/encyclopedia/ChineseTermWord";
+import { BRANCHES, SIXTY, STEMS } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
+import { hiddenStemPieces, placeAnimalPieces } from "@/lib/chinese/term-pieces";
 import { RELATION_NAMES, relationTone } from "@/lib/chinese/relations";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
@@ -15,7 +18,8 @@ import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePa
  * Chinese astrology's table (languages plan, part 8): the four animals with
  * every layer (pillar, stem, branch, phase, polarity, Na Yin, hidden stems)
  * and the relations between them, each row opening its reading; Copy and
- * CSV for the whole and for each part, as the other tables have.
+ * CSV for the whole and for each part, as the other tables have. Each term
+ * links to its encyclopedia entry once the entry is written (part 29).
  */
 export function ZodiacTable({
   z,
@@ -66,22 +70,48 @@ export function ZodiacTable({
                       {r.place.uncertain ? " ~" : ""}
                     </button>
                   </th>
-                  <td>{r.pillar}</td>
-                  <td>{r.stem}</td>
+                  <td>
+                    <ChineseTermWord family="pillar" id={SIXTY[r.place.pillar.cycle]!.id}>
+                      {r.pillar}
+                    </ChineseTermWord>
+                  </td>
+                  <td>
+                    <ChineseTermWord family="stem" id={STEMS[r.place.stem]!.id}>
+                      {r.stem}
+                    </ChineseTermWord>
+                  </td>
                   <td>
                     {prefs.animals === "drawings" ? (
                       <span className="ulune-zk-table-animal">
                         <AnimalGlyph animal={r.place.branch} size={16} />
-                        {r.branch}
+                        <ChineseTermWord family="branch" id={BRANCHES[r.place.branch]!.id}>
+                          {r.branch}
+                        </ChineseTermWord>
                       </span>
                     ) : (
-                      r.branch
+                      <ChineseTermWord family="branch" id={BRANCHES[r.place.branch]!.id}>
+                        {r.branch}
+                      </ChineseTermWord>
                     )}
                   </td>
-                  <td>{r.phase}</td>
-                  <td>{r.polarity}</td>
-                  <td>{r.naYin}</td>
-                  <td data-testid={`zodiac-hidden-${r.place.id}`}>{r.hidden}</td>
+                  <td>
+                    <ChineseTermWord family="phase" id={r.place.branchPhase}>
+                      {r.phase}
+                    </ChineseTermWord>
+                  </td>
+                  <td>
+                    <ChineseTermWord family="polarity" id={BRANCHES[r.place.branch]!.polarity}>
+                      {r.polarity}
+                    </ChineseTermWord>
+                  </td>
+                  <td>
+                    <ChineseTermWord family="na-yin" id={r.place.naYin.index}>
+                      {r.naYin}
+                    </ChineseTermWord>
+                  </td>
+                  <td data-testid={`zodiac-hidden-${r.place.id}`}>
+                    <ChineseTermPieces text={r.hidden} pieces={() => hiddenStemPieces(r.place.branch, locale, prefs)} />
+                  </td>
                 </tr>
               );
             })}
@@ -114,7 +144,8 @@ export function ZodiacTable({
                     </button>
                   </th>
                   <td>
-                    {placeAnimal(z, r.places[0], locale)} – {placeAnimal(z, r.places[1], locale)}
+                    <ChineseTermPieces text={placeAnimal(z, r.places[0], locale)} pieces={() => placeAnimalPieces(z, r.places[0], locale)} /> –{" "}
+                    <ChineseTermPieces text={placeAnimal(z, r.places[1], locale)} pieces={() => placeAnimalPieces(z, r.places[1], locale)} />
                   </td>
                 </tr>
               );

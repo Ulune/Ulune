@@ -1,3 +1,4 @@
+import { ChineseTermPieces, ChineseTermWord } from "@/encyclopedia/ChineseTermWord";
 import { BRANCHES, SIXTY } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
@@ -7,8 +8,11 @@ import { EMPTY_REF, PILLAR_WORD, godRef, ixRef, ixStatus, naYinRef, stageRef, st
 import { INTERACTION_NAMES, baziInteractions } from "@/lib/chinese/bazi-interactions";
 import { STARS, baziSigns } from "@/lib/chinese/bazi-signs";
 import { balanceRows, baziTableCsv, baziTextParts, hiddenGodsLine, ixItemShort, starPlaces, stemGodName } from "@/lib/chinese/bazi-table";
-import { baziFullRows, type FullTime } from "@/lib/chinese/bazi-full";
-import { flowYear, flowYearOf, luckPillars, type LuckCount } from "@/lib/chinese/bazi-luck";
+import { baziFullRows, type FullRow, type FullTime } from "@/lib/chinese/bazi-full";
+import { flowYear, flowYearOf, luckAt, luckPillars, type LuckCount } from "@/lib/chinese/bazi-luck";
+import { baziBalance } from "@/lib/chinese/bazi-balance";
+import { branchPhasePieces, emptyPieces, hiddenGodPieces, ixItemPieces, ixResultPieces, meetPieces, natalLinkPieces, pointPieces, starPieces, summaryPieces } from "@/lib/chinese/bazi-term-pieces";
+import type { StarId } from "@/lib/chinese/bazi-signs";
 import { partRows } from "@/lib/csv";
 import { useMemo } from "react";
 import { useI18n } from "@/lib/i18n/locale";
@@ -21,7 +25,8 @@ import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePa
  * by every layer; then the four pillars with their gods and hidden stems,
  * the Ten Gods by how often they stand in the chart, the stages, Na Yin,
  * empty branches and symbolic stars, the interactions, the balance and
- * strength; Copy and CSV.
+ * strength; Copy and CSV. Each term links to its encyclopedia entry once
+ * the entry is written (part 29).
  */
 export function BaziTable({
   c,
@@ -57,6 +62,13 @@ export function BaziTable({
       {label}
     </button>
   );
+  // The full table's rows name their terms by id (bazi-full.ts): its pillar, its stem's god, its branch, its stage.
+  const branchOf = (r: FullRow) => BRANCHES.findIndex((b) => b.id === r.ids[5]);
+  const timeMeets = (r: FullRow) => {
+    if (r.kind === "year") return time.year.meets;
+    const luck = time.lucks.find((l) => `luck-${l.count}` === r.id);
+    return (luck && luckAt(luck, time.nowMs)?.meets) || [];
+  };
   const parts: TablePart[] = [
     {
       id: "full",
@@ -85,16 +97,46 @@ export function BaziTable({
             {full.map((r) => (
               <tr key={r.id} data-testid={`bazi-full-${r.id}`} data-kind={r.kind} data-selected={r.place && selectedId === stemRef(r.place) ? "1" : undefined}>
                 <th scope="row">{r.place ? pick(stemRef(r.place), r.label) : <span className="ulune-zk-table-pick ulune-bz-static-row">{r.label}</span>}</th>
-                <td>{r.pillar}</td>
-                <td>{r.stemGod}</td>
-                <td>{r.branch}</td>
-                <td>{r.hidden}</td>
-                <td>{r.stage}</td>
-                <td>{r.naYin}</td>
+                <td>
+                  <ChineseTermWord family="pillar" id={r.ids[2]}>
+                    {r.pillar}
+                  </ChineseTermWord>
+                </td>
+                <td>
+                  {r.ids[4] === "day-master" ? (
+                    <ChineseTermWord family="bazi-concept" id="day-master">
+                      {r.stemGod}
+                    </ChineseTermWord>
+                  ) : (
+                    <ChineseTermWord family="ten-god" id={r.ids[4]}>
+                      {r.stemGod}
+                    </ChineseTermWord>
+                  )}
+                </td>
+                <td>
+                  <ChineseTermPieces text={r.branch} pieces={() => branchPhasePieces(branchOf(r), locale, prefs)} />
+                </td>
+                <td>
+                  <ChineseTermPieces text={r.hidden} pieces={() => hiddenGodPieces(c.dayMaster, branchOf(r), locale, prefs)} />
+                </td>
+                <td>
+                  <ChineseTermWord family="life-stage" id={r.ids[7]}>
+                    {r.stage}
+                  </ChineseTermWord>
+                </td>
+                <td>
+                  <ChineseTermWord family="na-yin" id={Math.floor(SIXTY.findIndex((x) => x.id === r.ids[2]) / 2)}>
+                    {r.naYin}
+                  </ChineseTermWord>
+                </td>
                 <td>{r.empty}</td>
-                <td>{r.stars}</td>
-                <td>{r.links}</td>
-                <td>{r.points}</td>
+                <td>
+                  <ChineseTermPieces text={r.stars} pieces={() => starPieces((r.ids[10] ? r.ids[10].split("|") : []) as StarId[], locale, prefs)} />
+                </td>
+                <td>
+                  <ChineseTermPieces text={r.links} pieces={() => (r.place ? natalLinkPieces(interactions, r.place, locale, prefs) : meetPieces(timeMeets(r), locale, prefs, "place"))} />
+                </td>
+                <td>{r.place ? <ChineseTermPieces text={r.points} pieces={() => pointPieces(baziBalance(c), r.place!, locale, prefs)} /> : r.points}</td>
               </tr>
             ))}
           </tbody>
@@ -128,9 +170,25 @@ export function BaziTable({
                       {p.uncertain ? " ~" : ""}
                     </button>
                   </th>
-                  <td>{chineseLabel(SIXTY[p.pillar.cycle]!, locale, prefs).text}</td>
-                  <td>{stemGodName(p, locale, prefs)}</td>
-                  <td data-testid={`bazi-hidden-cell-${p.id}`}>{hiddenGodsLine(p, locale, prefs)}</td>
+                  <td>
+                    <ChineseTermWord family="pillar" id={SIXTY[p.pillar.cycle]!.id}>
+                      {chineseLabel(SIXTY[p.pillar.cycle]!, locale, prefs).text}
+                    </ChineseTermWord>
+                  </td>
+                  <td>
+                    {p.god ? (
+                      <ChineseTermWord family="ten-god" id={p.god}>
+                        {stemGodName(p, locale, prefs)}
+                      </ChineseTermWord>
+                    ) : (
+                      <ChineseTermWord family="bazi-concept" id="day-master">
+                        {stemGodName(p, locale, prefs)}
+                      </ChineseTermWord>
+                    )}
+                  </td>
+                  <td data-testid={`bazi-hidden-cell-${p.id}`}>
+                    <ChineseTermPieces text={hiddenGodsLine(p, locale, prefs)} pieces={() => hiddenGodPieces(c.dayMaster, p.branch, locale, prefs)} />
+                  </td>
                 </tr>
               );
             })}
@@ -199,7 +257,9 @@ export function BaziTable({
             ))}
             <tr data-testid="bazi-signrow-empty" data-selected={selectedId === EMPTY_REF ? "1" : undefined}>
               <th scope="row">{pick(EMPTY_REF, w("bzEmptyHead"))}</th>
-              <td colSpan={3}>{signs.empty.map((b) => chineseLabel(BRANCHES[b]!, locale, prefs).text).join(" · ")}</td>
+              <td colSpan={3}>
+                <ChineseTermPieces text={signs.empty.map((b) => chineseLabel(BRANCHES[b]!, locale, prefs).text).join(" · ")} pieces={() => emptyPieces(signs.empty, locale, prefs)} />
+              </td>
             </tr>
           </tbody>
         </DataTable>
@@ -253,8 +313,12 @@ export function BaziTable({
               <tr key={ix.id} data-testid={`bazi-ixrow-${ix.id}`} data-selected={selectedId === ixRef(ix.id) ? "1" : undefined}>
                 <th scope="row">{pick(ixRef(ix.id), chineseLabel(INTERACTION_NAMES[ix.kind], locale, prefs).text)}</th>
                 <td>{starPlaces(ix.places, locale)}</td>
-                <td>{ix.items.map((n) => ixItemShort(ix, n, locale, prefs)).join(" · ")}</td>
-                <td>{ixStatus(ix, locale)}</td>
+                <td>
+                  <ChineseTermPieces text={ix.items.map((n) => ixItemShort(ix, n, locale, prefs)).join(" · ")} pieces={() => ixItemPieces(ix, locale, prefs)} />
+                </td>
+                <td>
+                  <ChineseTermPieces text={ixStatus(ix, locale)} pieces={() => ixResultPieces(ix, locale)} />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -283,7 +347,9 @@ export function BaziTable({
             <tbody>
               {bal.phases.map((p, i) => (
                 <tr key={i} data-testid={`bazi-phaserow-${i}`}>
-                  <th scope="row">{p.phase}</th>
+                  <th scope="row">
+                    <ChineseTermPieces text={p.phase} pieces={() => [{ text: p.phase, family: "phase", id: baziBalance(c).phases[i]?.phase }]} />
+                  </th>
                   <td>{p.points}</td>
                   <td>{p.share}</td>
                   <td>{p.family}</td>
@@ -296,7 +362,9 @@ export function BaziTable({
               {bal.summary.map(([k, v], i) => (
                 <tr key={i} data-testid={`bazi-sumrow-${i}`}>
                   <th scope="row">{k}</th>
-                  <td>{v}</td>
+                  <td>
+                    <ChineseTermPieces text={v} pieces={() => summaryPieces(c, k, locale, prefs) ?? [{ text: v }]} />
+                  </td>
                 </tr>
               ))}
             </tbody>

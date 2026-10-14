@@ -1,3 +1,4 @@
+import { ChineseTermWord } from "@/encyclopedia/ChineseTermWord";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
@@ -9,7 +10,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
-/** Feng Shui's personal page as a table (languages plan, part 21); Copy and CSV. */
+/** Feng Shui's personal page as a table (languages plan, part 21); Copy and CSV. Its trigrams link to the encyclopedia once written (part 29). */
 export function FengShuiTable({ list, name, selectedId, onSelect }: { list: readonly FengShui[]; name: string; selectedId: string | null; onSelect: (id: string) => void }) {
   const { locale, t } = useI18n();
   const prefs = useChinesePrefs();
@@ -49,7 +50,10 @@ export function FengShuiTable({ list, name, selectedId, onSelect }: { list: read
                   {both ? <td>{countLabel(fs.count, locale)}</td> : null}
                   <th scope="row">{pick(id, cnWord(locale, "fsKuaN", { n: fs.kua }))}</th>
                   <td>
-                    {fs.trigram.symbol} {chineseLabel(fs.trigram, locale, prefs).text}
+                    {fs.trigram.symbol}{" "}
+                    <ChineseTermWord family="trigram" id={fs.trigram.id}>
+                      {chineseLabel(fs.trigram, locale, prefs).text}
+                    </ChineseTermWord>
                   </td>
                   <td>{groupLabel(fs, locale)}</td>
                   <td>{kuaSteps(fs, locale).join(" ")}</td>
@@ -84,7 +88,10 @@ export function FengShuiTable({ list, name, selectedId, onSelect }: { list: read
                 <tr key={d} data-testid={`fengshui-row-dir-${d}`} data-selected={list.some((fs) => selectedId === fsDirRef(fs.count, d)) ? "1" : undefined}>
                   <th scope="row">{chineseLabel(directionById(d), locale, prefs).text}</th>
                   <td>
-                    {tri.symbol} {chineseLabel(tri, locale, { ...prefs, show: "names" }).name}
+                    {tri.symbol}{" "}
+                    <ChineseTermWord family="trigram" id={tri.id}>
+                      {chineseLabel(tri, locale, { ...prefs, show: "names" }).name}
+                    </ChineseTermWord>
                   </td>
                   {list.map((fs) => {
                     const row = fs.directions.find((x) => x.direction === d)!;

@@ -16,10 +16,13 @@ import { aspectVisible } from "@/lib/chart/aspect-filter";
 import { useChartView } from "@/lib/chart/use-chart-view";
 import type { ReadingLink } from "@/lib/chart/types";
 import { lazyNamed } from "@/lib/lazy-component";
+import { CHINESE_READING, LIVE_FAMILIES } from "@/lib/chinese/term-live";
 
 // The entries of what a chart reading is about (encyclopedia part 7): their own download.
 const ReadingTerms = lazyNamed(() => import("@/encyclopedia/ReadingTerms"), "ReadingTerms");
 const TERMS_FOR = /^(planet|angle|house|sign|aspect):/;
+// A Chinese reading's (languages plan, part 29): only once the encyclopedia has written a family of Chinese terms.
+const hasTerms = (id: string) => TERMS_FOR.test(id) || (LIVE_FAMILIES.size > 0 && CHINESE_READING.test(id));
 // Its running text with the encyclopedia's words linked (part 16): its own download; the plain text until then.
 const LinkedText = lazyNamed(() => import("@/encyclopedia/LinkedText"), "LinkedText");
 
@@ -397,7 +400,7 @@ export function ReadingCard({
         </section>
       ) : null}
 
-      {TERMS_FOR.test(reading.id) ? (
+      {hasTerms(reading.id) ? (
         <Suspense fallback={null}>
           <ReadingTerms readingId={reading.id} chart={chart} />
         </Suspense>

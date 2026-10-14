@@ -19,6 +19,9 @@
  *     reading with its working (11 − 1 = 10), the practical lines;
  *   - the table: both Kua, eight directions, eight practical lines;
  *   - Settings' "South at the top" followed at once;
+ *   - (part 29) the first read: no method note for Fixture A, and "How Ulune
+ *     calculates" at its end, naming the Eight Mansions school, its classic
+ *     and the rule for 5;
  *   - nothing sent while the page works it out; nothing scrolls sideways.
  */
 import { join } from "node:path";
@@ -34,6 +37,8 @@ const WORDS = {
     five: "5 has no trigram of its own",
     desk: "At a desk, face south-east",
     mansion: "Growth",
+    how: "How Ulune calculates",
+    method: ["Eight Mansions school", "Ba Zhai Ming Jing", "it becomes 2 (Kun) for the yang count and 8 (Gen) for the yin count", "Swiss Ephemeris 2.10.03, JPL DE441"],
   },
   fr: {
     first: "Votre Kua, pas à pas",
@@ -44,6 +49,8 @@ const WORDS = {
     five: "Le 5 n’a pas de trigramme propre",
     desk: "À un bureau, faites face au sud-est",
     mansion: "Croissance",
+    how: "Comment Ulune calcule",
+    method: ["l’école des Huit Demeures", "Ba Zhai Ming Jing", "il devient 2 (Kun) pour le compte yang et 8 (Gen) pour le compte yin", "Swiss Ephemeris 2.10.03, JPL DE441"],
   },
 };
 const note = (page) => page.getByTestId("click-note").evaluate((e) => e.textContent ?? "").catch(() => "");
@@ -212,6 +219,12 @@ async function run(width, lang) {
     if (steps.join() !== "kua-yang,group-yang,best-yang,practice-yang,kua-yin,group-yin,best-yin,practice-yin") throw new Error(`${label}: the first read's steps ${steps}`);
     const hello = await page.getByTestId("fengshui-hello").evaluate((e) => e.textContent);
     if (!hello.includes(w.first) || !hello.includes(w.both)) throw new Error(`${label}: the first read "${hello.slice(0, 200)}"`);
+    // Part 29: no note for Fixture A; the first read ends on "How Ulune calculates", folded.
+    const method = await page.evaluate(() => {
+      const how = document.querySelector("[data-testid=fengshui-hello] [data-testid=method-notes]");
+      return { notes: document.querySelectorAll("[data-testid=fengshui-hello] [data-testid=method-note]").length, title: how?.querySelector("summary")?.textContent?.trim(), open: how?.open, text: how?.textContent ?? "" };
+    });
+    if (method.notes || method.title !== w.how || method.open || !w.method.every((t) => method.text.includes(t))) throw new Error(`${label}: the method notes ${JSON.stringify(method).slice(0, 300)}`);
     await page.getByTestId("fengshui-hello-best-yang").click();
     if (phone) await clickDockTab(page, "reading").catch(() => {});
     await waitNote(page, w.growth, label, "the first read's best direction");

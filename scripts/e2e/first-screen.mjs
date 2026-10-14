@@ -6,7 +6,11 @@
  *     is the name, and the first Tab stop skips straight to it;
  *   - the guide's seven sections and the footer follow; every footer link
  *     answers, the source link names the public repository; what you can
- *     do is told in the 2.0 map's words (R8), in English and French;
+ *     do is told in the 2.0 map's words (R8): the six languages with their
+ *     marks, the lenses with Feng Shui's Home, the Calendar and the
+ *     encyclopedia, in English and French (languages plan, part 29); the
+ *     questions come in their order, the Chinese ones among them, each
+ *     answer (its own download) under its question;
  *   - nothing scrolls sideways; no AI anywhere (AI readings wait for v1.1);
  *   - a link to a mode without a chart shows the form with a line saying so,
  *     and the mode opens after the cast;
@@ -40,16 +44,28 @@ import {
 const SOURCE_URL = /export const SOURCE_URL = "([^"]+)"/.exec(readFileSync(join(ROOT, "src/lib/app-identity.ts"), "utf8"))[1];
 const SECTIONS_EN = ["What Ulune is", "What you can do", "How to begin", "New to charts?", "Your data stays yours", "Precise, and open about it", "Questions"];
 const FOOTER = ["privacy", "legal", "terms", "credits", "accessibility", "source", "report"];
-// What you can do (R8): the three languages, the lenses, the Calendar and the encyclopedia, as the screens name them.
+// What you can do (R8; part 29): the six languages, the lenses, the Calendar and the encyclopedia, as the screens name them.
 const DO_EN = [
   ["astrology", "Astrology"],
   ["human-design", "Human Design"],
   ["numerology", "Numerology"],
-  ["lenses", "Natal · Cycles · Relationship"],
+  ["chinese-astrology", "Chinese astrology"],
+  ["bazi", "BaZi"],
+  ["feng-shui", "Feng Shui"],
+  ["lenses", "Natal · Cycles · Relationship · Home"],
   ["calendar", "Calendar"],
   ["encyclopedia", "Encyclopedia"],
 ];
-const DO_FR = ["Astrologie", "Human Design", "Numérologie", "Natal · Cycles · Relation", "Calendrier", "Encyclopédie"];
+const DO_FR = ["Astrologie", "Human Design", "Numérologie", "Astrologie chinoise", "BaZi", "Feng Shui", "Natal · Cycles · Relation · Logement", "Calendrier", "Encyclopédie"];
+// The questions in their order (part 29 added the year animal's and the yin or yang count's).
+const FAQ = ["time", "houses", "name", "year", "count", "free", "kept", "trust", "ai"];
+/** A question's answer as shown once it is opened (the answers are their own download). */
+async function answer(page, id) {
+  const qa = page.getByTestId(`guide-faq-${id}`);
+  if (!(await qa.evaluate((d) => d.open))) await qa.locator("summary").click();
+  await qa.locator(".ob-guide-p").waitFor({ timeout: 10000 });
+  return (await qa.locator(".ob-guide-p").innerText()).trim();
+}
 const doList = (page) =>
   page.evaluate(() =>
     [...document.querySelectorAll("[data-testid=guide] [data-testid^=guide-mode-]")].map((li) => [
@@ -125,6 +141,15 @@ async function firstVisit(width) {
     // A question opens without script help (native disclosure).
     await page.getByTestId("guide-faq-time").locator("summary").click();
     if (!(await page.getByTestId("guide-faq-time").evaluate((d) => d.open))) throw new Error("a question did not open");
+    // The questions in their order, and the Chinese ones answered: the year turns at Lichun, the count's two readers.
+    const faq = await page.evaluate(() => [...document.querySelectorAll("[data-testid^=guide-faq-]")].map((d) => d.dataset.testid.slice("guide-faq-".length)));
+    if (JSON.stringify(faq) !== JSON.stringify(FAQ)) throw new Error(`the questions: ${JSON.stringify(faq)}`);
+    const year = await answer(page, "year");
+    if (!/Lichun/.test(year) || !/Chinese New Year/.test(year)) throw new Error(`the year animal's answer: "${year}"`);
+    const count = await answer(page, "count");
+    if (!/luck pillars/.test(count) || !/Kua/.test(count)) throw new Error(`the count's answer: "${count}"`);
+    const precise = (await page.getByTestId("guide-precise-chinese").innerText()).trim();
+    if (!/Swiss Ephemeris/.test(precise) || !/1800 to 2200/.test(precise) || !/true solar time/.test(precise)) throw new Error(`the Chinese calendar's line: "${precise}"`);
     // No AI in 1.0.
     if (!AI_ON && (await page.getByTestId("ai-accounts").count())) throw new Error("AI is off, yet Your AI shows");
     await assertNoOverflow(page);
@@ -135,6 +160,9 @@ async function firstVisit(width) {
       if (fr !== "Calculer un thème natal") throw new Error(`French title: "${fr}"`);
       const didFr = (await doList(page)).map(([, name]) => name);
       if (JSON.stringify(didFr) !== JSON.stringify(DO_FR)) throw new Error(`what you can do, in French: ${JSON.stringify(didFr)}`);
+      // The answers follow the language too.
+      const countFr = await answer(page, "count");
+      if (!/piliers de chance/.test(countFr) || !/nombre Kua/.test(countFr)) throw new Error(`the count's answer, in French: "${countFr}"`);
       // None of 1.x's tabs is named any more (Temps, Duo, Systèmes).
       const guideFr = await page.getByTestId("guide").innerText();
       for (const old of ["Temps", "Duo", "Systèmes"]) {

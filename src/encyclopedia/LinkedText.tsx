@@ -1,5 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
+import { CHINESE_READING, LIVE_FAMILIES } from "@/lib/chinese/term-live";
 import { useI18n } from "@/lib/i18n/locale";
+import { importWithRetry } from "@/lib/lazy-retry";
 import { loadLexicon } from "./data";
 import { compileLexicon, linkText, type Matcher } from "./linker";
 import { Term } from "./Term";
@@ -11,10 +13,29 @@ import type { Lang } from "./types";
  * plan, part 16): the reading card and the guide render their paragraphs
  * through it. Its own download, with the language's lexicon, fetched the
  * first time a reading shows; until then the text shows as it always did.
- * The entries a reading is about link nowhere in it.
+ * The entries a reading is about link nowhere in it: a Chinese reading's
+ * (languages plan, part 29) come from the registry of Chinese terms, its own
+ * download, fetched only once the encyclopedia has written a family of
+ * Chinese terms (lib/chinese/term-live.ts) and the reading's words link.
  */
 
 type Lexicons = Record<string, Matcher | null>;
+
+/** A Chinese reading's entries, every one it is about, written or not (lib/chinese/term-ids.ts, chineseRefTerms). */
+type ChineseTerms = (readingId: string) => string[];
+let chinese: ChineseTerms | null = null;
+let chineseLoading: Promise<ChineseTerms> | null = null;
+
+function chineseTerms(): Promise<ChineseTerms> {
+  if (!chineseLoading) {
+    const p = importWithRetry(() => import("@/lib/chinese/term-ids")).then((m) => (chinese = m.chineseRefTerms));
+    p.catch(() => {
+      if (chineseLoading === p) chineseLoading = null;
+    });
+    chineseLoading = p;
+  }
+  return chineseLoading;
+}
 
 const loaded = new Map<Lang, Lexicons>();
 const loading = new Map<Lang, Promise<Lexicons>>();
@@ -53,8 +74,13 @@ const CORE: Record<string, string> = {
   lessons: "karmic-lesson",
 };
 
-/** The entries a reading is about, from its id ("planet:saturn", "aspect:sun_trine_moon", "gate:34", "core:lifePath"…). */
-export function subjectOf(readingId: string): Set<string> {
+/**
+ * The entries a reading is about, from its id ("planet:saturn",
+ * "aspect:sun_trine_moon", "gate:34", "core:lifePath"…); a Chinese reading's
+ * ("bz:god:eating-god") from the registry of Chinese terms, when given.
+ */
+export function subjectOf(readingId: string, chineseOf?: ChineseTerms | null): Set<string> {
+  if (CHINESE_READING.test(readingId)) return new Set(chineseOf?.(readingId) ?? []);
   const out = new Set<string>();
   const [kind, rest = ""] = readingId.split(":");
   const add = (id: string | null) => id && out.add(id);
@@ -84,8 +110,24 @@ export function LinkedText({ text, tradition, readingId }: { text: string; tradi
     };
   }, [lang, lex]);
   const matcher = lex?.[tradition] ?? null;
+  // Until the encyclopedia writes a Chinese family no entry can be a Chinese reading's own, so nothing waits and
+  // the registry is not fetched (the Calendar's day animal and solar terms link astrology's words meanwhile).
+  const chineseReading = Boolean(readingId && LIVE_FAMILIES.size && CHINESE_READING.test(readingId));
+  const [cn, setCn] = useState<ChineseTerms | null>(() => chinese);
+  useEffect(() => {
+    if (!matcher || !chineseReading || cn) return;
+    let live = true;
+    chineseTerms()
+      .then((f) => live && setCn(() => f))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [matcher, chineseReading, cn]);
   if (!matcher) return <>{text}</>;
-  const pieces = linkText(text, matcher, readingId ? subjectOf(readingId) : undefined);
+  // A Chinese reading waits for its own entries, so it never links to itself.
+  if (chineseReading && !cn) return <>{text}</>;
+  const pieces = linkText(text, matcher, readingId ? subjectOf(readingId, cn) : undefined);
   return (
     <>
       {pieces.map((p, i) =>

@@ -2,6 +2,7 @@ import { Suspense, useMemo, useRef } from "react";
 import { AnimalGlyph } from "@/components/animal-glyph";
 import { LoadingLines } from "@/components/loading-lines";
 import { chartDisplayName } from "@/lib/chart/library";
+import type { NatalChart } from "@/lib/chart/types";
 import { BRANCHES } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { relationTone } from "@/lib/chinese/relations";
@@ -16,6 +17,8 @@ import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
+import { HowUluneCalculates, MethodNotes } from "@/studio/modes/chinese-notes";
+import { useMethodNotes } from "@/studio/modes/hooks/useMethodNotes";
 import { useZodiacOf } from "@/studio/modes/hooks/useZodiac";
 import { MODE_META } from "@/studio/modes/meta";
 import { PairSelects, type PairPick } from "@/studio/modes/pair-selects";
@@ -38,6 +41,8 @@ import "@/studio/modes/styles/pair.css";
  * clashes between A's and B's animals are drawn across; beside the wheel,
  * the year animals' meeting, the day animals' (the self with a partner) and
  * every other, each opening its reading. Worked out here; nothing is sent.
+ * Part 29 adds the method notes to the side panel's first read, each named
+ * for its person (chinese-notes.tsx).
  */
 
 export type ZodiacPairState = {
@@ -46,6 +51,8 @@ export type ZodiacPairState = {
   b: ZodiacChart | null;
   names: { a: string; b: string };
   meetings: PairMeeting[];
+  /** The two cast charts, for the method notes (part 29). */
+  charts: { a: NatalChart | null; b: NatalChart | null };
   enabled: boolean;
 };
 
@@ -218,24 +225,28 @@ function PairControls() {
   return <PairSelects mode="synastry" pair={data.pick} prefix="zodiac-pair" page="zodiac-pair" />;
 }
 
-/** The side panel with nothing chosen: what the page compares, then every meeting as a line. */
+/** The side panel with nothing chosen: what the page compares, then every meeting as a line; first each person's method notes, last how Ulune calculates (part 29). */
 function PairHello() {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const w = useWheelView();
   const data = useModeData("zodiac-pair");
+  const notes = useMethodNotes("zodiac-pair", data?.charts.a ?? null, { chart: data?.charts.b ?? null, names: data?.names ?? { a: "A", b: "B" } });
   if (!data?.a) return null;
   if (!data.b) {
     return (
       <section className="ulune-zk-hello" data-testid="zodiac-pair-hello" data-empty="1">
+        <MethodNotes notes={notes} />
         <button type="button" data-testid="zodiac-pair-add-second-panel" onClick={() => data.pick?.addSecond()} className="inline-flex min-h-11 items-center rounded-md font-display text-xl leading-tight text-fg hover:text-fg-muted">
           {cnWord(locale, "zkPairAdd")}
         </button>
+        <HowUluneCalculates page="zodiac-pair" />
       </section>
     );
   }
   return (
     <section className="ulune-zk-hello" data-testid="zodiac-pair-hello">
+      <MethodNotes notes={notes} />
       <h2 className="ulune-zk-hello-h">{cnWord(locale, "zkPairTitle")}</h2>
       <p className="ulune-zk-hello-p">{cnWord(locale, "zkAboutPair1")}</p>
       <ul className="ulune-zk-hello-list">
@@ -247,6 +258,7 @@ function PairHello() {
           </li>
         ))}
       </ul>
+      <HowUluneCalculates page="zodiac-pair" />
     </section>
   );
 }
@@ -297,7 +309,7 @@ function usePairRuntime(): ModeRuntime<ZodiacPairState> {
     // An animal of the wheel: read against A's animals, as on the natal page.
     return selectedId.startsWith("zk:branch:") ? zodiacReading(a, selectedId, locale, prefs) : null;
   }, [a, b, meetings, selectedId, names, locale, prefs, inner, chartB]);
-  const data = useMemo(() => ({ pick, a, b, names, meetings, enabled }), [pick, a, b, names, meetings, enabled]);
+  const data = useMemo(() => ({ pick, a, b, names, meetings, charts: { a: inner, b: chartB }, enabled }), [pick, a, b, names, meetings, inner, chartB, enabled]);
   return useMemo(() => ({ data, reading }), [data, reading]);
 }
 

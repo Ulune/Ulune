@@ -3,7 +3,10 @@
  * Shui's Home lens, at 1280 (typed) and 390 (a phone with touch, the
  * compass), in English and French, with Fixture A (made up: 15/06/1990,
  * 12:00, Paris) and no yin or yang count:
- *   - reached by its lens; the first read says how to find the facing;
+ *   - reached by its lens; the first read says how to find the facing, and
+ *     (part 29) ends on "How Ulune calculates" (the Eight Mansions, the Xuan
+ *     Kong Flying Stars, the edges, the periods from 1864, the magnetic
+ *     model), with no method note for Fixture A;
  *   - the declination at the chart's place, a few degrees east;
  *   - a typed facing of 180°: Wu faced, Zi behind, the facing card, a Kan
  *     house of the East group, the same group as the yang count's Kua 1 and
@@ -47,6 +50,8 @@ import { FIXTURE_A, SHOTS, VIEWPORTS, assertNoOverflow, castFixture, clickDockTa
 const WORDS = {
   en: {
     first: "Your home, step by step",
+    how: "How Ulune calculates",
+    method: ["Eight Mansions school", "Xuan Kong Flying Stars", "24 mountains of 15°", "Within 3°", "counted from 1864", "World Magnetic Model 2025", "Swiss Ephemeris 2.10.03, JPL DE441"],
     facing: "the middle mountain of the south",
     same: "Your Kua 1 is of the same group",
     other: "Your Kua 8 is of the other group",
@@ -70,6 +75,8 @@ const WORDS = {
   },
   fr: {
     first: "Votre logement, pas à pas",
+    how: "Comment Ulune calcule",
+    method: ["l’école des Huit Demeures", "Étoiles volantes du Xuan Kong", "24 montagnes de 15°", "À moins de 3°", "comptée depuis 1864", "modèle magnétique mondial 2025", "Swiss Ephemeris 2.10.03, JPL DE441"],
     facing: "la deuxième montagne du sud",
     same: "Votre Kua 1 est du même groupe",
     other: "Votre Kua 8 est de l’autre groupe",
@@ -135,6 +142,12 @@ async function run(width, lang) {
     const steps = await page.locator("[data-testid^=fengshui-home-hello-]").count();
     const hello = await text(page, "fengshui-home-hello");
     if (steps !== 4 || !hello.includes(w.first)) throw new Error(`${label}: the first read ${steps} "${hello.slice(0, 120)}"`);
+    // Part 29: no note for Fixture A; the first read ends on "How Ulune calculates", folded.
+    const method = await page.evaluate(() => {
+      const how = document.querySelector("[data-testid=fengshui-home-hello] [data-testid=method-notes]");
+      return { notes: document.querySelectorAll("[data-testid=fengshui-home-hello] [data-testid=method-note]").length, title: how?.querySelector("summary")?.textContent?.trim(), open: how?.open, text: how?.textContent ?? "" };
+    });
+    if (method.notes || method.title !== w.how || method.open || !w.method.every((t) => method.text.includes(t))) throw new Error(`${label}: the method notes ${JSON.stringify(method).slice(0, 300)}`);
     if (phone) await clickDockTab(page, "reading").catch(() => {});
     await page.getByTestId("fengshui-home-none").waitFor({ timeout: 4000 });
     const decl = await text(page, "fengshui-home-declination");
