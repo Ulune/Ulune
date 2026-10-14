@@ -2416,6 +2416,33 @@ html.theme-switching::view-transition-new(root) {
   outline: 2px solid var(--color-ring);
   outline-offset: 1px;
 }
+/* A finger (languages plan, part 30; the review's T10): the hint's × stays
+   24 px to the eye and reaches 44 px for a finger, through a ring that is
+   not drawn. */
+@media (pointer: coarse) {
+  .ulune-wheel-hint-close {
+    position: relative;
+  }
+  .ulune-wheel-hint-close::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    border-radius: 999px;
+  }
+}
+
+/* A reading's mark written in letters (a house's number, a Chinese
+   relation's character such as 沖): the letters take a shade of the mark's
+   colour nearer the text's, deeper by day and lighter by night, while its
+   ring and tint keep the colour itself, so they read at 4.5:1 whatever the
+   colour (languages plan, part 30: the air signs' yellow gave a house's
+   number 1.5:1 on cream, the minor aspects' green a relation's 2:1). */
+.ob-rc-mark > .ob-rc-mark-text {
+  color: color-mix(in oklab, currentColor 75%, var(--color-fg));
+}
+html.light .ob-rc-mark > .ob-rc-mark-text {
+  color: color-mix(in oklab, currentColor 45%, var(--color-fg));
+}
 
 /* The Ulune tooltip (wheel-tip.ts): what an aspect line says when the
    pointer rests on it, by the pointer, on whichever side has room. Only its

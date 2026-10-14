@@ -18,6 +18,7 @@
  *     Chinese page yet (part 29).
  */
 import { FIXTURE_A, FIXTURE_B, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, gotoApp, goStudioPage, launch, openCalendarView, setLang, setView, SHOTS } from "./_lib.mjs";
+import { watchSent } from "./_sent.mjs";
 import { join } from "node:path";
 
 const WORDS = {
@@ -38,15 +39,13 @@ async function run(width, lang) {
     if (lang === "fr") await setLang(page, "fr");
     await castFixture(page, FIXTURE_B);
     await castFixture(page, FIXTURE_A);
-    const sent = [];
-    let watching = true;
+    // Nothing but the app's own files, by GET, while Cycles and Pair work (_sent.mjs).
+    const sent = watchSent(page);
     // The registry of Chinese terms and its links wait for the encyclopedia's Chinese pages (part 29): never fetched before.
     const registry = [];
     page.on("request", (r) => {
       const u = new URL(r.url());
       if (/chinese\/term-ids|ChineseTermLink|ChineseReadingTerms/.test(u.pathname)) registry.push(u.pathname);
-      if (!watching) return;
-      if (r.method() !== "GET" || /_serverFn|\/api\//.test(u.pathname)) sent.push(`${r.method()} ${u.pathname}`);
     });
 
     // ── Cycles: the year ahead ──
@@ -111,7 +110,7 @@ async function run(width, lang) {
     await setView(page, "wheel");
 
     // ── The Calendar: the day's animal (the sky it shows comes from the server, as always) ──
-    watching = false;
+    sent.stop();
     await goStudioPage(page, "timing");
     await page.getByTestId("studio-timing").waitFor({ timeout: 20000 });
     await openCalendarView(page);

@@ -1,7 +1,7 @@
 {
   "name": "Ulune",
   "short_name": "Ulune",
-  "description": "Precise astrology charts, with Human Design and numerology. Your charts are kept only on your device.",
+  "description": "Precise astrology charts, Human Design, numerology, Chinese astrology, BaZi, Feng Shui and an encyclopedia. Your charts are kept only on your device.",
   "id": "/",
   "start_url": "/",
   "scope": "/",

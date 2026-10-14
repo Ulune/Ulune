@@ -21,8 +21,9 @@ solar terms' layer, and the Chinese pages load the rest on demand.
 | `use-chinese-prefs.ts` | The settings for React views, followed live. |
 | `zodiac.ts`, `zodiac-reading.ts`, `zodiac-table.ts` | Chinese astrology: the four animals of a cast chart, what its page says, its table and CSV. |
 | `zodiac-texts.ts` | What Chinese astrology says, in English and French: the twelve portraits, the sixty animal-and-phase pairs, the month, day and hour animals, each relation in practice. |
+| `both.ts` | A text in English and French (`Both`) and `said`, which picks the reader's: every text file and reading uses them, so none fetches another language's texts for them (part 30). |
 | `relations.ts` | The relations between branches (harmony, trine, clash, harm, punishment, destruction, self-punishment), by rule. |
-| `zodiac-time.ts`, `zodiac-time-reading.ts`, `zodiac-time-table.ts` | The year ahead and its months, the day's animal, two people's animals: how animals meet, what the pages say, their tables. |
+| `zodiac-time.ts`, `zodiac-time-reading.ts`, `zodiac-time-texts.ts`, `zodiac-time-table.ts` | The year ahead and its months, the day's animal, two people's animals: how animals meet, what the pages say (its texts apart from the portraits and pairs, so the Calendar's day layer fetches only these), their tables. |
 | `day-cycle.ts` | The day's place in the sixty-day cycle alone, for the Calendar's month (no tables). |
 | `calendar-chinese.ts` | What the Calendar loads for its day's-animal reading. |
 | `bazi.ts`, `bazi-reading.ts`, `bazi-texts.ts`, `bazi-table.ts` | BaZi, the Four Pillars: the Day Master, the Ten Gods of every stem shown and hidden, what the board says, its table. |

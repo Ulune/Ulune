@@ -1,7 +1,7 @@
 import { Suspense, useMemo, useRef, useSyncExternalStore } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LoadingLines } from "@/components/loading-lines";
-import { BRANCHES, SIXTY, STEMS } from "@/lib/chinese/names";
+import { BRANCHES, SIXTY, STEMS, phaseWord } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
@@ -107,7 +107,14 @@ function Meets({ list, testId }: { list: Meeting[]; testId: string }) {
   );
 }
 
-/** A pillar written small: its characters (or its name), coloured by the stem's and the branch's phases. */
+/** A pillar's phases in words, the stem's then the branch's (one when they are the same): its characters' colours said (part 30). */
+function phaseWords(cycle: number, locale: string): string {
+  const pair = SIXTY[cycle]!;
+  const ids = [...new Set([STEMS[pair.stem]!.phase, BRANCHES[pair.branch]!.phase])];
+  return ids.map((id) => phaseWord(id, locale)).join(", ");
+}
+
+/** A pillar written small: its characters (or its name), coloured by the stem's and the branch's phases, the phases also in words for a screen reader. */
 function Pair({ cycle }: { cycle: number }) {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
@@ -116,10 +123,13 @@ function Pair({ cycle }: { cycle: number }) {
   const branch = BRANCHES[pair.branch]!;
   if (prefs.show === "full") {
     return (
-      <span className="ulune-bzl-pair" lang={hanziLang(prefs.script)}>
-        <span data-phase={stem.phase}>{stem[prefs.script]}</span>
-        <span data-phase={branch.phase}>{branch[prefs.script]}</span>
-      </span>
+      <>
+        <span className="ulune-bzl-pair" lang={hanziLang(prefs.script)}>
+          <span data-phase={stem.phase}>{stem[prefs.script]}</span>
+          <span data-phase={branch.phase}>{branch[prefs.script]}</span>
+        </span>
+        <span className="sr-only"> ({phaseWords(cycle, locale)})</span>
+      </>
     );
   }
   return <span className="ulune-bzl-pair is-words">{chineseLabel(pair, locale, { ...prefs, show: prefs.show === "pinyin" ? "pinyin" : "names" }).pinyin ?? chineseLabel(pair, locale, prefs).name}</span>;
@@ -154,7 +164,7 @@ function Band({ luck, both, year }: { luck: Luck; both: boolean; year: FlowYear 
                 data-now={isNow ? "1" : undefined}
                 data-tension={p.meets.some((m) => toneOf(m) === "tension") ? "1" : undefined}
                 aria-pressed={w.selectedId === ref}
-                aria-label={`${cnWord(locale, "bzlInLuck")} ${p.index}, ${cnWord(locale, "bzlAges", { from: Math.floor(p.fromAge), to: Math.floor(p.toAge) })}: ${chineseLabel(SIXTY[p.pillar.cycle]!, locale, prefs).text}, ${god}`}
+                aria-label={`${cnWord(locale, "bzlInLuck")} ${p.index}, ${cnWord(locale, "bzlAges", { from: Math.floor(p.fromAge), to: Math.floor(p.toAge) })}: ${chineseLabel(SIXTY[p.pillar.cycle]!, locale, prefs).text} (${phaseWords(p.pillar.cycle, locale)}), ${god}`}
                 onClick={() => w.choose(ref)}
                 {...previewProps(ref)}
               >

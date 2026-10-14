@@ -79,7 +79,7 @@
 }
 .ulune-fsh-tri {
   font-size: 16px;
-  fill: var(--ph) !important;
+  fill: var(--ph-ink) !important;
 }
 .ulune-fsh-face {
   stroke: var(--color-halo);
@@ -159,7 +159,8 @@
   width: 7.5em;
   min-height: 40px;
   padding: 0 10px;
-  border: 1px solid var(--color-border-strong);
+  /* A field's edge at 3:1 against the card, as WCAG 2.2 asks (part 30). */
+  border: 1px solid var(--color-border-field);
   border-radius: 8px;
   background: var(--color-bg);
   color: var(--color-fg);
@@ -351,7 +352,7 @@
   font-weight: 500;
 }
 .ulune-fss-mw b[data-state="timely"] {
-  color: var(--color-halo);
+  color: var(--cn-halo-ink);
 }
 .ulune-fss-mw b[data-now] {
   font-weight: 750;
@@ -516,7 +517,7 @@
   fill: var(--color-fg-muted);
 }
 .ulune-fsp-star[data-state="timely"] {
-  fill: var(--color-halo);
+  fill: var(--cn-halo-ink);
 }
 .ulune-fsp-star[data-state="dormant"] {
   fill: var(--color-fg-muted);
@@ -688,7 +689,8 @@ button.ulune-fsr-dir:hover {
   min-width: 0;
   min-height: 32px;
   padding: 0 4px;
-  border: 1px dashed var(--color-border-strong);
+  /* Fields: their edge at 3:1 against the plan (part 30). */
+  border: 1px dashed var(--color-border-field);
   border-radius: 6px;
   background: var(--color-bg);
   color: var(--color-fg-muted);

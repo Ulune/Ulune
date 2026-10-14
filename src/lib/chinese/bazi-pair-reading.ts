@@ -16,7 +16,7 @@ import { meetingFact, meetingShort } from "./bazi-luck-reading";
 import { pairLine } from "./bazi-readings-texts";
 import { RELATION_NAMES } from "./relations";
 import type { BaziPair, PairGift } from "./bazi-pair";
-import { said } from "./zodiac-texts";
+import { said } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 export type PairNames = { a: string; b: string };

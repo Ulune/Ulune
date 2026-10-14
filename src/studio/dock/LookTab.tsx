@@ -5,6 +5,8 @@ import { LookPanel } from "@/components/look-panel";
 import { LookProfiles } from "@/components/look-profiles";
 import { useLook } from "@/lib/look-provider";
 import { useI18n } from "@/lib/i18n/locale";
+import { bookT } from "@/lib/i18n/words-book";
+import { lookWords } from "@/lib/i18n/catalog/look-words";
 import { cn } from "@/lib/utils";
 import {
   LOOK_PAGE_LABEL,
@@ -23,7 +25,8 @@ import { onTablistKeyDown } from "@/lib/a11y/tablist";
 import { useKeptScroll } from "@/studio/return-parts";
 
 export function LookTab() {
-  const { t, locale } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(lookWords, tc, locale);
   const { resetLook } = useLook();
   const studioPage = useStudioStore((s) => s.page);
   const studioView = useStudioStore((s) => s.view);

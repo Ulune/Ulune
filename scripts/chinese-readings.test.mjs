@@ -12,7 +12,8 @@ import { ANIMALS, BRANCHES, PHASES, SIXTY, STEMS } from "../src/lib/chinese/name
 import { RELATION_KINDS } from "../src/lib/chinese/relations.ts";
 import { zodiacChart } from "../src/lib/chinese/zodiac.ts";
 import { pairYears, relationRef, zodiacReading } from "../src/lib/chinese/zodiac-reading.ts";
-import { ANIMAL_PORTRAITS, CLASH_DAY_TEXT, DAY_ANIMAL_TEXT, MONTH_TEXTS, PAIR_TEXTS, PAIR_TEXTS_TWO, PLACE_TEXTS, RELATION_PRACTICE, YEAR_TEXTS, pairText } from "../src/lib/chinese/zodiac-texts.ts";
+import { ANIMAL_PORTRAITS, PAIR_TEXTS, PLACE_TEXTS, RELATION_PRACTICE, pairText } from "../src/lib/chinese/zodiac-texts.ts";
+import { CLASH_DAY_TEXT, DAY_ANIMAL_TEXT, MONTH_TEXTS, PAIR_TEXTS_TWO, YEAR_TEXTS } from "../src/lib/chinese/zodiac-time-texts.ts";
 
 /** Every text, with where it is, as [where, en, fr]. */
 function everyText() {

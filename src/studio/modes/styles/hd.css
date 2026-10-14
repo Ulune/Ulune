@@ -301,6 +301,12 @@ html.light {
 .ulune-hd-col[data-layer="design"] {
   --hd-ink: var(--hd-design);
 }
+/* By night the Design's red in the columns' small numbers gave 4.1:1 on a
+   lit row's grey: a shade lighter than the drawing's red keeps them at 4.5:1
+   (languages plan, part 30). */
+html:not(.light) .ulune-hd-col[data-layer="design"] {
+  --hd-ink: color-mix(in oklab, var(--hd-design) 90%, var(--color-fg));
+}
 .ulune-hd-col[data-layer="personality"] {
   --hd-ink: var(--hd-personality);
 }

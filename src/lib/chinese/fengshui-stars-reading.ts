@@ -28,7 +28,7 @@ import { roomLines } from "./fengshui-rooms-reading";
 import { FORMATION_NAMES, FORMATION_TEXTS, STATE_TEXTS } from "./fengshui-stars-texts";
 import type { YearStars } from "./fengshui-years";
 import { palaceYearLines } from "./fengshui-years-reading";
-import { said } from "./zodiac-texts";
+import { said } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 export type ChartVariant = "main" | "ti";

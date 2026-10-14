@@ -39,6 +39,12 @@ export const PHASES: readonly Phase[] = [
   { id: "water", hant: "水", hans: "水", pinyin: "shuǐ", en: "Water", fr: "Eau" },
 ];
 
+/** A phase's name inside a sentence or an accessible name, in the reader's language: "fire", « feu » (part 30). */
+export function phaseWord(id: PhaseId, locale: string): string {
+  const p = PHASES.find((x) => x.id === id)!;
+  return (locale === "fr" ? p.fr : p.en).toLowerCase();
+}
+
 export const POLARITY_NAMES: Record<Polarity, ChineseName> = {
   yang: { hant: "陽", hans: "阳", pinyin: "yáng", en: "Yang", fr: "yang" },
   yin: { hant: "陰", hans: "阴", pinyin: "yīn", en: "Yin", fr: "yin" },

@@ -1,13 +1,14 @@
 import { Suspense, useMemo, useRef, type KeyboardEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { LoadingLines } from "@/components/loading-lines";
+import { phaseWord } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
 import { DIRECTION_IDS, MANSIONS, MANSION_IDS, directionById, fengShuiOf, trigramOfDirection, type DirectionId, type FengShui, type FsCount } from "@/lib/chinese/fengshui";
 import { GROUP_TEXTS, MANSION_TEXTS, TRIGRAM_TEXTS } from "@/lib/chinese/fengshui-texts";
 import { countLabel, directionName, fengShuiReading, fsDirRef, fsKuaRef, fsPracticeRef, groupLabel, mansionName, practiceLines } from "@/lib/chinese/fengshui-reading";
-import { said } from "@/lib/chinese/zodiac-texts";
+import { said } from "@/lib/chinese/both";
 import { CJK, hanziLang } from "@/lib/chinese/animal-chars";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
@@ -120,7 +121,7 @@ function Rose({ fs, both }: { fs: FengShui; both: boolean }) {
               className={cn("ulune-fs-wedge", row.supportive ? "is-good" : "is-hard", on && "is-on")}
               role="button"
               tabIndex={row.direction === stop ? 0 : -1}
-              aria-label={`${directionName(row.direction, locale)}: ${mansionName(row.mansion, locale)}, ${kind}`}
+              aria-label={`${directionName(row.direction, locale)} (${phaseWord(tri.phase, locale)}): ${mansionName(row.mansion, locale)}, ${kind}`}
               aria-pressed={on}
               onClick={() => w.choose(ref)}
               {...previewProps(ref)}

@@ -17,6 +17,7 @@ import {
   signName,
 } from "@/lib/i18n/astro";
 import { translate, type AppLocale } from "@/lib/i18n/messages";
+import { tablesWords } from "@/lib/i18n/catalog/tables-words";
 import { angleShort, chartFactText, moonPhaseName, patternsWord, pointsText, pointsWord } from "@/lib/i18n/table-ui";
 import { dateFormat } from "@/lib/intl-cache";
 import {
@@ -48,6 +49,13 @@ import { formatEuropeanDate } from "./parse-birth";
 import { declinationOf, localSiderealHours, moonPhase, nearestAngle, outOfBoundsBy, separation } from "./table-facts";
 import { ANGLE_IDS, type AspectLink, type BodyFlags, type BodyId, type ChartPatterns, type NatalChart, type Placement } from "./types";
 import { houseTempo } from "./patterns";
+
+/** A word of the table view's own book (tables-words.ts; languages plan, part 30), else of the app's catalog. */
+type TableKey = Parameters<typeof translate>[1] | keyof typeof tablesWords;
+function tableWord(locale: AppLocale, key: TableKey): string {
+  const own = (tablesWords as Readonly<Record<string, readonly [string, string]>>)[key];
+  return own ? own[locale === "fr" ? 1 : 0] : translate(locale, key as Parameters<typeof translate>[1]);
+}
 
 /** A value and whether it hangs on an unknown birth time. */
 export type Cell = { text: string; uncertain: boolean };
@@ -364,18 +372,18 @@ export function patternSections(chart: NatalChart, patterns: ChartPatterns, loca
   return [
     {
       id: "configurations",
-      title: translate(locale, "patternConfigs"),
+      title: tableWord(locale, "patternConfigs"),
       items: mergedShapes(chart, patterns).map((shape) => ({
         text: shapeLine(shape, locale),
         uncertain: shape.uncertain,
         pick: pointSelectId(shape.representative.apex ?? shape.representative.members[0] ?? "sun"),
         shape,
       })),
-      none: translate(locale, "noConfigs"),
+      none: tableWord(locale, "noConfigs"),
     },
     {
       id: "stelliums",
-      title: translate(locale, "patternStelliums"),
+      title: tableWord(locale, "patternStelliums"),
       items: patterns.stelliums.map((s) => {
         const house = /^House (\d+)$/.exec(s.place)?.[1];
         const members = s.members.map((id) => pointById(chart, id));
@@ -385,32 +393,32 @@ export function patternSections(chart: NatalChart, patterns: ChartPatterns, loca
           pick: house ? `house:${house}` : pointSelectId(s.members[0] ?? "sun"),
         };
       }),
-      none: translate(locale, "noStelliums"),
+      none: tableWord(locale, "noStelliums"),
     },
     {
       id: "unaspected",
-      title: translate(locale, "patternUnaspected"),
+      title: tableWord(locale, "patternUnaspected"),
       items: unaspected.length
         ? [{ text: names(unaspected.map((p) => p.id)), uncertain: !unaspected.every((p) => unaspectedHolds(chart, p)) }]
         : [],
-      none: translate(locale, "noUnaspected"),
+      none: tableWord(locale, "noUnaspected"),
     },
     {
       id: "voc",
-      title: translate(locale, "patternVoc"),
+      title: tableWord(locale, "patternVoc"),
       items: [
-        { text: translate(locale, patterns.vocMoon ? "vocYes" : "vocNo"), uncertain: unknown },
+        { text: tableWord(locale, patterns.vocMoon ? "vocYes" : "vocNo"), uncertain: unknown },
         ...(moonCourseText(chart, locale) ? [{ text: moonCourseText(chart, locale) as string, uncertain: unknown, pick: pointSelectId("moon") }] : []),
       ],
       none: "",
     },
     {
       id: "retrogrades",
-      title: translate(locale, "patternRx"),
+      title: tableWord(locale, "patternRx"),
       items: patterns.retrogrades.length
         ? [{ text: `${patterns.retrogrades.length} · ${names(patterns.retrogrades)}`, uncertain: false }]
         : [],
-      none: translate(locale, "noRx"),
+      none: tableWord(locale, "noRx"),
     },
   ];
 }
@@ -474,7 +482,7 @@ export function balanceGroups(chart: NatalChart, patterns: ChartPatterns, locale
   const where = (test: (p: Placement) => boolean) => bodies.filter(test).map((p) => p.id);
   const element = (p: Placement) => SIGN_META[p.sign].element;
   const east = (p: Placement) => [10, 11, 12, 1, 2, 3].includes(p.house);
-  const t = (key: Parameters<typeof translate>[1]) => translate(locale, key);
+  const t = (key: TableKey) => tableWord(locale, key);
   // Without a birth time the balance is weighed on the bodies alone (anatomy.ts):
   // it holds unless one of them changes sign in the day.
   const bySign = unknown && !signsHold(chart, CLASSIC_BODIES);
@@ -643,7 +651,7 @@ export function chartFacts(chart: NatalChart, isDay: boolean, locale: AppLocale)
           detail:
             alt != null
               ? chartFactText(locale, alt >= 0 ? "sunAbove" : "sunBelow", { arc: formatArc(Math.abs(alt)) })
-              : translate(locale, isDay ? "tableSunAbove" : "tableSunBelow"),
+              : tableWord(locale, isDay ? "tableSunAbove" : "tableSunBelow"),
         },
   );
 

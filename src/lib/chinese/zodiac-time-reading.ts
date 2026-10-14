@@ -12,7 +12,8 @@ import { RELATION_NAMES } from "./relations";
 import { animalOf, cnWord, theAnimal } from "./words";
 import { PLACE_WORD } from "./zodiac-places";
 import type { ZodiacChart, ZodiacPlaceId } from "./zodiac";
-import { CLASH_DAY_TEXT, DAY_ANIMAL_TEXT, MONTH_TEXTS, PAIR_TEXTS_TWO, YEAR_TEXTS, said, type MeetText } from "./zodiac-texts";
+import { said } from "./both";
+import { CLASH_DAY_TEXT, DAY_ANIMAL_TEXT, MONTH_TEXTS, PAIR_TEXTS_TWO, YEAR_TEXTS, type MeetText } from "./zodiac-time-texts";
 import { dayAnimalOf, firstKind, meetKinds, type MeetKind, type PairMeeting, type YearAhead } from "./zodiac-time";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;

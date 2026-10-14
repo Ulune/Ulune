@@ -1,7 +1,9 @@
 # Ulune
 
 Astrology charts, Human Design and numerology, calculated with the Swiss
-Ephemeris. Free, with no account: your charts stay on your device.
+Ephemeris, three Chinese traditions (Chinese astrology, BaZi and Feng Shui)
+and an encyclopedia, in English and French. Free, with no account: your
+charts stay on your device.
 
 [ulune.app](https://ulune.app)
 
@@ -28,13 +30,14 @@ npm test              # unit tests, then the end-to-end suites (the dev server m
 npm run test:unit     # the unit and precision tests alone (what CI runs on every push)
 npm run build         # the Vercel output, in .vercel/output
 npm run check:deploy  # serves that build as Vercel does, and casts two charts through it
+npm run budgets -- server,3d,wheel,bundle,scrub,chinese  # the performance budgets: bundle, scrub and chinese on the build, served by `node scripts/perf/load/serve.mjs 9311` (scripts/perf/README.md)
 ```
 
 Where things are: `src/lib/chart` (the engine and its inputs), `src/studio`
 (the app), `src/lib/space` (the private space), `scripts` (tests and checks).
 `GOLDENS.md` lists what the reference charts lock; `PRODUCTION.md` how the
 site runs; `.github/workflows/ci.yml` the checks on every push, and the
-end-to-end suites each night.
+end-to-end suites and the budgets each night.
 
 ## Licence
 

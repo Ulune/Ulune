@@ -36,6 +36,7 @@
  */
 import { join } from "node:path";
 import { FIXTURE_A, FIXTURE_B, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, launch, setLang, setView } from "./_lib.mjs";
+import { watchSent } from "./_sent.mjs";
 
 const WORDS = {
   en: {
@@ -136,11 +137,8 @@ async function run(width, lang) {
       label: b.getAttribute("aria-label"),
     }));
     if (card.pinyin !== "bāzì" || card.hanzi !== "八字" || card.fresh !== w.fresh || card.label !== `BaZi, ${w.fresh}`) throw new Error(`${label}: the picker's card ${JSON.stringify(card)}`);
-    const sent = [];
-    page.on("request", (r) => {
-      const u = new URL(r.url());
-      if (r.method() !== "GET" || /_serverFn|\/api\//.test(u.pathname)) sent.push(`${r.method()} ${u.pathname}`);
-    });
+    // Nothing but the app's own files, by GET, from here (_sent.mjs).
+    const sent = watchSent(page);
     await page.getByTestId("lang-card-bazi").click();
     await page.getByTestId("bazi-board").waitFor({ timeout: 20000 });
     if (new URL(page.url()).pathname !== "/bazi") throw new Error(`${label}: at ${page.url()}`);

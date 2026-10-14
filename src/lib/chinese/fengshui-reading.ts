@@ -14,7 +14,7 @@ import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord } from "./words";
 import { DIRECTION_IDS, MANSIONS, MANSION_IDS, directionById, trigramOfDirection, type DirectionId, type FengShui, type FsCount, type MansionId } from "./fengshui";
 import { GROUP_TEXTS, MANSION_TEXTS, TRIGRAM_TEXTS } from "./fengshui-texts";
-import { said } from "./zodiac-texts";
+import { said } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 

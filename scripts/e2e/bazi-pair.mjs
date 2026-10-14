@@ -18,6 +18,7 @@
  */
 import { join } from "node:path";
 import { FIXTURE_A, FIXTURE_B, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, gotoApp, goStudioPage, launch, setLang, setView } from "./_lib.mjs";
+import { watchSent } from "./_sent.mjs";
 
 const WORDS = {
   en: { dm: "Sample B’s Day Master is the Seven Killings", back: "is the Indirect Wealth", palace: "clash", gifts: ["Sample B holds plenty of Metal", "TraceQA holds plenty of Fire"], fam: "Sample B’s Day Master controls TraceQA’s", luck: "A decade of", first: "Your first read", cell: "TraceQA ·", compare: "Compare with Sample B (BaZi: two charts)" },
@@ -42,11 +43,8 @@ async function run(width, lang) {
     if (lang === "fr") await setLang(page, "fr");
     await castFixture(page, FIXTURE_B);
     await castFixture(page, FIXTURE_A);
-    const sent = [];
-    page.on("request", (r) => {
-      const u = new URL(r.url());
-      if (r.method() !== "GET" || /_serverFn|\/api\//.test(u.pathname)) sent.push(`${r.method()} ${u.pathname}`);
-    });
+    // Nothing but the app's own files, by GET, from here (_sent.mjs).
+    const sent = watchSent(page);
 
     // ── BaZi's first read ──
     await goStudioPage(page, "bazi");

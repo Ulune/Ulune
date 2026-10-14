@@ -77,7 +77,7 @@
   font-family: "PingFang TC", "PingFang SC", "Noto Sans CJK TC", "Noto Sans CJK SC", "Microsoft JhengHei", "Microsoft YaHei", var(--font-ui), sans-serif;
   font-size: 24px;
   line-height: 1.1;
-  color: var(--ph);
+  color: var(--ph-ink);
 }
 .ulune-bzp-name {
   font: 400 10.5px/1.2 var(--font-ui);

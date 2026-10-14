@@ -2,6 +2,8 @@ import { Check, X } from "lucide-react";
 import { DEFAULT_LOOK_ID, MAX_LOOK_PROFILES, nextLookProfileName } from "@/lib/look";
 import { useLook } from "@/lib/look-provider";
 import { useI18n } from "@/lib/i18n/locale";
+import { bookT } from "@/lib/i18n/words-book";
+import { lookWords } from "@/lib/i18n/catalog/look-words";
 import { toast } from "@/lib/toast";
 
 const CHIP =
@@ -10,7 +12,8 @@ const CHIP_ON = "border-border-strong bg-bg-subtle text-fg";
 const CHIP_OFF = "border-border text-fg-muted hover:border-border-strong hover:text-fg";
 
 export function LookProfiles({ compact = false }: { compact?: boolean }) {
-  const { t } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(lookWords, tc, locale);
   const {
     profiles,
     activeId,

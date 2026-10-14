@@ -16,7 +16,7 @@ import { starOf, type PalaceId } from "./fengshui-stars";
 import type { AfflictionId, YearStars } from "./fengshui-years";
 import { AFFLICTION_HOW, AFFLICTION_NAMES, AFFLICTION_TEXTS } from "./fengshui-years-texts";
 import { mountainCode } from "./fengshui-home-reading";
-import { said } from "./zodiac-texts";
+import { said } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 /** The year's notes per sector (part 27), from the texts loaded with the page. */

@@ -46,6 +46,7 @@
 import { join } from "node:path";
 import { chromium } from "playwright";
 import { FIXTURE_A, SHOTS, VIEWPORTS, assertNoOverflow, castFixture, clickDockTab, createSpace, ensureShotsDir, goStudioPage, gotoApp, readSpaceRecord, setLang, setView, unlockSpace } from "./_lib.mjs";
+import { watchSent } from "./_sent.mjs";
 
 const WORDS = {
   en: {
@@ -127,11 +128,8 @@ async function run(width, lang) {
     await gotoApp(page);
     if (lang === "fr") await setLang(page, "fr");
     await castFixture(page, FIXTURE_A);
-    const sent = [];
-    page.on("request", (r) => {
-      const u = new URL(r.url());
-      if (r.method() !== "GET" || /_serverFn|\/api\//.test(u.pathname)) sent.push(`${r.method()} ${u.pathname}`);
-    });
+    // Nothing but the app's own files, by GET, from here (_sent.mjs).
+    const sent = watchSent(page);
     await goStudioPage(page, "fengshui-home");
     await page.getByTestId("fengshui-home").waitFor({ timeout: 20000 });
     if (new URL(page.url()).pathname !== "/feng-shui/home") throw new Error(`${label}: at ${page.url()}`);
@@ -418,11 +416,8 @@ async function kept() {
     if (!(await status()).includes("This home isn’t kept")) throw new Error(`kept: the status without a space "${await status()}"`);
     await page.getByTestId("fengshui-keep-sign-in").waitFor({ timeout: 4000 });
     await createSpace(page);
-    const sent = [];
-    page.on("request", (r) => {
-      const u = new URL(r.url());
-      if (r.method() !== "GET" || /_serverFn|\/api\//.test(u.pathname)) sent.push(`${r.method()} ${u.pathname}`);
-    });
+    // Nothing but the app's own files, by GET, from here (_sent.mjs).
+    const sent = watchSent(page);
     // Nothing to keep yet; then a facing, a year and a bedroom, kept and named.
     await page.waitForFunction(() => document.querySelector("[data-testid=fengshui-keep-save]")?.disabled === true, null, { timeout: 8000 });
     await page.getByTestId("fengshui-home-facing").fill("180");

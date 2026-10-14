@@ -18,7 +18,7 @@ import { DAY_MASTER_NAME, TEN_GODS, tenGodById, type BaziChart, type BaziPillar 
 import { PILLAR_WORD, fmtPoints, fmtShare, ixStatus, phaseList, strengthWord } from "./bazi-reading";
 import { PHASES } from "./names";
 import { STRUCTURE_NAMES, baziBalance } from "./bazi-balance";
-import { said } from "./zodiac-texts";
+import { said } from "./both";
 import { FAMILY_NAMES } from "./bazi-texts";
 import { INTERACTION_NAMES, baziInteractions, type Interaction } from "./bazi-interactions";
 import { STARS, baziSigns, type PillarSigns } from "./bazi-signs";

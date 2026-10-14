@@ -6,7 +6,7 @@
  * unlucky. scripts/chinese-bazi-balance.test.mjs keeps both languages,
  * their typography and their tone.
  */
-import type { Both } from "./zodiac-texts";
+import type { Both } from "./both";
 import type { SpecialId, StrengthId, StructureId } from "./bazi-balance";
 
 export const STRENGTH_TEXTS: Readonly<Record<StrengthId, Both>> = {

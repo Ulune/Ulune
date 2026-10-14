@@ -9,7 +9,7 @@
  * words. scripts/chinese-bazi-signs.test.mjs keeps both languages, their
  * typography and their tone.
  */
-import type { Both } from "./zodiac-texts";
+import type { Both } from "./both";
 import type { StageId, StarId } from "./bazi-signs";
 
 export const STAGE_TEXTS: Readonly<Record<StageId, Both>> = {

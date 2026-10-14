@@ -1,7 +1,7 @@
 import { Suspense, useMemo, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { LoadingLines } from "@/components/loading-lines";
-import { BRANCHES, PHASES, SIXTY, STEMS, type PhaseId } from "@/lib/chinese/names";
+import { BRANCHES, PHASES, SIXTY, STEMS, phaseWord, type PhaseId } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
@@ -38,7 +38,7 @@ import "@/studio/modes/styles/first-read.css";
 import { INTERACTION_NAMES, baziInteractions, interactionTone, type Interaction } from "@/lib/chinese/bazi-interactions";
 import { STARS, baziSigns, type BaziSigns, type PillarSigns } from "@/lib/chinese/bazi-signs";
 import { PLACE_WORD } from "@/lib/chinese/zodiac-places";
-import { said } from "@/lib/chinese/zodiac-texts";
+import { said } from "@/lib/chinese/both";
 import { hanziLang } from "@/lib/chinese/animal-chars";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
@@ -147,7 +147,7 @@ function Column({ p, signs, linked }: { p: BaziPillar; signs: PillarSigns | unde
         data-phase={branch.phase}
         data-testid={`bazi-branch-${p.id}`}
         aria-pressed={w.selectedId === bRef}
-        aria-label={`${cnWord(locale, PILLAR_WORD[p.id])}, ${cnWord(locale, "zkBranch")}: ${chineseLabel(branch, locale, prefs).text}`}
+        aria-label={`${cnWord(locale, PILLAR_WORD[p.id])}, ${cnWord(locale, "zkBranch")}: ${chineseLabel(branch, locale, prefs).text}, ${phaseWord(branch.phase, locale)}`}
         onClick={() => w.choose(bRef)}
         {...previewProps(bRef)}
       >

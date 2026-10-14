@@ -17,6 +17,7 @@
  */
 import { join } from "node:path";
 import { FIXTURE_A, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, gotoApp, goStudioPage, launch, setLang, setView } from "./_lib.mjs";
+import { watchSent } from "./_sent.mjs";
 
 const WORDS = {
   en: { yang: "7 years 3 months", yin: "3 years 1 month", god: "Direct Officer", combo: "Stem combination · Day pillar", lead: "For ten years", agree: "they agree", how: "How Ulune calculates", method: ["BaZi follows the Zi Ping school", "The luck pillars step from the month pillar", "Swiss Ephemeris 2.10.03, JPL DE441"] },
@@ -34,11 +35,8 @@ async function run(width, lang) {
     await gotoApp(page);
     if (lang === "fr") await setLang(page, "fr");
     await castFixture(page, FIXTURE_A);
-    const sent = [];
-    page.on("request", (r) => {
-      const u = new URL(r.url());
-      if (r.method() !== "GET" || /_serverFn|\/api\//.test(u.pathname)) sent.push(`${r.method()} ${u.pathname}`);
-    });
+    // Nothing but the app's own files, by GET, from here (_sent.mjs).
+    const sent = watchSent(page);
     await goStudioPage(page, "bazi-luck");
     await page.getByTestId("bazi-luck").waitFor({ timeout: 20000 });
     if (new URL(page.url()).pathname !== "/bazi/cycles") throw new Error(`${label}: at ${page.url()}`);

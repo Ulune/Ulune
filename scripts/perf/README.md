@@ -19,6 +19,8 @@ with the same browser only.
 | **Load** (first and returning visits, Slow/Fast 4G at 4× CPU) | `npm run build`, then `node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/perf/load/make-row.mjs`, `node scripts/perf/load/serve.mjs &` and `node scripts/perf/load/measure.mjs slow4g returning` (scenarios `first`, `returning`, `returning-fr`, and `returning-fv` / `returning-fv-fr` with the first view after `node scripts/perf/load/make-first-view.mjs`; `NOFONTS=1` loads no web fonts, as the baseline ran) |
 | **Downloads per page** (gzip per file, up front and after the load) | with `serve.mjs` running: `node scripts/perf/load/chunks.mjs` (`--returning` for a saved chart) |
 | **What is in each chunk** | `npx vite build --config scripts/perf/load/analyze.vite.config.mjs`, then `node scripts/perf/load/chunk-report.mjs`; `node scripts/perf/load/graph.mjs --why <module>` shows why a module is in the first download |
+| **The Chinese languages** (what each one's pages download after "/", figure and table, and what they share; the term table) | with `serve.mjs` running: `node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/perf/load/languages.mjs` (`bazi,feng-shui` for some of them) |
+| **The Chinese engines' time** (a full BaZi chart with its luck pillars, a home's Flying Star charts; Chromium, unslowed and with the CPU slowed 6× through CDP) | `node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/perf/chinese/timing.mjs` |
 
 The wheel page is QA chart A (Paris, 15 Jun 1990, 12:00) and its transits on
 24 Sep 2026, an 830 px wheel at DPR 2 on a 1000 × 860 stage.
@@ -546,3 +548,74 @@ corner shows, once a second, the frames per second, the long tasks of the
 last ten seconds and the longest, the wheel's node count, whether 3D is on
 and the JS heap (Chrome). Plain DOM, loaded only when asked for; nothing is
 sent anywhere.
+
+## The Chinese languages' budgets and the trim's second pass (14 Oct 2026)
+
+Languages plan, part 30. The plan's budgets table for the Chinese languages
+became rows of `npm run budgets` (`chinese`, on the build served by
+`serve.mjs`), and `"/"` got its room back.
+
+| Budget | 14 Oct 2026 | Limit |
+|---|---|---|
+| Chinese astrology: what its pages fetch after "/" (each page's figure and table; JS and CSS) | 50.5 → 51.2 KB gz | 52 |
+| BaZi: the same | 89.0 → 72.3 KB gz | 90.5 → 73.8 |
+| Feng Shui: the same | 86.4 → 69.7 KB gz | 88 → 71.2 |
+| Pages not drawn (each page, figure and table) | 0 | 0 |
+| The term and new-moon table, 1799–2201 (once, for every Chinese page) | 29.0 KB gz | 40 |
+| A full BaZi chart with luck pillars, CPU slowed 6× (DevTools protocol) | 0.43–0.50 ms | 2 |
+| A Flying Star chart (main and replacement, with the year's stars), CPU slowed 6× | 0.05–0.06 ms | 0.3 |
+| The slowdown those timings ran under (a fixed loop) | 5.5–6.3× | ≥ 2.5× |
+
+- **What a language counts** (`load/languages.mjs`): a returning reader
+  with two charts opens "/" and lets it settle (its idle prefetches of the
+  Western pages included), then opens every page of the language in both
+  views; every script and style sheet fetched that "/" had not, once. What
+  the languages share (the Chinese engine and words) counts in each of them,
+  as a reader who opens only one pays for it; the term table counts apart,
+  found by its data (`load/term-table.mjs`). What "/" fetched first is not
+  counted again, the Chinese interface words among it
+  (`src/lib/chinese/words.ts`, 33.7 KB gz), which "/" fetches at idle with
+  the Calendar's code for the few the Calendar says. The plan asked for
+  "about 40 KB gz per language"; review item T9 counted Feng Shui at about
+  51 without its tables and shared files.
+- **Found, and fixed in the part's review:** BaZi's and Feng Shui's pages
+  fetched Chinese astrology's texts (`zodiac-texts.ts`, 16.8 KB gz) for its
+  one-line `said` helper, now in `src/lib/chinese/both.ts` with the `Both`
+  type: BaZi 89.0 → 72.3, Feng Shui 86.4 → 69.7 (limits 73.8 and 71.2).
+  Chinese astrology's year-ahead and two-person texts moved apart from the
+  portraits (`zodiac-time-texts.ts`), so the Calendar's day animals fetch
+  5.5 KB of texts and code rather than 19.3; Chinese astrology itself
+  50.5 → 51.2 (two smaller files compress a little less well). BaZi's texts
+  are one 32.5 KB file (`bazi-luck-reading`).
+- **The timings** (`chinese/timing.mjs`) run the engines bundled by
+  rolldown in a blank Chromium page, unslowed and with
+  `Emulation.setCPUThrottlingRate` 6. On this 2-core machine the throttle is
+  coarse (a fixed loop ran 2× to 6× slower from run to run), so each timing
+  is the median of 9 batches of about 50 ms of work, and the slowdown it ran
+  under is measured on both sides of it and must reach 2.5×.
+- **"/encyclopedia/saturn"** is the best of three visits (review item T2): a
+  slow first answer after a build let a lazy part or two in before the load
+  ended (151.8 four times, 164.7 once).
+- **The trim's second pass:** the Bodies tab's, the Look tab's and the
+  table's balance words became books loaded with their code
+  (`src/lib/i18n/catalog/bodies-words.ts`, `look-words.ts`,
+  `tables-words.ts`), and the guide's words one read by the guide alone
+  (`guide-body-words.ts`: still in "/"'s load, out of every other page's).
+  "/" 275.0–275.3 → 271.7 (272.9 when three small chunks fetched a round trip late, the guide's links and two icons, land within the load) KB gz (limit 276); "/encyclopedia/saturn" 155.2 →
+  147.5. Loading the whole guide only on a first visit saved 4.5 more and
+  was left out: when the page changed the guide before its code had come (a
+  render of the form, or the language switching before the first paint),
+  React dropped the server's guide and drew it again once the code arrived, so
+  it vanished for a moment (the first-screen suite caught it at 320 px).
+- **All areas, three runs** (14 Oct 2026, on the build of part 30): every
+  row within its limit but the 3D garbage per frame, one row a run (the
+  bi-wheel 14.7 and 14.6 KB, then detailed natal 9.7, the bi-wheel 0 in
+  that run): the collector's noise described under Phase 5, not a change of
+  this part (review item O6 would count it by allocations).
+- **The part's review** (14 Oct 2026, after `both.ts`): every area once,
+  then `bundle,chinese` twice more: "/" 271.8–273.0, its style sheets 32.5
+  up front and 53.4 with the modes' own (limit 53.5: the next style sheet
+  needs room made or a deliberate new limit), "/encyclopedia/saturn"
+  147.5–148.4; Chinese astrology 51.2, BaZi 72.3, Feng Shui 69.7, the term
+  table 29.0, a BaZi chart 0.40–0.47 ms and a Flying Star chart 0.05–0.06 ms
+  at 5.8–6.6× slower; the 3D garbage noise once (the bi-wheel 14.7 KB).

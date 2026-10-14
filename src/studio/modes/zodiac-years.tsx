@@ -2,7 +2,7 @@ import { Suspense, useMemo, useRef, useSyncExternalStore } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimalGlyph } from "@/components/animal-glyph";
 import { LoadingLines } from "@/components/loading-lines";
-import { BRANCHES, SIXTY } from "@/lib/chinese/names";
+import { BRANCHES, SIXTY, STEMS, phaseWord } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { relationTone } from "@/lib/chinese/relations";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
@@ -113,6 +113,10 @@ function YearsFigure() {
             {y.year} · {long(y.fromMs)} – {long(y.toMs)}
           </span>
           <span className="ulune-zky-year-name">{pair.name}</span>
+          {/* The card's colour is the branch's phase: in words too when the name says only the stem's (part 30). */}
+          {STEMS[SIXTY[y.pillar.cycle]!.stem]!.phase !== BRANCHES[y.pillar.branch]!.phase ? (
+            <span className="sr-only">, {phaseWord(BRANCHES[y.pillar.branch]!.phase, locale)}</span>
+          ) : null}
           {pair.pinyin || pair.hanzi ? <span className="ulune-zky-py">{[pair.pinyin, pair.hanzi].filter(Boolean).join(" ")}</span> : null}
         </span>
       </button>

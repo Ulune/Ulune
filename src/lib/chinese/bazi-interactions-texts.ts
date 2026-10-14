@@ -5,7 +5,7 @@
  * movement and lessons, never as fate; scripts/chinese-bazi-interactions
  * .test.mjs keeps both languages, their typography and their tone.
  */
-import type { Both } from "./zodiac-texts";
+import type { Both } from "./both";
 import type { Interaction, InteractionKind } from "./bazi-interactions";
 
 export const INTERACTION_TEXTS: Readonly<Record<InteractionKind, Both>> = {

@@ -15,7 +15,9 @@
  * ends the list). Every answer must carry the security headers, and every
  * page its content security policy, whose nonce every inline script holds;
  * the modes, the 3D view and the other pages then run under that policy, and
- * anything it blocks fails the check.
+ * anything it blocks fails the check. The Chinese languages' pages are among
+ * them (languages plan, part 30): their addresses from src/studio/map.ts,
+ * and Feng Shui's Home page with its compass's sensors left to the page.
  */
 import { cpSync, createReadStream, existsSync, mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
 import { createServer } from "node:http";
@@ -34,6 +36,17 @@ const SECURITY = [
   "x-frame-options",
   "cross-origin-opener-policy",
   "permissions-policy",
+];
+/** The sensors Feng Shui's compass reads (src/studio/modes/hooks/useCompass.ts): the policy must leave them to the page. */
+const COMPASS_SENSORS = ["accelerometer", "gyroscope", "magnetometer"];
+/**
+ * The Chinese languages' addresses, read from the studio's map (src/studio/map.ts): each language's
+ * own page (`/chinese-astrology`, `/bazi`, `/feng-shui`) and Feng Shui's Home page.
+ */
+const MAP_SOURCE = readFileSync(join(ROOT, "src", "studio", "map.ts"), "utf8");
+const CHINESE_PATHS = [
+  ...[...MAP_SOURCE.matchAll(/\n\s+path: "([^"]+)",\n\s+group: "chinese",/g)].map((m) => m[1]),
+  /\n\s+"fengshui-home": "([^"]+)",/.exec(MAP_SOURCE)?.[1],
 ];
 const PORT = Number(process.env.DEPLOY_CHECK_PORT || 8099);
 const TYPES = {
@@ -185,7 +198,26 @@ async function checkHeaders() {
   if (!a || a === b) fail("/privacy: no nonce, or the same nonce twice");
   const lost = await get("/no-such-page");
   if (lost.res.status !== 404 || !nonceOf(lost.res) || missing(lost.res).length) fail(`an unknown page: ${lost.res.status}, policy ${Boolean(nonceOf(lost.res))}`);
-  console.log(`headers: ${SECURITY.length} security headers on pages and files; a fresh nonce per page on ${inline.length} inline scripts, none from elsewhere`);
+  // The Chinese languages' pages (languages plan, part 30): the studio's page at their own address,
+  // with the same headers, a nonce of their own on every inline script, and "/" as their one address.
+  if (CHINESE_PATHS.length !== 4 || CHINESE_PATHS.some((p) => !p?.startsWith("/"))) fail(`src/studio/map.ts: the Chinese pages' addresses not found (${CHINESE_PATHS.join(", ")})`);
+  for (const path of CHINESE_PATHS) {
+    const page = await get(path);
+    if (page.res.status !== 200 || missing(page.res).length) fail(`${path}: ${page.res.status}, missing ${missing(page.res).join(", ")}`);
+    const own = nonceOf(page.res);
+    if (!own || own === nonce) fail(`${path}: no nonce of its own`);
+    const loose = [...page.text.matchAll(/<script\b[^>]*>/g)]
+      .map((m) => m[0])
+      .filter((tag) => !/\ssrc=/.test(tag) && !/type="application\/ld\+json"/.test(tag) && !tag.includes(`nonce="${own}"`));
+    if (loose.length) fail(`${path}: inline scripts without the nonce: ${loose.join(" ")}`);
+    if (/<link rel="canonical" href="([^"]+)"/.exec(page.text)?.[1] !== "https://ulune.app/") fail(`${path}: its canonical address is not /`);
+    if (!page.text.includes('data-testid="studio-stage"')) fail(`${path}: the server's page has no studio`);
+    // The compass reads the device's motion sensors: the policy must leave them to the page.
+    const policy = page.res.headers.get("permissions-policy") ?? "";
+    const blocked = COMPASS_SENSORS.filter((s) => new RegExp(`(^|,)\\s*${s}=\\((?![^)]*\\bself\\b)`).test(policy));
+    if (blocked.length) fail(`${path}: the permissions policy blocks ${blocked.join(", ")} (Feng Shui's compass)`);
+  }
+  console.log(`headers: ${SECURITY.length} security headers on pages and files; a fresh nonce per page on ${inline.length} inline scripts, none from elsewhere; the Chinese pages (${CHINESE_PATHS.join(", ")}) the same, the compass's sensors left to the page`);
 
   // What search engines read: robots.txt, the sitemap, each page's head.
   const robots = await get("/robots.txt");
@@ -332,6 +364,18 @@ async function tour() {
     await goStudioPage(page, mode);
     await page.locator(`[data-testid="${stage}"], [data-testid="${stage}-empty"]`).first().waitFor({ timeout: 30000 });
   }
+  // The Chinese languages (languages plan, part 30): each page's figure, its code and its words.
+  const chinese = { zodiac: "zodiac-wheel", bazi: "bazi-board", "bazi-luck": "studio-bazi-luck", fengshui: "studio-fengshui", "fengshui-home": "fengshui-home" };
+  for (const [mode, figure] of Object.entries(chinese)) {
+    await goStudioPage(page, mode);
+    await page.getByTestId(figure).first().waitFor({ timeout: 30000 });
+  }
+  // The compass's sensors, as the browser reads the policy on the Home page (Chromium's document.featurePolicy).
+  const blocked = await page.evaluate((sensors) => {
+    const policy = document.featurePolicy;
+    return policy ? sensors.filter((s) => !policy.allowsFeature(s)) : [];
+  }, COMPASS_SENSORS);
+  if (blocked.length) fail(`/feng-shui/home: the page may not read ${blocked.join(", ")} (Feng Shui's compass)`);
   await goStudioPage(page, "natal");
   await page.getByTestId("wheel-depth-3d").click();
   await page.locator('[data-depth-view="3d"]').waitFor({ timeout: 30000 });
@@ -340,7 +384,9 @@ async function tour() {
   for (const path of ["/settings", "/privacy", "/credits"]) {
     await page.goto(BASE + path, { waitUntil: "networkidle" });
   }
-  console.log("modes, 3D and pages: transits, timing, Human Design, numerology, 3D, settings, privacy, credits");
+  console.log(
+    "modes, 3D and pages: transits, timing, Human Design, numerology, Chinese astrology, BaZi and its luck pillars, Feng Shui and its Home (the compass's sensors allowed), 3D, settings, privacy, credits",
+  );
 }
 
 let ok = false;

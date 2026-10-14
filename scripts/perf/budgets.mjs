@@ -1,19 +1,22 @@
 // Performance budgets (plan, Phase 5): each measure against its limit on
 // this test machine, pass or fail, and a non-zero exit when one fails.
-// node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/perf/budgets.mjs [server,3d,wheel,bundle,scrub]
+// node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/perf/budgets.mjs [server,3d,wheel,bundle,scrub,chinese]
 //
 // server  the chart calculations in this process (warm, and the first cast)
 // 3d      the counting WebGL harness (scripts/perf/gl3d/build.mjs first)
 // wheel   node counts and per-node transitions (scripts/perf/wheel/build.mjs first)
 // bundle  what "/" downloads for a returning reader (npm run build, serve.mjs on :9311)
 // scrub   wheel updates per second while the scrubber is dragged (the same served build)
+// chinese what each Chinese language's pages download after "/", the term table, and the BaZi
+//         and Flying Star engines' time with the CPU slowed 6× (the same served build)
 //
 // The limits are this machine's (2 cores, software rendering); a Mac is
 // several times faster. They sit a little above what the app does today, so
 // a regression fails and today passes; the plan's goals are in the notes.
 import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { ROOT } from "./paths.mjs";
+import { OUT, ROOT } from "./paths.mjs";
 
 const want = new Set((process.argv[2] ?? "server,3d,wheel").split(","));
 const rows = [];
@@ -24,6 +27,15 @@ const check = (area, what, value, limit, unit, better = "lower") => {
 const median = (xs) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
 const node = (args, env = {}) =>
   execFileSync(process.execPath, args, { cwd: ROOT, encoding: "utf8", env: { ...process.env, ...env }, maxBuffer: 64 << 20 });
+/** A script that imports the app's TypeScript (as this one is run). */
+const nodeTs = (args, env = {}) => node(["--experimental-strip-types", "--import", "./scripts/register-ts.mjs", ...args], env);
+/** The JSON a script printed (after anything it said before it). */
+const jsonOf = (out) => JSON.parse(out.slice(Math.min(...["[", "{"].map((c) => out.indexOf(c)).filter((i) => i >= 0))));
+// The returning reader's saved chart (scripts/perf/load/make-row.mjs), which bundle and chinese load
+// pages with; made once on a machine that has none (CI's): without it "/" would be measured as a first visit.
+if ((want.has("bundle") || want.has("chinese")) && !existsSync(join(OUT, "load/saved-row.json"))) {
+  nodeTs([join(ROOT, "scripts/perf/load/make-row.mjs")]);
+}
 
 if (want.has("server")) {
   const calc = await import("../../src/lib/chart/calculate.server.ts");
@@ -156,6 +168,17 @@ if (want.has("bundle")) {
   // the AI accounts' (a book each, src/lib/i18n/catalog/*-words.ts, loaded with their code) left the
   // app's catalog: 280.3 (281.1 when a small chunk lands within the load) -> 274.2-274.9; limit 276,
   // so the next pages' routes and map entries spend the room deliberately.
+  // Parts 25–29 (13–14 Oct) spent 0.5–0.8 of it: the switcher's homes, the reading card's term hook, the
+  // guide's six languages and its questions: 275.0–275.3, 276.2 once when a small chunk landed within the
+  // load. Languages plan, part 30 (14 Oct 2026), the trim's second pass: the Bodies tab's, the Look
+  // tab's and the table's balance words became books loaded with their code (bodies-words.ts,
+  // look-words.ts, tables-words.ts), and the guide's words one read by the guide alone
+  // (guide-body-words.ts: still in "/"'s load, which draws the guide under a first visit's form, but
+  // out of every other page's): 271.7, 272.9 when three small chunks fetched a round trip late (the
+  // guide's links, two icons) land within the load (271.8 and 273.0 with the review's longer home
+  // title); the limit stays 276. (Loading the guide only for
+  // first visits saved 4.5 more, but when the page changed it before its code came, React dropped the
+  // server's guide until it did.)
   check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 276, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
@@ -165,8 +188,11 @@ if (want.has("bundle")) {
   // 1.0.2: hover only where there is a pointer, exits, view transitions, the
   // Human Design build: limit 51).
   const cssUpFront = home.files.filter((f) => f.type === "stylesheet" && !f.later).reduce((n, f) => n + (f.gz ?? 0), 0);
-  // (The review's improvements, parts 87f-g, the field errors, tab fades and the pick card: limit 32.5.)
-  check("bundle", '"/" style sheets up front', cssUpFront / 1024, 32.5, "KB gz");
+  // (The review's improvements, parts 87f-g, the field errors, tab fades and the pick card: limit 32.5.
+  // Languages plan, part 30 (14 Oct 2026): the wheel hint's × reaching 44 px for a finger (review item
+  // T10) and the readings' lettered marks at 4.5:1 in both themes (the contrast check): 32.4 -> 32.5,
+  // a hair over; limit 33.)
+  check("bundle", '"/" style sheets up front', cssUpFront / 1024, 33, "KB gz");
   // (The review's improvements, parts 87f–j: the tables' phone layout, the
   // calendar's month marks and file menu, the pair switch: limit 52. Ulune 2.0's
   // reorganisation, R2–R5 (7 Oct 2026): the sections and lens bars in the shell's
@@ -180,10 +206,17 @@ if (want.has("bundle")) {
   check("bundle", "largest script", largest / 1024, 81, "KB gz");
   // An encyclopedia page opened afresh (a search engine's visitor): its own code, never the
   // studio's. 159.8 on 7 Oct 2026 (238.3 while the wheel's chunk came with every page).
-  const enc = node([join(ROOT, "scripts/perf/load/chunks.mjs"), "/encyclopedia/saturn", "--json"]);
-  const [entry] = JSON.parse(enc.slice(enc.indexOf("[")));
-  check("bundle", '"/encyclopedia/saturn" JavaScript with the load', entry.jsUpFront / 1024, 165, "KB gz");
-  check("bundle", '"/encyclopedia/saturn" downloads none of the studio', entry.files.filter((f) => /\/assets\/(wheel|_studio)-/.test(f.file)).length, 0, "");
+  // The best of three visits (review item T2, part 30): what loads with the page is what its load
+  // asked for, and a slow answer (the first after a build, when this server compresses each file)
+  // let a lazy part or two in before the load ended: 170 then 155 in a row (part 30: 151.8 four times,
+  // 164.7 once). 147.5 since part 30's trim (the guide's, the Bodies tab's, the Look tab's and the
+  // table's words left the catalog every page loads); a visit that brought the studio fails all the same.
+  const enc = node([join(ROOT, "scripts/perf/load/chunks.mjs"), ...Array(3).fill("/encyclopedia/saturn"), "--json"]);
+  const visits = jsonOf(enc);
+  const entry = visits.reduce((best, v) => (v.jsUpFront < best.jsUpFront ? v : best));
+  check("bundle", '"/encyclopedia/saturn" JavaScript with the load (best of 3)', entry.jsUpFront / 1024, 165, "KB gz");
+  const studioFiles = (v) => v.files.filter((f) => /\/assets\/(wheel|_studio)-/.test(f.file)).length;
+  check("bundle", '"/encyclopedia/saturn" downloads none of the studio', Math.max(...visits.map(studioFiles)), 0, "");
   // The same for a reader with a private space, whose code comes with every page (encyclopedia
   // plan, part 22: until 8 Oct 2026 it brought the chart library, and the studio's chunk with it).
   const spaced = node([join(ROOT, "scripts/perf/load/chunks.mjs"), "/encyclopedia/saturn", "--json", "--space"]);
@@ -222,11 +255,55 @@ if (want.has("scrub")) {
   check("scrub", "exact sky after letting go", res.median.exactAfterMs, 600, "ms");
 }
 
+if (want.has("chinese")) {
+  // The Chinese languages (languages plan, part 30: the plan's budgets table, each row "an entry in
+  // npm run budgets, so a later change cannot quietly break it"), on the build served on :9311.
+  // What a returning reader's browser fetches after "/" to open every page of a language, figure and
+  // table (scripts/perf/load/languages.mjs): its pages, readings, tables and styles, and the Chinese
+  // code the languages share, each file counted once; the term table apart (below). What "/" itself
+  // fetched first is not counted again: among it the Chinese interface words (src/lib/chinese/words.ts,
+  // 33.7 KB gz), which "/" fetches at idle with the Calendar's code (its day animals and solar terms
+  // say a few of them). The plan asked for "about 40 KB gz per language, in line with the numerology
+  // page"; review item T9 found Feng Shui at about 51 counting its pages, texts and engines, and asks
+  // whether to trim its pairs' texts or load them when a palace opens. Counted whole, tables and
+  // shared files included, on 14 Oct 2026 (part 30): Chinese astrology 50.5, BaZi 89.0 (its texts
+  // 32.5 in one file), Feng Shui 86.4, of which 27.3 the three share. BaZi and Feng Shui fetched
+  // Chinese astrology's texts too (16.8, zodiac-texts.ts) for its one-line `said` helper: moved to a
+  // module of its own (src/lib/chinese/both.ts, the part's review), BaZi 72.3 and Feng Shui 69.7,
+  // of which 10.6 the three share; Chinese astrology 51.2, its year-ahead and two-person texts
+  // apart from the portraits (zodiac-time-texts.ts), so the Calendar's day animals fetch 5.5 of them
+  // rather than 19.3. The limits sit a little above those numbers, so growth is a decision, not an
+  // accident.
+  const { termTable, languages } = jsonOf(nodeTs([join(ROOT, "scripts/perf/load/languages.mjs"), "--json"]));
+  const LIMITS = { "chinese-astrology": ["Chinese astrology", 52], bazi: ["BaZi", 73.8], "feng-shui": ["Feng Shui", 71.2] };
+  for (const l of languages) {
+    const [name, limit] = LIMITS[l.language] ?? [l.language, 0];
+    check("chinese", `${name}: its pages after "/", JS and CSS`, l.gz / 1024, limit, "KB gz");
+  }
+  // Every page drawn in both views, so a page that failed to open cannot pass as a small one.
+  check("chinese", "pages not drawn (each page, figure and table)", languages.flatMap((l) => l.pages.filter((p) => !p.shown)).length, 0, "");
+  // The solar terms and new moons of 1799–2201 (src/lib/chinese/time-table.ts), fetched once, by the
+  // first Chinese page a reader opens: the plan's "about 40 KB gz, once". 29.0 on 14 Oct 2026.
+  check("chinese", "the term and new-moon table", termTable.reduce((n, f) => n + f.gz, 0) / 1024, 40, "KB gz");
+  // The engines' time in Chromium with the CPU slowed 6× through the DevTools protocol (Emulation.
+  // setCPUThrottlingRate), the median of 9 timings (scripts/perf/chinese/timing.mjs). The plan: "a
+  // full BaZi chart with luck pillars: under 5 ms on a 6× slowed phone", "a Flying Star chart: under
+  // 2 ms". On 14 Oct 2026 (part 30): 0.43–0.50 ms and 0.05–0.06 ms, the CPU 5.5–6.3× slower (0.08 and
+  // 0.01 unslowed; up to 0.9 and 0.1 with other jobs on the machine); the limits leave that noise room
+  // and still catch a slower engine long before the plan's.
+  // The protocol's throttle is coarse here (a fixed loop ran 2× to 6× slower from run to run), so the
+  // slowdown the timings ran under is a row too: a run where it did not engage cannot pass for speed.
+  const timing = jsonOf(nodeTs([join(ROOT, "scripts/perf/chinese/timing.mjs"), "--json"]));
+  check("chinese", "a full BaZi chart with luck pillars, CPU 6× slower", timing.x6.bazi.median, 2, "ms");
+  check("chinese", "a Flying Star chart, CPU 6× slower", timing.x6.stars.median, 0.3, "ms");
+  check("chinese", "the slowdown those timings ran under (a fixed loop)", timing.x6.slowdown, 2.5, "×", "higher");
+}
+
 let failed = 0;
 for (const r of rows) {
   if (!r.ok) failed += 1;
-  const v = Number.isInteger(r.value) ? String(r.value) : r.value.toFixed(1);
-  console.log(`${r.ok ? "ok  " : "FAIL"}  ${r.area.padEnd(6)} ${r.what.padEnd(52)} ${v.padStart(8)} ${r.better === "lower" ? "≤" : "≥"} ${r.limit} ${r.unit}`);
+  const v = Number.isInteger(r.value) ? String(r.value) : r.value.toFixed(Math.abs(r.value) < 1 ? 2 : 1);
+  console.log(`${r.ok ? "ok  " : "FAIL"}  ${r.area.padEnd(7)} ${r.what.padEnd(52)} ${v.padStart(8)} ${r.better === "lower" ? "≤" : "≥"} ${r.limit} ${r.unit}`);
 }
 console.log(failed ? `${failed} budget(s) over` : `all ${rows.length} within budget`);
 process.exit(failed ? 1 : 0);

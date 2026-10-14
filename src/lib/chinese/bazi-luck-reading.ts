@@ -14,11 +14,11 @@ import { cnWord, type ChineseWordKey } from "./words";
 import { tenGodById, type BaziChart, type BaziPlaceId } from "./bazi";
 import { TEN_GOD_TEXTS } from "./bazi-texts";
 import { LUCK_GOD_TEXTS, YEAR_GOD_TEXTS, pairLine } from "./bazi-readings-texts";
-import type { Both } from "./zodiac-texts";
+import type { Both } from "./both";
 import { INTERACTION_NAMES } from "./bazi-interactions";
 import { PILLAR_WORD, baziReading, branchCellRef, stemRef } from "./bazi-reading";
 import type { FlowYear, Luck, LuckCount, LuckPillar, Meeting, TimePillar } from "./bazi-luck";
-import { said } from "./zodiac-texts";
+import { said } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 

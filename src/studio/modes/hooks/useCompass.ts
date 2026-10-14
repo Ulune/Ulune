@@ -62,8 +62,11 @@ export function useCompass(): {
   const [accuracy, setAccuracy] = useState<number | null>(null);
   const samples = useRef<number[]>([]);
   const off = useRef<(() => void) | null>(null);
+  /** Counts starts and stops: a start whose permission comes back after a stop, or after the page went, listens to nothing (part 30). */
+  const turn = useRef(0);
 
   const stop = useCallback(() => {
+    turn.current += 1;
     off.current?.();
     off.current = null;
     samples.current = [];
@@ -78,16 +81,20 @@ export function useCompass(): {
       return;
     }
     off.current?.();
+    const mine = ++turn.current;
     setState("asking");
     const Ctor = window.DeviceOrientationEvent as PermissionCapable;
     if (typeof Ctor.requestPermission === "function") {
       try {
-        if ((await Ctor.requestPermission()) !== "granted") {
+        const answer = await Ctor.requestPermission();
+        // Stopped, or the page left, while the phone asked: nothing is read.
+        if (turn.current !== mine) return;
+        if (answer !== "granted") {
           setState("denied");
           return;
         }
       } catch {
-        setState("denied");
+        if (turn.current === mine) setState("denied");
         return;
       }
     }
@@ -120,8 +127,14 @@ export function useCompass(): {
     };
   }, []);
 
-  // Only while the page that asked is open.
-  useEffect(() => () => off.current?.(), []);
+  // Only while the page that asked is open (a permission still being asked included).
+  useEffect(
+    () => () => {
+      turn.current += 1;
+      off.current?.();
+    },
+    [],
+  );
 
   return { state, heading, accuracy, start, stop };
 }

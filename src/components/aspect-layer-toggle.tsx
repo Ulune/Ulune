@@ -2,11 +2,13 @@ import type { ReactNode } from "react";
 import { RingsMenu } from "@/components/rings-menu";
 import type { AspectLayer } from "@/lib/chart/chart-view";
 import { useI18n } from "@/lib/i18n/locale";
+import { bookT } from "@/lib/i18n/words-book";
+import { bodiesWords } from "@/lib/i18n/catalog/bodies-words";
 
 type Kind = "transit" | "synastry" | "progressions";
 
 /** The switch's words (review 3 Oct, P2): who each layer is, and one line saying what it draws. */
-function layerWords(kind: Kind, t: ReturnType<typeof useI18n>["t"], names?: { a: string; b: string }) {
+function layerWords(kind: Kind, t: ReturnType<typeof bookT<typeof bodiesWords>>, names?: { a: string; b: string }) {
   if (kind === "synastry") {
     const a = firstName(names?.a) || "A";
     const b = firstName(names?.b) || "B";
@@ -50,7 +52,8 @@ export function AspectLayerToggle({
   /** Which ring is which, over the choices (RingsKey). */
   legend?: ReactNode;
 }) {
-  const { t } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(bodiesWords, tc, locale);
   const words = layerWords(kind, t, names);
   const order: AspectLayer[] = ["natal", "outer", "both", "cross"];
   // One button in the stage's toolbar, its choices said in its menu (UI plan, part 93).

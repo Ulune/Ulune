@@ -68,6 +68,27 @@ test("every answer's headers: HTTPS only, no sniffing, no framing, no device acc
   assert.doesNotMatch(h["Permissions-Policy"], /publickey|clipboard/);
 });
 
+test("the compass's sensors stay allowed for Ulune's own pages (Feng Shui, languages plan, part 30)", () => {
+  // Feng Shui's compass (src/studio/modes/hooks/useCompass.ts) listens to `deviceorientation`, which
+  // Chrome sends only where the accelerometer and the gyroscope are allowed, and to
+  // `deviceorientationabsolute` (Android's heading), which needs the magnetometer too. Their
+  // default allowlist is the page's own origin: left out of the policy, or allowed to `self`, they
+  // work on ulune.app and nowhere else; `feature=()` would silence the compass without an error.
+  const policy = Object.fromEntries(
+    SECURITY_HEADERS["Permissions-Policy"].split(/,\s*/).map((entry) => {
+      const [feature, allow] = entry.split("=");
+      return [feature.trim(), allow.replace(/^\(|\)$/g, "").split(/\s+/).filter(Boolean)];
+    }),
+  );
+  for (const sensor of ["accelerometer", "gyroscope", "magnetometer"]) {
+    const allow = policy[sensor];
+    assert.ok(allow === undefined || allow.includes("self"), `${sensor}=(${allow?.join(" ")}) would block the compass`);
+    assert.ok(!allow?.includes("*"), `${sensor} is open to every site`);
+  }
+  // The device's location stays off: the compass reads a heading, never a position.
+  assert.deepEqual(policy.geolocation, []);
+});
+
 test("the build puts them first in Vercel's routes, and lets routing go on", () => {
   const vite = readFileSync(new URL("../vite.config.ts", import.meta.url), "utf8");
   assert.match(vite, /routes: \[\{ src: "\/\(\.\*\)", headers: \{ \.\.\.SECURITY_HEADERS \}, continue: true \}\]/);

@@ -26,6 +26,7 @@
  */
 import { join } from "node:path";
 import { FIXTURE_A, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, gotoApp, launch, setLang, setView } from "./_lib.mjs";
+import { watchSent } from "./_sent.mjs";
 
 const WORDS = {
   en: {
@@ -203,11 +204,8 @@ async function run(width, lang) {
     await page.getByTestId("lang-card-feng-shui").waitFor({ timeout: 8000 });
     if (await page.getByTestId("lang-info-feng-shui").count()) throw new Error(`${label}: an ⓘ to a home that does not exist yet`);
     await pickerCards(page, label, lang, join(SHOTS, `fengshui-picker-${lang}-${width}.png`));
-    const sent = [];
-    page.on("request", (r) => {
-      const u = new URL(r.url());
-      if (r.method() !== "GET" || /_serverFn|\/api\//.test(u.pathname)) sent.push(`${r.method()} ${u.pathname}`);
-    });
+    // Nothing but the app's own files, by GET, from here (_sent.mjs).
+    const sent = watchSent(page);
     await page.getByTestId("lang-card-feng-shui").click();
     await page.getByTestId("fengshui").waitFor({ timeout: 20000 });
     if (new URL(page.url()).pathname !== "/feng-shui") throw new Error(`${label}: at ${page.url()}`);

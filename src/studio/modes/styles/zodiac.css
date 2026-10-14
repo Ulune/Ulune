@@ -8,6 +8,17 @@
   --ph-earth: oklch(0.68 0.12 75);
   --ph-metal: oklch(0.8 0.015 250);
   --ph-water: oklch(0.55 0.14 255);
+  /* Each phase as ink on words (languages plan, part 30): the same hue, lighter
+     by night and deeper by day, so a word or a sign written in its phase's
+     colour reads at 4.5:1 on its cell, chosen or not, in both themes. The
+     tints and borders keep the phase colours above. */
+  --ph-wood-ink: oklch(0.77 0.14 150);
+  --ph-fire-ink: oklch(0.8 0.115 27);
+  --ph-earth-ink: oklch(0.79 0.12 75);
+  --ph-metal-ink: oklch(0.8 0.015 250);
+  --ph-water-ink: oklch(0.79 0.11 255);
+  /* The halo's gold on small words (a Day Master, "now", this year). */
+  --cn-halo-ink: var(--color-halo);
 }
 html.light {
   --ph-wood: oklch(0.55 0.14 150);
@@ -15,12 +26,19 @@ html.light {
   --ph-earth: oklch(0.6 0.12 70);
   --ph-metal: oklch(0.55 0.015 250);
   --ph-water: oklch(0.48 0.14 255);
+  --ph-wood-ink: oklch(0.43 0.12 150);
+  --ph-fire-ink: oklch(0.47 0.19 27);
+  --ph-earth-ink: oklch(0.45 0.1 70);
+  --ph-metal-ink: oklch(0.44 0.015 250);
+  --ph-water-ink: oklch(0.44 0.14 255);
+  /* On cream the halo's gold gave 4.2:1 to small words; a shade deeper gives 5:1. */
+  --cn-halo-ink: color-mix(in oklab, var(--color-halo) 80%, var(--color-fg));
 }
-[data-phase="wood"] { --ph: var(--ph-wood); }
-[data-phase="fire"] { --ph: var(--ph-fire); }
-[data-phase="earth"] { --ph: var(--ph-earth); }
-[data-phase="metal"] { --ph: var(--ph-metal); }
-[data-phase="water"] { --ph: var(--ph-water); }
+[data-phase="wood"] { --ph: var(--ph-wood); --ph-ink: var(--ph-wood-ink); }
+[data-phase="fire"] { --ph: var(--ph-fire); --ph-ink: var(--ph-fire-ink); }
+[data-phase="earth"] { --ph: var(--ph-earth); --ph-ink: var(--ph-earth-ink); }
+[data-phase="metal"] { --ph: var(--ph-metal); --ph-ink: var(--ph-metal-ink); }
+[data-phase="water"] { --ph: var(--ph-water); --ph-ink: var(--ph-water-ink); }
 
 .ulune-zk {
   display: flex;
@@ -131,7 +149,8 @@ html.light {
   stroke: var(--color-fg-muted);
 }
 .ulune-zk-badge.is-on circle {
-  fill: var(--color-halo);
+  /* The halo as the ground of a letter: on cream a shade deeper, for 4.5:1 (part 30). */
+  fill: var(--cn-halo-ink);
 }
 /* The second person's animals on the Pair page (part 11): a ring, not a disc. */
 .ulune-zk-badge.is-b circle {
@@ -149,7 +168,7 @@ html.light {
   text-anchor: middle;
   dominant-baseline: central;
   font: 600 10px/1 var(--font-mono);
-  fill: var(--color-halo);
+  fill: var(--cn-halo-ink);
 }
 .ulune-zk-now-month {
   fill: none;
@@ -245,6 +264,11 @@ html.light {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-fg-subtle);
+}
+/* On a card's phase tint the subtle grey fell under 4.5:1 by night (part 30). */
+.ulune-zk-card:hover .ulune-zk-card-k,
+.ulune-zk-card.is-on .ulune-zk-card-k {
+  color: var(--color-fg-muted);
 }
 .ulune-zk-card-animal {
   display: flex;

@@ -7,7 +7,7 @@
  * scripts/chinese-fengshui-years.test.mjs keeps both languages and their tone.
  */
 import type { ChineseName } from "./names";
-import type { Both } from "./zodiac-texts";
+import type { Both } from "./both";
 import type { AfflictionId } from "./fengshui-years";
 
 export const AFFLICTION_NAMES: Readonly<Record<AfflictionId, ChineseName>> = {

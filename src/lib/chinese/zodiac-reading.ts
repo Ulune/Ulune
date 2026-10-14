@@ -15,7 +15,8 @@ import { LICHUN, termMs } from "./terms";
 import { solarMonthAt } from "./pillars";
 import { cnWord, theAnimal, type ChineseWordKey } from "./words";
 import { PLACE_ANIMAL, PLACE_WORD } from "./zodiac-places";
-import { ANIMAL_PORTRAITS, PLACE_TEXTS, RELATION_PRACTICE, pairText, said } from "./zodiac-texts";
+import { said } from "./both";
+import { ANIMAL_PORTRAITS, PLACE_TEXTS, RELATION_PRACTICE, pairText } from "./zodiac-texts";
 import type { ZodiacChart, ZodiacPlace, ZodiacPlaceId } from "./zodiac";
 import { branchRelations, RELATION_NAMES, trineOf, type PlacedRelation, type RelationKind } from "./relations";
 

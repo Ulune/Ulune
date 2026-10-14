@@ -19,7 +19,7 @@ import { INTERACTION_TEXTS, PUNISHMENT_GROUP_TEXTS } from "./bazi-interactions-t
 import { PHASE_IDS, STRUCTURE_NAMES, baziBalance, type BaziBalance } from "./bazi-balance";
 import { STRENGTH_TEXTS, STRUCTURE_TEXTS } from "./bazi-balance-texts";
 import { GOD_PRESENCE, PHASE_EXCESS, PHASE_LACK, pairLine } from "./bazi-readings-texts";
-import { said } from "./zodiac-texts";
+import { said } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 

@@ -7,6 +7,8 @@ import { HOUSE_SYSTEM_LABEL } from "@/lib/chart/constants";
 import { HOUSE_SYSTEM_IDS, type HouseSystemId } from "@/lib/chart/types";
 import { useChartView } from "@/lib/chart/use-chart-view";
 import { useI18n } from "@/lib/i18n/locale";
+import { bookT } from "@/lib/i18n/words-book";
+import { bodiesWords } from "@/lib/i18n/catalog/bodies-words";
 import { cn } from "@/lib/utils";
 import {
   BODIES_PAGE_LABEL,
@@ -26,7 +28,8 @@ import { onTablistKeyDown } from "@/lib/a11y/tablist";
 import { useKeptScroll } from "@/studio/return-parts";
 
 export function BodiesTab() {
-  const { t, locale } = useI18n();
+  const { t: tc, locale } = useI18n();
+  const t = bookT(bodiesWords, tc, locale);
   const view = useChartView();
   const chart = useStudioStore((s) => s.chart);
   const selectedId = useStudioStore((s) => s.selectedId);

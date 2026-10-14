@@ -36,8 +36,12 @@ export function pageHead({ path, title, description, index = true }: PageHead) {
   };
 }
 
-/** The home page's title: the name and what it does. */
-export const HOME_TITLE = `${APP_NAME} · Astrology charts, Human Design and numerology`;
+/**
+ * The home page's title: the name and what it does, within the 60 characters search results show
+ * whole (every studio page shares it). "Astrology" covers the Western and the Chinese; BaZi and Feng
+ * Shui named since languages plan, part 30.
+ */
+export const HOME_TITLE = `${APP_NAME} · Astrology, Human Design, numerology, BaZi, Feng Shui`;
 
 /** Structured data for the home page: a free web application (schema.org). */
 export const HOME_STRUCTURED_DATA = {

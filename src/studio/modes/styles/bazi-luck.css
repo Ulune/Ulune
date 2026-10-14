@@ -123,7 +123,7 @@
   line-height: 1.15;
 }
 .ulune-bzl-pair > [data-phase] {
-  color: var(--ph);
+  color: var(--ph-ink);
 }
 .ulune-bzl-pair.is-words {
   font: 500 13px/1.25 var(--font-ui);
@@ -136,7 +136,7 @@
   font: 600 9.5px/1.2 var(--font-ui);
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--color-halo);
+  color: var(--cn-halo-ink);
 }
 
 /* The slider through the years. */

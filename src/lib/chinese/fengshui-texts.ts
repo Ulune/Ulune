@@ -7,7 +7,7 @@
  * scripts/chinese-fengshui.test.mjs keeps both languages, their typography
  * and their tone.
  */
-import type { Both } from "./zodiac-texts";
+import type { Both } from "./both";
 import type { MansionId, TrigramId } from "./fengshui";
 
 export const TRIGRAM_TEXTS: Readonly<Record<TrigramId, Both>> = {

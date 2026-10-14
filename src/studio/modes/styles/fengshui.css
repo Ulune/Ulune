@@ -136,7 +136,7 @@
 }
 .ulune-fs-tri {
   font-size: 20px;
-  fill: var(--ph) !important;
+  fill: var(--ph-ink) !important;
 }
 .ulune-fs-dir {
   font-size: 14px;

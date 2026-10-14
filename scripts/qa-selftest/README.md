@@ -26,7 +26,26 @@ and its table), `modes` (synastry, composite, Human Design, numerology),
 `phone` (the app at 390 × 844 in a frame), `space` (the private space's
 building blocks: what the browser offers for passkeys, Argon2id against the C
 reference's answer, and a whole throwaway space in its own database, from
-creating it to its backup, then erased), and `safari` (all six).
+creating it to its backup, then erased), `encyclopedia` (from the studio:
+In your chart, the search, a page's own part, a gate's three figures, the
+aspect dial, Bookmark, the French twin, a linked word's card), `chinese` (the
+picker's three Chinese languages; each of their eight pages with its figure,
+its table and its "How Ulune calculates"; on Feng Shui's Home, the compass,
+see below), and `safari` (all eight).
+
+The chinese suite runs on the chart on screen; a Relationship page with no
+second chart says so in the report instead of drawing. On an iPhone or an
+iPad, where Safari asks before giving the compass, it waits up to 45 s on
+Feng Shui's Home with a yellow button at the bottom, "Allow the compass": tap
+it (the permission needs a tap, so the run never asks by itself), then Allow.
+The report gives Safari's answer (`live`, `denied`, or `none` when no heading
+comes, as in the iOS Simulator, which has no compass), the headings read, and
+the compass listeners counted before the tap, while reading and once the
+page is left (none then). The development server answers this Mac only, so
+the Simulator reaches it; a real iPhone needs the server opened to the
+network, and Safari gives the compass only to a secure (https) page, which
+the report shows as `secure`. On a Mac the step only says the browser does
+not ask.
 
 The space suite never opens the reader's own space. Passkeys need a person
 (Touch ID), so it only asks the browser about them; try one by hand: Sign in,

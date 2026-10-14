@@ -8,7 +8,7 @@
  * health, no orders; scripts/chinese-bazi.test.mjs keeps both languages,
  * their typography and their tone.
  */
-import type { Both } from "./zodiac-texts";
+import type { Both } from "./both";
 import type { GodFamily, TenGodId } from "./bazi";
 
 /** The ten Day Masters, by stem (0 = Jia … 9 = Gui): the image the tradition gives each. */

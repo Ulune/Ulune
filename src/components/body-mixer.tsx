@@ -43,9 +43,14 @@ import { mixerPlanetPaint, type PlanetPaints } from "@/lib/look";
 import { useLookShape } from "@/lib/look-provider";
 import { aspectName, bodyBare, formatOrb, planetAbbr } from "@/lib/i18n/astro";
 import { useI18n, type Locale } from "@/lib/i18n/locale";
-import type { MessageKey } from "@/lib/i18n/messages";
+import type { MessageKey as CatalogKey } from "@/lib/i18n/messages";
+import { bookT } from "@/lib/i18n/words-book";
+import { bodiesWords } from "@/lib/i18n/catalog/bodies-words";
 import { AspectGlyph, MidpointGlyph, PlanetGlyph, StarGlyph } from "./glyphs";
 import { toast } from "@/lib/toast";
+
+/** A key of the app's catalog or of the Bodies tab's own book (bodies-words.ts). */
+type MessageKey = CatalogKey | keyof typeof bodiesWords;
 
 const ANGLE_ABBR: Record<string, string> = {
   ascendant: "ASC",
@@ -207,7 +212,8 @@ function MixerSection({
   flat?: boolean;
   children: ReactNode;
 }) {
-  const { t } = useI18n();
+  const { t: tc, locale: lang } = useI18n();
+  const t = bookT(bodiesWords, tc, lang);
   if (flat) {
     return (
       <div data-mixer-section={id} data-flat="1" className="flex flex-col gap-[var(--space-2)]">
@@ -267,7 +273,8 @@ export function ChartViewPresets({
   onApplyCustom: () => void;
   onSaveCustom: () => void;
 }) {
-  const { t } = useI18n();
+  const { t: tc, locale: lang } = useI18n();
+  const t = bookT(bodiesWords, tc, lang);
   const hintKey =
     activePreset === "custom" && !hasCustom && dirty
       ? "presetHintCustomEmpty"
@@ -345,7 +352,8 @@ export function BodyMixer({
   onMidpointVisibleChange,
   activePreset,
 }: Props) {
-  const { locale, t } = useI18n();
+  const { locale, t: tc } = useI18n();
+  const t = bookT(bodiesWords, tc, locale);
   const look = useLookShape();
   const [localOverlays, setLocalOverlays] = useState<OverlayFilter>(() => ({
     on: new Set(),

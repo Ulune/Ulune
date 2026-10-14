@@ -8,7 +8,7 @@ import { starOf, starState, type FlyingChart, type PalaceId } from "./fengshui-s
 import { roomFit, roomsIn, type HomeRoom, type RoomKind } from "./fengshui-rooms";
 import { ROOMS_HERE, ROOM_FIT_TEXTS, ROOM_NAMES } from "./fengshui-rooms-texts";
 import { cnWord } from "./words";
-import { said } from "./zodiac-texts";
+import { said } from "./both";
 
 export const roomName = (kind: RoomKind, locale: string): string => said(ROOM_NAMES[kind].name, locale);
 export const roomShort = (kind: RoomKind, locale: string): string => said(ROOM_NAMES[kind].short, locale);

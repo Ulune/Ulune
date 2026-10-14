@@ -1,7 +1,13 @@
 # Checks on every push to main or v2 (the 2.0 line) and every pull request: types, lint, the unit
 # and precision tests, the build and a run of the built server (the deploy
-# check). The end-to-end suites run nightly and on demand: they drive a
-# browser through the whole site for about twenty minutes.
+# check). The end-to-end suites, and the budgets with the built site's own
+# suites, run nightly and on demand: they drive a browser through the whole
+# site for about twenty minutes.
+#
+# GitHub runs a `schedule` only on the repository's default branch (main), and
+# from main's copy of this file: the nightly runs check main, never v2. Until
+# 2.0 merges into main, v2's end-to-end suites and budgets run on demand: in
+# the Actions tab, "Run workflow" on the v2 branch (workflow_dispatch).
 name: CI
 
 on:
@@ -43,6 +49,7 @@ jobs:
       - name: The built server, as Vercel runs it
         run: npm run check:deploy
 
+  # Nightly (main only, see above) and on demand (any branch).
   e2e:
     name: End-to-end suites
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -78,3 +85,38 @@ jobs:
             screenshots/e2e
             vite.log
           retention-days: 7
+
+  # The performance budgets (scripts/perf/budgets.mjs, every area: the calculations, the 3D
+  # and wheel harnesses, what each page downloads, the scrub, the Chinese languages) and the
+  # suites that need the production build (test:e2e:built: what Ulune keeps for offline use),
+  # on the build served as Vercel serves it. Nightly (main only, see above) and on demand (any branch). The time
+  # limits were set a little above a 2-core test machine's numbers (software rendering).
+  budgets:
+    name: Budgets and the built site
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - name: Serve the build
+        run: |
+          nohup node scripts/perf/load/serve.mjs 9311 > serve.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://127.0.0.1:9311/robots.txt && exit 0
+            sleep 2
+          done
+          cat serve.log
+          exit 1
+      - name: Budgets
+        run: npm run budgets -- server,3d,wheel,bundle,scrub,chinese
+      - name: Kept for offline use (the production build)
+        run: npm run test:e2e:built

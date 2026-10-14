@@ -14,7 +14,7 @@ import type { PhaseId } from "./names";
 import type { TenGodId } from "./bazi";
 import type { InteractionKind } from "./bazi-interactions";
 import { BRANCHES, STEMS } from "./names";
-import type { Both } from "./zodiac-texts";
+import type { Both } from "./both";
 
 /** How a god stands in the chart: shown among the stems, only hidden in the branches, or absent. */
 export type Presence = "shown" | "hidden" | "absent";

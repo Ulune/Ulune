@@ -6,7 +6,7 @@
  * scripts/chinese-fengshui-stars.test.mjs keeps both languages and their tone.
  */
 import type { ChineseName } from "./names";
-import type { Both } from "./zodiac-texts";
+import type { Both } from "./both";
 import type { FormationId, StarState } from "./fengshui-stars";
 
 export const FORMATION_NAMES: Readonly<Record<FormationId, ChineseName>> = {

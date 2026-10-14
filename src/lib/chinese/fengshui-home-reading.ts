@@ -11,7 +11,7 @@
  *   fsh:how               finding the facing
  */
 import type { ElementReading, ReadingFact } from "@/lib/chart/types";
-import { BRANCHES, PHASES, STEMS } from "./names";
+import { BRANCHES, PHASES, STEMS, type PhaseId } from "./names";
 import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord } from "./words";
 import { MANSIONS, TRIGRAMS, type FengShui, type FsCount } from "./fengshui";
@@ -81,7 +81,7 @@ export function mountainCode(m: Mountain, locale: string): string {
 }
 
 /** The phase a mountain carries: its stem's, its branch's or its trigram's. */
-export function mountainPhase(m: Mountain): string {
+export function mountainPhase(m: Mountain): PhaseId {
   if (m.kind === "stem") return STEMS.find((s) => s.id === m.id)!.phase;
   if (m.kind === "branch") return BRANCHES.find((b) => b.id === m.id)!.phase;
   return TRIGRAMS.find((t) => t.id === m.id)!.phase;

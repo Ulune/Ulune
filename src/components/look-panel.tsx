@@ -28,7 +28,9 @@ import {
 } from "@/lib/look";
 import { elementName, planetName } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
-import type { MessageKey } from "@/lib/i18n/messages";
+import type { MessageKey as CatalogKey } from "@/lib/i18n/messages";
+import { bookT } from "@/lib/i18n/words-book";
+import { lookWords } from "@/lib/i18n/catalog/look-words";
 import {
   GLYPH_FAMILY_IDS,
   type GlyphFamily,
@@ -39,6 +41,9 @@ import { supportsWebGL } from "./depth/gl/support";
 import { whenIdle } from "@/lib/lazy-component";
 import { setWheelPrefs, useWheelPrefs } from "@/lib/chart/wheel-prefs";
 import { cnWord } from "@/lib/chinese/words";
+
+/** A key of the app's catalog or of the Look tab's own book (look-words.ts). */
+type MessageKey = CatalogKey | keyof typeof lookWords;
 
 const GLYPH_LABEL: Record<GlyphFamily, MessageKey> = {
   noto: "lookGlyphsNoto",
@@ -114,7 +119,8 @@ function HueRow<K extends string>({
   dayMap?: Record<K, Oklch>;
   mapKey?: K;
 }) {
-  const { t } = useI18n();
+  const { t: tc, locale: lang } = useI18n();
+  const t = bookT(lookWords, tc, lang);
   const { theme } = useTheme();
   const active = nearestHueChip(color);
   return (
@@ -155,7 +161,8 @@ function Sliders({
   color: Oklch;
   onChange: (next: Oklch) => void;
 }) {
-  const { t } = useI18n();
+  const { t: tc, locale: lang } = useI18n();
+  const t = bookT(lookWords, tc, lang);
   return (
     <div className="mt-2 grid gap-2 sm:grid-cols-2">
       <label className="block">
@@ -243,7 +250,8 @@ export function LookPanel({ page = "all" }: { page?: LookPanelPage }) {
    */
   const [can3d, setCan3d] = useState(true);
   useEffect(() => whenIdle(() => setCan3d(supportsWebGL()), 3000), []);
-  const { locale, t } = useI18n();
+  const { locale, t: tc } = useI18n();
+  const t = bookT(lookWords, tc, locale);
   const { look, patchLook, resetLook } = useLook();
   const [planetsOpen, setPlanetsOpen] = useState(false);
   const paged = page !== "all";

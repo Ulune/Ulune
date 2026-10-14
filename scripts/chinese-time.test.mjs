@@ -12,7 +12,7 @@ import { zodiacChart } from "../src/lib/chinese/zodiac.ts";
 import { MEET_KINDS, dayAnimalOf, dayOfDate, meetKinds, pairMeetings, yearAhead, yearAheadOf } from "../src/lib/chinese/zodiac-time.ts";
 import { dayAnimalReading, meetingRef, pairMeetingReading, yearRef, yearsReading } from "../src/lib/chinese/zodiac-time-reading.ts";
 import { pairTableCsv, yearsTableCsv } from "../src/lib/chinese/zodiac-time-table.ts";
-import { CLASH_DAY_TEXT, MONTH_TEXTS, PAIR_TEXTS_TWO, YEAR_TEXTS } from "../src/lib/chinese/zodiac-texts.ts";
+import { CLASH_DAY_TEXT, MONTH_TEXTS, PAIR_TEXTS_TWO, YEAR_TEXTS } from "../src/lib/chinese/zodiac-time-texts.ts";
 
 const CAMILLE = { utc: "1990-06-15T10:00:00Z", date: "1990-06-15", time: "12:00", longitude: 2.3522 };
 const SAMPLE_B = { utc: "1987-11-03T22:10:00Z", date: "1987-11-03", time: "23:10", longitude: 10.7522 };

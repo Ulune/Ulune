@@ -11,7 +11,7 @@
  *   {other}  the palace's other star, when the fit turns on it
  *   {now}    the present period
  */
-import type { Both } from "./zodiac-texts";
+import type { Both } from "./both";
 import type { RoomFit, RoomKind } from "./fengshui-rooms";
 
 /** `yoursMany`: two or more of a kind in one palace, with {n}. */

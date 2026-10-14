@@ -13,7 +13,7 @@
  * scripts/chinese-fengshui-readings.test.mjs keeps both languages, their
  * typography and their tone.
  */
-import type { Both } from "./zodiac-texts";
+import type { Both } from "./both";
 import type { PhaseId } from "./names";
 import type { StarNumber, StarState } from "./fengshui-stars";
 import type { PairKey, Relation } from "./fengshui-pairs";

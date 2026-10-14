@@ -30,6 +30,7 @@
  */
 import { join } from "node:path";
 import { FIXTURE_A, FIXTURE_B, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, launch, setLang, setView } from "./_lib.mjs";
+import { watchSent } from "./_sent.mjs";
 
 const WORDS = {
   en: {
@@ -113,12 +114,8 @@ async function run(width, lang) {
       fresh: b.querySelector("[data-testid=lang-new-chinese-astrology]")?.textContent,
     }));
     if (card.pinyin !== "shēngxiào" || card.hanzi !== "生肖" || card.fresh !== w.fresh) throw new Error(`${label}: the picker's card ${JSON.stringify(card)}`);
-    // From here, nothing goes out while the page works the animals out.
-    const sent = [];
-    page.on("request", (r) => {
-      const u = new URL(r.url());
-      if (r.method() !== "GET" || /_serverFn|\/api\//.test(u.pathname)) sent.push(`${r.method()} ${u.pathname}`);
-    });
+    // From here, nothing goes out while the page works the animals out: the app's own files only, by GET (_sent.mjs).
+    const sent = watchSent(page);
     await page.getByTestId("lang-card-chinese-astrology").click();
     await page.getByTestId("zodiac-wheel").waitFor({ timeout: 20000 });
     if (new URL(page.url()).pathname !== "/chinese-astrology") throw new Error(`${label}: at ${page.url()}`);

@@ -10,7 +10,7 @@ export const Route = createFileRoute("/terms")({
       path: "/terms",
       title: "Terms of use · Ulune",
       description:
-        "The terms of use of Ulune, a free website for astrology charts, Human Design and numerology, with its disclaimer: for self-reflection, never advice.",
+        "The terms of use of Ulune, a free website for astrology, Human Design, numerology, BaZi and Feng Shui, with its disclaimer: for self-reflection, never advice.",
     }),
   component: Page,
 });

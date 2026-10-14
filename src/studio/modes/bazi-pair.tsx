@@ -2,7 +2,7 @@ import { Suspense, useMemo, useRef } from "react";
 import { LoadingLines } from "@/components/loading-lines";
 import { chartDisplayName } from "@/lib/chart/library";
 import type { NatalChart } from "@/lib/chart/types";
-import { BRANCHES, STEMS } from "@/lib/chinese/names";
+import { BRANCHES, STEMS, phaseWord } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
@@ -83,7 +83,7 @@ function MiniBoard({ person, c, name }: { person: "a" | "b"; c: BaziChart; name:
         data-phase={rec.phase}
         data-testid={`bazi-pair-${person}-${place}-${kind}`}
         aria-pressed={w.selectedId === full}
-        aria-label={`${name}, ${cnWord(locale, PLACE_WORD[place as "year"])}: ${l.text}`}
+        aria-label={`${name}, ${cnWord(locale, PLACE_WORD[place as "year"])}: ${l.text}${kind === "branch" ? `, ${phaseWord(rec.phase, locale)}` : ""}`}
         onClick={() => w.choose(full)}
         {...previewProps(full)}
       >

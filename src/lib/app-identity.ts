@@ -13,6 +13,11 @@ export const SITE_URL = "https://ulune.app";
  */
 export const SOURCE_URL = "https://github.com/ulune/ulune";
 
-/** What search results and shared links say about Ulune (English: the server sends one head for every language). */
+/**
+ * What search results and shared links say about Ulune (English: the server sends one head for every
+ * language): the meta description, og:description and twitter:description, and the home page's
+ * structured data. Kept to about 160 characters, where search results cut a description short (the six
+ * languages and the encyclopedia since languages plan, part 30).
+ */
 export const APP_DESCRIPTION =
-  "Precise astrology charts, with Human Design and numerology, calculated with the Swiss Ephemeris. Free, no account: your charts are kept only on your device.";
+  "Precise astrology charts, Human Design, numerology, Chinese astrology, BaZi, Feng Shui and an encyclopedia. Free, no account: your charts stay on your device.";

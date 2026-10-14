@@ -1,6 +1,6 @@
 import { Suspense, useMemo, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { BRANCHES, SIXTY } from "@/lib/chinese/names";
+import { BRANCHES, SIXTY, phaseWord } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord, animalOf, theAnimal } from "@/lib/chinese/words";
@@ -150,6 +150,8 @@ function ZodiacCards({ z }: { z: ZodiacChart }) {
                   </span>
                 ) : null}
                 <span>{animal.name}</span>
+                {/* The card's colour is its animal's phase: said in words too (part 30). */}
+                <span className="sr-only">, {phaseWord(p.branchPhase, locale)}</span>
               </span>
               <span className="ulune-zk-card-pair">
                 {pair.name}

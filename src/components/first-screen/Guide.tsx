@@ -2,8 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { Aperture } from "lucide-react";
 import { Suspense, type ReactNode } from "react";
 import { SOURCE_URL } from "@/lib/app-identity";
+import { guideBodyWords } from "@/lib/i18n/catalog/guide-body-words";
 import { useI18n } from "@/lib/i18n/locale";
-import type { MessageKey } from "@/lib/i18n/messages";
+import { bookT } from "@/lib/i18n/words-book";
 import { GlossaryDetails } from "@/components/glossary-details";
 import { keepWhole } from "@/components/keep-whole";
 import { LANGUAGES, LENSES, type LanguageId } from "@/studio/map";
@@ -14,8 +15,17 @@ import type { QuestionId } from "./GuideAnswer";
 import { loadGuideAnswer, serverGuideAnswer } from "./guide-answers";
 import { Linked } from "./guide-linked";
 
+/** A word of the guide's own book (guide-body-words.ts; languages plan, part 30). */
+type GuideKey = keyof typeof guideBodyWords;
+
+/** The guide's words: its own book first, then the app's catalog (the words other parts say too). */
+function useGuideT() {
+  const { t, locale } = useI18n();
+  return bookT(guideBodyWords, t, locale);
+}
+
 /** Each language's line, for every language of the registry (src/studio/map.ts), in its order. */
-const LANGUAGE_BODY: Record<LanguageId, MessageKey> = {
+const LANGUAGE_BODY: Record<LanguageId, GuideKey> = {
   astrology: "guideDoAstrology",
   "human-design": "guideDoHumanDesign",
   numerology: "guideDoNumerology",
@@ -33,8 +43,8 @@ const LANGUAGE_BODY: Record<LanguageId, MessageKey> = {
  * of its own tradition in the encyclopedia (the Chinese ones once their pages
  * exist); the rest link every tradition's.
  */
-function useDoList(): { id: string; mark: ReactNode; label: string; body: MessageKey; tradition?: string }[] {
-  const { t } = useI18n();
+function useDoList(): { id: string; mark: ReactNode; label: string; body: GuideKey; tradition?: string }[] {
+  const t = useGuideT();
   const iconProps = { className: "ob-guide-mode-icon", strokeWidth: 1.75, "aria-hidden": true } as const;
   const CalendarIcon = SECTION_ICON.calendar;
   const EncyclopediaIcon = SECTION_ICON.encyclopedia;
@@ -63,7 +73,7 @@ function useDoList(): { id: string; mark: ReactNode; label: string; body: Messag
 }
 
 /** The questions, in order; each answer loads with the guide (GuideAnswer.tsx). */
-const QUESTIONS: { id: QuestionId; q: MessageKey }[] = [
+const QUESTIONS: { id: QuestionId; q: GuideKey }[] = [
   { id: "time", q: "faqTimeQ" },
   { id: "houses", q: "faqHousesQ" },
   { id: "name", q: "faqNameQ" },
@@ -78,9 +88,11 @@ const QUESTIONS: { id: QuestionId; q: MessageKey }[] = [
 /**
  * The guide, under the first screen's form and on /guide: what Ulune is,
  * what it does, how to begin, the tour and the sample, what happens to the
- * reader's data, how precise it is, and a few answers. Plain text from the
- * catalog, rendered by the server, so it reads without JavaScript and search
- * engines read it too. The answers, folded under their questions, are their
+ * reader's data, how precise it is, and a few answers. Plain text from its
+ * own book of words (guide-body-words.ts; languages plan, part 30), which
+ * comes with this code rather than in the app's catalog every page loads,
+ * rendered by the server, so it reads without JavaScript and search engines
+ * read it too. The answers, folded under their questions, are their
  * own download in the browser (languages plan, part 29), fetched as the page
  * hydrates rather than with the first load every studio page pays for; the
  * browser takes over the server's answers when they arrive. The server's
@@ -96,7 +108,7 @@ function Answer({ id }: { id: QuestionId }) {
 }
 
 export function Guide({ onTour, onSample }: { onTour: () => void; onSample: () => void }) {
-  const { t } = useI18n();
+  const t = useGuideT();
   const doList = useDoList();
   return (
     <div className="ob-guide" data-testid="guide">

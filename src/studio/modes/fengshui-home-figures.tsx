@@ -1,4 +1,5 @@
 import { useRef, type KeyboardEvent } from "react";
+import { phaseWord } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
@@ -129,7 +130,8 @@ export function Luopan({ live, years = null }: { live: number | null; years?: Ye
           const facing = home?.facingMountain.id === m.id;
           const sitting = home?.sittingMountain.id === m.id;
           const aff = !years ? null : years.afflictions.taiSui === m.id ? "tai-sui" : years.afflictions.yearBreaker === m.id ? "year-breaker" : years.afflictions.threeKillings.mountains.includes(m.id) ? "three-killings" : null;
-          const spoken = [`${l.name}${l.pinyin ? ` (${l.pinyin})` : ""}`, mountainCode(m, locale), facing ? cnWord(locale, "fshDialFacing").toLowerCase() : "", sitting ? cnWord(locale, "fshDialSitting").toLowerCase() : "", aff ? afflictionName(aff, locale, prefs).toLowerCase() : ""].filter(Boolean).join(", ");
+          // Its cell's colour is its phase: said in words too (part 30).
+          const spoken = [`${l.name}${l.pinyin ? ` (${l.pinyin})` : ""}`, mountainCode(m, locale), phaseWord(mountainPhase(m), locale), facing ? cnWord(locale, "fshDialFacing").toLowerCase() : "", sitting ? cnWord(locale, "fshDialSitting").toLowerCase() : "", aff ? afflictionName(aff, locale, prefs).toLowerCase() : ""].filter(Boolean).join(", ");
           return (
             <g
               key={m.id}

@@ -6,6 +6,9 @@
  * its result on screen for a few seconds under a banner, for screenshots. The
  * report goes to the dev server, which keeps it in `.qa-selftest/reports/`
  * (scripts/qa-selftest). The suites are fixed here; nothing comes from outside.
+ * One step waits for the person watching: on an iPhone or an iPad, the
+ * chinese suite's compass (languages plan, part 30) offers a button to tap,
+ * since Safari gives the compass only after a tap; it never asks by itself.
  *
  * The reader's own storage (Look, theme, the last mode) is kept aside at the
  * start and put back at the end, then the page reloads without the flag. A
@@ -19,7 +22,7 @@
 
 import { loadSpaceRuntime } from "@/lib/space/load";
 import { closeSpaceSheet, useSpace } from "@/lib/space/state";
-import { languageOf, lensOf } from "@/studio/map";
+import { languageGroups, languageOf, lensOf, lensesOf, pagesOf } from "@/studio/map";
 import type { StudioPage } from "@/studio/url";
 
 type Stats = {
@@ -384,6 +387,8 @@ function serverCallsAfter(since: number) {
 type Ctx = {
   step: (name: string, fn: () => Promise<unknown>, holdMs?: number) => Promise<void>;
   hold: (label: string, ms: number) => Promise<void>;
+  /** A line on the banner, for the person watching (a tap asked of them). */
+  say: (text: string) => void;
 };
 
 async function natalSuite({ step }: Ctx) {
@@ -1076,6 +1081,231 @@ async function encyclopediaSuite({ step }: Ctx) {
   });
 }
 
+// ── The Chinese pages (languages plan, part 30: Safari and an iPhone) ───────
+// For the chart on screen: the language picker lists the three Chinese
+// languages under their heading; each of their eight pages draws its figure
+// and its table and keeps its "How Ulune calculates" (all but Chinese
+// astrology's Cycles, whose side panel reads the year); a Relationship page
+// with no second chart says so. On Feng Shui's Home, where the browser asks
+// before giving the compass (an iPhone or an iPad:
+// DeviceOrientationEvent.requestPermission), a button for the person running
+// the test: the permission needs a tap, so it is never asked by itself. The
+// tap presses the page's own "Use the compass"; the step says what the
+// browser answered, the heading read, and that nothing listened to the
+// compass before the tap or once the page was left.
+
+type ChineseCheck = { id: StudioPage; figure: string; table: string; notes: boolean; pair?: boolean };
+const CHINESE_CHECKS: readonly ChineseCheck[] = [
+  { id: "zodiac", figure: "zodiac-wheel", table: "zodiac-table", notes: true },
+  { id: "zodiac-years", figure: "zodiac-years", table: "zodiac-years-table", notes: false },
+  { id: "zodiac-pair", figure: "zodiac-pair", table: "zodiac-pair-table", notes: true, pair: true },
+  { id: "bazi", figure: "bazi-board", table: "bazi-table", notes: true },
+  { id: "bazi-luck", figure: "bazi-luck", table: "bazi-luck-table", notes: true },
+  { id: "bazi-pair", figure: "bazi-pair", table: "bazi-pair-table", notes: true, pair: true },
+  { id: "fengshui", figure: "fengshui", table: "fengshui-table", notes: true },
+  { id: "fengshui-home", figure: "fengshui-home", table: "fengshui-home-table", notes: true },
+];
+
+/** The registry's Chinese languages, and their pages lens by lens (src/studio/map.ts). */
+function chineseRegistry() {
+  const languages = languageGroups().find((g) => g.group === "chinese")?.languages ?? [];
+  return {
+    languages: languages.map((l) => l.id),
+    pages: languages.flatMap((l) => lensesOf(l.id).flatMap((lens) => [...pagesOf(l.id, lens)])),
+  };
+}
+
+/** The table or the figure: the toolbar's switch, else (a phone) the ⋯ menu's. */
+async function showView(view: "table" | "wheel") {
+  const direct = byTest(`view-${view}`);
+  if (direct) {
+    direct.click();
+    return;
+  }
+  click(byTest("stage-more"), "the ⋯ menu");
+  click(await until(() => byTest(`more-view-${view}`), 4000), `the ${view} view`);
+}
+
+/** The page's "How Ulune calculates", with nothing chosen (on a phone, in the sheet's Reading tab). */
+async function methodNotesOf(id: StudioPage): Promise<boolean> {
+  key("Escape", document.body);
+  await sleep(300);
+  const found = () => q(`[data-testid="method-notes"][data-page="${id}"]`);
+  if (found()) return true;
+  const tab = byTest("dock-tab-reading");
+  if (tab && tab.getAttribute("aria-selected") !== "true") tab.click();
+  return Boolean(await until(found, 4000).catch(() => null));
+}
+
+type OrientationCtor = typeof DeviceOrientationEvent & { requestPermission?: () => Promise<string> };
+type Listen = typeof EventTarget.prototype.addEventListener;
+
+/** Window's compass listeners, counted until stop() (as scripts/e2e/privacy.mjs counts them). */
+function countCompassListeners() {
+  const ORIENT = new Set(["deviceorientation", "deviceorientationabsolute"]);
+  const live: [string, unknown][] = [];
+  const proto = EventTarget.prototype;
+  const add = proto.addEventListener;
+  const remove = proto.removeEventListener;
+  proto.addEventListener = function (this: EventTarget, type, fn, opts) {
+    if (this === window && ORIENT.has(type) && fn && !live.some(([t, f]) => t === type && f === fn)) live.push([type, fn]);
+    return add.call(this, type, fn, opts);
+  } as Listen;
+  proto.removeEventListener = function (this: EventTarget, type, fn, opts) {
+    const i = this === window ? live.findIndex(([t, f]) => t === type && f === fn) : -1;
+    if (i >= 0) live.splice(i, 1);
+    return remove.call(this, type, fn, opts);
+  } as Listen;
+  return {
+    live: () => live.length,
+    stop: () => {
+      proto.addEventListener = add;
+      proto.removeEventListener = remove;
+    },
+  };
+}
+
+/** A button for the person running the test: true once tapped (`onTap` runs inside the tap), false if skipped or not tapped in time. */
+function askForTap(label: string, onTap: () => void, ms: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const box = document.createElement("div");
+    box.setAttribute("data-qa-tap", "");
+    box.style.cssText = "position:fixed;left:50%;bottom:132px;transform:translateX(-50%);z-index:2147483647;display:flex;gap:8px;white-space:nowrap";
+    const look = "font:600 16px/1.2 system-ui,sans-serif;min-height:48px;padding:0 18px;border-radius:10px;border:0;color:#111;box-shadow:0 2px 8px rgba(0,0,0,.35)";
+    const yes = document.createElement("button");
+    yes.type = "button";
+    yes.textContent = label;
+    yes.style.cssText = `${look};background:#ffd24a`;
+    const no = document.createElement("button");
+    no.type = "button";
+    no.textContent = "Skip";
+    no.style.cssText = `${look};background:#e6e6e6`;
+    const done = (tapped: boolean) => {
+      window.clearTimeout(timer);
+      box.remove();
+      resolve(tapped);
+    };
+    const timer = window.setTimeout(() => done(false), ms);
+    yes.addEventListener("click", () => {
+      onTap();
+      done(true);
+    });
+    no.addEventListener("click", () => done(false));
+    box.append(yes, no);
+    document.body.appendChild(box);
+  });
+}
+
+async function chineseSuite({ step, say }: Ctx) {
+  const registry = chineseRegistry();
+  await step(
+    "chinese: the picker lists the three Chinese languages",
+    async () => {
+      click(await until(() => byTest("lang-button"), 8000), "the language button");
+      await until(() => byTest(`lang-card-${registry.languages[0]}`), 8000);
+      const cards = [...document.querySelectorAll("[data-lang-card]")].map((c) => c.getAttribute("data-testid")?.slice(10) ?? "");
+      const group = byTest(`lang-card-${registry.languages[0]}`)?.closest("section");
+      const heading = group?.querySelector("h2")?.textContent ?? null;
+      const inGroup = [...(group?.querySelectorAll("[data-lang-card]") ?? [])].map((c) => c.getAttribute("data-testid")?.slice(10) ?? "");
+      key("Escape");
+      await sleep(400);
+      if (byTest(`lang-card-${registry.languages[0]}`)) key("Escape", document.body);
+      const ids: readonly string[] = registry.languages;
+      const missing = ids.filter((id) => !cards.includes(id));
+      if (ids.length !== 3 || missing.length) throw new Error(`the Chinese languages ${ids.join(", ")}; missing from the picker: ${missing.join(", ")}`);
+      // Under their own heading, and nothing else there.
+      if ([...inGroup].sort().join() !== [...ids].sort().join()) throw new Error(`under "${heading}": ${inGroup.join(", ")}`);
+      const unchecked = registry.pages.filter((p) => !CHINESE_CHECKS.some((c) => c.id === p));
+      return { cards, heading, inGroup, pages: registry.pages.length, unchecked };
+    },
+    2500,
+  );
+
+  for (const c of CHINESE_CHECKS) {
+    await step(
+      `${c.id}: its figure, its table${c.notes ? ", how Ulune calculates" : ""}`,
+      async () => {
+        const t0 = performance.now();
+        await goMode(c.id);
+        const shown = await until(() => byTest(c.figure) ?? (c.pair ? byTest(`${c.id}-need-second`) : null), 20000);
+        const figureMs = Math.round(performance.now() - t0);
+        if (shown.getAttribute("data-testid") !== c.figure) {
+          // A Relationship page with one chart: it asks for a second (the table waits for it too).
+          return { figureMs, needsSecondChart: true, notes: c.notes ? await methodNotesOf(c.id) : null };
+        }
+        const box = shown.getBoundingClientRect();
+        if (box.width < 100 || box.height < 100) throw new Error(`the figure is ${Math.round(box.width)} × ${Math.round(box.height)}`);
+        const t1 = performance.now();
+        await showView("table");
+        const table = await until(() => byTest(c.table), 15000);
+        const tableMs = Math.round(performance.now() - t1);
+        const rows = table.querySelectorAll("tr").length;
+        if (!rows) throw new Error("the table has no rows");
+        await showView("wheel");
+        await until(() => byTest(c.figure), 15000);
+        const notes = c.notes ? await methodNotesOf(c.id) : null;
+        if (c.notes && !notes) throw new Error("no “How Ulune calculates”");
+        return { figureMs, figure: [Math.round(box.width), Math.round(box.height)], tableMs, rows, notes };
+      },
+      1500,
+    );
+  }
+
+  await step(
+    "fengshui-home: the compass, on a tap",
+    async () => {
+      await goMode("fengshui-home");
+      await until(() => byTest("fengshui-home"), 20000);
+      const Ctor = (typeof DeviceOrientationEvent === "undefined" ? null : DeviceOrientationEvent) as OrientationCtor | null;
+      const secure = window.isSecureContext;
+      const coarse = matchMedia("(pointer: coarse)").matches;
+      if (typeof Ctor?.requestPermission !== "function") {
+        return { asked: false, why: "this browser gives the compass without asking, or has none", orientationEvents: Boolean(Ctor), coarse, secure };
+      }
+      const start = byTest("fengshui-home-compass-start");
+      // The page offers the compass where a finger is the pointer.
+      if (!start) return { asked: false, why: "no compass button: the pointer is not a finger", coarse, secure };
+      const counted = countCompassListeners();
+      try {
+        const before = counted.live();
+        if (before) throw new Error(`${before} compass listeners before the tap`);
+        say("QA chinese · tap “Allow the compass” (45 s)");
+        // Inside the tap: the page's own button, so its own code asks (a permission needs the tap).
+        const tapped = await askForTap("Allow the compass", () => start.click(), 45000);
+        if (!tapped) return { asked: false, why: "not tapped", listenersBefore: before, coarse, secure };
+        const answer = await until(() => {
+          const s = byTest("fengshui-home-compass")?.getAttribute("data-state");
+          return s && s !== "asking" && s !== "idle" ? s : null;
+        }, 30000).catch(() => byTest("fengshui-home-compass")?.getAttribute("data-state") ?? "gone");
+        const headings: string[] = [];
+        for (let i = 0; i < 6 && answer === "live"; i++) {
+          headings.push(byTest("fengshui-home-heading")?.textContent ?? "");
+          await sleep(500);
+        }
+        const turn = byTest("fengshui-home-dial")?.getAttribute("data-turn") ?? null;
+        const listening = counted.live();
+        // The page left: nothing listens to the compass any more.
+        await goMode("fengshui");
+        await until(() => byTest("fengshui"), 20000);
+        await sleep(300);
+        const afterLeaving = counted.live();
+        if (afterLeaving) throw new Error(`${afterLeaving} compass listeners once the page was left`);
+        return { asked: true, answer, headings, turn, listenersBefore: before, listening, afterLeaving, secure };
+      } finally {
+        counted.stop();
+        say("QA chinese");
+      }
+    },
+    4000,
+  );
+
+  await step("back to the natal chart", async () => {
+    await goMode("natal");
+    await until(wheel, 20000);
+    return true;
+  });
+}
+
 const SUITES: Record<string, ((ctx: Ctx) => Promise<void>)[]> = {
   natal: [natalSuite],
   "3d": [depthSuite],
@@ -1084,7 +1314,8 @@ const SUITES: Record<string, ((ctx: Ctx) => Promise<void>)[]> = {
   phone: [phoneSuite],
   space: [spaceSuite],
   encyclopedia: [encyclopediaSuite],
-  safari: [natalSuite, depthSuite, timeSuite, modesSuite, phoneSuite, spaceSuite, encyclopediaSuite],
+  chinese: [chineseSuite],
+  safari: [natalSuite, depthSuite, timeSuite, modesSuite, phoneSuite, spaceSuite, encyclopediaSuite, chineseSuite],
 };
 
 /**
@@ -1174,9 +1405,12 @@ export async function runSelfTest(suite: string) {
   );
   await sleep(1500);
   await ensureChart();
+  const say = (text: string) => {
+    bar.textContent = text;
+  };
   for (const s of suites) {
     try {
-      await s({ step, hold });
+      await s({ step, hold, say });
     } catch (err) {
       steps.push({ name: "suite", ok: false, ms: 0, error: String(err) });
     }

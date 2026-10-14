@@ -14,6 +14,8 @@ import type { AspectLink, BodyId, NatalChart } from "@/lib/chart/types";
 import { useChartView } from "@/lib/chart/use-chart-view";
 import { aspectName, bodyLabel, formatOrb } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
+import { bookT } from "@/lib/i18n/words-book";
+import { bodiesWords } from "@/lib/i18n/catalog/bodies-words";
 import { usePortPlace } from "@/components/wheel-hint";
 
 type Fix = { text: string; action: string; apply: () => void };
@@ -29,7 +31,8 @@ export function WheelHiddenNote({
   visible: ReadonlySet<string>;
   filter: AspectFilter;
 }) {
-  const { locale, t } = useI18n();
+  const { locale, t: tc } = useI18n();
+  const t = bookT(bodiesWords, tc, locale);
   const pinned = useSyncExternalStore(selection.subscribe, selection.get, () => null);
   const view = useChartView();
   const fix = hiddenFix(pinned, chart, visible, filter, {
@@ -66,7 +69,7 @@ type Words = {
   body: (id: string) => string;
   aspect: (type: AspectLink["type"]) => string;
   orb: (n: number) => string;
-  t: ReturnType<typeof useI18n>["t"];
+  t: ReturnType<typeof bookT<typeof bodiesWords>>;
   addBody: (id: BodyId) => void;
   setFilter: (next: AspectFilter) => void;
 };
