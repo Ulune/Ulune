@@ -10,12 +10,13 @@ import { cnWord } from "./words";
 import { MOUNTAINS, houseMatch, norm360 } from "./fengshui-home";
 import { countLabel, directionName } from "./fengshui-reading";
 import { FLIGHT } from "./fengshui-stars";
-import { chartName, formationName, pairName, palaceName } from "./fengshui-stars-reading";
+import { chartName, chartWord, formationName, pairName, palaceName, roomsChart } from "./fengshui-stars-reading";
 import { pairKey } from "./fengshui-pairs";
 import { roomFit, roomsIn } from "./fengshui-rooms";
 import { listWords, roomLines, roomName } from "./fengshui-rooms-reading";
 import { AFFLICTION_IDS, afflictionName, afflictionPlace, monthLine, yearLine } from "./fengshui-years-reading";
 import { edgeLine, facingLine, fmtDecl, fmtDeg, houseLine, matchLines, mountainCode, periodLines, sourceLine, type HomeContext } from "./fengshui-home-reading";
+import { deFr } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 const cell = (v: string) => (/[",\n\r]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v);
@@ -28,7 +29,7 @@ export function homeTextParts(c: HomeContext, name: string, locale: string, pref
     for (const fs of c.people) facing.push(...matchLines(c.home, fs, locale).map((l) => (c.people.length > 1 ? `${countLabel(fs.count, locale)}${colon}${l}` : l)));
   } else facing.push(cnWord(locale, "fshNoFacing"));
   facing.push(...periodLines(c, locale));
-  if (c.declination != null) facing.push(cnWord(locale, "fshDecl", { place: c.place, deg: fmtDecl(c.declination, locale) }));
+  if (c.declination != null) facing.push(cnWord(locale, "fshDecl", { place: c.place, dePlace: deFr(c.place), deg: fmtDecl(c.declination, locale) }));
   const stars: string[] = [cnWord(locale, "fssHead")];
   if (c.stars) {
     for (const [v, chart] of [["main", c.stars.main], ["ti", c.stars.ti]] as const) {
@@ -52,11 +53,14 @@ export function homeTextParts(c: HomeContext, name: string, locale: string, pref
   }
   const rooms = c.rooms ?? [];
   const roomText: string[] = [cnWord(locale, "fsrHead")];
+  // Read against the chart picked on the figure, said near a mountain's edge (FS30).
+  const against = c.stars ? roomsChart(c.stars) : null;
+  if (c.stars?.ti && against) roomText.push(cnWord(locale, "fsrAgainstPicked", { chart: chartWord(against.v, locale) }));
   for (const p of FLIGHT) {
     const here = roomsIn(rooms, p);
     if (!here.length) continue;
     roomText.push(`${palaceName(p, locale)}${colon}${listWords(here.map((r) => roomName(r.kind, locale)), locale)}`);
-    if (c.stars) roomText.push(...roomLines(c.stars.main, p, rooms, c.stars.now, locale).slice(1).map((l) => `  ${l}`));
+    if (c.stars && against) roomText.push(...roomLines(against.chart, p, rooms, c.stars.now, locale).slice(1).map((l) => `  ${l}`));
   }
   return [
     { id: "facing", lines: facing },
@@ -108,11 +112,13 @@ export function homeTableCsv(c: HomeContext): string {
   }
   if (c.rooms?.length) {
     rows.push([]);
-    rows.push(["room", "id", "kind", "palace", "fit"]);
+    // Each room read against the chart picked on the figure, named in the last column (FS30).
+    rows.push(["room", "id", "kind", "palace", "fit", "chart"]);
+    const against = c.stars ? roomsChart(c.stars) : null;
     for (const p of FLIGHT) {
       for (const r of roomsIn(c.rooms, p)) {
-        const f = c.stars ? roomFit(r.kind, c.stars.main, p, c.stars.now) : null;
-        rows.push(["room", r.id, r.kind, p, f ? `${f.use}:${f.fit}:${f.reads}:${f.n}` : ""]);
+        const f = c.stars && against ? roomFit(r.kind, against.chart, p, c.stars.now) : null;
+        rows.push(["room", r.id, r.kind, p, f ? `${f.use}:${f.fit}:${f.reads}:${f.n}` : "", f && against ? against.v : ""]);
       }
     }
   }

@@ -18,6 +18,7 @@ import { baziBalance } from "./bazi-balance";
 import { PILLAR_WORD, fmtPoints } from "./bazi-reading";
 import { PLACE_WORD } from "./zodiac-places";
 import { luckAt, type FlowYear, type Luck, type Meeting } from "./bazi-luck";
+import { semicolon } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 
@@ -92,7 +93,7 @@ export function baziFullRows(c: BaziChart, locale: string, prefs: Shown, time?: 
       naYin: chineseLabel(ps.naYin, locale, prefs).text,
       empty: ps.empty ? cnWord(locale, "bzYes") : dash,
       stars: starNames(ps.stars),
-      links: links.length ? links.join("; ") : dash,
+      links: links.length ? links.join(semicolon(locale)) : dash,
       points: pts.map(([ph, n]) => `${chineseLabel(ph, locale, names).name} ${fmtPoints(n, locale)}`).join(" · "),
       ids: [
         "full",
@@ -131,7 +132,7 @@ export function baziFullRows(c: BaziChart, locale: string, prefs: Shown, time?: 
         naYin: chineseLabel(ny, locale, prefs).text,
         empty: emptyWord(pair.branch),
         stars: starNames(stars),
-        links: meets.length ? meets.map(meetText).join("; ") : dash,
+        links: meets.length ? meets.map(meetText).join(semicolon(locale)) : dash,
         points: dash,
         ids: [
           "full",
@@ -163,7 +164,7 @@ export function baziFullRows(c: BaziChart, locale: string, prefs: Shown, time?: 
 
 /** The full table as Copy's lines: one line per pillar, every layer in it. */
 export function fullLines(rows: FullRow[], locale: string): string[] {
-  const colon = locale === "fr" ? " : " : ": ";
+  const colon = locale === "fr" ? "\u202f: " : ": ";
   const k = (key: Parameters<typeof cnWord>[1]) => cnWord(locale, key);
   return rows.map(
     (r) =>

@@ -3,11 +3,12 @@
  * over a language's index (types.ts, SearchIndex): instant, nothing typed is
  * sent anywhere. Forgiving: accents optional, one typo allowed in a word of
  * four letters or more, English and French names both found whatever the
- * page's language, glyphs pasted in (♄), and phrases ("venus square mars"):
+ * page's language, glyphs pasted in (♄), Chinese characters and pinyin with
+ * or without its tones (木, mù, mu; part 23), and phrases ("venus square mars"):
  * an entry naming every word comes first, then, for a phrase, those naming
  * some of its words. Pure: the index comes in, results come out.
  */
-import { isWord, STOPWORDS, tokens } from "./normalize";
+import { isHan, isWord, STOPWORDS, tokens } from "./normalize";
 import type { SearchDoc, SearchIndex } from "./types";
 
 export type SearchHit = {
@@ -90,9 +91,9 @@ function summaryScore(q: string, words: string[]): number {
   return 0;
 }
 
-/** The words of a search: folded, with the little words left out unless nothing else is left. */
+/** The words of a search: folded, with the little words left out unless nothing else is left; a Chinese character is a word (木). */
 export function queryWords(query: string): string[] {
-  const all = tokens(query).filter((t) => t.length > 1 || /^[\p{N}\p{S}]$/u.test(t));
+  const all = tokens(query).filter((t) => t.length > 1 || /^[\p{N}\p{S}]$/u.test(t) || isHan(t));
   const kept = all.filter((t) => !STOPWORDS.has(t));
   return kept.length ? kept : all;
 }
@@ -121,6 +122,8 @@ export function search(engine: SearchEngine, query: string, limit = 40): SearchH
     // A phrase finds the entries naming some of its words too (each part of "venus square mars").
     if (!full && !(qs.length > 1 && named > 0)) continue;
     if (p.phrase === whole) score += 6;
+    // One of its names said exactly (a pinyin syllable, a character: "mu", 木) comes before a title that only starts with it ("Mutable").
+    else if (qs.length === 1 && p.names.includes(whole)) score += 2.5;
     else if (p.phrase.startsWith(whole)) score += 2;
     const [id, title, summary, glyph, tradition, family, slug] = p.doc;
     // A number or a glyph typed alone finds the entry it stands for first ("7": Number 7).

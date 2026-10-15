@@ -224,6 +224,7 @@ export const PAGE_PLACE = {
   "bazi-luck": ["bazi", "cycles"],
   "bazi-pair": ["bazi", "relationship"],
   fengshui: ["feng-shui", "natal"],
+  "fengshui-pair": ["feng-shui", "relationship"],
   "fengshui-home": ["feng-shui", "home"],
 };
 

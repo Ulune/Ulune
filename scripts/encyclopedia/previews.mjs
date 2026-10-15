@@ -26,7 +26,18 @@ export const PREVIEW_MANIFEST = join(PREVIEW_DIR, "manifest.json");
 /** Bump to draw every image again when the design below changes. */
 export const PREVIEW_DESIGN = 2;
 
-const TRADITION_COLOUR = { astrology: "#d8b46a", "human-design": "#7fb0d8", numerology: "#a9c98a" };
+const TRADITION_COLOUR = {
+  astrology: "#d8b46a",
+  "human-design": "#7fb0d8",
+  numerology: "#a9c98a",
+  // The Chinese traditions (part 23), as their tags on the pages: a seal red, gold, amber and jade.
+  chinese: "#e07a62",
+  "chinese-astrology": "#e2c35e",
+  bazi: "#e39b56",
+  "feng-shui": "#72bfa4",
+};
+/** Chinese characters (木, 五行) are drawn with a Chinese face, in a size that fits the square. */
+const isHan = (s) => /\p{Script=Han}/u.test(s);
 
 /** The entries that get an image: every core page (combinations share their parts' images). */
 export function previewEntries(data) {
@@ -37,7 +48,8 @@ export function previewEntries(data) {
 
 /** What an image is drawn from: when this changes, the image is drawn again. */
 export function previewKey({ en, fr }) {
-  const what = JSON.stringify([PREVIEW_DESIGN, en.glyph, en.title, fr.title, en.tradition, en.figure?.panels?.[0]?.svg ?? ""]);
+  // A Chinese name (part 23) is drawn too; the entries without one keep their keys.
+  const what = JSON.stringify([PREVIEW_DESIGN, en.glyph, en.title, fr.title, en.tradition, en.figure?.panels?.[0]?.svg ?? "", ...(en.zh ? [en.zh] : [])]);
   return createHash("sha256").update(what).digest("hex").slice(0, 16);
 }
 
@@ -58,9 +70,10 @@ function html({ en, fr }) {
   const art = figure
     ? `<div class="figure">${figure.svg.replace(/ width="\d+" height="\d+"/, "")}</div>`
     : en.glyph
-      ? `<div class="glyph">${esc(en.glyph)}</div>`
+      ? `<div class="glyph"${isHan(en.glyph) ? ' lang="zh-Hant"' : ""}>${esc(en.glyph)}</div>`
       : // No glyph, no figure: Ulune's star.
         `<div class="glyph star">✦</div>`;
+  const glyphSize = isHan(en.glyph) ? [0, 250, 190, 130][Math.min(3, [...en.glyph].length)] : [...en.glyph].length > 2 ? 150 : 260;
   return `<!doctype html><html><head><meta charset="utf-8"><style>
 ${font("Fraunces", "Fraunces-latin-opsz.woff2", "font-weight:100 900;")}
 ${font("Fraunces", "Fraunces-latin-ext-opsz.woff2", "font-weight:100 900;")}
@@ -84,7 +97,10 @@ h1{font-family:var(--font-display);font-weight:400;font-size:${name.length > 30 
 .fr{font-size:30px;color:var(--color-fg-subtle)}
 .site{font-size:26px;color:var(--color-fg-subtle);margin-top:18px}
 .art{flex:0 0 470px;height:630px;display:flex;align-items:center;justify-content:center;padding-right:60px}
-.glyph{font-family:var(--font-glyphs);font-size:${[...en.glyph].length > 2 ? 150 : 260}px;line-height:1;color:var(--color-fg)}
+.glyph{font-family:var(--font-glyphs);font-size:${glyphSize}px;line-height:1;color:var(--color-fg)}
+.glyph:lang(zh-Hant),.zh .hanzi{font-family:"Noto Serif CJK TC","Noto Sans CJK TC",serif}
+.zh{font-size:30px;color:var(--color-fg-muted);margin-top:-6px}
+.zh .pinyin{font-style:italic;margin-left:12px}
 .star{font-family:var(--font-display);color:var(--color-fg-subtle);font-size:220px}
 .figure{width:400px;max-height:540px;display:flex;align-items:center;justify-content:center}
 .figure svg{width:100%;height:auto;max-height:540px;overflow:visible}
@@ -94,6 +110,7 @@ ${readFileSync(join(ROOT, "src/encyclopedia/encyclopedia.css"), "utf8").match(/\
   <div class="brand">✦ <b>Ulune</b> · Encyclopedia</div>
   <div class="tag">${esc(en.tradition.name)}</div>
   <div><h1>${esc(name)}</h1>${sub ? `<div class="sub">${esc(sub)}</div>` : ""}</div>
+  ${en.zh ? `<div class="zh"><span class="hanzi" lang="zh-Hant">${esc(en.zh.hant)}</span><span class="pinyin">${esc(en.zh.pinyin)}</span></div>` : ""}
   <div class="fr">${esc(nameFr)}${subFr ? ` · ${esc(subFr)}` : ""}</div>
   <div class="site">ulune.app</div>
 </div>

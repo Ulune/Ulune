@@ -7,6 +7,13 @@
 
 export type Lang = "en" | "fr";
 
+/**
+ * A Chinese name (encyclopedia plan, part 23): Traditional and Simplified
+ * characters and Hanyu Pinyin with its tone marks, the engine's own for a
+ * term it knows (lib/chinese/names.ts), the same in both languages.
+ */
+export type ZhName = { hant: string; hans: string; pinyin: string };
+
 /** Text in a page's body: words, **bold**, *italic*, or a link to another entry. */
 export type Inline =
   | string
@@ -15,9 +22,10 @@ export type Inline =
   /**
    * A link: `l` the entry's id, `w` the words shown (its title in this
    * language when the writer gave none), `s` its address in this language
-   * when it has a page (null: a card only), `g` its tradition.
+   * when it has a page (null: a card only), `g` its tradition; `h` set when
+   * it is a tradition's home (`[[bazi]]`, part 23), a plain link with no card.
    */
-  | { l: string; w: string; s: string | null; g: string };
+  | { l: string; w: string; s: string | null; g: string; h?: 1 };
 
 export type Block =
   | { t: "p"; c: Inline[] }
@@ -44,6 +52,8 @@ export type PageData = {
   slug: string;
   title: string;
   glyph: string;
+  /** Its Chinese name, shown in its head (part 23). */
+  zh?: ZhName;
   aliases: string[];
   summary: string;
   kind: "core" | "combination" | "context";
@@ -77,10 +87,14 @@ export type TraditionInfo = {
   name: Record<Lang, string>;
   home: Record<Lang, string>;
   intro: Record<Lang, string>;
+  /** A Chinese tradition's own name (八字 bāzì). */
+  zh?: ZhName;
   families: { id: string; name: Record<Lang, string> }[];
   /** Its entries, and how many of them have a page. */
   count: number;
   pages: number;
+  /** 1 when its introduction is written: it has a home before its first entry (part 23). */
+  about?: 1;
 };
 
 /**
@@ -91,8 +105,8 @@ export type TraditionInfo = {
 export type TermRow = [tradition: string, family: string, en: string, fr: string, page: 0 | 1, glyph: string];
 export type TermIndex = { traditions: TraditionInfo[]; terms: Record<string, TermRow> };
 
-/** A tradition's card texts in one language: id → [title, summary]. */
-export type CardTexts = Record<string, [title: string, summary: string]>;
+/** A tradition's card texts in one language: id → [title, summary], and a Chinese term's pinyin (part 23). */
+export type CardTexts = Record<string, [title: string, summary: string, pinyin?: string]>;
 
 /**
  * One entry in a language's search index: [id, title, summary, glyph,
@@ -122,7 +136,7 @@ export type ListRow = [id: string, title: string, glyph: string, summary: string
 /** The encyclopedia's home in a language: the traditions, then A–Z by first letter. */
 export type HomeData = {
   lang: Lang;
-  traditions: { id: string; name: string; intro: string; home: string; count: number; pages: number }[];
+  traditions: { id: string; name: string; intro: string; home: string; zh?: ZhName; count: number; pages: number }[];
   /** [letter, rows with the tradition after each]. */
   az: [letter: string, rows: [...ListRow, tradition: string][]][];
 };
@@ -136,5 +150,11 @@ export type TraditionHome = {
   home: string;
   /** Its address segment in the other language. */
   twinHome: string;
+  /** A Chinese tradition's own name (八字 bāzì). */
+  zh?: ZhName;
+  /** Its introduction, written (content/encyclopedia/<tradition>/_home.<lang>.md, part 23): paragraphs and lists with their links. */
+  about?: Block[];
+  /** The books and texts its introduction draws on. */
+  sources?: string[];
   families: { id: string; name: string; rows: ListRow[]; /** Combination pages (part 17): a short list of names, no cards. */ compact?: boolean }[];
 };

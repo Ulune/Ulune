@@ -8,6 +8,7 @@ import type { FlowYear, Luck } from "@/lib/chinese/bazi-luck";
 import { FLOW_YEAR_REF, countWord, dateIn, flowMonthRef, luckRef, meetingShort } from "@/lib/chinese/bazi-luck-reading";
 import { luckTableCsv, luckTextParts } from "@/lib/chinese/bazi-luck-table";
 import { meetPieces } from "@/lib/chinese/bazi-term-pieces";
+import { semicolon } from "@/lib/chinese/both";
 import { partRows } from "@/lib/csv";
 import { useI18n } from "@/lib/i18n/locale";
 import { DataTable } from "@/studio/tables/DataTable";
@@ -31,7 +32,7 @@ export function BaziLuckTable({ lucks, year, name = "", tz, selectedId, onSelect
     </ChineseTermWord>
   );
   const meets = (list: Luck["pillars"][number]["meets"]) => (
-    <ChineseTermPieces text={list.length ? list.map((m) => meetingShort(m, locale, prefs)).join("; ") : "–"} pieces={() => meetPieces(list, locale, prefs, "pillar")} />
+    <ChineseTermPieces text={list.length ? list.map((m) => meetingShort(m, locale, prefs)).join(semicolon(locale)) : "–"} pieces={() => meetPieces(list, locale, prefs, "pillar")} />
   );
   const pillar = (cycle: number) => (
     <ChineseTermWord family="pillar" id={SIXTY[cycle]!.id}>

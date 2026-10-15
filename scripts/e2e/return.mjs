@@ -240,6 +240,10 @@ async function pins() {
     await page.waitForTimeout(500);
     await page.goBack();
     await landed(page);
+    // The wheel can take longer than the landing's pause to come back on a busy machine: wait for its pin (review item T3).
+    await page
+      .waitForFunction(() => document.querySelector(".ob-figure svg[data-depth-base]")?.getAttribute("data-focus-id") === "planet:mars", null, { timeout: 8000 })
+      .catch(() => {});
     check((await pin()) === "planet:mars", `the pin let go by the search did not come back (${await pin()})`);
 
     // Let go on purpose (a press on the stage's ground), then out: it stays let go.

@@ -12,7 +12,9 @@
  * reader has saved no choice, the saved choice once there is one; and from
  * the studio (part 7): the tables' signs, houses, rulers, aspects and shapes,
  * the side panel's entries of the chosen thing and its glossary's words, each
- * linking to its entry without choosing the row it sits in.
+ * linking to its entry without choosing the row it sits in; and the Chinese
+ * pages (part 23): a term found by its characters or its pinyin, its name in
+ * characters and pinyin in its head, a language's home and its introduction.
  */
 import { join } from "node:path";
 import { DEV, SHOTS, assertNoOverflow, ensureShotsDir, gotoApp, launch, setLang, setView } from "./_lib.mjs";
@@ -95,7 +97,8 @@ await ensureShotsDir();
     );
     if (!(order[0] >= 0 && order[0] < order[1] && order[1] < order[2])) fail(`home: the parts are out of order ${order}`);
     const traditions = await page.locator("[data-testid=enc-traditions] [data-tradition]").evaluateAll((els) => els.map((e) => e.getAttribute("data-tradition")));
-    if (traditions.join() !== "astrology,human-design,numerology") fail(`home: traditions ${traditions}`);
+    // The Chinese traditions and the shared ideas since part 23 (BaZi's, Feng Shui's and the zodiac's homes hold their introductions).
+    if (traditions.join() !== "astrology,human-design,numerology,chinese,chinese-astrology,bazi,feng-shui,shared") fail(`home: traditions ${traditions}`);
     // A–Z: every entry, a page as a link.
     const rows = await page.locator("[data-testid=enc-az] li[data-entry]").count();
     if (rows < 69) fail(`A–Z lists ${rows} entries`);
@@ -120,6 +123,9 @@ await ensureShotsDir();
     await searchFor(page, "chemin de vie", "life-path");
     if (!/Life Path/.test(await page.locator('[data-testid=enc-results] [data-entry="life-path"]').innerText())) fail("search: a French name did not find the English entry");
     await searchFor(page, "℞", "retrograde");
+    // A Chinese term by its characters and by its pinyin without tones (part 23).
+    await searchFor(page, "木", "phase-wood");
+    await searchFor(page, "yin yang", "yin-yang");
     await searchFor(page, SECRET, null);
     if (!/zqxwv/.test(await page.getByTestId("enc-search-count").innerText())) fail("search: nothing found is not said");
     await searchFor(page, "eclipse", "eclipse");
@@ -221,6 +227,19 @@ await ensureShotsDir();
     await page.waitForFunction(() => document.querySelector("main h1")?.textContent === "Sun square Venus", null, { timeout: 8000 });
     if ((await page.locator("[data-section=practice]").count()) !== 0) fail("an aspect no chart holds gives advice for having it");
     console.log("combination pages OK");
+
+    // The Chinese pages (part 23): a term's head gives its characters and pinyin, each marked with its language;
+    // a link to a term not written yet is plain words; a language's home holds its introduction.
+    await page.goto(`${origin}/encyclopedie/phase-bois`, { waitUntil: "load" });
+    await page.waitForFunction(() => document.querySelector("main h1")?.textContent === "Bois", null, { timeout: 8000 });
+    const zh = page.getByTestId("enc-zh");
+    if (!/木/.test(await zh.innerText()) || (await zh.locator('[lang="zh-Hant"]').count()) !== 1 || (await zh.locator('[lang="zh-Latn-pinyin"]').innerText()) !== "mù") fail("a Chinese term's name in its head");
+    if ((await page.locator('[data-section=meaning] a[data-term="phase-water"]').getAttribute("href")) !== "/encyclopedie/phase-eau") fail("the phases link each other");
+    if ((await page.locator("[data-section=practice] a", { hasText: /^Jia$/ }).count()) !== 0) fail("a term not written yet is a link");
+    await page.goto(`${origin}/encyclopedia/bazi`, { waitUntil: "load" });
+    await page.getByTestId("enc-about").waitFor({ timeout: 8000 });
+    if ((await page.locator('[data-testid=enc-about] a[href="/encyclopedia/five-phases"]').count()) < 1) fail("BaZi's home links the five phases");
+    console.log("Chinese pages OK");
 
     // An aspect's figure is a dial (part 19): turned past the orb by the keyboard, it says so.
     await page.goto(`${origin}/encyclopedia/trine`, { waitUntil: "load" });
@@ -504,7 +523,8 @@ await ensureShotsDir();
     const panel = await page.getByTestId("reading-terms").evaluate((el) => [...el.querySelectorAll("a.ob-term")].map((a) => a.getAttribute("href")));
     if (panel[0] !== "/encyclopedia/saturn" || panel.length !== 3) fail(`the panel's entries ${JSON.stringify(panel)}`);
     // Part 16: the reading's own text links its words, never its subject.
-    await page.waitForFunction(() => document.querySelector('[data-testid=reading-card] .ob-rc-lead a.ob-term, [data-testid=reading-card] .ob-rc-p a.ob-term'), null, { timeout: 8000 });
+    // (Waiting on the text's own links: those of "In the encyclopedia" come first, and are not the text's.)
+    await page.waitForFunction(() => document.querySelector("[data-testid=reading-card] .ob-rc-lead a.ob-term, [data-testid=reading-card] section:not(.ob-rc-terms) .ob-rc-p a.ob-term"), null, { timeout: 8000 });
     const inText = await page.evaluate(() =>
       [...document.querySelectorAll("[data-testid=reading-card] .ob-rc-lead a.ob-term, [data-testid=reading-card] section:not(.ob-rc-terms) .ob-rc-p a.ob-term")].map((a) => [a.textContent, a.getAttribute("href")]),
     );

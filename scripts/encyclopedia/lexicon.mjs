@@ -18,7 +18,14 @@
  *
  * A tradition's list holds its own entries; Human Design's also holds the
  * planets and the signs, which its gate and activation texts name; "all"
- * holds every tradition's, for the guide.
+ * holds every tradition's, for the guide. The Chinese languages (part 23)
+ * each hold the shared Chinese foundations (the phases, stems, branches,
+ * pillars, solar terms, relations, trigrams and their ideas) and what they
+ * name of each other: BaZi and Feng Shui the zodiac's animals, the zodiac
+ * BaZi's pillars. Every tradition holds the shared ideas (yin and yang).
+ * The phases' single names (Wood, Fire…) are everyday words in both
+ * languages: they link in the tables, which know their term, and where a
+ * writer marks them, never by themselves in running text.
  * scripts/encyclopedia/link-review.mjs runs the list over every text Ulune
  * has and prints what it would link, for review.
  */
@@ -29,7 +36,8 @@ export const GENERIC = {
     `House Houses Sign Signs Aspect Aspects Orb Orbs Station Fall Face Faces Term Terms Bound Bounds Exact Lot Lots Ruler
     Rulership Reception Equal Season Sect Composite Latitude Type Types Strategy Authority Profile Profiles Definition Variable
     Arrows Gate Gates Line Lines Channel Channels Centres Centers Cross Signature Conscious Unconscious Activation Bridge
-    Challenge Essence Balance Attitude Planes Fire Earth Air Water Fixed Cardinal Mutable Destiny Window Transit Transits Determination Environment Perspective Motivation`
+    Challenge Essence Balance Attitude Planes Fire Earth Air Water Fixed Cardinal Mutable Destiny Window Transit Transits Determination Environment Perspective Motivation
+    Wood Metal`
       .split(/\s+/)
       .filter(Boolean),
   ),
@@ -37,7 +45,8 @@ export const GENERIC = {
     `Maison Maisons Signe Signes Aspect Aspects Orbe Orbes Station Chute Face Faces Terme Termes Exact Lot Lots Maître
     Maîtrise Réception Saison Secte Composite Latitude Type Types Stratégie Autorité Profil Profils Définition Variable
     Flèches Porte Portes Ligne Lignes Canal Canaux Centres Croix Signature Conscient Inconscient Activation Pont Défi Défis
-    Essence Équilibre Attitude Plans Feu Terre Air Eau Fixe Cardinal Mutable Destinée Fenêtre Transit Transits Réalisation Détermination Environnement Perspective Motivation`
+    Essence Équilibre Attitude Plans Feu Terre Air Eau Fixe Cardinal Mutable Destinée Fenêtre Transit Transits Réalisation Détermination Environnement Perspective Motivation
+    Bois Métal`
       .split(/\s+/)
       .filter(Boolean),
   ),
@@ -56,8 +65,20 @@ const ALIAS_FAMILIES = new Set([
   "numerology/cycles",
 ]);
 
-/** Human Design's texts also name these astrology families. */
-const BORROWED = { "human-design": ["astrology/planets", "astrology/signs"] };
+/** The shared Chinese foundations (part 23, registry: chinese.mjs), and the ideas every tradition shares. */
+const CHINESE_FOUNDATIONS = ["phases", "stems", "branches", "pillars", "na-yin", "solar-terms", "relations", "trigrams", "ideas"].map((f) => `chinese/${f}`);
+const SHARED = ["shared/ideas"];
+
+/** The families of other traditions each tradition's texts also name (Human Design's gates name planets and signs). */
+export const BORROWED = {
+  astrology: SHARED,
+  "human-design": ["astrology/planets", "astrology/signs", ...SHARED],
+  numerology: SHARED,
+  chinese: ["chinese-astrology/animals", ...SHARED],
+  "chinese-astrology": [...CHINESE_FOUNDATIONS, "bazi/ideas", ...SHARED],
+  bazi: [...CHINESE_FOUNDATIONS, "chinese-astrology/animals", "chinese-astrology/ideas", ...SHARED],
+  "feng-shui": [...CHINESE_FOUNDATIONS, "chinese-astrology/animals", ...SHARED],
+};
 
 const clean = (form) =>
   form
@@ -77,9 +98,11 @@ function keep(form, lang) {
 /**
  * `{ [tradition]: [form, id, slug][] }` for a language, the longest forms
  * first (so "Manifesting Generator" wins over "Generator"). Only entries
- * with a page are linked.
+ * with a page are linked. `traditions`: the lists to make (every tradition
+ * of the registry, so a language with no entry of its own yet still links
+ * what it borrows); by default those with an entry.
  */
-export function buildLexicon(entries, lang) {
+export function buildLexicon(entries, lang, traditions = [...new Set(entries.map((e) => e.tradition))]) {
   const forms = (e) => {
     const m = e[lang].meta;
     const out = [clean(m.title)];
@@ -93,7 +116,6 @@ export function buildLexicon(entries, lang) {
     return out.filter((f) => keep(f, lang));
   };
   const lexicon = {};
-  const traditions = [...new Set(entries.map((e) => e.tradition))];
   // "all": every tradition at once, for the guide (a name two traditions share stays plain).
   for (const t of [...traditions, "all"]) {
     const own = entries.filter(

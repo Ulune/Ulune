@@ -17,6 +17,9 @@ import {
   PAIR_PALACE_REF,
   dmLine,
   giftLines,
+  luckLines,
+  luckRows,
+  meetFromLabel,
   meetRowLine,
   pairCellRef,
   pairMeetRef,
@@ -24,6 +27,7 @@ import {
   palaceLine,
   type PairNames,
 } from "@/lib/chinese/bazi-pair-reading";
+import type { LuckCount } from "@/lib/chinese/bazi-luck";
 import { hanziLang } from "@/lib/chinese/animal-chars";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
@@ -53,7 +57,11 @@ import "@/studio/modes/styles/bazi-pair.css";
  * Day Masters' relation, the partner palaces, what each brings the other and
  * every meeting between B's pillars and A's, each opening its reading.
  * Worked out here; nothing is sent. Part 29 adds the method notes to the side
- * panel's first read, each named for its person (chinese-notes.tsx).
+ * panel's first read, each named for its person (chinese-notes.tsx). Part 20
+ * (the review's BZ9) adds each person's luck pillar of the moment, by their
+ * own yin or yang count (both without one), what it is to the other and how
+ * the two decades meet; each row opens that person's decade as Cycles reads
+ * it.
  */
 
 export type BaziPairState = {
@@ -191,7 +199,7 @@ function PairFigure() {
                   {...previewProps(ref)}
                 >
                   <span className="ulune-bz-ixrow-top">
-                    <span className="ulune-bz-ixrow-kind">{cnWord(locale, "bzpMeetFrom", { b: names.b, pillar: cnWord(locale, PLACE_WORD[m.from]).toLowerCase() })}</span>
+                    <span className="ulune-bz-ixrow-kind">{meetFromLabel(names, m.from, locale, PLACE_WORD)}</span>
                   </span>
                   <span className="ulune-bz-ixrow-sub">{meetRowLine(pair, m.from, names, locale, prefs)}</span>
                 </button>
@@ -200,7 +208,44 @@ function PairFigure() {
           })}
         </ul>
       </section>
+      <LuckSection pair={pair} names={names} />
     </div>
+  );
+}
+
+/** Each person's luck pillar of the moment, then how the two decades meet (part 20). */
+function LuckSection({ pair, names }: { pair: BaziPair; names: PairNames }) {
+  const { locale } = useI18n();
+  const prefs = useChinesePrefs();
+  const w = useWheelView();
+  const rows = luckRows(pair, names, locale, prefs);
+  if (!rows.length) return null;
+  return (
+    <section className="ulune-bzp-meets ulune-bzp-luck" aria-labelledby="bzp-luck-h" data-testid="bazi-pair-luck">
+      <h2 id="bzp-luck-h" className="ulune-zky-h">
+        {cnWord(locale, "bzpLuckHead")}
+      </h2>
+      <ul>
+        {rows.map((r) => (
+          <li key={r.id}>
+            <button
+              type="button"
+              className={cn("ulune-bz-ixrow", w.selectedId === r.ref && "is-on")}
+              data-testid={`bazi-pair-luck-${r.id}`}
+              data-tone={r.tone}
+              aria-pressed={w.selectedId === r.ref}
+              onClick={() => w.choose(r.ref)}
+              {...previewProps(r.ref)}
+            >
+              <span className="ulune-bz-ixrow-top">
+                <span className="ulune-bz-ixrow-kind">{r.kind}</span>
+              </span>
+              <span className="ulune-bz-ixrow-sub">{r.sub}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -210,7 +255,7 @@ function PairControls() {
   return <PairSelects mode="synastry" pair={data.pick} prefix="bazi-pair" page="bazi-pair" />;
 }
 
-/** The side panel with nothing chosen: what Pair compares, then its three lines; first each person's method notes, last how Ulune calculates (part 29). */
+/** The side panel with nothing chosen: what Pair compares, then its cards' lines and the luck pillars of the moment (part 20); first each person's method notes, last how Ulune calculates (part 29). */
 function PairHello() {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
@@ -233,6 +278,7 @@ function PairHello() {
     [PAIR_DM_REF, dmLine(data.pair, data.names, locale, prefs)],
     [PAIR_PALACE_REF, palaceLine(data.pair, data.names, locale, prefs)],
     ...giftLines(data.pair, data.names, locale).map((l) => [PAIR_GIFTS_REF, l] as [string, string]),
+    ...luckLines(data.pair, data.names, locale, prefs).map((l) => [l.ref, l.text] as [string, string]),
   ];
   return (
     <section className="ulune-zk-hello" data-testid="bazi-pair-hello">
@@ -242,7 +288,7 @@ function PairHello() {
       <ul className="ulune-zk-hello-list">
         {rows.map(([ref, line], i) => (
           <li key={i}>
-            <button type="button" className="ulune-zk-hello-row is-rel" onClick={() => w.pick(ref)}>
+            <button type="button" className="ulune-zk-hello-row is-rel" data-testid="bazi-pair-hello-row" onClick={() => w.pick(ref)}>
               <span>{line}</span>
             </button>
           </li>
@@ -275,6 +321,9 @@ const castOf = (chart: NatalChart | null, prefs: ReturnType<typeof useChinesePre
       )
     : null;
 
+/** A birth's yin or yang count, when it gives one. */
+const countOf = (n: string | undefined): LuckCount | null => (n === "yang" || n === "yin" ? n : null);
+
 function usePairRuntime(): ModeRuntime<BaziPairState> {
   const { locale, t } = useI18n();
   const prefs = useChinesePrefs();
@@ -283,14 +332,26 @@ function usePairRuntime(): ModeRuntime<BaziPairState> {
   const selectedId = useStudioStore((s) => s.selectedId);
   const enabled = page === "bazi-pair" && Boolean(chart);
   const { pick, inner, chartB } = usePairPick(enabled, "bazi-pair");
+  // Each birth's own count (part 20): the chart shown's as its input holds it (as on Cycles), the partner's as its saved chart keeps it.
+  const activeId = useStudioStore((s) => s.activeId);
+  const inputCount = useStudioStore((s) => s.input.chineseCount);
+  const rows = useStudioStore((s) => s.rows);
+  const countA = countOf(pick.aId && pick.aId === activeId ? inputCount : rows.find((r) => r.id === pick.aId)?.input.chineseCount);
+  const countB = countOf(rows.find((r) => r.id === pick.resolvedBId)?.input.chineseCount);
   const a = useMemo(() => (enabled ? castOf(inner, prefs) : null), [enabled, inner, prefs]);
   const b = useMemo(() => (enabled ? castOf(chartB, prefs) : null), [enabled, chartB, prefs]);
   const names = useMemo(
     () => ({ a: inner ? chartDisplayName(inner.meta, t("untitled")) : "A", b: chartB ? chartDisplayName(chartB.meta, t("untitled")) : "B" }),
     [inner, chartB, t],
   );
-  const pair = useMemo(() => (a && b ? baziPair(a, b) : null), [a, b]);
-  const reading = useMemo(() => (pair && a && b ? pairReading(pair, a, b, selectedId, names, locale, prefs) : null), [pair, a, b, selectedId, names, locale, prefs]);
+  // The luck pillars are read at the moment the two charts are paired (part 20), as the first read reads "now".
+  const pair = useMemo(() => (a && b ? baziPair(a, b, { nowMs: Date.now(), counts: { a: countA, b: countB } }) : null), [a, b, countA, countB]);
+  const tzA = inner?.meta.timezone;
+  const tzB = chartB?.meta.timezone;
+  const reading = useMemo(
+    () => (pair && a && b ? pairReading(pair, a, b, selectedId, names, locale, prefs, { a: tzA, b: tzB }) : null),
+    [pair, a, b, selectedId, names, locale, prefs, tzA, tzB],
+  );
   const data = useMemo(() => ({ pick, a, b, pair, names, charts: { a: inner, b: chartB }, enabled }), [pick, a, b, pair, names, inner, chartB, enabled]);
   return useMemo(() => ({ data, reading }), [data, reading]);
 }

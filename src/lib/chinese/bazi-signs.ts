@@ -10,10 +10,12 @@
  * from one base (the day stem, the year and day branches, or the month
  * branch) as the tradition most often teaches it; where schools differ
  * (the Sword Edge of the yin stems, the bases of the trine stars) Ulune says
- * which it follows.
+ * which it follows. Part 20 gives four of the stages Ulune's own names, the
+ * classical ones kept for their readings (STAGES).
  */
 import { naYinOf, type ChineseName, type NaYin } from "./names";
 import type { BaziChart, BaziPlaceId } from "./bazi";
+import type { Both } from "./both";
 
 // ── The twelve life stages ───────────────────────────────────────────────────
 
@@ -31,9 +33,24 @@ export type StageId =
   | "conception"
   | "nurture";
 
-export type Stage = ChineseName & { id: StageId; index: number };
+export type Stage = ChineseName & {
+  id: StageId;
+  index: number;
+  /** The classics' own name, when Ulune's differs (part 20): said in the stage's reading, never on the board. */
+  classical?: Both;
+};
 
-/** The twelve stages (十二長生) in their order round the cycle. */
+/**
+ * The twelve stages (十二長生) in their order round the cycle, by Ulune's
+ * names. The classics name them after a human life, and four of those names
+ * (病 Sickness, 死 Death, 墓 Tomb, 絕 Extinction) speak of illness and death,
+ * which Ulune never predicts: the board says Retreat, Rest, Storehouse and
+ * Pause, the seasons' words the stages' own texts already used, and the
+ * reading keeps the classical name with its pinyin and characters
+ * (languages plan, part 20, the review's BZ2). The other eight keep their
+ * usual names. The ids stay the classical ones, for the CSV and the
+ * encyclopedia.
+ */
 export const STAGES: readonly Stage[] = [
   { index: 0, id: "birth", hant: "長生", hans: "长生", pinyin: "chángshēng", en: "Birth", fr: "Naissance" },
   { index: 1, id: "bath", hant: "沐浴", hans: "沐浴", pinyin: "mùyù", en: "Bath", fr: "Bain" },
@@ -41,10 +58,10 @@ export const STAGES: readonly Stage[] = [
   { index: 3, id: "prosperity", hant: "臨官", hans: "临官", pinyin: "línguān", en: "Prosperity", fr: "Prospérité" },
   { index: 4, id: "peak", hant: "帝旺", hans: "帝旺", pinyin: "dìwàng", en: "Peak", fr: "Apogée" },
   { index: 5, id: "decline", hant: "衰", hans: "衰", pinyin: "shuāi", en: "Decline", fr: "Déclin" },
-  { index: 6, id: "sickness", hant: "病", hans: "病", pinyin: "bìng", en: "Sickness", fr: "Maladie" },
-  { index: 7, id: "death", hant: "死", hans: "死", pinyin: "sǐ", en: "Death", fr: "Mort" },
-  { index: 8, id: "tomb", hant: "墓", hans: "墓", pinyin: "mù", en: "Tomb", fr: "Tombe" },
-  { index: 9, id: "extinction", hant: "絕", hans: "绝", pinyin: "jué", en: "Extinction", fr: "Extinction" },
+  { index: 6, id: "sickness", hant: "病", hans: "病", pinyin: "bìng", en: "Retreat", fr: "Retrait", classical: ["Sickness", "Maladie"] },
+  { index: 7, id: "death", hant: "死", hans: "死", pinyin: "sǐ", en: "Rest", fr: "Repos", classical: ["Death", "Mort"] },
+  { index: 8, id: "tomb", hant: "墓", hans: "墓", pinyin: "mù", en: "Storehouse", fr: "Réserve", classical: ["Tomb", "Tombe"] },
+  { index: 9, id: "extinction", hant: "絕", hans: "绝", pinyin: "jué", en: "Pause", fr: "Pause", classical: ["Extinction", "Extinction"] },
   { index: 10, id: "conception", hant: "胎", hans: "胎", pinyin: "tāi", en: "Conception", fr: "Conception" },
   { index: 11, id: "nurture", hant: "養", hans: "养", pinyin: "yǎng", en: "Nurture", fr: "Nourrissement" },
 ];

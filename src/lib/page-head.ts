@@ -83,4 +83,15 @@ export const INDEXED_PAGES = [
   "/encyclopedie/design-humain",
   "/encyclopedia/numerology",
   "/encyclopedie/numerologie",
+  // The Chinese traditions' homes and the shared ideas' (encyclopedia plan, part 23).
+  "/encyclopedia/chinese-cosmology",
+  "/encyclopedie/cosmologie-chinoise",
+  "/encyclopedia/chinese-astrology",
+  "/encyclopedie/astrologie-chinoise",
+  "/encyclopedia/bazi",
+  "/encyclopedie/bazi",
+  "/encyclopedia/feng-shui",
+  "/encyclopedie/feng-shui",
+  "/encyclopedia/shared-ideas",
+  "/encyclopedie/idees-communes",
 ] as const;

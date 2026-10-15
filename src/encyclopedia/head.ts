@@ -53,11 +53,13 @@ export function entryHead(page: PageData): Head {
   const title = `${page.title} · ${tr(page.lang, "encTitle")} · Ulune`;
   const own = encPath(page.lang, page.slug);
   const head = withTwin(pageHead({ path: own, title, description: page.summary }), page.lang, own, encPath(page.twin.lang, page.twin.slug));
+  // A Chinese term's characters and pinyin are names it is known by too (part 23).
+  const alternate = [...page.aliases, ...(page.zh ? [page.zh.hant, page.zh.pinyin] : [])].filter((n, i, all) => all.indexOf(n) === i);
   const term = {
     "@context": "https://schema.org",
     "@type": "DefinedTerm",
     name: page.title,
-    ...(page.aliases.length ? { alternateName: page.aliases } : {}),
+    ...(alternate.length ? { alternateName: alternate } : {}),
     description: page.summary,
     url: `${SITE_URL}${own}`,
     inLanguage: page.lang,

@@ -31,7 +31,8 @@ export async function homeData(lang: Lang, q?: string): Promise<HomeRouteData> {
 
 export async function slugData(lang: Lang, slug: string): Promise<SlugRouteData> {
   const index = await loadIndex();
-  const tradition = index.traditions.find((t) => t.home[lang] === slug && t.count > 0);
+  // A tradition's home: once it has an entry, or its introduction written (part 23).
+  const tradition = index.traditions.find((t) => t.home[lang] === slug && (t.count > 0 || t.about));
   if (tradition) {
     const home = await loadTraditionHome(lang, tradition.id);
     if (home) return { kind: "tradition", home, head: traditionHead(home) };

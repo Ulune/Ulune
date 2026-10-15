@@ -250,9 +250,14 @@ function stageReading(c: BaziChart, signs: BaziSigns, p: BaziPillar, locale: str
     stage: st.name,
   });
   const lead = said(STAGE_TEXTS[ps.stage.id], locale);
+  // Part 20 (BZ2): a stage Ulune names otherwise keeps its classical name, pinyin and characters here.
+  const classical = ps.stage.classical ? said(ps.stage.classical, locale) : null;
+  const term = [st.pinyin, st.hanzi].filter(Boolean).join(" ");
+  const named = classical ? [cnWord(locale, term ? "bzStageClassicalLine" : "bzStageClassicalBare", { term, classical })] : [];
+  const stages = [...named, cnWord(locale, "bzStagesNote")];
   const sections = [
     { id: "why", title: cnWord(locale, "bzStageWhy"), paragraphs: [why] },
-    { id: "stages", title: cnWord(locale, "bzStagesTitle"), paragraphs: [cnWord(locale, "bzStagesNote")] },
+    { id: "stages", title: cnWord(locale, "bzStagesTitle"), paragraphs: stages },
   ];
   return {
     id: stageRef(p.id),
@@ -260,12 +265,15 @@ function stageReading(c: BaziChart, signs: BaziSigns, p: BaziPillar, locale: str
     title: st.name,
     kicker: [cnWord(locale, PILLAR_WORD[p.id]), cnWord(locale, "bzStage")].join(" · "),
     lead,
-    paragraphs: [lead, why, cnWord(locale, "bzStagesNote")],
+    paragraphs: [lead, why, ...stages],
     facts: [
       pillarFact(p, locale, prefs),
       { label: cnWord(locale, "zkBranch"), value: chineseLabel(BRANCHES[p.branch]!, locale, prefs).text, ref: branchCellRef(p.id) },
       { label: chineseLabel(DAY_MASTER_NAME, locale, prefs).name, value: chineseLabel(dm, locale, prefs).text, ref: stemRef("day") },
       { label: cnWord(locale, "bzStage"), value: st.text },
+      ...(ps.stage.classical
+        ? [{ label: cnWord(locale, "bzStageClassical"), value: chineseLabel({ ...ps.stage, en: ps.stage.classical[0], fr: ps.stage.classical[1] }, locale, prefs).text }]
+        : []),
     ],
     sections,
     mark: st.hanzi ?? undefined,

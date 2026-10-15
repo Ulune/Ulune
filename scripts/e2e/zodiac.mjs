@@ -2,7 +2,7 @@
  * Chinese astrology's page (languages plan, part 7), at /chinese-astrology,
  * at 1280 and 390 px, in English and French:
  *   - reached by its card in the language picker, under "Chinese traditions"
- *     (no ⓘ yet: its encyclopedia pages come later), its card giving its own
+ *     (its ⓘ leading to its home in the encyclopedia, part 23), its card giving its own
  *     name, shēngxiào 生肖, and saying it is new (part 28);
  *   - Fixture A (made up: 15/06/1990, 12:00, Paris): the wheel of the twelve
  *     with its four animals marked (Horse year and month, Pig day, Snake
@@ -100,13 +100,15 @@ async function run(width, lang) {
     await gotoApp(page);
     if (lang === "fr") await setLang(page, "fr");
     await castFixture(page, FIXTURE_A);
-    // The picker: a heading for the Chinese traditions, the card, no ⓘ yet.
+    // The picker: a heading for the Chinese traditions, the card, its ⓘ.
     await page.getByTestId("lang-button").click();
     await page.getByTestId("lang-card-chinese-astrology").waitFor({ timeout: 8000 });
     // (The headings are set in capitals by their style: their words are compared as written.)
     const headings = await page.locator(".ob-langs-head").evaluateAll((els) => els.map((e) => e.textContent.trim()));
     if (!headings.includes(w.heading)) throw new Error(`${label}: picker headings ${headings.join(" | ")}`);
-    if (await page.getByTestId("lang-info-chinese-astrology").count()) throw new Error(`${label}: an ⓘ to a home that does not exist yet`);
+    // Its ⓘ leads to Chinese astrology's home in the encyclopedia, in the reader's language (encyclopedia plan, part 23).
+    const info = await page.getByTestId("lang-info-chinese-astrology").getAttribute("href").catch(() => null);
+    if (info !== (lang === "fr" ? "/encyclopedie/astrologie-chinoise" : "/encyclopedia/chinese-astrology")) throw new Error(`${label}: Chinese astrology's ⓘ leads to ${info}`);
     // Part 28: its own name in pinyin and characters (Traditional, marked as such), and "new" on a first visit.
     const card = await page.getByTestId("lang-card-chinese-astrology").evaluate((b) => ({
       pinyin: b.querySelector("[lang=zh-Latn-pinyin]")?.textContent,

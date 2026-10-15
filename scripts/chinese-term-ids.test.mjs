@@ -17,14 +17,13 @@ import {
   CHINESE_FAMILY_IDS,
   CHINESE_READING,
   LIVE_FAMILIES,
-  chineseRefTerms,
-  chineseSubjectOf,
   chineseTermId,
   chineseTermIds,
   familyOfTerm,
   linkableId,
   traditionOfTerm,
 } from "../src/lib/chinese/term-ids.ts";
+import { chineseRefTerms, chineseSubjectOf } from "../src/lib/chinese/term-refs.ts";
 import { hiddenStemPieces, placeAnimalPieces } from "../src/lib/chinese/term-pieces.ts";
 import {
   branchPhasePieces,
@@ -61,6 +60,7 @@ import * as BZ from "../src/lib/chinese/bazi-reading.ts";
 import * as BZL from "../src/lib/chinese/bazi-luck-reading.ts";
 import * as BZP from "../src/lib/chinese/bazi-pair-reading.ts";
 import { baziPair } from "../src/lib/chinese/bazi-pair.ts";
+import { semicolon } from "../src/lib/chinese/both.ts";
 import { flowYear, flowYearOf, luckAt, luckPillars } from "../src/lib/chinese/bazi-luck.ts";
 import { baziFullRows } from "../src/lib/chinese/bazi-full.ts";
 import { balanceRows, hiddenGodsLine, ixItemShort } from "../src/lib/chinese/bazi-table.ts";
@@ -68,6 +68,8 @@ import * as FSR from "../src/lib/chinese/fengshui-reading.ts";
 import * as FSH from "../src/lib/chinese/fengshui-home-reading.ts";
 import * as FSS from "../src/lib/chinese/fengshui-stars-reading.ts";
 import * as FSY from "../src/lib/chinese/fengshui-years-reading.ts";
+import * as FSP from "../src/lib/chinese/fengshui-pair-reading.ts";
+import { fengShuiPair } from "../src/lib/chinese/fengshui-pair.ts";
 import { skyEventId } from "../src/lib/chart/sky-events.ts";
 import { allTermIds } from "../src/encyclopedia/term-ids.ts";
 import { buildEncyclopedia, readContent } from "./encyclopedia/build.mjs";
@@ -232,6 +234,10 @@ function pagesRefs() {
     // Feng Shui: the Kua and the Eight Mansions for both counts; a home with its stars, its replacement chart, its year.
     const people = [fengShuiOf(birth, "yang"), fengShuiOf(birth, "yin")];
     add(crawl((ref, l) => FSR.fengShuiReading(people, ref, l, full), people.flatMap((fs) => FSR.fengShuiRefs(fs.count))));
+    // Feng Shui's Pair: two people's Kua on one compass.
+    const fb = fengShuiOf(birth === CAMILLE ? SAMPLE_B : CAMILLE, "yin");
+    const pc = { pair: fengShuiPair(people[0], fb), names: { a: "A", b: "B" }, lists: { a: [people[0]], b: [fb] } };
+    add(crawl((ref, l) => FSP.fsPairReading(pc, ref, l, full), FSP.fsPairRefs()));
     for (const facing of [180, 170.5]) {
       const home = homeOf(facing, "compass", null);
       const period = { year: 1998, ...periodOf(1998) };
@@ -273,11 +279,14 @@ test("every reading the Chinese pages can open names the entries it is about", (
   assert.deepEqual(chineseRefTerms("bz:ix:season:year-month-day"), ["relation-seasonal-trio"]);
   assert.deepEqual(chineseRefTerms("bz:stem:day"), ["day-master", "stem"]);
   assert.deepEqual(chineseRefTerms("bzp:b:bz:stem:day"), ["day-master", "stem"]);
+  assert.deepEqual(chineseRefTerms("bzp:luck"), ["luck-pillar"], "the two luck pillars of the moment (BaZi part 20, BZ9)");
   assert.deepEqual(chineseRefTerms("fss:main:palace:n"), ["trigram-kan"]);
   assert.deepEqual(chineseRefTerms("fss:ti:palace:c"), ["lo-shu"]);
   assert.deepEqual(chineseRefTerms("fsy:aff:tai-sui"), ["tai-sui"]);
   assert.deepEqual(chineseRefTerms("fsh:mountain:zi"), ["mountain-zi"]);
   assert.deepEqual(chineseRefTerms("fss:star:9"), ["flying-star-9"]);
+  assert.deepEqual(chineseRefTerms("fsp:b:kua"), ["kua"]);
+  assert.deepEqual(chineseRefTerms("fsp:dir:se"), ["mansion"]);
   assert.deepEqual(chineseRefTerms("cnday:2000-01-01"), ["pillar-wu-wu", "animal-horse"], "1 January 2000 is Wu-Wu");
   assert.deepEqual(chineseRefTerms(`sky:${skyEventId({ k: "term", t: NOW, term: 0 })}`), ["solar-term-lichun"]);
   // The other languages' readings and the Calendar's are not Chinese ones.
@@ -296,19 +305,20 @@ test("every family of reading ids the Chinese readings build is mapped", () => {
     "placeRef", "branchRef", "relationRef", "yearRef", "monthRef", "meetingRef", "dayRef",
     "stemRef", "branchCellRef", "hiddenRef", "godRef", "stageRef", "naYinRef", "EMPTY_REF", "starRef", "ixRef", "BALANCE_REF", "phaseRef", "STRENGTH_REF", "STRUCTURE_REF", "FAVOURABLE_REF",
     "luckRef", "LUCK_HOW_REF", "FLOW_YEAR_REF", "flowMonthRef", "FLOW_DAY_REF",
-    "PAIR_DM_REF", "PAIR_PALACE_REF", "PAIR_GIFTS_REF", "pairMeetRef", "pairCellRef",
+    "PAIR_DM_REF", "PAIR_PALACE_REF", "PAIR_GIFTS_REF", "PAIR_LUCK_REF", "pairMeetRef", "pairCellRef",
     "fsKuaRef", "fsDirRef", "fsPracticeRef",
     "FSH_FACING_REF", "FSH_PERIOD_REF", "FSH_HOW_REF", "fshHouseRef", "fshMountainRef",
     "fssChartRef", "fssPalaceRef", "fssFormationRef", "fssStarRef",
     "FSY_YEAR_REF", "FSY_MONTH_REF", "fsyAffRef",
+    "FSP_SUMMARY_REF", "FSP_PRACTICE_REF", "fspDirRef", "fspKuaRef",
   ]);
-  const files = ["zodiac-reading", "zodiac-time-reading", "bazi-reading", "bazi-luck-reading", "bazi-pair-reading", "fengshui-reading", "fengshui-home-reading", "fengshui-stars-reading", "fengshui-years-reading", "fengshui-rooms-reading"];
+  const files = ["zodiac-reading", "zodiac-time-reading", "bazi-reading", "bazi-luck-reading", "bazi-pair-reading", "fengshui-reading", "fengshui-home-reading", "fengshui-stars-reading", "fengshui-years-reading", "fengshui-rooms-reading", "fengshui-pair-reading"];
   for (const f of files) {
     const src = readFileSync(`${ROOT}src/lib/chinese/${f}.ts`, "utf8");
-    for (const [, name] of src.matchAll(/export const (\w*(?:Ref|REF))\b/g)) assert.ok(covered.has(name), `${f}.ts: ${name} is not mapped (lib/chinese/term-ids.ts, chineseRefTerms)`);
+    for (const [, name] of src.matchAll(/export const (\w*(?:Ref|REF))\b/g)) assert.ok(covered.has(name), `${f}.ts: ${name} is not mapped (lib/chinese/term-refs.ts, chineseRefTerms)`);
   }
   // The crawl met each prefix the pattern knows.
-  for (const prefix of ["zk:", "zky:", "zkp:", "cnday:", "bz:", "bzp:", "fs:", "fsh:", "fss:", "fsy:", "sky:term-"]) assert.ok([...REFS].some((r) => r.startsWith(prefix)), prefix);
+  for (const prefix of ["zk:", "zky:", "zkp:", "cnday:", "bz:", "bzp:", "fs:", "fsh:", "fss:", "fsy:", "fsp:", "sky:term-"]) assert.ok([...REFS].some((r) => r.startsWith(prefix)), prefix);
 });
 
 /* ------------------------------------------------------------ written or not */
@@ -406,7 +416,8 @@ test("BaZi's cells give back their text exactly", () => {
           if (pieces) assert.equal(text(pieces), v, `${tag} ${k}`);
         }
         for (const l of lucks) {
-          for (const p of l.pillars) assert.equal(text(meetPieces(p.meets, locale, prefs, "pillar")), p.meets.length ? p.meets.map((m) => BZL.meetingShort(m, locale, prefs)).join("; ") : "–", `${tag} luck ${p.index}`);
+          // Items apart as each language writes them: "; ", French's « ; » with its narrow no-break space (part 20's review).
+          for (const p of l.pillars) assert.equal(text(meetPieces(p.meets, locale, prefs, "pillar")), p.meets.length ? p.meets.map((m) => BZL.meetingShort(m, locale, prefs)).join(semicolon(locale)) : "–", `${tag} luck ${p.index}`);
         }
       }
     }

@@ -28,7 +28,8 @@ export type TermOpts = {
   go: (href: string) => void;
 };
 
-type Entry = { title: string; summary: string; glyph: string; tradition: string; href: string | null; lang: Lang };
+/** `pinyin`: a Chinese term's (part 23), said beside its name. */
+type Entry = { title: string; summary: string; glyph: string; tradition: string; href: string | null; lang: Lang; pinyin?: string };
 type Mode = "hover" | "focus" | "pinned" | "sheet";
 type Shown = { el: HTMLElement; mode: Mode; box: HTMLElement; done: () => void };
 
@@ -49,9 +50,9 @@ async function entryOf(id: string, lang: Lang): Promise<Entry | null> {
   const row = termRow(index.terms, id);
   if (!row) return null;
   const texts = await loadCards(lang, row[0]);
-  const [title, summary] = texts[id] ?? [id, ""];
+  const [title, summary, pinyin] = texts[id] ?? [id, ""];
   const tradition = index.traditions.find((t) => t.id === row[0])?.name[lang] ?? "";
-  return { title, summary, glyph: row[5], tradition, href: termPath(row, lang), lang };
+  return { title, summary, glyph: row[5], tradition, href: termPath(row, lang), lang, ...(pinyin ? { pinyin } : {}) };
 }
 
 /** The pointer rests on a word: its card, after a moment. */
@@ -207,11 +208,19 @@ function build(e: Entry, o: TermOpts, mode: Mode): HTMLElement {
   if (e.glyph) {
     const glyph = node("span", "ob-term-card-glyph", e.glyph);
     glyph.setAttribute("aria-hidden", "true");
+    // Chinese characters (木, part 23) are drawn with a Chinese face.
+    if (/\p{Script=Han}/u.test(e.glyph)) glyph.lang = "zh-Hant";
     head.append(glyph);
   }
   const name = node(isSheet ? "h2" : "p", "ob-term-card-name", e.title);
   name.id = `${box.id}-name`;
-  head.append(name, node("span", "ob-term-card-tag", e.tradition));
+  head.append(name);
+  if (e.pinyin) {
+    const pinyin = node("span", "ob-term-card-pinyin", e.pinyin);
+    pinyin.lang = "zh-Latn-pinyin";
+    head.append(pinyin);
+  }
+  head.append(node("span", "ob-term-card-tag", e.tradition));
   const summary = node("p", "ob-term-card-summary", e.summary);
   summary.id = `${box.id}-text`;
   box.append(head, summary);

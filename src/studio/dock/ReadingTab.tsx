@@ -8,6 +8,7 @@ import { GlossaryDetails } from "@/components/glossary-details";
 import { packNow, usePack, type PackKind } from "@/lib/content/packs";
 import { useI18n } from "@/lib/i18n/locale";
 import { useModeReading } from "@/studio/modes/data";
+import { MODE_META } from "@/studio/modes/meta";
 import { useModeDef } from "@/studio/modes/registry";
 import type { StudioPage } from "@/studio/url";
 import { languageById, languageOf } from "@/studio/map";
@@ -102,8 +103,9 @@ export function ReadingTab() {
     useStudioStore.setState({ selectedId: prev.id });
   };
 
-  // The Calendar reads the sky without a chart (reorganisation plan, R5); the other pages wait for one.
-  if (!chart && page !== "timing") {
+  // The Calendar reads the sky without a chart (reorganisation plan, R5), Feng Shui's Home a home
+  // (FS13); the other pages wait for one.
+  if (!chart && MODE_META[page].needsChart) {
     return <p className="ulune-empty-body px-[var(--stage-pad)] py-4">{t("blankHint")}</p>;
   }
 
@@ -121,7 +123,7 @@ export function ReadingTab() {
             onGo={go}
             back={trail.length ? trail[trail.length - 1].title : null}
             onBack={back}
-            mode={page === "numerology-cycles" ? "numerology" : page === "zodiac" || page === "zodiac-years" || page === "zodiac-pair" || page === "bazi" || page === "bazi-luck" || page === "bazi-pair" || page === "fengshui" || page === "fengshui-home" ? undefined : page}
+            mode={page === "numerology-cycles" ? "numerology" : page === "zodiac" || page === "zodiac-years" || page === "zodiac-pair" || page === "bazi" || page === "bazi-luck" || page === "bazi-pair" || page === "fengshui" || page === "fengshui-pair" || page === "fengshui-home" ? undefined : page}
             tradition={languageOf(page) ?? "astrology"}
           />
         </div>

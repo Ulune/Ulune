@@ -339,8 +339,8 @@ export const chinese = {
     "Votre Maître du jour {dm} naît en {birth} et, étant yin, recule dans l’ordre des branches\u202f: en {branch}, il est au stade «\u202f{stage}\u202f».",
   ],
   bzStagesNote: [
-    "The twelve stages follow the Day Master’s phase round the twelve branches as a year follows its seasons, from a seed to the harvest and back to a seed. Their names are the tradition’s; they say how strong the phase is in each branch, not what will happen, and nothing about health.",
-    "Les douze stades suivent la phase du Maître du jour à travers les douze branches comme une année suit ses saisons, de la graine à la moisson et de nouveau à la graine. Leurs noms sont ceux de la tradition\u202f; ils disent la force de la phase dans chaque branche, non ce qui arrivera, et rien de la santé.",
+    "The twelve stages follow the Day Master’s phase round the twelve branches as a year follows its seasons, from a seed to the harvest and back to a seed. The classics name them after a human life; Ulune calls four of them by the seasons instead, keeping the classical names in their readings, since the stages say how strong the phase is in each branch, not what will happen, and nothing about health.",
+    "Les douze stades suivent la phase du Maître du jour à travers les douze branches comme une année suit ses saisons, de la graine à la moisson et de nouveau à la graine. Les classiques les nomment d’après une vie humaine\u202f; Ulune en nomme quatre d’après les saisons, et garde les noms classiques dans leurs lectures, car les stades disent la force de la phase dans chaque branche, non ce qui arrivera, et rien de la santé.",
   ],
   bzNaYinLead: [
     "The Na Yin (納音, “received sound”) gives each two pairs of the sixty-cycle one of thirty images, each with its phase: an older layer of the tradition, which the Zi Ping school keeps as a nuance. A pillar’s Na Yin is its tone, heard beside its stem and branch.",
@@ -626,7 +626,7 @@ export const chinese = {
   bzlYearBack: ["Back to this year (from {year})", "Revenir à cette année (depuis {year})"],
   bzlLuckLead: [
     "For ten years, from {from} to {to}, this luck pillar brings your {god} by its stem and your {branchGod} by its branch’s main qi.",
-    "Pendant dix ans, de {from} à {to}, ce pilier de chance apporte votre {god} par son tronc et votre {branchGod} par le qi principal de sa branche.",
+    "Pendant dix ans, {deFrom} à {to}, ce pilier de chance apporte votre {god} par son tronc et votre {branchGod} par le qi principal de sa branche.",
   ],
   bzlYearLead: [
     "From Lichun {year} to Lichun {next}, the year’s stem is your {god}, its branch’s main qi your {branchGod}.",
@@ -701,13 +701,13 @@ export const chinese = {
   bzpTitle: ["Two charts", "Deux thèmes"],
   bzpEmpty: ["Cast a birth chart, then choose a second one, to compare two charts.", "Calculez un thème natal, puis choisissez-en un second, pour comparer deux thèmes."],
   bzpLead: [
-    "BaZi compares two charts as the tradition does for a couple or any close bond: the Day Masters, the day branches (the partner palace), what the pillars meet, and what each chart’s phases bring the other.",
-    "Le BaZi compare deux thèmes comme la tradition le fait pour un couple ou tout lien proche\u202f: les Maîtres du jour, les branches du jour (le palais du partenaire), ce que les piliers rencontrent, et ce que les phases de chacun apportent à l’autre.",
+    "BaZi compares two charts as the tradition does for a couple or any close bond: the Day Masters, the day branches (the partner palace), what the pillars meet, what each chart’s phases bring the other, and the luck pillar each person is in now.",
+    "Le BaZi compare deux thèmes comme la tradition le fait pour un couple ou tout lien proche\u202f: les Maîtres du jour, les branches du jour (le palais du partenaire), ce que les piliers rencontrent, ce que les phases de chacun apportent à l’autre, et le pilier de chance où chacun se trouve en ce moment.",
   ],
   bzpDmHead: ["The Day Masters", "Les Maîtres du jour"],
   bzpDmGods: [
     "To {a}, {b}’s Day Master is the {godAB}; to {b}, {a}’s is the {godBA}.",
-    "Pour {a}, le Maître du jour de {b} est le dieu {godAB}\u202f; pour {b}, celui de {a} est le dieu {godBA}.",
+    "Pour {a}, le Maître du jour {deB} représente {leGodAB}\u202f; pour {b}, celui {deA} représente {leGodBA}.",
   ],
   bzpFamPeer: [
     "{a} and {b} share a Day Master’s phase: peers who recognise each other, moved by the same things, and at times wanting the same ground.",
@@ -715,19 +715,19 @@ export const chinese = {
   ],
   bzpFamOutput: [
     "{a}’s Day Master produces {b}’s: {a} inspires and feeds, {b} takes the idea further. A bond where giving comes easily from one side.",
-    "Le Maître du jour de {a} produit celui de {b}\u202f: {a} inspire et nourrit, {b} porte l’idée plus loin. Un lien où le don vient facilement d’un côté.",
+    "Le Maître du jour {deA} produit celui {deB}\u202f: {a} inspire et nourrit, {b} porte l’idée plus loin. Un lien où le don vient facilement d’un côté.",
   ],
   bzpFamWealth: [
     "{a}’s Day Master controls {b}’s: {a} tends to steer and organise, {b} to ground and give form. A practical bond, at its best with respect.",
-    "Le Maître du jour de {a} contrôle celui de {b}\u202f: {a} tend à orienter et organiser, {b} à ancrer et donner forme. Un lien concret, à son meilleur avec du respect.",
+    "Le Maître du jour {deA} contrôle celui {deB}\u202f: {a} tend à orienter et organiser, {b} à ancrer et donner forme. Un lien concret, à son meilleur avec du respect.",
   ],
   bzpFamPower: [
     "{b}’s Day Master controls {a}’s: {b} brings structure and challenge, {a} rises to it. A bond that shapes, at its best when the pressure is kind.",
-    "Le Maître du jour de {b} contrôle celui de {a}\u202f: {b} apporte structure et défi, {a} s’y élève. Un lien qui façonne, à son meilleur quand la pression est bienveillante.",
+    "Le Maître du jour {deB} contrôle celui {deA}\u202f: {b} apporte structure et défi, {a} s’y élève. Un lien qui façonne, à son meilleur quand la pression est bienveillante.",
   ],
   bzpFamResource: [
     "{b}’s Day Master produces {a}’s: {b} supports and nourishes, {a} grows. A bond of care that runs mostly one way.",
-    "Le Maître du jour de {b} produit celui de {a}\u202f: {b} soutient et nourrit, {a} grandit. Un lien de soin qui va surtout dans un sens.",
+    "Le Maître du jour {deB} produit celui {deA}\u202f: {b} soutient et nourrit, {a} grandit. Un lien de soin qui va surtout dans un sens.",
   ],
   bzpPalaceHead: ["The partner palaces", "Les palais du partenaire"],
   bzpPalaceLead: [
@@ -741,12 +741,12 @@ export const chinese = {
   ],
   bzpPalaceMeet: ["{a}’s {ba} and {b}’s {bb}: {kinds}.", "{ba} chez {a} et {bb} chez {b}\u202f: {kinds}."],
   bzpMeetHead: ["Between the two charts", "Entre les deux thèmes"],
-  bzpMeetFrom: ["{b}’s {pillar}", "{pillar} de {b}"],
-  bzpMeetsNone: ["No pillar of {b} meets one of {a}’s.", "Aucun pilier de {b} ne rencontre ceux de {a}."],
-  bzpMeetLead: ["{b}’s {pillar}, {pair}, meets {a}’s chart:", "{pillar} de {b}, {pair}, rencontre le thème de {a}\u202f:"],
+  bzpMeetFrom: ["{b}’s {pillar}", "{pillar} {deB}"],
+  bzpMeetsNone: ["No pillar of {b} meets one of {a}’s.", "Aucun pilier {deB} ne rencontre ceux {deA}."],
+  bzpMeetLead: ["{b}’s {pillar}, {pair}, meets {a}’s chart:", "{pillar} {deB}, {pair}, rencontre le thème {deA}\u202f:"],
   bzpPhasesHead: ["What each brings the other", "Ce que chacun apporte à l’autre"],
-  bzpGiftFavoured: ["{from} holds plenty of {phase} ({pct}), which {to}’s chart favours.", "{from} tient beaucoup de {phase} ({pct}), que le thème de {to} favorise."],
-  bzpGiftLacking: ["{from} holds plenty of {phase} ({pct}), which {to}’s chart holds little of.", "{from} tient beaucoup de {phase} ({pct}), dont le thème de {to} a peu."],
+  bzpGiftFavoured: ["{from} holds plenty of {phase} ({pct}), which {to}’s chart favours.", "{from} tient beaucoup {dePhase} ({pct}), que le thème {deTo} favorise."],
+  bzpGiftLacking: ["{from} holds plenty of {phase} ({pct}), which {to}’s chart holds little of.", "{from} tient beaucoup {dePhase} ({pct}), dont le thème {deTo} a peu."],
   bzpGiftNone: [
     "Neither holds much of what the other favours or lacks: each brings its own balance.",
     "Aucun ne tient beaucoup de ce que l’autre favorise ou dont il manque\u202f: chacun apporte son propre équilibre.",
@@ -763,6 +763,63 @@ export const chinese = {
   bzpPartMainHint: ["The Day Masters, the partner palaces and what each brings the other.", "Les Maîtres du jour, les palais du partenaire et ce que chacun apporte à l’autre."],
   bzpPartMeets: ["Between the pillars", "Entre les piliers"],
   bzpPartMeetsHint: ["Each pillar of the second chart and what it meets in the first.", "Chaque pilier du second thème et ce qu’il rencontre dans le premier."],
+  // BaZi's review part: the stages' classical names, Pair's luck pillars of the moment (languages plan, part 20; BZ20).
+  bzStageClassical: ["Classical name", "Nom classique"],
+  bzStageClassicalLine: [
+    "The classics call this stage {term}, “{classical}”, after a human life; the name tells the phase’s strength here, never an event, and nothing about health.",
+    "Les classiques appellent ce stade {term}, «\u202f{classical}\u202f», d’après une vie humaine\u202f; ce nom dit la force de la phase ici, jamais un événement, et rien de la santé.",
+  ],
+  bzStageClassicalBare: [
+    "The classics call this stage “{classical}”, after a human life; the name tells the phase’s strength here, never an event, and nothing about health.",
+    "Les classiques appellent ce stade «\u202f{classical}\u202f», d’après une vie humaine\u202f; ce nom dit la force de la phase ici, jamais un événement, et rien de la santé.",
+  ],
+  bzpLuckHead: ["Luck pillars now", "Piliers de chance en cours"],
+  bzpLuckLead: [
+    "Each person is in a ten-year luck pillar. What one’s decade is to the other’s Day Master, and how the two decades meet, describe how their two chapters sit side by side for now.",
+    "Chacun traverse un pilier de chance de dix ans. Ce que la décennie de l’un est pour le Maître du jour de l’autre, et la façon dont les deux décennies se rencontrent, décrivent comment leurs deux chapitres se côtoient en ce moment.",
+  ],
+  bzpLuckLine: ["{name}{count}: {pillar}, ages {ages}; to {other}, the {god}.", "{name}{count}\u202f: {pillar}, {ages}\u202f; pour {other}, {leGod}."],
+  bzpLuckBefore: ["{name}{count}: before the first luck pillar, which starts at {age}.", "{name}{count}\u202f: avant le premier pilier de chance, qui commence à {age}."],
+  bzpLuckRow: ["{pillar}, ages {ages}; to {other}, the {god}", "{pillar}, {ages}\u202f; pour {other}, {leGod}"],
+  bzpLuckRowBefore: ["Before the first luck pillar, which starts at {age}", "Avant le premier pilier de chance, qui commence à {age}"],
+  bzpLuckMeet: ["{a}’s {pa} and {b}’s {pb}: {kinds}.", "{pa} chez {a} et {pb} chez {b}\u202f: {kinds}."],
+  bzpLuckSame: ["{a} and {b} are in the same luck pillar, {pillar}: the same chapter at the same time.", "{a} et {b} sont dans le même pilier de chance, {pillar}\u202f: le même chapitre au même moment."],
+  bzpLuckNone: ["Their luck pillars of the moment do not meet: each decade runs its own course.", "Leurs piliers de chance du moment ne se rencontrent pas\u202f: chaque décennie suit son propre cours."],
+  bzpLuckByCount: [", by the {count},", ", selon le {count},"],
+  bzpLuckIs: ["{name}’s luck pillar now{count} is {pillar}, ages {ages}, which brings {name} the {ownGod}.", "Le pilier de chance {deName} en ce moment{count} est {pillar}, {ages}, qui apporte à {name} {leOwnGod}."],
+  bzpLuckIsBefore: ["{name}’s first luck pillar{count} starts at {age}.", "Le premier pilier de chance {deName}{count} commence à {age}."],
+  bzpLuckGod: ["Its stem {stem} is the {god} to {dm}, {other}’s Day Master.", "Son tronc {stem} représente {leGod} pour {dm}, le Maître du jour {deOther}."],
+  bzpLuckFamPeer: [
+    "The decade shares {b}’s own phase: {a}’s chapter can stand beside {b} as a peer, on common ground.",
+    "La décennie partage la phase même {deB}\u202f: le chapitre {deA} peut se tenir aux côtés {deB} en pair, sur un terrain commun.",
+  ],
+  bzpLuckFamOutput: [
+    "{b}’s phase produces the decade’s: what {a} lives now can give {b} room to express, to make and to share.",
+    "La phase {deB} produit celle de la décennie\u202f: ce que vit {a} en ce moment peut donner à {b} de quoi s’exprimer, créer et partager.",
+  ],
+  bzpLuckFamWealth: [
+    "{b}’s phase controls the decade’s: {a}’s chapter can give {b} something concrete to shape and to build on.",
+    "La phase {deB} contrôle celle de la décennie\u202f: le chapitre {deA} peut offrir à {b} du concret à façonner et sur quoi bâtir.",
+  ],
+  bzpLuckFamPower: [
+    "The decade’s phase controls {b}’s: {a}’s chapter can bring {b} structure and a challenge, at its best when the pressure is kind.",
+    "La phase de la décennie contrôle celle {deB}\u202f: le chapitre {deA} peut apporter à {b} une structure et un défi, à son meilleur quand la pression est bienveillante.",
+  ],
+  bzpLuckFamResource: [
+    "The decade’s phase produces {b}’s: {a}’s chapter can support {b}, with learning and care to share.",
+    "La phase de la décennie produit celle {deB}\u202f: le chapitre {deA} peut soutenir {b}, avec du savoir et du soin à partager.",
+  ],
+  bzpLuckMeetHead: ["How the two decades meet", "Comment les deux décennies se rencontrent"],
+  bzpLuckCounts: [
+    "Without a yin or yang count in a birth, both counts’ luck pillars are shown for that person. Give it in the Birth tab’s Options to keep one.",
+    "Sans compte yin ou yang dans une naissance, les piliers de chance des deux comptes sont montrés pour cette personne. Indiquez-le dans les Options de l’onglet Naissance pour n’en garder qu’un.",
+  ],
+  bzpPartLuckHint: [
+    "Each person’s luck pillar of the moment, its god for them and for the other, and how the two meet.",
+    "Le pilier de chance de chacun en ce moment, son dieu pour lui-même et pour l’autre, et la façon dont les deux se rencontrent.",
+  ],
+  bzpPersonCol: ["Person", "Personne"],
+  bzpForOtherCol: ["For the other", "Pour l’autre"],
   // Feng Shui, the personal half: Kua, Eight Mansions, the compass rose (languages plan, part 21).
   fsEmpty: ["Cast a birth chart to see your Kua number and your eight directions.", "Calculez un thème natal pour voir votre nombre Kua et vos huit directions."],
   fsLead: [
@@ -865,8 +922,149 @@ export const chinese = {
   fsPartDirs: ["The eight directions", "Les huit directions"],
   fsPartDirsHint: ["Each direction, its trigram and its mansion, for each count shown.", "Chaque direction, son trigramme et sa demeure, pour chaque compte montré."],
   fsPartPracticeHint: ["Where to face, sleep and come in, and what suits storage.", "Où faire face, dormir et entrer, et ce qui convient au rangement."],
+  // Feng Shui's Relationship lens, two people in one home (FS-PAIR; review items FS5 and FS32; studio/modes/fengshui-pair.tsx).
+  fspEmpty: ["Cast a birth chart, then choose a second person, to see your two Kua numbers on one compass.", "Calculez un thème natal, puis choisissez une deuxième personne, pour voir vos deux nombres Kua sur une seule boussole."],
+  fspTitle: ["Two people, one compass", "Deux personnes, une boussole"],
+  fspLead: [
+    "Two people in one home: both Kua numbers on one compass, the directions you share and the ones you don’t, with suggestions for what you share and how to split the rooms.",
+    "Deux personnes dans un même logement\u202f: les deux nombres Kua sur une seule boussole, les directions que vous partagez et celles que vous ne partagez pas, avec des suggestions pour ce que vous partagez et pour répartir les pièces.",
+  ],
+  fspFirstTitle: ["Your two Kua, step by step", "Vos deux Kua, pas à pas"],
+  fspFirstBest: ["Best for you both", "Le mieux pour vous deux"],
+  fspFirstMiddle: ["The best middle ground", "Le meilleur compromis"],
+  fspPersonKua: ["{name}’s Kua", "Le Kua {deName}"],
+  fspKuaIs: ["{name}’s Kua number is {n}: the trigram {trigram} {symbol}.", "Le nombre Kua {deName} est le {n}\u202f: le trigramme {trigram} {symbol}."],
+  fspRose: ["Two people’s eight directions", "Les huit directions de deux personnes"],
+  fspInner: ["inner ring", "anneau intérieur"],
+  fspOuter: ["outer ring", "anneau extérieur"],
+  fspLegend: ["In each ring, tinted for a supportive direction, hatched for a challenging one.", "Dans chaque anneau, teinté pour une direction favorable, hachuré pour une direction difficile."],
+  fspCountPick: [
+    "No yin or yang count in {name}’s birth: the compass reads the one chosen here.",
+    "Aucun compte yin ou yang dans la naissance {deName}\u202f: la boussole lit celui choisi ici.",
+  ],
+  fspCountGroup: ["{name}’s count", "Le compte {deName}"],
+  fspGroups: ["Groups", "Groupes"],
+  fspSameGroup: ["Same group", "Même groupe"],
+  fspTwoGroups: ["Two groups", "Deux groupes"],
+  fspGroupsSame: [
+    "{a} (Kua {ka}) and {b} (Kua {kb}) are both of the {group}: your four supportive directions are the same, {dirs}, and so are your four challenging ones.",
+    "{a} (Kua {ka}) et {b} (Kua {kb}) sont du même groupe, le {group}\u202f: vos quatre directions favorables sont les mêmes, {dirs}, et vos quatre directions difficiles aussi.",
+  ],
+  fspGroupsTwo: [
+    "{a} (Kua {ka}) is of the {ga} and {b} (Kua {kb}) of the {gb}: each one’s four supportive directions are the other’s four challenging ones.",
+    "{a} (Kua {ka}) est du {ga} et {b} (Kua {kb}) du {gb}\u202f: les quatre directions favorables de l’un sont les quatre directions difficiles de l’autre.",
+  ],
+  fspNoVerdict: [
+    "The groups say nothing about how you get on: the Eight Mansions read where each of you sits, sleeps and works, never the bond between you.",
+    "Les groupes ne disent rien de votre entente\u202f: les Huit Demeures lisent où chacun de vous s’assoit, dort et travaille, jamais le lien entre vous.",
+  ],
+  fspKindGood: ["Supportive for you both", "Favorable pour vous deux"],
+  fspKindHard: ["Challenging for you both", "Difficile pour vous deux"],
+  fspKindMixed: ["Mixed", "Mixte"],
+  fspMixedFor: ["supportive for {name}", "favorable pour {name}"],
+  fspSharedHead: ["Supportive for you both", "Favorables pour vous deux"],
+  fspHardHead: ["Challenging for you both", "Difficiles pour vous deux"],
+  fspMixedHead: ["Mixed: supportive for one of you", "Mixtes\u202f: favorables pour l’un de vous"],
+  fspNoneShared: ["None: each one’s four supportive directions are the other’s four challenging ones.", "Aucune\u202f: les quatre directions favorables de l’un sont les quatre directions difficiles de l’autre."],
+  fspNoneHard: ["None: what one of you finds challenging, the other finds supportive.", "Aucune\u202f: ce qui est difficile pour l’un est favorable pour l’autre."],
+  fspNoneMixed: ["None: in the same group, you have the same four supportive directions.", "Aucune\u202f: dans le même groupe, vous avez les mêmes quatre directions favorables."],
+  fspWedgeAria: ["{dir}: {kind}. {a}: {ma}, {ka}; {b}: {mb}, {kb}.", "{dir}\u202f: {kind}. {a}\u202f: {ma}, {ka}\u202f; {b}\u202f: {mb}, {kb}."],
+  fspWho: ["{a}’s {ma} direction and {b}’s {mb}", "la direction {deMa} pour {a} et {deMb} pour {b}"],
+  fspWhoSame: ["the {m} direction of each of you", "la direction {deM} de chacun de vous"],
+  fspBestShared: ["The most supportive for you both: {dirThe}, {who}.", "La plus favorable pour vous deux\u202f: {dirThe}, {who}."],
+  fspBestMiddle: [
+    "The best middle ground: {dirThe}, {good}’s {mGood} direction and {hard}’s {mHard}, the mildest of the four challenging directions.",
+    "Le meilleur compromis\u202f: {dirThe}, la direction {deMGood} pour {good} et {deMHard} pour {hard}, la plus douce des quatre directions difficiles.",
+  ],
+  fspDirGood: ["{Dir} is supportive for you both: {who}.", "{Dir} est favorable pour vous deux\u202f: {who}."],
+  fspDirHard: ["{Dir} is challenging for you both: {who}.", "{Dir} est difficile pour vous deux\u202f: {who}."],
+  fspDirMixed: ["{Dir} is supportive for {good} ({mGood}) and challenging for {hard} ({mHard}).", "{Dir} est favorable pour {good} ({mGood}) et difficile pour {hard} ({mHard})."],
+  fspForTwo: ["For the two of you", "Pour vous deux"],
+  fspTwoGood: ["A good direction for what you share: a desk you both use, a table, the head of a bed.", "Une bonne direction pour ce que vous partagez\u202f: un bureau commun, une table, la tête d’un lit."],
+  fspTwoHard: [
+    "The tradition suggests it for what you pass through or store rather than where either of you sits long or sleeps.",
+    "La tradition la suggère pour un passage ou un rangement plutôt que pour un endroit où l’un de vous reste assis longtemps ou dort.",
+  ],
+  fspTwoMixed: [
+    "Better for {good}’s own desk or corner than for something you share; at a table you share, {hard} could sit facing another way.",
+    "Mieux pour le bureau ou le coin {deGood} que pour ce que vous partagez\u202f; à une table commune, {hard} pourrait s’asseoir face à une autre direction.",
+  ],
+  fspTwoMiddle: [
+    "For {hard} it is the mildest of the four challenging directions: for something you share, it makes a good middle ground.",
+    "Pour {hard}, c’est la plus douce des quatre directions difficiles\u202f: pour ce que vous partagez, c’est un bon compromis.",
+  ],
+  fspPracticeHead: ["In practice, for two", "En pratique, à deux"],
+  fspPracticeLead: [
+    "Suggestions from the Eight Mansions for two people in one home, each with its reason, never rules: what you share, and how to split the rooms.",
+    "Des suggestions des Huit Demeures pour deux personnes dans un même logement, chacune avec sa raison, jamais des règles\u202f: ce que vous partagez, et comment répartir les pièces.",
+  ],
+  fspDeskHead: ["A shared desk", "Un bureau partagé"],
+  fspBedHead: ["A shared bed", "Un lit partagé"],
+  fspRoomsHead: ["Rooms of your own", "Des pièces à soi"],
+  fspStoreHead: ["Storage and passing through", "Rangement et passage"],
+  fspHomeHead: ["Your home", "Votre logement"],
+  fspDeskShared: ["A desk you share could face {dirTo}: {who}.", "Un bureau partagé pourrait faire face {dirTo}\u202f: {who}."],
+  fspDeskMiddle: [
+    "No direction is supportive for you both; at a desk you share, facing {dirTo} is the best middle ground: {good}’s {mGood} direction and {hard}’s {mHard}, the mildest of the four challenging directions.",
+    "Aucune direction n’est favorable pour vous deux\u202f; à un bureau partagé, faire face {dirTo} est le meilleur compromis\u202f: la direction {deMGood} pour {good} et {deMHard} pour {hard}, la plus douce des quatre directions difficiles.",
+  ],
+  fspDeskOwn: ["At desks of your own, each of you could face your {m} direction: {a} facing {toA}, {b} facing {toB}.", "À des bureaux séparés, chacun pourrait faire face à sa direction {deM}\u202f: {a} face {toA}, {b} face {toB}."],
+  fspBedShared: ["For a bed you share, the tradition suggests the head towards {dirThe}: {who}.", "Pour un lit partagé, la tradition suggère la tête vers {dirThe}\u202f: {who}."],
+  fspBedMiddle: [
+    "For a bed you share, a middle ground is the head towards {dirThe}: {good}’s {mGood} direction and {hard}’s {mHard}, the mildest of the four challenging directions.",
+    "Pour un lit partagé, un compromis est la tête vers {dirThe}\u202f: la direction {deMGood} pour {good} et {deMHard} pour {hard}, la plus douce des quatre directions difficiles.",
+  ],
+  fspRoomsShared: [
+    "Your four supportive directions are the same, so the rooms you share suit you both; for a room or a corner of your own, each of you could take the side of your {m} direction: {a} {inA}, {b} {inB}.",
+    "Vos quatre directions favorables sont les mêmes\u202f: les pièces que vous partagez conviennent à l’un comme à l’autre. Pour une pièce ou un coin à soi, chacun pourrait prendre le côté de sa direction {deM}\u202f: {a} {inA}, {b} {inB}.",
+  ],
+  fspRoomsSameKua: [
+    "With the same Kua, every direction is the same for you both: the rooms need no splitting, and {dirThe}, your {m} direction, suits a room or a corner for either of you.",
+    "Avec le même Kua, chaque direction est la même pour vous deux\u202f: les pièces n’ont pas à être réparties, et {dirThe}, votre direction {deM}, convient à une pièce ou à un coin pour l’un comme pour l’autre.",
+  ],
+  fspRoomsSplit: [
+    "Rooms can be split by your sides: a room or a corner for {a} towards {listA}, for {b} towards {listB}, each one’s four supportive directions.",
+    "Les pièces peuvent se répartir selon vos côtés\u202f: une pièce ou un coin pour {a} vers {listA}, pour {b} vers {listB}, les quatre directions favorables de chacun.",
+  ],
+  fspStoreShared: [
+    "The four directions challenging for you both, {list}, suit storage, a utility room or a hallway rather than a desk or a bed.",
+    "Les quatre directions difficiles pour vous deux, {list}, conviennent au rangement, à une buanderie ou à un couloir plutôt qu’à un bureau ou à un lit.",
+  ],
+  fspStoreSplit: [
+    "No direction is challenging for you both: a side one of you would keep for storage is supportive for the other, so storage can follow how each of you uses the rooms.",
+    "Aucune direction n’est difficile pour vous deux\u202f: un côté que l’un garderait pour le rangement est favorable pour l’autre, le rangement peut donc suivre l’usage que chacun fait des pièces.",
+  ],
+  fspHomeNamed: ["Your home “{name}”", "Votre logement «\u202f{name}\u202f»"],
+  fspHomeOf: ["{home}, on the Home lens, is a {house} house of the {group}.", "{home}, dans le prisme Logement, est une maison {house} du {group}."],
+  fspHomeBoth: [
+    "The same group as both your Kua: the Eight Mansions read it as suited to you both.",
+    "Le même groupe que vos deux Kua\u202f: les Huit Demeures la lisent comme accordée à l’un comme à l’autre.",
+  ],
+  fspHomeOne: [
+    "The same group as {same}’s Kua, not {other}’s: the tradition never asks anyone to move, and suggests {other} lean on their own supportive directions within it.",
+    "Le même groupe que le Kua {deSame}, pas que celui {deOther}\u202f: la tradition ne demande à personne de déménager, et suggère à {other} de s’appuyer sur ses propres directions favorables à l’intérieur.",
+  ],
+  fspHomeNone: [
+    "A group neither of your Kua belongs to: the tradition never asks anyone to move, and suggests each of you lean on your own supportive directions within it.",
+    "Un groupe auquel n’appartient aucun de vos deux Kua\u202f: la tradition ne demande à personne de déménager, et suggère à chacun de vous de s’appuyer sur ses propres directions favorables à l’intérieur.",
+  ],
+  fspHomeFaces: ["Its front faces {fdirTo}: {who}.", "Sa façade est tournée vers {fdirThe}\u202f: {who}."],
+  fspAbout: [
+    "Relationship reads two people’s directions side by side: where each of you is best served, never a verdict on the bond between you. Worked out on this device from your birth dates; nothing is sent.",
+    "Relation lit côte à côte les directions de deux personnes\u202f: ce qui sert le mieux chacun de vous, jamais un verdict sur le lien entre vous. Calculé sur cet appareil à partir de vos dates de naissance\u202f; rien n’est envoyé.",
+  ],
+  fspPerson: ["Person", "Personne"],
+  fspOnCompass: ["on the compass", "sur la boussole"],
+  fspPartKua: ["The two Kua", "Les deux Kua"],
+  fspPartKuaHint: [
+    "Each person’s Kua with its trigram and group, for each count shown; the compass reads the one marked.",
+    "Le Kua de chacun avec son trigramme et son groupe, pour chaque compte montré\u202f; la boussole lit celui qui est marqué.",
+  ],
+  fspPartDirs: ["The eight directions for two", "Les huit directions à deux"],
+  fspPartDirsHint: ["Each direction, its mansion for each of you, and what it is for the two of you.", "Chaque direction, sa demeure pour chacun de vous, et ce qu’elle est pour vous deux."],
+  fspPartPracticeHint: ["A shared desk and bed, rooms of your own, what suits storage, and your home.", "Un bureau et un lit partagés, des pièces à soi, ce qui convient au rangement, et votre logement."],
   // Feng Shui, the home: the facing, the 24 mountains, the compass, the period (languages plan, part 22).
-  fshEmpty: ["Cast a birth chart, then give your home’s facing.", "Calculez un thème natal, puis indiquez l’orientation de votre logement."],
+  fshEmpty: ["Give your home’s facing, typed or read with the compass.", "Indiquez l’orientation de votre logement, saisie ou lue avec la boussole."],
   fshLead: [
     "Feng Shui’s other half reads a place: the way your home faces, among the 24 mountains of the compass, and when it was built.",
     "L’autre moitié du Feng Shui lit un lieu\u202f: la direction vers laquelle votre logement est tourné, parmi les 24 montagnes de la boussole, et l’époque de sa construction.",
@@ -920,7 +1118,7 @@ export const chinese = {
     "A phone near metal can read 20° off: if you can, check with a real compass.",
     "Près du métal, un téléphone peut se tromper de 20°\u202f: si possible, vérifiez avec une vraie boussole.",
   ],
-  fshDecl: ["Magnetic declination near {place}: {deg}", "Déclinaison magnétique près de {place}\u202f: {deg}"],
+  fshDecl: ["Magnetic declination near {place}: {deg}", "Déclinaison magnétique près {dePlace}\u202f: {deg}"],
   fshDeclShort: ["Magnetic declination", "Déclinaison magnétique"],
   fshEast: ["{n} E", "{n} E"],
   fshWest: ["{n} W", "{n} O"],
@@ -1176,7 +1374,7 @@ export const chinese = {
   ],
   fsrAdd: ["+ Room", "+ Pièce"],
   fsrAddIn: ["Add a room: {place}", "Ajouter une pièce\u202f: {place}"],
-  fsrRemove: ["Remove {room} from {place}", "Retirer {room} de {place}"],
+  fsrRemove: ["Remove: {room}, {place}", "Retirer\u202f: {room}, {place}"],
   fsrFull: ["That is as many rooms as Ulune places in one home.", "C’est le nombre maximum de pièces qu’Ulune place dans un logement."],
   fsrNoStars: [
     "Give the year too, and each palace’s reading will say how the schools read the rooms in it.",
@@ -1216,6 +1414,30 @@ export const chinese = {
   ],
   fsyCalDayTitle: ["Flying stars", "Étoiles volantes"],
   fsyCalDay: ["The year’s {y} and the month’s {m} in the centre", "Celle de l’année, {y}, et celle du mois, {m}, au centre"],
+  // FS-FIX: Feng Shui's review fixes (languages plan, part 27): the Home page without a birth chart (FS13), the rooms against the chart picked (FS30).
+  fshHouseNoChart: [
+    "A birth chart adds your Kua: whether the house is of your group, and which of your directions its front and back face.",
+    "Un thème natal ajoute votre Kua\u202f: si la maison est de votre groupe, et vers lesquelles de vos directions sont tournés sa façade et son dos.",
+  ],
+  fshCastChart: ["Cast a birth chart", "Calculer un thème natal"],
+  fshFormLine: [
+    "Cast your chart and your Kua joins your home: how the house suits you, and which of your directions it faces.",
+    "Calculez votre thème et votre Kua rejoindra votre logement\u202f: comment la maison vous convient, et vers lesquelles de vos directions elle est tournée.",
+  ],
+  fshFormBack: ["Back to your home", "Retour à votre logement"],
+  fshDeclNone: [
+    "With no birth chart, Ulune has no place to work out the magnetic declination: a map’s bearing is taken as it is, which in Europe is usually within a degree or two.",
+    "Sans thème natal, Ulune n’a pas de lieu pour calculer la déclinaison magnétique\u202f: le cap lu sur une carte est pris tel quel, ce qui, en Europe, reste en général à un degré ou deux près.",
+  ],
+  fshSourceMapNoDecl: [
+    "Read on a map ({deg} true), taken as magnetic: without a place, no declination could be applied.",
+    "Lue sur une carte ({deg} géographique), prise comme magnétique\u202f: sans lieu, aucune déclinaison n’a pu être appliquée.",
+  ],
+  fsrAgainst: ["Your rooms are read here against the {chart}.", "Vos pièces sont lues ici d’après le {chart}."],
+  fsrAgainstPicked: [
+    "Near the mountain’s edge, your rooms are read against the {chart}, the one picked on the figure.",
+    "Près du bord de la montagne, vos pièces sont lues d’après le {chart}, celui choisi sur la figure.",
+  ],
   // The relations between animals (languages plan, part 8).
   zkRelations: ["Between your animals", "Entre vos animaux"],
   zkRelationsNone: [
@@ -1224,7 +1446,7 @@ export const chinese = {
   ],
   zkTrineFull: [
     "Your {places} animals make a whole trine of {phase}: three allies on one wheel.",
-    "Vos animaux {places} forment un trigone entier de {phase}\u202f: trois alliés sur une même roue.",
+    "Vos animaux {places} forment un trigone entier {dePhase}\u202f: trois alliés sur une même roue.",
   ],
   zkRelHarmony: [
     "Two animals the tradition pairs as natural partners, the six harmonies: they combine, and what one lacks the other brings.",
@@ -1278,7 +1500,7 @@ export const chinese = {
   cnmTimeCivil: ["{time} on the clock", "{time} à la pendule"],
   cnmTimeAlso: ["({time} on the clock)", "({time} à la pendule)"],
   cnmYour: ["your {place}", "votre {place}"],
-  cnmWhose: ["{who}’s {place}", "{place} de {who}"],
+  cnmWhose: ["{who}’s {place}", "{place} {deWho}"],
   cnmDay23: [
     "Born at {time}, in the Rat hour before midnight: by the Zi Ping rule, followed here, the day has already turned, so {whose} is the next day’s, {day}. If the day turned at midnight, as in other schools, it would be {other}.",
     "Naissance à {time}, dans l’heure du Rat avant minuit\u202f: selon la règle du Zi Ping, suivie ici, le jour a déjà changé, et {whose} est celui du lendemain, {day}. Si le jour changeait à minuit, comme dans d’autres écoles, il serait {other}.",

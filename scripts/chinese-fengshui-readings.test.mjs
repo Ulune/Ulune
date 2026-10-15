@@ -3,7 +3,8 @@
  * mountain and water stars and the five ways their phases meet (81
  * readings), each star's own reading in its three states and where it
  * stands in the home, the year's note per sector; the texts' typography and
- * tone, the classical names' pinyin. Made-up homes only.
+ * tone, the classical names' pinyin; and (the review's FS35) the face of a
+ * pairing that applies, from its two stars' states. Made-up homes only.
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -11,7 +12,7 @@ import * as TEXTS from "../src/lib/chinese/fengshui-readings-texts.ts";
 import { PAIR_KEYS, isHeTu, isTen, pairKey, phaseStep, relationOf } from "../src/lib/chinese/fengshui-pairs.ts";
 import { homeOf, periodOf } from "../src/lib/chinese/fengshui-home.ts";
 import { homeReading, homeStars } from "../src/lib/chinese/fengshui-home-reading.ts";
-import { fssPalaceRef, fssStarRef, pairLines, pairName, starHome, starPlaces, starsReading } from "../src/lib/chinese/fengshui-stars-reading.ts";
+import { fssPalaceRef, fssStarRef, pairFaceLine, pairLines, pairName, starHome, starPlaces, starsReading } from "../src/lib/chinese/fengshui-stars-reading.ts";
 import { starState } from "../src/lib/chinese/fengshui-stars.ts";
 import { STATE_TEXTS } from "../src/lib/chinese/fengshui-stars-texts.ts";
 import { yearStarsAt } from "../src/lib/chinese/fengshui-years.ts";
@@ -90,8 +91,17 @@ test("a palace's reading: its pair first after the rooms, its stars linked to th
   // The north-east: mountain 9, water 5.
   assert.equal(ne.sections[0].id, "pair");
   assert.equal(ne.sections[0].title, "Mountain 9 and water 5: Fire feeding the 5");
-  assert.equal(ne.sections[0].paragraphs[0], TEXTS.PAIR_TEXTS["5-9"][0]);
+  // (FS35) The pair's text closed by the face that applies here, in one paragraph (a short reading shows a section's
+  // first): the 9 is in season in Period 9, the 5 is not.
+  assert.equal(ne.sections[0].paragraphs[0], `${TEXTS.PAIR_TEXTS["5-9"][0]} ${TEXTS.FACE_TEXTS.TD[0]}`);
+  assert.match(ne.sections[0].paragraphs[0], / Here the mountain star is in season and the water star is not: read “in season” for the people of the home, and “out of season” for what comes in\.$/);
   assert.equal(ne.sections[0].paragraphs[1], "The mountain star feeds the water star, as fire feeds earth: the people’s effort goes into what comes in.");
+  assert.ok(ne.paragraphs.includes(ne.sections[0].paragraphs[0]), "in the reading's flat text too");
+  // The 2 and the 5 (facing 180°, built 2010: the east palace): no face line, the text gives its counsel alone.
+  const p8 = { year: 2010, ...periodOf(2010) };
+  const quiet = homeReading({ ...ctx, period: p8, stars: homeStars(home, p8, 2026, years, [], TEXTS) }, fssPalaceRef("main", "e"), "en", names).sections.find((s) => s.id === "pair");
+  assert.equal(quiet.title, "Mountain 2 and water 5: The two earth stars");
+  assert.deepEqual(quiet.paragraphs, [TEXTS.PAIR_TEXTS["2-5"][0], pairLines(2, 5, TEXTS, "en")[1]]);
   assert.deepEqual(ne.facts.slice(0, 3).map((f) => f.ref), [fssStarRef(9), fssStarRef(5), fssStarRef(1)]);
   const year = ne.sections.find((s) => s.id === "year");
   assert.ok(year.paragraphs.some((p) => p === TEXTS.ANNUAL_NOTES[4][0]), year.paragraphs.join(" / "));
@@ -101,6 +111,50 @@ test("a palace's reading: its pair first after the rooms, its stars linked to th
   const bare = homeStars(home, period, 2026, years, [], null);
   const noPair = starsReading(bare, fssPalaceRef("main", "ne"), "en", names);
   assert.ok(!noPair.sections.some((s) => s.id === "pair"));
+});
+
+test("which face of a pairing applies (the review's FS35): every combination of the two stars' states, in every period, in both languages", () => {
+  const letter = (n, p) => ({ timely: "T", waning: "W", dormant: "D" })[starState(n, p).state];
+  const seen = new Set();
+  for (let p = 1; p <= 9; p++) {
+    for (const m of N) {
+      for (const w of N) {
+        const key = pairKey(m, w);
+        for (const [i, locale] of [[0, "en"], [1, "fr"]]) {
+          const line = pairFaceLine(m, w, p, TEXTS, locale);
+          // The 2 and the 5: their text gives its counsel alone, with no face to choose.
+          if (TEXTS.PAIRS_WITHOUT_FACES.includes(key)) {
+            assert.equal(line, null, `${m}-${w} in Period ${p}`);
+            continue;
+          }
+          let face = letter(m, p) + letter(w, p);
+          // The 8 twice has a face of its own for a star just past its time.
+          if (face === "WW" && TEXTS.PAIRS_WITH_WANING_FACE.includes(key)) face = "WW+";
+          assert.equal(line, TEXTS.FACE_TEXTS[face][i], `${m}-${w} in Period ${p} (${face}, ${locale})`);
+          seen.add(face);
+        }
+      }
+    }
+  }
+  assert.deepEqual([...seen].sort(), Object.keys(TEXTS.FACE_TEXTS).sort(), "every state's line is reached");
+  assert.deepEqual(TEXTS.PAIRS_WITHOUT_FACES, ["2-5"]);
+  // Each line names faces the pairing's text gives, in its own words.
+  const quoted = (t) => [...t.matchAll(/[“«]\u202f?([^”»]+?)\u202f?[”»]/g)].map((x) => x[1].toLowerCase());
+  for (const [face, both] of Object.entries(TEXTS.FACE_TEXTS)) {
+    for (const k of PAIR_KEYS) {
+      if (TEXTS.PAIRS_WITHOUT_FACES.includes(k) || (face === "WW+" && !TEXTS.PAIRS_WITH_WANING_FACE.includes(k))) continue;
+      for (const i of [0, 1]) for (const q of quoted(both[i])) assert.ok(TEXTS.PAIR_TEXTS[k][i].toLowerCase().includes(q), `${k} has no “${q}” for ${face}`);
+    }
+    assert.ok(quoted(both[0]).length && quoted(both[1]).length, face);
+  }
+  // In the mountain star's words and the water star's: the people of the home, what comes in.
+  assert.equal(pairFaceLine(8, 8, 9, TEXTS, "en"), "Here the star is just past its time, as mountain star and as water star: read “just past its time”.");
+  assert.equal(pairFaceLine(1, 9, 9, TEXTS, "fr"), "Ici, les deux étoiles sont en saison\u202f: lisez «\u202fen saison\u202f», pour les habitants comme pour ce qui arrive.");
+  assert.equal(pairFaceLine(3, 1, 9, TEXTS, "en"), TEXTS.FACE_TEXTS.DT[0]);
+  assert.equal(pairFaceLine(2, 5, 9, TEXTS, "en"), null);
+  // Without the texts yet, the palace's reading has no pair, and so no face.
+  const bare = homeStars(home, period, 2026, years, [], null);
+  assert.ok(!starsReading(bare, fssPalaceRef("main", "ne"), "en", names).paragraphs.some((p) => /^Here /.test(p)));
 });
 
 test("each star's own reading: who it is, its state now, where it stands", () => {
@@ -168,6 +222,7 @@ test("the texts in both languages, in Ulune's typography and tone", () => {
     ...Object.values(TEXTS.STAR_TEXTS),
     ...Object.values(TEXTS.STAR_STATE_TEXTS).flatMap((s) => Object.values(s)),
     ...Object.values(TEXTS.ANNUAL_NOTES),
+    ...Object.values(TEXTS.FACE_TEXTS),
   ];
   assert.equal(Object.keys(TEXTS.ANNUAL_NOTES).length, 8);
   for (const [en, fr] of all) {

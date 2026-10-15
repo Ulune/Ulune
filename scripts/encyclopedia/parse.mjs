@@ -14,6 +14,10 @@
  * read. Sources are free text, shown as written ("Claude Ptolémée,
  * Tétrabible, vers 150", "IIe siècle av. J.-C.", no author at all).
  *
+ * A tradition's home text (`_home.<lang>.md`, part 23: parseHome) has the
+ * keys tradition, lang and revised, and optionally its sources (a list, as an
+ * entry's), and a body of paragraphs and lists with no heading.
+ *
  * Body: `## ` headings (the fixed list in registry.mjs), paragraphs (lines
  * joined until a blank line), `- ` and `1. ` lists (an indented line goes on
  * with the item above), pipe tables, **bold**, *italic*, and links to other
@@ -23,9 +27,10 @@
  * sign itself. Nothing else: no raw HTML, no images, no other links, no code,
  * no quotes, no nested lists.
  */
-import { LIST_KEYS, OPTIONAL_KEYS, REQUIRED_KEYS, SECTIONS } from "./registry.mjs";
+import { HOME_KEYS, LIST_KEYS, OPTIONAL_KEYS, REQUIRED_KEYS, SECTIONS } from "./registry.mjs";
 
 const KNOWN_KEYS = new Set([...REQUIRED_KEYS, ...OPTIONAL_KEYS]);
+const KNOWN_HOME_KEYS = new Set(HOME_KEYS);
 
 /**
  * Read a file's text. Returns `{ meta, metaLines, bodyStart, sections }`;
@@ -48,9 +53,26 @@ export function parseEntry(text, file, errors) {
   return { meta, metaLines, bodyStart: end + 2, sections };
 }
 
+/**
+ * A tradition's home text (part 23): `{ meta, metaLines, bodyStart, blocks }`,
+ * its body read as one section of paragraphs and lists, with no heading.
+ */
+export function parseHome(text, file, errors) {
+  const report = (line, message) => errors.push({ file, line, message });
+  const lines = text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n").split("\n");
+  const end = lines[0]?.trim() === "---" ? lines.findIndex((l, i) => i > 0 && l.trim() === "---") : -1;
+  if (end < 0) {
+    report(1, "the file must start with its front matter between two `---` lines (tradition, lang, revised, and sources if any)");
+    return { meta: {}, metaLines: {}, bodyStart: 1, blocks: [] };
+  }
+  const { meta, metaLines } = parseFrontMatter(lines.slice(1, end), 2, report, KNOWN_HOME_KEYS);
+  const [about] = parseBody(lines.slice(end + 1), end + 2, meta.lang, report, true);
+  return { meta, metaLines, bodyStart: end + 2, blocks: about?.blocks ?? [] };
+}
+
 /* ------------------------------------------------------------------ front matter */
 
-function parseFrontMatter(lines, first, report) {
+function parseFrontMatter(lines, first, report, known = KNOWN_KEYS) {
   const meta = {};
   const metaLines = {};
   let i = 0;
@@ -70,7 +92,7 @@ function parseFrontMatter(lines, first, report) {
     }
     const key = m[1];
     if (/^\s/.test(raw)) report(ln, `\`${key}\` is indented: keys start at the beginning of the line`);
-    if (!KNOWN_KEYS.has(key)) report(ln, `unknown key \`${key}\` (known: ${[...KNOWN_KEYS].join(", ")})`);
+    if (!known.has(key)) report(ln, `unknown key \`${key}\` (known: ${[...known].join(", ")})`);
     if (key in meta) report(ln, `\`${key}\` is given twice`);
     const rest = m[2];
     if (rest && !/^\s/.test(rest)) report(ln, `\`${key}:\` must be followed by a space`);
@@ -206,11 +228,13 @@ const LIST_ITEM = /^(-|\d+\.)\s+(.*)$/;
 /**
  * The body as sections of blocks. Each section: `{ key, heading, line,
  * blocks }`; each block keeps its first line, each inline link its own line.
+ * A home's body (`home`) is one section, "about", with no heading.
  */
-function parseBody(lines, first, lang, report) {
+function parseBody(lines, first, lang, report, home = false) {
   const headings = SECTIONS.map((s) => (lang === "fr" ? s.fr : s.en));
   const sections = [];
-  let section = null;
+  let section = home ? { key: "about", heading: "", line: first, blocks: [] } : null;
+  if (section) sections.push(section);
   let lastIndex = -1;
   /** The block being read: a paragraph's lines, a list's items, a table's rows. */
   let open = null;
@@ -241,6 +265,10 @@ function parseBody(lines, first, lang, report) {
     if (heading) {
       close();
       const words = (heading[3] ?? "").trim();
+      if (home) {
+        report(ln, "a tradition's home text has no heading: its paragraphs follow the introduction");
+        continue;
+      }
       if (heading[1] !== "##") {
         report(ln, `only \`## \` headings are part of the format (found "${heading[1]}")`);
         continue;
@@ -316,7 +344,7 @@ function parseBody(lines, first, lang, report) {
     open.parts.push({ text: stripped, line: ln });
   }
   close();
-  for (const s of sections) if (!s.blocks.length) report(s.line, `"## ${s.heading}" has nothing under it`);
+  for (const s of sections) if (!s.blocks.length) report(s.line, home ? "the home text is empty" : `"## ${s.heading}" has nothing under it`);
   return sections;
 }
 

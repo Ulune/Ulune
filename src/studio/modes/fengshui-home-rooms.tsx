@@ -4,7 +4,7 @@ import { DIRECTIONS } from "@/lib/chinese/fengshui";
 import { ROOMS_MAX, ROOM_KINDS, roomsIn, type RoomKind } from "@/lib/chinese/fengshui-rooms";
 import { roomName } from "@/lib/chinese/fengshui-rooms-reading";
 import type { PalaceId } from "@/lib/chinese/fengshui-stars";
-import { fssPalaceRef, palaceName, planRows } from "@/lib/chinese/fengshui-stars-reading";
+import { chartWord, fssPalaceRef, palaceName, planRows, roomsChart } from "@/lib/chinese/fengshui-stars-reading";
 import { openSpaceSheet, useSpace } from "@/lib/space/state";
 import { useI18n } from "@/lib/i18n/locale";
 import { previewProps } from "@/lib/depth/preview-bus";
@@ -17,7 +17,9 @@ import { chooseHome, forgetThisHome, keepThisHome, loadHomes, roomForAnother, us
 /*
  * Feng Shui's home page, part 26: the rooms, placed on the home's plan (its
  * front at the bottom, as the nine palaces are laid out by default), and the
- * home kept in the private space, or not.
+ * home kept in the private space, or not. Near a mountain's edge, the rooms
+ * are read against the chart picked on the figure, as the card says (part
+ * 27, the review's fix FS30).
  */
 
 /** The nine squares of the home's plan, each with its rooms and a list to add one. */
@@ -33,6 +35,8 @@ export function RoomsCard() {
   const home = ctx.home;
   const full = rooms.length >= ROOMS_MAX;
   const short = (p: PalaceId) => (p === "c" ? cnWord(locale, "fssCentre") : DIRECTIONS.find((d) => d.id === p)!.short[locale === "fr" ? "fr" : "en"]);
+  // Each square opens its palace in the chart picked on the figure, said near a mountain's edge (FS30).
+  const against = ctx.stars ? roomsChart(ctx.stars) : null;
   return (
     <section className="ulune-fsh-form ulune-fsr" data-testid="fengshui-rooms" aria-labelledby={`${id}-h`}>
       <h2 id={`${id}-h`} className="ulune-fs-h">
@@ -51,7 +55,7 @@ export function RoomsCard() {
               .map((p) => {
                 const place = palaceName(p, locale);
                 const here = roomsIn(rooms, p);
-                const ref = ctx.stars ? fssPalaceRef("main", p) : null;
+                const ref = against ? fssPalaceRef(against.v, p) : null;
                 return (
                   <div key={p} role="group" aria-label={place} className={cn("ulune-fsr-cell", p === home.facingDirection && "is-front", p === "c" && "is-centre")} data-palace={p} data-testid={`fengshui-rooms-${p}`}>
                     {ref ? (
@@ -106,6 +110,11 @@ export function RoomsCard() {
           </div>
           {full ? <p className="ulune-fsh-small is-warn">{cnWord(locale, "fsrFull")}</p> : null}
           {!ctx.stars && rooms.length ? <p className="ulune-fsh-small">{cnWord(locale, "fsrNoStars")}</p> : null}
+          {ctx.stars?.ti && against ? (
+            <p className="ulune-fsh-small" data-testid="fengshui-rooms-against" data-chart={against.v}>
+              {cnWord(locale, "fsrAgainstPicked", { chart: chartWord(against.v, locale) })}
+            </p>
+          ) : null}
         </>
       )}
     </section>

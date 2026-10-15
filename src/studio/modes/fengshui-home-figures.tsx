@@ -1,4 +1,5 @@
 import { useRef, type KeyboardEvent } from "react";
+import { TrigramBars } from "@/components/trigram-mark";
 import { phaseWord } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
@@ -172,9 +173,8 @@ export function Luopan({ live, years = null }: { live: number | null; years?: Ye
               <text x={f(mid.x)} y={f(mid.y - 9)} className="ulune-fsh-dir">
                 {d.short[locale === "fr" ? "fr" : "en"]}
               </text>
-              <text x={f(mid.x)} y={f(mid.y + 10)} className="ulune-fsh-tri" data-phase={tri.phase}>
-                {tri.symbol}
-              </text>
+              {/* The trigram drawn (FS7): a font may draw ☰…☷ tiny or as empty boxes. */}
+              <TrigramBars lines={tri.lines} cx={mid.x} cy={mid.y + 10} w={16} className="ulune-fsh-tri" data-phase={tri.phase} />
             </g>
           );
         })}

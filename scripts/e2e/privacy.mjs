@@ -317,6 +317,8 @@ const CHINESE_PAGES = [
   { id: "bazi-luck", figure: "bazi-luck", table: "bazi-luck-table", slider: "bazi-luck-slider", read: ["bazi-luck-yang-2", "bazi-luck-how"] },
   { id: "bazi-pair", figure: "bazi-pair", table: "bazi-pair-table", read: ["bazi-pair-dm", "bazi-pair-a-day-stem"] },
   { id: "fengshui", figure: "fengshui", table: "fengshui-table", read: ["fengshui-wedge-yang-e", "fengshui-kua-yang", "fengshui-practice-yang"] },
+  // Two people in one home (FS32): the second person's yin count chosen (kept in memory only), then a wedge, a Kua, the practice.
+  { id: "fengshui-pair", figure: "fengshui-pair", table: "fengshui-pair-table", act: ["fengshui-pair-count-b-yin"], read: ["fengshui-pair-wedge-e", "fengshui-pair-kua-a", "fengshui-pair-practice"] },
 ];
 
 /*

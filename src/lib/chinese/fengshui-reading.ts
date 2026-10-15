@@ -14,7 +14,8 @@ import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord } from "./words";
 import { DIRECTION_IDS, MANSIONS, MANSION_IDS, directionById, trigramOfDirection, type DirectionId, type FengShui, type FsCount, type MansionId } from "./fengshui";
 import { GROUP_TEXTS, MANSION_TEXTS, TRIGRAM_TEXTS } from "./fengshui-texts";
-import { said } from "./both";
+import { trigramSvgInner } from "./fengshui-trigram";
+import { deFr, said } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 
@@ -38,9 +39,6 @@ export function dirIn(d: DirectionId, locale: string, form: "to" | "the" | "of" 
   if (form === "of") return vowel ? `de l’${own}` : `du ${own}`;
   return vowel ? `l’${own}` : `le ${own}`;
 }
-
-/** "de Croissance", "d’Harmonie": a mansion's name after "direction" in French. */
-export const deName = (name: string) => (/^[AEIOUYÉÈÊH]/i.test(name) ? `d’${name}` : `de ${name}`);
 
 export const countLabel = (count: FsCount, locale: string): string => cnWord(locale, count === "yang" ? "bzlCountYang" : "bzlCountYin");
 export const groupLabel = (fs: FengShui, locale: string): string => cnWord(locale, fs.group === "east" ? "fsGroupEast" : "fsGroupWest");
@@ -102,6 +100,8 @@ function kuaReading(fs: FengShui, both: boolean, locale: string, prefs: Shown): 
       rows: MANSION_IDS.map((m) => ({ ref: fsDirRef(fs.count, fs.of[m]), label: mansionName(m, locale), detail: directionName(fs.of[m], locale) })),
     },
     mark: (prefs.show === "full" ? fs.trigram[prefs.script] : null) ?? fs.trigram.symbol,
+    // Without the characters, the trigram drawn rather than a font's ☰…☷ (review fix FS7).
+    markSvg: prefs.show === "full" ? undefined : trigramSvgInner(fs.trigram.lines),
     about: about(locale),
   };
 }
@@ -110,7 +110,7 @@ function kuaReading(fs: FengShui, both: boolean, locale: string, prefs: Shown): 
 export function dirLine(fs: FengShui, d: DirectionId, locale: string): string {
   const row = fs.directions.find((x) => x.direction === d)!;
   const name = mansionName(row.mansion, locale);
-  return cnWord(locale, row.supportive ? "fsDirGood" : "fsDirBad", { dir: cap(dirIn(d, locale, "the")), mansion: name, deMansion: deName(name) });
+  return cnWord(locale, row.supportive ? "fsDirGood" : "fsDirBad", { dir: cap(dirIn(d, locale, "the")), mansion: name, deMansion: deFr(name) });
 }
 
 function dirReading(fs: FengShui, d: DirectionId, both: boolean, locale: string, prefs: Shown): ElementReading {

@@ -3,7 +3,8 @@
  * the solar year and the yin or yang count, the rule for 5, the eight
  * mansions' classical table (its symmetry and each Kua's group), two
  * made-up births, the texts in both languages, the readings, the practical
- * lines and the table's text and CSV.
+ * lines and the table's text and CSV; and (part 27, the review's fixes) the
+ * trigrams drawn from their lines (FS7) and Wu Gui's gentler gloss (FS9).
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -11,6 +12,7 @@ import { DIRECTIONS, DIRECTION_IDS, EIGHT_MANSIONS, MANSIONS, MANSION_IDS, TRIGR
 import { GROUP_TEXTS, MANSION_TEXTS, TRIGRAM_TEXTS } from "../src/lib/chinese/fengshui-texts.ts";
 import { dirIn, fengShuiReading, fengShuiRefs, fsDirRef, fsKuaRef, fsPracticeRef, practiceLines } from "../src/lib/chinese/fengshui-reading.ts";
 import { fengShuiTableCsv, fengShuiTextParts } from "../src/lib/chinese/fengshui-table.ts";
+import { TRIGRAM_SYMBOLS, trigramBars, trigramOfSymbol, trigramSvgInner } from "../src/lib/chinese/fengshui-trigram.ts";
 import { chinese } from "../src/lib/i18n/catalog/chinese.ts";
 
 const full = { script: "hant", show: "full" };
@@ -56,6 +58,42 @@ test("the eight trigrams in the Later Heaven order, and their groups", () => {
   ]);
   assert.deepEqual(TRIGRAMS.filter((t) => t.group === "east").map((t) => t.kua), [1, 3, 4, 9]);
   assert.deepEqual(DIRECTIONS.map((d) => d.degrees), [0, 45, 90, 135, 180, 225, 270, 315]);
+});
+
+test("the trigrams drawn (part 27, the review's FS7): each one's lines are its symbol's; three bars, a broken line's two, inside the box", () => {
+  for (const t of TRIGRAMS) {
+    // Unicode's trigrams run from ☰ (U+2630): bit 0 breaks the top line, bit 1 the middle one, bit 2 the bottom one.
+    const bits = t.symbol.codePointAt(0) - 0x2630;
+    assert.deepEqual(t.lines, [!(bits & 4), !(bits & 2), !(bits & 1)], `${t.id}: its lines, from the bottom up`);
+    assert.equal(trigramOfSymbol(t.symbol), t);
+    assert.match(t.symbol, TRIGRAM_SYMBOLS);
+    const box = { x: 10, y: 20, w: 20, h: 16 };
+    const bars = trigramBars(t.lines, box);
+    assert.equal(bars.length, 3 + t.lines.filter((l) => !l).length, `${t.id}: a bar per whole line, two per broken one`);
+    for (const b of bars) {
+      assert.ok(b.x >= box.x - 1e-9 && b.x + b.w <= box.x + box.w + 1e-9 && b.y >= box.y - 1e-9 && b.y + b.h <= box.y + box.h + 1e-9, `${t.id}: inside its box`);
+      assert.ok(b.w > 0 && b.h > 0);
+    }
+    // Drawn from the top: the bars along the box's top edge are the third line's.
+    assert.equal(bars.filter((b) => Math.abs(b.y - box.y) < 1e-9).length, t.lines[2] ? 1 : 2, `${t.id}: its top line`);
+    assert.equal(bars.filter((b) => Math.abs(b.y + b.h - (box.y + box.h)) < 1e-9).length, t.lines[0] ? 1 : 2, `${t.id}: its bottom line`);
+    // As a reading's mark: the same bars in a 24 × 24 box.
+    const inner = trigramSvgInner(t.lines);
+    assert.equal(inner.match(/<rect /g).length, bars.length);
+    assert.doesNotMatch(inner, /NaN|undefined/);
+    for (const v of inner.matchAll(/(?:x|y|width|height)="([\d.]+)"/g)) assert.ok(Number(v[1]) >= 0 && Number(v[1]) <= 24, `${t.id}: within the mark's box`);
+  }
+  assert.deepEqual(TRIGRAMS.find((t) => t.id === "kan").lines, [false, true, false], "Kan: its middle line alone whole");
+  assert.equal(trigramOfSymbol("☯"), undefined);
+  assert.doesNotMatch("Kan", TRIGRAM_SYMBOLS);
+  // The Kua's reading draws its trigram as its mark when the characters are not shown; with them, the characters.
+  const kan = fengShuiOf(CAMILLE, "yang");
+  const names = fengShuiReading([kan], fsKuaRef("yang"), "en", { script: "hant", show: "names" });
+  assert.equal(names.markSvg, trigramSvgInner(kan.trigram.lines));
+  assert.equal(names.mark, "☵", "the symbol stays as the text one");
+  const withChars = fengShuiReading([kan], fsKuaRef("yang"), "en", full);
+  assert.equal(withChars.markSvg, undefined);
+  assert.equal(withChars.mark, "坎");
 });
 
 test("the Eight Mansions' table: eight directions each, Fu Wei on the Kua's own trigram, the group's four supportive, the same bond both ways", () => {
@@ -113,7 +151,13 @@ test("every text in both languages, in Ulune's typography and tone", () => {
     assert.doesNotMatch(fr, /[^\u202f][:;?!]/, fr.slice(0, 40));
     assert.doesNotMatch(en, /\b(death|dies?|illness|disease|sick\w*|health\w*|doomed|unlucky|lucky|curse[ds]?|must|fate|disaster|divorce|accident|cure\w*)\b/i, en.slice(0, 40));
     assert.doesNotMatch(fr, /\b(mort|meurt|maladie|malade|santé|malchance|maudit|condamn\w*|doit|devez|destin|désastre|divorce|accident)\b/i, fr.slice(0, 40));
+    // Wu Gui's gloss gives its meaning, not "the five ghosts" (part 27, the review's FS9).
+    assert.doesNotMatch(en, /\bghosts?\b/i, en.slice(0, 40));
+    assert.doesNotMatch(fr, /fantômes?/i, fr.slice(0, 40));
   }
+  assert.match(MANSION_TEXTS["wu-gui"][0], /^Wu Gui, the five distractions, /);
+  assert.match(MANSION_TEXTS["wu-gui"][1], /^Wu Gui, les cinq distractions, /);
+  assert.equal(MANSIONS["wu-gui"].hant, "五鬼", "the classical name stays");
 });
 
 test("a direction in a sentence, in English and French", () => {

@@ -28,12 +28,13 @@
  *
  * Pages: Chart, Transits, Progressions, Calendar, Synastry, Composite, Human
  * Design, Numerology and its Cycles; Chinese astrology and its Cycles and
- * Pair, BaZi and its luck pillars and Pair, Feng Shui and its Home.
+ * Pair, BaZi and its luck pillars and Pair, Feng Shui and its two people
+ * (Relationship) and Home.
  */
 import { chromium } from "playwright";
 import { DEV, FIXTURE_A, FIXTURE_B, castFixture, clickDockTab, goStudioPage, gotoApp, openCalendarView, pickPlace } from "./_lib.mjs";
 
-const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-home"];
+const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home"];
 const WESTERN = ["natal", "transits", "progressions", "timing", "synastry", "composite", "design", "numerology", "numerology-cycles"];
 /** The Western pages whose own controls reach 44 × 44 px on a finger (part 30): held to it. */
 const WESTERN_44 = ["natal", "synastry", "composite", "numerology", "timing"];

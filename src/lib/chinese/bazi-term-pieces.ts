@@ -20,6 +20,7 @@ import { PILLAR_WORD, fmtPoints, ixStatus } from "./bazi-reading";
 import { PLACE_WORD } from "./zodiac-places";
 import type { Meeting } from "./bazi-luck";
 import { headPieces, joinGroups, joinPieces, stemSaid, type TermPiece } from "./term-pieces";
+import { semicolon } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 
@@ -71,7 +72,7 @@ export function natalLinkPieces(ixs: readonly Interaction[], place: BaziPlaceId,
       { text: chineseLabel(INTERACTION_NAMES[x.kind], locale, namesOnly(prefs)).name, family: "relation", id: x.kind },
       { text: ` · ${x.places.filter((q) => q !== place).map((q) => cnWord(locale, PLACE_WORD[q])).join(", ") || cnWord(locale, PLACE_WORD[place])}` },
     ]),
-    "; ",
+    semicolon(locale),
   );
 }
 
@@ -88,7 +89,7 @@ export function meetPieces(meets: readonly Meeting[], locale: string, prefs: Sho
       { text: chineseLabel(INTERACTION_NAMES[m.kind], locale, namesOnly(prefs)).name, family: "relation", id: m.kind },
       { text: ` · ${m.with.map((p) => (p === "luck" ? cnWord(locale, "bzlInLuck") : cnWord(locale, word[p]))).join(", ")}` },
     ]),
-    "; ",
+    semicolon(locale),
   );
 }
 

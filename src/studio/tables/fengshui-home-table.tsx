@@ -1,4 +1,5 @@
 import { ChineseTermPieces, ChineseTermWord } from "@/encyclopedia/ChineseTermWord";
+import { withTrigrams } from "@/components/trigram-mark";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
@@ -8,7 +9,7 @@ import { homeTableCsv, homeTextParts } from "@/lib/chinese/fengshui-home-table";
 import { FLIGHT } from "@/lib/chinese/fengshui-stars";
 import { pairKey } from "@/lib/chinese/fengshui-pairs";
 import { joinPieces } from "@/lib/chinese/term-pieces";
-import { chartName, formationName, fssChartRef, fssPalaceRef, pairName, palaceName } from "@/lib/chinese/fengshui-stars-reading";
+import { chartName, chartWord, formationName, fssChartRef, fssPalaceRef, pairName, palaceName, roomsChart } from "@/lib/chinese/fengshui-stars-reading";
 import * as READING_TEXTS from "@/lib/chinese/fengshui-readings-texts";
 import { AFFLICTION_IDS, FSY_MONTH_REF, FSY_YEAR_REF, afflictionName, afflictionPlace, fsyAffRef, monthLine, yearLine } from "@/lib/chinese/fengshui-years-reading";
 import { roomsIn } from "@/lib/chinese/fengshui-rooms";
@@ -19,7 +20,11 @@ import { useI18n } from "@/lib/i18n/locale";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
-/** Feng Shui's home page as a table (languages plan, part 22); Copy and CSV. Its stars, pairs and formations link to the encyclopedia once written (part 29). */
+/**
+ * Feng Shui's home page as a table (languages plan, part 22); Copy and CSV. Its stars, pairs and formations link to the
+ * encyclopedia once written (part 29). The review's fixes (part 27): the rooms read against the chart picked on the
+ * figure (FS30), the house's trigram drawn (FS7).
+ */
 export function FengShuiHomeTable({ ctx: given, name, selectedId, onSelect }: { ctx: HomeContext; name: string; selectedId: string | null; onSelect: (id: string) => void }) {
   // The pairs' names (part 27) come with the table, whether or not the page has its texts yet.
   const ctx: HomeContext = given.stars && !given.stars.texts ? { ...given, texts: READING_TEXTS, stars: { ...given.stars, texts: READING_TEXTS } } : given;
@@ -35,6 +40,8 @@ export function FengShuiHomeTable({ ctx: given, name, selectedId, onSelect }: { 
     </button>
   );
   const home = ctx.home;
+  // The rooms are read against the chart picked on the figure (FS30).
+  const against = ctx.stars ? roomsChart(ctx.stars) : null;
   const rows: [string, string, string][] = home
     ? [
         [FSH_FACING_REF, w("fshFacingHead"), facingLine(home, locale, prefs)],
@@ -52,12 +59,14 @@ export function FengShuiHomeTable({ ctx: given, name, selectedId, onSelect }: { 
       copyText: partText("facing"),
       table: csvOf(["facing"]),
       children: (
-        <DataTable className="ulune-zk-tbl">
+        // Sentences in the last column: they wrap within the table (fengshui.css, .ulune-fs-prose).
+        <DataTable className="ulune-zk-tbl ulune-fs-prose">
           <tbody>
             {rows.map(([id, k, v], i) => (
               <tr key={i} data-testid={`fengshui-home-row-${i}`} data-selected={selectedId === id ? "1" : undefined}>
                 <th scope="row">{pick(id, k)}</th>
-                <td>{v}</td>
+                {/* The house's trigram drawn, as on its card (FS7); the copy keeps the symbol. */}
+                <td>{withTrigrams(v)}</td>
               </tr>
             ))}
           </tbody>
@@ -145,27 +154,35 @@ export function FengShuiHomeTable({ ctx: given, name, selectedId, onSelect }: { 
             copyText: partText("rooms"),
             table: csvOf(["room"]),
             children: (
-              <DataTable className="ulune-zk-tbl" wide>
-                <thead>
-                  <tr>
-                    <th>{w("fssPalaceCol")}</th>
-                    <th>{w("fsrRoomsCol")}</th>
-                    {ctx.stars ? <th>{w("fsrReadCol")}</th> : null}
-                  </tr>
-                </thead>
-                <tbody>
-                  {FLIGHT.filter((p) => roomsIn(ctx.rooms!, p).length).map((p) => {
-                    const id = ctx.stars ? fssPalaceRef("main", p) : null;
-                    return (
-                      <tr key={p} data-testid={`fengshui-rooms-row-${p}`} data-selected={id && selectedId === id ? "1" : undefined}>
-                        <th scope="row">{id ? pick(id, palaceName(p, locale)) : palaceName(p, locale)}</th>
-                        <td>{listWords(roomsIn(ctx.rooms!, p).map((r) => roomName(r.kind, locale)), locale)}</td>
-                        {ctx.stars ? <td>{roomLines(ctx.stars.main, p, ctx.rooms!, ctx.stars.now, locale).slice(1).join(" ")}</td> : null}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </DataTable>
+              <>
+                {/* Read against the chart picked on the figure, said near a mountain's edge (FS30). */}
+                {ctx.stars?.ti && against ? (
+                  <p className="ulune-fsh-small" data-testid="fengshui-rooms-table-against">
+                    {cnWord(locale, "fsrAgainstPicked", { chart: chartWord(against.v, locale) })}
+                  </p>
+                ) : null}
+                <DataTable className="ulune-zk-tbl ulune-fs-prose">
+                  <thead>
+                    <tr>
+                      <th>{w("fssPalaceCol")}</th>
+                      <th>{w("fsrRoomsCol")}</th>
+                      {ctx.stars ? <th>{w("fsrReadCol")}</th> : null}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {FLIGHT.filter((p) => roomsIn(ctx.rooms!, p).length).map((p) => {
+                      const id = against ? fssPalaceRef(against.v, p) : null;
+                      return (
+                        <tr key={p} data-testid={`fengshui-rooms-row-${p}`} data-selected={id && selectedId === id ? "1" : undefined}>
+                          <th scope="row">{id ? pick(id, palaceName(p, locale)) : palaceName(p, locale)}</th>
+                          <td>{listWords(roomsIn(ctx.rooms!, p).map((r) => roomName(r.kind, locale)), locale)}</td>
+                          {ctx.stars && against ? <td>{roomLines(against.chart, p, ctx.rooms!, ctx.stars.now, locale).slice(1).join(" ")}</td> : null}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </DataTable>
+              </>
             ),
           } satisfies TablePart,
         ]
@@ -187,7 +204,7 @@ export function FengShuiHomeTable({ ctx: given, name, selectedId, onSelect }: { 
               ];
               return (
                 <>
-                  <DataTable className="ulune-zk-tbl">
+                  <DataTable className="ulune-zk-tbl ulune-fs-prose">
                     <tbody>
                       {lead.map(([id, k, v], i) => (
                         <tr key={i} data-testid={`fengshui-years-row-${i}`} data-selected={selectedId === id ? "1" : undefined}>

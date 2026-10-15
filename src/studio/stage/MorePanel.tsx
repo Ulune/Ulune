@@ -3,6 +3,7 @@ import { useCallback, type RefObject } from "react";
 import { AnchoredPopover } from "@/components/anchored-popover";
 import { useI18n } from "@/lib/i18n/locale";
 import { ExportItems } from "@/studio/stage/ExportMenu";
+import { useExportShown } from "@/studio/stage/export-shown";
 import { useDrawnView } from "@/studio/stage/drawn-view";
 import { useStudioStore } from "@/studio/store";
 import { useStudioUrl } from "@/studio/use-studio-url";
@@ -28,6 +29,7 @@ export function MorePanel({
 }) {
   const { t } = useI18n();
   const view = useStudioStore((s) => s.view);
+  const exportShown = useExportShown();
   const { setView } = useStudioUrl({ hydrate: false });
   const drawn = useDrawnView();
   const done = useCallback(() => close(), [close]);
@@ -56,10 +58,13 @@ export function MorePanel({
           {viewItem("wheel", drawn.name)}
           {viewItem("table", t("viewTable"))}
         </div>
-        <div role="group" aria-label={t("exportMenu")} className="ob-more-part" data-testid="export-panel">
-          <p className="ob-menu-head">{t("exportMenu")}</p>
-          <ExportItems close={done} extraSlot={setExportSlot} />
-        </div>
+        {/* Only when there is a way out (a home without a chart has none but its table's, FS13). */}
+        {exportShown ? (
+          <div role="group" aria-label={t("exportMenu")} className="ob-more-part" data-testid="export-panel">
+            <p className="ob-menu-head">{t("exportMenu")}</p>
+            <ExportItems close={done} extraSlot={setExportSlot} />
+          </div>
+        ) : null}
         <div ref={setTools} className="ob-more-part" />
       </div>
     </AnchoredPopover>

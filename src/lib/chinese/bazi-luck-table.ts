@@ -10,15 +10,16 @@ import { cnWord } from "./words";
 import { tenGodById } from "./bazi";
 import type { FlowYear, Luck, Meeting } from "./bazi-luck";
 import { ageWords, countWord, dateIn, meetingShort } from "./bazi-luck-reading";
+import { semicolon } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 
 const cell = (v: string) => (/[",\n\r]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v);
-const meetsText = (list: Meeting[], locale: string, prefs: Shown) => (list.length ? list.map((m) => meetingShort(m, locale, prefs)).join("; ") : "–");
+const meetsText = (list: Meeting[], locale: string, prefs: Shown) => (list.length ? list.map((m) => meetingShort(m, locale, prefs)).join(semicolon(locale)) : "–");
 const meetsIds = (list: Meeting[]) => list.map((m) => `${m.kind}:${m.with.join("+")}${m.phase ? `:${m.phase}` : ""}`).join("|");
 
 export function luckTextParts(lucks: Luck[], y: FlowYear, locale: string, prefs: Shown, name = "", tz?: string): { id: string; lines: string[] }[] {
-  const colon = locale === "fr" ? " : " : ": ";
+  const colon = locale === "fr" ? "\u202f: " : ": ";
   const god = (id: Parameters<typeof tenGodById>[0]) => chineseLabel(tenGodById(id), locale, prefs).text;
   const luckLines = lucks.flatMap((l) => [
     `${countWord(l.count, locale)} · ${cnWord(locale, l.direction === "forward" ? "bzlForward" : "bzlBackward")} · ${cnWord(locale, "bzlFrom", { age: ageWords(l.start, locale), date: dateIn(l.startMs, locale, tz) })}`,

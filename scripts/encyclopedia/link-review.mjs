@@ -1,8 +1,10 @@
 // What the reading texts would link (encyclopedia plan, part 16), for review.
 // Usage: node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/encyclopedia/link-review.mjs [out.md]
 // Walks every bilingual text of the readings (src/lib/content, the prose
-// catalogs), links it as the reading card does, and lists each linked form
-// with its count and a few contexts, by language and tradition.
+// catalogs, and since part 23 the Chinese languages' texts, src/lib/chinese/*-texts.ts,
+// written as [English, French] pairs), links it as the reading card does, and
+// lists each linked form with its count and a few contexts, by language and
+// tradition.
 import { writeFileSync } from "node:fs";
 import { buildEncyclopedia, readContent } from "./build.mjs";
 import { compileLexicon, linkText } from "../../src/encyclopedia/linker.ts";
@@ -23,14 +25,33 @@ const SOURCES = {
     "../../src/lib/content/numerology-places.ts",
     "../../src/lib/i18n/numerology-prose.ts",
   ],
+  "chinese-astrology": ["../../src/lib/chinese/zodiac-texts.ts", "../../src/lib/chinese/zodiac-time-texts.ts"],
+  bazi: [
+    "../../src/lib/chinese/bazi-texts.ts",
+    "../../src/lib/chinese/bazi-readings-texts.ts",
+    "../../src/lib/chinese/bazi-signs-texts.ts",
+    "../../src/lib/chinese/bazi-balance-texts.ts",
+    "../../src/lib/chinese/bazi-interactions-texts.ts",
+  ],
+  "feng-shui": [
+    "../../src/lib/chinese/fengshui-texts.ts",
+    "../../src/lib/chinese/fengshui-readings-texts.ts",
+    "../../src/lib/chinese/fengshui-stars-texts.ts",
+    "../../src/lib/chinese/fengshui-years-texts.ts",
+    "../../src/lib/chinese/fengshui-rooms-texts.ts",
+  ],
 };
 
-/** Every { en, fr } text under a value. */
+/** Every { en, fr } text under a value, and every [English, French] pair of the Chinese texts. */
 function* bilingual(v, seen = new Set()) {
   if (!v || typeof v !== "object" || seen.has(v)) return;
   seen.add(v);
   if (typeof v.en === "string" && typeof v.fr === "string") {
     yield v;
+    return;
+  }
+  if (Array.isArray(v) && v.length === 2 && typeof v[0] === "string" && typeof v[1] === "string") {
+    yield { en: v[0], fr: v[1] };
     return;
   }
   for (const x of Object.values(v)) yield* bilingual(x, seen);

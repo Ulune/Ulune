@@ -1083,7 +1083,7 @@ async function encyclopediaSuite({ step }: Ctx) {
 
 // ── The Chinese pages (languages plan, part 30: Safari and an iPhone) ───────
 // For the chart on screen: the language picker lists the three Chinese
-// languages under their heading; each of their eight pages draws its figure
+// languages under their heading; each of their nine pages draws its figure
 // and its table and keeps its "How Ulune calculates" (all but Chinese
 // astrology's Cycles, whose side panel reads the year); a Relationship page
 // with no second chart says so. On Feng Shui's Home, where the browser asks
@@ -1103,6 +1103,7 @@ const CHINESE_CHECKS: readonly ChineseCheck[] = [
   { id: "bazi-luck", figure: "bazi-luck", table: "bazi-luck-table", notes: true },
   { id: "bazi-pair", figure: "bazi-pair", table: "bazi-pair-table", notes: true, pair: true },
   { id: "fengshui", figure: "fengshui", table: "fengshui-table", notes: true },
+  { id: "fengshui-pair", figure: "fengshui-pair", table: "fengshui-pair-table", notes: true, pair: true },
   { id: "fengshui-home", figure: "fengshui-home", table: "fengshui-home-table", notes: true },
 ];
 

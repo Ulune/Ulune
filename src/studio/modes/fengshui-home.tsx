@@ -1,8 +1,10 @@
 import { Suspense, useEffect, useId, useMemo, useRef, useState } from "react";
 import { LoadingLines } from "@/components/loading-lines";
+import { withTrigrams } from "@/components/trigram-mark";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
+import { deFr } from "@/lib/chinese/both";
 import { fengShuiOf, type FengShui, type FsCount } from "@/lib/chinese/fengshui";
 import { SPREAD_WARN, averageBearing, homeOf, periodOf } from "@/lib/chinese/fengshui-home";
 import {
@@ -67,7 +69,10 @@ import "@/studio/modes/styles/fengshui-home.css";
  * placed on the home's plan, and the home kept in the private space
  * (fengshui-home-rooms.tsx, fengshui-homes.ts); otherwise nothing is kept
  * beyond this visit. Part 29 adds the method notes to the side panel's first
- * read (chinese-notes.tsx).
+ * read (chinese-notes.tsx). Part 27's review fixes: the page needs no birth
+ * chart (FS13; only "the house and you" waits for one, and a map's bearing
+ * for its place's declination); the rooms are read against the chart picked
+ * on the figure (FS30); the trigrams are drawn (FS7).
  */
 
 export type FengShuiHomeState = { ctx: HomeContext; enabled: boolean };
@@ -202,10 +207,15 @@ function HomeForm({ compass }: { compass: ReturnType<typeof useCompass> }) {
           </label>
         ))}
       </fieldset>
-      {source === "map" ? <p className="ulune-fsh-small">{cnWord(locale, "fshSourceMapHint")}</p> : null}
+      {/* Without a chart there is no place for the declination (FS13): a map's bearing is taken as it is, and the page says so. */}
+      {source === "map" ? (
+        <p className="ulune-fsh-small" data-testid="fengshui-home-map-hint">
+          {cnWord(locale, ctx && ctx.declination == null ? "fshDeclNone" : "fshSourceMapHint")}
+        </p>
+      ) : null}
       {ctx?.declination != null ? (
         <p className="ulune-fsh-small" data-testid="fengshui-home-declination">
-          {cnWord(locale, "fshDecl", { place: ctx.place, deg: fmtDecl(ctx.declination, locale) })}
+          {cnWord(locale, "fshDecl", { place: ctx.place, dePlace: deFr(ctx.place), deg: fmtDecl(ctx.declination, locale) })}
         </p>
       ) : null}
       {coarse && compassSupported() ? <CompassBlock compass={compass} /> : null}
@@ -247,10 +257,32 @@ function Card({ refId, testId, title, lines, tone }: { refId: string; testId: st
       <span className="ulune-fs-h">{title}</span>
       {lines.map((l, i) => (
         <span key={i} className="ulune-fs-card-line">
-          {l}
+          {withTrigrams(l)}
         </span>
       ))}
     </button>
+  );
+}
+
+/** The birth form, asked for from the Home without a chart: the cast brings the reader back here with their Kua (FS13). */
+const castFromHome = () => useStudioStore.getState().startNew();
+
+/** "The house and you" without a birth chart (FS13): what a chart would add, and the way to cast one. */
+function HouseInvite() {
+  const { locale } = useI18n();
+  const id = useId();
+  return (
+    <section className="ulune-fs-card ulune-fsh-invite" data-testid="fengshui-home-house-none" aria-labelledby={`${id}-h`}>
+      <h2 id={`${id}-h`} className="ulune-fs-h">
+        {cnWord(locale, "fshHouseHead")}
+      </h2>
+      <p className="ulune-fs-card-line">{cnWord(locale, "fshHouseNoChart")}</p>
+      <div className="ulune-fsh-row">
+        <button type="button" className="ulune-fsh-btn" data-testid="fengshui-home-cast" onClick={castFromHome}>
+          {cnWord(locale, "fshCastChart")}
+        </button>
+      </div>
+    </section>
   );
 }
 
@@ -258,6 +290,7 @@ function HomeCards() {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const data = useModeData("fengshui-home");
+  const hasChart = useStudioStore((s) => s.chart != null);
   const ctx = data?.ctx;
   if (!ctx) return null;
   const home = ctx.home;
@@ -275,6 +308,7 @@ function HomeCards() {
               lines={[houseLine(home, locale, prefs), ...matchLines(home, fs, locale)]}
             />
           ))}
+          {hasChart ? null : <HouseInvite />}
         </>
       ) : (
         <p className="ulune-fs-note" data-testid="fengshui-home-none">
@@ -461,7 +495,7 @@ function HomeHello() {
               <span className="ulune-hd-step-body">
                 <span className="ulune-hd-step-head">
                   <span className="ulune-kicker ulune-hd-step-k">{st.label}</span>
-                  {st.value ? <span className="ulune-hd-step-v">{st.value}</span> : null}
+                  {st.value ? <span className="ulune-hd-step-v">{withTrigrams(st.value)}</span> : null}
                 </span>
                 <span className="ulune-hd-step-text">{st.text}</span>
               </span>
@@ -469,6 +503,15 @@ function HomeHello() {
           </li>
         ))}
       </ol>
+      {/* The Home needs no chart (FS13); one adds the house and your Kua. */}
+      {w.chart ? null : (
+        <p className="ulune-zk-hello-p" data-testid="fengshui-home-hello-nochart">
+          {cnWord(locale, "fshHouseNoChart")}{" "}
+          <button type="button" className="ob-keep-link" data-testid="fengshui-home-hello-cast" onClick={castFromHome}>
+            {cnWord(locale, "fshCastChart")}
+          </button>
+        </p>
+      )}
       <p className="ulune-zk-hello-note">{cnWord(locale, "fshAbout2")}</p>
       <HowUluneCalculates page="fengshui-home" />
     </section>
@@ -525,7 +568,10 @@ function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
   const source = useHomeInput((s) => s.source);
   const yearTyped = useHomeInput((s) => s.year);
   const rooms = useHomeInput((s) => s.rooms);
-  const enabled = page === "fengshui-home" && Boolean(chart);
+  // The chart picked on the figure, which the rooms are read against near a mountain's edge (FS30).
+  const chartPick = useHomeInput((s) => s.chart);
+  // A home needs no birth chart (FS13): only "the house and you" waits for one, and the declination for its place.
+  const enabled = page === "fengshui-home";
   const texts = useReadingTexts(enabled);
   // The year's and the month's stars (part 25): today's, worked out once a day.
   const todayKey = new Date().toDateString();
@@ -552,12 +598,13 @@ function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
       people,
       place: chart?.meta.placeLabel?.split(",")[0]?.trim() || "—",
       declination: decl,
-      stars: homeStars(home, period, new Date().getFullYear(), years, rooms, texts),
+      // The present period by the solar year, which turns at Lichun, as the period itself does.
+      stars: homeStars(home, period, years?.solarYear ?? new Date().getFullYear(), years, rooms, texts, chartPick),
       years,
       rooms,
       texts,
     };
-  }, [typed, source, yearTyped, people, decl, chart, years, rooms, texts]);
+  }, [typed, source, yearTyped, people, decl, chart, years, rooms, texts, chartPick]);
   const reading = useMemo(() => (enabled ? homeReading(ctx, selectedId, locale, prefs) : null), [enabled, ctx, selectedId, locale, prefs]);
   const data = useMemo(() => ({ ctx, enabled }), [ctx, enabled]);
   return useMemo(() => ({ data, reading }), [data, reading]);
@@ -566,6 +613,8 @@ function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
 export const fengShuiHomeMode: ModeDef = {
   ...MODE_META["fengshui-home"],
   emptyText: (locale) => cnWord(locale, "fshEmpty"),
+  // The birth form asked for from a home without a chart (FS13): what the cast adds, and the way back.
+  formFrom: (locale) => ({ line: cnWord(locale, "fshFormLine"), back: cnWord(locale, "fshFormBack") }),
   Figure: HomeFigure,
   HelloEmpty: HomeHello,
   Data: HomeData,

@@ -3,7 +3,8 @@
  * edges, the house's trigram and group beside a person's Kua, the periods,
  * the average of compass readings, the device's heading, the magnetic
  * declination against the World Magnetic Model 2025's published test
- * values, what the page says and its table. Made-up births only.
+ * values, what the page says and its table; and (part 27, the review's
+ * FS13) what it says without a birth chart. Made-up births only.
  */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -133,6 +134,10 @@ test("what the page says: the facing, the house and you, a mountain, the period,
   assert.equal(house.paragraphs[2], "Its front faces your Harmony direction (south), and it sits in your Stability direction (north).");
   assert.match(homeReading(ctx, fshHouseRef("yin"), "en", full).paragraphs[1], /^Your Kua 8 is of the other group\. The tradition never asks anyone to move/);
   assert.equal(matchLines(ctx.home, yang, "fr")[1], "Sa façade regarde votre direction d’Harmonie (sud), et elle est adossée à votre direction de Stabilité (nord).");
+  // The declination's place, with French's elision before a vowel (the review of part 20): « près d’Amsterdam ».
+  const declFr = (place) => homeTextParts({ ...ctx, place }, "", "fr", full).find((x) => x.id === "facing").lines.find((l) => l.startsWith("Déclinaison"));
+  assert.equal(declFr("Paris"), "Déclinaison magnétique près de Paris\u202f: 2,1° E");
+  assert.equal(declFr("Amsterdam"), "Déclinaison magnétique près d’Amsterdam\u202f: 2,1° E");
   const wu = homeReading(ctx, fshMountainRef("wu"), "en", full);
   assert.equal(wu.lead, "Wu · wǔ 午, S2: the middle mountain of the south, from 172.5° to 187.5°.");
   assert.equal(wu.paragraphs[1], "One of the twelve branches’ mountains: Horse.");
@@ -152,6 +157,29 @@ test("what the page says: the facing, the house and you, a mountain, the period,
   assert.ok(homeReading(none, fshMountainRef("wu"), "en", full));
   assert.equal(homeReading(ctx, "fsh:mountain:nope", "en", full), null);
   assert.equal(homeReading(ctx, "fs:yang:kua", "en", full), null);
+});
+
+test("without a birth chart (part 27, the review's FS13): the facing, its mountains and the period read; the house waits for a Kua; a map's bearing is taken as it is", () => {
+  // No chart: no Kua beside the house, no place for the declination.
+  const home = homeOf(180, "map", null);
+  const ctx = { home, period: { year: 1998, ...periodOf(1998) }, people: [], place: "—", declination: null };
+  assert.equal(home.facing.degrees, 180, "the map's bearing as typed");
+  assert.equal(home.facingMountain.id, "wu");
+  assert.equal(sourceLine(home, "en"), "Read on a map (180° true), taken as magnetic: without a place, no declination could be applied.");
+  assert.equal(sourceLine(home, "fr"), "Lue sur une carte (180° géographique), prise comme magnétique : sans lieu, aucune déclinaison n’a pu être appliquée.");
+  assert.equal(sourceLine(homeOf(180, "compass", null), "en"), "Read on a compass: magnetic, as a luopan reads.");
+  const facing = homeReading(ctx, FSH_FACING_REF, "en", full);
+  assert.equal(facing.lead, "Your home faces 180°: Wu · wǔ 午, the middle mountain of the south. It sits in Zi · zǐ 子, in the north.");
+  assert.ok(facing.paragraphs.includes("Read on a map (180° true), taken as magnetic: without a place, no declination could be applied."));
+  assert.equal(homeReading(ctx, fshHouseRef("yang"), "en", full), null, "no house reading without a Kua");
+  assert.equal(homeReading(ctx, FSH_PERIOD_REF, "en", full).title, "Period 7");
+  // The table: no name before the parts, no house line, its CSV without a match.
+  const parts = homeTextParts(ctx, "", "en", full);
+  assert.equal(parts[0].lines[0], "Your home’s facing");
+  assert.ok(!parts[0].lines.some((l) => /Kua/.test(l)), parts[0].lines.join(" / "));
+  const csv = homeTableCsv(ctx).split("\n");
+  assert.ok(csv.includes("facing,house,kan:east"));
+  assert.ok(!csv.some((l) => l.startsWith("facing,match-")));
 });
 
 test("the table: the facing's lines and the 24 mountains, your home's marked; CSV with ids", () => {

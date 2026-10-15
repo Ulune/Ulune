@@ -30,6 +30,7 @@ import { ReadingTab } from "@/studio/dock/ReadingTab";
 import { useStudioStore, type DockTab } from "@/studio/store";
 import { keptOr, useKeep } from "@/studio/return-parts";
 import { useModeReading } from "@/studio/modes/data";
+import { MODE_META } from "@/studio/modes/meta";
 import { onTablistKeyDown } from "@/lib/a11y/tablist";
 import { SHEET_MOVE_MS, captureStage, dropStage, playStage } from "@/lib/stage-flip";
 import { swapTransition } from "@/lib/swap-transition";
@@ -81,16 +82,17 @@ export function Dock() {
     studioPage === "bazi-luck" ||
     studioPage === "bazi-pair" ||
     studioPage === "fengshui" ||
+    studioPage === "fengshui-pair" ||
     studioPage === "fengshui-home";
-  // The Calendar without a chart (reorganisation plan, R5): the sky's readings only; the
-  // birth form comes on the stage when asked for, as for a new chart.
-  const skyOnly = useStudioStore((s) => !s.chart && s.page === "timing");
-  const tabs = skyOnly
+  // The Calendar without a chart (reorganisation plan, R5), and Feng Shui's Home (FS13): their
+  // readings only; the birth form comes on the stage when asked for, as for a new chart.
+  const chartFree = useStudioStore((s) => !s.chart && !MODE_META[s.page].needsChart);
+  const tabs = chartFree
     ? PANEL_TABS.filter((tab) => tab.id === "reading")
     : noBodies
       ? PANEL_TABS.filter((tab) => tab.id !== "bodies")
       : PANEL_TABS;
-  const dock: DockTab = skyOnly ? "reading" : noBodies && chosen === "bodies" ? "reading" : chosen;
+  const dock: DockTab = chartFree ? "reading" : noBodies && chosen === "bodies" ? "reading" : chosen;
   const openDock = useStudioStore((s) => s.openDock);
   const toggleDock = useStudioStore((s) => s.toggleDock);
   const [width, setWidth] = useState<PanelWidth>("normal");

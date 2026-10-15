@@ -2,7 +2,9 @@
  * What Feng Shui's home page says (languages plan, part 22): the facing with
  * its mountains, its edge and how it was measured; the house's trigram and
  * group beside the reader's Kua; each of the 24 mountains; the period; how
- * to find the facing.
+ * to find the facing. Without a birth chart (the review's fix FS13, part 27)
+ * there is no Kua beside the house and no place for the declination: a
+ * map's bearing is then taken as it is, and the reading says so.
  *
  *   fsh:facing            the facing, the sitting, the edge, the measure
  *   fsh:house:yang        the house and the reader's Kua (one per count shown)
@@ -17,11 +19,13 @@ import { cnWord } from "./words";
 import { MANSIONS, TRIGRAMS, type FengShui, type FsCount } from "./fengshui";
 import { MOUNTAINS, houseMatch, mountainById, norm360, periodOf, type Home, type Mountain, type MountainId, type PeriodId } from "./fengshui-home";
 import { flyingChart } from "./fengshui-stars";
-import { starsReading, type FsReadingTexts, type HomeStars } from "./fengshui-stars-reading";
+import { starsReading, type ChartVariant, type FsReadingTexts, type HomeStars } from "./fengshui-stars-reading";
 import { yearsReading } from "./fengshui-years-reading";
 import type { YearStars } from "./fengshui-years";
 import type { HomeRoom } from "./fengshui-rooms";
-import { countLabel, deName, dirIn, directionName, fsDirRef, fsKuaRef, groupLabel, mansionName } from "./fengshui-reading";
+import { countLabel, dirIn, directionName, fsDirRef, fsKuaRef, groupLabel, mansionName } from "./fengshui-reading";
+import { deFr } from "./both";
+import { trigramSvgInner } from "./fengshui-trigram";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 
@@ -49,7 +53,11 @@ export type HomeContext = {
   texts?: FsReadingTexts | null;
 };
 
-/** The home's Flying Star charts: the main one, the replacement near a mountain's edge, and the present period for the stars' states. */
+/**
+ * The home's Flying Star charts: the main one, the replacement near a mountain's edge, and the present
+ * period for the stars' states; `pick`, the chart picked on the figure, is the one the rooms are read
+ * against (the review's fix FS30), the main one unless a replacement chart is there and picked.
+ */
 export function homeStars(
   home: Home | null,
   period: HomeContext["period"],
@@ -57,11 +65,12 @@ export function homeStars(
   years: YearStars | null = null,
   rooms: readonly HomeRoom[] = [],
   texts: FsReadingTexts | null = null,
+  pick: ChartVariant = "main",
 ): HomeStars | null {
   if (!home || !period) return null;
   const main = flyingChart(period.period, home.facingMountain.id, home.sittingMountain.id);
   const ti = home.edge.level === "clear" ? null : flyingChart(period.period, home.facingMountain.id, home.sittingMountain.id, true);
-  return { main, ti, now: periodOf(nowYear).period, years, rooms, texts };
+  return { main, ti, now: periodOf(nowYear).period, years, rooms, texts, pick: pick === "ti" && ti ? "ti" : "main" };
 }
 
 /** "172.5°" or "172,5°". */
@@ -122,6 +131,8 @@ export function sourceLine(home: Home, locale: string): string {
   if (f.source === "map" && f.declination != null) {
     return cnWord(locale, "fshSourceMapLine", { typed: fmtDeg(norm360(f.degrees + f.declination), locale), deg: fmtDeg(f.degrees, locale), decl: fmtDecl(f.declination, locale) });
   }
+  // A map's bearing with no place for the declination (no birth chart, FS13): taken as it is, and said so.
+  if (f.source === "map") return cnWord(locale, "fshSourceMapNoDecl", { deg: fmtDeg(f.degrees, locale) });
   return cnWord(locale, "fshSourceCompassLine");
 }
 
@@ -145,8 +156,8 @@ export function matchLines(home: Home, fs: FengShui, locale: string): string[] {
     cnWord(locale, "fshHouseFaces", {
       facing,
       sitting,
-      deFacing: deName(facing),
-      deSitting: deName(sitting),
+      deFacing: deFr(facing),
+      deSitting: deFr(sitting),
       fdir: directionName(home.facingDirection, locale).toLowerCase(),
       sdir: directionName(home.sittingDirection, locale).toLowerCase(),
     }),
@@ -208,6 +219,8 @@ function houseReading(c: HomeContext, home: Home, fs: FengShui, locale: string, 
     ],
     sections: [{ id: "match", title: cnWord(locale, "fshHouseHead"), paragraphs: lines }],
     mark: (prefs.show === "full" ? home.house[prefs.script] : null) ?? home.house.symbol,
+    // Without the characters, the trigram drawn rather than a font's ☰…☷ (review fix FS7).
+    markSvg: prefs.show === "full" ? undefined : trigramSvgInner(home.house.lines),
     about: about(locale),
   };
 }
@@ -269,7 +282,7 @@ export const howLines = (locale: string): string[] => (["fshStep1", "fshStep2", 
 function howReading(c: HomeContext, locale: string): ElementReading {
   const lead = cnWord(locale, "fshFacingHint");
   const steps = howLines(locale);
-  const decl = c.declination != null ? [`${cnWord(locale, "fshDecl", { place: c.place, deg: fmtDecl(c.declination, locale) })}. ${cnWord(locale, "fshDeclNote")}`] : [];
+  const decl = c.declination != null ? [`${cnWord(locale, "fshDecl", { place: c.place, dePlace: deFr(c.place), deg: fmtDecl(c.declination, locale) })}. ${cnWord(locale, "fshDeclNote")}`] : [];
   return {
     id: FSH_HOW_REF,
     kind: "sign",

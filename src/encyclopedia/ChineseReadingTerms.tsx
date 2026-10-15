@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import { chineseSubjectOf } from "@/lib/chinese/term-ids";
+import { chineseSubjectOf } from "@/lib/chinese/term-refs";
 import { useI18n } from "@/lib/i18n/locale";
 import { loadCards, loadIndex, termRow } from "./data";
 import { Term } from "./Term";
@@ -10,7 +10,7 @@ import { tr } from "./words";
  * Under a Chinese reading in the side panel, the entries of what it is about
  * (languages plan, part 29: "every term ready to link"): a Ten God, an
  * animal and its branch, a mountain, a star, the Day Master… from the
- * reading's id (lib/chinese/term-ids.ts), each by its title in the
+ * reading's id (lib/chinese/term-refs.ts), each by its title in the
  * encyclopedia. Only entries whose family is written, and only those with a
  * page: nothing at all until then. Its own download, with the registry of
  * Chinese terms, fetched by ReadingTerms for a Chinese reading.

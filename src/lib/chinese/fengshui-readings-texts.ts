@@ -253,6 +253,63 @@ export const PAIR_TEXTS: Readonly<Record<PairKey, Both>> = {
   ],
 };
 
+/** The pairings whose text gives its counsel alone, with no face to choose (the 2 and the 5). */
+export const PAIRS_WITHOUT_FACES: readonly PairKey[] = ["2-5"];
+/** The pairings whose text also gives the face of a star just past its time (the 8 twice). */
+export const PAIRS_WITH_WANING_FACE: readonly PairKey[] = ["8-8"];
+
+/**
+ * Which face of a pairing applies here (the review's fix FS35), from the two
+ * stars' states now, the mountain star's first: T in season (timely), W just
+ * past its time (waning), D out of season (dormant). "WW+" is for a pairing
+ * whose text has a face of its own for a star just past its time. The
+ * mountain star speaks for the people of the home, the water star for what
+ * comes in (fengshui-rooms.ts reads rooms the same way).
+ */
+export type FaceKey = "TT" | "TW" | "TD" | "WT" | "WW" | "WW+" | "WD" | "DT" | "DW" | "DD";
+export const FACE_TEXTS: Readonly<Record<FaceKey, Both>> = {
+  TT: [
+    "Here both stars are in season: read “in season”, for the people of the home and for what comes in.",
+    "Ici, les deux étoiles sont en saison\u202f: lisez «\u202fen saison\u202f», pour les habitants comme pour ce qui arrive.",
+  ],
+  TW: [
+    "Here the mountain star is in season and the water star just past its time: read “in season” for the people of the home, and “out of season”, more gently, for what comes in.",
+    "Ici, l’étoile de la montagne est en saison et celle de l’eau juste après son temps\u202f: lisez «\u202fen saison\u202f» pour les habitants, et «\u202fhors saison\u202f», plus doucement, pour ce qui arrive.",
+  ],
+  TD: [
+    "Here the mountain star is in season and the water star is not: read “in season” for the people of the home, and “out of season” for what comes in.",
+    "Ici, l’étoile de la montagne est en saison et celle de l’eau ne l’est pas\u202f: lisez «\u202fen saison\u202f» pour les habitants, et «\u202fhors saison\u202f» pour ce qui arrive.",
+  ],
+  WT: [
+    "Here the water star is in season and the mountain star just past its time: read “in season” for what comes in, and “out of season”, more gently, for the people of the home.",
+    "Ici, l’étoile de l’eau est en saison et celle de la montagne juste après son temps\u202f: lisez «\u202fen saison\u202f» pour ce qui arrive, et «\u202fhors saison\u202f», plus doucement, pour les habitants.",
+  ],
+  WW: [
+    "Here both stars are just past their time: read “out of season”, more gently while they keep some of their strength.",
+    "Ici, les deux étoiles sont juste après leur temps\u202f: lisez «\u202fhors saison\u202f», plus doucement tant qu’elles gardent un peu de leur force.",
+  ],
+  "WW+": [
+    "Here the star is just past its time, as mountain star and as water star: read “just past its time”.",
+    "Ici, l’étoile est juste après son temps, comme étoile de la montagne et comme étoile de l’eau\u202f: lisez «\u202fjuste après son temps\u202f».",
+  ],
+  WD: [
+    "Here neither star is in season, though the mountain star is only just past its time: read “out of season”, more gently for the people of the home than for what comes in.",
+    "Ici, aucune des deux étoiles n’est en saison, mais celle de la montagne vient à peine de passer son temps\u202f: lisez «\u202fhors saison\u202f», plus doucement pour les habitants que pour ce qui arrive.",
+  ],
+  DT: [
+    "Here the water star is in season and the mountain star is not: read “in season” for what comes in, and “out of season” for the people of the home.",
+    "Ici, l’étoile de l’eau est en saison et celle de la montagne ne l’est pas\u202f: lisez «\u202fen saison\u202f» pour ce qui arrive, et «\u202fhors saison\u202f» pour les habitants.",
+  ],
+  DW: [
+    "Here neither star is in season, though the water star is only just past its time: read “out of season”, more gently for what comes in than for the people of the home.",
+    "Ici, aucune des deux étoiles n’est en saison, mais celle de l’eau vient à peine de passer son temps\u202f: lisez «\u202fhors saison\u202f», plus doucement pour ce qui arrive que pour les habitants.",
+  ],
+  DD: [
+    "Here neither star is in season: read “out of season”, for the people of the home and for what comes in.",
+    "Ici, aucune des deux étoiles n’est en saison\u202f: lisez «\u202fhors saison\u202f», pour les habitants comme pour ce qui arrive.",
+  ],
+};
+
 /** How the mountain star's phase meets the water star's, with {m}, {w} or {phase}. */
 export const RELATION_TEXTS: Readonly<Record<Relation, Both>> = {
   "same": [

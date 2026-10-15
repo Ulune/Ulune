@@ -168,6 +168,9 @@ export function markClass(glyph: string, base: string): string {
   return base;
 }
 
+/** A glyph of Chinese characters (木, 五行, part 23) is Chinese, drawn with a Chinese face: its language, or none. */
+const glyphLang = (glyph: string): string | undefined => (/\p{Script=Han}/u.test(glyph) ? "zh-Hant" : undefined);
+
 /**
  * A glyph, or the name's first letter where the entry has none. A glyph of
  * more than two characters (a profile "1/3", a channel "64–47") is set
@@ -176,7 +179,7 @@ export function markClass(glyph: string, base: string): string {
 export function Mark({ glyph, title }: { glyph: string; title: string }) {
   const cls = !glyph ? "ob-enc-mark ob-enc-mark--letter" : markClass(glyph, "ob-enc-mark");
   return (
-    <span className={cls} aria-hidden="true">
+    <span className={cls} aria-hidden="true" lang={glyphLang(glyph)}>
       {glyph || title.charAt(0)}
     </span>
   );

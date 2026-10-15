@@ -15,7 +15,7 @@ import { LICHUN, termMs } from "./terms";
 import { solarMonthAt } from "./pillars";
 import { cnWord, theAnimal, type ChineseWordKey } from "./words";
 import { PLACE_ANIMAL, PLACE_WORD } from "./zodiac-places";
-import { said } from "./both";
+import { deFr, said } from "./both";
 import { ANIMAL_PORTRAITS, PLACE_TEXTS, RELATION_PRACTICE, pairText } from "./zodiac-texts";
 import type { ZodiacChart, ZodiacPlace, ZodiacPlaceId } from "./zodiac";
 import { branchRelations, RELATION_NAMES, trineOf, type PlacedRelation, type RelationKind } from "./relations";
@@ -201,6 +201,8 @@ function relationReading(z: ZodiacChart, r: PlacedRelation<ZodiacPlaceId>, local
       cnWord(locale, "zkTrineFull", {
         places: whole.places.map((id) => cnWord(locale, PLACE_WORD[id]).toLowerCase()).join(", "),
         phase: (locale === "fr" ? phase.fr : phase.en).toLowerCase(),
+        // « un trigone entier d’eau » (the review of part 20).
+        dePhase: deFr(phase.fr.toLowerCase()),
       }),
     );
   }

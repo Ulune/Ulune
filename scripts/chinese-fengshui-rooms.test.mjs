@@ -5,7 +5,9 @@
  * a backup (only well-formed homes and rooms), how a backup's homes join,
  * and the texts' typography and tone. Made-up homes only. And (reorganisation
  * plan, R9) the homes as the chart switcher lists them: the same homes as the
- * record, and each one's line under its name, in both languages.
+ * record, and each one's line under its name, in both languages. Part 27's
+ * review fix FS30: near a mountain's edge, the rooms read against the chart
+ * picked on the figure, and saying which.
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -15,7 +17,7 @@ import { cleanHomeCore, cleanHomeList } from "../src/lib/chinese/fengshui-home-c
 import { facingOf, homeLine, mountainNameAt } from "../src/lib/chinese/fengshui-home-line.ts";
 import { parseFacing } from "../src/studio/modes/fengshui-home-state.ts";
 import { placesWords } from "../src/lib/i18n/catalog/places-words.ts";
-import { fssPalaceRef } from "../src/lib/chinese/fengshui-stars-reading.ts";
+import { fssPalaceRef, roomsChart } from "../src/lib/chinese/fengshui-stars-reading.ts";
 import { ROOMS_MAX, ROOM_KINDS, cleanRooms, roomFit, roomUse } from "../src/lib/chinese/fengshui-rooms.ts";
 import { ROOM_FIT_TEXTS, ROOM_NAMES, ROOMS_HERE } from "../src/lib/chinese/fengshui-rooms-texts.ts";
 import { listWords, roomLines, roomsLabel } from "../src/lib/chinese/fengshui-rooms-reading.ts";
@@ -108,16 +110,67 @@ test("the table's text and file", () => {
   assert.ok(part.lines.includes("North-East palace: Kitchen and Bathroom or toilet"), part.lines.join(" / "));
   assert.ok(part.lines.some((l) => l.startsWith("  For your kitchen")));
   const csv = homeTableCsv(ctx).split("\n");
-  assert.ok(csv.includes("room,id,kind,palace,fit"));
-  assert.ok(csv.includes("room,r1,kitchen,ne,active:elsewhere:water:5"));
-  assert.ok(csv.includes("room,r3,bedroom,n,quiet:neither:mountain:7"));
+  // The last column names the chart each room is read against (the review's FS30): here the only one.
+  assert.ok(csv.includes("room,id,kind,palace,fit,chart"));
+  assert.ok(csv.includes("room,r1,kitchen,ne,active:elsewhere:water:5,main"));
+  assert.ok(csv.includes("room,r3,bedroom,n,quiet:neither:mountain:7,main"));
+  // Clear of a mountain's edge, nothing about charts in the text.
+  assert.ok(!part.lines.some((l) => /edge|chart/.test(l)), part.lines.join(" / "));
   // Without rooms, no part and no rows.
   const bare = { ...ctx, rooms: [] };
   assert.equal(homeTextParts(bare, "", "en", full).find((p) => p.id === "rooms"), undefined);
   assert.ok(!homeTableCsv(bare).includes("room,"));
   // Rooms without a year: placed, not read.
   const noYear = { ...ctx, period: null, stars: null };
-  assert.ok(homeTableCsv(noYear).includes("room,r1,kitchen,ne,"));
+  assert.ok(homeTableCsv(noYear).split("\n").includes("room,r1,kitchen,ne,,"));
+});
+
+test("near a mountain's edge, the rooms follow the chart picked on the figure, and say which (the review's FS30)", () => {
+  // 170°: Bing, 2.5° from Wu's edge, built 1998: a replacement chart beside the main one.
+  const edge = homeOf(170, "compass", null);
+  assert.equal(edge.edge.level, "replacement");
+  const placed = [
+    { id: "r1", kind: "bedroom", palace: "ne" },
+    { id: "r2", kind: "kitchen", palace: "ne" },
+  ];
+  const onMain = homeStars(edge, period, 2026, null, placed);
+  const onTi = homeStars(edge, period, 2026, null, placed, null, "ti");
+  assert.equal(onMain.pick, "main", "the main chart unless another is picked");
+  assert.equal(onTi.pick, "ti");
+  assert.deepEqual(roomsChart(onMain), { v: "main", chart: onMain.main });
+  assert.deepEqual(roomsChart(onTi), { v: "ti", chart: onTi.ti });
+  // The two charts' north-east: mountain 6 or 4, water 8 either way.
+  assert.deepEqual([onMain.main.palaces.ne.mountain, onTi.ti.palaces.ne.mountain, onMain.main.palaces.ne.water, onTi.ti.palaces.ne.water], [6, 4, 8, 8]);
+  // Clear of the edge, a replacement picked earlier reads the main chart: there is no other.
+  const clear = homeStars(home, period, 2026, null, rooms, null, "ti");
+  assert.equal(clear.ti, null);
+  assert.equal(clear.pick, "main");
+  assert.equal(roomsChart(clear).v, "main");
+  // The table's text says which chart, in both languages; the CSV reads each room against it and names it.
+  const at = (stars) => ({ home: edge, period, people: [], place: "", declination: null, stars, years: null, rooms: placed });
+  for (const [s, v, en, fr, n] of [
+    [onMain, "main", "main chart", "thème principal", 6],
+    [onTi, "ti", "replacement chart", "thème de remplacement", 4],
+  ]) {
+    assert.equal(homeTextParts(at(s), "", "en", full).find((p) => p.id === "rooms").lines[1], `Near the mountain’s edge, your rooms are read against the ${en}, the one picked on the figure.`);
+    assert.equal(homeTextParts(at(s), "", "fr", full).find((p) => p.id === "rooms").lines[1], `Près du bord de la montagne, vos pièces sont lues d’après le ${fr}, celui choisi sur la figure.`);
+    const csv = homeTableCsv(at(s)).split("\n");
+    assert.ok(csv.includes(`room,r1,bedroom,ne,quiet:neither:mountain:${n},${v}`), csv.filter((l) => l.startsWith("room")).join(" / "));
+    assert.ok(csv.includes(`room,r2,kitchen,ne,active:neither:water:8,${v}`));
+    // The table's reading of the room, in the text: the picked chart's mountain star.
+    assert.ok(homeTextParts(at(s), "", "en", full).find((p) => p.id === "rooms").lines.some((l) => l.includes(`For your bedroom, a quiet room, the schools read the mountain star: here the ${n === 6 ? "6 White" : "4 Green"}`)));
+  }
+  // Each palace's reading near the edge says which chart its rooms are read against: its own.
+  for (const [v, word] of [["main", "main chart"], ["ti", "replacement chart"]]) {
+    const r = homeReading(at(onTi), fssPalaceRef(v, "ne"), "en", full);
+    const here = r.sections.find((x) => x.id === "rooms");
+    assert.equal(here.paragraphs[0], "In this palace: your bedroom and your kitchen.");
+    assert.equal(here.paragraphs[1], `Your rooms are read here against the ${word}.`);
+    assert.match(here.paragraphs[2], new RegExp(`here the ${v === "ti" ? "4 Green" : "6 White"}`));
+  }
+  assert.equal(homeReading(at(onTi), fssPalaceRef("ti", "ne"), "fr", full).sections.find((x) => x.id === "rooms").paragraphs[1], "Vos pièces sont lues ici d’après le thème de remplacement.");
+  // Clear of the edge, no such line.
+  assert.ok(!homeReading(ctx, fssPalaceRef("main", "ne"), "en", full).paragraphs.some((p) => /read here against/.test(p)));
 });
 
 test("the home record as read back: only well-formed homes and rooms", () => {

@@ -288,7 +288,7 @@ for (const [width, height] of [[390, 664], [640, 450]]) {
 
 /* --------------------------------------------- the Chinese pages (part 30) */
 
-const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-home"];
+const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home"];
 /** Each page's table twin, shown by the toolbar's Table. */
 const TWIN = {
   zodiac: "zodiac-table",
@@ -298,6 +298,7 @@ const TWIN = {
   "bazi-luck": "bazi-luck-table",
   "bazi-pair": "bazi-pair-table",
   fengshui: "fengshui-table",
+  "fengshui-pair": "fengshui-pair-table",
   "fengshui-home": "fengshui-home-table",
 };
 /** Each page's figure, waited for before it is measured. */
@@ -309,6 +310,7 @@ const FIGURE = {
   "bazi-luck": "bazi-luck",
   "bazi-pair": "bazi-pair",
   fengshui: "fengshui",
+  "fengshui-pair": "fengshui-pair",
   "fengshui-home": "fengshui-home",
 };
 const PHASE_WORDS = {
@@ -514,6 +516,7 @@ const CHOOSE = {
   "bazi-luck": "bazi-luck-yang-2",
   "bazi-pair": "bazi-pair-a-day-branch",
   fengshui: "fengshui-wedge-yang-s",
+  "fengshui-pair": "fengshui-pair-wedge-s",
   "fengshui-home": "fengshui-stars-main-c",
 };
 const WESTERN = ["natal", "transits", "design", "numerology", "timing"];

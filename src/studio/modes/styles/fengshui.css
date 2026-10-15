@@ -134,9 +134,21 @@
   stroke-width: 3px;
   stroke-linejoin: round;
 }
+/* The trigrams, drawn (review fix FS7): bars in the phase's ink, never a font's glyph. */
 .ulune-fs-tri {
-  font-size: 20px;
-  fill: var(--ph-ink) !important;
+  fill: var(--ph-ink);
+  pointer-events: none;
+}
+/* Over the hatching, a margin of the ground round each bar, as round the words. */
+.ulune-fs-wedge.is-hard .ulune-fs-tri rect {
+  paint-order: stroke;
+  stroke: var(--color-bg-elevated);
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
+}
+.ulune-fs-centre-bars {
+  fill: var(--color-fg-muted);
+  pointer-events: none;
 }
 .ulune-fs-dir {
   font-size: 14px;
@@ -285,4 +297,16 @@
     width: min(100%, 420px);
     margin: 0 auto;
   }
+}
+
+/*
+ * A table's sentences (how a Kua is counted, the practical lines, the facing's
+ * lines, a room's reading, the year's lines) wrap within the table on a
+ * computer rather than run past its edge (part 27, the review's check of the
+ * pages); below 640 px each row folds into an item anyway (tables.css).
+ */
+.ulune-data-table.ulune-fs-prose td:last-child {
+  white-space: normal;
+  min-width: 16rem;
+  text-wrap: pretty;
 }

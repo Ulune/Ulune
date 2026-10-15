@@ -26,6 +26,8 @@ export const STUDIO_PAGES = [
   "fengshui",
   // 2.0: its Home lens, the home's facing (part 22).
   "fengshui-home",
+  // 2.0: its Relationship lens, two people in one home (review items FS5 and FS32).
+  "fengshui-pair",
 ] as const;
 
 export type StudioPage = (typeof STUDIO_PAGES)[number];

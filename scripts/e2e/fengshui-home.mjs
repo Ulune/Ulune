@@ -41,11 +41,22 @@
  *     their average used as the facing; on a computer, no compass button;
  *   - the table; Settings' "South at the top" followed at once;
  *   - nothing sent while the page works or reads the compass; nothing
- *     scrolls sideways.
+ *     scrolls sideways;
+ *   - (part 27, the review's fixes) the trigrams drawn by Ulune on the
+ *     house's card and the luopan (FS7); after a pair's two faces, the one
+ *     that applies here from its stars' states (FS35); near a mountain's
+ *     edge, the rooms read against the chart picked on the figure, and saying
+ *     which (FS30); and (FS13) the page without a birth chart, at 1280 in
+ *     English and 390 in French: Feng Shui's own page still asks for one, its
+ *     Home does not (no form, the side panel's first read, a facing, a year,
+ *     the stars and a palace's pair, a map's bearing taken as it is, the
+ *     table and its ways out), "the house and you" asks for one, the form
+ *     says why and leads back, and the cast brings the reader's Kua to the
+ *     home; nothing sent or kept in plain storage meanwhile.
  */
 import { join } from "node:path";
 import { chromium } from "playwright";
-import { FIXTURE_A, SHOTS, VIEWPORTS, assertNoOverflow, castFixture, clickDockTab, createSpace, ensureShotsDir, goStudioPage, gotoApp, readSpaceRecord, setLang, setView, unlockSpace } from "./_lib.mjs";
+import { FIXTURE_A, SHOTS, VIEWPORTS, assertNoOverflow, castFixture, clickDockTab, createSpace, ensureShotsDir, goStudioPage, gotoApp, openExport, pickPlace, readSpaceRecord, setLang, setView, unlockSpace } from "./_lib.mjs";
 import { watchSent } from "./_sent.mjs";
 
 const WORDS = {
@@ -73,6 +84,16 @@ const WORDS = {
     star8: "The 8 White, Zuo Fu, is earth, the trigram Gen",
     label: "Kitchen · Bath",
     kitchen: "Kitchen",
+    face: "Here neither star is in season, though the mountain star is only just past its time: read “out of season”, more gently for the people of the home than for what comes in.",
+    ti: "Near the mountain’s edge, your rooms are read against the replacement chart, the one picked on the figure.",
+    tiHere: "Your rooms are read here against the replacement chart.",
+    kuaNeeds: "To open Feng Shui",
+    h1: "Feng Shui: your home",
+    noChart: "A birth chart adds your Kua: whether the house is of your group",
+    noDecl: "With no birth chart, Ulune has no place to work out the magnetic declination",
+    mapNoDecl: "Read on a map (180° true), taken as magnetic: without a place, no declination could be applied.",
+    formLine: "Cast your chart and your Kua joins your home: how the house suits you, and which of your directions it faces.",
+    back: "Back to your home",
   },
   fr: {
     first: "Votre logement, pas à pas",
@@ -98,6 +119,16 @@ const WORDS = {
     star8: "Le 8 Blanc, Zuo Fu, est la terre, le trigramme Gen",
     label: "Cuisine · Eau",
     kitchen: "Cuisine",
+    face: "Ici, aucune des deux étoiles n’est en saison, mais celle de la montagne vient à peine de passer son temps\u202f: lisez «\u202fhors saison\u202f», plus doucement pour les habitants que pour ce qui arrive.",
+    ti: "Près du bord de la montagne, vos pièces sont lues d’après le thème de remplacement, celui choisi sur la figure.",
+    tiHere: "Vos pièces sont lues ici d’après le thème de remplacement.",
+    kuaNeeds: "Pour ouvrir Feng Shui",
+    h1: "Feng Shui\u202f: votre logement",
+    noChart: "Un thème natal ajoute votre Kua\u202f: si la maison est de votre groupe",
+    noDecl: "Sans thème natal, Ulune n’a pas de lieu pour calculer la déclinaison magnétique",
+    mapNoDecl: "Lue sur une carte (180° géographique), prise comme magnétique\u202f: sans lieu, aucune déclinaison n’a pu être appliquée.",
+    formLine: "Calculez votre thème et votre Kua rejoindra votre logement\u202f: comment la maison vous convient, et vers lesquelles de vos directions elle est tournée.",
+    back: "Retour à votre logement",
   },
 };
 const note = (page) => page.getByTestId("click-note").evaluate((e) => e.textContent ?? "").catch(() => "");
@@ -166,6 +197,12 @@ async function run(width, lang) {
     const yangHouse = await text(page, "fengshui-home-house-yang");
     const yinHouse = await text(page, "fengshui-home-house-yin");
     if (!yangHouse.includes(w.same) || !yinHouse.includes(w.other)) throw new Error(`${label}: the houses "${yangHouse}" / "${yinHouse}"`);
+    // (part 27, FS7) The house's trigram drawn on its card: Kan ☵, sitting in the north; its symbol kept for screen readers.
+    const houseTri = await page.evaluate(() => {
+      const t = document.querySelector("[data-testid=fengshui-home-house-yang] [data-trigram]");
+      return `${t?.getAttribute("data-trigram")}:${t?.querySelectorAll("rect").length ?? 0}:${t?.querySelector(".sr-only")?.textContent}`;
+    });
+    if (houseTri !== "kan:5:☵") throw new Error(`${label}: the house's trigram ${houseTri}`);
     await assertNoOverflow(page);
     await page.screenshot({ path: join(SHOTS, `fengshui-home-${lang}-${width}.png`) }).catch(() => {});
 
@@ -211,6 +248,8 @@ async function run(width, lang) {
     await waitNote(page, w.palace, label, "the south palace's reading");
     // (part 27) The pair of mountain and water read together, and the mountain star's own reading from its fact.
     await waitNote(page, w.pair, label, "the south palace's pair");
+    // (part 27, FS35) Then the face that applies here: the 8 just past its time in Period 9, the 6 out of season.
+    await waitNote(page, w.face, label, "the face that applies here");
     await page.locator("[data-testid=click-note] [data-ref='fss:star:8']").first().click();
     await waitNote(page, w.star8, label, "the 8 White's reading");
     if (phone) await clickDockTab(page, "reading").catch(() => {});
@@ -277,6 +316,26 @@ async function run(width, lang) {
     await assertNoOverflow(page);
     await page.getByTestId("fengshui-rooms").evaluate((el) => el.scrollIntoView({ block: "center" }));
     await page.screenshot({ path: join(SHOTS, `fengshui-rooms-${lang}-${width}.png`) }).catch(() => {});
+    // (part 27, FS30) Near a mountain's edge (170°), the rooms follow the chart picked on the figure, and say which.
+    if (await page.getByTestId("fengshui-rooms-against").count()) throw new Error(`${label}: a chart named for the rooms clear of any edge`);
+    await page.getByTestId("fengshui-home-facing").fill("170");
+    await page.getByTestId("fengshui-rooms-against").waitFor({ timeout: 4000 });
+    if ((await page.getByTestId("fengshui-rooms-against").getAttribute("data-chart")) !== "main") throw new Error(`${label}: the rooms read first against the ${await page.getByTestId("fengshui-rooms-against").getAttribute("data-chart")} chart`);
+    await page.getByTestId("fengshui-stars-pick-ti").click();
+    await page.waitForFunction(() => document.querySelector("[data-testid=fengshui-rooms-against]")?.getAttribute("data-chart") === "ti", null, { timeout: 4000 });
+    const against = await text(page, "fengshui-rooms-against");
+    if (against !== w.ti) throw new Error(`${label}: the rooms' chart "${against}"`);
+    await page.getByTestId("fengshui-rooms-open-ne").click();
+    if (phone) await clickDockTab(page, "reading");
+    // The line stands with the rooms' readings, in the full reading.
+    await page.getByTestId("reading-depth-full").click();
+    await waitNote(page, w.tiHere, label, "the north-east's rooms against the replacement chart");
+    await page.getByTestId("reading-depth-short").click();
+    if (phone) await clickDockTab(page, "reading").catch(() => {});
+    if ((await page.getByTestId("fengshui-stars-ti-ne").getAttribute("aria-pressed")) !== "true") throw new Error(`${label}: the room's palace is not the replacement chart's`);
+    await page.getByTestId("fengshui-stars-pick-main").click();
+    await page.getByTestId("fengshui-home-facing").fill("180");
+    await page.getByTestId("fengshui-rooms-against").waitFor({ state: "detached", timeout: 4000 });
 
     // Back to the luopan for the mountains.
     await page.getByTestId("fengshui-home-fig-luopan").click();
@@ -284,6 +343,13 @@ async function run(width, lang) {
     // (part 25) The year's afflictions on the luopan's rim.
     const arcs = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll("[data-testid^=fengshui-home-aff-]")].map((e) => [e.getAttribute("data-testid").slice(18), e.getAttribute("data-aff")])));
     if (arcs[yr.taiSui] !== "tai-sui" || arcs[yr.breaker] !== "year-breaker" || !yr.killings.split(" ").every((m) => arcs[m] === "three-killings" || m === yr.breaker) || Object.keys(arcs).length < 4) throw new Error(`${label}: the luopan's afflictions ${JSON.stringify(arcs)}`);
+    // (part 27, FS7) The eight trigrams drawn on the luopan, none left to a font: Li ☲ in the south.
+    const luoTri = await page.evaluate(() => ({
+      drawn: document.querySelectorAll("[data-testid=fengshui-home-dial] [data-dir] [data-trigram]").length,
+      south: document.querySelectorAll("[data-testid=fengshui-home-dial] [data-dir=s] [data-trigram] rect").length,
+      glyphs: [...document.querySelectorAll("[data-testid=fengshui-home-dial] text")].filter((t) => /[☰-☷]/u.test(t.textContent ?? "")).length,
+    }));
+    if (luoTri.drawn !== 8 || luoTri.south !== 4 || luoTri.glyphs) throw new Error(`${label}: the luopan's trigrams ${JSON.stringify(luoTri)}`);
     await page.screenshot({ path: join(SHOTS, `fengshui-stars-${lang}-${width}.png`) }).catch(() => {});
 
     // A mountain's reading; the arrows walk round the dial.
@@ -446,6 +512,13 @@ async function kept() {
     // (R9) The chart switcher: the home under the people, with its facing, marked as the one open here.
     await openSwitcher();
     await page.getByTestId("home-row").waitFor({ timeout: 8000 });
+    // "People" heads the charts only when the homes' code was there as the switcher opened (picker-places.tsx,
+    // fetched at idle): when it came while it was open, the switcher opened again shows both groups.
+    if ((await heads()).join() !== "People,Homes") {
+      await closeSwitcher();
+      await openSwitcher();
+      await page.getByTestId("home-row").waitFor({ timeout: 8000 });
+    }
     const peopleBefore = await people();
     let rows = await homeRows();
     if (rows.length !== 1 || rows[0].name !== NAME || !rows[0].text.includes("180° · Wu") || !rows[0].on) throw new Error(`kept: the switcher's homes ${JSON.stringify(rows)}`);
@@ -540,12 +613,145 @@ async function kept() {
   }
 }
 
+/**
+ * (part 27, the review's FS13) The Home page without a birth chart: everything
+ * but "the house and you", which asks for one; the form it opens says why and
+ * leads back; the cast brings the reader's Kua to the home.
+ */
+async function noChart(width, lang) {
+  const phone = width < 1024;
+  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  const context = await browser.newContext({ viewport: VIEWPORTS[width], hasTouch: phone, isMobile: phone });
+  const page = await context.newPage();
+  page.setDefaultTimeout(20000);
+  const label = `no chart ${width} ${lang}`;
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(String(e)));
+  const w = WORDS[lang];
+  const sheet = async (open) => {
+    if (phone) await clickDockTab(page, "reading").catch((e) => (open ? Promise.reject(e) : undefined));
+  };
+  try {
+    await gotoApp(page);
+    await page.waitForSelector("#native-name", { timeout: 20000 });
+    if (lang === "fr") await setLang(page, "fr");
+    // Nothing but the app's own files, by GET, until the cast (_sent.mjs).
+    const sent = watchSent(page);
+    // Feng Shui's own page still asks for a chart: the form, saying so.
+    await goStudioPage(page, "fengshui");
+    await page.getByTestId("birth-mode-line").waitFor({ timeout: 20000 });
+    const kuaLine = (await page.getByTestId("birth-mode-line").innerText()).trim();
+    if (!kuaLine.startsWith(w.kuaNeeds)) throw new Error(`${label}: Feng Shui's page without a chart "${kuaLine}"`);
+    // Its Home needs none: the page itself, no form, the side panel with its reading only.
+    await goStudioPage(page, "fengshui-home");
+    await page.getByTestId("fengshui-home").waitFor({ timeout: 20000 });
+    if (new URL(page.url()).pathname !== "/feng-shui/home") throw new Error(`${label}: at ${page.url()}`);
+    if (await page.locator("#native-name").count()) throw new Error(`${label}: the birth form on the Home page`);
+    const shell = await page.evaluate(() => ({
+      tabs: [...document.querySelectorAll("[data-testid^=dock-tab-]")].map((e) => e.getAttribute("data-testid")).join(),
+      h1: [...document.querySelectorAll("h1")].map((e) => e.textContent).join(" | "),
+    }));
+    if (shell.tabs !== "dock-tab-reading" || shell.h1 !== w.h1) throw new Error(`${label}: the shell ${JSON.stringify(shell)}`);
+    // The first read: how to find the facing, and what a chart would add, with the way to cast one.
+    await sheet(true);
+    await page.getByTestId("fengshui-home-hello-cast").waitFor({ timeout: 8000 });
+    const hello = await text(page, "fengshui-home-hello");
+    if (!hello.includes(w.first) || !hello.includes(w.noChart)) throw new Error(`${label}: the first read "${hello.slice(0, 200)}"`);
+    await sheet(false);
+    // A facing: the luopan's axis. From a map, there is no place for the declination: the bearing is taken as it is, and the page says so.
+    await page.getByTestId("fengshui-home-facing").fill("180");
+    await page.getByTestId("fengshui-home-source-map").check();
+    const hint = await text(page, "fengshui-home-map-hint");
+    if (!hint.startsWith(w.noDecl)) throw new Error(`${label}: the map's hint "${hint}"`);
+    if ((await page.getByTestId("fengshui-home-axis").getAttribute("data-facing")) !== "180.0") throw new Error(`${label}: a declination applied without a place`);
+    if (await page.getByTestId("fengshui-home-declination").count()) throw new Error(`${label}: a declination's line without a place`);
+    await page.getByTestId("fengshui-home-facing-card").click();
+    await sheet(true);
+    await waitNote(page, w.mapNoDecl, label, "the facing's reading from a map without a place");
+    await sheet(false);
+    await page.getByTestId("fengshui-home-source-compass").check();
+    // A year: the period and the stars; "the house and you" waits for a chart.
+    await page.getByTestId("fengshui-home-year").fill("1998");
+    await page.getByTestId("fengshui-stars").waitFor({ timeout: 8000 });
+    if (await page.locator("[data-testid=fengshui-home-house-yang], [data-testid=fengshui-home-house-yin]").count()) throw new Error(`${label}: a house card without a Kua`);
+    const invite = await text(page, "fengshui-home-house-none");
+    const period = await text(page, "fengshui-home-period");
+    if (!invite.includes(w.noChart) || !period.includes(w.period)) throw new Error(`${label}: the cards "${invite}" / "${period}"`);
+    // A palace's reading: its pair, and the face that applies here (FS35).
+    await page.getByTestId("fengshui-stars-main-s").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.getByTestId("fengshui-stars-main-s").click();
+    await sheet(true);
+    await waitNote(page, w.pair, label, "the south palace's pair without a chart");
+    await waitNote(page, w.face, label, "the face that applies here without a chart");
+    await sheet(false);
+    await assertNoOverflow(page);
+    await page.getByTestId("fengshui-home-house-none").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.screenshot({ path: join(SHOTS, `fengshui-home-nochart-${lang}-${width}.png`) }).catch(() => {});
+    // The table, and its ways out: its text and CSV, nothing of a chart's.
+    await setView(page, "table");
+    await page.getByTestId("fengshui-home-table").waitFor({ timeout: 10000 });
+    const lines = await page.locator("[data-testid^=fengshui-home-row-]").count();
+    if (lines !== 4) throw new Error(`${label}: the table's ${lines} lines (no house without a Kua)`);
+    await openExport(page);
+    await page.getByTestId("table-csv").waitFor({ timeout: 8000 });
+    const ways = await page.evaluate(() => ["table-copy", "table-csv", "export-png", "export-print", "export-copy"].filter((id) => document.querySelector(`[data-testid=export-panel] [data-testid=${id}]`)));
+    if (ways.join() !== "table-copy,table-csv") throw new Error(`${label}: the ways out ${ways}`);
+    await page.keyboard.press("Escape");
+    await page.getByTestId("export-panel").waitFor({ state: "detached", timeout: 4000 }).catch(() => {});
+    await setView(page, "wheel");
+    await page.getByTestId("fengshui-home").waitFor({ timeout: 10000 });
+    // Nothing of the home in the browser's plain storage.
+    const plain = await page.evaluate(() => JSON.stringify([{ ...localStorage }, { ...sessionStorage }]));
+    if (plain.includes("1998")) throw new Error(`${label}: the home's year in plain storage`);
+    if (sent.length) throw new Error(`${label}: sent ${sent.join(", ")}`);
+    // "Cast a birth chart": the form, a line on what it brings, the way back to the home as it was.
+    await page.getByTestId("fengshui-home-cast").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.getByTestId("fengshui-home-cast").click();
+    await page.getByTestId("birth-mode-line").waitFor({ timeout: 8000 });
+    const formLine = (await page.getByTestId("birth-mode-line").innerText()).trim();
+    const back = (await page.getByTestId("birth-back").innerText()).trim();
+    if (formLine !== w.formLine || back !== w.back) throw new Error(`${label}: the form "${formLine}" / "${back}"`);
+    if (await page.getByTestId("guide").count()) throw new Error(`${label}: the first visit's guide under the Home's form`);
+    await page.getByTestId("birth-back").click();
+    await page.getByTestId("fengshui-home").waitFor({ timeout: 8000 });
+    if ((await page.getByTestId("fengshui-home-facing").inputValue()) !== "180") throw new Error(`${label}: the home lost on the way back`);
+    // Cast: back on the Home, its house beside the reader's Kua.
+    await page.getByTestId("fengshui-home-cast").evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.getByTestId("fengshui-home-cast").click();
+    await page.waitForSelector("#native-name", { timeout: 8000 });
+    await page.locator("#native-name").fill(FIXTURE_A.name);
+    await page.locator("#birth-date").fill(FIXTURE_A.date);
+    await page.locator("#birth-time").fill(FIXTURE_A.time);
+    await pickPlace(page, FIXTURE_A.place);
+    await page.getByTestId("cast-submit").click();
+    await page.getByTestId("fengshui-home-house-yang").waitFor({ timeout: 45000 });
+    if (new URL(page.url()).pathname !== "/feng-shui/home") throw new Error(`${label}: after the cast, at ${page.url()}`);
+    const yangHouse = await text(page, "fengshui-home-house-yang");
+    if (!yangHouse.includes(w.same) || (await page.getByTestId("fengshui-home-house-none").count())) throw new Error(`${label}: after the cast "${yangHouse}"`);
+    if ((await page.getByTestId("fengshui-home-facing").inputValue()) !== "180") throw new Error(`${label}: the home lost in the cast`);
+    if (errors.length) throw new Error(`${label}: ${errors.join(" | ")}`);
+    console.log(`fengshui-home ${label} OK`);
+  } finally {
+    await browser.close();
+  }
+}
+
 await ensureShotsDir();
 const failures = [];
 try {
   await kept();
 } catch (e) {
   failures.push(String(e?.message ?? e));
+}
+for (const [width, lang] of [
+  [1280, "en"],
+  [390, "fr"],
+]) {
+  try {
+    await noChart(width, lang);
+  } catch (e) {
+    failures.push(String(e?.message ?? e));
+  }
 }
 for (const [width, lang] of [
   [1280, "en"],

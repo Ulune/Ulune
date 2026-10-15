@@ -405,8 +405,8 @@ test("addresses are unique in each language, never a tradition's home, never ano
   assert.match(got, /gamma\.en\.md:4: the slug "astrology" is a tradition's home address/);
   assert.match(got, /delta\.en\.md:4: the slug "alpha" is already alpha's in this language/);
   assert.match(got, /delta\.en\.md:4: the slug "alpha" is the id of another entry/);
-  // The French homes are taken in French only.
-  assert.ok(TRADITIONS.every((t) => t.home.en !== t.home.fr || t.id === "astrology"));
+  // Each tradition's home is its own in each language (BaZi and Feng Shui keep their names in French, part 23).
+  for (const lang of ["en", "fr"]) assert.equal(new Set(TRADITIONS.map((t) => t.home[lang])).size, TRADITIONS.length, lang);
 });
 
 test("French texts: narrow no-break spaces before : ; ! ? and inside « », typographic apostrophes", () => {
@@ -655,7 +655,8 @@ test("the sitemap: the app's public pages, then every encyclopedia page in both 
   }
   // No entry without a page, and the homes INDEXED_PAGES names are those the index has.
   assert.ok(paths.includes("/encyclopedia/master-numbers") && paths.includes("/encyclopedie/nombres-maitres") && paths.includes("/encyclopedia/gate"));
-  const homes = encyclopediaPairs(index).slice(0, 1 + index.traditions.filter((t) => t.count > 0).length).flatMap((p) => [p.en, p.fr]);
+  // A tradition has a home once it has an entry or its introduction is written (part 23).
+  const homes = encyclopediaPairs(index).slice(0, 1 + index.traditions.filter((t) => t.count > 0 || t.about).length).flatMap((p) => [p.en, p.fr]);
   assert.deepEqual(INDEXED_PAGES.filter((p) => p.startsWith("/encycloped")), homes);
   const xml = sitemapXml(index);
   assert.match(xml, /<loc>https:\/\/ulune\.app\/encyclopedie\/eclipse<\/loc><xhtml:link rel="alternate" hreflang="en" href="https:\/\/ulune\.app\/encyclopedia\/eclipse"\/>/);

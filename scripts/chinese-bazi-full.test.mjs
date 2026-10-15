@@ -40,7 +40,8 @@ test("every pillar by every layer, with the luck pillar and the year of the mome
   assert.deepEqual(rows.map((r) => r.id), ["year", "month", "day", "hour", "luck-yang", "luck-yin", "flow-year"]);
   assert.deepEqual(rows.map((r) => r.kind), ["natal", "natal", "natal", "natal", "luck", "luck", "year"]);
   assert.deepEqual(rows[2].ids, ["full", "day", "xin-hai", "xin", "day-master", "hai", "ren:70:hurting-officer|jia:30:direct-wealth", "bath", "釵釧金", "0", "golden-carriage|heavenly-virtue", "clash:day-hour", "wood:0.3|metal:1|water:0.7"]);
-  assert.equal(rows[3].stage, "Death · sǐ 死");
+  // Ulune's name for 死 (part 20); the CSV keeps the id "death".
+  assert.equal(rows[3].stage, "Rest · sǐ 死");
   assert.equal(rows[3].links, "Clash · Day");
   assert.equal(rows[0].points, "Fire 0.7 · Earth 0.3 · Metal 1");
   assert.equal(rows[4].label, "Luck pillar · 27–37 · Yang count");
@@ -72,11 +73,12 @@ test("Copy's lines and the CSV", () => {
   assert.equal(parts[0].lines[0], "Camille · Le thème, couche par couche");
   assert.equal(
     parts[0].lines[1],
-    "Pilier de l’année : Cheval de Métal yang | Rival | Cheval · Feu | Troncs cachés Feu yin 70 Sept Tueurs · Terre yin 30 Ressource indirecte | Stade de vie Maladie | Na Yin Terre du bord de la route | Branche vide – | Étoiles symboliques Noble céleste | Rencontre Autopunition · Mois | Points Feu 0,7 · Terre 0,3 · Métal 1",
+    "Pilier de l’année\u202f: Cheval de Métal yang | Rival | Cheval · Feu | Troncs cachés Feu yin 70 Sept Tueurs · Terre yin 30 Ressource indirecte | Stade de vie Retrait | Na Yin Terre du bord de la route | Branche vide – | Étoiles symboliques Noble céleste | Rencontre Autopunition · Mois | Points Feu 0,7 · Terre 0,3 · Métal 1",
   );
   assert.equal(fullLines(baziFullRows(c, "en", full, time), "en").length, 6);
   const csv = baziTableCsv(c, time).split("\n");
   assert.ok(csv.includes("full,row,pillar,stem,stemGod,branch,hiddenStems,stage,naYin,empty,stars,links,points"));
   assert.ok(csv.includes("full,luck-yang,yi-you,yi,indirect-wealth,you,xin:100:companion,prosperity,泉中水,0,prosperity-star|red-phoenix,stem-combination:year|stem-clash:day,"), csv.join("\n"));
   assert.ok(csv.includes("full,flow-year,bing-wu,bing,direct-officer,wu,ding:70:seven-killings|ji:30:indirect-resource,sickness,天河水,0,nobleman|general|monthly-virtue,stem-combination:day|stem-clash:month|self-punishment:year|self-punishment:month,"));
+  assert.ok(csv.some((l) => l.startsWith("full,hour,") && l.includes(",death,")), "the stages keep their classical ids (part 20)");
 });

@@ -4,6 +4,8 @@
  * Paris), a Xin (Yin Metal) Day Master:
  *   - reached by its card in the language picker, under Chinese traditions,
  *     its card giving its own name, bāzì 八字, and saying it is new (part 28);
+ *     its ⓘ leads to BaZi's home in the encyclopedia once that is written
+ *     (lib/chinese/term-live.ts), and is not there before;
  *   - the four columns hour to year (the year on the right), the day's
  *     marked as the Day Master, each stem's god (Eating God, Hurting
  *     Officer, Rob Wealth), the hidden stems (3, 2, 2, 2);
@@ -13,7 +15,9 @@
  *     Yin; the stars (Nobleman on the year and month, Golden Carriage and
  *     Heavenly Virtue on the day, General on the month, Travelling Horse on
  *     the hour), no empty pillar; a stage's reading says why, a star's how
- *     it is found; the stars panel and the empty branches;
+ *     it is found; the stars panel and the empty branches; (part 20) the
+ *     stages by Ulune's names (Rest, Retreat), the hour's reading keeping
+ *     the classical name, sǐ 死, "Death";
  *   - (part 14) under the board the interactions between the pillars: the
  *     day and hour's clash and the year and month's self-punishment, side
  *     by side; choosing the clash outlines the day and hour branches and
@@ -34,9 +38,13 @@
  *     first read says what the day rule gives, with the way to Settings, and
  *     follows a change of rule at once; on Pair, the note names its person.
  */
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { FIXTURE_A, FIXTURE_B, SHOTS, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, launch, setLang, setView } from "./_lib.mjs";
 import { watchSent } from "./_sent.mjs";
+
+// BaZi's home in the encyclopedia, once written (encyclopedia plan, part 23): the picker's ⓘ leads there, and there is none before.
+const HOME = /^\s*bazi: \{ en: "([^"]+)", fr: "([^"]+)" \}/m.exec(readFileSync(new URL("../../src/lib/chinese/term-live.ts", import.meta.url), "utf8"));
 
 const WORDS = {
   en: {
@@ -45,8 +53,9 @@ const WORDS = {
     gods: { hour: "Eating God", day: "Day Master", month: "Hurting Officer", year: "Rob Wealth" },
     why: "produces Water",
     qi: "Residual qi",
-    stages: { hour: "Death", day: "Bath", month: "Sickness", year: "Sickness" },
+    stages: { hour: "Rest", day: "Bath", month: "Retreat", year: "Retreat" },
     stageWhy: "being yin, goes backward",
+    classical: "The classics call this stage sǐ 死, “Death”, after a human life",
     starHow: "of the Wood trine",
     empty: "Tiger · Rabbit",
     side: "side by side",
@@ -72,8 +81,9 @@ const WORDS = {
     gods: { hour: "Dieu nourricier", day: "Maître du jour", month: "Officier blessant", year: "Rival" },
     why: "produit l’Eau",
     qi: "Qi résiduel",
-    stages: { hour: "Mort", day: "Bain", month: "Maladie", year: "Maladie" },
+    stages: { hour: "Repos", day: "Bain", month: "Retrait", year: "Retrait" },
     stageWhy: "étant yin, recule",
+    classical: "Les classiques appellent ce stade sǐ 死, «\u202fMort\u202f», d’après une vie humaine",
     starHow: "du trigone du Bois",
     empty: "Tigre · Lapin",
     side: "côte à côte",
@@ -128,7 +138,12 @@ async function run(width, lang) {
     await castFixture(page, FIXTURE_A);
     await page.getByTestId("lang-button").click();
     await page.getByTestId("lang-card-bazi").waitFor({ timeout: 8000 });
-    if (await page.getByTestId("lang-info-bazi").count()) throw new Error(`${label}: an ⓘ to a home that does not exist yet`);
+    const info = page.getByTestId("lang-info-bazi");
+    if (HOME) {
+      const want = lang === "fr" ? `/encyclopedie/${HOME[2]}` : `/encyclopedia/${HOME[1]}`;
+      const href = await info.getAttribute("href", { timeout: 4000 }).catch(() => null);
+      if (href !== want) throw new Error(`${label}: the ⓘ leads to ${href}, not BaZi's home ${want}`);
+    } else if (await info.count()) throw new Error(`${label}: an ⓘ to a home that does not exist yet`);
     // Part 28: its own name in pinyin and characters (Traditional, marked as such), and "new" on a first visit.
     const card = await page.getByTestId("lang-card-bazi").evaluate((b) => ({
       pinyin: b.querySelector("[lang=zh-Latn-pinyin]")?.textContent,
@@ -200,6 +215,8 @@ async function run(width, lang) {
     await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.stageWhy, { timeout: 8000 }).catch(async () => {
       throw new Error(`${label}: the hour's stage reading "${(await page.getByTestId("click-note").textContent().catch(() => "")).slice(0, 300)}"`);
     });
+    // Part 20 (BZ2): the board says Ulune's name; the reading keeps the classical one, its pinyin and characters.
+    if (!(await page.getByTestId("click-note").textContent()).includes(w.classical)) throw new Error(`${label}: the stage's classical name`);
     if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
     await page.getByTestId("bazi-star-hour-travelling-horse").evaluate((el) => el.scrollIntoView({ block: "center" }));
     await page.getByTestId("bazi-star-hour-travelling-horse").click();

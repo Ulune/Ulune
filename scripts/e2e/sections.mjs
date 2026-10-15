@@ -21,8 +21,8 @@
 import { chromium } from "playwright";
 import { DEV, clickTestId, goStudioPage, gotoApp, openMenu, setLang, studioPageNow, waitStudioPage } from "./_lib.mjs";
 
-/** The eight Chinese pages (src/studio/map.ts): Chinese astrology's three, BaZi's three, Feng Shui's two. */
-const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-home"];
+/** The nine Chinese pages (src/studio/map.ts): Chinese astrology's three, BaZi's three, Feng Shui's three. */
+const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home"];
 
 const fail = [];
 const check = (ok, msg) => {
@@ -404,8 +404,8 @@ async function overflow() {
 
 /**
  * The Chinese languages' keys and memory (languages plan, part 28): Alt+1 to
- * Alt+4 choose a lens the language has and nothing else (Feng Shui: Natal and
- * Home; BaZi: Natal, Cycles, Relationship); a language reopens on the lens it
+ * Alt+4 choose a lens the language has and nothing else (Feng Shui: Natal,
+ * Relationship and Home; BaZi: Natal, Cycles, Relationship); a language reopens on the lens it
  * was left on, by the picker's card and by its chip, as this device keeps it.
  */
 async function chinese() {
@@ -423,13 +423,16 @@ async function chinese() {
   };
   try {
     await sample(page);
-    // Feng Shui: Alt+4 its Home, Alt+2 nothing (no Cycles), Alt+1 its Natal.
+    // Feng Shui: Alt+4 its Home, Alt+2 nothing (no Cycles), Alt+3 its two people (FS32), Alt+1 its Natal.
     await goStudioPage(page, "fengshui");
     await press("Alt+4", "fengshui", "fengshui-home");
     check(path() === "/feng-shui/home", `Feng Shui's Home at ${path()}`);
     check((await attr(page, "lens-home", "aria-selected")) === "true", "Alt+4 did not choose the Home lens");
     await press("Alt+2", "fengshui-home");
-    await press("Alt+3", "fengshui-home");
+    await press("Alt+3", "fengshui-home", "fengshui-pair");
+    check(path() === "/feng-shui/pair", `Feng Shui's two people at ${path()}`);
+    check((await attr(page, "lens-relationship", "aria-selected")) === "true", "Alt+3 did not choose Feng Shui's Relationship lens");
+    await press("Alt+4", "fengshui-pair", "fengshui-home");
     await press("Alt+1", "fengshui-home", "fengshui");
     check(path() === "/feng-shui", `Feng Shui's Natal at ${path()}`);
     // BaZi: Alt+2 its luck pillars, Alt+3 its pair page, Alt+4 nothing (no Home), Alt+1 its board.

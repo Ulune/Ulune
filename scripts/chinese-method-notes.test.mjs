@@ -18,7 +18,7 @@ import { TABLE_SOURCE } from "../src/lib/chinese/time-table.ts";
 import { birthMomentOf } from "../src/lib/chinese/zodiac.ts";
 import { chinese } from "../src/lib/i18n/catalog/chinese.ts";
 
-const PAGES = ["zodiac", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-home"];
+const PAGES = ["zodiac", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home"];
 const RULES = ["23:00", "split", "midnight"];
 const LOCALES = ["en", "fr"];
 const prefs = (o = {}) => ({ clock: "true-solar", dayBoundary: "23:00", script: "hant", show: "full", ...o });
@@ -75,7 +75,7 @@ test("born at 23:30: the reader's day rule, the day pillar, and what the other r
   assert.match(keep(notes(LATE, "zodiac"), "en")[0].text, /your day animal is the next day’s/);
   assert.match(keep(notes(LATE, "zodiac-pair"), "en")[0].text, /your day animal is the next day’s/);
   for (const page of ["bazi-luck", "bazi-pair"]) assert.deepEqual(ids(notes(LATE, page)), ["day-boundary"], page);
-  for (const page of ["fengshui", "fengshui-home"]) assert.deepEqual(notes(LATE, page), [], page);
+  for (const page of ["fengshui", "fengshui-pair", "fengshui-home"]) assert.deepEqual(notes(LATE, page), [], page);
   // In French, the hour as French writes it, and each rule.
   for (const dayBoundary of RULES) {
     const [fr] = keep(notes(LATE, "bazi", { dayBoundary }, "fr"), "fr");
@@ -117,6 +117,8 @@ test("the note follows the clock the pillars are read on", () => {
   assert.match(named.text, /so Sample B’s day pillar is the next day’s/);
   assert.match(keep(notes(b, "bazi-pair", {}, "fr", "Sample B"), "fr")[0].text, /et le pilier du jour de Sample B est celui du lendemain/);
   assert.match(keep(notes(b, "zodiac-pair", { dayBoundary: "midnight" }, "fr", "Sample B"), "fr")[0].text, /comme vous l’avez choisi, l’animal du jour de Sample B est /);
+  // French elides « de » before a name that opens on a vowel (the review of part 20).
+  assert.match(keep(notes(b, "bazi-pair", {}, "fr", "Anna"), "fr")[0].text, /et le pilier du jour d’Anna est celui du lendemain/);
 });
 
 test("outside the table's years, the terms come from the formula, said once a page", () => {
@@ -177,7 +179,7 @@ test("a pillar within minutes of its change: the engine's flag, said in the zodi
   for (const n of zk) assert.equal(n.text, chinese.zkUncertainNear[0]);
   const bz = keep(notes(b, "bazi", {}, "fr"), "fr").filter((n) => n.id === "near-year");
   assert.deepEqual(bz.map((n) => `${n.lead} — ${n.text}`), [`Pilier de l’année ~ — ${chinese.zkUncertainNear[1]}`]);
-  for (const page of ["fengshui", "fengshui-home"]) {
+  for (const page of ["fengshui", "fengshui-pair", "fengshui-home"]) {
     for (const locale of LOCALES) {
       const fs = keep(notes(b, page, {}, locale), locale);
       assert.deepEqual(ids(fs), ["near-lichun"], page);
@@ -187,6 +189,8 @@ test("a pillar within minutes of its change: the engine's flag, said in the zodi
   // Without a birth time, on Lichun's day: the Kua's card says it on Feng Shui's page; the home page says it here.
   const noon = birth(new Date(at).toISOString().slice(0, 10) + "T12:00:00Z", 0, 0, true);
   assert.deepEqual(notes(noon, "fengshui").filter((n) => n.id === "near-lichun"), []);
+  // Feng Shui's Relationship says it on each person's Kua card, as the Kua page does.
+  assert.deepEqual(notes(noon, "fengshui-pair").filter((n) => n.id === "near-lichun"), []);
   assert.deepEqual(notes(noon, "fengshui-home").map((n) => n.text), [chinese.fsUncertain[0]]);
 });
 
@@ -211,6 +215,7 @@ test("how Ulune calculates: each language's school and choices, and where the te
     "bazi-luck": [/Zi Ping school/, /luck pillars step from the month pillar/],
     "bazi-pair": [/Zi Ping school/],
     fengshui: [/Eight Mansions school/, /Ba Zhai Ming Jing/, /2 \(Kun\) for the yang count and 8 \(Gen\) for the yin count/],
+    "fengshui-pair": [/Eight Mansions school/, /Ba Zhai Ming Jing/],
     "fengshui-home": [/Eight Mansions school/, /Xuan Kong Flying Stars/, /24 mountains of 15°/, /Within 3°/, /within 1\.5°/, /counted from 1864/, /World Magnetic Model 2025/, /year’s star changes at Lichun/],
   };
   for (const page of PAGES) {
@@ -221,7 +226,7 @@ test("how Ulune calculates: each language's school and choices, and where the te
     // The source, named, and the device.
     assert.ok(how.items.at(-1).includes(`(${TABLE_SOURCE})`) && /worked out on this device; nothing is sent\.$/.test(how.items.at(-1)), page);
     // The day and the hour where the language reads them.
-    assert.equal(how.items.some((t) => /true solar time/.test(t)), page !== "fengshui" && page !== "fengshui-home", page);
+    assert.equal(how.items.some((t) => /true solar time/.test(t)), !page.startsWith("fengshui"), page);
     assert.equal(/luck pillars/.test(all), page === "bazi" || page === "bazi-luck", page);
     for (const locale of LOCALES) for (const t of howUluneCalculates(page, prefs(), locale).items) SAID[locale].add(t);
   }

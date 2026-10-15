@@ -132,6 +132,47 @@
 .ob-enc-tag[data-tradition="numerology"] {
   --tint: var(--el-earth);
 }
+/* The Chinese traditions (part 23): Chinese cosmology in the red of its seals, the three languages beside it. */
+.ob-enc-tag[data-tradition="chinese"] {
+  --tint: var(--el-fire);
+}
+.ob-enc-tag[data-tradition="chinese-astrology"] {
+  --tint: var(--el-air);
+}
+.ob-enc-tag[data-tradition="bazi"] {
+  --tint: color-mix(in oklab, var(--el-fire) 50%, var(--el-air));
+}
+.ob-enc-tag[data-tradition="feng-shui"] {
+  --tint: color-mix(in oklab, var(--el-earth) 50%, var(--el-water));
+}
+
+/* A Chinese name under a title (part 23): characters, then pinyin. */
+.ob-enc-zh-line {
+  margin: 6px 0 0;
+  color: var(--color-fg-muted);
+  font-size: 18px;
+  line-height: 1.4;
+}
+.ob-enc-zh-hanzi {
+  color: var(--color-fg);
+  font-size: 1.1em;
+  letter-spacing: 0.04em;
+}
+.ob-enc-zh-sep {
+  color: var(--color-fg-subtle);
+}
+.ob-enc-zh-pinyin {
+  font-style: italic;
+}
+.ob-enc-trad-zh {
+  color: var(--color-fg-muted);
+  font-size: 0.8em;
+}
+/* A tradition's written introduction (part 23), under its lead. */
+.ob-enc-about {
+  max-width: 720px;
+  margin: 0 0 32px;
+}
 .ob-enc-twin {
   display: inline-flex;
   align-items: baseline;

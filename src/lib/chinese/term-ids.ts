@@ -19,16 +19,17 @@
  *   - "shared": yin and yang, one of the encyclopedia's shared ideas.
  *
  * Nothing links before its page exists: a family links only once it is in
- * LIVE_FAMILIES (term-live.ts), empty until the encyclopedia has written
- * every entry of it; scripts/chinese-term-ids.test.mjs keeps the two in step
+ * LIVE_FAMILIES (term-live.ts), which it joins when the encyclopedia has
+ * written every entry of it; scripts/chinese-term-ids.test.mjs keeps the two in step
  * and these lists equal to the engines'. Until then every word stays plain.
  *
  * Pure, with no engine behind it, and downloaded only once something links:
  * the tables' words (encyclopedia/ChineseTermLink.tsx), a Chinese reading's
  * "In the encyclopedia" (ChineseReadingTerms.tsx) and its linked text
- * (LinkedText.tsx) fetch it when a family is written, never before.
+ * (LinkedText.tsx) fetch it when a family is written, never before. What a
+ * reading is about, from its id, is term-refs.ts: a download of its own, so
+ * the tables' words never bring it (the review of languages part 20, T9).
  */
-import { dayCycleOf } from "./day-cycle";
 import { LIVE_FAMILIES } from "./term-live";
 
 export { CHINESE_READING, LIVE_FAMILIES } from "./term-live";
@@ -91,8 +92,8 @@ const SOLAR_TERMS = words(
 const NA_YIN = words(
   "haizhong-jin luzhong-huo dalin-mu lupang-tu jianfeng-jin shantou-huo jianxia-shui chengtou-tu baila-jin yangliu-mu quanzhong-shui wushang-tu pili-huo songbai-mu changliu-shui shazhong-jin shanxia-huo pingdi-mu bishang-tu jinbo-jin fudeng-huo tianhe-shui dayi-tu chaichuan-jin sangzhe-mu daxi-shui shazhong-tu tianshang-huo shiliu-mu dahai-shui",
 );
-/** A palace of the Lo Shu is its trigram's (坎宮, the Kan palace, in the north); the centre is the Lo Shu's own. */
-const PALACE_TRIGRAM: Readonly<Record<string, string>> = { n: "kan", ne: "gen", e: "zhen", se: "xun", s: "li", sw: "kun", w: "dui", nw: "qian" };
+/** The engines' ids that reading ids give by their index (term-refs.ts: a wheel's animal, a day's pillar, a solar term). */
+export const ENGINE_ORDER = { branches: BRANCHES, animals: ANIMALS, sixty: SIXTY, solarTerms: SOLAR_TERMS } as const;
 const NINE = words("1 2 3 4 5 6 7 8 9");
 const PAIRS = NINE.flatMap((a) => NINE.filter((b) => b >= a).map((b) => `${a}-${b}`));
 
@@ -207,191 +208,4 @@ export function chineseTermIds(family?: ChineseFamily): string[] {
     return [...new Set([...(f.concept ? [f.concept] : []), ...Object.values(f.ids)])];
   }
   return [...OWNER.keys()];
-}
-
-const PLACES = new Set(["year", "month", "day", "hour"]);
-/** A palace's trigram ("n" → "kan"), never a key of Object's prototype. */
-const palaceTrigram = (palace: string | undefined): string | undefined => (palace && Object.hasOwn(PALACE_TRIGRAM, palace) ? PALACE_TRIGRAM[palace] : undefined);
-const index = (s: string | undefined, n: number): number | null => {
-  const i = Number(s);
-  return s != null && /^\d{1,2}$/.test(s) && i < n ? i : null;
-};
-
-/**
- * The entries a Chinese reading is about, from its id alone (the readings'
- * ids: zodiac-reading.ts, zodiac-time-reading.ts, bazi*-reading.ts,
- * fengshui*-reading.ts, and the Calendar's solar terms), whether or not they
- * are written yet. A reading of a thing named by its id gives that thing's
- * entry ("bz:god:eating-god", "fss:star:9", "fsh:mountain:zi"); a reading of
- * a place gives the idea of that place ("bz:stem:day", the Day Master;
- * "bz:hidden:year:1", the hidden stems), since the place alone does not say
- * which stem stands in it. Empty for an id that is not a Chinese reading's.
- */
-export function chineseRefTerms(ref: string): string[] {
-  const out: string[] = [];
-  const push = (term: string | null) => {
-    if (term && !out.includes(term)) out.push(term);
-  };
-  const add: Add = (family, id) => push(chineseTermId(family, id));
-  /** The family's own entry: what a Kua number, a life stage, a relation is. */
-  const concept = (family: ChineseFamily) => push(CHINESE_FAMILIES[family].concept);
-  const p = ref.split(":");
-  switch (p[0]) {
-    case "zk": {
-      // An animal of the wheel ("zk:branch:6"), a relation ("zk:rel:clash:day:hour"), a place ("zk:year").
-      const b = p[1] === "branch" ? index(p[2], 12) : null;
-      if (b != null) {
-        add("animal", ANIMALS[b]);
-        add("branch", BRANCHES[b]);
-      } else if (p[1] === "rel") add("relation", p[2]);
-      else if (p.length === 2 && PLACES.has(p[1]!)) add("zodiac-concept", `${p[1]}-animal`);
-      break;
-    }
-    case "zky":
-      // The year ahead (its ruler, Tai Sui) and its months.
-      if (p[1] === "year" && p.length === 2) add("chinese-concept", "tai-sui");
-      else if (p[1] === "month" && index(p[2], 12) != null) add("chinese-concept", "solar-month");
-      break;
-    case "zkp":
-      // Two people's animals: A's place and B's ("zkp:m:year:day").
-      if (p[1] === "m" && PLACES.has(p[2]!) && PLACES.has(p[3]!)) {
-        add("zodiac-concept", `${p[2]}-animal`);
-        add("zodiac-concept", `${p[3]}-animal`);
-      }
-      break;
-    case "cnday": {
-      // A day of the Calendar: its pillar and its animal.
-      const d = /^(-?\d{1,4})-(\d{2})-(\d{2})$/.exec(p[1] ?? "");
-      if (d) {
-        const cycle = dayCycleOf(Number(d[1]), Number(d[2]), Number(d[3]));
-        add("pillar", SIXTY[cycle]);
-        add("animal", ANIMALS[cycle % 12]);
-      }
-      break;
-    }
-    case "bz":
-      baziTerms(p, add, concept);
-      break;
-    case "bzp":
-      // Two BaZi charts: a cell of either ("bzp:a:bz:stem:day"), the Day Masters, the partner palaces, the phases each brings, the meetings.
-      if ((p[1] === "a" || p[1] === "b") && p[2] === "bz") baziTerms(p.slice(2), add, concept);
-      else if (p[1] === "dm") add("bazi-concept", "day-master");
-      else if (p[1] === "palace") add("bazi-concept", "partner-palace");
-      else if (p[1] === "gifts") add("bazi-concept", "phase-balance");
-      else if (p[1] === "meet" && PLACES.has(p[2]!)) concept("relation");
-      break;
-    case "fs":
-      // The Kua ("fs:yang:kua"), a direction of the Eight Mansions ("fs:yang:dir:n"), their practical lines.
-      if (p[1] === "yang" || p[1] === "yin") {
-        if (p[2] === "kua") concept("kua");
-        else if ((p[2] === "dir" && palaceTrigram(p[3])) || p[2] === "practice") concept("mansion");
-      }
-      break;
-    case "fsh":
-      if (p[1] === "facing") add("fengshui-concept", "facing");
-      else if (p[1] === "period") concept("period");
-      else if (p[1] === "how") add("fengshui-concept", "luopan");
-      else if (p[1] === "house" && (p[2] === "yang" || p[2] === "yin")) concept("mansion");
-      else if (p[1] === "mountain") add("mountain", p[2]);
-      break;
-    case "fss":
-      // The chart ("fss:main", its replacement "fss:ti"), a palace ("fss:main:palace:n"), a formation, a star.
-      if ((p[1] === "main" || p[1] === "ti") && p.length === 2) add("fengshui-concept", p[1] === "main" ? "flying-star-chart" : "replacement-chart");
-      else if ((p[1] === "main" || p[1] === "ti") && p[2] === "palace") {
-        if (p[3] === "c") add("chinese-concept", "lo-shu");
-        else add("trigram", palaceTrigram(p[3]));
-      } else if (p[1] === "formation") add("formation", p[2]);
-      else if (p[1] === "star") add("flying-star", p[2]);
-      break;
-    case "fsy":
-      if (p[1] === "year") add("fengshui-concept", "annual-stars");
-      else if (p[1] === "month") add("fengshui-concept", "monthly-stars");
-      else if (p[1] === "aff") add("affliction", p[2]);
-      break;
-    case "sky": {
-      // The Calendar's solar term ("sky:term-0-1770177600000").
-      const t = /^term-(\d{1,2})-/.exec(p[1] ?? "");
-      if (t) add("solar-term", SOLAR_TERMS[Number(t[1])]);
-      break;
-    }
-  }
-  return out;
-}
-
-type Add = (family: ChineseFamily, id: string | number | null | undefined) => void;
-
-/** A reading of BaZi's board, its analysis or its time ("bz:…", split at its colons). */
-function baziTerms(p: string[], add: Add, concept: (family: ChineseFamily) => void): void {
-  const place = PLACES.has(p[2]!) ? p[2]! : null;
-  switch (p[1]) {
-    case "stem":
-      // The day's stem is the Day Master; another is the stem of its pillar.
-      if (place) {
-        add("bazi-concept", place === "day" ? "day-master" : `${place}-pillar`);
-        concept("stem");
-      }
-      break;
-    case "branch":
-      if (place) {
-        add("bazi-concept", `${place}-pillar`);
-        concept("branch");
-      }
-      break;
-    case "hidden":
-      if (place) add("chinese-concept", "hidden-stems");
-      break;
-    case "god":
-      add("ten-god", p[2]);
-      break;
-    case "stage":
-      if (place) concept("life-stage");
-      break;
-    case "nayin":
-      if (place) concept("na-yin");
-      break;
-    case "empty":
-      add("bazi-concept", "empty-branches");
-      break;
-    case "star":
-      add("shen-sha", p[2]);
-      break;
-    case "ix":
-      // "bz:ix:harmony:year-month": the interaction's kind.
-      add("relation", p[2]);
-      break;
-    case "balance":
-      add("bazi-concept", "phase-balance");
-      break;
-    case "phase":
-      add("phase", p[2]);
-      break;
-    case "strength":
-      add("bazi-concept", "day-master-strength");
-      break;
-    case "structure":
-      concept("structure");
-      break;
-    case "favourable":
-      add("bazi-concept", "favourable-phases");
-      break;
-    case "luck":
-    case "luck-how":
-      add("bazi-concept", "luck-pillar");
-      break;
-    case "flow-year":
-      add("bazi-concept", "annual-pillar");
-      break;
-    case "flow-month":
-      add("bazi-concept", "monthly-pillar");
-      break;
-    case "flow-day":
-      add("bazi-concept", "daily-pillar");
-      break;
-  }
-}
-
-/** The entries a Chinese reading is about that are written (linkable): what its "In the encyclopedia" offers. */
-export function chineseSubjectOf(ref: string, live: ReadonlySet<ChineseFamily> = LIVE_FAMILIES): Set<string> {
-  if (!live.size) return new Set();
-  return new Set(chineseRefTerms(ref).filter((term) => isLive(term, live)));
 }

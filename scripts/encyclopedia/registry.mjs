@@ -10,6 +10,7 @@
  * entry naming one that is not here fails the build with its file and line.
  */
 
+import { CHINESE_FAMILY_DEFS, CHINESE_TRADITIONS, chineseOrder } from "./chinese.mjs";
 import { COMBINATION_FAMILIES, combinationIds } from "./combinations.mjs";
 
 export const LANGS = /** @type {const} */ (["en", "fr"]);
@@ -17,8 +18,10 @@ export const LANGS = /** @type {const} */ (["en", "fr"]);
 /**
  * The traditions, in the order the encyclopedia's home shows them. `home` is
  * the tradition's address segment in each language (/encyclopedia/astrology,
- * /encyclopedie/astrologie): no entry may take it as its slug. A tradition
- * with no entry yet has no home and is not shown.
+ * /encyclopedie/astrologie): no entry may take it as its slug, nor its id. A
+ * tradition with no entry yet has no home and is not shown. `language` is
+ * the studio's language it is (src/studio/map.ts); `zh` the Chinese
+ * traditions' own name. The four Chinese ones (part 23) are in chinese.mjs.
  */
 export const TRADITIONS = [
   {
@@ -48,6 +51,7 @@ export const TRADITIONS = [
       fr: "La date de naissance et le nom changés en nombres, chacun lu comme une qualité, une position ou un cycle de vie.",
     },
   },
+  ...CHINESE_TRADITIONS,
   {
     id: "shared",
     name: { en: "Shared ideas", fr: "Idées communes" },
@@ -331,11 +335,15 @@ export const FAMILIES = {
       order: ["pythagorean", "chaldean"],
     },
   ],
+  // The Chinese traditions' families (part 23, chinese.mjs), each a family of terms of lib/chinese/term-ids.ts in the engine's order.
+  ...Object.fromEntries(
+    Object.entries(CHINESE_FAMILY_DEFS).map(([tradition, list]) => [tradition, list.map((f) => ({ id: f.id, name: f.name, order: chineseOrder(tradition, f.id) }))]),
+  ),
   shared: [
     {
       id: "ideas",
       name: { en: "Ideas", fr: "Idées" },
-      order: [],
+      order: ["yin-yang"],
     },
   ],
 };
@@ -364,7 +372,11 @@ export const KINDS = ["core", "combination", "context"];
 
 /** The front matter's keys; the others are refused. */
 export const REQUIRED_KEYS = ["id", "lang", "slug", "title", "tradition", "family", "kind", "page", "summary", "revised"];
-export const OPTIONAL_KEYS = ["aliases", "glyph", "related", "sources"];
+export const OPTIONAL_KEYS = ["aliases", "glyph", "related", "sources", "hant", "hans", "pinyin"];
+/** A Chinese name (part 23): its characters in Traditional and Simplified, its pinyin with tone marks (chinese.mjs checks them). */
+export const CHINESE_KEYS = ["hant", "hans", "pinyin"];
+/** A tradition's home text, content/encyclopedia/<tradition>/_home.<lang>.md: these keys (sources optional, as an entry's), then its paragraphs. */
+export const HOME_KEYS = ["tradition", "lang", "revised", "sources"];
 /** Keys whose value is a list (inline `[a, b]` or a block of `  - ` lines). */
 export const LIST_KEYS = ["aliases", "related", "sources"];
 

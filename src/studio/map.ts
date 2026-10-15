@@ -14,6 +14,7 @@
  * (`/?studio=transits`) are redirected to these by `legacyStudioPath`.
  */
 import type { StudioPage, StudioView } from "./url";
+import { LIVE_HOMES } from "@/lib/chinese/term-live";
 
 export type SectionId = "charts" | "calendar" | "encyclopedia";
 export type LanguageId = "astrology" | "human-design" | "numerology" | "chinese-astrology" | "bazi" | "feng-shui";
@@ -85,13 +86,15 @@ export const LANGUAGES: readonly Language[] = [
   },
   // Feng Shui (languages plan, part 21): its personal half, the Kua number
   // and the Eight Mansions on a compass rose; since part 22 its Home lens,
-  // the home's facing (the Flying Stars follow in parts 23 to 27).
+  // the home's facing (the Flying Stars follow in parts 23 to 27); and its
+  // Relationship lens, two people's directions on one compass (review items
+  // FS5 and FS32). Home stays the fourth lens (Alt+4), Relationship the third.
   {
     id: "feng-shui",
     path: "/feng-shui",
     group: "chinese",
     since: "2.0",
-    lenses: { natal: ["fengshui"], home: ["fengshui-home"] },
+    lenses: { natal: ["fengshui"], relationship: ["fengshui-pair"], home: ["fengshui-home"] },
   },
 ];
 
@@ -99,10 +102,13 @@ export const LANGUAGES: readonly Language[] = [
 export const CALENDAR_PATHS = { en: "/calendar", fr: "/calendrier" } as const;
 export const ENCYCLOPEDIA_PATHS = { en: "/encyclopedia", fr: "/encyclopedie" } as const;
 
-/** A language's home in the encyclopedia (`/encyclopedia/astrology`, `/encyclopedie/astrologie`), or null before it has one. */
+/**
+ * A language's home in the encyclopedia (`/encyclopedia/astrology`, `/encyclopedie/astrologie`), or null before it has one.
+ * The Chinese languages' homes come with the encyclopedia's Chinese pages (encyclopedia plan, part 23: lib/chinese/term-live.ts).
+ */
 export function languageHomePath(id: LanguageId, locale: string = "en"): string | null {
   const fr = locale === "fr";
-  const home = languageById(id).home;
+  const home = languageById(id).home ?? (Object.hasOwn(LIVE_HOMES, id) ? LIVE_HOMES[id as keyof typeof LIVE_HOMES] : undefined);
   if (!home) return null;
   return `${fr ? ENCYCLOPEDIA_PATHS.fr : ENCYCLOPEDIA_PATHS.en}/${fr ? home.fr : home.en}`;
 }
@@ -146,6 +152,7 @@ export const PAGE_PATHS: Readonly<Record<StudioPage, string>> = {
   "bazi-luck": "/bazi/cycles",
   "bazi-pair": "/bazi/pair",
   fengshui: "/feng-shui",
+  "fengshui-pair": "/feng-shui/pair",
   "fengshui-home": "/feng-shui/home",
   timing: CALENDAR_PATHS.en,
 };

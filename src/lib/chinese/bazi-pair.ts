@@ -15,12 +15,15 @@
  *   - The phases each brings the other: the phases one chart favours (by
  *     balance) or holds little of, that the other holds plenty of (a fifth
  *     of its points or more).
+ *   - Part 20 (the review's BZ9): each person's luck pillar of the moment,
+ *     by their yin or yang count (both counts when a birth has none), its
+ *     stem's god for the other's Day Master, and how the two decades meet.
  */
 import { STEMS, type PhaseId } from "./names";
 import { familyOf, tenGodOf, type BaziChart, type BaziPlaceId, type GodFamily, type TenGodId } from "./bazi";
 import { baziBalance, type BaziBalance } from "./bazi-balance";
 import { harmonyPhase, stemClash, stemCombination } from "./bazi-interactions";
-import { meetingsOf, type Meeting } from "./bazi-luck";
+import { luckAt, luckPillars, meetingsOf, type Luck, type LuckCount, type LuckPillar, type Meeting } from "./bazi-luck";
 import { branchRelations, type RelationKind } from "./relations";
 
 /** A phase one chart holds "plenty" of, for the other: a fifth of its points or more. */
@@ -29,6 +32,33 @@ export const PAIR_PLENTY = 0.2;
 const LITTLE = 0.06;
 
 export type PairGift = { phase: PhaseId; why: "favoured" | "lacking"; share: number };
+
+/** One person's luck pillar of the moment, by one count (part 20). */
+export type PairDecade = {
+  count: LuckCount;
+  /** The birth gives this count (one decade shown), or gives none (both counts shown). */
+  given: boolean;
+  /** The luck pillar running at the moment, or null before the first. */
+  pillar: LuckPillar | null;
+  /** When the first luck pillar starts, for a decade not begun yet. */
+  start: Luck["start"];
+  /** Its stem's god for the other person's Day Master, and that god's family. */
+  godForOther: TenGodId | null;
+  familyForOther: GodFamily | null;
+};
+
+export type PairLuck = {
+  a: PairDecade[];
+  b: PairDecade[];
+  /** Each of A's luck pillars now against each of B's: what they meet, two branches of one trine counting. */
+  meets: { a: LuckCount; b: LuckCount; same: boolean; meets: Meeting[] }[];
+  /** Both people's luck pillars, for each decade's own reading. */
+  lucks: { a: Luck[]; b: Luck[] };
+  nowMs: number;
+};
+
+/** The moment Pair reads the luck pillars at, and each birth's yin or yang count when it gives one. */
+export type PairTime = { nowMs: number; counts?: { a?: LuckCount | null; b?: LuckCount | null } };
 
 export type BaziPair = {
   dm: {
@@ -48,6 +78,8 @@ export type BaziPair = {
   balance: { a: BaziBalance; b: BaziBalance };
   /** What B brings A, and what A brings B. */
   gifts: { toA: PairGift[]; toB: PairGift[] };
+  /** The luck pillars of the moment (part 20), when Pair is given a moment. */
+  luck: PairLuck | null;
 };
 
 function giftsTo(to: BaziBalance, from: BaziBalance): PairGift[] {
@@ -64,7 +96,44 @@ function giftsTo(to: BaziBalance, from: BaziBalance): PairGift[] {
   return out;
 }
 
-export function baziPair(a: BaziChart, b: BaziChart): BaziPair {
+/** One person's luck pillars of the moment, one per count (both without a count), each with its stem's god for the other's Day Master. */
+function decadesOf(c: BaziChart, other: BaziChart, count: LuckCount | null | undefined, nowMs: number): { decades: PairDecade[]; lucks: Luck[] } {
+  const counts: LuckCount[] = count ? [count] : ["yang", "yin"];
+  const lucks = counts.map((n) => luckPillars(c, n));
+  const decades = lucks.map((l) => {
+    const pillar = luckAt(l, nowMs);
+    return {
+      count: l.count,
+      given: Boolean(count),
+      pillar,
+      start: l.start,
+      godForOther: pillar ? tenGodOf(other.dayMaster, pillar.stem).id : null,
+      familyForOther: pillar ? familyOf(STEMS[other.dayMaster]!.phase, STEMS[pillar.stem]!.phase) : null,
+    };
+  });
+  return { decades, lucks };
+}
+
+/** Both people's luck pillars of the moment and how they meet (part 20). */
+export function pairLuck(a: BaziChart, b: BaziChart, time: PairTime): PairLuck {
+  const A = decadesOf(a, b, time.counts?.a, time.nowMs);
+  const B = decadesOf(b, a, time.counts?.b, time.nowMs);
+  const meets: PairLuck["meets"] = [];
+  for (const da of A.decades) {
+    for (const db of B.decades) {
+      if (!da.pillar || !db.pillar) continue;
+      meets.push({
+        a: da.count,
+        b: db.count,
+        same: da.pillar.pillar.cycle === db.pillar.pillar.cycle,
+        meets: meetingsOf(da.pillar.stem, da.pillar.branch, [{ place: "luck", stem: db.pillar.stem, branch: db.pillar.branch }], { pairTrines: true }),
+      });
+    }
+  }
+  return { a: A.decades, b: B.decades, meets, lucks: { a: A.lucks, b: B.lucks }, nowMs: time.nowMs };
+}
+
+export function baziPair(a: BaziChart, b: BaziChart, time?: PairTime): BaziPair {
   const dayA = a.pillars.find((p) => p.id === "day")!;
   const dayB = b.pillars.find((p) => p.id === "day")!;
   const placedA = a.pillars.map((p) => ({ place: p.id, stem: p.stem, branch: p.branch }));
@@ -89,5 +158,6 @@ export function baziPair(a: BaziChart, b: BaziChart): BaziPair {
     meetings: b.pillars.map((p) => ({ from: p.id, meets: meetingsOf(p.stem, p.branch, placedA, { pairTrines: true }) })),
     balance,
     gifts: { toA: giftsTo(balance.a, balance.b), toB: giftsTo(balance.b, balance.a) },
+    luck: time ? pairLuck(a, b, time) : null,
   };
 }

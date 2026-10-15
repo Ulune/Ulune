@@ -126,13 +126,27 @@ test("Sample B: the hour on an empty branch, the Peach Blossom and Red Phoenix t
 
 test("what the stages, Na Yin, empty branches and stars say, and why", () => {
   const c = baziChart(CAMILLE);
+  // 死 by Ulune's name (part 20, BZ2); its reading keeps the classical name, its pinyin and its characters.
   const stage = baziReading(c, stageRef("hour"), "en", full);
-  assert.equal(stage.title, "Death");
+  assert.equal(stage.title, "Rest");
   assert.equal(stage.lead, STAGE_TEXTS.death[0]);
-  assert.equal(stage.sections[0].paragraphs[0], "Your Day Master xīn 辛 is born in Rat · zǐ 子 and, being yin, goes backward round the branches: in Snake · sì 巳 it is at its Death stage.");
-  assert.match(stage.sections[1].paragraphs[0], /nothing about health/);
+  assert.equal(stage.sections[0].paragraphs[0], "Your Day Master xīn 辛 is born in Rat · zǐ 子 and, being yin, goes backward round the branches: in Snake · sì 巳 it is at its Rest stage.");
+  // Shown first, with what the name does and does not say.
+  assert.equal(stage.sections[1].paragraphs[0], "The classics call this stage sǐ 死, “Death”, after a human life; the name tells the phase’s strength here, never an event, and nothing about health.");
+  assert.match(stage.sections[1].paragraphs[1], /nothing about health/);
+  assert.deepEqual(stage.facts.at(-1), { label: "Classical name", value: "Death · sǐ 死" });
   const fr = baziReading(c, stageRef("month"), "fr", full);
-  assert.equal(fr.sections[0].paragraphs[0], "Votre Maître du jour xīn 辛 naît en Rat · zǐ 子 et, étant yin, recule dans l’ordre des branches\u202f: en Cheval · wǔ 午, il est au stade «\u202fMaladie\u202f».");
+  assert.equal(fr.title, "Retrait");
+  assert.equal(fr.sections[0].paragraphs[0], "Votre Maître du jour xīn 辛 naît en Rat · zǐ 子 et, étant yin, recule dans l’ordre des branches\u202f: en Cheval · wǔ 午, il est au stade «\u202fRetrait\u202f».");
+  assert.equal(fr.sections[1].paragraphs[0], "Les classiques appellent ce stade bìng 病, «\u202fMaladie\u202f», d’après une vie humaine\u202f; ce nom dit la force de la phase ici, jamais un événement, et rien de la santé.");
+  // Names only: the classical name alone, in quotes.
+  const named = baziReading(c, stageRef("hour"), "en", { script: "hant", show: "names" });
+  assert.match(named.sections[1].paragraphs[0], /^The classics call this stage “Death”, after a human life;/);
+  // A stage whose usual name Ulune keeps says no more.
+  const bath = baziReading(c, stageRef("day"), "en", full);
+  assert.equal(bath.title, "Bath");
+  assert.equal(bath.sections[1].paragraphs.length, 1);
+  assert.ok(!bath.facts.some((f) => f.label === "Classical name"));
   const ny = baziReading(c, naYinRef("year"), "en", full);
   assert.equal(ny.title, "Earth by the roadside");
   assert.equal(ny.facts.at(-1).value, "Resource: what produces you");
@@ -150,6 +164,35 @@ test("what the stages, Na Yin, empty branches and stars say, and why", () => {
   // A star not in the chart has no reading; nor does a ref that is not the board's.
   assert.equal(baziReading(c, starRef("canopy"), "en", full), null);
   assert.equal(baziReading(c, "bz:stage:nowhere", "en", full), null);
+});
+
+test("Ulune's names for the twelve stages (part 20, BZ2): none speaks of illness or death; the classical names and the ids stay", () => {
+  assert.deepEqual(
+    STAGES.map((s) => s.id),
+    ["birth", "bath", "crown", "prosperity", "peak", "decline", "sickness", "death", "tomb", "extinction", "conception", "nurture"],
+  );
+  assert.deepEqual(
+    STAGES.map((s) => s.en),
+    ["Birth", "Bath", "Crown", "Prosperity", "Peak", "Decline", "Retreat", "Rest", "Storehouse", "Pause", "Conception", "Nurture"],
+  );
+  assert.deepEqual(
+    STAGES.map((s) => s.fr),
+    ["Naissance", "Bain", "Couronne", "Prospérité", "Apogée", "Déclin", "Retrait", "Repos", "Réserve", "Pause", "Conception", "Nourrissement"],
+  );
+  for (const lang of ["en", "fr"]) assert.equal(new Set(STAGES.map((s) => s[lang])).size, 12, lang);
+  for (const s of STAGES) {
+    assert.doesNotMatch(s.en, /\b(death|dies?|illness|disease|sick\w*|tomb|grave|extinction)\b/i, s.id);
+    assert.doesNotMatch(s.fr, /\b(mort|maladie|malade|tombe|tombeau|extinction)\b/i, s.id);
+  }
+  assert.deepEqual(
+    STAGES.filter((s) => s.classical).map((s) => `${s.id}:${s.classical.join("/")}`),
+    ["sickness:Sickness/Maladie", "death:Death/Mort", "tomb:Tomb/Tombe", "extinction:Extinction/Extinction"],
+  );
+  // Each renamed stage's text tells it by Ulune's word.
+  assert.match(STAGE_TEXTS.sickness[0], /draws back/);
+  assert.match(STAGE_TEXTS.death[0], /comes to rest/);
+  assert.match(STAGE_TEXTS.tomb[1], /réserve/);
+  assert.match(STAGE_TEXTS.extinction[0], /a pause/);
 });
 
 test("every text in both languages, in Ulune's typography and tone", () => {
@@ -170,7 +213,7 @@ test("the table as text and as CSV", () => {
   const c = baziChart(CAMILLE);
   const parts = baziTextParts(c, "en", full, "Camille");
   const signs = parts.find((p) => p.id === "signs").lines;
-  assert.equal(signs[4], "Hour pillar: Life stage Death · sǐ 死 · Na Yin Long-flowing water · chángliú shuǐ 長流水");
+  assert.equal(signs[4], "Hour pillar: Life stage Rest · sǐ 死 · Na Yin Long-flowing water · chángliú shuǐ 長流水");
   assert.equal(signs.at(-1), "Empty branches: Tiger · yín 寅 · Rabbit · mǎo 卯");
   const stars = parts.find((p) => p.id === "stars").lines;
   assert.equal(stars[1], "Nobleman · tiānyǐ guìrén 天乙貴人: Year · Month");

@@ -14,12 +14,18 @@
  *     day view's animal opening its reading, whose glossary claims none of
  *     astrology's words;
  *   - nothing sent while Cycles and Pair work; nothing scrolls sideways; the
- *     registry of Chinese terms never fetched, since the encyclopedia has no
- *     Chinese page yet (part 29).
+ *     registry of Chinese terms never fetched while no family of terms is
+ *     written (part 29). Since the encyclopedia's pilot (encyclopedia plan,
+ *     part 23: the phases, yin and yang) it comes with the tables' words.
  */
 import { FIXTURE_A, FIXTURE_B, assertNoOverflow, castFixture, clickDockTab, ensureShotsDir, gotoApp, goStudioPage, launch, openCalendarView, setLang, setView, SHOTS } from "./_lib.mjs";
 import { watchSent } from "./_sent.mjs";
 import { join } from "node:path";
+import { readFileSync } from "node:fs";
+
+/** Whether a family of Chinese terms is written (lib/chinese/term-live.ts): then the tables' words link, and fetch the registry to do so. */
+const LIVE = /LIVE_FAMILIES[^=]*=\s*new Set<ChineseFamily>\(\[([^\]]*)\]/.exec(readFileSync(new URL("../../src/lib/chinese/term-live.ts", import.meta.url), "utf8"));
+const ANY_LIVE = /"[a-z-]+"/.test(LIVE?.[1] ?? "");
 
 const WORDS = {
   en: { fireHorse: "Yang Fire Horse", goat: "Yin Fire Goat", own: "Own year", harmony: "Harmony", ratMonth: "The Rat month", destruction: "Destruction", clash: "Clash", pairText: "One of the six destructions", day: "Day of the" },
@@ -41,11 +47,11 @@ async function run(width, lang) {
     await castFixture(page, FIXTURE_A);
     // Nothing but the app's own files, by GET, while Cycles and Pair work (_sent.mjs).
     const sent = watchSent(page);
-    // The registry of Chinese terms and its links wait for the encyclopedia's Chinese pages (part 29): never fetched before.
+    // The registry of Chinese terms and its links wait for the encyclopedia's Chinese pages (part 29): never fetched before a family is written.
     const registry = [];
     page.on("request", (r) => {
       const u = new URL(r.url());
-      if (/chinese\/term-ids|ChineseTermLink|ChineseReadingTerms/.test(u.pathname)) registry.push(u.pathname);
+      if (/chinese\/term-(?:ids|refs)|ChineseTermLink|ChineseReadingTerms/.test(u.pathname)) registry.push(u.pathname);
     });
 
     // ── Cycles: the year ahead ──
@@ -147,7 +153,7 @@ async function run(width, lang) {
     await page.keyboard.press("Escape");
 
     if (sent.length) throw new Error(`${label}: sent ${sent.join(", ")}`);
-    if (registry.length) throw new Error(`${label}: the registry of Chinese terms was fetched before any is written: ${registry.join(", ")}`);
+    if (!ANY_LIVE && registry.length) throw new Error(`${label}: the registry of Chinese terms was fetched before any is written: ${registry.join(", ")}`);
     if (errors.length) throw new Error(`${label}: ${errors.join(" | ")}`);
     console.log(`zodiac-time ${label} OK`);
   } finally {

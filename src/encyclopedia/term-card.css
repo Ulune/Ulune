@@ -34,6 +34,11 @@
   font-weight: 600;
   line-height: 1.3;
 }
+/* A Chinese term's pinyin beside its name (part 23). */
+.ob-term-card-pinyin {
+  color: var(--color-fg-muted);
+  font-style: italic;
+}
 .ob-term-card-tag {
   margin-inline-start: auto;
   padding-inline-start: 8px;

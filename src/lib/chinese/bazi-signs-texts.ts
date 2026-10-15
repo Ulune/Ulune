@@ -3,7 +3,8 @@
  * life stages and the fourteen symbolic stars Ulune reads, in English and
  * French. The stages are phases of a cycle, a phase's strength in a branch,
  * told as a plant's year; never events and never health, whatever their
- * classical names. The stars are secondary signs, nuances rather than
+ * classical names (part 20 gives four of them Ulune's names, and each text
+ * tells its stage by them). The stars are secondary signs, nuances rather than
  * verdicts, as most schools weigh them. What each stands for is the
  * consensus of the Zi Ping school and the common almanacs, in Ulune's
  * words. scripts/chinese-bazi-signs.test.mjs keeps both languages, their
@@ -38,8 +39,8 @@ export const STAGE_TEXTS: Readonly<Record<StageId, Both>> = {
     "La phase a passé son sommet et s’adoucit. La tradition y lit l’expérience, la mesure et une force plus calme, plus égale.",
   ],
   sickness: [
-    "The phase grows weaker here, like a plant at the turn of autumn. The tradition reads sensitivity, thoughtfulness and an eye for what others miss.",
-    "La phase s’affaiblit ici, comme une plante au tournant de l’automne. La tradition y lit la sensibilité, la réflexion et un regard pour ce qui échappe aux autres.",
+    "The phase draws back here, like sap at the turn of autumn. The tradition reads sensitivity, thoughtfulness and an eye for what others miss.",
+    "La phase se retire ici, comme la sève au tournant de l’automne. La tradition y lit la sensibilité, la réflexion et un regard pour ce qui échappe aux autres.",
   ],
   death: [
     "The phase comes to rest here, its outward strength stilled, like a field after the harvest. The tradition reads depth, focus and a mind that goes to the heart of things.",

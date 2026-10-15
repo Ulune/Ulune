@@ -39,7 +39,7 @@ test("the sitemap lists exactly the public pages, the encyclopedia's from its ow
   // Every page INDEXED_PAGES names is there, and every encyclopedia entry with a page, in both languages.
   for (const p of INDEXED_PAGES) assert.ok(locs.includes(`${SITE_URL}${p}`), p);
   const pages = Object.values(index.terms).filter((row) => row[4]);
-  assert.equal(locs.filter((l) => /\/encycloped(ia|ie)\/./.test(l)).length, 2 * pages.length + 2 * index.traditions.filter((t) => t.count).length);
+  assert.equal(locs.filter((l) => /\/encycloped(ia|ie)\/./.test(l)).length, 2 * pages.length + 2 * index.traditions.filter((t) => t.count || t.about).length);
   // The Calendar's two addresses name each other, as their heads do.
   const twins = `<xhtml:link rel="alternate" hreflang="en" href="${SITE_URL}/calendar"/><xhtml:link rel="alternate" hreflang="fr" href="${SITE_URL}/calendrier"/>`;
   for (const path of Object.values(CALENDAR_PATHS)) assert.ok(sitemapXml(index).includes(`<loc>${SITE_URL}${path}</loc>${twins}</url>`), path);

@@ -1,6 +1,7 @@
 /* BaZi's Pair (languages plan, part 19; studio/modes/bazi-pair.tsx): two
    small boards side by side, the cards of the Day Masters, the partner
-   palaces and the phases, then the meetings. Phase colours are zodiac.css's,
+   palaces and the phases, then the meetings, and (part 20) the luck pillars
+   of the moment in rows like the meetings'. Phase colours are zodiac.css's,
    the rows bazi.css's look, repeated here so this page needs only its own. */
 .ulune-bzp {
   display: flex;

@@ -5,7 +5,10 @@
  * star's own reading (who it is, its state now, where it stands in the
  * home) and, in each palace, the pair of mountain and water stars read
  * together, from texts loaded with the page (fengshui-readings-texts.ts);
- * until they are there, the readings go without them.
+ * until they are there, the readings go without them. The review's fixes
+ * (part 27): after a pair's two faces, the one that applies here from the
+ * two stars' states (FS35); near a mountain's edge, the rooms read against
+ * the chart picked on the figure, and saying which (FS30).
  *
  *   fss:main               the main chart, how it was cast, its formations
  *   fss:ti                 the replacement chart (near a mountain's edge)
@@ -23,6 +26,7 @@ import { DIRECTION_IDS, trigramOfDirection, type DirectionId } from "./fengshui"
 import { FLIGHT, LO_SHU, LO_SHU_ROWS, starOf, starState, type FlyingChart, type FormationId, type PalaceId, type StarNumber, type StarState } from "./fengshui-stars";
 import { pairKey, relationOf } from "./fengshui-pairs";
 import type * as ReadingTexts from "./fengshui-readings-texts";
+import type { FaceKey } from "./fengshui-readings-texts";
 import type { HomeRoom } from "./fengshui-rooms";
 import { roomLines } from "./fengshui-rooms-reading";
 import { FORMATION_NAMES, FORMATION_TEXTS, STATE_TEXTS } from "./fengshui-stars-texts";
@@ -41,7 +45,17 @@ export type HomeStars = {
   rooms?: readonly HomeRoom[];
   /** The stars' and pairs' texts (part 27), once loaded. */
   texts?: FsReadingTexts | null;
+  /** The chart picked on the figure, which the rooms are read against (FS30): "ti" only when there is one. */
+  pick?: ChartVariant;
 };
+
+/** The chart the rooms are read against: the one picked on the figure, the main one unless a replacement chart is there and picked (FS30). */
+export function roomsChart(stars: HomeStars): { v: ChartVariant; chart: FlyingChart } {
+  return stars.pick === "ti" && stars.ti ? { v: "ti", chart: stars.ti } : { v: "main", chart: stars.main };
+}
+
+/** "main chart", « thème de remplacement »: a chart named in a sentence. */
+export const chartWord = (v: ChartVariant, locale: string): string => cnWord(locale, v === "ti" ? "fssTi" : "fssMain").replace(/^\p{Lu}/u, (c) => c.toLowerCase());
 
 /** The texts of part 27's readings, loaded with the page (fengshui-readings-texts.ts). */
 export type FsReadingTexts = typeof ReadingTexts;
@@ -110,6 +124,22 @@ export function pairLines(m: StarNumber, w: StarNumber, texts: FsReadingTexts, l
   const phase = (n: StarNumber) => said(texts.PHASE_WORDS[starOf(n).phase], locale);
   const rel = said(texts.RELATION_TEXTS[relationOf(m, w)], locale).replace("{m}", phase(m)).replace("{w}", phase(w)).replace("{phase}", phase(m));
   return [said(texts.PAIR_TEXTS[pairKey(m, w)], locale), rel];
+}
+
+const STATE_LETTER = { timely: "T", waning: "W", dormant: "D" } as const;
+
+/**
+ * Which face of a pairing's text applies here (the review's fix FS35), from
+ * the two stars' states in the present period: "Here the mountain star is in
+ * season and the water star is not: read “in season” for the people of the
+ * home, and “out of season” for what comes in." Null for the 2 and the 5,
+ * whose text gives its counsel alone.
+ */
+export function pairFaceLine(m: StarNumber, w: StarNumber, now: PeriodId, texts: FsReadingTexts, locale: string): string | null {
+  const key = pairKey(m, w);
+  if (texts.PAIRS_WITHOUT_FACES.includes(key)) return null;
+  const face = `${STATE_LETTER[starState(m, now).state]}${STATE_LETTER[starState(w, now).state]}` as FaceKey;
+  return said(texts.FACE_TEXTS[face === "WW" && texts.PAIRS_WITH_WANING_FACE.includes(key) ? "WW+" : face], locale);
 }
 
 /** A star's home in the Lo Shu: its palace, and that palace's trigram (the 5 has none). */
@@ -182,8 +212,14 @@ function palaceReading(v: ChartVariant, c: FlyingChart, p: PalaceId, stars: Home
   const year = stars.years ? palaceYearLines(stars.years, p, locale, texts) : [];
   const states = [...new Set([x.mountain, x.water].map((n) => starState(n, stars.now).state))].map((s) => said(STATE_TEXTS[s], locale));
   const rooms = roomLines(c, p, stars.rooms ?? [], stars.now, locale);
-  // The pair of mountain and water stars, read together (part 27), once the texts are there.
+  // Near a mountain's edge there are two charts: the rooms say which this palace reads them against (FS30).
+  if (rooms.length && stars.ti) rooms.splice(1, 0, cnWord(locale, "fsrAgainst", { chart: chartWord(v, locale) }));
+  // The pair of mountain and water stars, read together (part 27), once the texts are there: its
+  // text, closed by the face that applies here from the two stars' states (FS35), in the same
+  // paragraph so the short reading (a section's first paragraph) has both.
   const pair = texts ? pairLines(x.mountain, x.water, texts, locale) : [];
+  const face = texts ? pairFaceLine(x.mountain, x.water, stars.now, texts, locale) : null;
+  if (face) pair[0] = `${pair[0]} ${face}`;
   const facts: ReadingFact[] = [
     { label: cnWord(locale, "fssMountainStar"), value: starText(x.mountain, locale, prefs), ref: fssStarRef(x.mountain) },
     { label: cnWord(locale, "fssWaterStar"), value: starText(x.water, locale, prefs), ref: fssStarRef(x.water) },

@@ -90,20 +90,25 @@ export function StudioWorkspace() {
     };
   }, [hasChart]);
 
-  // The Calendar needs no chart (reorganisation plan, R5): without one it opens on the sky alone,
-  // with its side panel; the birth form comes when asked for (CalendarInvite), as "New chart" does.
-  const skyOnly = page === "timing" && !chart && !creating && !addingPartnerFor;
-  const panelOn = (Boolean(chart) || skyOnly) && !creating && !addingPartnerFor;
+  // The Calendar needs no chart (reorganisation plan, R5), nor Feng Shui's Home (languages plan,
+  // part 27, review fix FS13): without one each opens as it is (the sky alone, a home), with its side
+  // panel; the birth form comes when asked for (CalendarInvite, the Home's "The house and you"), as
+  // "New chart" does.
+  const chartFree = !meta.needsChart && !chart && !creating && !addingPartnerFor;
+  const panelOn = (Boolean(chart) || chartFree) && !creating && !addingPartnerFor;
   // With no chart, every other page is the form: a link to a mode asks for a birth chart first.
-  const formOnStage = Boolean(addingPartnerFor) || creating || (!chart && !skyOnly);
-  // The form asked for from the Calendar: a line on what it brings, and the way back to the sky.
-  const fromCalendar = formOnStage && page === "timing" && !chart && !addingPartnerFor;
+  const formOnStage = Boolean(addingPartnerFor) || creating || (!chart && !chartFree);
+  // The form asked for from a page that needs no chart: a line on what it brings, and the way back.
+  const fromChartFree = formOnStage && !meta.needsChart && !chart && !addingPartnerFor;
+  const fromCalendar = fromChartFree && page === "timing";
+  // The Calendar's words are the app's; another page's come with its own code (ModeDef.formFrom).
+  const formFrom = fromChartFree && !fromCalendar ? (def?.formFrom?.(locale) ?? null) : null;
   const rows = useStudioStore((s) => s.rows);
   const cast = useStudioStore((s) => s.cast);
   const discardDraft = useStudioStore((s) => s.discardDraft);
   const spaceStatus = useSpace((s) => s.status);
-  // The guide stands under the first visit's form only (BirthTab: firstVisit), not under the Calendar's.
-  const showGuide = !chart && !addingPartnerFor && rows.length === 0 && spaceStatus !== "locked" && !fromCalendar;
+  // The guide stands under the first visit's form only (BirthTab: firstVisit), not under the Calendar's or the Home's.
+  const showGuide = !chart && !addingPartnerFor && rows.length === 0 && spaceStatus !== "locked" && !fromChartFree;
 
   // Compact: a fresh chart, mode or view starts with the sheet at peek so the
   // figure (or the table, which the open sheet squeezed) is the first thing seen.
@@ -125,22 +130,28 @@ export function StudioWorkspace() {
     ? null
     : fromCalendar
       ? t("calFormLine")
-      : page !== "natal"
-        ? t("firstModeLine", { mode: t(PAGE_LABEL[page]) })
-        : table
-          ? t("firstTableLine")
-          : null;
+      : fromChartFree
+        ? (formFrom?.line ?? null)
+        : page !== "natal"
+          ? t("firstModeLine", { mode: t(PAGE_LABEL[page]) })
+          : table
+            ? t("firstTableLine")
+            : null;
+  // With charts kept, the form's own Discard leads back (to the chart before).
+  const formBack =
+    fromChartFree && rows.length === 0
+      ? fromCalendar
+        ? { label: t("calBackToSky"), onBack: discardDraft }
+        : formFrom
+          ? { label: formFrom.back, onBack: discardDraft }
+          : null
+      : null;
 
   let body: ReactNode;
   if (formOnStage) {
     body = (
       <>
-        <BirthTab
-          onStage
-          modeLine={modeLine}
-          // With charts kept, the form's own Discard leads back (to the chart before).
-          back={fromCalendar && rows.length === 0 ? { label: t("calBackToSky"), onBack: discardDraft } : null}
-        />
+        <BirthTab onStage modeLine={modeLine} back={formBack} />
         {showGuide ? (
           <>
             <Guide onTour={startTour} onSample={() => void cast(sampleBirth(t("sampleName")))} />
@@ -149,7 +160,7 @@ export function StudioWorkspace() {
         ) : null}
       </>
     );
-  } else if (!chart && !skyOnly) {
+  } else if (!chart && !chartFree) {
     body = null;
   } else if (!def) {
     // The mode is still downloading (or its download failed).
@@ -173,12 +184,12 @@ export function StudioWorkspace() {
         data-form={formOnStage ? "1" : undefined}
         data-guide={formOnStage && showGuide ? "1" : undefined}
       >
-        {/* The page's heading when a chart is on screen (the first screen's is the form's title), or the sky alone's. */}
+        {/* The page's heading when a chart is on screen (the first screen's is the form's title), or the sky alone's, or a home's. */}
         {!formOnStage && chart ? <h1 className="sr-only">{`${t(PAGE_LABEL[page])} · ${chart.meta.name}`}</h1> : null}
-        {skyOnly ? <h1 className="sr-only">{t(PAGE_LABEL[page])}</h1> : null}
+        {chartFree ? <h1 className="sr-only">{t(PAGE_LABEL[page])}</h1> : null}
         <Stage
           testId={
-            (showChart || skyOnly) && !formOnStage ? (table ? "studio-table" : meta.stageTestId) : "studio-stage"
+            (showChart || chartFree) && !formOnStage ? (table ? "studio-table" : meta.stageTestId) : "studio-stage"
           }
           extraControls={panelOn && def?.Controls ? <def.Controls /> : undefined}
           caption={!table && panelOn && def?.Caption ? <def.Caption /> : undefined}

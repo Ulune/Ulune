@@ -1,6 +1,7 @@
 import { Suspense, useMemo, useRef, type KeyboardEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { LoadingLines } from "@/components/loading-lines";
+import { TrigramBars, TrigramGlyph, withTrigrams } from "@/components/trigram-mark";
 import { phaseWord } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
@@ -36,7 +37,9 @@ import "@/studio/modes/styles/fengshui.css";
  * and the practical lines. The north at the top, or the south as the Chinese
  * compass is drawn (Settings → Chinese traditions). Worked out here from the
  * birth date; nothing is sent. Part 29 adds the method notes to the side
- * panel's first read (chinese-notes.tsx).
+ * panel's first read (chinese-notes.tsx). Part 27's review fix FS7: the
+ * trigrams are drawn by Ulune (components/trigram-mark.tsx), not left to a
+ * font that may draw ☰…☷ tiny or as empty boxes.
  */
 
 export type FengShuiState = {
@@ -127,9 +130,8 @@ function Rose({ fs, both }: { fs: FengShui; both: boolean }) {
               {...previewProps(ref)}
             >
               <path d={wedge(angle, R_IN, R_OUT)} className="ulune-fs-cell" style={row.supportive ? undefined : { fill: `url(#${hatch})` }} />
-              <text x={f(mid.x)} y={f(mid.y - 24)} className="ulune-fs-tri" data-phase={tri.phase}>
-                {tri.symbol}
-              </text>
+              {/* The trigram drawn (FS7): a font may draw ☰…☷ tiny or as empty boxes. */}
+              <TrigramBars lines={tri.lines} cx={mid.x} cy={mid.y - 25} w={20} className="ulune-fs-tri" data-phase={tri.phase} />
               <text x={f(mid.x)} y={f(mid.y)} className="ulune-fs-dir">
                 {dir.short[locale === "fr" ? "fr" : "en"]}
               </text>
@@ -143,14 +145,15 @@ function Rose({ fs, both }: { fs: FengShui; both: boolean }) {
       {/* The centre: the Kua, its trigram and its group; it opens the Kua's reading (the card beside does the same by keyboard). */}
       <g className={cn("ulune-fs-centre", w.selectedId === kuaRef && "is-on")} onClick={() => w.choose(kuaRef)} aria-hidden data-testid={`fengshui-centre-${fs.count}`}>
         <circle cx={C} cy={C} r={R_IN - 6} />
-        <text x={C} y={C - 22} className="ulune-fs-centre-sub">
+        <text x={C} y={C - 28} className="ulune-fs-centre-sub">
           {cnWord(locale, "fsKuaHead")}
         </text>
-        <text x={C} y={C + 2} className="ulune-fs-centre-n">
+        <text x={C} y={C - 5} className="ulune-fs-centre-n">
           {fs.kua}
         </text>
-        <text x={C} y={C + 30} className="ulune-fs-centre-tri" lang={prefs.show === "full" ? hanziLang(prefs.script) : undefined} fontFamily={prefs.show === "full" ? CJK : undefined}>
-          {fs.trigram.symbol} {prefs.show === "full" ? fs.trigram[prefs.script] : chineseLabel(fs.trigram, locale, prefs).name}
+        <TrigramBars lines={fs.trigram.lines} cx={C} cy={C + 21} w={15} className="ulune-fs-centre-bars" />
+        <text x={C} y={C + 38} className="ulune-fs-centre-tri" lang={prefs.show === "full" ? hanziLang(prefs.script) : undefined} fontFamily={prefs.show === "full" ? CJK : undefined}>
+          {prefs.show === "full" ? fs.trigram[prefs.script] : chineseLabel(fs.trigram, locale, prefs).name}
         </text>
       </g>
     </svg>
@@ -218,7 +221,7 @@ function CountBlock({ fs, both }: { fs: FengShui; both: boolean }) {
           >
             <span className="ulune-fs-h">{cnWord(locale, "fsKuaN", { n: fs.kua })}</span>
             <span className="ulune-fs-card-line">
-              {fs.trigram.symbol} {chineseLabel(fs.trigram, locale, prefs).text} · {groupLabel(fs, locale)}
+              <TrigramGlyph symbol={fs.trigram.symbol} /> {chineseLabel(fs.trigram, locale, prefs).text} · {groupLabel(fs, locale)}
             </span>
             {fs.uncertain ? <span className="ulune-fs-card-note">{cnWord(locale, "fsUncertain")}</span> : null}
           </button>
@@ -315,7 +318,7 @@ function FengShuiHello() {
               <span className="ulune-hd-step-body">
                 <span className="ulune-hd-step-head">
                   <span className="ulune-kicker ulune-hd-step-k">{st.label}</span>
-                  {st.value ? <span className="ulune-hd-step-v">{st.value}</span> : null}
+                  {st.value ? <span className="ulune-hd-step-v">{withTrigrams(st.value)}</span> : null}
                 </span>
                 <span className="ulune-hd-step-text">{st.text}</span>
               </span>

@@ -9,18 +9,19 @@ import { useEffect } from "react";
 import { importWithRetry } from "@/lib/lazy-retry";
 import { useI18n } from "@/lib/i18n/locale";
 import { useStudioStore } from "@/studio/store";
+import { MODE_META } from "@/studio/modes/meta";
 import { TourHost } from "@/components/tour/TourHost";
 
 /**
  * The first stop for the keyboard, in words that fit the page: straight to
  * the form's first field when the form is on screen, else to the calendar or
- * the chart. The Calendar shows the sky without a chart (workspace.tsx: the
- * form comes there only when asked for).
+ * the chart. The Calendar shows the sky without a chart, and Feng Shui's
+ * Home a home (workspace.tsx: the form comes there only when asked for).
  */
 function SkipLink() {
   const { t } = useI18n();
   const to = useStudioStore((s) =>
-    s.pair.addingPartnerFor || s.creating || (!s.chart && s.page !== "timing")
+    s.pair.addingPartnerFor || s.creating || (!s.chart && MODE_META[s.page].needsChart)
       ? "form"
       : s.page === "timing"
         ? "calendar"

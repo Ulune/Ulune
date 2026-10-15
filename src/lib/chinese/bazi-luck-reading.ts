@@ -18,7 +18,7 @@ import type { Both } from "./both";
 import { INTERACTION_NAMES } from "./bazi-interactions";
 import { PILLAR_WORD, baziReading, branchCellRef, stemRef } from "./bazi-reading";
 import type { FlowYear, Luck, LuckCount, LuckPillar, Meeting, TimePillar } from "./bazi-luck";
-import { said } from "./both";
+import { deFr, said } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;
 
@@ -112,7 +112,8 @@ function luckPillarReading(x: LuckContext, l: Luck, p: LuckPillar, locale: strin
   const name = chineseLabel(SIXTY[p.pillar.cycle]!, locale, prefs);
   const from = dateIn(p.fromMs, locale, x.tz, { month: "short", year: "numeric" });
   const to = dateIn(p.toMs, locale, x.tz, { month: "short", year: "numeric" });
-  const lead = cnWord(locale, "bzlLuckLead", { from, to, god: godName(p.god, locale, prefs), branchGod: godName(p.branchGod, locale, prefs) });
+  // French elides before a month that opens on a vowel: « d’oct. 2017 » (part 20).
+  const lead = cnWord(locale, "bzlLuckLead", { from, deFrom: deFr(from), to, god: godName(p.god, locale, prefs), branchGod: godName(p.branchGod, locale, prefs) });
   const sections = [godTheme(p, locale, prefs, LUCK_GOD_TEXTS), meetsSection(p.meets, locale, prefs)];
   const ages = cnWord(locale, "bzlAges", { from: Math.floor(p.fromAge), to: Math.floor(p.toAge) });
   return {

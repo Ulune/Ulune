@@ -21,14 +21,14 @@ import type { Lang } from "./types";
 
 type Lexicons = Record<string, Matcher | null>;
 
-/** A Chinese reading's entries, every one it is about, written or not (lib/chinese/term-ids.ts, chineseRefTerms). */
+/** A Chinese reading's entries, every one it is about, written or not (lib/chinese/term-refs.ts, chineseRefTerms). */
 type ChineseTerms = (readingId: string) => string[];
 let chinese: ChineseTerms | null = null;
 let chineseLoading: Promise<ChineseTerms> | null = null;
 
 function chineseTerms(): Promise<ChineseTerms> {
   if (!chineseLoading) {
-    const p = importWithRetry(() => import("@/lib/chinese/term-ids")).then((m) => (chinese = m.chineseRefTerms));
+    const p = importWithRetry(() => import("@/lib/chinese/term-refs")).then((m) => (chinese = m.chineseRefTerms));
     p.catch(() => {
       if (chineseLoading === p) chineseLoading = null;
     });

@@ -47,18 +47,24 @@ export const directionById = (id: DirectionId): Direction => DIRECTIONS.find((d)
 export type Kua = 1 | 2 | 3 | 4 | 6 | 7 | 8 | 9;
 export type TrigramId = "kan" | "kun" | "zhen" | "xun" | "qian" | "dui" | "gen" | "li";
 
-export type Trigram = ChineseName & { id: TrigramId; kua: Kua; symbol: string; image: { en: string; fr: string }; phase: PhaseId; direction: DirectionId; group: "east" | "west" };
+/** A trigram's three lines from the bottom up, as the tradition counts them: true for a whole (yang) line, false for a broken (yin) one. */
+export type TrigramLines = readonly [boolean, boolean, boolean];
 
-/** The eight trigrams in the Later Heaven order (後天八卦), each with its Kua, its direction and its group. */
+export type Trigram = ChineseName & { id: TrigramId; kua: Kua; symbol: string; lines: TrigramLines; image: { en: string; fr: string }; phase: PhaseId; direction: DirectionId; group: "east" | "west" };
+
+/**
+ * The eight trigrams in the Later Heaven order (後天八卦), each with its Kua, its direction and its group.
+ * `lines` draws it (components/trigram-mark.tsx, review fix FS7): the symbol stays for text and screen readers.
+ */
 export const TRIGRAMS: readonly Trigram[] = [
-  { id: "kan", kua: 1, symbol: "☵", hant: "坎", hans: "坎", pinyin: "kǎn", en: "Kan", fr: "Kan", image: { en: "Water", fr: "l’Eau" }, phase: "water", direction: "n", group: "east" },
-  { id: "kun", kua: 2, symbol: "☷", hant: "坤", hans: "坤", pinyin: "kūn", en: "Kun", fr: "Kun", image: { en: "Earth", fr: "la Terre" }, phase: "earth", direction: "sw", group: "west" },
-  { id: "zhen", kua: 3, symbol: "☳", hant: "震", hans: "震", pinyin: "zhèn", en: "Zhen", fr: "Zhen", image: { en: "Thunder", fr: "le Tonnerre" }, phase: "wood", direction: "e", group: "east" },
-  { id: "xun", kua: 4, symbol: "☴", hant: "巽", hans: "巽", pinyin: "xùn", en: "Xun", fr: "Xun", image: { en: "Wind", fr: "le Vent" }, phase: "wood", direction: "se", group: "east" },
-  { id: "qian", kua: 6, symbol: "☰", hant: "乾", hans: "乾", pinyin: "qián", en: "Qian", fr: "Qian", image: { en: "Heaven", fr: "le Ciel" }, phase: "metal", direction: "nw", group: "west" },
-  { id: "dui", kua: 7, symbol: "☱", hant: "兌", hans: "兑", pinyin: "duì", en: "Dui", fr: "Dui", image: { en: "Lake", fr: "le Lac" }, phase: "metal", direction: "w", group: "west" },
-  { id: "gen", kua: 8, symbol: "☶", hant: "艮", hans: "艮", pinyin: "gèn", en: "Gen", fr: "Gen", image: { en: "Mountain", fr: "la Montagne" }, phase: "earth", direction: "ne", group: "west" },
-  { id: "li", kua: 9, symbol: "☲", hant: "離", hans: "离", pinyin: "lí", en: "Li", fr: "Li", image: { en: "Fire", fr: "le Feu" }, phase: "fire", direction: "s", group: "east" },
+  { id: "kan", kua: 1, symbol: "☵", lines: [false, true, false], hant: "坎", hans: "坎", pinyin: "kǎn", en: "Kan", fr: "Kan", image: { en: "Water", fr: "l’Eau" }, phase: "water", direction: "n", group: "east" },
+  { id: "kun", kua: 2, symbol: "☷", lines: [false, false, false], hant: "坤", hans: "坤", pinyin: "kūn", en: "Kun", fr: "Kun", image: { en: "Earth", fr: "la Terre" }, phase: "earth", direction: "sw", group: "west" },
+  { id: "zhen", kua: 3, symbol: "☳", lines: [true, false, false], hant: "震", hans: "震", pinyin: "zhèn", en: "Zhen", fr: "Zhen", image: { en: "Thunder", fr: "le Tonnerre" }, phase: "wood", direction: "e", group: "east" },
+  { id: "xun", kua: 4, symbol: "☴", lines: [false, true, true], hant: "巽", hans: "巽", pinyin: "xùn", en: "Xun", fr: "Xun", image: { en: "Wind", fr: "le Vent" }, phase: "wood", direction: "se", group: "east" },
+  { id: "qian", kua: 6, symbol: "☰", lines: [true, true, true], hant: "乾", hans: "乾", pinyin: "qián", en: "Qian", fr: "Qian", image: { en: "Heaven", fr: "le Ciel" }, phase: "metal", direction: "nw", group: "west" },
+  { id: "dui", kua: 7, symbol: "☱", lines: [true, true, false], hant: "兌", hans: "兑", pinyin: "duì", en: "Dui", fr: "Dui", image: { en: "Lake", fr: "le Lac" }, phase: "metal", direction: "w", group: "west" },
+  { id: "gen", kua: 8, symbol: "☶", lines: [false, false, true], hant: "艮", hans: "艮", pinyin: "gèn", en: "Gen", fr: "Gen", image: { en: "Mountain", fr: "la Montagne" }, phase: "earth", direction: "ne", group: "west" },
+  { id: "li", kua: 9, symbol: "☲", lines: [true, false, true], hant: "離", hans: "离", pinyin: "lí", en: "Li", fr: "Li", image: { en: "Fire", fr: "le Feu" }, phase: "fire", direction: "s", group: "east" },
 ];
 export const trigramOfKua = (kua: Kua): Trigram => TRIGRAMS.find((t) => t.kua === kua)!;
 export const trigramOfDirection = (d: DirectionId): Trigram => TRIGRAMS.find((t) => t.direction === d)!;

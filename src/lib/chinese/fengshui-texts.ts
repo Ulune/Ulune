@@ -77,9 +77,10 @@ export const MANSION_TEXTS: Readonly<Record<MansionId, Both>> = {
     "Huo Hai is the mildest of your four challenging directions: small frictions and setbacks. The tradition suggests it for storage or a utility room rather than a desk.",
     "Huo Hai est la plus douce de vos quatre directions difficiles\u202f: de petites frictions et des contretemps. La tradition la suggère pour le rangement ou une buanderie plutôt que pour un bureau.",
   ],
+  // Its gloss gives a meaning, as Liu Sha's does, rather than the word for word "five ghosts", which reads as a threat (the review's FS9, part 27).
   "wu-gui": [
-    "Wu Gui, the five ghosts, is a restless direction: scattered energy and quarrels that start from little. The tradition suggests not facing it for long tasks.",
-    "Wu Gui, les cinq fantômes, est une direction agitée\u202f: une énergie dispersée et des querelles qui naissent de peu. La tradition suggère de ne pas lui faire face pour les longues tâches.",
+    "Wu Gui, the five distractions, is a restless direction: scattered energy and quarrels that start from little. The tradition suggests not facing it for long tasks.",
+    "Wu Gui, les cinq distractions, est une direction agitée\u202f: une énergie dispersée et des querelles qui naissent de peu. La tradition suggère de ne pas lui faire face pour les longues tâches.",
   ],
   "liu-sha": [
     "Liu Sha, the six imbalances, is a direction of entanglements and misunderstandings. The tradition suggests it for passing through rather than for sitting.",

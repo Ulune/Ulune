@@ -18,6 +18,12 @@ export type ModeDef = ModeMeta & {
   Data: ComponentType;
   /** What the empty studio says on this mode before any chart is cast. */
   emptyText?: (locale: AppLocale) => string;
+  /**
+   * A page that needs no chart (needsChart false) but other than the Calendar, whose words are the
+   * app's: what the birth form says when asked for from it, and its way back (Feng Shui's Home, FS13).
+   * In the mode's own code, so its words stay out of the first download.
+   */
+  formFrom?: (locale: AppLocale) => { line: string; back: string };
   /** Fetch the table view's code ahead (the view switch is pointed at or focused). */
   preloadData?: () => void;
   /**

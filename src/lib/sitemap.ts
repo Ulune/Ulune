@@ -16,7 +16,7 @@ const BASE = { en: "/encyclopedia", fr: "/encyclopedie" } as const;
 /** Every encyclopedia address with its English and French forms: the homes, then the pages. */
 export function encyclopediaPairs(index: TermIndex): { en: string; fr: string }[] {
   const pairs: { en: string; fr: string }[] = [{ en: BASE.en, fr: BASE.fr }];
-  for (const t of index.traditions) if (t.count > 0) pairs.push({ en: `${BASE.en}/${t.home.en}`, fr: `${BASE.fr}/${t.home.fr}` });
+  for (const t of index.traditions) if (t.count > 0 || t.about) pairs.push({ en: `${BASE.en}/${t.home.en}`, fr: `${BASE.fr}/${t.home.fr}` });
   for (const row of Object.values(index.terms)) if (row[4]) pairs.push({ en: `${BASE.en}/${row[2]}`, fr: `${BASE.fr}/${row[3]}` });
   return pairs;
 }

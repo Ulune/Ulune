@@ -7,11 +7,12 @@ import { KeepSlot, MineSlot } from "./MineSlot";
 import { encPath } from "./data";
 import { Crumbs, EncFrame, EncLink, Licence, Mark, markClass, TwinLink } from "./frame";
 import { tr } from "./words";
+import { ZhName } from "./ZhName";
 import type { EntryRef, Lang, PageData } from "./types";
 
 /*
  * An entry's page (encyclopedia plan, "An entry, start to finish"), in this
- * order: the head (name, glyph, tradition, the name in the other language),
+ * order: the head (name, glyph, its Chinese name for a Chinese term (part 23), tradition, the name in the other language),
  * the one-sentence summary, "In your chart" (part 18, MineSlot.tsx: only with a chart open in this tab, worked out in the browser), the body's sections,
  * Related, Sources, then the date it was last revised, a way to report an
  * error, the next and previous pages of its family and the text's licence.
@@ -68,12 +69,17 @@ export function EntryPage({ page }: { page: PageData }) {
       <article className="ob-enc-article" data-entry={page.id}>
         <header className="ob-enc-head">
           {page.glyph ? (
-            <span className={markClass(page.glyph, "ob-enc-glyph")} aria-hidden="true">
+            <span className={markClass(page.glyph, "ob-enc-glyph")} aria-hidden="true" lang={page.zh && /\p{Script=Han}/u.test(page.glyph) ? "zh-Hant" : undefined}>
               {page.glyph}
             </span>
           ) : null}
           <div className="ob-enc-head-text">
             <h1 className="ob-enc-title">{page.title}</h1>
+            {page.zh ? (
+              <p className="ob-enc-zh-line">
+                <ZhName zh={page.zh} lang={lang} />
+              </p>
+            ) : null}
             <p className="ob-enc-meta">
               <EncLink to={lang} slug={page.tradition.home} className="ob-enc-tag" data-tradition={page.tradition.id}>
                 {page.tradition.name}

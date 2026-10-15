@@ -1,0 +1,376 @@
+/* Feng Shui's Relationship lens (review items FS5 and FS32; studio/modes/fengshui-pair.tsx):
+   one compass rose with two rings, A's inside and B's outside, each tinted where
+   its person's direction is supportive and hatched where it is challenging, its
+   mansion in words; at each direction a badge says what it is for the two
+   (filled: supportive for both; hatched: challenging for both; half: mixed), and
+   the directions supportive for both are outlined, so colour is never the only
+   signal. The cards, the rows and the rose's rim, hatching and hub are
+   fengshui.css's. */
+.ulune-fsp-body {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+.ulune-fsp-figure {
+  flex: 0 1 min(540px, 56%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.ulune-fsp-rose-box {
+  width: 100%;
+  aspect-ratio: 1;
+}
+.ulune-fsp-side {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.ulune-fsp-people {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+.ulune-fsp-person {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.ulune-fsp-who {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ulune-fsp-kua-n {
+  font-weight: 600;
+}
+
+/* The two people: A a filled dot, B a ring (as on Chinese astrology's Pair). */
+.ulune-fsp-dot {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-fg);
+  vertical-align: -1px;
+}
+.ulune-fsp-dot.is-b {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--color-fg);
+}
+
+/* The count the compass reads, for a birth without one: two pressed-or-not buttons. */
+.ulune-fsp-count {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ulune-fsp-count-btns {
+  display: flex;
+  gap: 4px;
+}
+.ulune-fsp-count-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border-field);
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: 500 12px/1.25 var(--font-ui);
+}
+.ulune-fsp-count-btn[aria-pressed="true"] {
+  background: var(--color-fg);
+  border-color: var(--color-fg);
+  color: var(--color-bg);
+}
+.ulune-fsp-count-btn:hover:not([aria-pressed="true"]) {
+  background: var(--color-bg-subtle);
+}
+.ulune-fsp-count-btn:focus-visible {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 2px;
+}
+
+/* The rose. */
+.ulune-fsp-rose {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  font-family: var(--font-ui);
+}
+.ulune-fsp-wedge {
+  cursor: pointer;
+  outline: none;
+}
+.ulune-fsp-cell {
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transition: fill var(--motion-ui, 160ms) ease;
+}
+.ulune-fsp-cell.is-good {
+  fill: color-mix(in oklab, var(--color-halo) 16%, transparent);
+}
+.ulune-fsp-wedge:hover .ulune-fsp-cell.is-good,
+.ulune-fsp-wedge.is-on .ulune-fsp-cell.is-good {
+  fill: color-mix(in oklab, var(--color-halo) 34%, transparent);
+}
+.ulune-fsp-word {
+  font-size: 11px;
+  font-weight: 500;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--color-fg);
+  pointer-events: none;
+}
+/* The words stand on a margin of the ground, so the hatching never crosses them. */
+.ulune-fsp-word.is-hard {
+  paint-order: stroke;
+  stroke: var(--color-bg-elevated);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.ulune-fsp-shared {
+  fill: none;
+  stroke: var(--color-halo);
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+.ulune-fsp-edge {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+.ulune-fsp-wedge:hover .ulune-fsp-edge {
+  stroke: var(--color-fg-muted);
+}
+.ulune-fsp-wedge.is-on .ulune-fsp-edge {
+  stroke: var(--color-fg);
+}
+/* Focused: both rings' cells and the wedge's edge in ink. */
+.ulune-fsp-wedge:focus-visible .ulune-fsp-cell {
+  stroke: var(--color-fg);
+  stroke-width: 1.5;
+}
+.ulune-fsp-wedge:focus-visible .ulune-fsp-edge {
+  stroke: var(--color-fg);
+  stroke-width: 3;
+}
+
+/* Each direction's badge round the hub: what the direction is for the two. */
+.ulune-fsp-badge circle {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-border-strong);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fsp-wedge.is-both-good .ulune-fsp-badge circle {
+  fill: color-mix(in oklab, var(--color-halo) 45%, var(--color-bg-elevated));
+  stroke: var(--color-halo);
+}
+.ulune-fsp-wedge.is-both-hard .ulune-fsp-badge circle {
+  stroke: var(--color-fg-muted);
+  stroke-dasharray: 3 2;
+}
+.ulune-fsp-wedge.is-mixed .ulune-fsp-badge circle {
+  stroke: var(--color-halo);
+}
+.ulune-fsp-half {
+  fill: color-mix(in oklab, var(--color-halo) 45%, var(--color-bg-elevated));
+  pointer-events: none;
+}
+.ulune-fsp-badge text {
+  font-size: 10.5px;
+  font-weight: 650;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--color-fg);
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--color-bg-elevated);
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
+}
+.ulune-fsp-wedge.is-both-good .ulune-fsp-badge text {
+  stroke: none;
+}
+.ulune-fsp-wedge.is-on .ulune-fsp-badge circle,
+.ulune-fsp-wedge:focus-visible .ulune-fsp-badge circle {
+  stroke: var(--color-fg);
+  stroke-width: 2;
+}
+
+/* The hub: both Kua numbers; it opens the summary. */
+.ulune-fsp-hub {
+  cursor: pointer;
+}
+.ulune-fsp-hub > circle:first-child {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fsp-hub.is-on > circle:first-child,
+.ulune-fsp-hub:hover > circle:first-child {
+  stroke: var(--color-halo);
+  stroke-width: 2;
+}
+.ulune-fsp-hub text {
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--color-fg);
+  pointer-events: none;
+}
+.ulune-fsp-hub-n {
+  font: 400 30px/1 var(--font-display);
+}
+.ulune-fsp-hub-dot {
+  fill: var(--color-fg);
+  pointer-events: none;
+}
+.ulune-fsp-hub-dot.is-b {
+  fill: none;
+  stroke: var(--color-fg);
+  stroke-width: 1.8;
+}
+
+/* The key under the rose. */
+.ulune-fsp-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font: 400 12.5px/1.4 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-fsp-legend-line {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+.ulune-fsp-legend-line .ulune-fsp-dot.is-b {
+  margin-left: 6px;
+}
+.ulune-fsp-legend-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-fsp-legend-kinds li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* The badges' three kinds, in the key and before the lists' headings. */
+.ulune-fsp-chip {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--color-halo);
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  vertical-align: -2px;
+}
+.ulune-fsp-chip.is-both-good {
+  background: color-mix(in oklab, var(--color-halo) 45%, var(--color-bg-elevated));
+}
+.ulune-fsp-chip.is-mixed {
+  background: linear-gradient(90deg, color-mix(in oklab, var(--color-halo) 45%, var(--color-bg-elevated)) 50%, var(--color-bg-elevated) 50%);
+}
+.ulune-fsp-chip.is-both-hard {
+  border: 1px dashed var(--color-fg-muted);
+  background: repeating-linear-gradient(45deg, color-mix(in oklab, var(--color-fg-muted) 45%, transparent) 0 1.4px, transparent 1.4px 4px);
+}
+
+/* The three lists. */
+.ulune-fsp-list .ulune-fs-h {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ulune-fsp-list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-fsp-row {
+  flex-wrap: wrap;
+  align-items: center;
+}
+.ulune-fsp-list.is-both-good .ulune-fsp-row {
+  border-left-color: color-mix(in oklab, var(--color-halo) 70%, transparent);
+}
+.ulune-fsp-list.is-both-hard .ulune-fsp-row {
+  border-left-style: dashed;
+  border-left-color: var(--color-fg-muted);
+}
+.ulune-fsp-list.is-mixed .ulune-fsp-row {
+  border-left-style: double;
+  border-left-color: color-mix(in oklab, var(--color-halo) 70%, transparent);
+}
+.ulune-fsp-row-who {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  font: 400 12.5px/1.3 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-fsp-row-m {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ulune-fsp-row-for {
+  flex-basis: 100%;
+  font: 400 12px/1.3 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-fsp-none {
+  margin: 0;
+  padding: 6px 0 2px;
+  font: 400 12.5px/1.45 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+
+/* A finger: the count's buttons 44 px tall (the rows already are, fengshui.css). */
+@media (pointer: coarse) {
+  .ulune-fsp-count-btn {
+    min-height: 44px;
+  }
+}
+
+/* A narrow stage (a phone, a tablet upright): the rose on top, the rest under it. */
+@container (max-width: 720px) {
+  .ulune-fsp-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ulune-fsp-figure {
+    flex: none;
+    width: min(100%, 440px);
+    margin: 0 auto;
+  }
+}
+/* Very narrow: the two people one under the other. */
+@container (max-width: 420px) {
+  .ulune-fsp-people {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

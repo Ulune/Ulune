@@ -96,6 +96,19 @@ test("the zodiac's relations: Camille's two Horses punish themselves and her Pig
   assert.deepEqual(placedRelations([{ id: "year", branch: 0 }, { id: "day", branch: 0 }]), [], "the same Rat twice: no relation");
 });
 
+test("a whole trine in French elides « de » before its phase: « un trigone entier d’eau » (the review of part 20)", () => {
+  const b = zodiacChart(SAMPLE_B, { nowMs: NOW });
+  // The Water trine: the Monkey (壬申), the Rat (甲子) and the Dragon (戊辰) on the year, month and day.
+  const cycles = { year: 8, month: 0, day: 4 };
+  const places = b.places.map((p) => (p.id in cycles ? { ...p, branch: cycles[p.id] % 12, pillar: { ...p.pillar, cycle: cycles[p.id] } } : p));
+  const z = { ...b, places, relations: placedRelations(places), trines: fullTrines(places) };
+  assert.deepEqual(z.trines.map((t) => t.phase), ["water"]);
+  const trine = z.relations.find((r) => r.kind === "trine");
+  const full = { script: "hant", show: "full" };
+  assert.match(zodiacReading(z, relationRef(trine), "fr", full).paragraphs.join(" "), /forment un trigone entier d’eau\u202f: trois alliés/);
+  assert.match(zodiacReading(z, relationRef(trine), "en", full).paragraphs.join(" "), /make a whole trine of water: three allies/);
+});
+
 test("what the page says of a relation, and of a place's relations", () => {
   const b = zodiacChart(SAMPLE_B, { nowMs: NOW });
   const full = { script: "hant", show: "full" };

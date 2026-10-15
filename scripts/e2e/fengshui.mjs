@@ -3,7 +3,7 @@
  * 1280 and 390 px, in English and French, with Fixture A (made up:
  * 15/06/1990, 12:00, Paris) and no yin or yang count, so both Kua numbers:
  *   - reached by its card in the language picker, under Chinese traditions,
- *     with no ⓘ yet;
+ *     its ⓘ leading to its home in the encyclopedia;
  *   - (part 28) the picker's cards on a first visit: the three Chinese
  *     languages say "new" (their spoken names too), the Western ones do not;
  *     the Chinese ones give their pinyin and characters as Settings says
@@ -22,6 +22,9 @@
  *   - (part 29) the first read: no method note for Fixture A, and "How Ulune
  *     calculates" at its end, naming the Eight Mansions school, its classic
  *     and the rule for 5;
+ *   - (part 27, the review's FS7) the trigrams drawn by Ulune, never a
+ *     font's ☰…☷: in the wedges, the centres, the Kua's card (its symbol
+ *     kept for screen readers) and the first read;
  *   - nothing sent while the page works it out; nothing scrolls sideways.
  */
 import { join } from "node:path";
@@ -202,7 +205,9 @@ async function run(width, lang) {
     await castFixture(page, FIXTURE_A);
     await page.getByTestId("lang-button").click();
     await page.getByTestId("lang-card-feng-shui").waitFor({ timeout: 8000 });
-    if (await page.getByTestId("lang-info-feng-shui").count()) throw new Error(`${label}: an ⓘ to a home that does not exist yet`);
+    // Its ⓘ leads to Feng Shui's home in the encyclopedia, in the reader's language (encyclopedia plan, part 23).
+    const info = await page.getByTestId("lang-info-feng-shui").getAttribute("href").catch(() => null);
+    if (info !== (lang === "fr" ? "/encyclopedie/feng-shui" : "/encyclopedia/feng-shui")) throw new Error(`${label}: Feng Shui's ⓘ leads to ${info}`);
     await pickerCards(page, label, lang, join(SHOTS, `fengshui-picker-${lang}-${width}.png`));
     // Nothing but the app's own files, by GET, from here (_sent.mjs).
     const sent = watchSent(page);
@@ -223,6 +228,12 @@ async function run(width, lang) {
       return { notes: document.querySelectorAll("[data-testid=fengshui-hello] [data-testid=method-note]").length, title: how?.querySelector("summary")?.textContent?.trim(), open: how?.open, text: how?.textContent ?? "" };
     });
     if (method.notes || method.title !== w.how || method.open || !w.method.every((t) => method.text.includes(t))) throw new Error(`${label}: the method notes ${JSON.stringify(method).slice(0, 300)}`);
+    // (part 27, FS7) The first read's Kua steps draw their trigram: Kan for Kua 1, Gen for Kua 8.
+    const firstBars = await page.evaluate(() => ["yang", "yin"].map((c) => {
+      const t = document.querySelector(`[data-testid=fengshui-hello-kua-${c}] [data-trigram]`);
+      return `${t?.getAttribute("data-trigram")}:${t?.querySelectorAll("rect").length ?? 0}`;
+    }));
+    if (firstBars.join() !== "kan:5,gen:5") throw new Error(`${label}: the first read's trigrams ${firstBars}`);
     await page.getByTestId("fengshui-hello-best-yang").click();
     if (phone) await clickDockTab(page, "reading").catch(() => {});
     await waitNote(page, w.growth, label, "the first read's best direction");
@@ -241,6 +252,27 @@ async function run(width, lang) {
     if (!(yang.find((x) => x.dir === "n").y < yang.find((x) => x.dir === "s").y)) throw new Error(`${label}: the north is not at the top`);
     const centres = await page.evaluate(() => [...document.querySelectorAll("[data-testid^=fengshui-centre-]")].map((e) => e.querySelector(".ulune-fs-centre-n")?.textContent));
     if (centres.join() !== "1,8") throw new Error(`${label}: the centres ${centres}`);
+    // (part 27, the review's FS7) The trigrams drawn by Ulune, never a font's ☰…☷: three bars, two for a broken line,
+    // in each wedge, the centre, the Kua's card and the first read; the card keeps the symbol for screen readers.
+    const drawn = await page.evaluate(() => {
+      const bars = (sel) => document.querySelector(sel)?.querySelectorAll("rect").length ?? 0;
+      const glyph = document.querySelector("[data-testid=fengshui-kua-yang] [data-trigram] svg");
+      return {
+        glyphs: [...document.querySelectorAll("[data-testid^=fengshui-rose-] text")].filter((t) => /[☰-☷]/u.test(t.textContent ?? "")).length,
+        wedges: document.querySelectorAll("[data-testid=fengshui-rose-yang] [data-dir] [data-trigram]").length,
+        north: bars("[data-testid=fengshui-wedge-yang-n] [data-trigram]"),
+        south: bars("[data-testid=fengshui-wedge-yang-s] [data-trigram]"),
+        centre: bars("[data-testid=fengshui-centre-yin] [data-trigram]"),
+        card: document.querySelector("[data-testid=fengshui-kua-yang] [data-trigram]")?.getAttribute("data-trigram"),
+        cardBars: glyph?.querySelectorAll("rect").length ?? 0,
+        cardHeight: Math.round(glyph?.getBoundingClientRect().height ?? 0),
+        said: document.querySelector("[data-testid=fengshui-kua-yang] [data-trigram] .sr-only")?.textContent,
+      };
+    });
+    // Kan ☵ in the north (broken, whole, broken), Li ☲ in the south (whole, broken, whole), Gen ☶ for Kua 8.
+    if (JSON.stringify(drawn) !== JSON.stringify({ glyphs: 0, wedges: 8, north: 5, south: 4, centre: 5, card: "kan", cardBars: 5, cardHeight: drawn.cardHeight, said: "☵" }) || drawn.cardHeight < 14) {
+      throw new Error(`${label}: the trigrams drawn ${JSON.stringify(drawn)}`);
+    }
     await assertNoOverflow(page);
     await page.screenshot({ path: join(SHOTS, `fengshui-${lang}-${width}.png`) }).catch(() => {});
 

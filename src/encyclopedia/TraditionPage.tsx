@@ -1,6 +1,8 @@
+import { BlockView } from "./Body";
 import { Crumbs, EncFrame, EncLink, Licence, Mark, TwinLink } from "./frame";
 import { MineIndexSlot } from "./MineSlot";
 import { tr } from "./words";
+import { ZhName } from "./ZhName";
 import type { ListRow, TraditionHome } from "./types";
 
 /*
@@ -9,7 +11,10 @@ import type { ListRow, TraditionHome } from "./types";
  * page is a link to it; one without is listed with its summary, unlinked.
  * Each family and each entry can be reached by its anchor (#family-planets,
  * #saturn): the breadcrumbs of a page lead to its family here. The
- * combination pages' families (part 17) are lists of names in columns.
+ * combination pages' families (part 17) are lists of names in columns. A
+ * Chinese tradition (part 23) shows its own name, and a tradition whose
+ * introduction is written shows it after its one-line lead, with its links;
+ * the language picker's ⓘ leads here.
  */
 
 function Card({ row, lang }: { row: ListRow; lang: TraditionHome["lang"] }) {
@@ -38,11 +43,23 @@ export function TraditionPage({ home }: { home: TraditionHome }) {
       <Crumbs lang={lang} items={[{ label: tr(lang, "encTitle") }, { label: home.name }]} />
       <header className="ob-enc-hero">
         <h1 className="ob-enc-title">{home.name}</h1>
+        {home.zh ? (
+          <p className="ob-enc-zh-line">
+            <ZhName zh={home.zh} lang={lang} />
+          </p>
+        ) : null}
         <p className="ob-enc-lead">{home.intro}</p>
         <p className="ob-enc-meta">
           <TwinLink lang={lang} slug={home.twinHome} />
         </p>
       </header>
+      {home.about?.length ? (
+        <div className="ob-enc-prose ob-enc-about" data-testid="enc-about">
+          {home.about.map((b, i) => (
+            <BlockView key={i} block={b} lang={lang} label={home.name} />
+          ))}
+        </div>
+      ) : null}
       <MineIndexSlot lang={lang} tradition={home.id} />
       {home.families.map((f) => (
         <section key={f.id} id={`family-${f.id}`} className="ob-enc-family" aria-labelledby={`h-family-${f.id}`} data-family={f.id}>
@@ -69,6 +86,18 @@ export function TraditionPage({ home }: { home: TraditionHome }) {
           )}
         </section>
       ))}
+      {home.sources?.length ? (
+        <section className="ob-enc-section" aria-labelledby="s-sources" data-testid="enc-sources">
+          <h2 id="s-sources" className="ob-enc-h2">
+            {tr(lang, "encSources")}
+          </h2>
+          <ul className="ob-enc-sources">
+            {home.sources.map((s) => (
+              <li key={s}>{s}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       <footer className="ob-enc-foot">
         <Licence lang={lang} />
       </footer>

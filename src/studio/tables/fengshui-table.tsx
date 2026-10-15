@@ -1,4 +1,5 @@
 import { ChineseTermWord } from "@/encyclopedia/ChineseTermWord";
+import { TrigramGlyph } from "@/components/trigram-mark";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
@@ -10,7 +11,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
-/** Feng Shui's personal page as a table (languages plan, part 21); Copy and CSV. Its trigrams link to the encyclopedia once written (part 29). */
+/** Feng Shui's personal page as a table (languages plan, part 21); Copy and CSV. Its trigrams link to the encyclopedia once written (part 29), drawn by Ulune (part 27, the review's FS7). */
 export function FengShuiTable({ list, name, selectedId, onSelect }: { list: readonly FengShui[]; name: string; selectedId: string | null; onSelect: (id: string) => void }) {
   const { locale, t } = useI18n();
   const prefs = useChinesePrefs();
@@ -32,7 +33,8 @@ export function FengShuiTable({ list, name, selectedId, onSelect }: { list: read
       copyText: partText("kua"),
       table: csvOf(["kua"]),
       children: (
-        <DataTable className="ulune-zk-tbl" wide>
+        // Its last column is a sentence: it wraps within the table (fengshui.css, .ulune-fs-prose).
+        <DataTable className="ulune-zk-tbl ulune-fs-prose">
           <thead>
             <tr>
               {both ? <th>{w("bzlCountCol")}</th> : null}
@@ -50,7 +52,7 @@ export function FengShuiTable({ list, name, selectedId, onSelect }: { list: read
                   {both ? <td>{countLabel(fs.count, locale)}</td> : null}
                   <th scope="row">{pick(id, cnWord(locale, "fsKuaN", { n: fs.kua }))}</th>
                   <td>
-                    {fs.trigram.symbol}{" "}
+                    <TrigramGlyph symbol={fs.trigram.symbol} />{" "}
                     <ChineseTermWord family="trigram" id={fs.trigram.id}>
                       {chineseLabel(fs.trigram, locale, prefs).text}
                     </ChineseTermWord>
@@ -88,7 +90,7 @@ export function FengShuiTable({ list, name, selectedId, onSelect }: { list: read
                 <tr key={d} data-testid={`fengshui-row-dir-${d}`} data-selected={list.some((fs) => selectedId === fsDirRef(fs.count, d)) ? "1" : undefined}>
                   <th scope="row">{chineseLabel(directionById(d), locale, prefs).text}</th>
                   <td>
-                    {tri.symbol}{" "}
+                    <TrigramGlyph symbol={tri.symbol} />{" "}
                     <ChineseTermWord family="trigram" id={tri.id}>
                       {chineseLabel(tri, locale, { ...prefs, show: "names" }).name}
                     </ChineseTermWord>
@@ -115,7 +117,7 @@ export function FengShuiTable({ list, name, selectedId, onSelect }: { list: read
       hint: w("fsPartPracticeHint"),
       copyText: partText("practice"),
       children: (
-        <DataTable className="ulune-zk-tbl">
+        <DataTable className="ulune-zk-tbl ulune-fs-prose">
           <tbody>
             {list.flatMap((fs) =>
               practiceLines(fs, locale).map((l) => (

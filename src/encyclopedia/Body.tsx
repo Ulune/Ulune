@@ -1,11 +1,14 @@
 import { Fragment } from "react";
+import { EncLink } from "./frame";
 import { Term } from "./Term";
 import type { Block, Inline, Lang, Section } from "./types";
 
 /*
  * An entry's body as the build gave it (types.ts): sections of paragraphs,
- * lists and tables, with bold, italic and links to other entries. Rendered on
- * the server, so a page reads whole without JavaScript.
+ * lists and tables, with bold, italic and links to other entries, or to a
+ * tradition's home (part 23: a plain link, with no card). Rendered on the
+ * server, so a page reads whole without JavaScript. A tradition's
+ * introduction (TraditionPage.tsx) is drawn with the same blocks.
  */
 
 export function Inlines({ nodes, lang }: { nodes: Inline[]; lang: Lang }) {
@@ -23,6 +26,10 @@ export function Inlines({ nodes, lang }: { nodes: Inline[]; lang: Lang }) {
             <em>
               <Inlines nodes={n.i} lang={lang} />
             </em>
+          ) : n.h && n.s ? (
+            <EncLink to={lang} slug={n.s} className="ob-term ob-enc-home-link" data-tradition={n.g}>
+              {n.w}
+            </EncLink>
           ) : (
             <Term id={n.l} lang={lang} slug={n.s}>
               {n.w}
@@ -34,7 +41,7 @@ export function Inlines({ nodes, lang }: { nodes: Inline[]; lang: Lang }) {
   );
 }
 
-function BlockView({ block, lang, label }: { block: Block; lang: Lang; label: string }) {
+export function BlockView({ block, lang, label }: { block: Block; lang: Lang; label: string }) {
   if (block.t === "p") {
     return (
       <p>

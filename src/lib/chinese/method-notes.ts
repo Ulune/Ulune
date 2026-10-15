@@ -30,9 +30,10 @@ import { TABLE_SOURCE } from "./time-table";
 import { cnWord, theAnimal, type ChineseWordKey } from "./words";
 import { birthMomentOf, type ZodiacBirth, type ZodiacPlaceId } from "./zodiac";
 import { PLACE_ANIMAL } from "./zodiac-places";
+import { deFr } from "./both";
 
 /** The Chinese pages that say how they were calculated. */
-export type ChinesePageId = "zodiac" | "zodiac-pair" | "bazi" | "bazi-luck" | "bazi-pair" | "fengshui" | "fengshui-home";
+export type ChinesePageId = "zodiac" | "zodiac-pair" | "bazi" | "bazi-luck" | "bazi-pair" | "fengshui" | "fengshui-pair" | "fengshui-home";
 
 export type MethodNote = {
   /** What it is about, stable for tests: "day-boundary", "formula", "near-day", "new-year-beijing"… */
@@ -48,7 +49,7 @@ export type NotePrefs = Pick<ChinesePrefs, "clock" | "dayBoundary" | "script" | 
 
 const MINUTE_MS = 60_000;
 const ZODIAC_PAGES: readonly ChinesePageId[] = ["zodiac", "zodiac-pair"];
-const FENGSHUI_PAGES: readonly ChinesePageId[] = ["fengshui", "fengshui-home"];
+const FENGSHUI_PAGES: readonly ChinesePageId[] = ["fengshui", "fengshui-pair", "fengshui-home"];
 const PLACES: readonly ZodiacPlaceId[] = ["year", "month", "day", "hour"];
 const PILLAR_KEY: Record<ZodiacPlaceId, ChineseWordKey> = { year: "bzPillarYear", month: "bzPillarMonth", day: "bzPillarDay", hour: "bzPillarHour" };
 
@@ -94,7 +95,7 @@ function dayBoundaryNote(page: ChinesePageId, moment: BirthMoment, mine: FourPil
   // "your day pillar", or on a page of two "Sample B's day pillar" (« le pilier du jour de Sample B »).
   const place = cnWord(locale, ZODIAC_PAGES.includes(page) ? "zkDayAnimal" : "bzPillarDay").toLowerCase();
   const whose = who
-    ? cnWord(locale, "cnmWhose", { who, place: locale === "fr" ? `${/^[aeiouyéèêh]/i.test(place) ? "l’" : "le "}${place}` : place })
+    ? cnWord(locale, "cnmWhose", { who, deWho: deFr(who), place: locale === "fr" ? `${/^[aeiouyéèêh]/i.test(place) ? "l’" : "le "}${place}` : place })
     : cnWord(locale, "cnmYour", { place });
   const vars = { time: birthTime(moment, mine, locale), whose, day: label(mine) };
   if (!late) return { id: "day-boundary", text: cnWord(locale, "cnmDayAfter", vars), settings: true };
@@ -232,7 +233,7 @@ export function howUluneCalculates(page: ChinesePageId, prefs: Pick<ChinesePrefs
   else if (page === "zodiac-pair") items = [say("cnmHowZodiac"), clockItem(prefs, locale), cnWord(locale, "cnmHowSourceTerms", source)];
   else if (page === "bazi-pair") items = [say("cnmHowBazi"), say("cnmHowPillars"), clockItem(prefs, locale), cnWord(locale, "cnmHowSourceTerms", source)];
   else if (page === "bazi" || page === "bazi-luck") items = [say("cnmHowBazi"), say("cnmHowPillars"), clockItem(prefs, locale), say("cnmHowLuck"), cnWord(locale, "cnmHowSourceTerms", source)];
-  else if (page === "fengshui") items = [say("cnmHowKua"), cnWord(locale, "cnmHowSourceTerms", source)];
+  else if (page === "fengshui" || page === "fengshui-pair") items = [say("cnmHowKua"), cnWord(locale, "cnmHowSourceTerms", source)];
   else items = [say("cnmHowKua"), say("cnmHowHome"), say("cnmHowPeriod"), say("cnmHowStars"), cnWord(locale, "cnmHowSourceTerms", source)];
   return { title: say("cnmHowTitle"), items };
 }

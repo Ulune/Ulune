@@ -9,6 +9,11 @@ import type { StudioPage } from "@/studio/url";
 export type ModeMeta = {
   id: StudioPage;
   labelKey: MessageKey;
+  /**
+   * The page waits for a birth chart (the form stands in its place until one is cast). The Calendar
+   * (reorganisation plan, R5) and Feng Shui's Home (languages plan, part 27, review fix FS13) don't:
+   * the shell shows them as they are, with the form only when asked for (workspace.tsx).
+   */
   needsChart: boolean;
   stageTestId: string;
   emptyTestId?: string;
@@ -33,7 +38,7 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
   timing: {
     id: "timing",
     labelKey: "pageTiming",
-    needsChart: true,
+    needsChart: false,
     stageTestId: "studio-timing",
     emptyTestId: "studio-timing-empty",
     noPicture: true,
@@ -133,10 +138,17 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
     stageTestId: "studio-fengshui",
     emptyTestId: "studio-fengshui-empty",
   },
+  "fengshui-pair": {
+    id: "fengshui-pair",
+    labelKey: "pageFengShuiPair",
+    needsChart: true,
+    stageTestId: "studio-fengshui-pair",
+    emptyTestId: "studio-fengshui-pair-empty",
+  },
   "fengshui-home": {
     id: "fengshui-home",
     labelKey: "pageFengShuiHome",
-    needsChart: true,
+    needsChart: false,
     stageTestId: "studio-fengshui-home",
     emptyTestId: "studio-fengshui-home-empty",
   },
@@ -158,6 +170,7 @@ export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
   "bazi-luck": "pageBaziLuck",
   "bazi-pair": "pageBaziPair",
   fengshui: "pageFengShui",
+  "fengshui-pair": "pageFengShuiPair",
   "fengshui-home": "pageFengShuiHome",
   design: "pageDesign",
 };

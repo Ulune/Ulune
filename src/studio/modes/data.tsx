@@ -6,6 +6,7 @@ import type { BaziState } from "@/studio/modes/bazi";
 import type { BaziLuckState } from "@/studio/modes/bazi-luck";
 import type { BaziPairState } from "@/studio/modes/bazi-pair";
 import type { FengShuiState } from "@/studio/modes/fengshui";
+import type { FengShuiPairState } from "@/studio/modes/fengshui-pair";
 import type { FengShuiHomeState } from "@/studio/modes/fengshui-home";
 import type { ElementReading } from "@/lib/chart/types";
 import type { CompositeState } from "@/studio/modes/composite";
@@ -47,6 +48,7 @@ export type ModeData = {
   "bazi-luck": BaziLuckState;
   "bazi-pair": BaziPairState;
   fengshui: FengShuiState;
+  "fengshui-pair": FengShuiPairState;
   "fengshui-home": FengShuiHomeState;
 };
 

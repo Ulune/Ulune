@@ -67,14 +67,15 @@ test("each language's ⓘ leads to its home in the encyclopedia, in the reader's
   assert.equal(languageHomePath("astrology", "fr"), "/encyclopedie/astrologie");
   assert.equal(languageHomePath("human-design", "fr"), "/encyclopedie/design-humain");
   assert.equal(languageHomePath("numerology", "fr"), "/encyclopedie/numerologie");
-  // Chinese astrology's home comes with its pages (encyclopedia plan, part 24): no ⓘ until then.
-  assert.equal(languageHomePath("chinese-astrology"), null);
-  assert.equal(languageHomePath("bazi"), null);
-  assert.equal(languageHomePath("feng-shui"), null);
+  // The Chinese languages' homes hold their introductions since encyclopedia part 23 (lib/chinese/term-live.ts, LIVE_HOMES).
+  assert.equal(languageHomePath("chinese-astrology"), "/encyclopedia/chinese-astrology");
+  assert.equal(languageHomePath("bazi", "fr"), "/encyclopedie/bazi");
+  assert.equal(languageHomePath("feng-shui", "fr"), "/encyclopedie/feng-shui");
+  assert.equal(languageHomePath("chinese-astrology", "fr"), "/encyclopedie/astrologie-chinoise");
 });
 
 test("the bars' order: each language's lenses and sub-modes, then the Calendar", () => {
-  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-home", "timing"]);
+  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home", "timing"]);
   assert.deepEqual([...PAGE_ORDER].sort(), [...STUDIO_PAGES].sort(), "every page once");
 });
 
@@ -271,6 +272,7 @@ test("storage switched off (reaching it throws, as with cookies blocked): nothin
     assert.equal(deviceStore(), undefined);
     assert.doesNotThrow(() => rememberPage("bazi-luck"));
     assert.equal(pageFor("bazi", "relationship"), "bazi-pair", "the switcher's pair button");
+    assert.equal(pageFor("feng-shui", "relationship"), "fengshui-pair", "and from Feng Shui, its own (FS32)");
     assert.equal(pageFor("astrology", "relationship"), "synastry");
     assert.deepEqual(recentLanguages(), []);
     assert.equal(pickerSeen(Date.UTC(2026, 9, 13)), null);
@@ -303,6 +305,8 @@ test("⌘K finds a language by its name, case and accents aside, and a Chinese o
   assert.deepEqual(found("八字"), ["lang:bazi", "lens:bazi:natal", "lens:bazi:cycles", "lens:bazi:relationship"]);
   assert.deepEqual(found("bāzì cycles"), ["lens:bazi:cycles"]);
   assert.deepEqual(found("風水　home"), ["lens:feng-shui:home"], "an ideographic space between the words");
+  assert.deepEqual(found("fēngshuǐ relationship"), ["lens:feng-shui:relationship"], "Feng Shui's two people (FS32)");
+  assert.deepEqual(found("风水"), ["lang:feng-shui", "lens:feng-shui:natal", "lens:feng-shui:relationship", "lens:feng-shui:home"]);
   // Accents aside in French too; nothing typed, nothing narrowed.
   assert.ok(paletteFinds(typedWords("numerologie"), paletteWords("Numérologie")));
   assert.ok(paletteFinds(typedWords("ÉCLIPSE"), paletteWords("éclipse")));
