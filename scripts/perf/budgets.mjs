@@ -273,9 +273,12 @@ if (want.has("chinese")) {
   // of which 10.6 the three share; Chinese astrology 51.2, its year-ahead and two-person texts
   // apart from the portraits (zodiac-time-texts.ts), so the Calendar's day animals fetch 5.5 of them
   // rather than 19.3. The limits sit a little above those numbers, so growth is a decision, not an
-  // accident.
+  // accident. On 16 Oct 2026 (BaZi part 20, Feng Shui's fixes and Pair, the encyclopedia's first
+  // live Chinese family) they grew to 53.7, 77.7 and 87.7: the term registry once a family is live
+  // (about 2.4 each), BaZi Pair's luck pillars (2.7), Feng Shui's Relationship page (13.0) and its
+  // fixes (2.2). The owner accepted new limits with part 30's margins (review item RC5).
   const { termTable, languages } = jsonOf(nodeTs([join(ROOT, "scripts/perf/load/languages.mjs"), "--json"]));
-  const LIMITS = { "chinese-astrology": ["Chinese astrology", 52], bazi: ["BaZi", 73.8], "feng-shui": ["Feng Shui", 71.2] };
+  const LIMITS = { "chinese-astrology": ["Chinese astrology", 54.5], bazi: ["BaZi", 79.2], "feng-shui": ["Feng Shui", 89.2] };
   for (const l of languages) {
     const [name, limit] = LIMITS[l.language] ?? [l.language, 0];
     check("chinese", `${name}: its pages after "/", JS and CSS`, l.gz / 1024, limit, "KB gz");
