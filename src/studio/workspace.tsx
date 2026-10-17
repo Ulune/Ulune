@@ -16,6 +16,7 @@ import { BirthTab } from "@/studio/dock/BirthTab";
 import { Dock } from "@/studio/dock/Dock";
 import { isWide } from "@/studio/dock/dock-layout";
 import { ModeRuntimes } from "@/studio/modes/data";
+import { DevScopeHarness } from "@/studio/dev/harness-mount";
 import { MODE_META, PAGE_LABEL } from "@/studio/modes/meta";
 import { loadNatalTable } from "@/studio/modes/natal";
 import { prefetchModesAtIdle, useModeDef } from "@/studio/modes/registry";
@@ -206,6 +207,8 @@ export function StudioWorkspace() {
         </Stage>
         {panelOn ? <Dock /> : null}
       </div>
+      {/* Development only: the page drawn twice in two chart scopes (Compare's foundation; never built). */}
+      {import.meta.env.DEV ? <DevScopeHarness /> : null}
     </>
   );
 }

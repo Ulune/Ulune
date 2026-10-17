@@ -103,12 +103,14 @@ function DensityButton() {
 
 const SCOPED = new Set(["planet", "angle", "transit", "partner", "progressed", "sign", "house", "decan"]);
 
+/** A chip's preview handlers (lib/depth/preview-bus.ts): the event says which chart scope the chip is in. */
+type SourceEvent = { pointerType?: string; currentTarget?: EventTarget | null };
 type PreviewHandlers = {
-  onPointerEnter?: (e: { pointerType?: string }) => void;
-  onPointerLeave?: () => void;
-  onPointerDown?: () => void;
-  onFocus?: () => void;
-  onBlur?: () => void;
+  onPointerEnter?: (e?: SourceEvent) => void;
+  onPointerLeave?: (e?: SourceEvent) => void;
+  onPointerDown?: (e?: SourceEvent) => void;
+  onFocus?: (e?: SourceEvent) => void;
+  onBlur?: (e?: SourceEvent) => void;
 };
 
 /** Fingers, not a mouse: the caption says "tap" and stays a moment after a tap. */
@@ -252,15 +254,15 @@ export function AspectStrip({
               if (e.pointerType === "mouse") speak(type, hint);
             }}
             onPointerLeave={(e: PointerEvent<HTMLButtonElement>) => {
-              preview.onPointerLeave?.();
+              preview.onPointerLeave?.(e);
               if (e.pointerType === "mouse") hush(type);
             }}
-            onFocus={() => {
-              preview.onFocus?.();
+            onFocus={(e) => {
+              preview.onFocus?.(e);
               if (!touch) speak(type, hint);
             }}
-            onBlur={() => {
-              preview.onBlur?.();
+            onBlur={(e) => {
+              preview.onBlur?.(e);
               if (!touch) hush(type);
             }}
           >

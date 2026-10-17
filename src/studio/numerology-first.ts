@@ -5,13 +5,14 @@ import { useSyncExternalStore } from "react";
  * in the side panel before anything is chosen, until they are done or
  * skipped. That it is done is a hint kept in this browser only (like the
  * wheel's hint), nothing about the chart; the step reached is kept for this
- * tab, so opening a reading and coming back returns to it.
+ * tab, so opening a reading and coming back returns to it, by chart scope
+ * (studio/scope.tsx: "main", or a Compare pane's "a" and "b", each its own).
  */
 
 const KEY = "ulune.hint.numfirst.v1";
 
 let done: boolean | null = null;
-let step = 0;
+const steps = new Map<string, number>();
 const listeners = new Set<() => void>();
 
 function subscribe(fn: () => void) {
@@ -40,7 +41,7 @@ function isDone(): boolean {
 /** The first read is over (done or skipped): the Life Path's reading opens from now on. */
 export function endNumerologyFirstRead() {
   done = true;
-  step = 0;
+  steps.clear();
   try {
     window.localStorage.setItem(KEY, "1");
   } catch {
@@ -49,9 +50,9 @@ export function endNumerologyFirstRead() {
   emit();
 }
 
-export function setNumerologyFirstStep(next: number) {
-  if (next === step) return;
-  step = next;
+export function setNumerologyFirstStep(next: number, scope = "main") {
+  if (next === (steps.get(scope) ?? 0)) return;
+  steps.set(scope, next);
   emit();
 }
 
@@ -64,10 +65,10 @@ export function useNumerologyFirstPending(): boolean {
   );
 }
 
-export function useNumerologyFirstStep(): number {
+export function useNumerologyFirstStep(scope = "main"): number {
   return useSyncExternalStore(
     subscribe,
-    () => step,
+    () => steps.get(scope) ?? 0,
     () => 0,
   );
 }

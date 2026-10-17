@@ -14,6 +14,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { cn, formatArc } from "@/lib/utils";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useChartHoverId } from "@/lib/depth/use-chart-hover";
+import { useDomIds, useScopeId } from "@/studio/scope";
 import { PlanetGlyph, SignGlyph } from "./glyphs";
 
 const TEST_ID: Record<MeetingCellId, string> = {
@@ -46,7 +47,10 @@ export function SynastryHello({
   onSelect: (id: string) => void;
 }) {
   const { locale, t } = useI18n();
-  const chartHover = useChartHoverId();
+  // In its chart scope: a Compare pane's companions follow that pane's chart (studio/scope.tsx).
+  const scopeId = useScopeId();
+  const chartHover = useChartHoverId(scopeId);
+  const domId = useDomIds();
   const look = useLookShape();
 
   return (
@@ -54,9 +58,9 @@ export function SynastryHello({
       data-testid="synastry-hello"
       data-hello-id={SYNASTRY_HELLO.id}
       className="ob-glance"
-      aria-labelledby="ob-syn-glance-h"
+      aria-labelledby={domId("ob-syn-glance-h")}
     >
-      <h2 id="ob-syn-glance-h" className="ob-glance-h">
+      <h2 id={domId("ob-syn-glance-h")} className="ob-glance-h">
         {t("synastryGlanceTitle")}
       </h2>
       <div className="ob-glance-three ulune-hello">

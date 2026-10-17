@@ -117,6 +117,7 @@ import { arcSpan, boxesOverlap, placeBadges, placeBeside, placeLabels, type Disc
 import { createSelectionStore, type SelectionStore } from "@/lib/chart/selection-store";
 import { getWheelPrefs, subscribeWheelPrefs } from "@/lib/chart/wheel-prefs";
 import { keepPart, keptPart, leavesStudio, notePinLetGo } from "@/studio/return-parts";
+import { scopeOfNode, useScopeId } from "@/studio/scope";
 import { WheelToggles } from "./wheel-toggles";
 import type { AspectId } from "@/lib/chart/types";
 import { formatArc } from "@/lib/utils";
@@ -923,6 +924,15 @@ const ChartWheelView = memo(function ChartWheelView({
   const svgRef = useRef<SVGSVGElement>(null);
   /** The ids of this wheel's glyph filters (two wheels on a page each have their own). */
   const glyphFx = `ulune-gfx${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  /**
+   * The chart scope this wheel draws in (studio/scope.tsx: the main page, or a
+   * Compare pane): its hovers and previews stay in it, a press in another
+   * pane leaves its pin alone, and 3D is the main page's only (Compare is
+   * drawn flat: two 3D views would double the graphics memory).
+   */
+  const scopeId = useScopeId();
+  const scopeRef = useRef(scopeId);
+  scopeRef.current = scopeId;
   const hoverIdRef = useRef<string | null>(null);
   const cacheRef = useRef<WheelPaintCache | null>(null);
   const ctxRef = useRef<WheelFocusCtx | null>(null);
@@ -967,7 +977,8 @@ const ChartWheelView = memo(function ChartWheelView({
   const [camAngle, setCamAngle] = useState<CameraAngle>("tilt");
   /** The wheel's detail band (wheel-zoom.tsx): a small wheel gets shorter, bigger labels. */
   const [fit, setFit] = useState<"sm" | "lg">("lg");
-  const depthView = useDepthPrefs().view;
+  const depthPref = useDepthPrefs().view;
+  const depthView = scopeId === "main" ? depthPref : "flat";
   /**
    * The element under the pointer showing the hand, while it is over
    * something: the cursor is set on it, not on the SVG (an inherited change on
@@ -989,7 +1000,7 @@ const ChartWheelView = memo(function ChartWheelView({
   const clearHoverRef = useRef(() => {
     if (hoverIdRef.current === null) return;
     hoverIdRef.current = null;
-    announceChartHover(null);
+    announceChartHover(null, scopeRef.current);
   });
   // Glyph fan + tick bands are derived geometry — memoize so selection
   // clicks and transit scrubs don't redo work whose inputs haven't changed.
@@ -1527,9 +1538,13 @@ const ChartWheelView = memo(function ChartWheelView({
       if (!selected) return;
       const node = e.target;
       if (!(node instanceof Element)) return;
+      // A press in another scope's pane (Compare) is about that pane's chart, not this one's.
+      const region = scopeOfNode(node);
+      if (region !== "main" && region !== scopeRef.current) return;
       if (node.closest("[data-chart-pick]") || leavesStudio(node)) return;
       chooseRef.current(selected);
-      if (node.closest("button, a[href], input, select, textarea, summary, [role=button], [role=tab], [role=menuitem], [role=option]")) {
+      // The pin kept for the studio's return (R6) is the main page's.
+      if (scopeRef.current === "main" && node.closest("button, a[href], input, select, textarea, summary, [role=button], [role=tab], [role=menuitem], [role=option]")) {
         notePinLetGo(selected);
       }
     };
@@ -1744,7 +1759,7 @@ const ChartWheelView = memo(function ChartWheelView({
       // A panel's preview is a hover too: none while highlighting on hover is off.
       previewIdRef.current = getWheelPrefs().hover ? id : null;
       paintNowRef.current(hoverIdRef.current);
-    });
+    }, scopeRef.current);
     const offReset = onDepthReset(() => view3dRef.current?.resetCamera());
     return () => {
       scene.removeEventListener("wheel", onWheel);
@@ -1769,7 +1784,7 @@ const ChartWheelView = memo(function ChartWheelView({
     const depth = depthRef.current;
     const svg = svgRef.current;
     if (!depth || !svg) return;
-    const want = getDepthPrefs().view === "3d";
+    const want = getDepthPrefs().view === "3d" && scopeRef.current === "main";
     const cur = view3dRef.current;
     const scene = sceneRef.current;
     if (want) {
@@ -2121,7 +2136,7 @@ const ChartWheelView = memo(function ChartWheelView({
     const next = id && getWheelPrefs().hover ? id : null;
     if (next === hoverIdRef.current) return;
     hoverIdRef.current = next;
-    announceChartHover(next);
+    announceChartHover(next, scopeRef.current);
     paintNowRef.current(next);
   };
 

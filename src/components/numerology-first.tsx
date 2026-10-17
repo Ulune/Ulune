@@ -4,6 +4,7 @@ import type { NumerologyChart } from "@/lib/chart/numerology";
 import { usePack } from "@/lib/content/packs";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useChartHoverId } from "@/lib/depth/use-chart-hover";
+import { useDomIds, useScopeId } from "@/studio/scope";
 import { useI18n } from "@/lib/i18n/locale";
 import { numerologyCoreLabel, numerologyReadingText as r } from "@/lib/i18n/numerology-ui";
 import { cn } from "@/lib/utils";
@@ -20,14 +21,17 @@ import { endNumerologyFirstRead } from "@/studio/numerology-first";
  */
 export function NumerologyFirstRead({ chart, onSelect }: { chart: NumerologyChart; onSelect: (id: string) => void }) {
   const { locale } = useI18n();
-  const chartHover = useChartHoverId();
+  // In its chart scope: a Compare pane's companions follow that pane's chart (studio/scope.tsx).
+  const scopeId = useScopeId();
+  const chartHover = useChartHoverId(scopeId);
+  const domId = useDomIds();
   const pack = usePack("num", locale, true);
   const steps = pack?.FIRST_READ_STEPS ?? [];
   if (!pack || !steps.length) return <LoadingLines lines={4} />;
   return (
-    <section className="ulune-num-first ulune-hd-first" data-testid="numerology-first" aria-labelledby="ulune-num-first-title">
+    <section className="ulune-num-first ulune-hd-first" data-testid="numerology-first" aria-labelledby={domId("ulune-num-first-title")}>
       <header className="ulune-num-first-head">
-        <h3 id="ulune-num-first-title" className="ulune-kicker ulune-num-first-title">
+        <h3 id={domId("ulune-num-first-title")} className="ulune-kicker ulune-num-first-title">
           {r(locale, "firstTitle")}
         </h3>
         <button

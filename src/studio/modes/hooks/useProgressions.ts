@@ -10,6 +10,7 @@ import { onWindow, prefetchWindows, windowAt } from "@/lib/chart/window-cache";
 import type { Placement, ProgressedSky } from "@/lib/chart/types";
 import { useI18n } from "@/lib/i18n/locale";
 import { natalBodiesOf } from "@/studio/modes/hooks/natal-bodies";
+import { useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import { errorForState } from "@/lib/i18n/errors";
 
@@ -51,10 +52,11 @@ function outerBodies(sky: ProgressedSky, planets: Placement[]): Placement[] {
   ];
 }
 
+/** The progressed chart of the scope around the caller (studio/scope.tsx), to the date every scope shares. */
 export function useProgressions() {
   const { locale, t } = useI18n();
-  const chart = useStudioStore((s) => s.chart);
-  const creating = useStudioStore((s) => s.creating);
+  const chart = useScoped((s) => s.chart);
+  const creating = useScoped((s) => s.creating);
   const page = useStudioStore((s) => s.page);
   const targetMs = useStudioStore((s) => s.time.progressionTarget);
   const enabled = page === "progressions" && Boolean(chart) && !creating;

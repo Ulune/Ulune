@@ -4,7 +4,7 @@ import { deviceZone, loadCalendarPrefs, PREFS_EVENT, zoneCity, zoneOffset, type 
 import { CALENDAR_UI, fill } from "@/lib/i18n/calendar-words";
 import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
-import { useStudioStore } from "@/studio/store";
+import { useScoped } from "@/studio/scope";
 
 /**
  * The clock the Time pages show their moments in (review 3 Oct, T4): the
@@ -14,7 +14,7 @@ import { useStudioStore } from "@/studio/store";
  */
 export function useClockZone(atMs: number): { tz: string; choice: CalendarZone; label: string } {
   const { locale } = useI18n();
-  const chartZone = useStudioStore((s) => s.chart?.meta.timezone);
+  const chartZone = useScoped((s) => s.chart?.meta.timezone);
   const [choice, setChoice] = useState<CalendarZone>("device");
   useEffect(() => {
     const read = () => setChoice(loadCalendarPrefs().zone);

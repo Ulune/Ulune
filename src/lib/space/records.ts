@@ -11,9 +11,11 @@
  *   enc/note/<id>  the reader's note on an encyclopedia page
  *   enc/recent     the encyclopedia's pages recently read
  *   fs/homes       Feng Shui's homes kept (lib/chinese/fengshui-home-record.ts)
+ *   inbox/key      the inbox's key pair: charts shared while the space is locked are sealed to it (lib/space/inbox.ts)
  */
 
 export const CHART_RECORD = "chart/";
+export const INBOX_KEY_RECORD = "inbox/key";
 export const LIBRARY_RECORD = "state/library";
 export const PAIR_RECORD = "state/pair";
 export const AI_RECORD = "state/ai";

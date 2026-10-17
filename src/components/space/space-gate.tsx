@@ -6,7 +6,7 @@ import { ERASED_NOTE, dropLegacySpace, eraseOldSignIn, hasLegacyData } from "@/l
 import { toast } from "@/lib/toast";
 import { loadSpaceRuntime } from "@/lib/space/load";
 import { openSpaceSheet, useSpace } from "@/lib/space/state";
-import { spaceSupported } from "@/lib/space/store";
+import { spaceSupported } from "@/lib/space/supported";
 import { isStudioPath } from "@/studio/map";
 
 const SpaceSheet = lazyNamed(() => import("./space-sheet"), "SpaceSheet");

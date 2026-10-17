@@ -42,6 +42,7 @@ import { PairSelects, type PairPick } from "@/studio/modes/pair-selects";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
+import { useDomIds, useScopeKey, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/zodiac-time.css";
@@ -148,10 +149,11 @@ function PairFigure() {
   const prefs = useChinesePrefs();
   const w = useWheelView();
   const data = useModeData("bazi-pair");
-  const partnerBirth = useStudioStore((s) => s.pair.addingPartnerFor === "bazi-pair");
+  const partnerBirth = useScoped((s) => s.pair.addingPartnerFor === "bazi-pair");
   // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
   const scroller = useRef<HTMLDivElement>(null);
-  useKeptScroll(scroller, "bazi-pair-scroll", Boolean(data?.a && data.b && data.pair));
+  useKeptScroll(scroller, useScopeKey("bazi-pair-scroll"), Boolean(data?.a && data.b && data.pair));
+  const domId = useDomIds();
   if (!data?.a) return null;
   if (!data.b || !data.pair) {
     if (partnerBirth) return <div data-testid="bazi-pair-need-second" className="hidden" />;
@@ -180,8 +182,8 @@ function PairFigure() {
         <Card refId={PAIR_PALACE_REF} testId="bazi-pair-palace" title={cnWord(locale, "bzpPalaceHead")} lines={[palaceLine(pair, names, locale, prefs)]} />
         <Card refId={PAIR_GIFTS_REF} testId="bazi-pair-gifts" title={cnWord(locale, "bzpPhasesHead")} lines={giftLines(pair, names, locale)} />
       </div>
-      <section className="ulune-bzp-meets" aria-labelledby="bzp-meets-h">
-        <h2 id="bzp-meets-h" className="ulune-zky-h">
+      <section className="ulune-bzp-meets" aria-labelledby={domId("bzp-meets-h")}>
+        <h2 id={domId("bzp-meets-h")} className="ulune-zky-h">
           {cnWord(locale, "bzpMeetHead")}
         </h2>
         <ul>
@@ -219,10 +221,11 @@ function LuckSection({ pair, names }: { pair: BaziPair; names: PairNames }) {
   const prefs = useChinesePrefs();
   const w = useWheelView();
   const rows = luckRows(pair, names, locale, prefs);
+  const domId = useDomIds();
   if (!rows.length) return null;
   return (
-    <section className="ulune-bzp-meets ulune-bzp-luck" aria-labelledby="bzp-luck-h" data-testid="bazi-pair-luck">
-      <h2 id="bzp-luck-h" className="ulune-zky-h">
+    <section className="ulune-bzp-meets ulune-bzp-luck" aria-labelledby={domId("bzp-luck-h")} data-testid="bazi-pair-luck">
+      <h2 id={domId("bzp-luck-h")} className="ulune-zky-h">
         {cnWord(locale, "bzpLuckHead")}
       </h2>
       <ul>
@@ -328,13 +331,13 @@ function usePairRuntime(): ModeRuntime<BaziPairState> {
   const { locale, t } = useI18n();
   const prefs = useChinesePrefs();
   const page = useStudioStore((s) => s.page);
-  const chart = useStudioStore((s) => s.chart);
-  const selectedId = useStudioStore((s) => s.selectedId);
+  const chart = useScoped((s) => s.chart);
+  const selectedId = useScoped((s) => s.selectedId);
   const enabled = page === "bazi-pair" && Boolean(chart);
   const { pick, inner, chartB } = usePairPick(enabled, "bazi-pair");
   // Each birth's own count (part 20): the chart shown's as its input holds it (as on Cycles), the partner's as its saved chart keeps it.
-  const activeId = useStudioStore((s) => s.activeId);
-  const inputCount = useStudioStore((s) => s.input.chineseCount);
+  const activeId = useScoped((s) => s.activeId);
+  const inputCount = useScoped((s) => s.input.chineseCount);
   const rows = useStudioStore((s) => s.rows);
   const countA = countOf(pick.aId && pick.aId === activeId ? inputCount : rows.find((r) => r.id === pick.aId)?.input.chineseCount);
   const countB = countOf(rows.find((r) => r.id === pick.resolvedBId)?.input.chineseCount);

@@ -14,7 +14,7 @@ import { tr } from "@/encyclopedia/words";
 import { dropEncyclopedia, encManifest, encSize, keepEncyclopedia, keptEncyclopedia, type EncLangs, type EncManifest } from "@/lib/encyclopedia-offline";
 import { reportsOn, setReportsOn } from "@/lib/error-report";
 import { toast } from "@/lib/toast";
-import { spaceSupported } from "@/lib/space/store";
+import { spaceSupported } from "@/lib/space/supported";
 import { SPACE_FLAG } from "@/lib/space/flag";
 import { ERASED_NOTE, LEGACY_PREFIX, LEGACY_SPACE_DB, OLD_SIGN_IN_PREFIX } from "@/lib/space/legacy";
 import { loadSpaceRuntime } from "@/lib/space/load";

@@ -17,6 +17,7 @@ import { PairSelects } from "@/studio/modes/pair-selects";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { WheelPort } from "@/studio/stage/WheelPort";
+import { useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/pair.css";
 
@@ -44,7 +45,7 @@ function SynastryFigure() {
   const { locale, t } = useI18n();
   const w = useWheelView();
   const synastry = useModeData("synastry");
-  const partnerBirth = useStudioStore((s) => s.pair.addingPartnerFor === "synastry");
+  const partnerBirth = useScoped((s) => s.pair.addingPartnerFor === "synastry");
   if (!synastry) return null;
   if (!synastry.inner) {
     return <p className="px-5 py-10 font-display text-2xl text-fg">{synastryNoNatal(locale)}</p>;
@@ -149,7 +150,7 @@ function useSynastryRuntime(): ModeRuntime<SynastryState> {
   const { locale } = useI18n();
   const page = useStudioStore((s) => s.page);
   const synastry = usePairCharts("synastry", page === "synastry");
-  const selectedId = useStudioStore((s) => s.selectedId);
+  const selectedId = useScoped((s) => s.selectedId);
   const astro = usePack("astro", locale, synastry.enabled);
   const selected =
     selectedId && synastry.synastryDossier ? (synastry.synastryDossier.byId[selectedId] ?? null) : null;

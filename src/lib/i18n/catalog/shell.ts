@@ -69,7 +69,10 @@ export const shell = {
   viewCalendar: ["Calendar", "Calendrier"],
   viewBodygraph: ["Bodygraph", "Bodygraph"],
   viewTimeline: ["Timeline", "Frise"],
-  exportMenu: ["Export and share", "Exporter et partager"],
+  exportMenu: ["Share and export", "Partager et exporter"],
+  // Sharing a chart by link (share plan, feature 1): the menu's first item, and the switcher's mark on a chart received.
+  shareLink: ["Share a link", "Partager un lien"],
+  sharedWithYou: ["Shared with you, {date}", "Partagé avec vous le {date}"],
   stageMore: ["More options", "Plus d’options"],
   settingsLangHint: [
     "Language and appearance are in the account menu, at the top right.",

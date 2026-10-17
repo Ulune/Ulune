@@ -27,6 +27,7 @@ import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { AnimalWheel, type WheelBadge, type WheelLine } from "@/studio/modes/zodiac-wheel";
 import { useKeptScroll } from "@/studio/return-parts";
+import { useScopeKey, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/zodiac-time.css";
@@ -165,10 +166,10 @@ function MeetingRow({ m, names, big }: { m: PairMeeting; names: { a: string; b: 
 function PairFigure() {
   const { locale } = useI18n();
   const data = useModeData("zodiac-pair");
-  const partnerBirth = useStudioStore((s) => s.pair.addingPartnerFor === "zodiac-pair");
+  const partnerBirth = useScoped((s) => s.pair.addingPartnerFor === "zodiac-pair");
   // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
   const scroller = useRef<HTMLDivElement>(null);
-  useKeptScroll(scroller, "zodiac-pair-scroll", Boolean(data?.a && data.b));
+  useKeptScroll(scroller, useScopeKey("zodiac-pair-scroll"), Boolean(data?.a && data.b));
   if (!data?.a) return null;
   if (!data.b) {
     if (partnerBirth) return <div data-testid="zodiac-pair-need-second" className="hidden" />;
@@ -281,8 +282,8 @@ function usePairRuntime(): ModeRuntime<ZodiacPairState> {
   const { locale, t } = useI18n();
   const prefs = useChinesePrefs();
   const page = useStudioStore((s) => s.page);
-  const chart = useStudioStore((s) => s.chart);
-  const selectedId = useStudioStore((s) => s.selectedId);
+  const chart = useScoped((s) => s.chart);
+  const selectedId = useScoped((s) => s.selectedId);
   const enabled = page === "zodiac-pair" && Boolean(chart);
   const { pick, inner, chartB } = usePairPick(enabled, "zodiac-pair");
   const a = useZodiacOf(inner, prefs, enabled);

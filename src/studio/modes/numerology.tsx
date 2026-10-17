@@ -22,6 +22,7 @@ import { NumerologyYSwitch } from "@/studio/modes/numerology-controls";
 import { NumerologyWheel } from "@/studio/modes/numerology-wheel";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import { useScopeId, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/num.css";
 
@@ -33,7 +34,7 @@ export type NumerologyState = ReturnType<typeof useNumerology>;
 function NumerologyFigure() {
   const { locale } = useI18n();
   const w = useWheelView();
-  const clear = useStudioStore((s) => s.clear);
+  const clear = useScoped((s) => s.clear);
   const numerology = useModeData("numerology");
   const numbers = numerology?.numbers ?? null;
   if (!numbers || numbers.lifePath.number == null) return null;
@@ -83,8 +84,10 @@ function NumerologyData() {
   const w = useWheelView();
   const numerology = useModeData("numerology");
   const rows = useStudioStore((s) => s.rows);
-  const activeId = useStudioStore((s) => s.activeId);
+  const activeId = useScoped((s) => s.activeId);
   const openDock = useStudioStore((s) => s.openDock);
+  // The birth form is the main page's chart's: a Compare pane only reads its own.
+  const main = useScopeId() === "main";
   const numbers = numerology?.numbers;
   if (!numbers) return null;
   return (
@@ -98,6 +101,7 @@ function NumerologyData() {
         selectedId={w.selectedId}
         onSelect={w.pick}
         openBirth={() => {
+          if (!main) return;
           // The birth form's names for numerology, the full name at birth first.
           openDock("birth");
           focusField("birth-full-name");

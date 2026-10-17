@@ -3,7 +3,7 @@ import { compositeAddSecond, compositePairLabel } from "@/lib/i18n/composite-ui"
 import { useI18n } from "@/lib/i18n/locale";
 import { synastryAddSecond, synastryPairLabel } from "@/lib/i18n/synastry-ui";
 import { useModeData } from "@/studio/modes/data";
-import { useStudioStore } from "@/studio/store";
+import { useScopeId, useScoped } from "@/studio/scope";
 import { toast } from "@/lib/toast";
 import { ArrowLeftRight } from "lucide-react";
 
@@ -31,7 +31,9 @@ export function PairSelects({ mode, pair: given, prefix: givenPrefix, page }: { 
   const { locale, t } = useI18n();
   const fromMode = useModeData(mode);
   const pair: PairPick | null | undefined = given !== undefined ? given : fromMode;
-  const addingPartnerFor = useStudioStore((s) => s.pair.addingPartnerFor);
+  const addingPartnerFor = useScoped((s) => s.pair.addingPartnerFor);
+  // A is the chart shown everywhere only in the main scope (a Compare pane's A is its own).
+  const main = useScopeId() === "main";
   if (!pair) return null;
   const partnerBirth = addingPartnerFor === (page ?? mode);
   const prefix = givenPrefix ?? mode;
@@ -50,7 +52,7 @@ export function PairSelects({ mode, pair: given, prefix: givenPrefix, page }: { 
             pair.selectA(id);
             // A is the chart shown everywhere: say so, once it changes from here.
             const row = pair.rows.find((r) => r.id === id);
-            if (row) toast(t("pairAEverywhere", { name: chartDisplayName(row.input, t("untitled")) }));
+            if (row && main) toast(t("pairAEverywhere", { name: chartDisplayName(row.input, t("untitled")) }));
           }}
           disabled={!pair.rows.length}
           className={`ulune-${mode}-select`}

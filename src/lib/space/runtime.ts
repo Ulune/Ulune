@@ -18,7 +18,9 @@ import {
   type LibraryRecord,
   type PairRecord,
 } from "./records";
-import { idbStore, spaceSupported, type LockMode, type SpaceMeta, type SpaceStore } from "./store";
+import { idbStore, type LockMode, type SpaceMeta, type SpaceStore } from "./store";
+import { spaceSupported } from "./supported";
+import { joinInbox, sayJoined } from "./inbox";
 import {
   Vault,
   adoptBackup,
@@ -143,11 +145,14 @@ async function opened(vault: Vault, how: "created" | "unlocked"): Promise<void> 
     });
   }, stored);
   setBackupWatch(() => void checkBackup());
+  // Charts shared while it was locked join it first (lib/space/inbox.ts; its key pair is made here once).
+  const shared = await joinInbox(vault, theStore()).catch(() => 0);
   // The studio's charts first, then the page says the space is open.
   await spaceBridge()?.open(vault, how);
   describe(vault.meta, "open");
   armIdle(vault.meta.lock);
   keepStorage();
+  if (shared) void sayJoined(shared).catch(() => {});
   await checkBackup();
 }
 

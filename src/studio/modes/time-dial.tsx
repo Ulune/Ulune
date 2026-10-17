@@ -13,6 +13,7 @@ import {
 import { AnchoredPopover } from "@/components/anchored-popover";
 import { useI18n } from "@/lib/i18n/locale";
 import { dateFormat } from "@/lib/intl-cache";
+import { useScopeId, type ScopeId } from "@/studio/scope";
 import {
   addSteps,
   isStepUnit,
@@ -26,6 +27,17 @@ import {
   type TapeTick,
 } from "@/studio/modes/time-tape";
 import "@/studio/modes/styles/time.css";
+
+/**
+ * The dials on the page, in the order they came (Compare draws one per pane,
+ * share and compare plan, feature 2): ← → on the page step one of them only,
+ * the main page's first (they all move the one time the scopes share).
+ */
+const pageKeyDials: { scope: ScopeId }[] = [];
+
+function ownsPageKeys(dial: { scope: ScopeId }): boolean {
+  return (pageKeyDials.find((d) => d.scope === "main") ?? pageKeyDials[0]) === dial;
+}
 
 /** A flick goes on by itself while it is faster than this (px per ms), slowing as a wheel would. */
 const FLICK_MIN = 0.35;
@@ -377,8 +389,12 @@ export function TimeDial({
   // menu in focus), ← → step too, as in the desktop programs.
   const stepRef = useRef(step);
   stepRef.current = step;
+  const scopeId = useScopeId();
   useEffect(() => {
+    const dial = { scope: scopeId };
+    pageKeyDials.push(dial);
     const onPageKey = (e: globalThis.KeyboardEvent) => {
+      if (!ownsPageKeys(dial)) return;
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
       const at = document.activeElement;
@@ -388,8 +404,11 @@ export function TimeDial({
       stepRef.current(e.key === "ArrowRight" ? 1 : -1, e.shiftKey ? 10 : 1);
     };
     document.addEventListener("keydown", onPageKey);
-    return () => document.removeEventListener("keydown", onPageKey);
-  }, []);
+    return () => {
+      document.removeEventListener("keydown", onPageKey);
+      pageKeyDials.splice(pageKeyDials.indexOf(dial), 1);
+    };
+  }, [scopeId]);
   const onStep = (dir: 1 | -1) => (e: MouseEvent<HTMLButtonElement>) => step(dir, e.shiftKey ? 10 : 1);
   const togglePlay = (dir: 1 | -1) => {
     stopFlick();
@@ -398,15 +417,17 @@ export function TimeDial({
 
   // The readout opens the fields to type a moment in; the first takes the focus.
   const readoutRef = useRef<HTMLButtonElement>(null);
+  /** This dial's own fields (two dials on a page each open their own). */
+  const pickerRef = useRef<HTMLDivElement>(null);
   const [picking, setPicking] = useState(false);
   const closePicker = useCallback(() => setPicking(false), []);
   useEffect(() => {
-    if (!picking || !pickerTestId) return;
+    if (!picking) return;
     const frame = window.requestAnimationFrame(() => {
-      document.querySelector<HTMLInputElement>(`[data-testid="${pickerTestId}"] input`)?.focus({ preventScroll: true });
+      pickerRef.current?.querySelector<HTMLInputElement>("input")?.focus({ preventScroll: true });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [picking, pickerTestId]);
+  }, [picking]);
 
   const shown = clamp(value);
   const day = dateFormat(tag, { dateStyle: "medium", ...(timeZone ? { timeZone } : {}) }).format(shown);
@@ -532,7 +553,7 @@ export function TimeDial({
           width={300}
           takeFocus={false}
         >
-          <div className="ob-menu ulune-time-picker" data-testid={pickerTestId} data-live={live ? "1" : "0"}>
+          <div ref={pickerRef} className="ob-menu ulune-time-picker" data-testid={pickerTestId} data-live={live ? "1" : "0"}>
             {picker}
           </div>
         </AnchoredPopover>

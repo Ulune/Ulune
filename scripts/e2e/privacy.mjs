@@ -36,6 +36,15 @@
  *     home kept is sealed in the `fs/homes` record alone (read back with the
  *     key the browser keeps), and no record holds its words in the clear.
  * `node scripts/e2e/privacy.mjs --chinese` runs the Chinese pages alone.
+ *
+ * A chart shared by link (share plan, feature 1), Fixture A's link opened in
+ * fresh browsers: with no private space nothing is written to IndexedDB (no
+ * database made) and plain storage holds none of it; with a locked space the
+ * chart is sealed into the space's inbox and no store holds anything
+ * readable; every request is the app's own files by GET or the cast (a
+ * date, a time, coordinates), none carries the link's fragment, and the
+ * address bar keeps no fragment once the page has read it.
+ * `node scripts/e2e/privacy.mjs --share` runs it alone.
  */
 import { chromium } from "playwright";
 import {
@@ -43,6 +52,7 @@ import {
   DEV,
   FIXTURE_A,
   FIXTURE_B,
+  PASSPHRASE,
   VIEWPORTS,
   castFixture,
   clickDockTab,
@@ -51,6 +61,7 @@ import {
   goStudioPage,
   gotoApp,
   launch,
+  openExport,
   readSpaceRecord,
   setLang,
   setView,
@@ -725,21 +736,136 @@ async function chineseLeg({ width, lang, compass = null, space = false }) {
   return failures;
 }
 
+/* ------------------------------------------------- a chart shared by link (share plan, feature 1) */
+
+/** What a shared chart must never show in the clear: the births, their names and places. */
+const SHARE_WORDS = [...BIRTHS, "Paris", "Île-de-France", "12:00", "12%3A00"];
+
+async function shareLeg() {
+  const failures = [];
+  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  try {
+    // The sender: Fixture A, its link from the share sheet.
+    const sender = await browser.newContext({ viewport: VIEWPORTS[1280] });
+    const sp = await sender.newPage();
+    sp.setDefaultTimeout(20000);
+    await gotoApp(sp);
+    await castFixture(sp, FIXTURE_A);
+    await openExport(sp);
+    await sp.getByTestId("share-open").click();
+    await sp.waitForFunction(() => /\/s#1\./.test(document.querySelector("[data-testid=share-link]")?.value ?? ""), null, { timeout: 10000 });
+    const link = await sp.getByTestId("share-link").inputValue();
+    await sender.close();
+    for (const w of found(bareAddress(link), SHARE_WORDS)) failures.push(`share: the link carries "${w}"`);
+    const fragment = link.slice(link.indexOf("#") + 1);
+
+    for (const space of ["none", "locked"]) {
+      const label = `share, ${space === "none" ? "no space" : "a locked space"}`;
+      const context = await browser.newContext({ viewport: VIEWPORTS[1280] });
+      await context.addInitScript(spies, { iphone: false });
+      const page = await context.newPage();
+      page.setDefaultTimeout(20000);
+      const errors = [];
+      page.on("pageerror", (e) => errors.push(String(e)));
+      const shown = [];
+      page.on("framenavigated", (f) => {
+        if (f === page.mainFrame()) shown.push(f.url());
+      });
+      const asked = [];
+      try {
+        // Ulune opened once before (its display settings made), then the link.
+        await gotoApp(page);
+        // A shared computer's space: a new page finds it locked.
+        if (space === "locked") await createSpace(page, PASSPHRASE, { shared: true });
+        await page.evaluate(() => {
+          window.__idb.writes.length = 0;
+        });
+        const storeBefore = await plainStorage(page);
+        page.on("request", (r) => asked.push(r));
+        await page.goto(link, { waitUntil: "load", timeout: 45000 });
+        await page.waitForFunction(() => location.pathname === "/astrology", null, { timeout: 30000 });
+        await page.getByTestId("studio-natal").waitFor({ timeout: 45000 });
+        if (space === "locked") {
+          await page.getByTestId("space-just-look").click({ timeout: 20000 });
+          await page.getByTestId("toast").filter({ hasText: "when you unlock it" }).first().waitFor({ timeout: 15000 });
+        } else {
+          await page.getByTestId("share-note").waitFor({ timeout: 15000 });
+        }
+        await page.waitForTimeout(500);
+        // Plain storage: none of it, and only display settings changed.
+        const before = new Map(storeBefore.map(([where, k, v]) => [`${where} ${k}`, v]));
+        for (const [where, k, v] of await plainStorage(page)) {
+          for (const w of found(`${k}=${v}`, SHARE_WORDS)) failures.push(`${label}: ${where} "${k}" holds "${w}"`);
+          if (before.get(`${where} ${k}`) !== v && !DISPLAY_KEYS.some((re) => re.test(k))) failures.push(`${label}: ${where} "${k}" changed: ${v.slice(0, 120)}`);
+        }
+        const idb = await page.evaluate(() => window.__idb);
+        if (space === "none") {
+          if (idb.writes.length) failures.push(`${label}: written to IndexedDB without a space: ${JSON.stringify(idb.writes).slice(0, 300)}`);
+          if ((await databases(page)).includes("ulune-space")) failures.push(`${label}: a database was made`);
+        } else {
+          const inbox = idb.writes.filter((x) => x.db === "ulune-space" && x.store === "meta" && x.key.startsWith("in/"));
+          if (inbox.length !== 1) failures.push(`${label}: ${inbox.length} charts sealed into the inbox`);
+          const elsewhere = idb.writes.filter((x) => x.db !== "ulune-space");
+          if (elsewhere.length) failures.push(`${label}: written outside the space: ${JSON.stringify(elsewhere).slice(0, 300)}`);
+          for (const r of await rawSpace(page)) for (const w of found(r.text, SHARE_WORDS)) failures.push(`${label}: the space's ${r.store} "${r.key}" holds "${w}" in the clear`);
+        }
+      } catch (e) {
+        failures.push(`${label}: ${e instanceof Error ? e.message : String(e)}`);
+      } finally {
+        await context.close();
+      }
+      // Every request: the app's own files by GET, or the cast with a date, a time and coordinates; never the fragment.
+      let casts = 0;
+      for (const r of asked) {
+        const body = r.postData() ?? "";
+        if (r.url().includes(fragment.slice(2, 30)) || body.includes(fragment.slice(2, 30))) failures.push(`${label}: a request carries the link's fragment`);
+        const why = notAppFile(r);
+        if (!why) continue;
+        if (isServerFn(r.url()) && decodeFnName(r.url()).startsWith("castChart")) {
+          casts += 1;
+          const said = body.split("Europe/Paris").join("");
+          for (const w of found(said, [FIXTURE_A.name, "Paris", "Île-de-France"])) failures.push(`${label}: the cast carries "${w}"`);
+          if (/"name"|"placeLabel"|"birthName"|"chineseCount"/.test(body)) failures.push(`${label}: the cast carries a name or place field`);
+          continue;
+        }
+        failures.push(`${label}: sent ${why}`);
+      }
+      if (casts !== 1) failures.push(`${label}: ${casts} casts, not one`);
+      // The address bar: the fragment only as the page opens, then gone; no address shows the birth.
+      const at = shown.findIndex((u) => u.includes("#"));
+      const after = shown.slice(at + 1).filter((u) => u !== shown[at]);
+      if (at < 0 || !after.length || after.some((u) => u.includes("#"))) failures.push(`${label}: the address bar kept the fragment: ${JSON.stringify(after.map((u) => u.slice(0, 40)))}`);
+      for (const u of shown) for (const w of found(bareAddress(u), ADDRESS_WORDS)) failures.push(`${label}: the page's address carries "${w}": ${u.slice(0, 60)}`);
+      if (errors.length) failures.push(`${label}: ${errors.join(" | ")}`);
+      if (!failures.some((f) => f.startsWith(label))) console.log(`${label} OK: ${asked.length} requests (${casts} cast, no name or place), nothing readable stored, the fragment read and gone`);
+    }
+  } catch (e) {
+    failures.push(`share: ${e instanceof Error ? e.message : String(e)}`);
+  } finally {
+    await browser.close();
+  }
+  return failures;
+}
+
 const failed = [];
-if (!process.argv.includes("--chinese")) {
+const only = process.argv.includes("--chinese") ? "chinese" : process.argv.includes("--share") ? "share" : null;
+if (!only) {
   try {
     await run();
   } catch (e) {
     failed.push(e instanceof Error ? e.message : String(e));
   }
 }
-for (const leg of [
-  { width: 1280, lang: "en", space: true },
-  { width: 390, lang: "en", compass: "android" },
-  { width: 390, lang: "fr", compass: "iphone" },
-]) {
-  failed.push(...(await chineseLeg(leg)));
+if (!only || only === "chinese") {
+  for (const leg of [
+    { width: 1280, lang: "en", space: true },
+    { width: 390, lang: "en", compass: "android" },
+    { width: 390, lang: "fr", compass: "iphone" },
+  ]) {
+    failed.push(...(await chineseLeg(leg)));
+  }
 }
+if (!only || only === "share") failed.push(...(await shareLeg()));
 if (failed.length) {
   console.error(`PRIVACY FAIL\n- ${failed.join("\n- ")}`);
   process.exit(1);

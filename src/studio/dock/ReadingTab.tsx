@@ -129,7 +129,8 @@ export function ReadingTab() {
         </div>
       ) : (
         <>
-          <AiReadingFocus chart={chart} reading={natalRoot} />
+          {/* What Your AI reads about, while AI readings are on (lib/features.ts): off, none of it is downloaded. */}
+          {AI_ENABLED ? <AiReadingFocus chart={chart} reading={natalRoot} /> : null}
           <div data-testid="click-reading-empty">
             {def ? <def.HelloEmpty /> : <LoadingLines lines={3} />}
           </div>

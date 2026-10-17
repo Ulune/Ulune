@@ -1,0 +1,288 @@
+/*
+ * Sharing a chart by link (share plan, feature 1; idea B1's QR code): the
+ * share sheet (on the private space's sheet frame, .ob-space), the note after
+ * a chart arrives, and the /s page. Loaded with them, never with the first
+ * page. Colours from the theme's tokens, but the QR code: always dark on
+ * light, whatever the theme, as phone cameras read it best.
+ */
+
+.ob-share {
+  gap: 16px;
+}
+.ob-share-which .ulune-seg {
+  width: 100%;
+}
+.ob-share-h {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-subtle);
+}
+.ob-share-holds {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ob-share-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ob-share-line {
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-fg);
+  overflow-wrap: anywhere;
+}
+.ob-share-opens {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-fg-muted);
+}
+
+/* The two switches: a track and its thumb, filled when on (aria-checked says it too). */
+.ob-share-switches {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 -8px;
+}
+.ob-share-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .ob-share-switch:hover {
+    background: var(--color-bg-subtle);
+  }
+}
+.ob-share-switch:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: -2px;
+}
+.ob-share-switch-words {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ob-share-switch-name {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.ob-share-switch-hint {
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--color-fg-muted);
+}
+.ob-share-switch-track {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 20px;
+  border: 1px solid var(--color-border-field);
+  border-radius: 999px;
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    border-color var(--dur-hover) var(--ease-out);
+}
+.ob-share-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--color-fg-muted);
+  transition:
+    transform var(--dur-hover) var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out);
+}
+.ob-share-switch.is-on .ob-share-switch-track {
+  border-color: var(--color-fg);
+  background: var(--color-fg);
+}
+.ob-share-switch.is-on .ob-share-switch-thumb {
+  background: var(--color-bg);
+  transform: translateX(14px);
+}
+
+.ob-share-privacy {
+  color: var(--color-fg-muted);
+}
+.ob-share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ob-share-actions .ob-btn {
+  flex: 1 1 140px;
+  gap: 8px;
+}
+.ob-share-link {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ob-share-link-input {
+  border-color: var(--color-border-field);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-fg-muted);
+  text-overflow: ellipsis;
+}
+
+/* The QR code: dark modules on white in both themes, in a quiet zone of four modules (drawn in the SVG itself). */
+.ob-share-qr {
+  --ob-qr-ink: var(--color-bg);
+  --ob-qr-paper: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  text-align: center;
+}
+html.light .ob-share-qr {
+  --ob-qr-ink: var(--color-fg);
+}
+.ob-share-qr-svg {
+  display: block;
+  width: min(232px, 64vw);
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 8px;
+}
+.ob-share-qr-wait {
+  background: var(--color-bg-subtle);
+}
+.ob-share-qr-paper {
+  fill: var(--ob-qr-paper);
+}
+.ob-share-qr-ink {
+  fill: var(--ob-qr-ink);
+}
+
+/* After a shared chart arrives: one quiet card at the foot of the page, where the toasts rise. */
+.ob-share-note {
+  position: fixed;
+  z-index: 81;
+  left: 50%;
+  bottom: calc(var(--ob-group-h, 64px) + var(--ob-safe-b, 0px) + 16px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(460px, calc(100vw - 32px));
+  padding: 14px 16px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 14px;
+  background: var(--color-bg-elevated);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 0.28);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  transform: translateX(-50%);
+  animation: ob-pop-in var(--dur-swap) var(--ease-out) both;
+}
+@media (min-width: 1024px) {
+  .ob-share-note {
+    bottom: 24px;
+  }
+}
+.ob-share-note-words {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ob-share-note-main {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.ob-share-note-sub {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--color-fg-muted);
+}
+.ob-share-note-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ob-share-note-actions .ob-btn {
+  flex: 1 1 auto;
+}
+
+/* The /s page: one column, the reader's language. */
+.ob-share-landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 64px 16px;
+  text-align: center;
+}
+.ob-share-landing-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--color-fg);
+}
+.ob-share-landing-p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-fg-muted);
+  text-wrap: pretty;
+}
+.ob-share-landing .ob-loading {
+  width: min(320px, 100%);
+}
+.ob-share-landing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* A finger's target: the sheet's close button as large as its other buttons. */
+@media (pointer: coarse) {
+  .ob-share .ob-space-head .ob-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ob-share-note {
+    animation: none;
+  }
+  .ob-share-switch-track,
+  .ob-share-switch-thumb {
+    transition: none;
+  }
+}

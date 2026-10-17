@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import {
   BODYGRAPH_CENTERS,
   BODYGRAPH_CHANNELS,
@@ -22,6 +22,7 @@ import { FigureKeys, type FigurePart } from "./figure-keys";
 import { FigureZoom } from "./figure-zoom";
 import { HdColumn } from "./hd-columns";
 import { useHdNames } from "./use-hd-names";
+import { useDomIds, useScopeId } from "@/studio/scope";
 
 /*
  * The bodygraph between its two columns: nine centres, 36 channels and 64
@@ -96,9 +97,12 @@ export function HumanDesignGraph({
   const outline = useMemo(() => hdFocusOf(pointed, chart), [pointed, chart]);
   const mode = focus ? "pinned" : outline ? "hover" : null;
 
-  useEffect(() => onChartPreview((id) => setPreview(id && PREVIEWABLE.test(id) ? id : null)), []);
+  // Previews and hovers stay in this figure's chart scope (studio/scope.tsx: the main page, or a Compare pane).
+  const scopeId = useScopeId();
+  const domId = useDomIds();
+  useEffect(() => onChartPreview((id) => setPreview(id && PREVIEWABLE.test(id) ? id : null), scopeId), [scopeId]);
   useEffect(() => () => window.clearTimeout(linger.current), []);
-  useEffect(() => () => announceChartHover(null), []);
+  useEffect(() => () => announceChartHover(null, scopeId), [scopeId]);
 
   const point = (id: string | null, now = false) => {
     window.clearTimeout(linger.current);
@@ -107,7 +111,7 @@ export function HumanDesignGraph({
       return;
     }
     setHover(id);
-    announceChartHover(id);
+    announceChartHover(id, scopeId);
   };
 
   /** On a touch screen, the gate nearest the finger (within a fingertip) wins. */
@@ -226,6 +230,8 @@ export function HumanDesignGraph({
             data-focus={mode ?? undefined}
             role="img"
             aria-label={t("hdAria")}
+            // Its stripes' pattern by this figure's own id (hd.css: both a gate's layers).
+            style={scopeId === "main" ? undefined : ({ "--hd-stripe": `url(#${domId("hd-stripe")})` } as CSSProperties)}
             onPointerDown={(e: ReactPointerEvent<SVGSVGElement>) => {
               pointerType.current = e.pointerType;
               if (e.pointerType === "touch" && !touch) setTouch(true);
@@ -238,7 +244,7 @@ export function HumanDesignGraph({
             onClick={onClick}
           >
             <defs>
-              <pattern id="hd-stripe" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <pattern id={domId("hd-stripe")} width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
                 <rect width="5" height="5" className="hd-fill-personality" />
                 <rect width="2.5" height="5" className="hd-fill-design" />
               </pattern>

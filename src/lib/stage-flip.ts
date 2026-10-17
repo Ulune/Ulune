@@ -64,7 +64,8 @@ export function captureStage() {
   if (typeof document === "undefined" || prefersReducedMotion()) return;
   // A reading no change followed (the sheet was told to move and did not) is stale.
   if (pending && performance.now() - pending.at < STALE_MS) return;
-  const stage = document.querySelector(".ob-body .ob-stage");
+  // The main page's own stage (a Compare pane's stage never moves with the sheet).
+  const stage = document.querySelector(".ob-body > .ob-stage");
   if (!stage) return;
   // A move still under way is read where it is on screen, then let go.
   const figure = stage.querySelector(":scope > .ob-figure");

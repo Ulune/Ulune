@@ -41,9 +41,12 @@ export const APP_FILES = [
 const DEV_MODULES = /^\/(?:src\/|node_modules\/|@)/;
 const DEV_QUERY = new Set(["t", "v", "import", "url", "raw", "inline", "direct", "worker_file", "type", "used", "lang", "tsr-split", "routes", "html-proxy", "index"]);
 
-/** Ulune's own pages: the studio's addresses (src/studio/map.ts), Settings and the encyclopedia's pages. */
+/**
+ * Ulune's own pages: the studio's addresses (src/studio/map.ts), Settings, the encyclopedia's pages,
+ * and /s, where a share link lands (its chart is after "#", which no request ever carries).
+ */
 export const APP_PAGES =
-  /^\/(?:astrology(?:\/(?:transits|progressions|synastry|composite))?|human-design|numerology(?:\/cycles)?|chinese-astrology(?:\/(?:cycles|pair))?|bazi(?:\/(?:cycles|pair))?|feng-shui(?:\/home)?|calendar|calendrier|settings|(?:encyclopedia|encyclopedie)(?:\/[a-z0-9-]+)?)?\/?$/;
+  /^\/(?:astrology(?:\/(?:transits|progressions|synastry|composite))?|human-design|numerology(?:\/cycles)?|chinese-astrology(?:\/(?:cycles|pair))?|bazi(?:\/(?:cycles|pair))?|feng-shui(?:\/home)?|calendar|calendrier|settings|s|(?:encyclopedia|encyclopedie)(?:\/[a-z0-9-]+)?)?\/?$/;
 
 /** What a page's address may carry (src/studio/url.ts): the page, the view, the dock's pages. */
 const PAGE_QUERY = new Set(["studio", "view", "bodies", "look"]);

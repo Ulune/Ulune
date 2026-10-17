@@ -19,6 +19,7 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { WheelPort } from "@/studio/stage/WheelPort";
+import { useDomIds, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import { TimeDial } from "@/studio/modes/time-dial";
 import { numberFormat } from "@/lib/intl-cache";
@@ -37,9 +38,11 @@ const PROGRESSION_UNITS = ["day", "week", "month", "year"] as const;
 /** The date to type, opened from the dial's readout (UI plan, part 94). */
 function ProgressionsPicker() {
   const { locale, t } = useI18n();
-  const chart = useStudioStore((s) => s.chart);
+  const chart = useScoped((s) => s.chart);
   const progressions = useModeData("progressions");
+  // The date is shared by every scope (one date for both of Compare's panes); the field is each pane's own.
   const setTarget = useStudioStore((s) => s.setProgressionTarget);
+  const domId = useDomIds();
   if (!chart || !progressions) return null;
   const value = formatEuropeanDate(dateInZone(new Date(progressions.at), progressions.tz));
 
@@ -48,7 +51,7 @@ function ProgressionsPicker() {
       <label className="ulune-progressions-clock-field">
         <span className="ulune-time-picker-label">{progressionClockLabel(locale, "date")}</span>
         <BirthDateField
-          id="progressions-date"
+          id={domId("progressions-date")}
           name="progressions-date"
           testId="progressions-date"
           value={value}
@@ -172,8 +175,8 @@ function ProgressionsData() {
 function useProgressionsRuntime(): ModeRuntime<ProgressionsState> {
   const { locale } = useI18n();
   const progressions = useProgressions();
-  const selectedId = useStudioStore((s) => s.selectedId);
-  const natal = useStudioStore((s) => s.dossier);
+  const selectedId = useScoped((s) => s.selectedId);
+  const natal = useScoped((s) => s.dossier);
   const astro = usePack("astro", locale, progressions.enabled);
   const selected =
     selectedId && progressions.enabled

@@ -4,7 +4,10 @@ import type { Sealed } from "./crypto";
  * Where the private space lives: the browser's own database (IndexedDB), one
  * database for Ulune with three stores:
  *   - meta:   the space's description (its id, when it locks, and the data
- *             key wrapped once per way in); nothing personal is in it;
+ *             key wrapped once per way in); nothing personal is in it; and
+ *             its inbox (lib/space/inbox.ts): a public key, and the charts
+ *             shared with the reader while the space was locked, sealed so
+ *             that only the space opens them;
  *   - items:  one sealed record per chart, partner, AI key or setting;
  *   - device: the data key itself, only while "stay unlocked on this device"
  *             is chosen (a non-extractable CryptoKey: the browser keeps it,
@@ -64,11 +67,21 @@ export interface SpaceStore {
   listItems(prefix?: string): Promise<[string, Sealed][]>;
   getDeviceKey(): Promise<CryptoKey | null>;
   putDeviceKey(key: CryptoKey | null): Promise<void>;
-  /** A whole space at once (a restored backup), replacing what is there. */
+  /** A whole space at once (a restored backup), replacing what is there (an inbox left from another space goes). */
   replaceAll(meta: SpaceMeta, items: readonly (readonly [string, Sealed])[]): Promise<void>;
   /** Everything gone: meta, items, device key. */
   erase(): Promise<void>;
+  /** The inbox's public key (SPKI), kept beside the space's description; null before the space made one (lib/space/inbox.ts). */
+  getInboxKey(): Promise<Uint8Array<ArrayBuffer> | null>;
+  putInboxKey(spki: Uint8Array | null): Promise<void>;
+  /** Charts sealed for the space while it was locked, by opaque name. */
+  listInbox(): Promise<[string, InboxSealed][]>;
+  putInbox(name: string, sealed: InboxSealed): Promise<void>;
+  dropInbox(names: readonly string[]): Promise<void>;
 }
+
+/** A chart sealed for the inbox: the sender's ephemeral public key, a nonce, the ciphertext (lib/space/inbox.ts). */
+export type InboxSealed = { epk: Uint8Array<ArrayBuffer>; iv: Uint8Array<ArrayBuffer>; ct: Uint8Array<ArrayBuffer> };
 
 export const DB_NAME = "ulune-space";
 const DB_VERSION = 1;
@@ -77,6 +90,16 @@ const ITEMS = "items";
 const DEVICE = "device";
 const META_KEY = "space";
 const DEVICE_KEY = "stay";
+/* The inbox (share plan, feature 1) lives in the meta store too, beside the space's description: its public key, and its sealed entries under "in/<random>". */
+const INBOX_KEY = "inbox";
+export const INBOX_PREFIX = "in/";
+
+function asInboxSealed(value: unknown): InboxSealed | null {
+  if (!value || typeof value !== "object") return null;
+  const v = value as { epk?: unknown; iv?: unknown; ct?: unknown };
+  if (!(v.epk instanceof Uint8Array) || !(v.iv instanceof Uint8Array) || !(v.ct instanceof Uint8Array)) return null;
+  return { epk: v.epk as Uint8Array<ArrayBuffer>, iv: v.iv as Uint8Array<ArrayBuffer>, ct: v.ct as Uint8Array<ArrayBuffer> };
+}
 
 function req<T>(r: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -135,17 +158,6 @@ function asSealed(value: unknown): Sealed | null {
   return { iv: v.iv as Uint8Array<ArrayBuffer>, ct: v.ct as Uint8Array<ArrayBuffer> };
 }
 
-/** Whether this browser can keep a private space at all. */
-export function spaceSupported(): boolean {
-  return (
-    typeof indexedDB !== "undefined" &&
-    typeof crypto !== "undefined" &&
-    typeof crypto.subtle !== "undefined" &&
-    typeof window !== "undefined" &&
-    window.isSecureContext !== false
-  );
-}
-
 /** The space in IndexedDB; `name` other than the space's only for the self-test's throwaway space. */
 export function idbStore(name: string = DB_NAME): SpaceStore {
   return {
@@ -202,6 +214,8 @@ export function idbStore(name: string = DB_NAME): SpaceStore {
       const tx = db.transaction([META, ITEMS, DEVICE], "readwrite");
       tx.objectStore(ITEMS).clear();
       tx.objectStore(DEVICE).clear();
+      // An inbox sealed for a space no longer here could never be opened.
+      tx.objectStore(META).clear();
       tx.objectStore(META).put(meta, META_KEY);
       for (const [key, sealed] of items) tx.objectStore(ITEMS).put({ iv: sealed.iv, ct: sealed.ct }, key);
       await done(tx);
@@ -223,15 +237,58 @@ export function idbStore(name: string = DB_NAME): SpaceStore {
         r.onblocked = () => resolve();
       });
     },
+    async getInboxKey() {
+      const db = await openDb(name);
+      const row = (await req(db.transaction(META).objectStore(META).get(INBOX_KEY))) as { spki?: unknown } | undefined;
+      return row?.spki instanceof Uint8Array ? (row.spki as Uint8Array<ArrayBuffer>) : null;
+    },
+    async putInboxKey(spki) {
+      const db = await openDb(name);
+      const tx = db.transaction(META, "readwrite");
+      if (spki) tx.objectStore(META).put({ spki: new Uint8Array(spki) }, INBOX_KEY);
+      else tx.objectStore(META).delete(INBOX_KEY);
+      await done(tx);
+    },
+    async listInbox() {
+      const db = await openDb(name);
+      const store = db.transaction(META).objectStore(META);
+      const range = IDBKeyRange.bound(INBOX_PREFIX, `${INBOX_PREFIX}\uffff`);
+      const [keys, values] = await Promise.all([req(store.getAllKeys(range)), req(store.getAll(range))]);
+      const out: [string, InboxSealed][] = [];
+      keys.forEach((key, i) => {
+        const sealed = asInboxSealed(values[i]);
+        if (typeof key === "string" && sealed) out.push([key, sealed]);
+      });
+      return out;
+    },
+    async putInbox(entry, sealed) {
+      if (!entry.startsWith(INBOX_PREFIX)) throw new Error("inbox-name");
+      const db = await openDb(name);
+      const tx = db.transaction(META, "readwrite");
+      tx.objectStore(META).put({ epk: sealed.epk, iv: sealed.iv, ct: sealed.ct }, entry);
+      await done(tx);
+    },
+    async dropInbox(names) {
+      if (!names.length) return;
+      const db = await openDb(name);
+      const tx = db.transaction(META, "readwrite");
+      for (const entry of names) if (entry.startsWith(INBOX_PREFIX)) tx.objectStore(META).delete(entry);
+      await done(tx);
+    },
   };
 }
 
 /** The same store in memory (tests, and browsers that refuse IndexedDB). */
-export function memoryStore(): SpaceStore & { dump(): { meta: SpaceMeta | null; items: Map<string, Sealed>; device: CryptoKey | null } } {
+export function memoryStore(): SpaceStore & {
+  dump(): { meta: SpaceMeta | null; items: Map<string, Sealed>; device: CryptoKey | null; inboxKey: Uint8Array | null; inbox: Map<string, InboxSealed> };
+} {
   let meta: SpaceMeta | null = null;
   let device: CryptoKey | null = null;
+  let inboxKey: Uint8Array<ArrayBuffer> | null = null;
   const items = new Map<string, Sealed>();
+  const inbox = new Map<string, InboxSealed>();
   const copy = (s: Sealed): Sealed => ({ iv: new Uint8Array(s.iv), ct: new Uint8Array(s.ct) });
+  const copyIn = (s: InboxSealed): InboxSealed => ({ epk: new Uint8Array(s.epk), iv: new Uint8Array(s.iv), ct: new Uint8Array(s.ct) });
   return {
     async getMeta() {
       return meta ? (JSON.parse(JSON.stringify(meta)) as SpaceMeta) : null;
@@ -259,16 +316,36 @@ export function memoryStore(): SpaceStore & { dump(): { meta: SpaceMeta | null; 
     async replaceAll(nextMeta, nextItems) {
       meta = JSON.parse(JSON.stringify(nextMeta)) as SpaceMeta;
       device = null;
+      inboxKey = null;
+      inbox.clear();
       items.clear();
       for (const [key, sealed] of nextItems) items.set(key, copy(sealed));
     },
     async erase() {
       meta = null;
       device = null;
+      inboxKey = null;
+      inbox.clear();
       items.clear();
     },
+    async getInboxKey() {
+      return inboxKey ? new Uint8Array(inboxKey) : null;
+    },
+    async putInboxKey(spki) {
+      inboxKey = spki ? new Uint8Array(spki) : null;
+    },
+    async listInbox() {
+      return [...inbox.entries()].map(([key, s]) => [key, copyIn(s)]);
+    },
+    async putInbox(name, sealed) {
+      if (!name.startsWith(INBOX_PREFIX)) throw new Error("inbox-name");
+      inbox.set(name, copyIn(sealed));
+    },
+    async dropInbox(names) {
+      for (const name of names) inbox.delete(name);
+    },
     dump() {
-      return { meta, items, device };
+      return { meta, items, device, inboxKey, inbox };
     },
   };
 }

@@ -22,6 +22,7 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
+import { useScopeKey, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 
@@ -177,7 +178,7 @@ function ZodiacFigure() {
   // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
   // The last argument wakes the hook when the page is first drawn.
   const scroller = useRef<HTMLDivElement>(null);
-  useKeptScroll(scroller, "zodiac-scroll", Boolean(z));
+  useKeptScroll(scroller, useScopeKey("zodiac-scroll"), Boolean(z));
   if (!z) return null;
   return (
     <div ref={scroller} className="ulune-zk" data-testid="zodiac" data-chart-pick>
@@ -285,9 +286,9 @@ function ZodiacData() {
 function useZodiacRuntime(): ModeRuntime<ZodiacState> {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
-  const chart = useStudioStore((s) => s.chart);
+  const chart = useScoped((s) => s.chart);
   const page = useStudioStore((s) => s.page);
-  const selectedId = useStudioStore((s) => s.selectedId);
+  const selectedId = useScoped((s) => s.selectedId);
   const enabled = page === "zodiac" && Boolean(chart);
   const zodiac = useMemo(
     () =>

@@ -21,6 +21,7 @@ import { PairSelects } from "@/studio/modes/pair-selects";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { WheelPort } from "@/studio/stage/WheelPort";
+import { useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/pair.css";
 
@@ -40,7 +41,8 @@ function CompositeControls() {
 function RelationshipKind() {
   const { t } = useI18n();
   const composite = useModeData("composite");
-  const kind = useStudioStore((s) => s.pair.compositeKind);
+  // The page's choice, shared by every scope (both of Compare's panes follow it).
+  const kind = useScoped((s) => s.pair.compositeKind);
   if (!composite?.inner || !composite.chartB) return null;
   const chart = composite.composite;
   const dms = (x: number, pos: string, neg: string) => {
@@ -76,7 +78,7 @@ function CompositeFigure() {
   const { locale } = useI18n();
   const w = useWheelView();
   const composite = useModeData("composite");
-  const partnerBirth = useStudioStore((s) => s.pair.addingPartnerFor === "composite");
+  const partnerBirth = useScoped((s) => s.pair.addingPartnerFor === "composite");
   if (!composite) return null;
   if (!composite.inner) {
     return <p className="px-5 py-10 font-display text-2xl text-fg">{compositeNoNatal(locale)}</p>;
@@ -187,7 +189,7 @@ function useCompositeRuntime(): ModeRuntime<CompositeState> {
   const { locale } = useI18n();
   const page = useStudioStore((s) => s.page);
   const composite = usePairCharts("composite", page === "composite");
-  const selectedId = useStudioStore((s) => s.selectedId);
+  const selectedId = useScoped((s) => s.selectedId);
   const astro = usePack("astro", locale, composite.enabled);
   const selected =
     selectedId && composite.compositeDossier ? (composite.compositeDossier.byId[selectedId] ?? null) : null;

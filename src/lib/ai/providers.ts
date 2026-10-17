@@ -34,3 +34,29 @@ export const AI_PROVIDER_META: Record<
 export function providerName(id: AiProvider): string {
   return AI_PROVIDER_META[id].name;
 }
+
+/*
+ * Which provider is called from the page itself, the key and the text reaching
+ * it alone, and which goes through Ulune's relay (lib/ai/call.ts). Here rather
+ * than in call.ts so that the AI accounts panel, which says which, does not
+ * bring the calls into the studio's first download (first-load review, 17 Oct 2026).
+ */
+const DIRECT: Record<AiProvider, boolean> = {
+  claude: true,
+  chatgpt: true,
+  gemini: true,
+  grok: false,
+};
+
+/** Providers whose direct call the browser refused this visit: the relay takes over until the page reloads. */
+const refused = new Set<AiProvider>();
+
+/** Whether this provider is called from the page itself (no relay). */
+export function callsDirectly(provider: AiProvider): boolean {
+  return DIRECT[provider] && !refused.has(provider);
+}
+
+/** The browser did not let a direct call out: the relay for the rest of the visit. */
+export function refuseDirect(provider: AiProvider): void {
+  refused.add(provider);
+}

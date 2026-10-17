@@ -82,7 +82,8 @@
     color: var(--color-fg);
   }
 }
-@media (max-width: 767px) {
+/* A narrow stage (a phone, or a Compare pane: the stage's width, not the window's). */
+@container stage (max-width: 767px) {
   /* Parent max-height:44 was clipping the native select to ~43. */
   .ulune-synastry-pair-bar,
     .ulune-composite-pair-bar {

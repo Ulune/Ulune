@@ -30,6 +30,7 @@ import { ReadingTab } from "@/studio/dock/ReadingTab";
 import { useStudioStore, type DockTab } from "@/studio/store";
 import { keptOr, useKeep } from "@/studio/return-parts";
 import { useModeReading } from "@/studio/modes/data";
+import { scopeOfNode } from "@/studio/scope";
 import { MODE_META } from "@/studio/modes/meta";
 import { onTablistKeyDown } from "@/lib/a11y/tablist";
 import { SHEET_MOVE_MS, captureStage, dropStage, playStage } from "@/lib/stage-flip";
@@ -302,11 +303,13 @@ export function Dock() {
     }
   };
 
-  // Escape closes the sheet (compact) — never the wide panel.
+  // Escape closes the sheet (compact) — never the wide panel, nor for a key pressed in a
+  // Compare pane (its figure's own Escape lets go of its choice; studio/scope.tsx).
   useEffect(() => {
     if (!dockOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || isWide()) return;
+      if (e.target instanceof Element && scopeOfNode(e.target) !== "main") return;
       if (document.querySelector("[data-testid=account-menu-panel], [data-testid=chart-picker]"))
         return;
       toggleDock();

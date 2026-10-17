@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
 import { AI_ORIGINS, contentSecurityPolicy, makeNonce } from "../src/lib/csp.ts";
-import { SECURITY_HEADERS } from "../src/lib/security-headers.ts";
+import { ENGINE_WORKER_CSP, ENGINE_WORKER_PATH, SECURITY_HEADERS } from "../src/lib/security-headers.ts";
 
 const directives = (policy) =>
   Object.fromEntries(policy.split("; ").map((d) => [d.split(" ")[0], d.split(" ").slice(1)]));
@@ -38,11 +38,12 @@ test("the browser may call Ulune only (and the AI providers it reaches directly 
   assert.deepEqual(d["connect-src"], aiOn ? ["'self'", ...AI_ORIGINS] : ["'self'"]);
   // src/lib/ai/chat.ts calls these, and Grok's api.x.ai from the relay only.
   const chat = readFileSync(new URL("../src/lib/ai/chat.ts", import.meta.url), "utf8");
-  const call = readFileSync(new URL("../src/lib/ai/call.ts", import.meta.url), "utf8");
+  // Which provider the page calls directly is kept with the providers (lib/ai/providers.ts, read by lib/ai/call.ts).
+  const direct = readFileSync(new URL("../src/lib/ai/providers.ts", import.meta.url), "utf8");
   const called = new Set([...chat.matchAll(/https:\/\/[a-z0-9.-]+/g)].map((m) => m[0]));
   assert.deepEqual([...called].sort(), [...AI_ORIGINS, "https://api.x.ai"].sort());
-  assert.match(call, /grok: false/);
-  assert.match(call, /claude: true,\s+chatgpt: true,\s+gemini: true/);
+  assert.match(direct, /grok: false/);
+  assert.match(direct, /claude: true,\s+chatgpt: true,\s+gemini: true/);
 });
 
 test("a preview deployment also allows Vercel's toolbar, production does not", () => {
@@ -91,9 +92,30 @@ test("the compass's sensors stay allowed for Ulune's own pages (Feng Shui, langu
 
 test("the build puts them first in Vercel's routes, and lets routing go on", () => {
   const vite = readFileSync(new URL("../vite.config.ts", import.meta.url), "utf8");
-  assert.match(vite, /routes: \[\{ src: "\/\(\.\*\)", headers: \{ \.\.\.SECURITY_HEADERS \}, continue: true \}\]/);
+  assert.match(vite, /routes: \[\s*\{ src: "\/\(\.\*\)", headers: \{ \.\.\.SECURITY_HEADERS \}, continue: true \},/);
   const root = readFileSync(new URL("../src/routes/__root.tsx", import.meta.url), "utf8");
   // Every inline script of the root carries the nonce.
   assert.doesNotMatch(root, /<script dangerouslySetInnerHTML/);
   assert.match(root, /"Content-Security-Policy": contentSecurityPolicy\(ssr\.nonce/);
+});
+
+test("the calculations' worker may compile WebAssembly and reach Ulune only; the pages still may not (on-device plan, step 2)", () => {
+  const d = directives(ENGINE_WORKER_CSP);
+  assert.deepEqual(d["default-src"], ["'none'"]);
+  assert.deepEqual(d["script-src"], ["'self'", "'wasm-unsafe-eval'"]);
+  assert.deepEqual(d["connect-src"], ["'self'"]);
+  for (const [name, values] of Object.entries(d)) {
+    assert.ok(!values.includes("'unsafe-eval'"), `${name} allows eval`);
+    assert.ok(!values.includes("'unsafe-inline'"), `${name} allows inline code`);
+    assert.ok(!values.includes("*"), `${name} allows anything`);
+  }
+  // No page compiles WebAssembly: their policy keeps refusing it.
+  assert.ok(!contentSecurityPolicy("n").includes("wasm-unsafe-eval"));
+  // The route takes the worker's script as vite.config.ts names it, and none of the app's own.
+  const route = new RegExp(`^${ENGINE_WORKER_PATH}$`);
+  assert.ok(route.test("/assets/engine-worker-B4x_9kQz.js"));
+  for (const other of ["/assets/app-B4x_9kQz.js", "/assets/engine-worker-B4x.js.map", "/engine-worker-B4x.js"]) assert.ok(!route.test(other), other);
+  const vite = readFileSync(new URL("../vite.config.ts", import.meta.url), "utf8");
+  assert.match(vite, /"assets\/engine-worker-\[hash\]\.js"/);
+  assert.match(vite, /\{ src: ENGINE_WORKER_PATH, headers: \{ "Content-Security-Policy": ENGINE_WORKER_CSP \}, continue: true \}/);
 });

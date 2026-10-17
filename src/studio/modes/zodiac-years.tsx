@@ -21,6 +21,7 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
+import { useDomIds, useScopeKey, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac-time.css";
 
@@ -41,7 +42,8 @@ export type ZodiacYearsState = {
   enabled: boolean;
 };
 
-// The year stepped to (null: this year), for this tab only, as numerology's Cycles keeps its own.
+// The year stepped to (null: this year), for this tab only, as numerology's Cycles keeps its own: time,
+// shared by every chart scope (both of Compare's panes show the same year, as they share one date).
 let chosen: number | null = null;
 const listeners = new Set<() => void>();
 const subscribe = (fn: () => void) => {
@@ -73,7 +75,7 @@ function toneOf(kinds: readonly MeetKind[]): "same" | "meet" | "tension" | undef
 
 function useDayFormat(opts: Intl.DateTimeFormatOptions) {
   const { locale } = useI18n();
-  const tz = useStudioStore((s) => s.chart?.meta.timezone);
+  const tz = useScoped((s) => s.chart?.meta.timezone);
   return useMemo(() => {
     const fmt = new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-GB", { timeZone: tz || "UTC", ...opts });
     return (ms: number) => fmt.format(new Date(ms)).replace(/\.$/, "");
@@ -91,7 +93,8 @@ function YearsFigure() {
   const z = data?.zodiac;
   // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
   const scroller = useRef<HTMLDivElement>(null);
-  useKeptScroll(scroller, "zodiac-years-scroll", Boolean(y && z));
+  useKeptScroll(scroller, useScopeKey("zodiac-years-scroll"), Boolean(y && z));
+  const domId = useDomIds();
   if (!y || !z) return null;
   const pair = chineseLabel(SIXTY[y.pillar.cycle]!, locale, prefs);
   const now = Date.now();
@@ -121,8 +124,8 @@ function YearsFigure() {
         </span>
       </button>
 
-      <section className="ulune-zky-sec" aria-labelledby="zky-yours">
-        <h2 id="zky-yours" className="ulune-zky-h">
+      <section className="ulune-zky-sec" aria-labelledby={domId("zky-yours")}>
+        <h2 id={domId("zky-yours")} className="ulune-zky-h">
           {cnWord(locale, "zkYearYours")}
         </h2>
         <ul className="ulune-zky-yours" data-testid="zodiac-year-yours">
@@ -139,8 +142,8 @@ function YearsFigure() {
         </ul>
       </section>
 
-      <section className="ulune-zky-sec" aria-labelledby="zky-months">
-        <h2 id="zky-months" className="ulune-zky-h">
+      <section className="ulune-zky-sec" aria-labelledby={domId("zky-months")}>
+        <h2 id={domId("zky-months")} className="ulune-zky-h">
           {cnWord(locale, "zkMonthsHead", { year: y.year })}
         </h2>
         <div className="ulune-zky-months" role="group" aria-label={cnWord(locale, "zkMonthsHead", { year: y.year })} data-testid="zodiac-months">
@@ -242,9 +245,9 @@ function YearsData() {
 function useYearsRuntime(): ModeRuntime<ZodiacYearsState> {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
-  const chart = useStudioStore((s) => s.chart);
+  const chart = useScoped((s) => s.chart);
   const page = useStudioStore((s) => s.page);
-  const selectedId = useStudioStore((s) => s.selectedId);
+  const selectedId = useScoped((s) => s.selectedId);
   const stepped = useSteppedYear();
   const enabled = page === "zodiac-years" && Boolean(chart);
   const zodiac = useZodiacOf(chart, prefs, enabled);

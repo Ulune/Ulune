@@ -9,6 +9,7 @@ import { numerologyDay } from "@/lib/i18n/numerology-say";
 import { numerologyCoreLabel, numerologyWheelText } from "@/lib/i18n/numerology-ui";
 import { cn } from "@/lib/utils";
 import { useSwitchY } from "@/studio/modes/hooks/useSwitchY";
+import { useScopeId } from "@/studio/scope";
 import { NUMEROLOGY_FIRST_YEAR, NUMEROLOGY_LAST_YEAR, setNumerologyYear } from "@/studio/numerology-year";
 
 /*
@@ -19,10 +20,12 @@ import { NUMEROLOGY_FIRST_YEAR, NUMEROLOGY_LAST_YEAR, setNumerologyYear } from "
 /** For a Y chosen on the wheel: count it as a vowel or a consonant (kept with the chart). */
 export function NumerologyYSwitch({ numbers, selectedId, locale }: { numbers: NumerologyChart; selectedId: string | null; locale: AppLocale }) {
   const switchY = useSwitchY();
+  // A Y is switched on the main page's chart only: a Compare pane reads its chart as it is kept (studio/scope.tsx).
+  const main = useScopeId() === "main";
   const letters = numbers.names.birth?.parsed.letters ?? [];
   const at = selectedId?.startsWith("letter:") ? Number(selectedId.slice(7)) : -1;
   const letter = letters.find((l) => l.index === at);
-  if (!letter || letter.y == null || !letter.yRule || !numbers.name) return null;
+  if (!main || !letter || letter.y == null || !letter.yRule || !numbers.name) return null;
   const choose = (role: YRole) => switchY(numbers, letter, role);
   const rule = numerologyWheelText(locale, letter.yRule === "v" ? "roleVowel" : "roleConsonant");
   return (

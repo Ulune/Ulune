@@ -5,6 +5,7 @@ import { prefersReducedMotion } from "@/lib/depth/env";
 import { useI18n } from "@/lib/i18n/locale";
 import { useZoomSlot } from "@/studio/stage/stage-slots";
 import { keepPart, keptPart } from "@/studio/return-parts";
+import { useScopeKey } from "@/studio/scope";
 
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 2.5;
@@ -35,8 +36,9 @@ function wheelScrolls(port: HTMLElement): boolean {
 export function FigureZoom({ children, testId }: { children: ReactNode; testId: string }) {
   const { t } = useI18n();
   const zoomSlot = useZoomSlot();
-  // Back from a page outside the studio, the figure as it was zoomed and moved (R6).
-  const [kept] = useState(() => keptPart<{ zoom: number; pan: Pt }>(`figure-zoom:${testId}`));
+  // Back from a page outside the studio, the figure as it was zoomed and moved (R6); a Compare pane's its own.
+  const keepId = useScopeKey(`figure-zoom:${testId}`);
+  const [kept] = useState(() => keptPart<{ zoom: number; pan: Pt }>(keepId));
   const [zoom, setZoom] = useState(kept?.zoom ?? ZOOM_MIN);
   const zoomRef = useRef(kept?.zoom ?? ZOOM_MIN);
   const panRef = useRef<Pt>(kept?.pan ?? { x: 0, y: 0 });
@@ -87,7 +89,6 @@ export function FigureZoom({ children, testId }: { children: ReactNode; testId: 
   );
 
   // The kept zoom drawn at once; the figure's zoom kept as it goes.
-  const keepId = `figure-zoom:${testId}`;
   useLayoutEffect(() => {
     if (zoomRef.current > ZOOM_MIN + 0.001) paint();
     return () => keepPart(keepId, { zoom: zoomRef.current, pan: panRef.current });

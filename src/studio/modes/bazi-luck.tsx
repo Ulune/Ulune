@@ -34,6 +34,7 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
+import { useDomIds, useScopeKey, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/zodiac-time.css";
@@ -66,7 +67,8 @@ export type BaziLuckState = {
   enabled: boolean;
 };
 
-// The year stepped to (null: this year), for this tab only, as Chinese astrology's Cycles keeps its own.
+// The year stepped to (null: this year), for this tab only, as Chinese astrology's Cycles keeps its own: time,
+// shared by every chart scope (both of Compare's panes show the same year, each held within its own life on read).
 let chosen: number | null = null;
 const listeners = new Set<() => void>();
 const subscribe = (fn: () => void) => {
@@ -192,9 +194,10 @@ function LuckFigure() {
   const y = data?.year;
   // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
   const scroller = useRef<HTMLDivElement>(null);
-  useKeptScroll(scroller, "bazi-luck-scroll", Boolean(c && y));
+  useKeptScroll(scroller, useScopeKey("bazi-luck-scroll"), Boolean(c && y));
   // With nothing chosen the side panel reads the year: this page's first read is here, so are its method notes (part 29).
   const notes = useMethodNotes("bazi-luck", w.chart);
+  const domId = useDomIds();
   if (!c || !y || !data) return null;
   const both = data.lucks.length > 1;
   const now = Date.now();
@@ -236,8 +239,8 @@ function LuckFigure() {
         />
       </label>
 
-      <section className="ulune-bzl-sec" aria-labelledby="bzl-year-h">
-        <h2 id="bzl-year-h" className="ulune-zky-h">
+      <section className="ulune-bzl-sec" aria-labelledby={domId("bzl-year-h")}>
+        <h2 id={domId("bzl-year-h")} className="ulune-zky-h">
           {cnWord(locale, "bzlYearHead", { year: y.year })}
         </h2>
         <button
@@ -269,8 +272,8 @@ function LuckFigure() {
         ))}
       </section>
 
-      <section className="ulune-bzl-sec" aria-labelledby="bzl-months-h">
-        <h2 id="bzl-months-h" className="ulune-zky-h">
+      <section className="ulune-bzl-sec" aria-labelledby={domId("bzl-months-h")}>
+        <h2 id={domId("bzl-months-h")} className="ulune-zky-h">
           {cnWord(locale, "bzlMonthsHead")}
         </h2>
         <div className="ulune-bzl-months" data-testid="bazi-flow-months">
@@ -299,8 +302,8 @@ function LuckFigure() {
       </section>
 
       {day ? (
-        <section className="ulune-bzl-sec" aria-labelledby="bzl-day-h">
-          <h2 id="bzl-day-h" className="ulune-zky-h">
+        <section className="ulune-bzl-sec" aria-labelledby={domId("bzl-day-h")}>
+          <h2 id={domId("bzl-day-h")} className="ulune-zky-h">
             {cnWord(locale, "bzlToday")}
           </h2>
           <button
@@ -388,10 +391,10 @@ function LuckData() {
 function useLuckRuntime(): ModeRuntime<BaziLuckState> {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
-  const chart = useStudioStore((s) => s.chart);
-  const count = useStudioStore((s) => s.input.chineseCount);
+  const chart = useScoped((s) => s.chart);
+  const count = useScoped((s) => s.input.chineseCount);
   const page = useStudioStore((s) => s.page);
-  const selectedId = useStudioStore((s) => s.selectedId);
+  const selectedId = useScoped((s) => s.selectedId);
   const stepped = useSteppedYear();
   const enabled = page === "bazi-luck" && Boolean(chart);
   const bazi = useMemo(

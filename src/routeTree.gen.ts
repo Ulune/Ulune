@@ -17,6 +17,7 @@ import { Route as CreditsRouteImport } from './routes/credits'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as LegalRouteImport } from './routes/legal'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as SRouteImport } from './routes/s'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -86,6 +87,11 @@ const LegalRoute = LegalRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SRoute = SRouteImport.update({
+  id: '/s',
+  path: '/s',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -258,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/guide': typeof GuideRoute
   '/legal': typeof LegalRoute
   '/privacy': typeof PrivacyRoute
+  '/s': typeof SRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -297,6 +304,7 @@ export interface FileRoutesByTo {
   '/guide': typeof GuideRoute
   '/legal': typeof LegalRoute
   '/privacy': typeof PrivacyRoute
+  '/s': typeof SRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -339,6 +347,7 @@ export interface FileRoutesById {
   '/guide': typeof GuideRoute
   '/legal': typeof LegalRoute
   '/privacy': typeof PrivacyRoute
+  '/s': typeof SRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -382,6 +391,7 @@ export interface FileRouteTypes {
     | '/guide'
     | '/legal'
     | '/privacy'
+    | '/s'
     | '/settings'
     | '/sitemap.xml'
     | '/terms'
@@ -421,6 +431,7 @@ export interface FileRouteTypes {
     | '/guide'
     | '/legal'
     | '/privacy'
+    | '/s'
     | '/settings'
     | '/sitemap.xml'
     | '/terms'
@@ -462,6 +473,7 @@ export interface FileRouteTypes {
     | '/guide'
     | '/legal'
     | '/privacy'
+    | '/s'
     | '/settings'
     | '/sitemap.xml'
     | '/terms'
@@ -504,6 +516,7 @@ export interface RootRouteChildren {
   GuideRoute: typeof GuideRoute
   LegalRoute: typeof LegalRoute
   PrivacyRoute: typeof PrivacyRoute
+  SRoute: typeof SRoute
   SettingsRoute: typeof SettingsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
@@ -573,6 +586,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s': {
+      id: '/s'
+      path: '/s'
+      fullPath: '/s'
+      preLoaderRoute: typeof SRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -853,6 +873,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuideRoute: GuideRoute,
   LegalRoute: LegalRoute,
   PrivacyRoute: PrivacyRoute,
+  SRoute: SRoute,
   SettingsRoute: SettingsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,

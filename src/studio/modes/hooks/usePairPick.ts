@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 import type { NatalChart } from "@/lib/chart/types";
 import type { PairPick } from "@/studio/modes/pair-selects";
+import { useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import type { StudioPage } from "@/studio/url";
 
@@ -8,17 +9,18 @@ import type { StudioPage } from "@/studio/url";
  * The two people of a Chinese Pair page (Chinese astrology's, part 11;
  * BaZi's, part 19): A the chart shown, B synastry's partner, the same second
  * person for every Pair page; adding a second person returns to the page
- * that asked.
+ * that asked. A is the chart of the scope around the caller and B its partner
+ * (studio/scope.tsx: the main page's, or a Compare pane's).
  */
 /** The two people, as synastry chooses them (A the chart shown, B its partner). */
 export function usePairPick(enabled: boolean, page: StudioPage): { pick: PairPick; inner: NatalChart | null; chartB: NatalChart | null } {
   const rows = useStudioStore((s) => s.rows);
-  const activeId = useStudioStore((s) => s.activeId);
-  const chartA = useStudioStore((s) => s.chart);
-  const partnerId = useStudioStore((s) => s.pair.partnerId);
-  const setPartner = useStudioStore((s) => s.setPartner);
-  const applySaved = useStudioStore((s) => s.applySaved);
-  const beginAddPartner = useStudioStore((s) => s.beginAddPartner);
+  const activeId = useScoped((s) => s.activeId);
+  const chartA = useScoped((s) => s.chart);
+  const partnerId = useScoped((s) => s.pair.partnerId);
+  const setPartner = useScoped((s) => s.setPartner);
+  const applySaved = useScoped((s) => s.applySaved);
+  const beginAddPartner = useScoped((s) => s.beginAddPartner);
   const ids = useMemo(() => rows.map((row) => row.id), [rows]);
   const aId = activeId && ids.includes(activeId) ? activeId : (ids[0] ?? null);
   const others = useMemo(() => rows.filter((row) => row.id !== aId), [rows, aId]);

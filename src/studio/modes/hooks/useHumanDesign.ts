@@ -3,33 +3,49 @@ import { castHumanDesign } from "@/lib/chart/functions";
 import { usePack } from "@/lib/content/packs";
 import type { HdView, HumanDesignChart } from "@/lib/chart/human-design";
 import { useI18n } from "@/lib/i18n/locale";
+import { useScopeId, useScopeKey, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import { errorForState } from "@/lib/i18n/errors";
 import { keptOr, useKeep } from "@/studio/return-parts";
 import { noteBodygraph } from "@/encyclopedia/your-chart";
 
 /**
- * The last bodygraph cast, for this tab only: the same birth gives the same
- * chart, so coming back to the page (from another page of the studio, or from
- * outside it, R6) draws it at once instead of asking the server again.
+ * The last bodygraphs cast, for this tab only, by birth: the same birth gives
+ * the same chart, so coming back to the page (from another page of the
+ * studio, or from outside it, R6) draws it at once instead of asking the
+ * server again. A few, not one: Compare draws two charts' at once (share and
+ * compare plan, feature 2), and neither may push the other's out.
  */
-let lastHd: { key: string; hd: HumanDesignChart } | null = null;
+const lastHd = new Map<string, HumanDesignChart>();
+const LAST_HD_MAX = 4;
 
+function keepHd(key: string, hd: HumanDesignChart) {
+  lastHd.delete(key);
+  lastHd.set(key, hd);
+  for (const old of lastHd.keys()) {
+    if (lastHd.size <= LAST_HD_MAX) break;
+    lastHd.delete(old);
+  }
+}
+
+/** The bodygraph of the chart of the scope around the caller (studio/scope.tsx), its layer and the chosen piece's reading. */
 export function useHumanDesign() {
   const { locale, t } = useI18n();
-  const chart = useStudioStore((s) => s.chart);
-  const creating = useStudioStore((s) => s.creating);
+  const chart = useScoped((s) => s.chart);
+  const creating = useScoped((s) => s.creating);
   const page = useStudioStore((s) => s.page);
-  const selectedId = useStudioStore((s) => s.selectedId);
+  const selectedId = useScoped((s) => s.selectedId);
+  const main = useScopeId() === "main";
   const enabled = page === "design" && Boolean(chart) && !creating;
-  const [view, setView] = useState<HdView>(() => keptOr("hd-view", "both"));
-  useKeep("hd-view", view);
+  const viewKey = useScopeKey("hd-view");
+  const [view, setView] = useState<HdView>(() => keptOr(viewKey, "both"));
+  useKeep(viewKey, view);
   const utc = chart?.meta.utc ?? "";
   // Without a birth time the chart is cast at noon; the server casts the
   // rest of the day too and says what could differ.
   const spanMinutes = chart?.meta.timeUnknown ? 720 : undefined;
   const hdKey = `${utc}|${spanMinutes ?? ""}`;
-  const [hd, setHd] = useState<HumanDesignChart | null>(() => (lastHd?.key === hdKey ? lastHd.hd : null));
+  const [hd, setHd] = useState<HumanDesignChart | null>(() => lastHd.get(hdKey) ?? null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
@@ -37,7 +53,7 @@ export function useHumanDesign() {
 
   useEffect(() => {
     if (!enabled || !utc) return;
-    const cached = lastHd?.key === hdKey ? lastHd.hd : null;
+    const cached = lastHd.get(hdKey) ?? null;
     if (cached && tick === 0) {
       ready.current = true;
       setHd(cached);
@@ -52,9 +68,9 @@ export function useHumanDesign() {
       .then((next) => {
         if (cancelled) return;
         ready.current = true;
-        lastHd = { key: hdKey, hd: next };
-        // For the encyclopedia's "In your chart" in this tab (part 18).
-        noteBodygraph(hdKey, next);
+        keepHd(hdKey, next);
+        // For the encyclopedia's "In your chart" in this tab (part 18): the chart shown's, not a Compare pane's.
+        if (main) noteBodygraph(hdKey, next);
         setHd(next);
         setBusy(false);
       })
@@ -66,7 +82,7 @@ export function useHumanDesign() {
     return () => {
       cancelled = true;
     };
-  }, [enabled, utc, spanMinutes, hdKey, t, tick]);
+  }, [enabled, utc, spanMinutes, hdKey, t, tick, main]);
 
   // The readings come with the Human Design text (its own download).
   const pack = usePack("hd", locale, enabled);

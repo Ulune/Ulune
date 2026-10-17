@@ -16,6 +16,7 @@ import { NumerologyYearStepper, NumerologyYearSteps } from "@/studio/modes/numer
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
+import { useDomIds, useScopeId, useScopeKey, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import { NumerologyLifeLine } from "@/studio/tables/numerology-life";
 import "@/studio/modes/styles/num.css";
@@ -54,7 +55,8 @@ function CyclesFigure() {
   // Chinese pages' (languages plan, part 28). The last argument wakes the hook once it is drawn.
   const scroller = useRef<HTMLDivElement>(null);
   const drawn = Boolean(numbers && numbers.lifePath.number != null);
-  useKeptScroll(scroller, "numerology-cycles-scroll", drawn);
+  useKeptScroll(scroller, useScopeKey("numerology-cycles-scroll"), drawn);
+  const domId = useDomIds();
   if (!numbers || numbers.lifePath.number == null) return null;
   const today = new Date();
   const isNow = year === today.getFullYear();
@@ -62,8 +64,8 @@ function CyclesFigure() {
   return (
     <div ref={scroller} className="ulune-numc" data-testid="num-cycles" data-chart-pick>
       <NumerologyYearStepper numbers={numbers} locale={locale} selectedId={w.selectedId} onSelect={w.choose} stepper={false} />
-      <section className="ulune-numc-sec" aria-labelledby="numc-months">
-        <h2 id="numc-months" className="ulune-numc-h">
+      <section className="ulune-numc-sec" aria-labelledby={domId("numc-months")}>
+        <h2 id={domId("numc-months")} className="ulune-numc-h">
           {p(locale, "cyclesMonthsHead", { year })}
         </h2>
         <div className="ulune-numc-months" role="group" aria-label={p(locale, "cyclesMonthsGroup", { year })} data-testid="num-months">
@@ -101,8 +103,8 @@ function CyclesFigure() {
           </button>
         ) : null}
       </section>
-      <section className="ulune-numc-sec" aria-labelledby="numc-life">
-        <h2 id="numc-life" className="ulune-numc-h">
+      <section className="ulune-numc-sec" aria-labelledby={domId("numc-life")}>
+        <h2 id={domId("numc-life")} className="ulune-numc-h">
           {p(locale, "cyclesLifeHead")}
         </h2>
         <NumerologyLifeLine chart={numbers} locale={locale} selectedId={w.selectedId} onSelect={w.choose} />
@@ -130,8 +132,10 @@ function CyclesData() {
   const w = useWheelView();
   const numerology = useModeData("numerology-cycles");
   const rows = useStudioStore((s) => s.rows);
-  const activeId = useStudioStore((s) => s.activeId);
+  const activeId = useScoped((s) => s.activeId);
   const openDock = useStudioStore((s) => s.openDock);
+  // The birth form is the main page's chart's: a Compare pane only reads its own.
+  const main = useScopeId() === "main";
   const numbers = numerology?.numbers;
   if (!numbers) return null;
   return (
@@ -146,6 +150,7 @@ function CyclesData() {
         selectedId={w.selectedId}
         onSelect={w.pick}
         openBirth={() => {
+          if (!main) return;
           openDock("birth");
           focusField("birth-full-name");
         }}

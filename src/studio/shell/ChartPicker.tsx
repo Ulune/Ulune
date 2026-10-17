@@ -37,8 +37,20 @@ function pairPageOf(page: StudioPage): StudioPage {
   return pageFor(lang && lensesOf(lang).includes("relationship") ? lang : "astrology", "relationship");
 }
 
+/** A chart shared by a link (share plan, feature 1), opened from here once: no longer "Shared with you", in its sealed record either. */
+function seenShared(id: string): void {
+  useStudioStore.setState((s) => ({ rows: s.rows.map((r) => (r.id === id ? { ...r, sharedAt: undefined } : r)) }));
+}
+
+/** "16 Oct", "1er oct.": the day a chart was shared with the reader. */
+function sharedDay(at: number, locale: string): string {
+  const d = new Date(at);
+  const day = d.getDate();
+  return `${locale === "fr" && day === 1 ? "1er" : day} ${d.toLocaleDateString(locale === "fr" ? "fr-FR" : "en-GB", { month: "short" })}`;
+}
+
 export function ChartPicker() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const rows = useStudioStore((s) => s.rows);
   const activeId = useStudioStore((s) => s.activeId);
   const creating = useStudioStore((s) => s.creating);
@@ -202,6 +214,7 @@ export function ChartPicker() {
                           type="button"
                           onClick={() => {
                             select(row.id);
+                            if (row.sharedAt) seenShared(row.id);
                             close();
                           }}
                           aria-current={on ? "true" : undefined}
@@ -211,6 +224,11 @@ export function ChartPicker() {
                           <span className="ob-picker-meta">
                             {[formatEuropeanDate(row.input.date), row.input.placeLabel.split(",")[0]].filter(Boolean).join(" · ")}
                           </span>
+                          {row.sharedAt ? (
+                            <span className="ob-picker-meta" data-testid="chart-shared" style={{ color: "var(--color-fg-muted)" }}>
+                              {t("sharedWithYou", { date: sharedDay(row.sharedAt, locale) })}
+                            </span>
+                          ) : null}
                         </button>
                         {on ? (
                           <>

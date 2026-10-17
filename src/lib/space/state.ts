@@ -88,6 +88,11 @@ export type SpaceBridge = {
   lockChanged: (lock: LockMode) => void;
   /** The space's charts changed underneath (a backup's added): read them again. */
   reload: () => Promise<void>;
+  /**
+   * Whether the studio holds the open space's charts now (open() has read them and sealed those
+   * that joined): a chart shared by a link waits for it before it is looked for there (lib/share/arrive.ts).
+   */
+  joined: () => boolean;
 };
 
 let bridge: SpaceBridge | null = null;

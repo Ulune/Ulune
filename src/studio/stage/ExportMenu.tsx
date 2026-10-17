@@ -1,7 +1,9 @@
 import { Copy, Download, FileImage, Printer, Share2 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { AnchoredPopover } from "@/components/anchored-popover";
+import { openShareSheet, useShareUi } from "@/components/share/share-state";
 import { useI18n } from "@/lib/i18n/locale";
+import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { importWithRetry } from "@/lib/lazy-retry";
 import { toast } from "@/lib/toast";
 import { MODE_META } from "@/studio/modes/meta";
@@ -42,6 +44,25 @@ function exportAhead() {
   loadExportCode().catch(() => {});
 }
 
+/*
+ * The share sheet and a shared chart's arrival note (share plan, feature 1):
+ * their code (components/share/share-ui.tsx) comes when one of them shows, or
+ * ahead when "Share a link" is pointed at or focused.
+ */
+const loadShareUi = () => import("@/components/share/share-ui");
+const ShareUi = lazyNamed(loadShareUi, "ShareUi");
+const shareAhead = () => prefetch(loadShareUi);
+
+/** Where they are drawn, mounted with the toolbar's menu (they open from here or from the phone's ⋯ menu, MorePanel.tsx). */
+function ShareHost() {
+  const shown = useShareUi((s) => s.sheet || s.note !== null);
+  return shown ? (
+    <Suspense fallback={null}>
+      <ShareUi />
+    </Suspense>
+  ) : null;
+}
+
 function slugName(name: string) {
   return (
     name
@@ -73,10 +94,11 @@ function figureCaption(
 }
 
 /**
- * The ways out, as menu items: download the figure, print a chart sheet,
- * copy a summary, then what the page adds (the Calendar's file, a table's
- * text and CSV) in `extraSlot`. Drawn in the Export menu on a computer and
- * in the toolbar's ⋯ menu on a phone (UI plan, part 96).
+ * The ways out, as menu items: a link to the chart (share plan, feature 1),
+ * download the figure, print a chart sheet, copy a summary, then what the
+ * page adds (the Calendar's file, a table's text and CSV) in `extraSlot`.
+ * Drawn in the Share and export menu on a computer and in the toolbar's ⋯
+ * menu on a phone (UI plan, part 96).
  */
 export function ExportItems({
   close,
@@ -189,6 +211,22 @@ export function ExportItems({
 
   return (
     <>
+      {/* A link to the chart first (share plan, feature 1): its sheet comes when asked for (ShareHost above). */}
+      <button
+        type="button"
+        role="menuitem"
+        className="ob-menu-item"
+        data-testid="share-open"
+        onPointerEnter={shareAhead}
+        onFocus={shareAhead}
+        onClick={() => {
+          close();
+          openShareSheet();
+        }}
+      >
+        <Share2 className="size-4" strokeWidth={1.75} aria-hidden />
+        <span>{t("shareLink")}</span>
+      </button>
       {/* The picture's ways out only where there is a picture (part 97: no greyed items on a table). */}
       {hasFigure
         ? item(
@@ -232,7 +270,7 @@ export function ExportItems({
   );
 }
 
-/** The toolbar's Export: the ways out in a menu under its button. */
+/** The toolbar's Share and export: the ways out in a menu under its button. */
 export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null) => void } = {}) {
   const { t } = useI18n();
   const shown = useExportShown();
@@ -278,6 +316,7 @@ export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null)
           <ExportItems close={close} extraSlot={extraSlot} />
         </div>
       </AnchoredPopover>
+      <ShareHost />
     </>
   );
 }

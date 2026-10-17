@@ -15,6 +15,7 @@ import type { AspectId, BodyId } from "@/lib/chart/types";
 import { resolveWheelFocus, type WheelFocusCtx } from "@/lib/chart/wheel-focus";
 import { lineInk } from "@/lib/chart/wheel-style";
 import { currentChartHover, currentChartPreview, onChartHover, onChartPreview, previewProps } from "@/lib/depth/preview-bus";
+import { useScopeId } from "@/studio/scope";
 import { aspectName, bodyLabel } from "@/lib/i18n/astro";
 import { useI18n } from "@/lib/i18n/locale";
 import { AspectGlyph, PlanetGlyph } from "./glyphs";
@@ -50,12 +51,14 @@ export function WheelAspectGrid({
   const gridRef = useRef<HTMLDivElement>(null);
   const ctxRef = useRef(ctx);
   const paintHover = useRef<() => void>(() => {});
+  // The wheel's own chart scope (studio/scope.tsx): a Compare pane's grid follows its own wheel.
+  const scopeId = useScopeId();
   useEffect(() => {
     ctxRef.current = ctx;
   });
   useEffect(() => {
-    let chart = currentChartHover();
-    let preview = currentChartPreview();
+    let chart = currentChartHover(scopeId);
+    let preview = currentChartPreview(scopeId);
     const paint = () => {
       const el = gridRef.current;
       if (!el) return;
@@ -79,11 +82,11 @@ export function WheelAspectGrid({
     const offHover = onChartHover((id) => {
       chart = id;
       paint();
-    });
+    }, scopeId);
     const offPreview = onChartPreview((id) => {
       preview = id;
       paint();
-    });
+    }, scopeId);
     const offSelection = selection.subscribe(paint);
     return () => {
       offHover();
@@ -91,7 +94,7 @@ export function WheelAspectGrid({
       offSelection();
       paintHover.current = () => {};
     };
-  }, [selection]);
+  }, [selection, scopeId]);
   // Cells re-created by a render (new rows, a new chart) get their hover marks back.
   useLayoutEffect(() => {
     paintHover.current();

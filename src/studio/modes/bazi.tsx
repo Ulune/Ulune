@@ -51,6 +51,7 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
+import { useDomIds, useScopeKey, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/bazi.css";
@@ -271,9 +272,10 @@ function StarsList({ c, signs }: { c: BaziChart; signs: BaziSigns }) {
     return [l.hanzi, l.name].filter(Boolean).join(" ");
   };
   const order = c.pillars.map((p) => p.id);
+  const domId = useDomIds();
   return (
-    <section className="ulune-bz-gods ulune-bz-stars" aria-labelledby="bz-stars-h" data-testid="bazi-stars">
-      <h2 id="bz-stars-h" className="ulune-bz-h">
+    <section className="ulune-bz-gods ulune-bz-stars" aria-labelledby={domId("bz-stars-h")} data-testid="bazi-stars">
+      <h2 id={domId("bz-stars-h")} className="ulune-bz-h">
         {cnWord(locale, "bzStarsHead")}
       </h2>
       {signs.stars.length ? (
@@ -341,9 +343,10 @@ function BalancePanel({ b }: { b: BaziBalance }) {
   );
   const fav = phaseList(b.favourable.good, locale);
   const climate = b.favourable.climate ? ` · ${cnWord(locale, "bzFavClimate").toLowerCase()} ${phaseList([b.favourable.climate], locale)}` : "";
+  const domId = useDomIds();
   return (
-    <section className="ulune-bz-gods ulune-bz-bal" aria-labelledby="bz-bal-h" data-testid="bazi-balance">
-      <h2 id="bz-bal-h" className="ulune-bz-h ulune-bz-bal-h">
+    <section className="ulune-bz-gods ulune-bz-bal" aria-labelledby={domId("bz-bal-h")} data-testid="bazi-balance">
+      <h2 id={domId("bz-bal-h")} className="ulune-bz-h ulune-bz-bal-h">
         <span>{cnWord(locale, "bzBalHead")}</span>
         <button type="button" className="ulune-bz-how" data-testid="bazi-balance-how" aria-pressed={w.selectedId === BALANCE_REF} onClick={() => w.choose(BALANCE_REF)}>
           {cnWord(locale, "bzBalHow")}
@@ -401,9 +404,10 @@ function InteractionsList({ list }: { list: Interaction[] }) {
     const l = chineseLabel(ix.level === "stem" ? STEMS[n]! : BRANCHES[n]!, locale, { ...prefs, show: prefs.show === "full" ? "full" : "names" });
     return [l.hanzi, l.name].filter(Boolean).join(" ");
   };
+  const domId = useDomIds();
   return (
-    <section className="ulune-bz-ix" aria-labelledby="bz-ix-h" data-testid="bazi-interactions">
-      <h2 id="bz-ix-h" className="ulune-bz-h">
+    <section className="ulune-bz-ix" aria-labelledby={domId("bz-ix-h")} data-testid="bazi-interactions">
+      <h2 id={domId("bz-ix-h")} className="ulune-bz-h">
         {cnWord(locale, "bzIxHead")}
       </h2>
       {list.length ? (
@@ -459,9 +463,10 @@ function GodsList({ c }: { c: BaziChart }) {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const w = useWheelView();
+  const domId = useDomIds();
   return (
-    <section className="ulune-bz-gods" aria-labelledby="bz-gods-h" data-testid="bazi-gods">
-      <h2 id="bz-gods-h" className="ulune-bz-h">
+    <section className="ulune-bz-gods" aria-labelledby={domId("bz-gods-h")} data-testid="bazi-gods">
+      <h2 id={domId("bz-gods-h")} className="ulune-bz-h">
         {cnWord(locale, "bzGodsHead")} <span className="ulune-bz-gods-key">{cnWord(locale, "bzGodsKey")}</span>
       </h2>
       <ul>
@@ -500,7 +505,7 @@ function BaziFigure() {
   const c = data?.bazi;
   // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
   const scroller = useRef<HTMLDivElement>(null);
-  useKeptScroll(scroller, "bazi-scroll", Boolean(c));
+  useKeptScroll(scroller, useScopeKey("bazi-scroll"), Boolean(c));
   if (!c) return null;
   // Hour to year (the year on the right), as the tradition writes them, or year to hour.
   const cols = [...c.pillars];
@@ -545,6 +550,7 @@ function BaziHello() {
   const w = useWheelView();
   // First the notes the birth calls for, last how Ulune calculates (part 29).
   const notes = useMethodNotes("bazi", w.chart);
+  const domId = useDomIds();
   const c = data?.bazi;
   if (!c || !data) return null;
   const b = data.balance;
@@ -599,9 +605,9 @@ function BaziHello() {
     );
   }
   return (
-    <section className="ulune-hd-first ulune-bz-first" data-testid="bazi-hello" aria-labelledby="ulune-bz-first-title">
+    <section className="ulune-hd-first ulune-bz-first" data-testid="bazi-hello" aria-labelledby={domId("ulune-bz-first-title")}>
       <MethodNotes notes={notes} />
-      <h3 id="ulune-bz-first-title" className="ulune-kicker ulune-hd-first-title">
+      <h3 id={domId("ulune-bz-first-title")} className="ulune-kicker ulune-hd-first-title">
         {cnWord(locale, "bzFirstTitle")}
       </h3>
       <p className="ulune-zk-hello-p">{cnWord(locale, "bzLead")}</p>
@@ -654,7 +660,7 @@ const BaziTable = lazyNamed(loadTable, "BaziTable");
 function BaziData() {
   const data = useModeData("bazi");
   const w = useWheelView();
-  const count = useStudioStore((s) => s.input.chineseCount);
+  const count = useScoped((s) => s.input.chineseCount);
   const c = data?.bazi;
   if (!c) return null;
   return (
@@ -667,9 +673,9 @@ function BaziData() {
 function useBaziRuntime(): ModeRuntime<BaziState> {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
-  const chart = useStudioStore((s) => s.chart);
+  const chart = useScoped((s) => s.chart);
   const page = useStudioStore((s) => s.page);
-  const selectedId = useStudioStore((s) => s.selectedId);
+  const selectedId = useScoped((s) => s.selectedId);
   const enabled = page === "bazi" && Boolean(chart);
   const bazi = useMemo(
     () =>
@@ -684,7 +690,7 @@ function useBaziRuntime(): ModeRuntime<BaziState> {
   const signs = useMemo(() => (bazi ? baziSigns(bazi) : null), [bazi]);
   const interactions = useMemo(() => (bazi ? baziInteractions(bazi) : []), [bazi]);
   const balance = useMemo(() => (bazi ? baziBalance(bazi) : null), [bazi]);
-  const count = useStudioStore((s) => s.input.chineseCount);
+  const count = useScoped((s) => s.input.chineseCount);
   const lucks = useMemo(() => {
     if (!bazi) return [];
     const counts: LuckCount[] = count === "yang" || count === "yin" ? [count] : ["yang", "yin"];

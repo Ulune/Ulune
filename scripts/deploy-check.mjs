@@ -19,7 +19,7 @@
  * them (languages plan, part 30): their addresses from src/studio/map.ts,
  * and Feng Shui's Home page with its compass's sensors left to the page.
  */
-import { cpSync, createReadStream, existsSync, mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
+import { cpSync, createReadStream, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { extname, join, normalize, sep } from "node:path";
@@ -250,7 +250,10 @@ async function checkHeaders() {
   const guidePage = await get("/guide");
   if (guidePage.res.status !== 200 || !noindex(guidePage.text) || canonical(guidePage.text)) fail("/guide: should answer and stay out of search");
   if (!guidePage.text.includes('data-testid="guide"')) fail("/guide: no guide in the server's page");
-  console.log(`search: robots.txt, a ${locs.length}-page sitemap, canonical addresses, settings, /guide and missing pages kept out; the guide in the home page`);
+  // Where a share link lands (share plan, feature 1): the same page for every link, out of search.
+  const sharePage = await get("/s");
+  if (sharePage.res.status !== 200 || !noindex(sharePage.text) || canonical(sharePage.text) || !sharePage.text.includes('data-testid="share-page"')) fail("/s: should answer and stay out of search");
+  console.log(`search: robots.txt, a ${locs.length}-page sitemap, canonical addresses, settings, /guide, /s and missing pages kept out; the guide in the home page`);
 }
 
 /** The health check an uptime monitor calls, and where error reports arrive. */
@@ -310,6 +313,20 @@ await page.addInitScript(() => {
     console.error(`content security policy blocked ${e.blockedURI || "an inline script"} (${e.violatedDirective})`),
   );
 });
+/**
+ * The ids a seroval answer refers back to (its "indexed value" nodes, type 4): an object met twice
+ * (a chart's dominant pattern is one of its configurations) is sent once, then referred to, and
+ * reading the answer without these ids leaves the second place empty.
+ */
+function backReferences(tree, out = []) {
+  if (Array.isArray(tree)) for (const n of tree) backReferences(n, out);
+  else if (tree && typeof tree === "object") {
+    if (tree.t === 4 && typeof tree.i === "number") out.push(tree.i);
+    for (const v of Object.values(tree)) backReferences(v, out);
+  }
+  return out;
+}
+
 // A production build names its server functions by hash, so a cast is the
 // server call whose answer holds a chart (one seroval node, as the page reads it).
 function nextChart() {
@@ -317,7 +334,8 @@ function nextChart() {
     const on = async (r) => {
       if (!r.url().includes("/_serverFn/")) return;
       try {
-        const value = fromJSON({ t: JSON.parse(await r.text()), f: 127, m: [] });
+        const tree = JSON.parse(await r.text());
+        const value = fromJSON({ t: tree, f: 127, m: backReferences(tree) });
         if (!value?.result?.chart) return;
         page.off("response", on);
         resolve(value.result.chart);
@@ -389,6 +407,68 @@ async function tour() {
   );
 }
 
+/**
+ * The calculations on the device (on-device plan, step 2), as the build ships them: the engine's
+ * worker under its own policy (src/lib/security-headers.ts, ENGINE_WORKER_CSP: WebAssembly and
+ * Ulune's address only), the engine and the 17 ephemeris files and the star catalogue as /assets/
+ * files, and the chart the server just cast, cast again by the worker in the page under the
+ * page's policy: the same chart (the Sun's altitude, computed with JavaScript's own trigonometry,
+ * to 1e-9°; everything else to the last digit).
+ */
+async function engineCheck(cast) {
+  const files = readdirSync(join(staticDir, "assets"));
+  const worker = files.find((f) => /^engine-worker-[\w-]+\.js$/.test(f));
+  if (!worker) fail("no engine worker in the build (assets/engine-worker-*.js)");
+  const policy = (await fetch(`${BASE}/assets/${worker}`)).headers.get("content-security-policy") ?? "";
+  if (!/^default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'$/.test(policy)) fail(`the engine worker's policy: "${policy}"`);
+  const wasm = files.find((f) => /^swisseph-[\w-]+\.wasm$/.test(f));
+  const ephe = files.filter((f) => /\.se1$/.test(f) || /^sefstars-[\w-]+\.txt$/.test(f));
+  if (!wasm || ephe.length !== 18) fail(`the engine's files in the build: ${wasm ?? "no engine"}, ${ephe.length} ephemeris files`);
+  const type = (await fetch(`${BASE}/assets/${wasm}`, { method: "HEAD" })).headers.get("content-type");
+  if (type !== "application/wasm") fail(`the engine is sent as ${type}`);
+  const m = cast.meta;
+  const data = {
+    date: m.date,
+    time: m.time,
+    latitude: m.latitude,
+    longitude: m.longitude,
+    houseSystem: m.houseSystemRequested ?? m.houseSystem,
+    place: { zone: m.birthTime.zone, source: m.birthTime.zoneSource },
+  };
+  const answer = await page.evaluate(
+    ({ file, data }) =>
+      new Promise((resolve) => {
+        const w = new Worker(`/assets/${file}`, { type: "module" });
+        const t0 = performance.now();
+        w.onmessage = (e) => {
+          w.terminate();
+          resolve({ ...e.data, wall: performance.now() - t0 });
+        };
+        w.onerror = (e) => resolve({ ok: false, error: e.message || "the worker failed to start" });
+        w.postMessage({ id: 1, job: { kind: "natal", data } });
+      }),
+    { file: worker, data },
+  );
+  if (!answer.ok) fail(`the engine's worker: ${answer.error}`);
+  const device = answer.result.chart;
+  if (Math.abs(device.meta.sunAltitude - cast.meta.sunAltitude) > 1e-9) fail(`the Sun's altitude: ${device.meta.sunAltitude} vs ${cast.meta.sunAltitude}`);
+  device.meta.sunAltitude = cast.meta.sunAltitude;
+  if (JSON.stringify(device) !== JSON.stringify(cast)) {
+    const parts = [];
+    const walk = (a, b, path) => {
+      if (parts.length >= 3) return;
+      if (typeof a !== "object" || a === null || typeof b !== "object" || b === null) {
+        if (a !== b) parts.push(`${path}: ${JSON.stringify(a)} vs ${JSON.stringify(b)}`);
+        return;
+      }
+      for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) walk(a[k], b[k], `${path}.${k}`);
+    };
+    walk(device, cast, "chart");
+    fail(`the device's chart is not the server's: ${parts.join("; ")}`);
+  }
+  console.log(`engine: the worker (its own policy), the engine and ${ephe.length} files in /assets; the chart cast again in the page, the server's to the last digit (${answer.wall.toFixed(0)} ms with the engine's start)`);
+}
+
 let ok = false;
 try {
   await checkHeaders();
@@ -405,6 +485,7 @@ try {
     fail(`typed coordinates read as ${time?.zone} from "${time?.zoneSource}", not from geo-tz's map`);
   console.log("typed coordinates: America/New_York from geo-tz's map");
   await tour();
+  await engineCheck(paris);
   if (errors.length) fail(`console: ${errors.join(" | ")}`);
   ok = true;
 } finally {

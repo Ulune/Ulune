@@ -499,7 +499,8 @@ html:not(.light) .ulune-hd-col[data-layer="design"] {
   fill: var(--hd-design);
 }
 .ulune-hd-gate[data-tone="both"] .hd-gate-disc {
-  fill: url(#hd-stripe);
+  /* The figure's own pattern: a Compare pane's bodygraph names its own (humandesign-graph.tsx). */
+  fill: var(--hd-stripe, url(#hd-stripe));
   stroke: var(--hd-personality);
   stroke-width: 1;
 }
@@ -566,9 +567,10 @@ html.light .ulune-hd-gate[data-tone="both"] text {
   border-radius: 12px;
 }
 
-/* On a narrow screen: the facts on two lines, the chart across the whole
-   width, then the two columns side by side under it. */
-@media (max-width: 640px) {
+/* On a narrow stage (a phone, or a Compare pane: the stage's width, not the
+   window's): the facts on two lines, the chart across the whole width, then
+   the two columns side by side under it. */
+@container stage (max-width: 640px) {
   .ulune-hd-facts {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));

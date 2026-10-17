@@ -44,6 +44,7 @@ import { PairSelects, type PairPick } from "@/studio/modes/pair-selects";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
+import { useDomIds, useScopeKey, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/first-read.css";
@@ -318,7 +319,8 @@ function PairList({ kind, ctx }: { kind: PairKind; ctx: FsPairContext }) {
   const w = useWheelView();
   const { pair: p, names } = ctx;
   const dirs = listOfKind(p, kind);
-  const h = `fsp-${kind}-h`;
+  const domId = useDomIds();
+  const h = domId(`fsp-${kind}-h`);
   return (
     <section className={cn("ulune-fsp-list", `is-${kind}`)} aria-labelledby={h} data-testid={`fengshui-pair-list-${kind}`}>
       <h3 id={h} className="ulune-fs-h">
@@ -368,10 +370,10 @@ function PairFigure() {
   const { locale } = useI18n();
   const w = useWheelView();
   const data = useModeData("fengshui-pair");
-  const partnerBirth = useStudioStore((s) => s.pair.addingPartnerFor === "fengshui-pair");
+  const partnerBirth = useScoped((s) => s.pair.addingPartnerFor === "fengshui-pair");
   // Its own scroll comes back where it was when the studio does (reorganisation R6).
   const scroller = useRef<HTMLDivElement>(null);
-  useKeptScroll(scroller, "fengshui-pair-scroll", Boolean(data?.ctx));
+  useKeptScroll(scroller, useScopeKey("fengshui-pair-scroll"), Boolean(data?.ctx));
   if (!data?.lists.a.length) return null;
   if (!data.ctx) {
     if (partnerBirth) return <div data-testid="fengshui-pair-need-second" className="hidden" />;
@@ -460,6 +462,7 @@ function PairHello() {
   const w = useWheelView();
   const data = useModeData("fengshui-pair");
   const notes = useMethodNotes("fengshui-pair", data?.charts.a ?? null, { chart: data?.charts.b ?? null, names: data?.names ?? { a: "A", b: "B" } });
+  const domId = useDomIds();
   if (!data?.lists.a.length) return null;
   if (!data.ctx) {
     return (
@@ -500,9 +503,9 @@ function PairHello() {
     { id: "practice", ref: FSP_PRACTICE_REF, label: cnWord(locale, "fspPracticeHead"), value: "", text: pairPracticeLines(ctx, locale)[0]!.text },
   ];
   return (
-    <section className="ulune-hd-first ulune-fs-first" data-testid="fengshui-pair-hello" aria-labelledby="ulune-fsp-first-title">
+    <section className="ulune-hd-first ulune-fs-first" data-testid="fengshui-pair-hello" aria-labelledby={domId("ulune-fsp-first-title")}>
       <MethodNotes notes={notes} />
-      <h3 id="ulune-fsp-first-title" className="ulune-kicker ulune-hd-first-title">
+      <h3 id={domId("ulune-fsp-first-title")} className="ulune-kicker ulune-hd-first-title">
         {cnWord(locale, "fspFirstTitle")}
       </h3>
       <p className="ulune-zk-hello-p">{cnWord(locale, "fspLead")}</p>
@@ -585,10 +588,10 @@ function usePairRuntime(): ModeRuntime<FengShuiPairState> {
   const { locale, t } = useI18n();
   const prefs = useChinesePrefs();
   const page = useStudioStore((s) => s.page);
-  const chart = useStudioStore((s) => s.chart);
-  const input = useStudioStore((s) => s.input);
+  const chart = useScoped((s) => s.chart);
+  const input = useScoped((s) => s.input);
   const rows = useStudioStore((s) => s.rows);
-  const selectedId = useStudioStore((s) => s.selectedId);
+  const selectedId = useScoped((s) => s.selectedId);
   const enabled = page === "fengshui-pair" && Boolean(chart);
   const { pick, inner, chartB } = usePairPick(enabled, "fengshui-pair");
   const idA = pick.aId;

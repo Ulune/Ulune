@@ -14,7 +14,7 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { WheelPort } from "@/studio/stage/WheelPort";
-import { useStudioStore } from "@/studio/store";
+import { useScopeId, useScoped } from "@/studio/scope";
 import { loadStudioView } from "@/studio/url";
 
 // The table view loads when it is opened (or ahead, on hover of its switch).
@@ -25,7 +25,9 @@ if (typeof window !== "undefined" && loadStudioView() === "table") prefetch(load
 
 function NatalFigure() {
   const w = useWheelView();
-  const activeId = useStudioStore((s) => s.activeId);
+  const activeId = useScoped((s) => s.activeId);
+  // The wheel kept for the next visit's first view is the main page's only.
+  const main = useScopeId() === "main";
   if (!w.chart) return null;
   return (
     <WheelPort dim={w.casting}>
@@ -38,7 +40,7 @@ function NatalFigure() {
         starVisible={w.starVisible}
         midpointVisible={w.midpointVisible}
         onSelect={w.choose}
-        firstView={activeId ?? undefined}
+        firstView={main ? (activeId ?? undefined) : undefined}
       />
     </WheelPort>
   );
@@ -46,9 +48,9 @@ function NatalFigure() {
 
 function NatalCaption() {
   const { t, locale } = useI18n();
-  const chart = useStudioStore((s) => s.chart);
-  const input = useStudioStore((s) => s.input);
-  const timeUnknown = useStudioStore((s) => s.timeUnknown);
+  const chart = useScoped((s) => s.chart);
+  const input = useScoped((s) => s.input);
+  const timeUnknown = useScoped((s) => s.timeUnknown);
   if (!chart) return null;
   // The date as the form writes it (15/06/1990), not as it is stored.
   const caption = [
@@ -83,9 +85,9 @@ function NatalHelloEmpty() {
 }
 
 function NatalData() {
-  const chart = useStudioStore((s) => s.chart);
-  const selectedId = useStudioStore((s) => s.selectedId);
-  const pick = useStudioStore((s) => s.pick);
+  const chart = useScoped((s) => s.chart);
+  const selectedId = useScoped((s) => s.selectedId);
+  const pick = useScoped((s) => s.pick);
   if (!chart) return null;
   return (
     <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
@@ -96,9 +98,9 @@ function NatalData() {
 
 function useNatalRuntime(): ModeRuntime {
   const { locale } = useI18n();
-  const dossier = useStudioStore((s) => s.dossier);
-  const grok = useStudioStore((s) => s.grok);
-  const selectedId = useStudioStore((s) => s.selectedId);
+  const dossier = useScoped((s) => s.dossier);
+  const grok = useScoped((s) => s.grok);
+  const selectedId = useScoped((s) => s.selectedId);
   // The reading text: the workspace fetches it once the wheel is up; a click
   // before that asks for it at once.
   const astro = usePack("astro", locale, Boolean(selectedId));

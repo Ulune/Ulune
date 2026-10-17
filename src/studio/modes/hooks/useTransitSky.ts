@@ -7,6 +7,7 @@ import { isAbort, lru } from "@/lib/chart/result-cache";
 import { provisionalTransitSky } from "@/lib/chart/sky-window";
 import { onWindow, prefetchWindows, windowAt, windowsWork } from "@/lib/chart/window-cache";
 import { natalBodiesOf } from "@/studio/modes/hooks/natal-bodies";
+import { useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import { useVisibleInterval } from "@/lib/use-visible-interval";
 import { errorForState } from "@/lib/i18n/errors";
@@ -21,10 +22,11 @@ const skyCache = lru<TransitSky>(48);
 const SETTLE_MS = 150;
 const DEBOUNCE_MS = 50;
 
+/** The sky over the chart of the scope around the caller (studio/scope.tsx), at the moment every scope shares. */
 export function useTransitSky() {
   const { locale, t } = useI18n();
-  const chart = useStudioStore((s) => s.chart);
-  const creating = useStudioStore((s) => s.creating);
+  const chart = useScoped((s) => s.chart);
+  const creating = useScoped((s) => s.creating);
   const page = useStudioStore((s) => s.page);
   const atMs = useStudioStore((s) => s.time.at);
   const live = useStudioStore((s) => s.time.live);

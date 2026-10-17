@@ -1,7 +1,7 @@
 import { markSeen, seenBefore } from "@/lib/seen-once";
 import { settleIn } from "@/lib/settle";
 import { prefersReducedMotion } from "@/lib/depth/env";
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useMemo, useRef } from "react";
 import { HumanDesignGraph } from "@/components/humandesign-graph";
 import { HdCard } from "@/components/hd-card";
 import { HdFacts } from "@/components/hd-facts";
@@ -20,8 +20,8 @@ import { useHumanDesign } from "@/studio/modes/hooks/useHumanDesign";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
-import { isWide } from "@/studio/dock/dock-layout";
-import { useStudioStore } from "@/studio/store";
+import { useScoped } from "@/studio/scope";
+import { useReadingBeside, useScopedSelection } from "@/studio/scope-figure";
 import "@/studio/modes/styles/hd.css";
 
 const loadTable = () => import("@/studio/tables/hd-table");
@@ -49,18 +49,6 @@ function DesignControls() {
   );
 }
 
-/** Wide screens read beside the chart; on a phone the reading is a sheet over it. */
-function useWide(): boolean {
-  const [wide, setWide] = useState(true);
-  useEffect(() => {
-    const on = () => setWide(isWide());
-    on();
-    window.addEventListener("resize", on);
-    return () => window.removeEventListener("resize", on);
-  }, []);
-  return wide;
-}
-
 /** The bodygraph's entrance (hd.css): the whole build, and the settle of one seen before. */
 const HD_BUILD_MS = 1300;
 /** A build on screen this long counts as seen; cut shorter by a quick switch, it plays whole next time. */
@@ -69,9 +57,11 @@ const HD_SEEN_AFTER_MS = 600;
 function DesignFigure() {
   const { locale, t } = useI18n();
   const w = useWheelView();
-  const wide = useWide();
+  // Wide screens read beside the chart; on a phone the reading is a sheet over it (in Compare, its layout says).
+  const wide = useReadingBeside();
+  const sel = useScopedSelection();
   const hd = useModeData("design");
-  const natal = useStudioStore((s) => s.chart);
+  const natal = useScoped((s) => s.chart);
   // The bodygraph builds itself the first time this chart's is shown in a
   // visit (hd.css, data-build); after that it settles in as one piece
   // (lib/settle.ts).
@@ -140,7 +130,7 @@ function DesignFigure() {
   const select = (id: string) => {
     if (id.startsWith("hello:")) w.pick(id);
     else if (wide) w.choose(id);
-    else useStudioStore.setState((s) => ({ selectedId: s.selectedId === id ? null : id }));
+    else sel.quiet(id);
   };
   return (
     <div
@@ -161,7 +151,7 @@ function DesignFigure() {
         view={hd.view}
         selectedId={w.selectedId}
         onSelect={select}
-        onClear={() => useStudioStore.getState().clear()}
+        onClear={sel.clear}
         moments={moments}
       />
       {wide ? null : <HdCard chart={chart} view={hd.view} />}

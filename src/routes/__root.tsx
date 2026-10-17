@@ -1,6 +1,7 @@
 import { installPressFeedback } from "@/lib/press";
 import { createRootRoute, HeadContent, Outlet, Scripts, useRouter } from "@tanstack/react-router";
 import { AiSurfaceProvider } from "@/lib/ai/use-ai-surface";
+import { AI_ENABLED } from "@/lib/features";
 import { SpaceGate } from "@/components/space/space-gate";
 import { LocaleProvider, LOCALE_BOOT, useDocumentLang, usePathLocale } from "@/lib/i18n/locale";
 import { THEME_BOOT, ThemeProvider } from "@/lib/theme";
@@ -11,7 +12,7 @@ import { bootScript, firstViewScript } from "@/lib/boot";
 import { contentSecurityPolicy, isVercelPreview } from "@/lib/csp";
 import { installErrorReports } from "@/lib/error-report";
 import { installStaleChunkRecovery } from "@/lib/stale-chunks";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import appCss from "../styles.css?url";
 import shellCss from "../shell.css?url";
 import uiFont from "../assets/fonts/FamiljenGrotesk-latin-wght.woff2?url";
@@ -52,6 +53,13 @@ function InlineScript({ code }: { code: string }) {
  * the reader has saved no choice, from the server's <html lang> on
  * (lib/i18n/locale.tsx).
  */
+/**
+ * Your AI's surface (lib/ai/use-ai-surface.ts) only while AI readings are on
+ * (lib/features.ts): off, none of its code is in any page's download
+ * (first-load review, 17 Oct 2026).
+ */
+const AiSurface = AI_ENABLED ? AiSurfaceProvider : Fragment;
+
 function RootDocument() {
   const pathLocale = usePathLocale();
   const lang = useDocumentLang(pathLocale);
@@ -69,11 +77,11 @@ function RootDocument() {
         <ThemeProvider>
           <LookProvider>
             <LocaleProvider pathLocale={pathLocale}>
-              <AiSurfaceProvider>
+              <AiSurface>
                 <Outlet />
                 <SpaceGate />
                 <ClientGuards />
-              </AiSurfaceProvider>
+              </AiSurface>
             </LocaleProvider>
           </LookProvider>
         </ThemeProvider>

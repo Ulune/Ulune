@@ -5,13 +5,16 @@
  * little while and they are not in the middle of something. It stands where
  * the first-run hint stood. An answer is kept for good (Settings → Your data
  * can change it); going on with the chart instead puts the question away
- * until another visit.
+ * until another visit. Here, when to ask; the question itself
+ * (offline-offer-card.tsx) loads when it is asked.
  */
-import { useEffect, useId, useRef, useState } from "react";
-import { useI18n } from "@/lib/i18n/locale";
-import { offlineChoice, offlineSupported, turnOfflineOff, turnOfflineOn } from "@/lib/offline";
-import { toast } from "@/lib/toast";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { lazyNamed } from "@/lib/lazy-component";
+import { offlineChoice, offlineSupported } from "@/lib/offline";
 import { useTour } from "@/lib/tour/state";
+
+/** The question itself, its own small download, fetched when it is asked (first-load review, 17 Oct 2026). */
+const OfflineOfferCard = lazyNamed(() => import("./offline-offer-card"), "OfflineOfferCard");
 
 /** Charts were saved here before this visit (the boot script's flag, read before the studio lifts it). */
 const RETURNING =
@@ -30,10 +33,8 @@ const SETTLE_MS = 6000;
 const QUIET_MS = 3000;
 
 export function OfflineOffer() {
-  const { t } = useI18n();
-  const titleId = useId();
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLElement>(null);
+  const close = useCallback(() => setOpen(false), []);
 
   // Ask once the chart has been up a while and nothing is being done.
   useEffect(() => {
@@ -63,49 +64,10 @@ export function OfflineOffer() {
     };
   }, []);
 
-  // Going on with the chart puts the question away for this visit.
-  useEffect(() => {
-    if (!open) return;
-    const away = (e: PointerEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    window.addEventListener("pointerdown", away, true);
-    return () => window.removeEventListener("pointerdown", away, true);
-  }, [open]);
-
   if (!open) return null;
   return (
-    <section ref={ref} className="ob-offline-offer" aria-labelledby={titleId} data-testid="offline-offer">
-      <p id={titleId} className="ob-offline-title">
-        {t("offlineOfferTitle")}
-      </p>
-      <p className="ob-offline-body">{t("offlineOfferBody")}</p>
-      <div className="ob-offline-actions">
-        <button
-          type="button"
-          className="ob-btn ob-btn--ghost"
-          data-testid="offline-no"
-          onClick={() => {
-            setOpen(false);
-            void turnOfflineOff();
-          }}
-        >
-          {t("offlineOfferNo")}
-        </button>
-        <button
-          type="button"
-          className="ob-btn ob-btn--primary"
-          data-testid="offline-yes"
-          onClick={() => {
-            setOpen(false);
-            void turnOfflineOn().then((ok) => {
-              if (ok) toast(t("offlineOn"));
-            });
-          }}
-        >
-          {t("offlineOfferYes")}
-        </button>
-      </div>
-    </section>
+    <Suspense fallback={null}>
+      <OfflineOfferCard onClose={close} />
+    </Suspense>
   );
 }

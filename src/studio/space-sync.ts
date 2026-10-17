@@ -49,6 +49,17 @@ let writtenPair = "";
 let unsubscribe: (() => void) | null = null;
 let chain: Promise<void> = Promise.resolve();
 let pending = 0;
+/** The space whose charts the studio holds now, once open() has read them and sealed those that joined. */
+let joined: Vault | null = null;
+
+/**
+ * The studio's library is the open space's (a chart shared by a link waits for it before it is
+ * looked for there: lib/share/arrive.ts, through the bridge, so that the /s page's code does not
+ * import this file and pull it out of the studio's first download).
+ */
+function spaceJoined(): boolean {
+  return Boolean(joined?.isOpen) && joined === vault;
+}
 
 function lang(): "en" | "fr" {
   return typeof document !== "undefined" && document.documentElement.lang === "fr" ? "fr" : "en";
@@ -180,6 +191,7 @@ async function open(v: Vault): Promise<void> {
     eraseLegacyData();
     toast(translate(lang(), "spaceLegacyMoved"));
   }
+  joined = v;
   finishLibraryBoot();
 }
 
@@ -211,6 +223,7 @@ function close(): void {
   unsubscribe = null;
   window.clearTimeout(pending);
   vault = null;
+  joined = null;
   written = new Map();
   writtenLibrary = "";
   writtenPair = "";
@@ -255,6 +268,7 @@ const bridge: SpaceBridge = {
   close,
   lockChanged,
   reload,
+  joined: spaceJoined,
 };
 
 /** The studio takes part in the private space from now on (called once, when it mounts). */

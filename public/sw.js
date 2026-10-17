@@ -7,6 +7,8 @@
  * and nothing is sent anywhere.
  *   - /assets/*: the app's code, styles and fonts. Their names change with
  *     their content, so a copy never goes stale: from the device once fetched.
+ *   - The calculations' engine and its ephemeris files (/assets/*.se1, the
+ *     .wasm): kept in the worker's own cache, the same files for everyone.
  *   - The sky's files (/api/sky-window, /api/sky-year): the same for
  *     everyone, asked for by date and version only, never changing for a
  *     given address; kept so the calendar's months open offline.
@@ -16,7 +18,9 @@
  *     network as always (checked with the server, never an older copy from
  *     the browser's cache), and the last copy is kept, so saved charts still
  *     open without a connection. It is the same page for everyone; no other
- *     page (sign-in above all) is ever kept.
+ *     page (sign-in above all) is ever kept. Nor /s, where a share link
+ *     lands: its address carries the chart after "#", and a kept request
+ *     could keep that part with it (share plan, feature 1).
  *   - The encyclopedia's pages (/encyclopedia…, /encyclopedie…): from the
  *     network, the last 60 read kept; without a connection, the page kept,
  *     else the encyclopedia's home of that language, marked as a copy (the
@@ -38,6 +42,13 @@ const ENC_PAGES = "ulune-enc-pages-v1";
 const MAX_ENC_PAGES = 60;
 /** The encyclopedia kept whole, by language, and the files both need. */
 const ENC_KEPT = { en: "ulune-enc-en-v1", fr: "ulune-enc-fr-v1", shared: "ulune-enc-shared-v1" };
+/**
+ * The calculations' engine and its ephemeris files (on-device plan, step 2): the worker keeps
+ * them in this cache itself (src/lib/engine/files-browser.ts) and lets go of those a new deploy
+ * no longer names; fetched through here, they go into it too, never twice, never trimmed.
+ */
+const ENGINE = "ulune-engine-v1";
+const ENGINE_FILE = /^\/assets\/(?:[\w-]+\.se1|swisseph-[\w-]+\.wasm|sefstars-[\w-]+\.txt)$/;
 const ENCYCLOPEDIA = /^\/(?:encyclopedia|encyclopedie)(?:\/[a-z0-9-]+)?\/?$/;
 /** The studio's paths (src/studio/map.ts): the same page, each kept under its own address. */
 const STUDIO = /^\/(?:astrology(?:\/(?:transits|progressions|synastry|composite))?|human-design|numerology(?:\/cycles)?|chinese-astrology(?:\/(?:cycles|pair))?|bazi(?:\/(?:cycles|pair))?|feng-shui(?:\/(?:pair|home))?|calendar|calendrier)?\/?$/;
@@ -49,7 +60,7 @@ self.addEventListener("install", () => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
-      const keep = new Set([FILES, PAGES, SKY, ENC_PAGES, ...Object.values(ENC_KEPT)]);
+      const keep = new Set([FILES, PAGES, SKY, ENC_PAGES, ENGINE, ...Object.values(ENC_KEPT)]);
       for (const key of await caches.keys()) {
         // Legacy names: the caches from before the name Ulune went too.
         if ((key.startsWith("ulune-") || key.startsWith("orbis-")) && !keep.has(key)) await caches.delete(key);
@@ -64,6 +75,10 @@ self.addEventListener("fetch", (event) => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+  if (ENGINE_FILE.test(url.pathname)) {
+    event.respondWith(file(req, event, ENGINE, Infinity));
+    return;
+  }
   if (url.pathname.startsWith("/assets/")) {
     event.respondWith(file(req, event));
     return;

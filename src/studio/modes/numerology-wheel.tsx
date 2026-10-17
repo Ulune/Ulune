@@ -23,6 +23,7 @@ import {
   sectorPath,
 } from "@/lib/chart/numerology-wheel";
 import { announceChartHover, onChartPreview } from "@/lib/depth/preview-bus";
+import { useScopeId } from "@/studio/scope";
 import { prefersReducedMotion } from "@/lib/depth/env";
 import { markSeen, seenBefore } from "@/lib/seen-once";
 import { settleIn } from "@/lib/settle";
@@ -95,9 +96,11 @@ export function NumerologyWheel({
     if (typeof window.matchMedia === "function" && window.matchMedia("(hover: none)").matches)
       setTouch(true);
   }, []);
-  useEffect(() => onChartPreview((id) => setPreview(id && PREVIEWABLE.test(id) ? id : null)), []);
+  // Previews and hovers stay in this wheel's chart scope (studio/scope.tsx: the main page, or a Compare pane).
+  const scopeId = useScopeId();
+  useEffect(() => onChartPreview((id) => setPreview(id && PREVIEWABLE.test(id) ? id : null), scopeId), [scopeId]);
   useEffect(() => () => window.clearTimeout(linger.current), []);
-  useEffect(() => () => announceChartHover(null), []);
+  useEffect(() => () => announceChartHover(null, scopeId), [scopeId]);
 
   const point = (id: string | null, now = false) => {
     window.clearTimeout(linger.current);
@@ -106,7 +109,7 @@ export function NumerologyWheel({
       return;
     }
     setHover(id);
-    announceChartHover(id);
+    announceChartHover(id, scopeId);
   };
 
   const chosen = useMemo(() => numerologyFocus(selectedId, chart), [selectedId, chart]);

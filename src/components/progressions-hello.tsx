@@ -9,6 +9,7 @@ import { numberFormat } from "@/lib/intl-cache";
 import { cn } from "@/lib/utils";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useChartHoverId } from "@/lib/depth/use-chart-hover";
+import { useDomIds, useScopeId } from "@/studio/scope";
 import { PlanetGlyph, SignGlyph } from "./glyphs";
 
 const CELLS: ModeHelloId[] = ["sun", "moon", "ascendant"];
@@ -47,7 +48,10 @@ export function ProgressionsHello({
   onSelect: (id: string) => void;
 }) {
   const { locale, t } = useI18n();
-  const chartHover = useChartHoverId();
+  // In its chart scope: a Compare pane's companions follow that pane's chart (studio/scope.tsx).
+  const scopeId = useScopeId();
+  const chartHover = useChartHoverId(scopeId);
+  const domId = useDomIds();
   const look = useLookShape();
   const years = sky.meta.yearsOfLife;
 
@@ -56,9 +60,9 @@ export function ProgressionsHello({
       data-testid="progressions-hello"
       data-hello-id={NATAL_HELLO.id}
       className="ob-glance"
-      aria-labelledby="ob-prog-glance-h"
+      aria-labelledby={domId("ob-prog-glance-h")}
     >
-      <h2 id="ob-prog-glance-h" className="ob-glance-h">
+      <h2 id={domId("ob-prog-glance-h")} className="ob-glance-h">
         {t("progressedGlanceTitle", {
           n: numberFormat(locale === "fr" ? "fr-FR" : "en-GB", { maximumFractionDigits: 1 }).format(years),
         })}

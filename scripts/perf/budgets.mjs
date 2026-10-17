@@ -7,6 +7,8 @@
 // wheel   node counts and per-node transitions (scripts/perf/wheel/build.mjs first)
 // bundle  what "/" downloads for a returning reader (npm run build, serve.mjs on :9311)
 // scrub   wheel updates per second while the scrubber is dragged (the same served build)
+// engine  the calculations on the device: what a browser downloads (the build's own files) and
+//         the engine's times with the CPU slowed 6× (scripts/perf/engine/timing.mjs)
 // chinese what each Chinese language's pages download after "/", the term table, and the BaZi
 //         and Flying Star engines' time with the CPU slowed 6× (the same served build)
 //
@@ -179,6 +181,16 @@ if (want.has("bundle")) {
   // title); the limit stays 276. (Loading the guide only for
   // first visits saved 4.5 more, but when the page changed it before its code came, React dropped the
   // server's guide until it did.)
+  // 2.0's last features, week 1 (17 Oct 2026): sharing by link and Compare's chart scopes took it to
+  // 274.7, 275.8 when the small chunks landed within the load (the engine's split added nothing; the
+  // scopes 0.6 in the wheel's chunk; the share item, host and mark 0.4, the inbox's store 0.5 and /s
+  // 0.15; and /s's arrival, importing the studio's store and space-sync.ts, split space-sync and
+  // lib/ai/call.ts out of the studio's chunk into chunks of their own, 0.9). The first-load review
+  // brought it back: the private space's IndexedDB store left every page's load (spaceSupported in its
+  // own file, -1.05), the arrival waits through the space's bridge, the share sheet's state joined the
+  // wheel's chunk, which AI is called directly moved to lib/ai/providers.ts, the dormant AI plumbing
+  // went behind AI_ENABLED and the offline offer's card loads when it asks: 272.2, 273.4 when the small
+  // chunks land, as before the week.
   check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 276, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
@@ -300,6 +312,44 @@ if (want.has("chinese")) {
   check("chinese", "a full BaZi chart with luck pillars, CPU 6× slower", timing.x6.bazi.median, 2, "ms");
   check("chinese", "a Flying Star chart, CPU 6× slower", timing.x6.stars.median, 0.3, "ms");
   check("chinese", "the slowdown those timings ran under (a fixed loop)", timing.x6.slowdown, 2.5, "×", "higher");
+}
+
+if (want.has("engine")) {
+  // The calculations on the device (on-device plan, steps 2 and 6), on the build (npm run build):
+  // what a reader's browser downloads the first time a chart is calculated on it — the worker's
+  // script, the engine and the 1800–2399 files — and what an earlier era adds, brotli at quality 11
+  // as an edge sends them (the ephemeris files hardly compress: 86–92 %). The plan's table: about
+  // 2.1 MB the first time, 1.8 MB an era. Then the engine's times in Chromium with the CPU slowed 6×
+  // (a cheap phone), the worker's code on a page's main thread (the protocol slows no worker). The
+  // limits sit a little above the first measures (17 Oct 2026, below), so a regression fails.
+  const { brotliCompressSync, constants } = await import("node:zlib");
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const dir = join(ROOT, ".vercel/output/static/assets");
+  const files = readdirSync(dir);
+  const brKb = (name) => brotliCompressSync(readFileSync(join(dir, name)), { params: { [constants.BROTLI_PARAM_QUALITY]: 11 } }).length / 1024;
+  const named = (re) => files.find((f) => re.test(f)) ?? "";
+  const worker = named(/^engine-worker-[\w-]+\.js$/);
+  const era = (suffix) => ["sepl", "semo", "seas"].map((k) => named(new RegExp(`^${k}${suffix}-[\\w-]+\\.se1$`)));
+  const first = [worker, named(/^swisseph-[\w-]+\.wasm$/), ...era("_18"), named(/^s136199s-[\w-]+\.se1$/), named(/^se90377s-[\w-]+\.se1$/), named(/^sefstars-[\w-]+\.txt$/)];
+  if (first.some((f) => !f) || era("_12").some((f) => !f)) throw new Error("engine: the build has not the engine's files (npm run build)");
+  const sum = (list) => list.reduce((n, f) => n + brKb(f), 0);
+  // The first measures (17 Oct 2026): the worker 91.9 KB (the calculation code, Ulune's tz table, zod,
+  // the engine's glue), the first download 2.07 MB (2,170,609 bytes: the engine 218 KB, the planets 405,
+  // the Moon 1,151, Chiron and the asteroids 199, Eris, Sedna and the stars 60), the era 1200–1799
+  // 1.72 MB. With the CPU slowed 6× (a fixed loop 6.5× slower): the engine from the browser's copy
+  // 118 ms (324 ms the first visit, its files from a local server), a natal chart 32 ms, a Timing year
+  // 2.48 s; unslowed 17 ms, 9.7 ms and 0.40 s. Limits: the sizes a few per cent above, the times
+  // about half again (this machine's timings vary by a third from run to run).
+  const ENGINE_LIMITS = { workerKb: 100, firstMb: 2.2, eraMb: 1.8, startMs: 200, natalMs: 50, yearMs: 3700 };
+  check("engine", "the worker's script", brKb(worker), ENGINE_LIMITS.workerKb, "KB br");
+  check("engine", "first download: worker, engine, 1800–2399 files", sum(first) / 1024, ENGINE_LIMITS.firstMb, "MB br");
+  check("engine", "an earlier era (1200–1799)", sum(era("_12")) / 1024, ENGINE_LIMITS.eraMb, "MB br");
+  const timing = jsonOf(nodeTs([join(ROOT, "scripts/perf/engine/timing.mjs"), "--json"]));
+  const x6 = timing.x6;
+  check("engine", "engine start from the browser's copy, CPU 6× slower", x6.keptStart, ENGINE_LIMITS.startMs, "ms");
+  check("engine", "a natal chart, CPU 6× slower", x6.natal.median, ENGINE_LIMITS.natalMs, "ms");
+  check("engine", "a Timing year, CPU 6× slower", x6.timingYear.median, ENGINE_LIMITS.yearMs, "ms");
+  check("engine", "the slowdown those timings ran under (a fixed loop)", x6.slowdown, 3.5, "×", "higher");
 }
 
 let failed = 0;

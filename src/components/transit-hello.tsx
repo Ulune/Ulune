@@ -9,6 +9,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { cn, formatArc } from "@/lib/utils";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useChartHoverId } from "@/lib/depth/use-chart-hover";
+import { useDomIds, useScopeId } from "@/studio/scope";
 import { PlanetGlyph } from "./glyphs";
 
 /**
@@ -28,7 +29,10 @@ export function TransitHello({
   onSelect: (id: string) => void;
 }) {
   const { locale, t } = useI18n();
-  const chartHover = useChartHoverId();
+  // In its chart scope: a Compare pane's companions follow that pane's chart (studio/scope.tsx).
+  const scopeId = useScopeId();
+  const chartHover = useChartHoverId(scopeId);
+  const domId = useDomIds();
   const look = useLookShape();
   const hits = tightestApplyingMajors(sky.aspects, 3);
 
@@ -37,9 +41,9 @@ export function TransitHello({
       data-testid="transits-hello"
       data-hello-id={TRANSITS_HELLO.id}
       className="ob-glance"
-      aria-labelledby="ob-transit-glance-h"
+      aria-labelledby={domId("ob-transit-glance-h")}
     >
-      <h2 id="ob-transit-glance-h" className="ob-glance-h">
+      <h2 id={domId("ob-transit-glance-h")} className="ob-glance-h">
         {t("transitGlanceTitle")}
       </h2>
       {hits.length === 0 ? (

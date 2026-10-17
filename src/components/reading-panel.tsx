@@ -44,7 +44,7 @@ export function ReadingPanel({
   if (!reading) {
     return (
       <div data-reading-depth={depth}>
-        <AiReadingFocus chart={chart} reading={null} />
+        {AI_ENABLED ? <AiReadingFocus chart={chart} reading={null} /> : null}
         <p className="max-w-[61.8ch] text-base leading-[var(--leading-phi)] text-fg-muted">{t("clickHint")}</p>
         {grokPending && (
           <p className="mt-4 text-xs tracking-wide text-fg-subtle uppercase">
@@ -57,7 +57,8 @@ export function ReadingPanel({
 
   return (
     <div data-reading-depth={cardDepth}>
-      <AiReadingFocus chart={chart} reading={reading} />
+      {/* What Your AI reads about, while AI readings are on (lib/features.ts): off, none of it is downloaded. */}
+      {AI_ENABLED ? <AiReadingFocus chart={chart} reading={reading} /> : null}
       <ReadingCard
         reading={reading}
         chart={chart}

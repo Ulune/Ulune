@@ -4,21 +4,24 @@ import { usePack } from "@/lib/content/packs";
 import { useI18n } from "@/lib/i18n/locale";
 import { useNumerologyFirstPending } from "@/studio/numerology-first";
 import { useNumerologyYear } from "@/studio/numerology-year";
+import { useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 
 /**
  * Numerology's data for one of its pages: the numbers wheel (`numerology`,
  * always this year) or its Cycles (`numerology-cycles`, the year the toolbar's
- * steps are on; page reorganisation, numerology's Cycles lens).
+ * steps are on; page reorganisation, numerology's Cycles lens), for the
+ * chart and names of the scope around the caller (studio/scope.tsx). The
+ * year stepped to is shared by every scope, as the other pages' time is.
  */
 export function useNumerology(target: "numerology" | "numerology-cycles" = "numerology") {
   const { locale } = useI18n();
-  const chart = useStudioStore((s) => s.chart);
-  const name = useStudioStore((s) => s.input.name);
-  const birthName = useStudioStore((s) => s.input.birthName);
-  const currentName = useStudioStore((s) => s.input.currentName);
-  const numerologyY = useStudioStore((s) => s.input.numerologyY);
-  const selectedId = useStudioStore((s) => s.selectedId);
+  const chart = useScoped((s) => s.chart);
+  const name = useScoped((s) => s.input.name);
+  const birthName = useScoped((s) => s.input.birthName);
+  const currentName = useScoped((s) => s.input.currentName);
+  const numerologyY = useScoped((s) => s.input.numerologyY);
+  const selectedId = useScoped((s) => s.selectedId);
   const page = useStudioStore((s) => s.page);
   const stepped = useNumerologyYear();
   const cycles = target === "numerology-cycles";

@@ -16,6 +16,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useChartHoverId } from "@/lib/depth/use-chart-hover";
+import { useDomIds, useScopeId } from "@/studio/scope";
 
 type StepId = "type" | "strategy" | "authority" | "profile" | "definition";
 const STEPS: readonly StepId[] = ["type", "strategy", "authority", "profile", "definition"];
@@ -37,7 +38,10 @@ export function HumanDesignHello({
   onSelect: (id: string) => void;
 }) {
   const { locale } = useI18n();
-  const chartHover = useChartHoverId();
+  // In its chart scope: a Compare pane's companions follow that pane's chart (studio/scope.tsx).
+  const scopeId = useScopeId();
+  const chartHover = useChartHoverId(scopeId);
+  const domId = useDomIds();
   const pack = usePack("hd", locale, true);
   const read = pack ? pack.hdFirstRead(chart, locale) : null;
   const cells = hdHelloCells(locale);
@@ -58,8 +62,8 @@ export function HumanDesignHello({
   };
 
   return (
-    <section data-testid="hd-hello" data-hello-id={HD_HELLO.id} className="ulune-hd-first" aria-labelledby="ulune-hd-first-title">
-      <h3 id="ulune-hd-first-title" className="ulune-kicker ulune-hd-first-title">
+    <section data-testid="hd-hello" data-hello-id={HD_HELLO.id} className="ulune-hd-first" aria-labelledby={domId("ulune-hd-first-title")}>
+      <h3 id={domId("ulune-hd-first-title")} className="ulune-kicker ulune-hd-first-title">
         {hdGraphText(locale, "firstTitle")}
       </h3>
       <ol className="ulune-hd-steps">

@@ -151,6 +151,34 @@ async function libraryNames(page) {
   return names;
 }
 
+/**
+ * Waits until the space holds `n` charts, sealed: a cast's record is written a moment after it
+ * (studio/space-sync.ts batches the writes), and a reload before that would lose the newest one
+ * (the "charts after a reload" flake of 17 Oct 2026, on a loaded machine).
+ */
+async function spaceHoldsCharts(page, n, timeout = 15000) {
+  await page.waitForFunction(
+    async (want) => {
+      const db = await new Promise((resolve) => {
+        const r = indexedDB.open("ulune-space");
+        r.onupgradeneeded = () => r.transaction.abort();
+        r.onsuccess = () => resolve(r.result);
+        r.onerror = () => resolve(null);
+      });
+      if (!db) return false;
+      const keys = await new Promise((resolve) => {
+        const q = db.transaction("items").objectStore("items").getAllKeys();
+        q.onsuccess = () => resolve(q.result);
+        q.onerror = () => resolve([]);
+      });
+      db.close();
+      return keys.filter((k) => String(k).startsWith("chart/")).length >= want;
+    },
+    n,
+    { timeout, polling: 200 },
+  );
+}
+
 async function aiConnected(page) {
   // AI readings wait for v1.1 (src/lib/features.ts): no key can be there.
   if (!AI_ON) return (await page.getByTestId("ai-accounts").count()) > 0;
@@ -285,7 +313,8 @@ async function run() {
       if (dump.local["ulune.space"] !== "stay") throw new Error(`flag ${dump.local["ulune.space"]}`);
       console.log("signed in: the chart cast before joined, nothing readable stored");
 
-      // It stays signed in: a reload opens it by itself, with both charts.
+      // It stays signed in: a reload opens it by itself, with both charts (both sealed first).
+      await spaceHoldsCharts(page, 2);
       await page.reload({ waitUntil: "load" });
       await page.getByTestId("studio-natal").waitFor({ timeout: 30000 });
       if (await page.getByTestId("space-sheet").count()) throw new Error("asked to unlock a space that stays signed in");

@@ -20,6 +20,7 @@ import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { WheelPort } from "@/studio/stage/WheelPort";
 import { TimeDial } from "@/studio/modes/time-dial";
+import { useDomIds, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import { useClockZone } from "@/studio/modes/hooks/useClockZone";
 import "@/studio/modes/styles/transits.css";
@@ -36,8 +37,10 @@ export type TransitsState = ReturnType<typeof useTransitSky>;
 /** The fields to type a moment in, opened from the dial's readout (UI plan, part 94). */
 function TransitPicker() {
   const { locale, t } = useI18n();
+  // The moment is shared by every scope (one date for both of Compare's panes); the fields are each pane's own.
   const at = useStudioStore((s) => s.time.at);
   const pin = useStudioStore((s) => s.pin);
+  const domId = useDomIds();
   // In the Calendar's clock, said under the fields (review 3 Oct, T4).
   const clock = useClockZone(at);
   const date = euroFromMs(at, clock.tz);
@@ -57,7 +60,7 @@ function TransitPicker() {
       <label className="ulune-transit-clock-field">
         <span className="ulune-time-picker-label">{transitClockLabel(locale, "date")}</span>
         <BirthDateField
-          id="transit-date"
+          id={domId("transit-date")}
           name="transit-date"
           testId="transit-date"
           value={date}
@@ -71,7 +74,7 @@ function TransitPicker() {
       <label className="ulune-transit-clock-field">
         <span className="ulune-time-picker-label">{transitClockLabel(locale, "time")}</span>
         <MaskedInput
-          id="transit-time"
+          id={domId("transit-time")}
           data-testid="transit-time"
           type="text"
           inputMode="numeric"
@@ -192,8 +195,8 @@ function TransitsData() {
 function useTransitsRuntime(): ModeRuntime<TransitsState> {
   const { locale } = useI18n();
   const transits = useTransitSky();
-  const selectedId = useStudioStore((s) => s.selectedId);
-  const natal = useStudioStore((s) => s.dossier);
+  const selectedId = useScoped((s) => s.selectedId);
+  const natal = useScoped((s) => s.dossier);
   const astro = usePack("astro", locale, transits.enabled);
   const selected =
     selectedId && transits.enabled

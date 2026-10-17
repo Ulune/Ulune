@@ -19,6 +19,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { cn, formatArc } from "@/lib/utils";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useChartHoverId } from "@/lib/depth/use-chart-hover";
+import { useDomIds, useScopeId } from "@/studio/scope";
 import { PlanetGlyph, SignGlyph } from "./glyphs";
 
 const SELECT_ID: Record<HelloCellId, string> = {
@@ -64,7 +65,10 @@ export function NatalGlance({
   onSelect: (id: string) => void;
 }) {
   const { locale, t } = useI18n();
-  const chartHover = useChartHoverId();
+  // In its chart scope: a Compare pane's companions follow that pane's chart (studio/scope.tsx).
+  const scopeId = useScopeId();
+  const chartHover = useChartHoverId(scopeId);
+  const domId = useDomIds();
   const look = useLookShape();
   const sun = chart.planets.find((p) => p.id === "sun");
   const moon = chart.planets.find((p) => p.id === "moon");
@@ -155,9 +159,9 @@ export function NatalGlance({
       data-hello-id={NATAL_HELLO.id}
       data-ascendant={asc ? `${asc.formatted} ${signName(asc.sign, locale)}` : undefined}
       className="ob-glance"
-      aria-labelledby="ob-glance-h"
+      aria-labelledby={domId("ob-glance-h")}
     >
-      <h2 id="ob-glance-h" className="ob-glance-h">
+      <h2 id={domId("ob-glance-h")} className="ob-glance-h">
         {t("glanceTitle")}
       </h2>
       <div className="ob-glance-three ulune-hello">

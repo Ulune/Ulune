@@ -24,6 +24,8 @@ export type SavedChart = {
   grok: GrokReading | null;
   timeUnknown: boolean;
   savedAt: number;
+  /** Shared with the reader by a link (share plan, feature 1), when: "Shared with you" in the switcher until they open it. */
+  sharedAt?: number;
 };
 
 /** Fresh instance per row so no two charts share (and can cross-pollute) one dossier object. */
@@ -74,11 +76,13 @@ export function toStoredRow(row: SavedChart): StoredRow {
     grok: row.grok,
     timeUnknown: row.timeUnknown,
     savedAt: row.savedAt,
+    ...(row.sharedAt ? { sharedAt: row.sharedAt } : {}),
   };
 }
 
 export function fromStoredRow(row: StoredRow): SavedChart | null {
   if (!row || !row.id || !row.input || !row.chart) return null;
+  // A shared chart's mark (sharedAt) comes back with the rest.
   return { ...row, chart: fullChart(row.chart), dossier: emptyDossier(), grok: row.grok ?? null, timeUnknown: Boolean(row.timeUnknown) };
 }
 

@@ -17,6 +17,7 @@ import { preloadView3D } from "./depth/load-view3d";
 import { whenIdle } from "@/lib/lazy-component";
 import { useAspectSlot, useMoreSlots, useZoomSlot } from "@/studio/stage/stage-slots";
 import { keepPart, keptPart } from "@/studio/return-parts";
+import { useScopeKey, useScopeId } from "@/studio/scope";
 
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 2.5;
@@ -133,8 +134,10 @@ function fitBox(port: HTMLElement): Box {
   if (doc.scrollWidth <= doc.clientWidth + 1) box.r = Math.min(box.r, doc.clientWidth);
   if (doc.scrollHeight <= doc.clientHeight + 1) box.b = Math.min(box.b, doc.clientHeight);
   const clipped = { ...box };
+  // The chrome of this wheel's own stage (two stages side by side in Compare each crop their own).
+  const stage = port.closest(".ob-stage") ?? document;
   for (const sel of CHROME) {
-    for (const el of document.querySelectorAll(sel)) {
+    for (const el of stage.querySelectorAll(sel)) {
       if (el.contains(port)) continue;
       box = cropAway(box, rectBox(el));
     }
@@ -246,18 +249,22 @@ export function WheelZoom({
   const zoomSlot = useZoomSlot();
   const more = useMoreSlots();
   const depth = useDepthPrefs();
+  /** A Compare pane's wheel (studio/scope.tsx): drawn flat, its zoom kept as its own. */
+  const main = useScopeId() === "main";
   /**
    * The 3D view needs WebGL: checked once the page is idle (the server cannot
    * know, and the probe costs a context); the button shows meanwhile.
    */
-  const [can3d, setCan3d] = useState(true);
-  useEffect(() => whenIdle(() => setCan3d(supportsWebGL()), 3000), []);
+  const [webgl, setWebgl] = useState(true);
+  useEffect(() => whenIdle(() => setWebgl(supportsWebGL()), 3000), []);
+  const can3d = webgl && main;
   // Back from a page outside the studio, the wheel as it was zoomed and moved (R6).
-  const [kept] = useState(() => keptPart<{ zoom: number; pan: Pt }>("wheel-zoom"));
+  const keepKey = useScopeKey("wheel-zoom");
+  const [kept] = useState(() => keptPart<{ zoom: number; pan: Pt }>(keepKey));
   const [zoom, setZoom] = useState(kept?.zoom ?? ZOOM_MIN);
   const zoomRef = useRef(kept?.zoom ?? ZOOM_MIN);
   const panRef = useRef<Pt>(kept?.pan ?? { x: 0, y: 0 });
-  useLayoutEffect(() => () => keepPart("wheel-zoom", { zoom: zoomRef.current, pan: panRef.current }), []);
+  useLayoutEffect(() => () => keepPart(keepKey, { zoom: zoomRef.current, pan: panRef.current }), [keepKey]);
   const innerRef = useRef<HTMLDivElement>(null);
   const portRef = useRef<HTMLDivElement>(null);
   const pointers = useRef(new Map<number, Pt>());

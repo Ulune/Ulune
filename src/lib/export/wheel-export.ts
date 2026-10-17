@@ -28,7 +28,12 @@ const PAINT_PROPS = [
   "vector-effect",
 ] as const;
 
-export function findFigureSvg(root: ParentNode = document): SVGSVGElement | null {
+/** The main page's stage (a Compare pane's figure is not the one the toolbar's Export saves), else the page. */
+function mainStage(): ParentNode {
+  return document.querySelector(".ob-body > .ob-stage") ?? document;
+}
+
+export function findFigureSvg(root: ParentNode = mainStage()): SVGSVGElement | null {
   return (
     root.querySelector<SVGSVGElement>(".ob-figure svg.ulune-wheel:not([data-depth-plane], .ulune-wheel-ghost)") ??
     root.querySelector<SVGSVGElement>(".ob-figure svg.ulune-hd-svg:not([data-depth-plane])") ??

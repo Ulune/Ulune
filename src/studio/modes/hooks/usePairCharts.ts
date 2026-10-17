@@ -6,19 +6,25 @@ import type { NatalChart } from "@/lib/chart/types";
 import { buildSynastry, partnerBodies } from "@/lib/chart/synastry";
 import { usePack } from "@/lib/content/packs";
 import { useI18n } from "@/lib/i18n/locale";
+import { useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 
+/**
+ * Synastry's and the composite's two people: A the chart of the scope around
+ * the caller (studio/scope.tsx: the chart shown, or a Compare pane's), B that
+ * scope's partner; the library of saved charts is the studio's.
+ */
 export function usePairCharts(mode: "synastry" | "composite", enabled = true) {
   const { locale } = useI18n();
   const rows = useStudioStore((s) => s.rows);
-  const activeId = useStudioStore((s) => s.activeId);
-  const chartA = useStudioStore((s) => s.chart);
-  const partnerId = useStudioStore((s) =>
+  const activeId = useScoped((s) => s.activeId);
+  const chartA = useScoped((s) => s.chart);
+  const partnerId = useScoped((s) =>
     mode === "synastry" ? s.pair.partnerId : s.pair.compositePartnerId,
   );
-  const setPartner = useStudioStore((s) => s.setPartner);
-  const applySaved = useStudioStore((s) => s.applySaved);
-  const beginAddPartner = useStudioStore((s) => s.beginAddPartner);
+  const setPartner = useScoped((s) => s.setPartner);
+  const applySaved = useScoped((s) => s.applySaved);
+  const beginAddPartner = useScoped((s) => s.beginAddPartner);
 
   const ids = useMemo(() => rows.map((row) => row.id), [rows]);
   const aId = activeId && ids.includes(activeId) ? activeId : (ids[0] ?? null);
@@ -50,7 +56,7 @@ export function usePairCharts(mode: "synastry" | "composite", enabled = true) {
     () => (enabled && mode === "synastry" && inner && chartB ? buildSynastry(inner, chartB) : null),
     [enabled, mode, inner, chartB],
   );
-  const kind = useStudioStore((s) => s.pair.compositeKind);
+  const kind = useScoped((s) => s.pair.compositeKind);
   const midpoints = useMemo(
     () => (enabled && mode === "composite" && kind === "composite" && inner && chartB ? buildComposite(inner, chartB) : null),
     [enabled, mode, kind, inner, chartB],

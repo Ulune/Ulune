@@ -841,7 +841,7 @@ async function answer<T>(fn: (() => Promise<T>) | undefined): Promise<T | string
 async function spaceSuite({ step }: Ctx) {
   await step("space: what this browser offers", async () => {
     const [{ spaceSupported }, { passkeysPossible, passkeyPrfLikely }] = await Promise.all([
-      import("@/lib/space/store"),
+      import("@/lib/space/supported"),
       import("@/lib/space/passkey-support"),
     ]);
     const pkc = (typeof PublicKeyCredential === "undefined" ? null : PublicKeyCredential) as unknown as PasskeyApi | null;

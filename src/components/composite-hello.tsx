@@ -9,6 +9,7 @@ import { usePack } from "@/lib/content/packs";
 import { cn } from "@/lib/utils";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useChartHoverId } from "@/lib/depth/use-chart-hover";
+import { useDomIds, useScopeId } from "@/studio/scope";
 import { PlanetGlyph, SignGlyph } from "./glyphs";
 
 const CELLS: ModeHelloId[] = ["sun", "moon", "ascendant"];
@@ -44,7 +45,10 @@ export function CompositeHello({
   onSelect: (id: string) => void;
 }) {
   const { locale, t } = useI18n();
-  const chartHover = useChartHoverId();
+  // In its chart scope: a Compare pane's companions follow that pane's chart (studio/scope.tsx).
+  const scopeId = useScopeId();
+  const chartHover = useChartHoverId(scopeId);
+  const domId = useDomIds();
   const look = useLookShape();
   const astro = usePack("astro", locale);
 
@@ -53,9 +57,9 @@ export function CompositeHello({
       data-testid="composite-hello"
       data-hello-id={NATAL_HELLO.id}
       className="ob-glance"
-      aria-labelledby="ob-comp-glance-h"
+      aria-labelledby={domId("ob-comp-glance-h")}
     >
-      <h2 id="ob-comp-glance-h" className="ob-glance-h">
+      <h2 id={domId("ob-comp-glance-h")} className="ob-glance-h">
         {t("compositeGlanceTitle")}
       </h2>
       <div className="ob-glance-three ulune-hello">

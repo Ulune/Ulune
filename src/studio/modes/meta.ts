@@ -19,6 +19,12 @@ export type ModeMeta = {
   emptyTestId?: string;
   /** Its figure is not one drawing (the Calendar's days, numerology's cycles): no picture to export. */
   noPicture?: boolean;
+  /**
+   * Drawn in the main chart scope only, never in a Compare pane (share and compare plan,
+   * feature 2; studio/scope.tsx): the Calendar is not one person's chart, Feng Shui's Home
+   * is a home on this device (comparing two homes is idea B6, later).
+   */
+  mainOnly?: boolean;
 };
 
 export const MODE_META: Record<StudioPage, ModeMeta> = {
@@ -42,6 +48,7 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
     stageTestId: "studio-timing",
     emptyTestId: "studio-timing-empty",
     noPicture: true,
+    mainOnly: true,
   },
   progressions: {
     id: "progressions",
@@ -151,6 +158,7 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
     needsChart: false,
     stageTestId: "studio-fengshui-home",
     emptyTestId: "studio-fengshui-home-empty",
+    mainOnly: true,
   },
 };
 

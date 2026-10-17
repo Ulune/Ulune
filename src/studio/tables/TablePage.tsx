@@ -13,6 +13,7 @@ import { downloadText } from "@/lib/download-text";
 import { copyTextAndTable, encodeCsv, htmlTable, parseCsv } from "@/lib/csv";
 import { activePartIndex, barScrollFor, isAtEnd, scrollTargetFor } from "@/studio/tables/table-spy";
 import { keepPart, keptPart, scrollBack } from "@/studio/return-parts";
+import { useDomIds, useScopeKey } from "@/studio/scope";
 import "@/studio/modes/styles/tables.css";
 
 export type TablePart = {
@@ -34,11 +35,8 @@ export type TablePart = {
   children: ReactNode;
 };
 
-/** The part last read in each table, for this visit only: kept in memory, never stored. */
+/** The part last read in each table (and chart scope), for this visit only: kept in memory, never stored. */
 const lastRead = new Map<string, string>();
-
-const partDomId = (id: string) => `table-part-${id}`;
-const headDomId = (id: string) => `table-part-${id}-h`;
 
 /** The nearest ancestor that scrolls (the stage's figure), else the page. */
 function scrollerOf(el: HTMLElement | null): HTMLElement | null {
@@ -86,6 +84,12 @@ export function TablePage({
 }) {
   const root = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLElement>(null);
+  // The parts' element ids and what the table keeps, its chart scope's own (studio/scope.tsx:
+  // the main page's as before, a Compare pane's with its letter).
+  const domId = useDomIds();
+  const partDomId = useCallback((id: string) => domId(`table-part-${id}`), [domId]);
+  const headDomId = (id: string) => domId(`table-part-${id}-h`);
+  const memo = useScopeKey(name);
   // In the studio the links stand in the stage's toolbar and Copy / CSV in its
   // Export menu (UI plan, part 97); elsewhere the page keeps its own bar.
   const tabsSlot = useTableTabsSlot();
@@ -96,7 +100,7 @@ export function TablePage({
   useOverflowFade(list);
   const ids = parts.map((p) => p.id).join("|");
   const [active, setActive] = useState(() => {
-    const last = lastRead.get(name) ?? startAt;
+    const last = lastRead.get(memo) ?? startAt;
     return last && parts.some((p) => p.id === last) ? last : (parts[0]?.id ?? "");
   });
   // barH: the bar's height; gliding: a link's scroll is under way; pinned: the
@@ -108,10 +112,10 @@ export function TablePage({
 
   const mark = useCallback(
     (id: string) => {
-      lastRead.set(name, id);
+      lastRead.set(memo, id);
       setActive((prev) => (prev === id ? prev : id));
     },
-    [name],
+    [memo],
   );
 
   // The bar's height sets where a heading lands and where column headers pin.
@@ -168,7 +172,7 @@ export function TablePage({
     target.addEventListener("scrollend", endGlide);
     // Back from a page outside the studio, the table exactly where it was (R6).
     const k = kept.current;
-    const exact = keptPart<number>(`table:${name}`);
+    const exact = keptPart<number>(`table:${memo}`);
     let stopExact: (() => void) | null = null;
     if (exact && scroller !== document.scrollingElement) {
       k.pending = exact;
@@ -178,7 +182,7 @@ export function TablePage({
     }
     // The part last read comes back with the table (after the stage has
     // put its scroll back to the top).
-    const want = lastRead.get(name) ?? startAt;
+    const want = lastRead.get(memo) ?? startAt;
     let restore = 0;
     if (stopExact) {
       s.frame = requestAnimationFrame(compute);
@@ -208,7 +212,7 @@ export function TablePage({
       window.clearTimeout(s.endTimer);
       s.gliding = false;
     };
-  }, [ids, name, mark, startAt]);
+  }, [ids, memo, mark, startAt, partDomId]);
 
   // Where the table was scrolled, kept as it goes (read before the page is taken
   // down; a position still on its way back is the one kept).
@@ -216,9 +220,9 @@ export function TablePage({
     const scroller = scrollerOf(root.current);
     const k = kept.current;
     return () => {
-      if (scroller && scroller !== document.scrollingElement) keepPart(`table:${name}`, k.pending ?? scroller.scrollTop);
+      if (scroller && scroller !== document.scrollingElement) keepPart(`table:${memo}`, k.pending ?? scroller.scrollTop);
     };
-  }, [name]);
+  }, [memo]);
 
   // On a narrow bar, slide it sideways to keep the marked link in view.
   useEffect(() => {
@@ -327,7 +331,8 @@ export function TablePage({
 export function PartAbout({ id, label, children }: { id: string; label: string; children: ReactNode }) {
   const { locale } = useI18n();
   const [open, setOpen] = useState(false);
-  const box = `table-part-${id}-about`;
+  const domId = useDomIds();
+  const box = domId(`table-part-${id}-about`);
   return (
     <>
       <button

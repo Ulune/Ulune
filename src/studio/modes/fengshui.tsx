@@ -22,6 +22,7 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
+import { useDomIds, useScopeKey, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/first-read.css";
@@ -72,6 +73,7 @@ function Rose({ fs, both }: { fs: FengShui; both: boolean }) {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const w = useWheelView();
+  const domId = useDomIds();
   const ring = useRef<SVGGElement>(null);
   const turn = prefs.compass === "south" ? 180 : 0;
   const chosen = DIRECTION_IDS.find((d) => w.selectedId === fsDirRef(fs.count, d));
@@ -94,7 +96,7 @@ function Rose({ fs, both }: { fs: FengShui; both: boolean }) {
     e.preventDefault();
     ring.current?.querySelector<SVGGElement>(`[data-dir="${DIRECTION_IDS[next]}"]`)?.focus();
   };
-  const hatch = `ulune-fs-hatch-${fs.count}`;
+  const hatch = domId(`ulune-fs-hatch-${fs.count}`);
   const label = `${cnWord(locale, "fsRose")}${both ? ` · ${countLabel(fs.count, locale)}` : ""} · ${cnWord(locale, "fsKuaN", { n: fs.kua })}`;
   const kuaRef = fsKuaRef(fs.count);
   return (
@@ -165,7 +167,8 @@ function DirList({ fs, good }: { fs: FengShui; good: boolean }) {
   const prefs = useChinesePrefs();
   const w = useWheelView();
   const ids = MANSION_IDS.filter((m) => MANSIONS[m].supportive === good);
-  const h = `fs-${fs.count}-${good ? "good" : "hard"}-h`;
+  const domId = useDomIds();
+  const h = domId(`fs-${fs.count}-${good ? "good" : "hard"}-h`);
   return (
     <section className={cn("ulune-fs-list", good ? "is-good" : "is-hard")} aria-labelledby={h}>
       <h3 id={h} className="ulune-fs-h">
@@ -249,7 +252,7 @@ function FengShuiFigure() {
   const data = useModeData("fengshui");
   // Its own scroll comes back where it was when the studio does (reorganisation R6; part 28).
   const scroller = useRef<HTMLDivElement>(null);
-  useKeptScroll(scroller, "fengshui-scroll", Boolean(data?.list.length));
+  useKeptScroll(scroller, useScopeKey("fengshui-scroll"), Boolean(data?.list.length));
   if (!data?.list.length) return null;
   const both = data.list.length > 1;
   return (
@@ -281,6 +284,7 @@ function FengShuiHello() {
   const w = useWheelView();
   const data = useModeData("fengshui");
   const notes = useMethodNotes("fengshui", w.chart);
+  const domId = useDomIds();
   if (!data?.list.length) return null;
   const both = data.list.length > 1;
   type Step = { id: string; ref: string; label: string; value: string; text: string };
@@ -295,9 +299,9 @@ function FengShuiHello() {
     ];
   });
   return (
-    <section className="ulune-hd-first ulune-fs-first" data-testid="fengshui-hello" aria-labelledby="ulune-fs-first-title">
+    <section className="ulune-hd-first ulune-fs-first" data-testid="fengshui-hello" aria-labelledby={domId("ulune-fs-first-title")}>
       <MethodNotes notes={notes} />
-      <h3 id="ulune-fs-first-title" className="ulune-kicker ulune-hd-first-title">
+      <h3 id={domId("ulune-fs-first-title")} className="ulune-kicker ulune-hd-first-title">
         {cnWord(locale, "fsFirstTitle")}
       </h3>
       <p className="ulune-zk-hello-p">{cnWord(locale, "fsLead")}</p>
@@ -355,10 +359,10 @@ function FengShuiData() {
 function useFengShuiRuntime(): ModeRuntime<FengShuiState> {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
-  const chart = useStudioStore((s) => s.chart);
+  const chart = useScoped((s) => s.chart);
   const page = useStudioStore((s) => s.page);
-  const selectedId = useStudioStore((s) => s.selectedId);
-  const count = useStudioStore((s) => s.input.chineseCount);
+  const selectedId = useScoped((s) => s.selectedId);
+  const count = useScoped((s) => s.input.chineseCount);
   const enabled = page === "fengshui" && Boolean(chart);
   const list = useMemo(() => {
     if (!enabled || !chart) return [];
