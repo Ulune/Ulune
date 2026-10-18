@@ -11,7 +11,8 @@
  *     size for a moment (✕ or Escape, the focus back on the label);
  *   - on every page Compare shows (astrology's Natal, Transits and
  *     Progressions; Human Design; numerology and its Cycles; Chinese
- *     astrology and its Cycles; BaZi and its Cycles; Feng Shui's Kua): both
+ *     astrology and its Cycles; BaZi and its Cycles; Feng Shui's Kua and
+ *     its Cycles): both
  *     panes draw, each its own person's data; a choice in A chooses the same
  *     in B (linked selection), the reading for two shows both, a chart
  *     lacking the element says so; with linked selection off a choice is its
@@ -47,6 +48,8 @@ const PAGES = [
   { id: "bazi", ready: "[data-testid=bazi-stem-day]", press: "[data-testid=bazi-stem-day]", want: "bz:stem:day", shared: true, merged: "bazi-merged-day" },
   { id: "bazi-luck", ready: "[data-testid=bazi-flow-year]", press: "[data-testid=bazi-flow-year]" },
   { id: "fengshui", ready: "[data-testid^=fengshui-kua-]", press: "[data-testid^=fengshui-kua-]", shared: true, keys: "[data-dir][tabindex='0']" },
+  // Feng Shui's Cycles (feature 5d): the year in practice, each in their own count; what they share, the directions both rest.
+  { id: "fengshui-cycles", ready: "[data-testid^=fengshui-cycles-you-]", press: "[data-testid^=fengshui-cycles-you-]", want: "fsc:yang:you", shared: true },
 ];
 
 const RUNS = [

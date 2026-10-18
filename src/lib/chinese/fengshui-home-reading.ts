@@ -17,7 +17,7 @@ import { BRANCHES, PHASES, STEMS, type PhaseId } from "./names";
 import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord } from "./words";
 import { MANSIONS, TRIGRAMS, type FengShui, type FsCount } from "./fengshui";
-import { MOUNTAINS, houseMatch, mountainById, norm360, periodOf, type Home, type Mountain, type MountainId, type PeriodId } from "./fengshui-home";
+import { MOUNTAINS, houseMatch, mountainById, mountainCode, norm360, periodOf, type Home, type Mountain, type MountainId, type PeriodId } from "./fengshui-home";
 import { flyingChart } from "./fengshui-stars";
 import { starsReading, type ChartVariant, type FsReadingTexts, type HomeStars } from "./fengshui-stars-reading";
 import { yearsReading } from "./fengshui-years-reading";
@@ -83,11 +83,8 @@ export function fmtDecl(d: number, locale: string): string {
   return cnWord(locale, d >= 0 ? "fshEast" : "fshWest", { n: fmtDeg(Math.abs(d), locale) });
 }
 
-/** "S2", "NO1": a mountain's short code. */
-export function mountainCode(m: Mountain, locale: string): string {
-  const short = { n: "N", ne: "NE", e: "E", se: "SE", s: "S", sw: locale === "fr" ? "SO" : "SW", w: locale === "fr" ? "O" : "W", nw: locale === "fr" ? "NO" : "NW" }[m.direction];
-  return `${short}${m.place}`;
-}
+/** "S2", "NO1": a mountain's short code (fengshui-home.ts, said here too). */
+export { mountainCode };
 
 /** The phase a mountain carries: its stem's, its branch's or its trigram's. */
 export function mountainPhase(m: Mountain): PhaseId {

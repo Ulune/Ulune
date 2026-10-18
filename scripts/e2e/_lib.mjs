@@ -261,8 +261,10 @@ export const PAGE_PLACE = {
   synastry: ["astrology", "relationship"],
   composite: ["astrology", "relationship"],
   design: ["human-design", "natal"],
+  "design-pair": ["human-design", "relationship"],
   numerology: ["numerology", "natal"],
   "numerology-cycles": ["numerology", "cycles"],
+  "numerology-pair": ["numerology", "relationship"],
   zodiac: ["chinese-astrology", "natal"],
   "zodiac-years": ["chinese-astrology", "cycles"],
   "zodiac-pair": ["chinese-astrology", "relationship"],
@@ -272,6 +274,7 @@ export const PAGE_PLACE = {
   fengshui: ["feng-shui", "natal"],
   "fengshui-pair": ["feng-shui", "relationship"],
   "fengshui-home": ["feng-shui", "home"],
+  "fengshui-cycles": ["feng-shui", "cycles"],
 };
 
 /** Clicks an element by its test id, drawn or not (a folded sub-mode, a chip a phone hides); false when it is not there. */

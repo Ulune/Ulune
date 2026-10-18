@@ -28,6 +28,12 @@ export const STUDIO_PAGES = [
   "fengshui-home",
   // 2.0: its Relationship lens, two people in one home (review items FS5 and FS32).
   "fengshui-pair",
+  // 2.0: its Cycles lens, your directions under the year's stars (share and compare plan, feature 5d).
+  "fengshui-cycles",
+  // 2.0: Human Design's Relationship lens, the connection chart (share and compare plan, feature 5a).
+  "design-pair",
+  // 2.0: numerology's Relationship lens, two people's numbers side by side (share and compare plan, feature 5c).
+  "numerology-pair",
 ] as const;
 
 export type StudioPage = (typeof STUDIO_PAGES)[number];

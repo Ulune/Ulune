@@ -1105,6 +1105,7 @@ const CHINESE_CHECKS: readonly ChineseCheck[] = [
   { id: "fengshui", figure: "fengshui", table: "fengshui-table", notes: true },
   { id: "fengshui-pair", figure: "fengshui-pair", table: "fengshui-pair-table", notes: true, pair: true },
   { id: "fengshui-home", figure: "fengshui-home", table: "fengshui-home-table", notes: true },
+  { id: "fengshui-cycles", figure: "fengshui-cycles", table: "fengshui-cycles-table", notes: true },
 ];
 
 /** The registry's Chinese languages, and their pages lens by lens (src/studio/map.ts). */

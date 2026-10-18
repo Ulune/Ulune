@@ -1,4 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { studioRoute } from "@/studio/studio-route";
 
-export const Route = createFileRoute("/_studio/human-design")(studioRoute());
+export const Route = createFileRoute("/_studio/feng-shui/cycles")(studioRoute());

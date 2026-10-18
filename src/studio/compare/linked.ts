@@ -6,7 +6,8 @@ import type { StudioPage } from "@/studio/url";
  * choice in one of Compare's charts chooses in the other. The same element,
  * by its id, where both charts have it: the Sun is planet:sun in both, a gate
  * gate:34, a numerology position core:lifepath, a BaZi pillar bz:stem:day, a
- * Feng Shui direction fs:yang:dir:se. Pure, no browser: the view calls it and
+ * Feng Shui direction fs:yang:dir:se (fsc:yang:dir:se under the year's stars,
+ * Feng Shui's Cycles). Pure, no browser: the view calls it and
  * so do the unit tests (scripts/compare.test.mjs).
  *
  * Two kinds of ids need a word:
@@ -31,7 +32,7 @@ export function countsOf(count: unknown): ("yang" | "yin")[] {
  * own id when the other chart does not show that count (its only count then).
  */
 export function linkedId(id: string, counts: readonly ("yang" | "yin")[]): string {
-  const m = /^(fs:|bz:luck:)(yang|yin)(:.*)?$/.exec(id);
+  const m = /^(fs:|fsc:|bz:luck:)(yang|yin)(:.*)?$/.exec(id);
   if (!m || counts.includes(m[2] as "yang" | "yin")) return id;
   const to = counts[0];
   return to ? `${m[1]}${to}${m[3] ?? ""}` : id;

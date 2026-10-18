@@ -1,0 +1,504 @@
+/* Human Design's connection chart, its Relationship page (share and compare
+   plan, feature 5a; studio/modes/design-pair.tsx): these styles load with
+   the page, never with the first one. The bodygraph's own styles stay in
+   hd.css; here only what the pair adds to it, scoped to [data-pair]. */
+
+/* The second person's colour, beside the ink of the first: a cool blue,
+   4.5:1 or more on the page in both themes (its numbers sit on the page's
+   colour inside the ring). */
+:root {
+  --hdp-b-ink: oklch(0.74 0.11 238);
+}
+html.light {
+  --hdp-b-ink: oklch(0.49 0.13 248);
+}
+
+.ulune-hd-graph[data-pair] {
+  --hdp-a: var(--color-fg);
+  --hdp-b: var(--hdp-b-ink);
+}
+
+/* Channels, each half as its gate's: A solid, B hollow (its core in the
+   page's colour), both cased (B's edges round A's core); so the four kinds
+   read by pattern as well as colour. Halves meet square at the middle. */
+.ulune-hd-graph[data-pair] .ulune-hd-channel .hd-line,
+.ulune-hd-graph[data-pair] .ulune-hd-channel .hd-line-core {
+  stroke-linecap: butt;
+}
+.ulune-hd-graph[data-pair] .ulune-hd-channel.is-on .hd-line.is-a {
+  stroke: var(--hdp-a);
+  stroke-width: 4.6;
+}
+.ulune-hd-graph[data-pair] .ulune-hd-channel.is-on .hd-line.is-b {
+  stroke: var(--hdp-b);
+  stroke-width: 5.6;
+}
+.ulune-hd-graph[data-pair] .ulune-hd-channel .hd-line-core {
+  stroke: var(--color-bg);
+  stroke-width: 1.9;
+}
+.ulune-hd-graph[data-pair] .ulune-hd-channel.is-on .hd-line.is-b.is-wide {
+  stroke-width: 7.2;
+}
+.ulune-hd-graph[data-pair] .ulune-hd-channel.is-on .hd-line.is-a.is-core {
+  stroke-width: 2.8;
+}
+.ulune-hd-graph[data-pair] .ulune-hd-channel[data-hero] .hd-line.is-a {
+  stroke-width: 5.4;
+}
+.ulune-hd-graph[data-pair] .ulune-hd-channel[data-hero] .hd-line.is-b {
+  stroke-width: 6.4;
+}
+.ulune-hd-graph[data-pair] .ulune-hd-channel[data-hero] .hd-line.is-b.is-wide {
+  stroke-width: 8;
+}
+.ulune-hd-graph[data-pair] .ulune-hd-channel[data-hero] .hd-line.is-a.is-core {
+  stroke-width: 3.2;
+}
+/* An electromagnetic channel: a spark where the two halves meet. */
+.ulune-hd-graph[data-pair] .ulune-hd-channel .hd-spark {
+  fill: var(--color-halo);
+  stroke: var(--color-bg);
+  stroke-width: 1.4;
+  paint-order: stroke;
+  stroke-linejoin: round;
+}
+
+/* Gates: A's a filled disc, B's a ring with its number in B's colour, both a filled disc ringed. */
+.ulune-hd-graph[data-pair] .ulune-hd-gate[data-tone="a"] .hd-gate-disc,
+.ulune-hd-graph[data-pair] .ulune-hd-gate[data-tone="both"] .hd-gate-disc {
+  fill: var(--hdp-a);
+}
+.ulune-hd-graph[data-pair] .ulune-hd-gate[data-tone="b"] .hd-gate-disc {
+  fill: var(--color-bg);
+}
+.ulune-hd-graph[data-pair] .ulune-hd-gate .hd-gate-ring {
+  fill: none;
+  stroke: var(--hdp-b);
+  stroke-width: 2.6;
+  pointer-events: none;
+}
+.ulune-hd-graph[data-pair] .ulune-hd-gate[data-tone="a"] text,
+.ulune-hd-graph[data-pair] .ulune-hd-gate[data-tone="both"] text {
+  fill: var(--color-bg);
+  stroke: none;
+}
+.ulune-hd-graph[data-pair] .ulune-hd-gate[data-tone="b"] text {
+  fill: var(--hdp-b);
+}
+
+/* Who defines a centre: a small pill on the page's colour with A's dot, B's ring, both, or the spark of "only together". */
+.ulune-hd-graph[data-pair] .hd-marks {
+  pointer-events: none;
+}
+.ulune-hd-graph[data-pair] .hd-mark {
+  transition: opacity 180ms var(--chart-ease);
+}
+.ulune-hd-svg[data-focus="pinned"] .hd-mark[data-dim] {
+  opacity: 0.25;
+}
+.ulune-hd-graph[data-pair] .hd-mark-pill {
+  fill: var(--color-bg);
+  stroke: color-mix(in oklab, var(--color-fg) 28%, transparent);
+  stroke-width: 0.8;
+}
+.ulune-hd-graph[data-pair] .hd-mark-a {
+  fill: var(--hdp-a);
+}
+.ulune-hd-graph[data-pair] .hd-mark-b {
+  fill: none;
+  stroke: var(--hdp-b);
+  stroke-width: 1.7;
+}
+.ulune-hd-graph[data-pair] .hd-mark-spark {
+  fill: var(--color-halo);
+}
+
+/* The page: the two people, then the figure beside its key; on a narrow stage one under the other. */
+.ulune-hdp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding: 6px 0 var(--space-2);
+}
+.ulune-hdp-people {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 8px;
+  padding-inline: var(--stage-pad);
+}
+.ulune-hdp-person {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  min-width: 0;
+  min-height: 40px;
+  padding: 3px 12px 4px;
+  border-radius: var(--radius-md);
+  text-align: left;
+  color: var(--color-fg);
+}
+.ulune-hdp-who {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.2;
+}
+.ulune-hdp-person-line {
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: var(--color-fg-muted);
+}
+.ulune-hdp-dot {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-fg);
+}
+.ulune-hdp-dot.is-b {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--hdp-b-ink);
+}
+.ulune-hdp-unknown {
+  margin: 0;
+  padding-inline: var(--stage-pad);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--color-fg-muted);
+}
+.ulune-hdp-body {
+  display: grid;
+  flex: 1 1 0;
+  grid-template-columns: minmax(0, 1fr) minmax(13.5rem, 16.5rem);
+  gap: var(--space-3);
+  min-height: 0;
+  padding-right: var(--stage-pad);
+}
+.ulune-hdp-figure {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.ulune-hdp-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: var(--space-2);
+}
+.ulune-hdp-h {
+  margin: 0 0 4px;
+  font: 600 10.5px/1.3 var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
+}
+
+/* Whose gate is whose, as the figure draws them. */
+.ulune-hdp-whose {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  line-height: 1.3;
+  color: var(--color-fg-muted);
+}
+.ulune-hdp-whose-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ulune-hdp-gate {
+  display: inline-block;
+  flex: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+}
+.ulune-hdp-gate.is-a {
+  background: var(--color-fg);
+}
+.ulune-hdp-gate.is-b {
+  box-shadow: inset 0 0 0 2.5px var(--hdp-b-ink);
+}
+.ulune-hdp-gate.is-both {
+  background: var(--color-fg);
+  box-shadow: inset 0 0 0 2.5px var(--hdp-b-ink);
+}
+
+/* The four kinds: each a button with its line as the figure draws it, its count and what it means. */
+.ulune-hdp-kinds {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-hdp-kind {
+  --hdp-sample-bg: var(--color-bg);
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 1px;
+  width: 100%;
+  padding: 5px 8px 6px;
+  border-radius: 8px;
+  text-align: left;
+  color: var(--color-fg);
+}
+.ulune-hdp-kind-name {
+  font-size: 13.5px;
+  line-height: 1.25;
+}
+.ulune-hdp-kind-n {
+  font: 600 13px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.ulune-hdp-kind-line {
+  grid-column: 2 / -1;
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: var(--color-fg-muted);
+}
+.ulune-hdp-kind[data-count="0"] :is(.ulune-hdp-kind-name, .ulune-hdp-kind-n) {
+  color: var(--color-fg-muted);
+}
+.ulune-hdp-sample path {
+  fill: none;
+}
+.ulune-hdp-sample .is-a {
+  stroke: var(--color-fg);
+  stroke-width: 3.2;
+}
+.ulune-hdp-sample .is-b {
+  stroke: var(--hdp-b-ink);
+  stroke-width: 4;
+}
+.ulune-hdp-sample .is-core-bg {
+  stroke: var(--hdp-sample-bg);
+  stroke-width: 1.4;
+}
+.ulune-hdp-sample .is-b.is-wide {
+  stroke-width: 5.2;
+}
+.ulune-hdp-sample .is-a.is-core {
+  stroke-width: 2;
+}
+.ulune-hdp-sample .is-spark {
+  fill: var(--color-halo);
+  stroke: var(--hdp-sample-bg);
+  stroke-width: 0.9;
+  paint-order: stroke;
+}
+
+/* The centres' key: the marks as the figure draws them on a defined (gold) centre, then an open one. */
+.ulune-hdp-key {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0 0 8px;
+  padding: 0 8px;
+  list-style: none;
+  font-size: 12.5px;
+  line-height: 1.3;
+  color: var(--color-fg-muted);
+}
+.ulune-hdp-key li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ulune-hdp-mark {
+  flex: none;
+}
+.ulune-hdp-mark .is-fill {
+  fill: color-mix(in oklab, var(--color-halo) 72%, var(--color-bg));
+  stroke: var(--color-halo);
+  stroke-width: 0.8;
+}
+.ulune-hdp-mark .is-pill {
+  fill: var(--color-bg);
+}
+.ulune-hdp-mark .is-a {
+  fill: var(--color-fg);
+}
+.ulune-hdp-mark .is-b {
+  fill: none;
+  stroke: var(--hdp-b-ink);
+  stroke-width: 1.5;
+}
+.ulune-hdp-mark .is-spark {
+  fill: var(--color-halo);
+}
+.ulune-hdp-mark .is-open {
+  fill: var(--color-bg);
+  stroke: color-mix(in oklab, var(--color-fg) 50%, transparent);
+  stroke-width: 1.2;
+}
+
+/* The conditioning both ways, the open ground, the definition together. */
+.ulune-hdp-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ulune-hdp-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  width: 100%;
+  padding: 5px 8px 6px;
+  border-radius: 8px;
+  text-align: left;
+  color: var(--color-fg);
+}
+.ulune-hdp-row-k {
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: var(--color-fg-muted);
+}
+.ulune-hdp-row-v {
+  font-size: 13.5px;
+  line-height: 1.3;
+}
+
+/* Pointed at or chosen: the page's grey; one focus ring; tap sizes on a finger. */
+.ulune-hdp-person,
+.ulune-hdp-kind,
+.ulune-hdp-row {
+  transition:
+    background 150ms var(--chart-ease),
+    box-shadow 150ms var(--chart-ease);
+}
+:is(.ulune-hdp-person, .ulune-hdp-kind, .ulune-hdp-row).is-on {
+  --hdp-sample-bg: var(--color-bg-subtle);
+  background: var(--color-bg-subtle);
+  box-shadow: inset 2px 0 0 var(--color-fg);
+}
+@media (hover: hover) {
+  :is(.ulune-hdp-person, .ulune-hdp-kind, .ulune-hdp-row):hover {
+    --hdp-sample-bg: var(--color-bg-subtle);
+    background: var(--color-bg-subtle);
+  }
+}
+:is(.ulune-hdp-person, .ulune-hdp-kind, .ulune-hdp-row):focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: -2px;
+}
+@media (pointer: coarse) {
+  .ulune-hdp-person,
+  .ulune-hdp-kind,
+  .ulune-hdp-row {
+    min-height: 44px;
+  }
+}
+
+/* The side panel's first read and its method notes. */
+.ulune-hdp-hello {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ulune-hdp-p {
+  margin: 0;
+  font: 400 var(--text-sm) / 1.5 var(--font-sans);
+  color: var(--color-fg-muted);
+}
+.ulune-hdp-how {
+  margin-top: var(--space-1);
+}
+.ulune-hdp-how-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 72ch;
+  margin: 0 0 var(--space-2);
+  padding: 0 0 0 18px;
+  list-style: disc;
+  font: 400 var(--text-sm) / 1.5 var(--font-sans);
+  color: var(--color-fg-muted);
+}
+.ulune-hdp-how-list li::marker {
+  color: var(--color-fg-subtle);
+}
+
+/* A narrow stage (a phone, a narrow window): the people, the figure across the width, then its key; the page scrolls. */
+@container stage (max-width: 640px) {
+  .ulune-hdp-body {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    padding-right: 0;
+  }
+  .ulune-hdp-figure,
+  .ulune-hdp .ulune-hd-graph,
+  .ulune-hdp .ulune-hd-row3 {
+    flex: none;
+  }
+  .ulune-hdp-side {
+    overflow: visible;
+    padding-inline: var(--stage-pad);
+  }
+  .ulune-hdp-people {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ulune-hdp-person {
+    padding-inline: 8px;
+  }
+}
+/* A phone held upright with the sheet folded: the stage scrolls, as the natal bodygraph's (hd.css). */
+@media (max-width: 1023.98px) and (orientation: portrait) {
+  .ob-body:has(.ob-panel[data-detent="peek"]) .ulune-hdp {
+    flex: 1 0 auto;
+    height: auto;
+    overflow: visible;
+  }
+}
+/* With the sheet open, only the figure stays, as large as the room above the sheet allows. */
+@media (max-width: 1023.98px) {
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) :is(.ulune-hdp-people, .ulune-hdp-side, .ulune-hdp-unknown) {
+    display: none;
+  }
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) .ulune-hdp {
+    overflow: hidden;
+  }
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) .ulune-hdp-body {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .ob-body:has(.ob-panel:not([data-detent="peek"])) :is(.ulune-hdp-figure, .ulune-hdp .ulune-hd-graph, .ulune-hdp .ulune-hd-row3) {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ulune-hd-graph[data-pair] .hd-mark,
+  .ulune-hdp-person,
+  .ulune-hdp-kind,
+  .ulune-hdp-row {
+    transition: none;
+  }
+}

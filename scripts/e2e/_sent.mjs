@@ -50,7 +50,7 @@ const DEV_QUERY = new Set(["t", "v", "import", "url", "raw", "inline", "direct",
  * and /s, where a share link lands (its chart is after "#", which no request ever carries).
  */
 export const APP_PAGES =
-  /^\/(?:astrology(?:\/(?:transits|progressions|synastry|composite))?|human-design|numerology(?:\/cycles)?|chinese-astrology(?:\/(?:cycles|pair))?|bazi(?:\/(?:cycles|pair))?|feng-shui(?:\/home)?|calendar|calendrier|settings|s|(?:encyclopedia|encyclopedie)(?:\/[a-z0-9-]+)?)?\/?$/;
+  /^\/(?:astrology(?:\/(?:transits|progressions|synastry|composite))?|human-design(?:\/pair)?|numerology(?:\/cycles)?|chinese-astrology(?:\/(?:cycles|pair))?|bazi(?:\/(?:cycles|pair))?|feng-shui(?:\/home)?|calendar|calendrier|settings|s|(?:encyclopedia|encyclopedie)(?:\/[a-z0-9-]+)?)?\/?$/;
 
 /** What a page's address may carry (src/studio/url.ts): the page, the view, the dock's pages. */
 const PAGE_QUERY = new Set(["studio", "view", "bodies", "look"]);

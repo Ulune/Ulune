@@ -16,6 +16,11 @@ import { bodiesWords } from "../src/lib/i18n/catalog/bodies-words.ts";
 import { lookWords } from "../src/lib/i18n/catalog/look-words.ts";
 import { tablesWords } from "../src/lib/i18n/catalog/tables-words.ts";
 import { engineWords } from "../src/lib/i18n/catalog/engine-words.ts";
+import { hdPairWords } from "../src/lib/i18n/catalog/hd-pair-words.ts";
+import { fengShuiCyclesWords } from "../src/lib/i18n/catalog/fengshui-cycles-words.ts";
+import { groupsWords } from "../src/lib/i18n/catalog/groups-words.ts";
+import { groupsNeedWords } from "../src/lib/i18n/catalog/groups-need-words.ts";
+import { numPairWords } from "../src/lib/i18n/catalog/numerology-pair-words.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const CAT_DIR = join(ROOT, "src/lib/i18n/catalog");
@@ -80,7 +85,7 @@ test("no English literal in aria-label", () => {
 
 test("the catalogs read on their own, outside the index (the calendar's layers, the language picker, the Chinese traditions, the space sheet's, Your data's, the AI accounts', the switcher's homes', the guide's, the Bodies tab's, the Look tab's and the table's books), are complete too", () => {
   // Kept out of the index so they stay out of the first download; held to the same rules.
-  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords, chinese, spaceWords, dataWords, aiWords, placesWords, guideWords, guideBodyWords, bodiesWords, lookWords, tablesWords, engineWords })) {
+  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords, chinese, spaceWords, dataWords, aiWords, placesWords, guideWords, guideBodyWords, bodiesWords, lookWords, tablesWords, engineWords, hdPairWords, fengShuiCyclesWords, groupsWords, groupsNeedWords, numPairWords })) {
     for (const [key, [en, fr]] of Object.entries(words)) {
       assert.ok(en && en.trim(), `${name}.${key}: English missing`);
       assert.ok(fr && fr.trim(), `${name}.${key}: French missing`);
@@ -118,6 +123,10 @@ test("every word of the books kept out of the first download is said somewhere, 
     [tablesWords, ["src/lib/chart/table-cells.ts"]],
     // The calculations on the device (on-device plan, step 5): their notices and their setting.
     [engineWords, ["src/components/engine/engine-ui.ts", "src/components/calculate-settings.tsx"]],
+    // Human Design's connection chart (share and compare plan, feature 5a): its page, its table and the table's text.
+    [hdPairWords, ["src/studio/modes/design-pair.tsx", "src/studio/tables/hd-pair-table.tsx", "src/lib/chart/hd-pair-table.ts"]],
+    // Feng Shui's Cycles (feature 5d): its page, readings and table, and Compare's "What they share" (review of 2.0's week 3).
+    [fengShuiCyclesWords, ["src/studio/modes/fengshui-cycles.tsx", "src/lib/chinese/fengshui-cycles-reading.ts", "src/lib/chinese/fengshui-cycles-table.ts", "src/studio/tables/fengshui-cycles-table.tsx", "src/studio/compare/shared-fengshui.ts"]],
   ]) {
     const corpus = files.map(read).join("\n");
     const unsaid = Object.keys(words).filter((key) => !new RegExp(`["'\`]${key}["'\`]`).test(corpus));

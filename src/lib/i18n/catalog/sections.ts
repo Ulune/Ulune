@@ -12,6 +12,10 @@ export const sections = {
   lensCycles: ["Cycles", "Cycles"],
   lensRelationship: ["Relationship", "Relation"],
   lensHome: ["Home", "Logement"],
+  // A phone's lens tabs (review of 2.0's week 3): Feng Shui's four lenses cut "Relationship" at 390 px.
+  // Relationship's short names are its 1.x names (Pair, Duo); "Logis" keeps Logement's root.
+  lensRelationshipShort: ["Pair", "Duo"],
+  lensHomeShort: ["Home", "Logis"],
   // Between a lens and its sub-mode when they share a tab ("Cycles: Transits").
   lensColon: [": ", " : "],
   lensFold: ["{lens}: {page}", "{lens} : {page}"],

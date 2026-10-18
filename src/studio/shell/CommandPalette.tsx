@@ -77,9 +77,13 @@ export function CommandPalette() {
         }
       } else if ((e.key === "p" || e.key === "P") && !e.repeat && !busy()) {
         if (flipToPrevious()) e.preventDefault();
-      } else if (e.key === "Escape" && s.selectedId) {
+      } else if (e.key === "Escape" && s.selectedId && !e.defaultPrevented) {
+        // From the page itself: nothing focused, or a part of the stage, an HTML control or a figure's
+        // SVG part alike (an Element, not only an HTMLElement); never from a dialog or a menu (their
+        // Escape is their own) nor from a Compare pane (its own choice, CompareView.tsx).
         const el = document.activeElement;
-        if (!el || el === document.body || (el instanceof HTMLElement && el.closest(".ob-stage"))) s.clear();
+        const onStage = el instanceof Element && el.closest(".ob-stage") && !el.closest("[data-chart-scope], [role=dialog], [role=alertdialog], [role=menu], [role=listbox]");
+        if (!el || el === document.body || onStage) s.clear();
       }
     };
     const onOpen = () => {

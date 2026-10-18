@@ -8,10 +8,13 @@ import type { BaziPairState } from "@/studio/modes/bazi-pair";
 import type { FengShuiState } from "@/studio/modes/fengshui";
 import type { FengShuiPairState } from "@/studio/modes/fengshui-pair";
 import type { FengShuiHomeState } from "@/studio/modes/fengshui-home";
+import type { FengShuiCyclesState } from "@/studio/modes/fengshui-cycles";
 import type { ElementReading } from "@/lib/chart/types";
 import type { CompositeState } from "@/studio/modes/composite";
 import type { DesignState } from "@/studio/modes/design";
+import type { DesignPairState } from "@/studio/modes/design-pair";
 import type { NumerologyState } from "@/studio/modes/numerology";
+import type { NumerologyPairState } from "@/studio/modes/numerology-pair";
 import type { ProgressionsState } from "@/studio/modes/progressions";
 import { MODE_META } from "@/studio/modes/meta";
 import { useLoadedModes } from "@/studio/modes/registry";
@@ -48,8 +51,10 @@ export type ModeData = {
   synastry: SynastryState;
   composite: CompositeState;
   design: DesignState;
+  "design-pair": DesignPairState;
   numerology: NumerologyState;
   "numerology-cycles": NumerologyState;
+  "numerology-pair": NumerologyPairState;
   zodiac: ZodiacState;
   "zodiac-years": ZodiacYearsState;
   "zodiac-pair": ZodiacPairState;
@@ -59,6 +64,7 @@ export type ModeData = {
   fengshui: FengShuiState;
   "fengshui-pair": FengShuiPairState;
   "fengshui-home": FengShuiHomeState;
+  "fengshui-cycles": FengShuiCyclesState;
 };
 
 /** The main scope's runtimes (the studio as it is without Compare). */

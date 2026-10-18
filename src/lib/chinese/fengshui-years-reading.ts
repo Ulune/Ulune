@@ -9,13 +9,12 @@
 import type { ElementReading } from "@/lib/chart/types";
 import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord } from "./words";
-import { mountainById } from "./fengshui-home";
+import { mountainById, mountainCode } from "./fengshui-home";
 import { dirIn, directionName } from "./fengshui-reading";
 import { DIRECTION_IDS } from "./fengshui";
 import { starOf, type PalaceId } from "./fengshui-stars";
 import type { AfflictionId, YearStars } from "./fengshui-years";
 import { AFFLICTION_HOW, AFFLICTION_NAMES, AFFLICTION_TEXTS } from "./fengshui-years-texts";
-import { mountainCode } from "./fengshui-home-reading";
 import { said } from "./both";
 
 type Shown = Pick<ChinesePrefs, "script" | "show">;

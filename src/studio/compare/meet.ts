@@ -10,11 +10,11 @@ import type { StudioPage } from "@/studio/url";
 
 /**
  * The Relationship page that reads how the two people of Compare meet ("See
- * how they meet"): astrology's Synastry, Chinese astrology's, BaZi's and Feng
- * Shui's pair pages; a language without a Relationship lens yet (Human
- * Design's and numerology's come with feature 5) has none, and the link is
- * not shown. The one place that says so: when a language gains the lens in
- * the map (src/studio/map.ts), its link appears.
+ * how they meet"): astrology's Synastry, Human Design's connection chart
+ * (feature 5a), numerology's two people (5c), Chinese astrology's, BaZi's
+ * and Feng Shui's pair pages. A language without a Relationship lens has
+ * none, and the link is not shown. The one place that says so: when a
+ * language gains the lens in the map (src/studio/map.ts), its link appears.
  */
 export function relationshipPageOf(page: StudioPage): StudioPage | null {
   const lang = languageOf(page);

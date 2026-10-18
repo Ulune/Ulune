@@ -78,6 +78,14 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
     stageTestId: "studio-humandesign",
     emptyTestId: "studio-humandesign-empty",
   },
+  // Its Relationship lens, the connection chart (share and compare plan, feature 5a).
+  "design-pair": {
+    id: "design-pair",
+    labelKey: "pageDesignPair",
+    needsChart: true,
+    stageTestId: "studio-design-pair",
+    emptyTestId: "studio-design-pair-empty",
+  },
   numerology: {
     id: "numerology",
     labelKey: "pageNumerology",
@@ -92,6 +100,14 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
     stageTestId: "studio-numerology-cycles",
     emptyTestId: "studio-numerology-cycles-empty",
     noPicture: true,
+  },
+  // Its Relationship (share and compare plan, feature 5c): two people's numbers on one wheel.
+  "numerology-pair": {
+    id: "numerology-pair",
+    labelKey: "pageNumerologyPair",
+    needsChart: true,
+    stageTestId: "studio-numerology-pair",
+    emptyTestId: "studio-numerology-pair-empty",
   },
   zodiac: {
     id: "zodiac",
@@ -160,6 +176,14 @@ export const MODE_META: Record<StudioPage, ModeMeta> = {
     emptyTestId: "studio-fengshui-home-empty",
     mainOnly: true,
   },
+  // Its Cycles (share and compare plan, feature 5d): the year alone needs no chart, your directions do (as Home, FS13).
+  "fengshui-cycles": {
+    id: "fengshui-cycles",
+    labelKey: "pageFengShuiCycles",
+    needsChart: false,
+    stageTestId: "studio-fengshui-cycles",
+    emptyTestId: "studio-fengshui-cycles-empty",
+  },
 };
 
 export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
@@ -171,6 +195,7 @@ export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
   progressions: "pageProgressions",
   numerology: "pageNumerology",
   "numerology-cycles": "pageNumerologyCycles",
+  "numerology-pair": "pageNumerologyPair",
   zodiac: "pageZodiac",
   "zodiac-years": "pageZodiacYears",
   "zodiac-pair": "pageZodiacPair",
@@ -180,5 +205,7 @@ export const PAGE_LABEL: Record<StudioPage, MessageKey> = {
   fengshui: "pageFengShui",
   "fengshui-pair": "pageFengShuiPair",
   "fengshui-home": "pageFengShuiHome",
+  "fengshui-cycles": "pageFengShuiCycles",
   design: "pageDesign",
+  "design-pair": "pageDesignPair",
 };

@@ -40,8 +40,8 @@ export function PairSelects({ mode, pair: given, prefix: givenPrefix, page }: { 
   const pairLabel = mode === "composite" ? compositePairLabel : synastryPairLabel;
   const addLabel = mode === "composite" ? compositeAddSecond(locale) : synastryAddSecond(locale);
   return (
-    <div className={`ulune-${mode}-pair-bar min-w-0 flex-1`}>
-      <label className={`ulune-${mode}-pair-slot`}>
+    <div className={`ulune-pair-bar ulune-${mode}-pair-bar min-w-0 flex-1`}>
+      <label className={`ulune-pair-slot ulune-${mode}-pair-slot`}>
         <span className="sr-only">{pairLabel(locale, "a")}</span>
         <select
           data-testid={`${prefix}-person-a`}
@@ -55,7 +55,7 @@ export function PairSelects({ mode, pair: given, prefix: givenPrefix, page }: { 
             if (row && main) toast(t("pairAEverywhere", { name: chartDisplayName(row.input, t("untitled")) }));
           }}
           disabled={!pair.rows.length}
-          className={`ulune-${mode}-select`}
+          className={`ulune-pair-select ulune-${mode}-select`}
         >
           {pair.rows.map((row) => (
             <option key={row.id} value={row.id} disabled={row.id === pair.resolvedBId}>
@@ -67,7 +67,7 @@ export function PairSelects({ mode, pair: given, prefix: givenPrefix, page }: { 
       {pair.resolvedBId ? (
         <button
           type="button"
-          className={`ulune-pair-swap ulune-${mode}-pair-rule`}
+          className={`ulune-pair-swap ulune-pair-rule ulune-${mode}-pair-rule`}
           data-testid={`${prefix}-swap`}
           aria-label={t("pairSwap")}
           title={t("pairSwap")}
@@ -76,18 +76,18 @@ export function PairSelects({ mode, pair: given, prefix: givenPrefix, page }: { 
           <ArrowLeftRight className="size-4" aria-hidden />
         </button>
       ) : (
-        <span className={`ulune-${mode}-pair-rule`} aria-hidden>
+        <span className={`ulune-pair-rule ulune-${mode}-pair-rule`} aria-hidden>
           ·
         </span>
       )}
       {pair.others.length ? (
-        <label className={`ulune-${mode}-pair-slot`}>
+        <label className={`ulune-pair-slot ulune-${mode}-pair-slot`}>
           <span className="sr-only">{pairLabel(locale, "b")}</span>
           <select
             data-testid={`${prefix}-person-b`}
             value={pair.resolvedBId ?? ""}
             onChange={(e) => (e.target.value === ADD ? pair.addSecond() : pair.selectB(e.target.value))}
-            className={`ulune-${mode}-select`}
+            className={`ulune-pair-select ulune-${mode}-select`}
           >
             <option value="">{t("noPartner")}</option>
             {pair.others.map((row) => (
@@ -103,7 +103,7 @@ export function PairSelects({ mode, pair: given, prefix: givenPrefix, page }: { 
           type="button"
           data-testid={`${prefix}-add-second`}
           onClick={pair.addSecond}
-          className={`ulune-${mode}-add`}
+          className={`ulune-pair-add ulune-${mode}-add`}
         >
           {addLabel}
         </button>

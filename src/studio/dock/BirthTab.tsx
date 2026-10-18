@@ -11,13 +11,15 @@ import { useStudioStore } from "@/studio/store";
 import { useSpace } from "@/lib/space/state";
 import { PathLink } from "@/components/path-link";
 import { ENCYCLOPEDIA_PATHS, pagePath } from "@/studio/map";
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Suspense } from "react";
 import { useShareUi } from "@/components/share/share-state";
-import { lazyNamed } from "@/lib/lazy-component";
+import { lazyNamed, whenIdle } from "@/lib/lazy-component";
 
 /** Above the form when it opened for a request for the reader's chart (share and compare plan, idea B4): its own download, with the request. */
 const RequestHead = lazyNamed(() => import("@/components/share/request-head"), "RequestHead");
+/** Under a kept chart's form, its notes and groups (ideas B6 and B5): their own download, once the page is idle. */
+const ChartKept = lazyNamed(() => import("@/studio/groups/chart-kept"), "ChartKept");
 
 /**
  * Where charts are calculated, as Settings › "Where charts are calculated" keeps it (the key of
@@ -63,7 +65,7 @@ export function BirthTab({
   const setInput = useStudioStore((s) => s.setInput);
   const setNumerologyNames = useStudioStore((s) => s.setNumerologyNames);
   const setChineseCount = useStudioStore((s) => s.setChineseCount);
-  const onNumerology = useStudioStore((s) => s.page === "numerology" || s.page === "numerology-cycles");
+  const onNumerology = useStudioStore((s) => s.page === "numerology" || s.page === "numerology-cycles" || s.page === "numerology-pair");
   const cast = useStudioStore((s) => s.cast);
   const beginEdit = useStudioStore((s) => s.beginEdit);
   const discardDraft = useStudioStore((s) => s.discardDraft);
@@ -76,6 +78,8 @@ export function BirthTab({
   const keptHint = spaceOpen ? t("birthKeptSpace") : t("birthKeptNothing");
   // Where the chart is calculated (Settings, on-device plan, step 5): the device by default, as the server's page says.
   const where = useSyncExternalStore(noChange, calculatedOn, () => "device");
+  const [idle, setIdle] = useState(false);
+  useEffect(() => whenIdle(() => setIdle(true), 3000), []);
 
   const mode = addingPartnerFor ? "partner" : creating || !chart ? "new" : "edit";
   const firstVisit = mode === "new" && !chart && rows.length === 0 && spaceStatus !== "locked";
@@ -172,6 +176,11 @@ export function BirthTab({
       <p className="ob-cast-note" data-testid="cast-note" data-calculate={where}>
         {t(where === "server" ? "castNoteServer" : "castNote")}
       </p>
+      {mode === "edit" && active && idle ? (
+        <Suspense fallback={null}>
+          <ChartKept id={active.id} name={editingName ?? ""} />
+        </Suspense>
+      ) : null}
       {firstVisit ? (
         <noscript>
           <p className="ob-cast-note ob-noscript">{t("noScript")}</p>

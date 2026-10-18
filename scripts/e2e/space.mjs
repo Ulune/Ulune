@@ -38,6 +38,10 @@
  *      sight, "Erase everything on this device" (no database, no key, no
  *      offline copy, no settings; the page says it is done), and the privacy
  *      notice in both languages.
+ *  10. Groups and notes (share and compare plan, ideas B5 and B6): a group
+ *      and a note go into a backup sealed (their records in it, nothing of
+ *      them in the clear), a note changed makes a backup due again, and the
+ *      backup restored in another browser brings both back.
  */
 import { chromium } from "playwright";
 import {
@@ -888,6 +892,72 @@ async function run() {
       if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
       await context.close();
       console.log("your data: readable copy, leftovers removed, everything erased, privacy notice");
+    }
+
+    // 10. Groups and notes through a backup.
+    {
+      const file = join(SHOTS, "space-backup-groups.json");
+      const GROUP = "Zqkin";
+      const noteText = (page) => page.getByTestId("notes-text").inputValue();
+      const typeNote = async (page, text) => {
+        await clickDockTab(page, "birth");
+        await page.getByTestId("notes-text").fill(text);
+        await page.waitForFunction(() => /^Kept at /.test(document.querySelector("[data-testid=notes-status]")?.textContent ?? ""), null, { timeout: 8000 });
+      };
+      {
+        const { context, page, errors } = await newPage(browser);
+        await gotoApp(page);
+        await castFixture(page, FIXTURE_A);
+        await createSpace(page);
+        await page.getByTestId("chart-chip").click();
+        await page.getByTestId("groups-row").click({ timeout: 15000 });
+        await page.getByTestId("group-new-name").fill(GROUP);
+        await page.getByTestId("group-new-name").press("Enter");
+        await page.keyboard.press("Escape");
+        await page.getByTestId("chart-picker").waitFor({ state: "detached", timeout: 8000 });
+        await page.getByTestId("chart-chip").click();
+        const row = page.locator(`[data-testid=chart-picker] [data-testid=chart-row][data-name="${FIXTURE_A.name}"]`).first();
+        await row.getByTestId("chart-groups").click();
+        await row.locator(`[data-testid=group-toggle][data-group=${GROUP}]`).click();
+        await page.keyboard.press("Escape");
+        await typeNote(page, "Zqnote: kept with a backup");
+        // The backup: their records in it, sealed.
+        await page.getByTestId("space-button").click();
+        const [download] = await Promise.all([page.waitForEvent("download"), page.getByTestId("space-backup-now").click()]);
+        await download.saveAs(file);
+        const text = await readFile(file, "utf8");
+        const keys = JSON.parse(text).items.map(([k]) => k);
+        if (!keys.includes("state/groups") || !keys.some((k) => k.startsWith("note/"))) throw new Error(`the backup lacks the groups or the note: ${keys.join(", ")}`);
+        if (/Zqkin|Zqnote/.test(clearPart(text))) throw new Error("the backup holds a group's name or a note in the clear");
+        await page.waitForSelector("[data-testid=space-button]:not([data-due])", { timeout: 8000 });
+        await page.keyboard.press("Escape");
+        // A note changed since: a backup is due again.
+        await typeNote(page, "Zqnote: changed since the backup");
+        await page.waitForSelector("[data-testid=space-button][data-due]", { timeout: 8000 });
+        if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
+        await context.close();
+      }
+      {
+        // Restored in another browser: the group with its chart, and the note as it was in the backup.
+        const { context, page, errors } = await newPage(browser);
+        await gotoApp(page);
+        await page.waitForFunction(() => document.querySelector("[data-testid=space-button]")?.getAttribute("data-space") === "none", null, { timeout: 20000 });
+        await page.getByTestId("space-button").click();
+        await page.getByTestId("space-restore").click({ timeout: 45000 });
+        await page.getByTestId("space-backup-file").setInputFiles(file);
+        await page.getByTestId("space-backup-pass").fill(PASSPHRASE, { timeout: 20000 });
+        await page.getByTestId("space-backup-open").click();
+        await sheetGone(page);
+        await page.getByTestId("studio-natal").waitFor({ timeout: 20000 });
+        const groups = (await readSpaceRecord(page, "state/groups"))?.groups ?? [];
+        if (groups.length !== 1 || groups[0].name !== GROUP || groups[0].members.length !== 1) throw new Error(`the restored groups: ${JSON.stringify(groups)}`);
+        await clickDockTab(page, "birth");
+        await page.getByTestId("notes-text").waitFor({ timeout: 15000 });
+        if ((await noteText(page)) !== "Zqnote: kept with a backup") throw new Error(`the restored note: "${await noteText(page)}"`);
+        if (errors.length) throw new Error(`page errors: ${errors.join(" | ")}`);
+        await context.close();
+      }
+      console.log("groups and notes: in the backup sealed, a backup due after a note changed, back with the backup");
     }
   } finally {
     await browser.close();

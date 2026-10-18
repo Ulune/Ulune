@@ -29,6 +29,12 @@ export const LENS_LABEL: Record<LensId, MessageKey> = {
   home: "lensHome",
 };
 
+/** The shorter names a phone's lens tabs give, where a lens has one (shell.css swaps them under 420 px of stage). */
+export const LENS_SHORT: Partial<Record<LensId, MessageKey>> = {
+  relationship: "lensRelationshipShort",
+  home: "lensHomeShort",
+};
+
 export const TRADITION_LABEL: Record<TraditionId, PickerWordKey> = {
   western: "traditionWestern",
   chinese: "traditionChinese",

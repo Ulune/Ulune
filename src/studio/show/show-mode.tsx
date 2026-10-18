@@ -42,6 +42,7 @@ import "./show.css";
 const DRAWN_LARGER: ReadonlySet<StudioPage> = new Set<StudioPage>([
   "numerology",
   "numerology-cycles",
+  "numerology-pair",
   "zodiac",
   "zodiac-years",
   "zodiac-pair",
@@ -51,6 +52,7 @@ const DRAWN_LARGER: ReadonlySet<StudioPage> = new Set<StudioPage>([
   "fengshui",
   "fengshui-pair",
   "fengshui-home",
+  "fengshui-cycles",
 ]);
 
 /** How long the bar stays once the mouse is still (ms). */

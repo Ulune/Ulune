@@ -22,8 +22,10 @@ const LOADERS: Record<LazyPage, () => Promise<ModeDef>> = {
   synastry: () => import("@/studio/modes/synastry").then((m) => m.synastryMode),
   composite: () => import("@/studio/modes/composite").then((m) => m.compositeMode),
   design: () => import("@/studio/modes/design").then((m) => m.designMode),
+  "design-pair": () => import("@/studio/modes/design-pair").then((m) => m.designPairMode),
   numerology: () => import("@/studio/modes/numerology").then((m) => m.numerologyMode),
   "numerology-cycles": () => import("@/studio/modes/numerology-cycles").then((m) => m.numerologyCyclesMode),
+  "numerology-pair": () => import("@/studio/modes/numerology-pair").then((m) => m.numerologyPairMode),
   zodiac: () => import("@/studio/modes/zodiac").then((m) => m.zodiacMode),
   "zodiac-years": () => import("@/studio/modes/zodiac-years").then((m) => m.zodiacYearsMode),
   "zodiac-pair": () => import("@/studio/modes/zodiac-pair").then((m) => m.zodiacPairMode),
@@ -33,6 +35,7 @@ const LOADERS: Record<LazyPage, () => Promise<ModeDef>> = {
   fengshui: () => import("@/studio/modes/fengshui").then((m) => m.fengShuiMode),
   "fengshui-pair": () => import("@/studio/modes/fengshui-pair").then((m) => m.fengShuiPairMode),
   "fengshui-home": () => import("@/studio/modes/fengshui-home").then((m) => m.fengShuiHomeMode),
+  "fengshui-cycles": () => import("@/studio/modes/fengshui-cycles").then((m) => m.fengShuiCyclesMode),
 };
 
 /**

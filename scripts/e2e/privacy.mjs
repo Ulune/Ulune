@@ -52,7 +52,15 @@
  * carries the link's fragment, and the address bar keeps no fragment once the
  * page has read it.
  * `node scripts/e2e/privacy.mjs --share` runs it alone.
+ *
+ * Groups of charts and notes on a chart (share and compare plan, ideas B5 and
+ * B6), made with a private space: a group's name and a note never appear in
+ * plain storage, the address bar, any request, the share link (read back
+ * with the app's own reader), the copied summary or the SVG; in IndexedDB they
+ * are unreadable, and only state/groups and note/<id> hold them (read with
+ * the key the browser keeps). `node scripts/e2e/privacy.mjs --groups` runs it alone.
  */
+import { readFile } from "node:fs/promises";
 import { chromium } from "playwright";
 import {
   AI_ON,
@@ -92,7 +100,7 @@ const heardCalcs = () => {
   window.addEventListener("ulune:calculated", (e) => window.__calcs.push(`${e.detail.kind}:${e.detail.on}`));
 };
 
-const MODES = ["natal", "transits", "timing", "progressions", "synastry", "composite", "design", "numerology"];
+const MODES = ["natal", "transits", "timing", "progressions", "synastry", "composite", "design", "design-pair", "numerology", "numerology-pair"];
 
 const READING = `@@TITLE@@
 A test epithet
@@ -382,6 +390,9 @@ const CHINESE_PAGES = [
   { id: "fengshui", figure: "fengshui", table: "fengshui-table", read: ["fengshui-wedge-yang-e", "fengshui-kua-yang", "fengshui-practice-yang"] },
   // Two people in one home (FS32): the second person's yin count chosen (kept in memory only), then a wedge, a Kua, the practice.
   { id: "fengshui-pair", figure: "fengshui-pair", table: "fengshui-pair-table", act: ["fengshui-pair-count-b-yin"], read: ["fengshui-pair-wedge-e", "fengshui-pair-kua-a", "fengshui-pair-practice"] },
+  // Its Cycles (feature 5d): the dial a year and a month on (in memory only), then a direction, an affliction, the year in practice.
+  // Not its way to the Calendar, which turns a Calendar layer on (a display setting, kept on this device).
+  { id: "fengshui-cycles", figure: "fengshui-cycles", table: "fengshui-cycles-table", act: ["fengshui-cycles-next", "fengshui-cycles-month-next"], read: ["fengshui-cycles-wedge-yang-s", "fengshui-cycles-aff-three-killings", "fengshui-cycles-you-yang"] },
 ];
 
 /*
@@ -902,8 +913,103 @@ async function shareLeg() {
   return failures;
 }
 
+/* ------------------------------------------------- groups and notes (share and compare plan, ideas B5 and B6) */
+
+/** Made up for the test: a group's name and a note on a chart, which only the sealed space may hold. */
+const GROUP_NAME = "Zqgroupname";
+const NOTE_TEXT = "Zqnotetext: asked about work";
+const KEPT_WORDS = [GROUP_NAME, "Zqnotetext", "asked about work"];
+
+async function groupsNotesLeg() {
+  const label = "groups and notes";
+  const failures = [];
+  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  const context = await browser.newContext({ viewport: VIEWPORTS[1280] });
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await context.addInitScript(spies, { iphone: false });
+  const page = await context.newPage();
+  page.setDefaultTimeout(20000);
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(String(e)));
+  const shown = [];
+  page.on("framenavigated", (f) => {
+    if (f === page.mainFrame()) shown.push(f.url());
+  });
+  const asked = [];
+  page.on("request", (r) => asked.push(r));
+  try {
+    await gotoApp(page);
+    await castFixture(page, FIXTURE_A);
+    await createSpace(page);
+    // A group made from the switcher's Groups row, the chart put in it from its row.
+    await page.getByTestId("chart-chip").click();
+    await page.getByTestId("groups-row").click({ timeout: 15000 });
+    await page.getByTestId("group-new-name").fill(GROUP_NAME);
+    await page.getByTestId("group-new-name").press("Enter");
+    await page.locator(`[data-testid=group-item][data-group=${GROUP_NAME}]`).waitFor({ timeout: 8000 });
+    await page.keyboard.press("Escape");
+    await page.getByTestId("chart-picker").waitFor({ state: "detached", timeout: 8000 });
+    await page.getByTestId("chart-chip").click();
+    const row = page.locator(`[data-testid=chart-picker] [data-testid=chart-row][data-name="${FIXTURE_A.name}"]`).first();
+    await row.getByTestId("chart-groups").click();
+    await row.locator(`[data-testid=group-toggle][data-group=${GROUP_NAME}]`).click();
+    await page.keyboard.press("Escape");
+    await page.getByTestId("chart-picker").waitFor({ state: "detached", timeout: 8000 });
+    // A note, in the Birth tab.
+    await clickDockTab(page, "birth");
+    await page.getByTestId("notes-text").fill(NOTE_TEXT);
+    await page.waitForFunction(() => /^Kept at /.test(document.querySelector("[data-testid=notes-status]")?.textContent ?? ""), null, { timeout: 8000 });
+
+    // The share link, read back with the app's own reader: the birth, never the groups or the note.
+    await openExport(page);
+    await page.getByTestId("share-open").click();
+    await page.waitForFunction(() => /\/s#1\./.test(document.querySelector("[data-testid=share-link]")?.value ?? ""), null, { timeout: 10000 });
+    const link = await page.getByTestId("share-link").inputValue();
+    const read = await page.evaluate(async (fragment) => JSON.stringify(await (await import("/src/lib/share/link.ts")).readShareFragment(fragment)), link.slice(link.indexOf("#") + 1));
+    if (!read.includes("1990-06-15")) failures.push(`${label}: the share link read back without its birth: ${read.slice(0, 160)}`);
+    for (const w of found(`${link} ${read}`, KEPT_WORDS)) failures.push(`${label}: the share link carries "${w}"`);
+    await page.keyboard.press("Escape");
+    await page.getByTestId("share-link").waitFor({ state: "detached", timeout: 8000 }).catch(() => {});
+    // The copied summary and the SVG.
+    await openExport(page);
+    await page.getByTestId("export-copy").click();
+    await page.waitForTimeout(300);
+    const summary = await page.evaluate(() => navigator.clipboard.readText());
+    if (!summary.includes(FIXTURE_A.name)) failures.push(`${label}: the summary was not copied`);
+    for (const w of found(summary, KEPT_WORDS)) failures.push(`${label}: the copied summary carries "${w}"`);
+    await openExport(page);
+    const [svg] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.getByTestId("export-svg").click()]);
+    for (const w of found(await readFile(await svg.path(), "utf8"), KEPT_WORDS)) failures.push(`${label}: the SVG carries "${w}"`);
+    await page.waitForTimeout(400);
+
+    // Plain storage: none of it. IndexedDB: nothing legible, and only their two records hold them.
+    for (const [where, k, v] of await plainStorage(page)) for (const w of found(`${k}=${v}`, KEPT_WORDS)) failures.push(`${label}: ${where} "${k}" holds "${w}"`);
+    const holders = [];
+    for (const r of await rawSpace(page)) {
+      for (const w of found(r.text, KEPT_WORDS)) failures.push(`${label}: the space's ${r.store} "${r.key}" holds "${w}" in the clear`);
+      if (r.store === "items" && found(JSON.stringify(await readSpaceRecord(page, r.key)), [GROUP_NAME, "Zqnotetext"]).length) holders.push(r.key);
+    }
+    const noteKey = holders.find((k) => k.startsWith("note/"));
+    if (holders.length !== 2 || !holders.includes("state/groups") || !noteKey) failures.push(`${label}: held by the records ${holders.join(", ") || "none"}`);
+    const writes = (await page.evaluate(() => window.__idb.writes)).filter((x) => x.db !== "ulune-space");
+    if (writes.length) failures.push(`${label}: written outside the space: ${JSON.stringify(writes).slice(0, 300)}`);
+  } catch (e) {
+    failures.push(`${label}: ${e instanceof Error ? e.message : String(e)}`);
+  } finally {
+    await browser.close();
+  }
+  for (const r of asked) {
+    const text = `${bareAddress(r.url())} ${r.postData() ?? ""}`;
+    for (const w of found(text, KEPT_WORDS)) failures.push(`${label}: a request carries "${w}": ${r.url().slice(0, 100)}`);
+  }
+  for (const u of shown) for (const w of found(bareAddress(u), KEPT_WORDS)) failures.push(`${label}: the address bar shows "${w}"`);
+  if (errors.length) failures.push(`${label}: ${errors.join(" | ")}`);
+  if (!failures.length) console.log(`${label} OK: ${asked.length} requests, none with a group's name or a note; not in plain storage, the share link, the summary or the SVG; sealed in state/groups and note/<id> alone`);
+  return failures;
+}
+
 const failed = [];
-const only = process.argv.includes("--chinese") ? "chinese" : process.argv.includes("--share") ? "share" : null;
+const only = process.argv.includes("--chinese") ? "chinese" : process.argv.includes("--share") ? "share" : process.argv.includes("--groups") ? "groups" : null;
 if (!only) {
   try {
     await run();
@@ -921,6 +1027,7 @@ if (!only || only === "chinese") {
   }
 }
 if (!only || only === "share") failed.push(...(await shareLeg()));
+if (!only || only === "groups") failed.push(...(await groupsNotesLeg()));
 if (failed.length) {
   console.error(`PRIVACY FAIL\n- ${failed.join("\n- ")}`);
   process.exit(1);

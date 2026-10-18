@@ -8,7 +8,7 @@
 export type NoticeBlock = { h?: string; p?: string; list?: string[] };
 export type Notice = { title: string; updated: string; blocks: NoticeBlock[]; who: { h: string; p: string } };
 
-export const PRIVACY_UPDATED = "2026-10-17";
+export const PRIVACY_UPDATED = "2026-10-18";
 
 export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
   en: {
@@ -22,7 +22,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         h: "Kept on your device",
         list: [
           "Display settings (appearance, language, looks, views, the hints and the tour you closed), in your browser’s storage, in the clear.",
-          "If you sign in: your charts, the partners you pair them with, a copy of the last chart for a quick start, your encyclopedia bookmarks, notes and pages read, and the homes you keep for Feng Shui. They are sealed in your browser’s database with AES-256-GCM, under a key that only your passphrase, a passkey or your recovery code opens. Ulune never receives them.",
+          "If you sign in: your charts, the partners you pair them with, the groups you sort them into and your notes on them, a copy of the last chart for a quick start, your encyclopedia bookmarks, notes and pages read, and the homes you keep for Feng Shui. They are sealed in your browser’s database with AES-256-GCM, under a key that only your passphrase, a passkey or your recovery code opens. Ulune never receives them.",
           "You stay signed in on your device: the browser keeps the key so it can’t be read out of it, and anyone using that browser can open your space. On a shared computer, choose to lock it when Ulune closes; then nothing but the sealed space is kept.",
           "Backups you download, and the copy you send to another device of yours (Add another device), are sealed the same way and go only where you send them, by AirDrop, a file or a message of your choosing; Ulune never receives them. A readable copy, if you ask for one, is not sealed: keep it private.",
           "While you are just looking, charts stay in the open tab and go when it closes.",
@@ -74,7 +74,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         h: "Gardé sur votre appareil",
         list: [
           "Les réglages d’affichage (apparence, langue, styles, vues, les astuces et la visite que vous avez fermées), dans le stockage de votre navigateur, en clair.",
-          "Si vous vous connectez\u202f: vos thèmes, les partenaires que vous leur associez, une copie du dernier thème pour un démarrage rapide, vos marque-pages, notes et pages lues de l’encyclopédie, et les logements que vous gardez pour le Feng Shui. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
+          "Si vous vous connectez\u202f: vos thèmes, les partenaires que vous leur associez, les groupes où vous les rangez et vos notes sur eux, une copie du dernier thème pour un démarrage rapide, vos marque-pages, notes et pages lues de l’encyclopédie, et les logements que vous gardez pour le Feng Shui. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
           "Vous restez connecté sur votre appareil\u202f: le navigateur garde la clé sans qu’on puisse l’en extraire, et toute personne utilisant ce navigateur peut ouvrir votre espace. Sur un ordinateur partagé, choisissez de le verrouiller à la fermeture d’Ulune\u202f; seul l’espace scellé est alors gardé.",
           "Les sauvegardes que vous téléchargez, et la copie que vous envoyez à un autre de vos appareils (Ajouter un autre appareil), sont scellées de la même façon et ne vont que là où vous les envoyez, par AirDrop, un fichier ou un message de votre choix\u202f; Ulune ne les reçoit jamais. Une copie lisible, si vous en demandez une, n’est pas scellée\u202f: gardez-la pour vous.",
           "Tant que vous regardez sans vous connecter, les thèmes restent dans l’onglet ouvert et sont effacés à sa fermeture.",

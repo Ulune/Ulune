@@ -17,9 +17,16 @@ import { noteBodygraph } from "@/encyclopedia/your-chart";
  * compare plan, feature 2), and neither may push the other's out.
  */
 const lastHd = new Map<string, HumanDesignChart>();
+/** Four: Compare's two, and the connection chart's two (modes/design-pair.tsx, which shares this memory). */
 const LAST_HD_MAX = 4;
 
-function keepHd(key: string, hd: HumanDesignChart) {
+/** A birth's key in that memory: its moment, and the day's span when it has no time. */
+export const hdKeyOf = (utc: string, timeUnknown: boolean | undefined): string => `${utc}|${timeUnknown ? 720 : ""}`;
+
+/** A bodygraph cast in this tab already, by its key (null when none). */
+export const keptHd = (key: string): HumanDesignChart | null => lastHd.get(key) ?? null;
+
+export function keepHd(key: string, hd: HumanDesignChart) {
   lastHd.delete(key);
   lastHd.set(key, hd);
   for (const old of lastHd.keys()) {

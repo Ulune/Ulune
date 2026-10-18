@@ -66,6 +66,15 @@ export const MOUNTAINS: readonly Mountain[] = RAW.map((m, index) => ({
 }));
 export const mountainById = (id: MountainId): Mountain => MOUNTAINS.find((m) => m.id === id)!;
 
+/**
+ * "S2", "NO1": a mountain's short code. Here rather than with the home's readings, so the year's
+ * readings (fengshui-years-reading.ts), which Feng Shui's Cycles shares, need nothing of the home's.
+ */
+export function mountainCode(m: Mountain, locale: string): string {
+  const short = { n: "N", ne: "NE", e: "E", se: "SE", s: "S", sw: locale === "fr" ? "SO" : "SW", w: locale === "fr" ? "O" : "W", nw: locale === "fr" ? "NO" : "NW" }[m.direction];
+  return `${short}${m.place}`;
+}
+
 /** Many schools read a replacement chart within this many degrees of a mountain's edge. */
 export const EDGE_DEGREES = 3;
 /** On the line itself: within this many degrees, a void line (空亡). */

@@ -29,8 +29,8 @@ export function HdCard({ chart, view }: { chart: HumanDesignChart; view: HdView 
   return scope ? <ScopeCard scope={scope} text={text} /> : <PickCard testId="hd-card" text={text} />;
 }
 
-/** The pick card of a Compare pane: as pick-card.tsx draws it, in the pane's own place (data-scope-pick-host). */
-function ScopeCard({ scope, text }: { scope: ChartScope; text: string | null }) {
+/** The pick card of a Compare pane: as pick-card.tsx draws it, in the pane's own place (data-scope-pick-host). Also the connection chart's (modes/design-pair.tsx). */
+export function ScopeCard({ scope, text, testId = "hd-card" }: { scope: ChartScope; text: string | null; testId?: string }) {
   const { t } = useI18n();
   const [host, setHost] = useState<HTMLElement | null>(null);
   useLayoutEffect(() => {
@@ -38,19 +38,19 @@ function ScopeCard({ scope, text }: { scope: ChartScope; text: string | null }) 
   }, [scope.id]);
   if (!text || !scope.state.selectedId || !host) return null;
   return createPortal(
-    <div className="ulune-pick-card" data-testid="hd-card" role="status" data-chart-pick>
+    <div className="ulune-pick-card" data-testid={testId} role="status" data-chart-pick>
       <span className="ulune-pick-card-text" onClick={scope.openReading}>
         {text}
       </span>
       {scope.openReading ? (
-        <button type="button" className="ulune-pick-card-read" data-testid="hd-card-read" onClick={scope.openReading}>
+        <button type="button" className="ulune-pick-card-read" data-testid={`${testId}-read`} onClick={scope.openReading}>
           {t("pickRead")}
         </button>
       ) : null}
       <button
         type="button"
         className="ulune-pick-card-close"
-        data-testid="hd-card-close"
+        data-testid={`${testId}-close`}
         aria-label={t("pickClose")}
         onClick={() => scope.state.clear()}
       >

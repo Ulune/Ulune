@@ -27,17 +27,17 @@
  *     day and year and its View menu) is listed for the owner, not failed.
  *
  * Pages: Chart, Transits, Progressions, Calendar, Synastry, Composite, Human
- * Design, Numerology and its Cycles; Chinese astrology and its Cycles and
- * Pair, BaZi and its luck pillars and Pair, Feng Shui and its two people
- * (Relationship) and Home.
+ * Design, Numerology and its Cycles and two people (Relationship); Chinese
+ * astrology and its Cycles and Pair, BaZi and its luck pillars and Pair,
+ * Feng Shui and its Cycles, two people (Relationship) and Home.
  */
 import { chromium } from "playwright";
 import { DEV, FIXTURE_A, FIXTURE_B, castFixture, clickDockTab, goStudioPage, gotoApp, openCalendarView, pickPlace } from "./_lib.mjs";
 
-const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home"];
-const WESTERN = ["natal", "transits", "progressions", "timing", "synastry", "composite", "design", "numerology", "numerology-cycles"];
-/** The Western pages whose own controls reach 44 × 44 px on a finger (part 30): held to it. */
-const WESTERN_44 = ["natal", "synastry", "composite", "numerology", "timing"];
+const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-cycles", "fengshui-pair", "fengshui-home"];
+const WESTERN = ["natal", "transits", "progressions", "timing", "synastry", "composite", "design", "design-pair", "numerology", "numerology-cycles", "numerology-pair"];
+/** The Western pages whose own controls reach 44 × 44 px on a finger (part 30; numerology's two people, feature 5c, from the start): held to it. */
+const WESTERN_44 = ["natal", "synastry", "composite", "numerology", "numerology-pair", "timing"];
 const PAGES = [...WESTERN, ...CHINESE];
 const CHROME = ".ob-top, .ob-sections, .ob-strip, .ob-foot, .ob-panel-head, .ulune-time-scrub-head";
 const CONTROL = "button, a.ob-section, input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select";

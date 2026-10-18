@@ -11,8 +11,12 @@ import { test } from "node:test";
 const ROOT = new URL("..", import.meta.url).pathname;
 const read = (rel) => readFileSync(join(ROOT, rel), "utf8");
 const IDENTITY = "Limiel <limiel.ulune@protonmail.com>";
+// What the next commit holds (`git add -A`): the tracked files still on disk and the new ones
+// git does not ignore, so a file renamed or added before the commit is checked as it will be.
 const tracked = () =>
-  execFileSync("git", ["ls-files"], { cwd: ROOT, encoding: "utf8" }).split("\n").filter(Boolean);
+  execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard"], { cwd: ROOT, encoding: "utf8" })
+    .split("\n")
+    .filter((rel) => rel && existsSync(join(ROOT, rel)));
 
 test("the licence is the GNU AGPL 3.0, and the package says so", () => {
   const licence = read("LICENSE");

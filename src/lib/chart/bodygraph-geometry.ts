@@ -172,6 +172,8 @@ export type ChannelDrawing = {
   dA: string;
   dB: string;
   length: number;
+  /** Where its two halves meet (the connection chart marks an electromagnetic channel there). */
+  mid: Pt;
 };
 
 const num = (n: number) => String(Math.round(n * 100) / 100);
@@ -188,7 +190,7 @@ function drawChannel(points: Pt[]): ChannelDrawing {
   const mid = lerp(points[k], points[k + 1], (length / 2 - acc) / lens[k]);
   const first = [...points.slice(0, k + 1), mid];
   const second = [mid, ...points.slice(k + 1)];
-  return { points, d: pathOf(points), dA: pathOf(first), dB: pathOf(second), length };
+  return { points, d: pathOf(points), dA: pathOf(first), dB: pathOf(second), length, mid: r2(mid) };
 }
 
 const channels: Record<string, ChannelDrawing> = {};

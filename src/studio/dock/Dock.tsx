@@ -74,8 +74,10 @@ export function Dock() {
   const studioPage = useStudioStore((s) => s.page);
   const noBodies =
     studioPage === "design" ||
+    studioPage === "design-pair" ||
     studioPage === "numerology" ||
     studioPage === "numerology-cycles" ||
+    studioPage === "numerology-pair" ||
     studioPage === "zodiac" ||
     studioPage === "zodiac-years" ||
     studioPage === "zodiac-pair" ||
@@ -84,7 +86,8 @@ export function Dock() {
     studioPage === "bazi-pair" ||
     studioPage === "fengshui" ||
     studioPage === "fengshui-pair" ||
-    studioPage === "fengshui-home";
+    studioPage === "fengshui-home" ||
+    studioPage === "fengshui-cycles";
   // The Calendar without a chart (reorganisation plan, R5), and Feng Shui's Home (FS13): their
   // readings only; the birth form comes on the stage when asked for, as for a new chart.
   const chartFree = useStudioStore((s) => !s.chart && !MODE_META[s.page].needsChart);
@@ -108,7 +111,8 @@ export function Dock() {
   const reading = useModeReading();
   const waiting = !dockOpen && selectedId && reading ? reading.title : null;
   // On a phone, the same card as Human Design's (review 3 Oct, R3): the name
-  // and one key fact, and Read. Human Design writes its own (hd-card.tsx).
+  // and one key fact, and Read. Human Design writes its own (hd-card.tsx), its
+  // connection chart too (modes/design-pair.tsx).
   const wideLayout = useWideLayout();
   // The first fact the title does not already say ("Expression 11/2" needs no "11/2" after it).
   // A short one only: a long sum ("6 (June) + 6 (15th) + …") would end cut off in the row (5 Oct).
@@ -337,7 +341,7 @@ export function Dock() {
       data-ready={ready ? "1" : undefined}
       onFocus={onFocusIn}
     >
-      {wideLayout || studioPage === "design" ? null : <PickCard text={pickText} />}
+      {wideLayout || studioPage === "design" || studioPage === "design-pair" ? null : <PickCard text={pickText} />}
       <div
         className="ob-panel-head"
         onPointerDown={onHeadDown}

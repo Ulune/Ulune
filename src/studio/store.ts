@@ -407,6 +407,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
         page === "progressions" ||
         page === "numerology" ||
         page === "numerology-cycles" ||
+        page === "numerology-pair" ||
         page === "zodiac" ||
         page === "zodiac-years" ||
         page === "zodiac-pair" ||
@@ -416,7 +417,9 @@ export const useStudioStore = create<StudioState>((set, get) => ({
         page === "fengshui" ||
         page === "fengshui-pair" ||
         page === "fengshui-home" ||
-        page === "design";
+        page === "fengshui-cycles" ||
+        page === "design" ||
+        page === "design-pair";
       set((s) => ({
         chart: result.chart,
         dossier: nextDossier,
@@ -660,7 +663,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   finishAddPartner: (newId) => {
     const mode = get().pair.addingPartnerFor;
     // Chinese astrology's Pair (part 11), BaZi's (part 19) and Feng Shui's (FS32) compare with synastry's partner: one second person for all.
-    if (mode === "synastry" || mode === "zodiac-pair" || mode === "bazi-pair" || mode === "fengshui-pair") {
+    if (mode === "synastry" || mode === "zodiac-pair" || mode === "bazi-pair" || mode === "fengshui-pair" || mode === "design-pair" || mode === "numerology-pair") {
       set({ pair: { ...get().pair, partnerId: newId, addingPartnerFor: null, anchorId: null } });
     } else if (mode === "composite") {
       set({

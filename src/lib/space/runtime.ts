@@ -12,10 +12,15 @@ import {
   ENC_NOTE_RECORD,
   FS_CHANGED,
   FS_HOMES_RECORD,
+  GROUPS_RECORD,
+  KEPT_CHANGED,
   LIBRARY_RECORD,
+  NOTE_RECORD,
   PAIR_RECORD,
   type BackupRecord,
+  type GroupsRecord,
   type LibraryRecord,
+  type NoteRecord,
   type PairRecord,
 } from "./records";
 import { idbStore, type LockMode, type SpaceMeta, type SpaceStore } from "./store";
@@ -238,14 +243,26 @@ export async function eraseSpace(): Promise<void> {
 
 let backupCheck: Promise<void> = Promise.resolve();
 
-/** Whether a backup is due: the charts changed since the last one, or there are charts and none yet. */
+/**
+ * The charts' sealed state, and with them their notes' and the groups' once there are any (share
+ * and compare plan, ideas B5 and B6: a note written since the last backup makes one due too).
+ * Without notes or groups, the charts' mark alone, as before them.
+ */
+async function backupMark(vault: Vault): Promise<{ mark: string; count: number }> {
+  const charts = await vault.mark(CHART_RECORD);
+  const notes = await vault.mark(NOTE_RECORD);
+  const groups = await vault.mark(GROUPS_RECORD);
+  return notes.count || groups.count ? { mark: `${charts.mark}.${notes.mark}.${groups.mark}`, count: charts.count } : charts;
+}
+
+/** Whether a backup is due: the charts (or their notes, or the groups) changed since the last one, or there are charts and none yet. */
 function checkBackup(): Promise<void> {
   backupCheck = backupCheck.then(async () => {
     const vault = openVault();
     if (!vault) return;
     try {
       const note = await vault.get<BackupRecord>(BACKUP_RECORD).catch(() => null);
-      const { mark, count } = await vault.mark(CHART_RECORD);
+      const { mark, count } = await backupMark(vault);
       if (openVault() !== vault) return;
       useSpace.setState({ backupAt: note?.at ?? null, backupDue: count > 0 && mark !== note?.mark });
     } catch {
@@ -290,7 +307,7 @@ export async function downloadBackup(): Promise<void> {
   const vault = openVault();
   if (!vault) throw new Error("space-locked");
   await spaceBridge()?.beforeLock().catch(() => {});
-  const { mark } = await vault.mark(CHART_RECORD);
+  const { mark } = await backupMark(vault);
   const note: BackupRecord = { at: Date.now(), mark };
   await vault.put(BACKUP_RECORD, note);
   saveBlob(backupName(), new Blob([await sealedCopy(vault)], { type: "application/json" }));
@@ -355,7 +372,8 @@ export async function restoreSpace(backup: SpaceBackup, way: WayIn, shared = fal
 /**
  * The charts of a backup (opened with one of its own ways in: it may be
  * another space's) added to the space open here: those it doesn't hold yet,
- * after its own, as they were sealed. Returns how many.
+ * after its own, as they were sealed; then its groups and notes (ideas B5 and
+ * B6), on the charts as this space knows them. Returns how many charts.
  */
 export async function importBackup(backup: SpaceBackup, way: WayIn): Promise<number> {
   const vault = openVault();
@@ -366,7 +384,7 @@ export async function importBackup(backup: SpaceBackup, way: WayIn): Promise<num
   await importEncyclopedia(vault, records);
   await importHomes(vault, records);
 
-  const { fromStoredRow, unseenRows } = await importWithRetry(() => import("@/lib/chart/library"));
+  const { birthKey, fromStoredRow, unseenRows } = await importWithRetry(() => import("@/lib/chart/library"));
   const theirOrder = (records.get(LIBRARY_RECORD) as LibraryRecord | undefined)?.order ?? [];
   const rank = new Map(theirOrder.map((id, i) => [id, i]));
   const found = new Map<string, StoredRow>();
@@ -387,17 +405,57 @@ export async function importBackup(backup: SpaceBackup, way: WayIn): Promise<num
   const { rows: stored } = await vault.list<StoredRow>(CHART_RECORD);
   const held = stored.map(([, row]) => fromStoredRow(row)).filter((row): row is SavedChart => row !== null);
   const joining = unseenRows(candidates, held);
-  if (!joining.length) return 0;
-  const library = await vault.get<LibraryRecord>(LIBRARY_RECORD).catch(() => null);
-  const order = library?.order?.length ? library.order : [...held].sort((a, b) => b.savedAt - a.savedAt).map((r) => r.id);
-  const next: LibraryRecord = { order: [...order, ...joining.map((r) => r.id)], activeId: library?.activeId ?? null };
-  await vault.write([
-    ...joining.map((row) => [CHART_RECORD + row.id, found.get(row.id)] as const),
-    [LIBRARY_RECORD, next],
-  ]);
-  await bridge?.reload();
+  // Each of the backup's charts as this space knows it: the same chart here (by id, or by birth, as
+  // unseenRows tells them apart), or itself, joining.
+  const ours = new Map<string, string>();
+  for (const row of [...held, ...joining]) {
+    if (!ours.has(row.id)) ours.set(row.id, row.id);
+    if (!ours.has(birthKey(row.input))) ours.set(birthKey(row.input), row.id);
+  }
+  const mapped = new Map(candidates.map((row) => [row.id, ours.get(row.id) ?? ours.get(birthKey(row.input))]));
+  if (joining.length) {
+    const library = await vault.get<LibraryRecord>(LIBRARY_RECORD).catch(() => null);
+    const order = library?.order?.length ? library.order : [...held].sort((a, b) => b.savedAt - a.savedAt).map((r) => r.id);
+    const next: LibraryRecord = { order: [...order, ...joining.map((r) => r.id)], activeId: library?.activeId ?? null };
+    await vault.write([
+      ...joining.map((row) => [CHART_RECORD + row.id, found.get(row.id)] as const),
+      [LIBRARY_RECORD, next],
+    ]);
+    await bridge?.reload();
+  }
+  // After the charts are on the page: the groups' code keeps only the space's charts in its groups.
+  await importKept(vault, records, (id) => mapped.get(id));
   await checkBackup();
   return joining.length;
+}
+
+/**
+ * A backup's groups and notes on charts (share and compare plan, ideas B5 and
+ * B6) join the open space's (studio/groups/kept.ts): a group of the same id or
+ * name takes the backup's charts too, the others are added; a note on a chart
+ * that has none here, or an older one, joins. Their charts are named as this
+ * space knows them (`mapId`); a note on a chart that did not come stays out.
+ */
+async function importKept(vault: Vault, records: Map<string, unknown>, mapId: (id: string) => string | undefined): Promise<void> {
+  const notes = [...records].filter(([name]) => name.startsWith(NOTE_RECORD));
+  if (!records.has(GROUPS_RECORD) && !notes.length) return;
+  const { cleanGroups, cleanNote, joinGroups, joinsNote } = await importWithRetry(() => import("@/studio/groups/kept"));
+  const puts: [string, unknown][] = [];
+  if (records.has(GROUPS_RECORD)) {
+    const ours = cleanGroups(await vault.get(GROUPS_RECORD).catch(() => null));
+    const groups = joinGroups(ours, cleanGroups(records.get(GROUPS_RECORD)), mapId);
+    if (groups) puts.push([GROUPS_RECORD, { groups } satisfies GroupsRecord]);
+  }
+  for (const [name, value] of notes) {
+    const theirs = cleanNote(value);
+    const id = mapId(name.slice(NOTE_RECORD.length));
+    if (!theirs || !id) continue;
+    const here = cleanNote(await vault.get(NOTE_RECORD + id).catch(() => null));
+    if (joinsNote(here, theirs)) puts.push([NOTE_RECORD + id, theirs]);
+  }
+  if (!puts.length) return;
+  await vault.write(puts);
+  window.dispatchEvent(new Event(KEPT_CHANGED));
 }
 
 type KeptPage = { id: string; at: number };
@@ -446,6 +504,8 @@ async function importHomes(vault: Vault, records: Map<string, unknown>): Promise
 export async function readableCopy(): Promise<{
   charts: StoredRow[];
   partners: PairRecord | null;
+  groups: { name: string; charts: string[] }[];
+  notes: { chart: string; text: string; at: string | null }[];
   encyclopedia: { bookmarks: unknown[]; notes: unknown[] };
   fengShui: { homes: unknown[] };
 } | null> {
@@ -459,12 +519,17 @@ export async function readableCopy(): Promise<{
     .map(([, row]) => row)
     .sort((a, b) => (rank.get(a.id) ?? Infinity) - (rank.get(b.id) ?? Infinity));
   const partners = await vault.get<PairRecord>(PAIR_RECORD).catch(() => null);
+  // The groups and the notes on charts (ideas B5 and B6), the charts by their ids above: asked for, so given.
+  const kept = (await vault.get<GroupsRecord>(GROUPS_RECORD).catch(() => null))?.groups ?? [];
+  const groups = kept.map((g) => ({ name: g.name, charts: g.members }));
+  const { rows: noted } = await vault.list<NoteRecord>(NOTE_RECORD);
+  const chartNotes = noted.map(([key, n]) => ({ chart: key.slice(NOTE_RECORD.length), text: n.text, at: n.at ? new Date(n.at).toISOString() : null }));
   // The encyclopedia's bookmarks and notes (part 20): the reader's too.
   const bookmarks = (await vault.get<unknown[]>(ENC_BOOKMARKS_RECORD).catch(() => null)) ?? [];
   const { rows: notes } = await vault.list<unknown>(ENC_NOTE_RECORD);
   // Feng Shui's homes (part 26): the facing, year and rooms as the reader gave them.
   const homes = ((await vault.get<{ homes?: unknown[] }>(FS_HOMES_RECORD).catch(() => null))?.homes ?? []) as unknown[];
-  return { charts, partners, encyclopedia: { bookmarks, notes: notes.map(([, n]) => n) }, fengShui: { homes } };
+  return { charts, partners, groups, notes: chartNotes, encyclopedia: { bookmarks, notes: notes.map(([, n]) => n) }, fengShui: { homes } };
 }
 
 /* ------------------------------------------------ after a while away */

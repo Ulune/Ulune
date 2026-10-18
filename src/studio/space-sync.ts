@@ -24,6 +24,7 @@ import {
   LIBRARY_RECORD as LIBRARY,
   PAIR_RECORD as PAIR,
   COMPARE_RECORD as COMPARE,
+  NOTE_RECORD as NOTE,
   type CompareRecord,
   type LibraryRecord as LibraryState,
   type PairRecord as PairState,
@@ -80,7 +81,8 @@ async function flush(): Promise<void> {
     now.set(row.id, row);
     if (written.get(row.id) !== row) puts.push([CHART + row.id, toStoredRow(row)]);
   }
-  for (const id of written.keys()) if (!now.has(id)) deletes.push(CHART + id);
+  // A chart forgotten: its note goes with it (share and compare plan, idea B6; its groups let go of it in studio/groups/kept-store.ts).
+  for (const id of written.keys()) if (!now.has(id)) deletes.push(CHART + id, NOTE + id);
   // With the chart open before this one (share and compare plan, idea B3: the P key's).
   const previousId = previousChartId();
   const library: LibraryState = { order: rows.map((r) => r.id), activeId, ...(previousId ? { previousId } : {}) };

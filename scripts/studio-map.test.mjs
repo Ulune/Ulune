@@ -63,15 +63,26 @@ test("every page belongs to one language and one lens, except the Calendar, a se
     assert.ok(pagePath(page).startsWith(lang.path), `${page} under ${lang.path}`);
   }
   assert.deepEqual(lensesOf("astrology"), ["natal", "cycles", "relationship"]);
-  assert.deepEqual(lensesOf("human-design"), ["natal"], "a lens a language lacks is not there");
-  assert.deepEqual(lensesOf("numerology"), ["natal", "cycles"], "numerology's cycles (from R3)");
+  assert.deepEqual(lensesOf("human-design"), ["natal", "relationship"], "Human Design's connection chart (share and compare plan, feature 5a)");
+  assert.equal(pagePath("design-pair"), "/human-design/pair");
+  assert.equal(pageFromPath("/human-design/pair/"), "design-pair");
+  assert.equal(pageFromPath("/human-design/"), "design", "the bodygraph keeps its address");
+  assert.equal(lensOf("design-pair"), "relationship");
+  assert.ok(isStudioPath("/human-design/pair"));
+  assert.deepEqual(lensesOf("numerology"), ["natal", "cycles", "relationship"], "numerology's cycles (from R3) and two people (share and compare plan, feature 5c)");
   assert.equal(pagePath("numerology-cycles"), "/numerology/cycles");
+  assert.equal(pagePath("numerology-pair"), "/numerology/pair");
+  assert.equal(pageFromPath("/numerology/pair/"), "numerology-pair");
+  assert.equal(lensOf("numerology-pair"), "relationship");
   assert.deepEqual(lensesOf("chinese-astrology"), ["natal", "cycles", "relationship"], "Chinese astrology's year ahead and two people (part 11)");
   assert.equal(pagePath("zodiac-years"), "/chinese-astrology/cycles");
   assert.equal(pagePath("zodiac-pair"), "/chinese-astrology/pair");
   assert.equal(pagePath("bazi-luck"), "/bazi/cycles");
   assert.equal(pagePath("bazi-pair"), "/bazi/pair");
-  assert.deepEqual(lensesOf("feng-shui"), ["natal", "relationship", "home"], "Feng Shui's personal half (part 21), two people in one home (FS32) and its home (part 22)");
+  assert.deepEqual(lensesOf("feng-shui"), ["natal", "cycles", "relationship", "home"], "Feng Shui's personal half (part 21), its cycles (feature 5d), two people in one home (FS32) and its home (part 22)");
+  assert.equal(pagePath("fengshui-cycles"), "/feng-shui/cycles");
+  assert.equal(pageFromPath("/feng-shui/cycles/"), "fengshui-cycles");
+  assert.equal(lensOf("fengshui-cycles"), "cycles");
   assert.equal(pagePath("fengshui-home"), "/feng-shui/home");
   assert.equal(pagePath("fengshui-pair"), "/feng-shui/pair");
   assert.equal(pageFromPath("/feng-shui/pair/"), "fengshui-pair");
@@ -94,7 +105,7 @@ test("every 1.x address lands on its 2.0 page", () => {
     numerology: "/numerology",
   };
   // 2.0's own pages have no 1.x name to carry.
-  const NEW_IN_2 = ["numerology-cycles", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home"];
+  const NEW_IN_2 = ["design-pair", "numerology-cycles", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home", "numerology-pair", "fengshui-cycles"];
   assert.deepEqual(Object.keys(cases).sort(), STUDIO_PAGES.filter((p) => !NEW_IN_2.includes(p)).sort(), "every 1.0.4 name is covered");
   for (const [studio, path] of Object.entries(cases)) {
     assert.deepEqual(legacyStudioPath({ studio }), { path, view: undefined }, studio);

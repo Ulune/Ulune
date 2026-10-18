@@ -18,3 +18,5 @@ export const PLACE_WORD: Record<ZodiacPlaceId, ChineseWordKey> = { year: "zkYear
 /** Feng Shui's Kua and a direction of the rose, in a count (fengshui-reading.ts, fsKuaRef and fsDirRef). */
 export const kuaRef = (count: FsCount): string => `fs:${count}:kua`;
 export const dirRef = (count: FsCount, d: DirectionId): string => `fs:${count}:dir:${d}`;
+/** A direction of Feng Shui's Cycles under the year, in a count (fengshui-cycles-reading.ts, fscDirRef). */
+export const cyclesDirRef = (count: FsCount, d: DirectionId): string => `fsc:${count}:dir:${d}`;

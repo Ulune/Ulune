@@ -319,8 +319,8 @@
       "fr": "L’année personnelle de chaque année (dès le 1er janvier) et les cycles à partir de l’anniversaire de cette année-là. Les cycles des lettres parcourent les lettres du nom, chacune pendant autant d’années que sa valeur."
     },
     "hint_bridges": {
-      "en": "The gap between two numbers, from 0 to 8, names the quality that helps them work together. Below, two people from your library side by side.",
-      "fr": "L’écart entre deux nombres, de 0 à 8, désigne la qualité qui les aide à s’accorder. Ci-dessous, deux personnes de votre bibliothèque côte à côte."
+      "en": "The gap between two numbers, from 0 to 8, names the quality that helps them work together.",
+      "fr": "L’écart entre deux nombres, de 0 à 8, désigne la qualité qui les aide à s’accorder."
     },
     "hint_numbers": {
       "en": "What 1 to 9 and the master numbers 11, 22 and 33 stand for. Tap one to read it.",
@@ -730,10 +730,6 @@
       "en": "Soul Urge – Personality",
       "fr": "Élan de l’âme – Personnalité"
     },
-    "compareHead": {
-      "en": "{a} and {b}",
-      "fr": "{a} et {b}"
-    },
     "compareTitle": {
       "en": "Two people",
       "fr": "Deux personnes"
@@ -749,14 +745,6 @@
     "fileName": {
       "en": "{name} numerology",
       "fr": "{name} numérologie"
-    },
-    "emptyCompare": {
-      "en": "Save another person to compare.",
-      "fr": "Enregistrez une autre personne pour comparer."
-    },
-    "emptyCompareHint": {
-      "en": "Compare needs a second person in your library. Cast their birth chart, then come back here.",
-      "fr": "Comparer demande une deuxième personne dans votre bibliothèque. Calculez son thème natal, puis revenez ici."
     },
     "addBirthName": {
       "en": "Add the full name at birth",
@@ -782,14 +770,6 @@
       "en": "Add the full name at birth",
       "fr": "Ajouter le nom complet de naissance"
     },
-    "personA": {
-      "en": "Person A",
-      "fr": "Personne A"
-    },
-    "personB": {
-      "en": "Person B",
-      "fr": "Personne B"
-    },
     "methodTitle": {
       "en": "How the numbers are worked out",
       "fr": "Comment les nombres sont calculés"
@@ -805,6 +785,14 @@
     "personalDay": {
       "en": "Personal day",
       "fr": "Jour personnel"
+    },
+    "pairLinkNote": {
+      "en": "Two people’s numbers side by side, how each pair tends to work together and their relationship number are on numerology’s Relationship lens.",
+      "fr": "Les nombres de deux personnes côte à côte, la façon dont chaque paire a tendance à s’accorder et leur nombre de la relation sont dans le prisme Relation de la numérologie."
+    },
+    "pairLinkGo": {
+      "en": "Open Relationship",
+      "fr": "Ouvrir Relation"
     }
   },
   "reading": {

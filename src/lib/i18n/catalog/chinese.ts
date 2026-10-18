@@ -1063,6 +1063,11 @@ export const chinese = {
   fspPartDirs: ["The eight directions for two", "Les huit directions à deux"],
   fspPartDirsHint: ["Each direction, its mansion for each of you, and what it is for the two of you.", "Chaque direction, sa demeure pour chacun de vous, et ce qu’elle est pour vous deux."],
   fspPartPracticeHint: ["A shared desk and bed, rooms of your own, what suits storage, and your home.", "Un bureau et un lit partagés, des pièces à soi, ce qui convient au rangement, et votre logement."],
+  // LENSES (2.0 week 3): Feng Shui's Cycles' own words are a book of their own (fengshui-cycles-words.ts), loaded with the page; its method note stays here with the others.
+  cnmHowCycles: [
+    "Over your eight directions, the year’s stars are read as for a home: the 1, 4, 6, 8 and 9 supportive, the 2 and the 5 asking for calm, the 3 and the 7 mixed; a direction holding one of the year’s afflictions rests, and the one across from the Three Killings, which would put them at your back, is never the one to face.",
+    "Sur vos huit directions, les étoiles de l’année se lisent comme pour un logement\u202f: le 1, le 4, le 6, le 8 et le 9 favorables, le 2 et le 5 demandant le calme, le 3 et le 7 mitigés\u202f; une direction où tombe une affliction de l’année se repose, et la direction opposée aux Trois Sha, qui les mettrait dans le dos, n’est jamais celle vers laquelle se tourner.",
+  ],
   // Feng Shui, the home: the facing, the 24 mountains, the compass, the period (languages plan, part 22).
   fshEmpty: ["Give your home’s facing, typed or read with the compass.", "Indiquez l’orientation de votre logement, saisie ou lue avec la boussole."],
   fshLead: [

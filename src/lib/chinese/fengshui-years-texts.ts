@@ -32,8 +32,8 @@ export const AFFLICTION_TEXTS: Readonly<Record<AfflictionId, Both>> = {
     "Le Briseur de l’année se tient en {where} en {year}, face au Grand Duc. Les classiques suggèrent de laisser ce côté du logement à l’abri des travaux pour l’année.",
   ],
   "three-killings": [
-    "The Three Killings fall {where} in {year}, opposite the direction of the year’s trine. The classics suggest sitting with your back to them rather than facing them, and keeping works on that side for another year.",
-    "Les Trois Sha tombent {where} en {year}, à l’opposé de la direction du trigone de l’année. Les classiques suggèrent de s’asseoir dos à eux plutôt que face à eux, et de garder les travaux de ce côté pour une autre année.",
+    "The Three Killings fall {where} in {year}, opposite the direction of the year’s trine. The classics suggest facing them rather than sitting with your back to them, and keeping works on that side for another year.",
+    "Les Trois Sha tombent {where} en {year}, à l’opposé de la direction du trigone de l’année. Les classiques suggèrent de leur faire face plutôt que de s’asseoir dos à eux, et de garder les travaux de ce côté pour une autre année.",
   ],
 };
 

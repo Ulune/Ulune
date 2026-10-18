@@ -1,8 +1,10 @@
-/* Synastry and Composite: these styles load with the code that uses them, not with the
-   first page (performance plan 1.9). Moved as they were from styles.css. */
+/* The two people of every Relationship page (pair-selects.tsx: Synastry, Composite and the other
+   languages' pages, in synastry's style): these styles load with the code that uses them, not with
+   the first page (performance plan 1.9). Each part carries a common class (ulune-pair-*) beside its
+   page's own (ulune-synastry-*, ulune-composite-*, which Compare's bar and the QA scripts read), so
+   each rule is written once (review of 2.0's week 3, to make room for the toolbar's rows below). */
 
-.ulune-synastry-pair-bar,
-.ulune-composite-pair-bar {
+.ulune-pair-bar {
   display: flex;
   align-items: stretch;
   gap: var(--space-2);
@@ -12,17 +14,15 @@
   height: var(--ctl-h);
   max-height: var(--ctl-h);
 }
-.ulune-synastry-pair-slot,
-.ulune-composite-pair-slot {
+.ulune-pair-slot {
   display: flex;
-  min-width: 0;
   flex: 1 1 0;
   height: var(--ctl-h);
+  /* Person A never shrinks below a name. */
+  min-width: 7.5rem;
 }
-.ulune-synastry-select,
-.ulune-synastry-add,
-.ulune-composite-select,
-.ulune-composite-add {
+.ulune-pair-select,
+.ulune-pair-add {
   display: block;
   box-sizing: border-box;
   width: 100%;
@@ -41,8 +41,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.ulune-synastry-select,
-.ulune-composite-select {
+.ulune-pair-select {
   appearance: none;
   background-image: linear-gradient(45deg, transparent 50%, var(--color-fg-muted) 50%),
     linear-gradient(135deg, var(--color-fg-muted) 50%, transparent 50%);
@@ -53,14 +52,17 @@
   background-repeat: no-repeat;
   padding-right: 1.75rem;
 }
-.ulune-synastry-add,
-.ulune-composite-add {
+.ulune-pair-add {
   text-align: left;
   font-size: 16px;
-  line-height: 1.2;
 }
-.ulune-synastry-pair-rule,
-.ulune-composite-pair-rule {
+/* Both halves share the width. */
+.ulune-pair-bar > .ulune-pair-add {
+  flex: 1 1 0;
+  width: auto;
+  overflow: hidden;
+}
+.ulune-pair-rule {
   display: grid;
   flex-shrink: 0;
   place-items: center;
@@ -82,67 +84,64 @@
     color: var(--color-fg);
   }
 }
-/* A narrow stage (a phone, or a Compare pane: the stage's width, not the window's). */
+/* A narrow stage (a phone, or a Compare pane: the stage's width, not the window's): a parent
+   max-height of 44 was clipping the native select to about 43. */
 @container stage (max-width: 767px) {
-  /* Parent max-height:44 was clipping the native select to ~43. */
-  .ulune-synastry-pair-bar,
-    .ulune-composite-pair-bar {
-      height: var(--ctl-h);
-      min-height: var(--ctl-h);
-      max-height: none;
-    }
-  .ulune-synastry-select,
-    .ulune-synastry-add,
-    .ulune-composite-select,
-    .ulune-composite-add {
-      width: 100%;
-      min-width: var(--ctl-h);
-      height: var(--ctl-h);
-      min-height: var(--ctl-h);
-      max-height: none;
-      box-sizing: border-box;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-  .ulune-synastry-pair-slot,
-    .ulune-composite-pair-slot {
-      display: flex;
-      align-items: stretch;
-      height: var(--ctl-h);
-      min-height: var(--ctl-h);
-      min-width: var(--ctl-h);
-      max-height: none;
-    }
-
-}
-/* Pair bar: both halves share the width; person A never shrinks below a name. */
-.ulune-synastry-pair-bar > .ulune-synastry-add,
-.ulune-composite-pair-bar > .ulune-composite-add {
-  flex: 1 1 0;
-  width: auto;
-  overflow: hidden;
-}
-.ulune-synastry-pair-slot,
-.ulune-composite-pair-slot {
-  min-width: 7.5rem;
+  .ulune-pair-bar {
+    min-height: var(--ctl-h);
+    max-height: none;
+  }
+  .ulune-pair-select,
+  .ulune-pair-add {
+    min-width: var(--ctl-h);
+    max-height: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .ulune-pair-slot {
+    min-height: var(--ctl-h);
+  }
 }
 
 /* The two people in the stage's toolbar (moved from shell.css, 5 Oct: they load with these pages). */
-.ob-strip .ulune-synastry-pair-bar,
-.ob-strip .ulune-composite-pair-bar {
+.ob-strip .ulune-pair-bar {
   flex: 1 1 auto;
-  min-width: 0;
   width: auto;
 }
 @media (min-width: 1024px) {
-  .ob-strip .ulune-synastry-pair-bar,
-  .ob-strip .ulune-composite-pair-bar {
+  .ob-strip .ulune-pair-bar {
     flex: 0 1 auto;
   }
-  .ob-strip .ulune-synastry-pair-slot,
-  .ob-strip .ulune-composite-pair-slot {
+  .ob-strip .ulune-pair-slot {
     flex: 0 1 12rem;
     width: 12rem;
+  }
+  /* Every Relationship page's toolbar on a computer (review of 2.0's week 3): where the stage
+     cannot hold the language and its lenses, the two people (at least 284 px) and the tools in
+     one row, the two people take a second row rather than run under the view switch. By the
+     stage's width, so the side panel open, closed or resized counts: under 1180 px where each
+     lens has one page (the widest, Feng Shui's four lenses beside two chips, needs about
+     1165 px), under 1440 px where the lens shows its sub-modes too (Synastry and Composite,
+     about 1430 px). */
+  @container stage (max-width: 1179.98px) {
+    .ob-strip:has(.ulune-pair-bar) > .ob-strip-extra {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .ob-strip:has(.ulune-pair-bar) > .ob-strip-end {
+      grid-column: -2 / -1;
+      grid-row: 1;
+    }
+  }
+  @container stage (max-width: 1439.98px) {
+    .ob-strip:has(> .ob-nav > .ob-submodes):has(.ulune-pair-bar) > .ob-strip-extra {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .ob-strip:has(> .ob-nav > .ob-submodes):has(.ulune-pair-bar) > .ob-strip-end {
+      grid-column: -2 / -1;
+      grid-row: 1;
+    }
   }
 }
 /* A phone's table view (the review of languages part 20): the table's part
@@ -151,11 +150,11 @@
    starting from no width; on every Pair page (BaZi's, Chinese astrology's,
    Feng Shui's, synastry's and composite's). */
 @media (max-width: 1023.98px) {
-  .ob-strip-extra:has(.ulune-synastry-pair-bar, .ulune-composite-pair-bar):has(> .ob-strip-tabs:not(:empty)) {
+  .ob-strip-extra:has(.ulune-pair-bar):has(> .ob-strip-tabs:not(:empty)) {
     flex-wrap: wrap;
     row-gap: 6px;
   }
-  .ob-strip-extra:has(.ulune-synastry-pair-bar, .ulune-composite-pair-bar) > .ob-strip-tabs:not(:empty) {
+  .ob-strip-extra:has(.ulune-pair-bar) > .ob-strip-tabs:not(:empty) {
     flex: 1 0 100%;
   }
 }

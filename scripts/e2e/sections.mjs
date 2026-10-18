@@ -2,7 +2,7 @@
  * The 2.0 navigation (page reorganisation, parts R2 to R4): the three
  * sections on a computer's top bar and a phone's bottom bar; the language
  * button and its picker, by mouse and by keyboard; the chips; each language
- * reopening its last lens and sub-mode; no lens tabs for a one-lens language;
+ * reopening its last lens and sub-mode; Human Design's two lenses (5a);
  * the sub-modes folded into their lens on a narrow toolbar; the French
  * words; no horizontal overflow from 360 to 1440 px in either language; the
  * keys L and Alt+1 to Alt+3; the language button's one-time hint for a
@@ -21,8 +21,8 @@
 import { chromium } from "playwright";
 import { DEV, clickTestId, goStudioPage, gotoApp, openMenu, setLang, studioPageNow, waitStudioPage } from "./_lib.mjs";
 
-/** The nine Chinese pages (src/studio/map.ts): Chinese astrology's three, BaZi's three, Feng Shui's three. */
-const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home"];
+/** The ten Chinese pages (src/studio/map.ts): Chinese astrology's three, BaZi's three, Feng Shui's four (its Cycles, feature 5d). */
+const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-cycles", "fengshui-pair", "fengshui-home"];
 
 const fail = [];
 const check = (ok, msg) => {
@@ -114,8 +114,9 @@ async function computer() {
     await waitStudioPage(page, "design");
     await page.getByTestId("lang-picker").waitFor({ state: "detached", timeout: 4000 });
     check((await attr(page, "lang-button", "data-language")) === "human-design", "the card did not open Human Design");
-    // One lens: no lens tabs at all (a lone "Natal" would be noise).
-    check(!(await page.locator("[data-testid^=lens-]").count()), "Human Design shows lens tabs");
+    // Its two lenses (share and compare plan, feature 5a): Natal and Relationship, the connection chart.
+    const hdLenses = await page.locator("[data-testid^=lens-]").evaluateAll((els) => els.map((e) => e.dataset.testid));
+    check(JSON.stringify(hdLenses) === JSON.stringify(["lens-natal", "lens-relationship"]), `Human Design's lenses ${JSON.stringify(hdLenses)}`);
     console.log("picker by mouse OK");
 
     // The picker by keyboard: Enter opens it on the current card, the arrows move, Escape gives the focus back.
@@ -155,9 +156,9 @@ async function computer() {
     check((await page.getByTestId("lang-chip-human-design").innerText()).trim() === "HD", `the Human Design chip reads "${await page.getByTestId("lang-chip-human-design").innerText()}"`);
     await page.getByTestId("lang-chip-numerology").click();
     await waitStudioPage(page, "numerology");
-    // Numerology has two lenses (its numbers, its cycles): Natal and Cycles, nothing else.
+    // Numerology has three lenses (its numbers, its cycles, two people: feature 5c): Natal, Cycles and Relationship, no Home.
     const numLenses = await page.locator("[data-testid^=lens-]").evaluateAll((els) => els.map((e) => e.dataset.testid));
-    check(JSON.stringify(numLenses) === JSON.stringify(["lens-natal", "lens-cycles"]), `numerology's lenses ${JSON.stringify(numLenses)}`);
+    check(JSON.stringify(numLenses) === JSON.stringify(["lens-natal", "lens-cycles", "lens-relationship"]), `numerology's lenses ${JSON.stringify(numLenses)}`);
     const after = await page.locator("[data-testid^=lang-chip-]").evaluateAll((els) => els.map((e) => e.dataset.testid));
     check(JSON.stringify(after) === JSON.stringify(["lang-chip-astrology", "lang-chip-human-design"]), `chips on numerology ${JSON.stringify(after)}`);
     console.log("chips OK");
@@ -186,7 +187,8 @@ async function computer() {
     check(!(await shown(page, "submode-switch")), "the sub-modes are not folded at 1280 px with the panel open");
     const fold = await page.getByTestId("lens-relationship").evaluate((el) => ({
       label: el.getAttribute("aria-label"),
-      drawn: [...el.querySelectorAll(".ob-lens-word, .ob-lens-more")].filter((e) => e.getClientRects().length).map((e) => e.textContent),
+      // (A lens with a phone's short name holds both: the one drawn here is the long one.)
+      drawn: [...el.querySelectorAll(".ob-lens-word, .ob-lens-more")].filter((e) => e.getClientRects().length).map((e) => (e.querySelector(".ob-lens-long") ?? e).textContent),
     }));
     check(
       fold.label === "Relationship: Composite" && JSON.stringify(fold.drawn) === JSON.stringify(["Relationship", ": Composite"]),
@@ -340,7 +342,8 @@ async function french() {
     await goStudioPage(page, "transits");
     const fold = await page.getByTestId("lens-cycles").evaluate((el) => ({
       label: el.getAttribute("aria-label"),
-      drawn: [...el.querySelectorAll(".ob-lens-word, .ob-lens-more")].filter((e) => e.getClientRects().length).map((e) => e.textContent),
+      // (A lens with a phone's short name holds both: the one drawn here is the long one.)
+      drawn: [...el.querySelectorAll(".ob-lens-word, .ob-lens-more")].filter((e) => e.getClientRects().length).map((e) => (e.querySelector(".ob-lens-long") ?? e).textContent),
     }));
     // A narrow no-break space before the colon.
     check(
@@ -368,7 +371,7 @@ async function french() {
 
 /** No page wider than the screen, and no toolbar wider than its row, from 360 to 1440 px, in both languages. */
 async function overflow() {
-  const pages = ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", ...CHINESE, "timing"];
+  const pages = ["natal", "transits", "progressions", "synastry", "composite", "design", "design-pair", "numerology", "numerology-cycles", "numerology-pair", ...CHINESE, "timing"];
   for (const lang of ["en", "fr"]) {
     for (const width of [360, 390, 768, 1024, 1280, 1440]) {
       const touch = width < 1024;
@@ -384,15 +387,22 @@ async function overflow() {
             const nav = document.querySelector("[data-testid=charts-nav]");
             const end = document.querySelector(".ob-strip-end");
             const clash = nav && end && end.getClientRects().length ? nav.getBoundingClientRect().right - end.getBoundingClientRect().left : -1;
+            // A Relationship page's two people (pair-selects.tsx) never run under the view switch and the tools
+            // in the same row (review of 2.0's week 3: the second person's list ran 30 px under it at 1280).
+            const e = end && end.getClientRects().length ? end.getBoundingClientRect() : null;
+            const people = [...(strip?.querySelectorAll(".ulune-pair-bar > *") ?? [])].map((el) => el.getBoundingClientRect());
+            const pair = e ? Math.max(-1, ...people.filter((p) => p.top < e.bottom - 1 && e.top < p.bottom - 1).map((p) => p.right - e.left)) : -1;
             return {
               page: document.documentElement.scrollWidth - document.documentElement.clientWidth,
               strip: strip ? strip.scrollWidth - strip.clientWidth : 0,
               clash,
+              pair,
             };
           });
           check(r.page <= 1, `${lang} ${width} ${id}: the page is ${r.page}px wider than the screen`);
           check(r.strip <= 1, `${lang} ${width} ${id}: the toolbar runs ${r.strip}px past its row`);
           check(r.clash <= 0, `${lang} ${width} ${id}: the language and lenses run ${Math.round(r.clash)}px under the toolbar's end`);
+          check(r.pair <= 0, `${lang} ${width} ${id}: the two people run ${Math.round(r.pair)}px under the toolbar's end`);
         }
       } finally {
         await context.close();
@@ -405,7 +415,7 @@ async function overflow() {
 /**
  * The Chinese languages' keys and memory (languages plan, part 28): Alt+1 to
  * Alt+4 choose a lens the language has and nothing else (Feng Shui: Natal,
- * Relationship and Home; BaZi: Natal, Cycles, Relationship); a language reopens on the lens it
+ * Cycles, Relationship and Home; BaZi: Natal, Cycles, Relationship); a language reopens on the lens it
  * was left on, by the picker's card and by its chip, as this device keeps it.
  */
 async function chinese() {
@@ -423,13 +433,15 @@ async function chinese() {
   };
   try {
     await sample(page);
-    // Feng Shui: Alt+4 its Home, Alt+2 nothing (no Cycles), Alt+3 its two people (FS32), Alt+1 its Natal.
+    // Feng Shui: Alt+4 its Home, Alt+2 its Cycles (feature 5d), Alt+3 its two people (FS32), Alt+1 its Natal.
     await goStudioPage(page, "fengshui");
     await press("Alt+4", "fengshui", "fengshui-home");
     check(path() === "/feng-shui/home", `Feng Shui's Home at ${path()}`);
     check((await attr(page, "lens-home", "aria-selected")) === "true", "Alt+4 did not choose the Home lens");
-    await press("Alt+2", "fengshui-home");
-    await press("Alt+3", "fengshui-home", "fengshui-pair");
+    await press("Alt+2", "fengshui-home", "fengshui-cycles");
+    check(path() === "/feng-shui/cycles", `Feng Shui's Cycles at ${path()}`);
+    check((await attr(page, "lens-cycles", "aria-selected")) === "true", "Alt+2 did not choose Feng Shui's Cycles lens");
+    await press("Alt+3", "fengshui-cycles", "fengshui-pair");
     check(path() === "/feng-shui/pair", `Feng Shui's two people at ${path()}`);
     check((await attr(page, "lens-relationship", "aria-selected")) === "true", "Alt+3 did not choose Feng Shui's Relationship lens");
     await press("Alt+4", "fengshui-pair", "fengshui-home");

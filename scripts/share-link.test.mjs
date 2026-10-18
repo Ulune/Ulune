@@ -382,7 +382,7 @@ test("Relationship pages offer both charts: the partner as the page shows it", (
   assert.equal(partnerRow(s({ partnerId: "" }), "fengshui-pair"), null, "a partner cleared");
   assert.equal(partnerRow(s({ partnerId: "a" }), "synastry")?.id, "b", "never the chart itself");
   assert.equal(partnerRow(s({ partnerId: "c" }), "natal"), null);
-  assert.deepEqual(STUDIO_PAGES.filter(isPairPage).sort(), ["bazi-pair", "composite", "fengshui-pair", "synastry", "zodiac-pair"]);
+  assert.deepEqual(STUDIO_PAGES.filter(isPairPage).sort(), ["bazi-pair", "composite", "design-pair", "fengshui-pair", "numerology-pair", "synastry", "zodiac-pair"]);
 });
 
 test("the sheet's line says what the link holds", () => {

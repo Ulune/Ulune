@@ -13,7 +13,11 @@ export type AstroPack = typeof import("./pack-astro");
 export type HdPack = typeof import("./pack-hd");
 export type NumPack = typeof import("./pack-num");
 export type CalPack = typeof import("./pack-cal");
-type Packs = { astro: AstroPack; hd: HdPack; num: NumPack; cal: CalPack };
+/** Numerology's Relationship (share and compare plan, feature 5c): its pairs' texts, loaded by that page only. */
+export type NumPairPack = typeof import("./pack-num-pair");
+/** Human Design's connection chart (share and compare plan, feature 5a): its texts, loaded by that page only. */
+export type HdPairPack = typeof import("./pack-hd-pair");
+type Packs = { astro: AstroPack; hd: HdPack; num: NumPack; cal: CalPack; numpair: NumPairPack; hdpair: HdPairPack };
 export type PackKind = keyof Packs;
 
 /** The language variants have no types of their own: they are the pack's. */
@@ -35,6 +39,14 @@ const LOADERS: { [K in PackKind]: Record<AppLocale, () => Promise<Packs[K]>> } =
   cal: {
     en: () => as<CalPack>(import("@/lib/content/pack-cal?lang=en")),
     fr: () => as<CalPack>(import("@/lib/content/pack-cal?lang=fr")),
+  },
+  numpair: {
+    en: () => as<NumPairPack>(import("@/lib/content/pack-num-pair?lang=en")),
+    fr: () => as<NumPairPack>(import("@/lib/content/pack-num-pair?lang=fr")),
+  },
+  hdpair: {
+    en: () => as<HdPairPack>(import("@/lib/content/pack-hd-pair?lang=en")),
+    fr: () => as<HdPairPack>(import("@/lib/content/pack-hd-pair?lang=fr")),
   },
 };
 

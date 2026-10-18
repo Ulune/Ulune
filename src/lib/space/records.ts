@@ -7,6 +7,8 @@
  *   state/compare  Compare on or off, its second chart and linked selection (studio/compare)
  *   state/ai       the AI keys (lib/ai/use-ai-account.ts)
  *   state/backup   when a backup was last downloaded, and of which charts
+ *   state/groups   the reader's groups of charts: names, order, members (studio/groups, idea B5)
+ *   note/<id>      the reader's note on a chart, plain text (studio/groups, idea B6); goes with its chart
  *   view/first     the instant first view, while the space stays unlocked here
  *   enc/bookmarks  the encyclopedia's pages kept (src/encyclopedia/keep.ts)
  *   enc/note/<id>  the reader's note on an encyclopedia page
@@ -30,11 +32,24 @@ export const FS_HOMES_RECORD = "fs/homes";
 export const FS_CHANGED = "ulune:homes-kept";
 /** Said on the window when the encyclopedia's records changed underneath (a backup's joined; src/encyclopedia/keep.ts listens). */
 export const ENC_CHANGED = "ulune:encyclopedia-kept";
+/**
+ * The chart switcher's groups and the notes on charts (share and compare plan, ideas B5 and B6):
+ * one record for the groups, a record per note, so each syncs on its own later (feature 4).
+ */
+export const GROUPS_RECORD = "state/groups";
+export const NOTE_RECORD = "note/";
+/** Said on the window when the groups or notes changed underneath (a backup's joined; studio/groups/kept-store.ts listens). */
+export const KEPT_CHANGED = "ulune:groups-kept";
 
 /** `previousId`: the chart open before the one open (share and compare plan, idea B3), when there is one. */
 export type LibraryRecord = { order: string[]; activeId: string | null; previousId?: string };
 export type PairRecord = { partnerId: string | null; compositePartnerId: string | null };
 /** Compare's state, as the studio's store holds it (studio/store.ts, `compare`). */
 export type CompareRecord = { on: boolean; partnerId: string | null; linked: boolean };
-/** `mark`: the charts' sealed state then (lib/space/vault.ts, Vault.mark). */
+/** `mark`: the charts' sealed state then (lib/space/vault.ts, Vault.mark), and their notes' and groups' once there are any. */
 export type BackupRecord = { at: number; mark: string };
+/** A group: its own name, its charts (ids, in the order added), when it last changed. In the reader's order. */
+export type KeptGroup = { id: string; name: string; members: string[]; at: number };
+export type GroupsRecord = { groups: readonly KeptGroup[] };
+/** A note on a chart: plain text, and when it was last written. */
+export type NoteRecord = { text: string; at: number };

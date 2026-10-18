@@ -9,7 +9,6 @@ import { test } from "node:test";
 import { castNumerology } from "../src/lib/chart/numerology.ts";
 import {
   agesText,
-  compareRows,
   cycleRows,
   detailRows,
   lettersText,
@@ -87,12 +86,12 @@ test("Nine years round the one shown, or the whole life to 90", () => {
   assert.equal(tableYears(early, false)[0].cycles, null);
 });
 
-test("Two people side by side, with the gap between each number", () => {
-  const other = cast("1987-11-03", "Sample B");
-  const rows = compareRows(camille, other);
-  const lp = rows.find((r) => r.id === "lifepath");
-  assert.deepEqual([lp.a.number, lp.b.number, lp.gap.number], [4, 3, 1]);
-  assert.equal(rows.length, 8);
+test("Two people side by side are numerology's Relationship page now (feature 5c), not the table's Bridges", async () => {
+  const table = await import("../src/lib/chart/numerology-table.ts");
+  assert.equal(table.compareRows, undefined);
+  const parts = numerologyTextParts(camille, "en", { who: "Camille Marie Laurent" });
+  assert.doesNotMatch(parts.find((p) => p.id === "bridges").lines.join("\n"), /Sample B| and /);
+  // Its rows are scripts/numerology-pair.test.mjs's (lib/chart/numerology-pair.ts).
 });
 
 test("The text, part by part, in both languages", () => {

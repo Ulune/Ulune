@@ -52,17 +52,21 @@ export const LANGUAGES: readonly Language[] = [
       relationship: ["synastry", "composite"],
     },
   },
+  // Human Design: its bodygraph, and since 2.0's week 3 its Relationship
+  // lens, the connection chart of two people (share and compare plan,
+  // feature 5a). Relationship stays the third lens (Alt+3).
   {
     id: "human-design",
     path: "/human-design",
     home: { en: "human-design", fr: "design-humain" },
-    lenses: { natal: ["design"] },
+    lenses: { natal: ["design"], relationship: ["design-pair"] },
   },
   {
     id: "numerology",
     path: "/numerology",
     home: { en: "numerology", fr: "numerologie" },
-    lenses: { natal: ["numerology"], cycles: ["numerology-cycles"] },
+    // Its Relationship lens since 2.0's week 3 (share and compare plan, feature 5c): two people's numbers.
+    lenses: { natal: ["numerology"], cycles: ["numerology-cycles"], relationship: ["numerology-pair"] },
   },
   // The first Chinese language (languages plan, part 7), with its Cycles (the
   // year ahead) and Relationship (two people's animals) since part 11. Its
@@ -88,13 +92,15 @@ export const LANGUAGES: readonly Language[] = [
   // and the Eight Mansions on a compass rose; since part 22 its Home lens,
   // the home's facing (the Flying Stars follow in parts 23 to 27); and its
   // Relationship lens, two people's directions on one compass (review items
-  // FS5 and FS32). Home stays the fourth lens (Alt+4), Relationship the third.
+  // FS5 and FS32); since 2.0's week 3 its Cycles, your directions under the
+  // year's stars (share and compare plan, feature 5d). Home stays the fourth
+  // lens (Alt+4), Relationship the third, Cycles the second.
   {
     id: "feng-shui",
     path: "/feng-shui",
     group: "chinese",
     since: "2.0",
-    lenses: { natal: ["fengshui"], relationship: ["fengshui-pair"], home: ["fengshui-home"] },
+    lenses: { natal: ["fengshui"], cycles: ["fengshui-cycles"], relationship: ["fengshui-pair"], home: ["fengshui-home"] },
   },
 ];
 
@@ -143,8 +149,10 @@ export const PAGE_PATHS: Readonly<Record<StudioPage, string>> = {
   synastry: "/astrology/synastry",
   composite: "/astrology/composite",
   design: "/human-design",
+  "design-pair": "/human-design/pair",
   numerology: "/numerology",
   "numerology-cycles": "/numerology/cycles",
+  "numerology-pair": "/numerology/pair",
   zodiac: "/chinese-astrology",
   "zodiac-years": "/chinese-astrology/cycles",
   "zodiac-pair": "/chinese-astrology/pair",
@@ -154,6 +162,7 @@ export const PAGE_PATHS: Readonly<Record<StudioPage, string>> = {
   fengshui: "/feng-shui",
   "fengshui-pair": "/feng-shui/pair",
   "fengshui-home": "/feng-shui/home",
+  "fengshui-cycles": "/feng-shui/cycles",
   timing: CALENDAR_PATHS.en,
 };
 

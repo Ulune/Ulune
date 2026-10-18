@@ -1,0 +1,456 @@
+/* Numerology's Relationship (share and compare plan, feature 5c; studio/modes/numerology-pair.tsx):
+   the numerology wheel made for two (the nine numbers as a band, A's numbers inside it as filled
+   discs, B's outside as rings, a digit both hold ringed, the relationship number in the centre), and
+   beside it the relationship number, the pairs, the shared digits and the two of you this year.
+   Who is who is said by a disc's shape (filled, ring) and in words, never by colour alone. */
+.ulune-np {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--stage-pad) var(--space-5);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  container-type: inline-size;
+  --np-gold: var(--color-halo);
+}
+.ulune-np-body {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+.ulune-np-figure {
+  flex: 0 1 min(500px, 54%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.ulune-np-wheelbox {
+  width: 100%;
+  aspect-ratio: 1;
+}
+.ulune-np-side {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* The wheel. */
+.ulune-np-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  font-family: var(--font-ui);
+}
+.ulune-np-sector-band {
+  fill: var(--color-fg);
+  fill-opacity: 0.05;
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-np-sector.is-shared .ulune-np-sector-band {
+  fill: var(--np-gold);
+  fill-opacity: 0.16;
+}
+.ulune-np-sector-ring {
+  fill: none;
+  stroke: var(--np-gold);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-np-sector text {
+  fill: var(--color-fg);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.ulune-np-pair {
+  cursor: pointer;
+  outline: none;
+  transition: opacity 160ms var(--chart-ease, ease);
+}
+.ulune-np-pair[aria-hidden] {
+  cursor: default;
+}
+.ulune-np-pair.is-faded {
+  opacity: 0.42;
+}
+.ulune-np-chord {
+  stroke: var(--np-gold);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+  opacity: 0;
+  vector-effect: non-scaling-stroke;
+  transition: opacity 160ms var(--chart-ease, ease);
+}
+.ulune-np-pair:hover .ulune-np-chord,
+.ulune-np-pair:focus-visible .ulune-np-chord,
+.ulune-np-pair[data-previewed] .ulune-np-chord,
+.ulune-np-pair.is-on .ulune-np-chord {
+  opacity: 1;
+}
+.ulune-np-disc-face {
+  stroke: var(--np-gold);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-np-disc.is-a .ulune-np-disc-face {
+  fill: color-mix(in oklab, var(--np-gold) 28%, var(--color-bg));
+}
+.ulune-np-disc.is-b .ulune-np-disc-face {
+  fill: var(--color-bg);
+  stroke: var(--color-fg);
+  stroke-width: 1.6;
+}
+.ulune-np-disc-ring {
+  fill: none;
+  stroke: var(--np-gold);
+  stroke-width: 1;
+  stroke-dasharray: 2.2 2;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-np-disc.is-b .ulune-np-disc-ring {
+  stroke: var(--color-fg-muted);
+}
+.ulune-np-disc text {
+  fill: var(--color-fg);
+  font-size: 12.5px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.ulune-np-disc text[data-long] {
+  font-size: 9.5px;
+}
+.ulune-np-pair:hover .ulune-np-disc-face,
+.ulune-np-pair[data-previewed] .ulune-np-disc-face,
+.ulune-np-pair.is-on .ulune-np-disc-face {
+  stroke-width: 2.6;
+}
+.ulune-np-pair:focus-visible .ulune-np-disc-face {
+  stroke: var(--color-fg);
+  stroke-width: 3;
+}
+.ulune-np-centre {
+  cursor: pointer;
+}
+.ulune-np-centre circle {
+  fill: color-mix(in oklab, var(--np-gold) 12%, var(--color-bg));
+  stroke: var(--np-gold);
+  stroke-width: 1.75;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-np-centre.is-on circle,
+.ulune-np-centre:hover circle {
+  stroke-width: 2.8;
+}
+.ulune-np-centre text {
+  fill: var(--color-fg);
+  pointer-events: none;
+}
+.ulune-np-centre-k {
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--color-fg-muted) !important;
+}
+.ulune-np-centre-n {
+  font: 400 34px/1 var(--font-display);
+}
+.ulune-np-say {
+  min-height: 1.4em;
+  margin: 0;
+  font: 400 13px/1.4 var(--font-ui);
+  color: var(--color-fg-muted);
+  text-align: center;
+}
+.ulune-np-say[data-on] {
+  color: var(--color-fg);
+}
+.ulune-np-key {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font: 400 12.5px/1.4 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-np-key p {
+  margin: 0;
+}
+.ulune-np-key .ulune-np-dot.is-b {
+  margin-left: 8px;
+}
+
+/* The two people: A a filled dot, B a ring (as the Feng Shui and Chinese astrology pair pages). */
+.ulune-np-dot {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--np-gold) 55%, var(--color-fg));
+  vertical-align: -1px;
+}
+.ulune-np-dot.is-b {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--color-fg);
+}
+
+/* The cards and the lists beside the wheel. */
+.ulune-np-h {
+  margin: 0 0 var(--space-2);
+  font: 600 11px/1.3 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
+}
+.ulune-np-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg-elevated);
+  color: var(--color-fg);
+  text-align: left;
+}
+.ulune-np-card .ulune-np-h {
+  margin: 0;
+}
+button.ulune-np-card:hover,
+.ulune-np-card.is-on {
+  background: var(--color-bg-subtle);
+}
+.ulune-np-card-line {
+  font: 400 13px/1.45 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-np-rel-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.ulune-np-rel-n {
+  font: 400 30px/1 var(--font-display);
+}
+.ulune-np-rel-steps {
+  font: 400 13px/1.3 var(--font-mono);
+  color: var(--color-fg-muted);
+}
+.ulune-np-names {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--np-gold);
+  font: 400 13px/1.45 var(--font-ui);
+}
+.ulune-np-names p {
+  margin: 0;
+}
+.ulune-np-list ul {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-np-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  min-height: 44px;
+  padding: 7px 8px 8px 10px;
+  border-bottom: 1px solid var(--color-border);
+  border-left: 3px solid color-mix(in oklab, var(--np-gold) 60%, transparent);
+  color: var(--color-fg);
+  text-align: left;
+}
+.ulune-np-row.is-on,
+.ulune-np-row:hover,
+.ulune-np-row[data-previewed] {
+  background: var(--color-bg-subtle);
+}
+.ulune-np-row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px var(--space-2);
+}
+.ulune-np-row-name {
+  font: 500 13px/1.3 var(--font-ui);
+  min-width: 0;
+}
+.ulune-np-row-nums {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+.ulune-np-num {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: 600 13.5px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.ulune-np-gap {
+  font: 400 12px/1.2 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-np-row-line {
+  font: 400 12.5px/1.4 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-np-row-line.is-wait {
+  font-style: italic;
+}
+.ulune-np-digits {
+  gap: var(--space-1) !important;
+}
+.ulune-np-digit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font: 400 13px/1.4 var(--font-ui);
+  color: var(--color-fg);
+  text-align: left;
+}
+.ulune-np-digit.is-on,
+.ulune-np-digit:hover {
+  background: var(--color-bg-subtle);
+}
+.ulune-np-digit-n {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--np-gold);
+  border-radius: 50%;
+  font: 600 14px/1 var(--font-display);
+}
+.ulune-np-none {
+  margin: 0;
+  font: 400 13px/1.45 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-np-now-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.ulune-np-steps {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.ulune-np-step {
+  display: inline-grid;
+  place-items: center;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  color: var(--color-fg-muted);
+}
+.ulune-np-step.is-year {
+  min-width: 3.6rem;
+  font: 500 14px/1 var(--font-mono);
+  color: var(--color-fg);
+}
+.ulune-np-step.is-year:not([data-now]) {
+  box-shadow: inset 0 -2px 0 var(--np-gold);
+}
+.ulune-np-step:disabled {
+  opacity: 0.4;
+}
+@media (hover: hover) {
+  .ulune-np-step:hover:not(:disabled) {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
+}
+.ulune-np-now-line {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 -6px;
+  padding: 6px;
+  border-radius: 6px;
+  font: 400 13.5px/1.45 var(--font-ui);
+  color: var(--color-fg);
+  text-align: left;
+}
+.ulune-np-now-line[aria-pressed="true"],
+.ulune-np-now-line:hover {
+  background: var(--color-bg-subtle);
+}
+.ulune-np-card:focus-visible,
+.ulune-np-row:focus-visible,
+.ulune-np-digit:focus-visible,
+.ulune-np-step:focus-visible,
+.ulune-np-now-line:focus-visible {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 1px;
+}
+
+/* The side panel's first read and its lines. */
+.ulune-np-hello,
+.ulune-np-first {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ulune-np-hello-p {
+  margin: 0;
+  font: 400 13px/1.5 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+
+/* The table: its sentences wrap within it on a computer. */
+.ulune-data-table.ulune-np-tbl td:last-child {
+  white-space: normal;
+  min-width: 14rem;
+  text-wrap: pretty;
+}
+
+/* A finger: the year's steps reach 44 px. */
+@media (pointer: coarse) {
+  .ulune-np-step {
+    min-width: 44px;
+    height: 44px;
+  }
+}
+
+/* A narrow stage (a phone, a tablet upright): the wheel on top, the rest under it. */
+@container (max-width: 720px) {
+  .ulune-np-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ulune-np-figure {
+    flex: none;
+    width: min(100%, 460px);
+    margin: 0 auto;
+  }
+}

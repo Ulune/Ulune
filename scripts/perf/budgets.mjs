@@ -208,6 +208,8 @@ if (want.has("bundle")) {
   // the switcher's other rows, picker-extras.tsx), the flip's history cut to two ids checked when
   // offered, one Compare switch for the button, the C key, ⋯ and Show mode: 273.1, 274.3 when the small
   // chunks land within the load. The limit stays 276.
+  // Week 3 (18 Oct 2026): its three pages, groups and notes load later; "/" 274.3–274.5 as built, 274.7 after the
+  // review (a phone's short lens names, Pair and Logis, and Escape from a figure's SVG parts, 0.2).
   check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 276, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
@@ -229,7 +231,10 @@ if (want.has("bundle")) {
   // the sheets the first paint waits for stay within their 32.5. Languages plan, part 6
   // (9 Oct): the solar terms in the Calendar's day, year and key, 0.3: 53.1, limit 53.5. 2.0's week 2
   // (17 Oct): Compare's toolbar button, its look folded into the rules it shares: 53.47 -> 53.50, a hair
-  // under; the next rule here needs room made first.)
+  // under; the next rule here needs room made first. Week 3's review (18 Oct) made it: the two people's
+  // rules written once for every Relationship page (pair.css, which "/" fetches with Synastry at idle) and
+  // the numerology table's Compare rules gone with it (num.css), 79 B; then the Relationship toolbar's
+  // second row (pair.css) and a phone's short lens names (shell.css): 53.50 -> 53.44.)
   check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 53.5, "KB gz");
   // (The engine's worker, fetched when a chart is first calculated on the device, has its own row: engine.)
   const largest = Math.max(...home.files.filter((f) => f.type === "script" && !/\/engine-worker-/.test(f.file)).map((f) => f.gz ?? 0));
@@ -309,8 +314,20 @@ if (want.has("chinese")) {
   // live Chinese family) they grew to 53.7, 77.7 and 87.7: the term registry once a family is live
   // (about 2.4 each), BaZi Pair's luck pillars (2.7), Feng Shui's Relationship page (13.0) and its
   // fixes (2.2). The owner accepted new limits with part 30's margins (review item RC5).
+  // 2.0's last features, week 3 (18 Oct 2026): Feng Shui gained its fourth page, Cycles (share and compare
+  // plan, feature 5d): 105.7 as built. The review trimmed what a reader really fetches first: the year's
+  // readings (afflictions, the year's line) no longer import the home's (a mountain's code moved to
+  // fengshui-home.ts), so Cycles alone fetches them as a chunk of 3.3 rather than the home's readings'
+  // 12.7 (7 less for a reader of Cycles; the language's total is the same, Home fetching both); and
+  // Cycles' 53 words left the Chinese traditions' book, which "/" fetches at idle for every reader
+  // (40.6 -> 39.1), for a book of their own loaded with the page (2.2, now counted here). The cost of
+  // Cycles, file by file: its page, engine, readings and texts 12.4; its words 2.2; its table 2.4; its
+  // style sheet 1.5 (18.5 in all; with the review's Three Killings texts). 108.5 measured, limit 110 with
+  // part 30's margin. Chinese astrology (53.9) and BaZi (78.0) are unchanged: the words left their row
+  // too, as they were fetched by "/". The next saving is review item T9: Feng Shui's 45 pair texts (8.0
+  // of the home's 13.0 texts) loaded when a palace's reading opens rather than with the page.
   const { termTable, languages } = jsonOf(nodeTs([join(ROOT, "scripts/perf/load/languages.mjs"), "--json"]));
-  const LIMITS = { "chinese-astrology": ["Chinese astrology", 54.5], bazi: ["BaZi", 79.2], "feng-shui": ["Feng Shui", 89.2] };
+  const LIMITS = { "chinese-astrology": ["Chinese astrology", 54.5], bazi: ["BaZi", 79.2], "feng-shui": ["Feng Shui", 110] };
   for (const l of languages) {
     const [name, limit] = LIMITS[l.language] ?? [l.language, 0];
     check("chinese", `${name}: its pages after "/", JS and CSS`, l.gz / 1024, limit, "KB gz");

@@ -2,7 +2,8 @@
  * The numerology table's rows (part 61 of the launch plan): the core
  * numbers with their steps, the name letter by letter, the birth grid, the
  * long cycles, the years, the bridges. The page, its Copy buttons and the
- * CSV read from here; every step is written from the calculation.
+ * CSV read from here; every step is written from the calculation. Two
+ * people side by side are numerology's Relationship page (numerology-pair.ts).
  */
 import type { AppLocale } from "@/lib/i18n/messages";
 import { numerologyCoreLabel, numerologyPageText as p } from "@/lib/i18n/numerology-ui";
@@ -10,7 +11,7 @@ import { numerologyYear, valueOfCore, type NumerologyChart, type NumerologyCoreI
 import { LETTER_CYCLE_IDS, type AgeSpan, type NumerologyYearRow } from "./numerology-cycles";
 import { GRID_LAYOUTS, type GridLayoutId } from "./numerology-grid";
 import { PLANE_IDS, PLANE_LETTERS, type NameWord } from "./numerology-name";
-import { chainText, gapOf, isMaster, stepsText, term, wholeText, type NumerologyTerm, type NumerologyValue } from "./numerology-reduce";
+import { chainText, isMaster, stepsText, term, wholeText, type NumerologyTerm, type NumerologyValue } from "./numerology-reduce";
 
 /** The core numbers the table lists: the wheel's six, then two more from the date and the name. */
 export const TABLE_CORES = [
@@ -170,23 +171,13 @@ export function bridgeRows(chart: NumerologyChart, locale: AppLocale) {
   ];
 }
 
-/** Two people's core numbers side by side, with the gap between each pair. */
-export function compareRows(a: NumerologyChart, b: NumerologyChart) {
-  return TABLE_CORES.map((id) => {
-    const va = tableCoreValue(a, id);
-    const vb = tableCoreValue(b, id);
-    const gap = va.number != null && vb.number != null ? gapOf(va.number, vb.number) : null;
-    return { id, a: va, b: vb, gap };
-  });
-}
-
 type TextPart = { id: string; lines: string[] };
 
 /** The table as text, part by part (Copy). */
 export function numerologyTextParts(
   chart: NumerologyChart,
   locale: AppLocale,
-  opts: { who?: string; layout?: GridLayoutId; wholeLife?: boolean; other?: { name: string; chart: NumerologyChart } | null } = {},
+  opts: { who?: string; layout?: GridLayoutId; wholeLife?: boolean } = {},
 ): TextPart[] {
   const colon = locale === "fr" ? "\u202f: " : ": ";
   const dash = "—";
@@ -260,14 +251,6 @@ export function numerologyTextParts(
   const bridges: string[] = [p(locale, "headBridges")];
   for (const b of bridgeRows(chart, locale)) {
     bridges.push(`${b.label}${colon}${b.value.number == null ? dash : `${b.value.number} (${stepsText(b.value)})`}`);
-  }
-  if (opts.other) {
-    bridges.push(p(locale, "compareHead", { a: opts.who || "A", b: opts.other.name }));
-    for (const r of compareRows(chart, opts.other.chart)) {
-      bridges.push(
-        `${tableCoreLabel(locale, r.id)}${colon}${r.a.number == null ? dash : wholeText(r.a)} · ${r.b.number == null ? dash : wholeText(r.b)} · ${p(locale, "col_gap")} ${r.gap?.number ?? dash}`,
-      );
-    }
   }
 
   return [

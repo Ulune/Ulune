@@ -38,6 +38,8 @@ import { hdKeyRows } from "../src/lib/chart/hd-keys.ts";
 import { hdCrossOf } from "../src/lib/chart/hd-cross.ts";
 import { hdCrossName } from "../src/lib/chart/hd-cross-names.ts";
 import { fsDirRef, fsKuaRef } from "../src/lib/chinese/fengshui-reading.ts";
+import { personYear, starsOfMonth } from "../src/lib/chinese/fengshui-cycles.ts";
+import { fscDirRef } from "../src/lib/chinese/fengshui-cycles-reading.ts";
 import { luckAt, luckPillars } from "../src/lib/chinese/bazi-luck.ts";
 import { luckRef } from "../src/lib/chinese/bazi-luck-reading.ts";
 import { STUDIO_PAGES } from "../src/studio/url.ts";
@@ -57,7 +59,7 @@ test("Compare shows every page that reads one person's chart, and none of the ot
   const shown = STUDIO_PAGES.filter(comparablePage);
   assert.deepEqual(
     [...shown].sort(),
-    ["bazi", "bazi-luck", "design", "fengshui", "natal", "numerology", "numerology-cycles", "progressions", "transits", "zodiac", "zodiac-years"],
+    ["bazi", "bazi-luck", "design", "fengshui", "fengshui-cycles", "natal", "numerology", "numerology-cycles", "progressions", "transits", "zodiac", "zodiac-years"],
   );
   // From a page it does not show, it opens on its language's Natal page.
   const none = { getItem: () => null, setItem: () => {} };
@@ -66,9 +68,13 @@ test("Compare shows every page that reads one person's chart, and none of the ot
   assert.equal(comparePageFor("zodiac-pair", none), "zodiac");
   assert.equal(comparePageFor("bazi-pair", none), "bazi");
   assert.equal(comparePageFor("fengshui-pair", none), "fengshui");
+  assert.equal(comparePageFor("design-pair", none), "design");
   assert.equal(comparePageFor("fengshui-home", none), "fengshui");
   assert.equal(comparePageFor("timing", none), "natal");
   assert.equal(comparePageFor("bazi-luck", none), "bazi-luck");
+  // Numerology's two people (feature 5c) opens on Numerology; Feng Shui's Cycles (feature 5d) is shown itself.
+  assert.equal(comparePageFor("numerology-pair", none), "numerology");
+  assert.equal(comparePageFor("fengshui-cycles", none), "fengshui-cycles");
 });
 
 test("“See how they meet” leads to its language's Relationship page, where there is one", () => {
@@ -76,8 +82,11 @@ test("“See how they meet” leads to its language's Relationship page, where t
   for (const p of ["zodiac", "zodiac-years"]) assert.equal(relationshipPageOf(p), "zodiac-pair");
   for (const p of ["bazi", "bazi-luck"]) assert.equal(relationshipPageOf(p), "bazi-pair");
   assert.equal(relationshipPageOf("fengshui"), "fengshui-pair");
-  // Human Design's and numerology's Relationship lenses come with feature 5: until then, no link.
-  for (const p of ["design", "numerology", "numerology-cycles"]) assert.equal(relationshipPageOf(p), null);
+  // Human Design's connection chart (feature 5a): "See how they meet" leads there from the bodygraph.
+  assert.equal(relationshipPageOf("design"), "design-pair");
+  // Numerology's Relationship lens (feature 5c), from either of its pages; Feng Shui's Cycles leads to its two people too.
+  for (const p of ["numerology", "numerology-cycles"]) assert.equal(relationshipPageOf(p), "numerology-pair");
+  assert.equal(relationshipPageOf("fengshui-cycles"), "fengshui-pair");
   assert.equal(relationshipPageOf("timing"), null);
 });
 
@@ -89,6 +98,12 @@ test("a choice in one chart is the same element in the other, in that chart's ow
   assert.equal(linkedId("fs:yin:kua", ["yang"]), "fs:yang:kua");
   assert.equal(linkedId("bz:luck:yang:3", ["yin"]), "bz:luck:yin:3");
   assert.equal(linkedId("bz:luck-how", ["yin"]), "bz:luck-how");
+  // Feng Shui's Cycles: a direction and the year in practice in that chart's own count; the year's own refs are everyone's.
+  assert.equal(linkedId("fsc:yang:dir:s", ["yin"]), "fsc:yin:dir:s");
+  assert.equal(linkedId("fsc:yin:you", ["yang"]), "fsc:yang:you");
+  assert.equal(linkedId("fsc:yang:dir:s", ["yang", "yin"]), "fsc:yang:dir:s");
+  assert.equal(linkedId("fsc:aff:tai-sui", ["yin"]), "fsc:aff:tai-sui");
+  assert.equal(linkedId("fsc:dir:n", ["yin"]), "fsc:dir:n");
   assert.deepEqual(countsOf("yin"), ["yin"]);
   assert.deepEqual(countsOf(undefined), ["yang", "yin"]);
 });
@@ -173,6 +188,18 @@ test("what the fixtures share, in each language, chooses the same element in bot
   const yin = fs([fengShuiOf(birth(ca), "yin")], [fengShuiOf(birth(cb), "yin")]);
   assert.deepEqual(yin[0]?.ids, { a: "fs:yin:kua", b: "fs:yin:kua" });
   assert.equal(yin[0]?.label, "West group");
+  // Feng Shui's Cycles (feature 5d), October 2026: Kua 1 and Kua 4 both rest the south and the north; one chart with itself faces its south-east too.
+  const oct = starsOfMonth(2026, 8);
+  const cycOf = (fs1) => ({ ctx: { people: [personYear(fs1, oct)] } });
+  const cyc = (fa, fb, locale = "en") => sharedFengShui("fengshui-cycles", side(ca, cycOf(fa)), side(cb, cycOf(fb)), locale, say(locale));
+  const [fa1, fb4] = [fengShuiOf(birth(ca), "yang"), fengShuiOf(birth(cb), "yang")];
+  assert.deepEqual(cyc(fa1, fb4).map((i) => [i.label, i.ids]), [
+    ["To rest this year: South", { a: "fsc:yang:dir:s", b: "fsc:yang:dir:s" }],
+    ["To rest this year: North", { a: "fsc:yang:dir:n", b: "fsc:yang:dir:n" }],
+  ]);
+  assert.deepEqual(cyc(fa1, fa1, "fr").map((i) => i.label), ["Vers où se tourner cette année\u202f: Sud-Est", "À laisser reposer cette année\u202f: Sud", "À laisser reposer cette année\u202f: Nord"]);
+  assert.deepEqual(cyc(fa1, fengShuiOf(birth(ca), "yin")).map((i) => i.key), [], "Kua 1 and Kua 8 rest none of the same directions");
+  assert.deepEqual(sharedFengShui("fengshui-cycles", side(ca, { ctx: null }), side(cb, cycOf(fb4)), "en", say("en")), [], "without a chart, nothing");
   // BaZi's Cycles: the same chart is in the same luck pillar as itself, chosen as the page's own id.
   const lucks = [luckPillars(ba, "yang")];
   const now = luckAt(lucks[0], Date.now());
@@ -183,6 +210,7 @@ test("what the fixtures share, in each language, chooses the same element in bot
   for (const count of ["yang", "yin"]) {
     assert.equal(ids.kuaRef(count), fsKuaRef(count));
     assert.equal(ids.dirRef(count, "se"), fsDirRef(count, "se"));
+    assert.equal(ids.cyclesDirRef(count, "se"), fscDirRef(count, "se"));
   }
   // The merged pillars table names each stem's god as the page's table does (bazi-table.ts).
   for (const locale of ["en", "fr"]) {

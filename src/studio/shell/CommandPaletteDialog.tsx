@@ -23,6 +23,7 @@ import { PAGE_LABEL } from "@/studio/modes/meta";
 import { enterCompare, leaveCompare } from "@/studio/compare/gate";
 import { openAskSheet } from "@/components/share/share-state";
 import { flipRow } from "@/studio/show/flip";
+import { loadKept, useKept } from "@/studio/groups/kept-store";
 import { enterShowMode } from "@/studio/show/show-state";
 import { useStudioStore } from "@/studio/store";
 import {
@@ -83,6 +84,9 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     void readHomeList();
   }, []);
+  // The reader's groups, in the open private space (share and compare plan, idea B5): a chart is found by its group's name too.
+  const groups = useKept((s) => s.groups);
+  useEffect(() => void loadKept(), []);
   const [q, setQ] = useState("");
   // The encyclopedia's entries, after everything else (src/encyclopedia/palette.ts).
   const pages = useEncyclopediaCommands(q, locale);
@@ -188,13 +192,13 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
     }
     const secCharts = t("charts");
     for (const r of rows) {
-      list.push({
-        id: `chart:${r.id}`,
-        section: secCharts,
-        label: chartDisplayName(r.input, t("untitled")),
-        hint: [formatEuropeanDate(r.input.date), r.input.placeLabel.split(",")[0]].filter(Boolean).join(" · "),
-        run: () => useStudioStore.getState().select(r.id),
-      });
+      const name = chartDisplayName(r.input, t("untitled"));
+      const hint = [formatEuropeanDate(r.input.date), r.input.placeLabel.split(",")[0]].filter(Boolean).join(" · ");
+      const run = () => useStudioStore.getState().select(r.id);
+      // Under each of its groups (idea B5), "Family › Camille": typing a group's name lists its charts.
+      const mine = groups.filter((g) => g.members.includes(r.id));
+      if (!mine.length) list.push({ id: `chart:${r.id}`, section: secCharts, label: name, hint, run });
+      mine.forEach((g, i) => list.push({ id: i ? `chart:${r.id}:${g.id}` : `chart:${r.id}`, section: secCharts, label: `${g.name} › ${name}`, hint, run }));
     }
     // Back to the chart open before this one (idea B3), as the P key does.
     if (back) {
@@ -332,7 +336,7 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
       { id: "set:open", section: secSettings, label: t("shellSettings"), run: () => void navigate({ to: "/settings" }) },
     );
     return list;
-  }, [t, locale, page, rows, homes, chart, activeId, compareOn, back, view, look, setPage, setView, setTheme, setLocale, navigate, chartView, depth.view]);
+  }, [t, locale, page, rows, groups, homes, chart, activeId, compareOn, back, view, look, setPage, setView, setTheme, setLocale, navigate, chartView, depth.view]);
 
   // Each command's words, case and accents set aside once (palette-find.ts): "bazi", "bāzì" and 八字 find BaZi.
   const hays = useMemo(() => cmds.map((c) => paletteWords(c.label, c.hint, c.section, c.terms)), [cmds]);

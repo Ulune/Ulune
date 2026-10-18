@@ -83,8 +83,6 @@ function NumerologyData() {
   const { t } = useI18n();
   const w = useWheelView();
   const numerology = useModeData("numerology");
-  const rows = useStudioStore((s) => s.rows);
-  const activeId = useScoped((s) => s.activeId);
   const openDock = useStudioStore((s) => s.openDock);
   // The birth form is the main page's chart's: a Compare pane only reads its own.
   const main = useScopeId() === "main";
@@ -96,8 +94,6 @@ function NumerologyData() {
         chart={numbers}
         name={w.chart ? chartNameOf(w.chart, t("untitled")) : ""}
         nameFrom={numerology?.nameFrom ?? null}
-        rows={rows}
-        activeId={activeId}
         selectedId={w.selectedId}
         onSelect={w.pick}
         openBirth={() => {

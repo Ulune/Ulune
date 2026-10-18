@@ -55,8 +55,8 @@ export const dataWords = {
   ],
   dataExport: ["Download a readable copy", "Télécharger une copie lisible"],
   dataExportHint: [
-    "The readable copy holds your display settings, and your charts, partners, bookmarks, notes and homes while your space is open, in a file anyone can read: keep it private.",
-    "La copie lisible contient vos réglages d’affichage, et vos thèmes, partenaires, marque-pages, notes et logements quand votre espace est ouvert, dans un fichier que tout le monde peut lire\u202f: gardez-le pour vous.",
+    "The readable copy holds your display settings, and your charts, partners, groups, bookmarks, notes and homes while your space is open, in a file anyone can read: keep it private.",
+    "La copie lisible contient vos réglages d’affichage, et vos thèmes, partenaires, groupes, marque-pages, notes et logements quand votre espace est ouvert, dans un fichier que tout le monde peut lire\u202f: gardez-le pour vous.",
   ],
   dataExported: ["Data downloaded", "Données téléchargées"],
   dataWipe: ["Erase everything on this device", "Tout effacer de cet appareil"],

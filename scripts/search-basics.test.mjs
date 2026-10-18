@@ -3,7 +3,7 @@
 // public pages listed, the private ones kept out.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { SITE_URL } from "../src/lib/app-identity.ts";
 import { HOME_STRUCTURED_DATA, HOME_TITLE, INDEXED_PAGES, pageHead } from "../src/lib/page-head.ts";
 import { isEncyclopediaPath, sitemapPaths, sitemapXml } from "../src/lib/sitemap.ts";
@@ -12,6 +12,8 @@ import { calendarHead } from "../src/studio/calendar-head.ts";
 import { CALENDAR_PATHS } from "../src/studio/map.ts";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+/** Every studio path's route file, by its name between "_studio." and ".tsx" ("astrology.transits", "human-design.pair"): each one there, so a page added or renamed is checked too. */
+const STUDIO_ROUTES = readdirSync(new URL("../src/routes", import.meta.url)).flatMap((f) => /^_studio\.(.+)\.tsx$/.exec(f)?.[1] ?? []).sort();
 /** The encyclopedia's index, as the build makes it from content/encyclopedia. */
 const encyclopedia = buildEncyclopedia(readContent(new URL("../content/encyclopedia", import.meta.url).pathname));
 
@@ -89,7 +91,8 @@ test("the home page says what Ulune is, as a free web application", () => {
 });
 
 test("every studio path but the Calendar's is the home page for search engines: one head, its canonical address /", () => {
-  const files = ["index", "astrology.index", "astrology.transits", "astrology.progressions", "astrology.synastry", "astrology.composite", "human-design", "numerology.index"];
+  const files = STUDIO_ROUTES.filter((f) => f !== "calendar" && f !== "calendrier");
+  for (const f of ["index", "astrology.index", "astrology.transits", "human-design.index", "human-design.pair", "numerology.pair", "feng-shui.cycles"]) assert.ok(files.includes(f), f);
   for (const f of files) assert.match(read(`src/routes/_studio.${f}.tsx`), /\.\.\.studioRoute\(\)|\(studioRoute\(\)\)/, f);
   // The Calendar is a studio page too, with a head of its own in each language (reorganisation plan, R5).
   assert.match(read("src/routes/_studio.calendar.tsx"), calendarRoute("en"));
@@ -103,8 +106,7 @@ test("the studio is its layout's component: one instance on every studio path, s
   // As each path's own component, the router gave every path a component of its own and a page switch rebuilt the studio.
   assert.match(read("src/routes/_studio.tsx"), /createFileRoute\("\/_studio"\)\(\{ component: StudioLayout \}\)/);
   assert.match(read("src/routes/_studio.tsx"), /<StudioPage \/>/);
-  const files = ["index", "astrology.index", "astrology.transits", "astrology.progressions", "astrology.synastry", "astrology.composite", "human-design", "numerology.index", "calendar", "calendrier"];
-  for (const f of files) assert.doesNotMatch(read(`src/routes/_studio.${f}.tsx`), /component:/, f);
+  for (const f of STUDIO_ROUTES) assert.doesNotMatch(read(`src/routes/_studio.${f}.tsx`), /component:/, f);
   assert.doesNotMatch(read("src/studio/studio-route.tsx"), /^\s+component:/m);
 });
 

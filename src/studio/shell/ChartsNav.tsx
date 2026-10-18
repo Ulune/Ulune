@@ -23,7 +23,7 @@ import { preloadMode } from "@/studio/modes/registry";
 import { langHintDone, langHintDue } from "@/studio/shell/lang-hint";
 import { LanguageMark } from "@/studio/shell/language-mark";
 import { bindLanguagePicker } from "@/studio/shell/language-open";
-import { LANGUAGE_WORDS, LENS_LABEL } from "@/studio/shell/map-ui";
+import { LANGUAGE_WORDS, LENS_LABEL, LENS_SHORT } from "@/studio/shell/map-ui";
 import { useStudioStore } from "@/studio/store";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import type { StudioPage } from "@/studio/url";
@@ -224,6 +224,9 @@ function LensTabs({ lang, lens, page, go }: { lang: LanguageId; lens: LensId; pa
           const on = id === lens;
           const fold = on && subs.length > 1;
           const label = t(LENS_LABEL[id]);
+          // A phone's tab shows the short name where the lens has one; the full one stays its name.
+          const shortKey = LENS_SHORT[id];
+          const short = shortKey ? t(shortKey) : label;
           const ahead = () => {
             if (!on) preloadMode(pageFor(lang, id));
           };
@@ -237,7 +240,7 @@ function LensTabs({ lang, lens, page, go }: { lang: LanguageId; lens: LensId; pa
               aria-selected={on}
               tabIndex={on ? 0 : -1}
               aria-keyshortcuts={`Alt+${LENSES.indexOf(id) + 1}`}
-              aria-label={fold ? t("lensFold", { lens: label, page: t(PAGE_LABEL[page]) }) : undefined}
+              aria-label={fold ? t("lensFold", { lens: label, page: t(PAGE_LABEL[page]) }) : short !== label ? label : undefined}
               aria-haspopup={fold && folded ? "menu" : undefined}
               aria-expanded={fold && folded ? menu : undefined}
               className={cn("ob-lens", on && "is-on")}
@@ -255,7 +258,16 @@ function LensTabs({ lang, lens, page, go }: { lang: LanguageId; lens: LensId; pa
                 }
               }}
             >
-              <span className="ob-lens-word">{label}</span>
+              <span className="ob-lens-word">
+                {short === label ? (
+                  label
+                ) : (
+                  <>
+                    <span className="ob-lens-long">{label}</span>
+                    <span className="ob-lens-short">{short}</span>
+                  </>
+                )}
+              </span>
               {fold ? (
                 <span className="ob-lens-more">
                   <span className="ob-lens-colon">{t("lensColon")}</span>

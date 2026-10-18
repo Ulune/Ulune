@@ -1,8 +1,8 @@
 import { ChevronDown, Pencil, Plus, Users, X } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { AnchoredPopover } from "@/components/anchored-popover";
-import { chartDisplayName } from "@/lib/chart/library";
+import { chartDisplayName, type SavedChart } from "@/lib/chart/library";
 import { formatEuropeanDate } from "@/lib/chart/parse-birth";
 import { useI18n } from "@/lib/i18n/locale";
 import { whenIdle } from "@/lib/lazy-component";
@@ -28,7 +28,8 @@ let placesMod: Places | undefined;
 const loadPlaces = () => importWithRetry(() => import("@/studio/shell/picker-places"), { attempts: 2 }).then((m) => (placesMod = m));
 /**
  * "Back to…", each row's "Compare with…" and "Ask someone for their chart" (share and compare plan,
- * ideas B3 and B4, feature 2): their own download, at idle (or as the switcher opens, if that is sooner).
+ * ideas B3 and B4, feature 2), and the list by group once a space is open, with its Groups row (idea
+ * B5): their own download, at idle (or as the switcher opens, if that is sooner).
  */
 type Extras = typeof import("@/studio/show/picker-extras");
 let extrasMod: Extras | undefined;
@@ -126,6 +127,122 @@ export function ChartPicker() {
         ? chartDisplayName(active.input, t("untitled"))
         : t("charts");
 
+  /** A chart's row; `more`: what the switcher's other parts add beside its buttons (its groups, idea B5: picker-extras.tsx). */
+  const rowOf = (row: SavedChart, more?: ReactNode) => {
+    const on = row.id === activeId && (!creating || addingPartner);
+    const label = chartDisplayName(row.input, t("untitled"));
+    const pair = t("libraryPair", { name: label, page: t(PAGE_LABEL[pairPage]) });
+    const confirming = confirmId === row.id;
+    return (
+      <li
+        key={row.id}
+        data-testid="chart-row"
+        data-name={label}
+        className="ob-picker-row"
+      >
+        {confirming ? (
+          <div className="ob-picker-confirm">
+            <span className="ob-picker-confirm-q">
+              {t("confirmRemoveChart", { name: label })}
+            </span>
+            <div className="ob-picker-confirm-actions">
+              <button
+                type="button"
+                className="ob-btn ob-btn--ghost"
+                onClick={() => setConfirmId(null)}
+              >
+                {t("keepChart")}
+              </button>
+              <button
+                type="button"
+                data-testid="chart-remove-confirm"
+                className="ob-btn ob-btn--danger"
+                onClick={() => {
+                  void remove(row.id);
+                  toast(t("toastChartRemoved", { name: label }));
+                  close();
+                }}
+              >
+                {t("confirmRemove")}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                select(row.id);
+                if (row.sharedAt) seenShared(row.id);
+                close();
+              }}
+              aria-current={on ? "true" : undefined}
+              className={cn("ob-picker-name", on && "is-on")}
+            >
+              <span className="truncate">{label}</span>
+              <span className="ob-picker-meta">
+                {[formatEuropeanDate(row.input.date), row.input.placeLabel.split(",")[0]].filter(Boolean).join(" · ")}
+              </span>
+              {row.sharedAt ? (
+                <span className="ob-picker-meta" data-testid="chart-shared" style={{ color: "var(--color-fg-muted)" }}>
+                  {t("sharedWithYou", { date: sharedDay(row.sharedAt, locale) })}
+                </span>
+              ) : null}
+            </button>
+            {on ? (
+              <>
+                <button
+                  type="button"
+                  data-testid="chart-edit"
+                  title={t("editBirth")}
+                  aria-label={t("editBirth")}
+                  onClick={() => {
+                    edit(row.id);
+                    close();
+                  }}
+                  className="ob-icon-btn ob-icon-btn--quiet"
+                >
+                  <Pencil className="size-4" strokeWidth={1.75} />
+                </button>
+                <button
+                  type="button"
+                  data-testid="chart-remove"
+                  title={t("removeChart")}
+                  aria-label={t("removeChart")}
+                  onClick={() => setConfirmId(row.id)}
+                  className="ob-icon-btn ob-icon-btn--quiet ob-icon-btn--danger"
+                >
+                  <X className="size-4" strokeWidth={1.75} />
+                </button>
+              </>
+            ) : activeId ? (
+              <>
+                {/* Side by side with the chart shown (Compare, studio/compare): with the rows of ideas B3 and B4. */}
+                {extras ? <extras.RowCompare id={row.id} name={label} go={setPage} onClose={close} /> : null}
+                <button
+                  type="button"
+                  data-testid="chart-pair"
+                  title={pair}
+                  aria-label={pair}
+                  onClick={() => {
+                    // Composite keeps its own partner; the other pages share synastry's.
+                    setPartner(pairPage === "composite" ? "composite" : "synastry", row.id);
+                    setPage(pairPage);
+                    close();
+                  }}
+                  className="ob-icon-btn ob-icon-btn--quiet"
+                >
+                  <Users className="size-4" strokeWidth={1.75} />
+                </button>
+              </>
+            ) : null}
+            {more}
+          </>
+        )}
+      </li>
+    );
+  };
+
   return (
     <>
       <button
@@ -183,122 +300,14 @@ export function ChartPicker() {
           ) : null}
           {extras ? <extras.PickerBack onClose={close} /> : null}
           {rows.length ? (
-            <ul className="ob-picker-list">
-              {shown.length === 0 ? <li className="ob-picker-none">{t("libraryNone")}</li> : null}
-              {shown.map((row) => {
-                const on = row.id === activeId && (!creating || addingPartner);
-                const label = chartDisplayName(row.input, t("untitled"));
-                const pair = t("libraryPair", { name: label, page: t(PAGE_LABEL[pairPage]) });
-                const confirming = confirmId === row.id;
-                return (
-                  <li
-                    key={row.id}
-                    data-testid="chart-row"
-                    data-name={label}
-                    className="ob-picker-row"
-                  >
-                    {confirming ? (
-                      <div className="ob-picker-confirm">
-                        <span className="ob-picker-confirm-q">
-                          {t("confirmRemoveChart", { name: label })}
-                        </span>
-                        <div className="ob-picker-confirm-actions">
-                          <button
-                            type="button"
-                            className="ob-btn ob-btn--ghost"
-                            onClick={() => setConfirmId(null)}
-                          >
-                            {t("keepChart")}
-                          </button>
-                          <button
-                            type="button"
-                            data-testid="chart-remove-confirm"
-                            className="ob-btn ob-btn--danger"
-                            onClick={() => {
-                              void remove(row.id);
-                              toast(t("toastChartRemoved", { name: label }));
-                              close();
-                            }}
-                          >
-                            {t("confirmRemove")}
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            select(row.id);
-                            if (row.sharedAt) seenShared(row.id);
-                            close();
-                          }}
-                          aria-current={on ? "true" : undefined}
-                          className={cn("ob-picker-name", on && "is-on")}
-                        >
-                          <span className="truncate">{label}</span>
-                          <span className="ob-picker-meta">
-                            {[formatEuropeanDate(row.input.date), row.input.placeLabel.split(",")[0]].filter(Boolean).join(" · ")}
-                          </span>
-                          {row.sharedAt ? (
-                            <span className="ob-picker-meta" data-testid="chart-shared" style={{ color: "var(--color-fg-muted)" }}>
-                              {t("sharedWithYou", { date: sharedDay(row.sharedAt, locale) })}
-                            </span>
-                          ) : null}
-                        </button>
-                        {on ? (
-                          <>
-                            <button
-                              type="button"
-                              data-testid="chart-edit"
-                              title={t("editBirth")}
-                              aria-label={t("editBirth")}
-                              onClick={() => {
-                                edit(row.id);
-                                close();
-                              }}
-                              className="ob-icon-btn ob-icon-btn--quiet"
-                            >
-                              <Pencil className="size-4" strokeWidth={1.75} />
-                            </button>
-                            <button
-                              type="button"
-                              data-testid="chart-remove"
-                              title={t("removeChart")}
-                              aria-label={t("removeChart")}
-                              onClick={() => setConfirmId(row.id)}
-                              className="ob-icon-btn ob-icon-btn--quiet ob-icon-btn--danger"
-                            >
-                              <X className="size-4" strokeWidth={1.75} />
-                            </button>
-                          </>
-                        ) : activeId ? (
-                          <>
-                            {/* Side by side with the chart shown (Compare, studio/compare): with the rows of ideas B3 and B4. */}
-                            {extras ? <extras.RowCompare id={row.id} name={label} go={setPage} onClose={close} /> : null}
-                            <button
-                              type="button"
-                              data-testid="chart-pair"
-                              title={pair}
-                              aria-label={pair}
-                              onClick={() => {
-                                // Composite keeps its own partner; the other pages share synastry's.
-                                setPartner(pairPage === "composite" ? "composite" : "synastry", row.id);
-                                setPage(pairPage);
-                                close();
-                              }}
-                              className="ob-icon-btn ob-icon-btn--quiet"
-                            >
-                              <Users className="size-4" strokeWidth={1.75} />
-                            </button>
-                          </>
-                        ) : null}
-                      </>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+            extras ? (
+              <extras.PickerList shown={shown} rows={rows} query={query} row={rowOf} />
+            ) : (
+              <ul className="ob-picker-list">
+                {shown.length === 0 ? <li className="ob-picker-none">{t("libraryNone")}</li> : null}
+                {shown.map((row) => rowOf(row))}
+              </ul>
+            )
           ) : null}
           <button
             type="button"

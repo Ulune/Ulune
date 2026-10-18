@@ -123,7 +123,7 @@ export function ReadingTab() {
             onGo={go}
             back={trail.length ? trail[trail.length - 1].title : null}
             onBack={back}
-            mode={page === "numerology-cycles" ? "numerology" : page === "zodiac" || page === "zodiac-years" || page === "zodiac-pair" || page === "bazi" || page === "bazi-luck" || page === "bazi-pair" || page === "fengshui" || page === "fengshui-pair" || page === "fengshui-home" ? undefined : page}
+            mode={page === "numerology-cycles" || page === "numerology-pair" ? "numerology" : page === "design-pair" ? undefined : page === "zodiac" || page === "zodiac-years" || page === "zodiac-pair" || page === "bazi" || page === "bazi-luck" || page === "bazi-pair" || page === "fengshui" || page === "fengshui-pair" || page === "fengshui-home" || page === "fengshui-cycles" ? undefined : page}
             tradition={languageOf(page) ?? "astrology"}
           />
         </div>
@@ -162,7 +162,11 @@ function chinesePage(page: StudioPage): boolean {
 
 function packKindOf(page: StudioPage): PackKind {
   if (page === "design") return "hd";
+  // Human Design's connection chart (feature 5a): its readings come from a pack of their own.
+  if (page === "design-pair") return "hdpair";
   if (page === "numerology" || page === "numerology-cycles") return "num";
+  // Numerology's Relationship (feature 5c): its pairs' texts, a pack of their own.
+  if (page === "numerology-pair") return "numpair";
   if (page === "timing") return "cal";
   return "astro";
 }

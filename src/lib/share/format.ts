@@ -93,6 +93,9 @@ export const PAGE_CODES: Record<StudioPage, number> = {
   fengshui: 15,
   "fengshui-home": 16,
   "fengshui-pair": 17,
+  "fengshui-cycles": 18,
+  "design-pair": 19,
+  "numerology-pair": 20,
 };
 
 /** House systems by code, in the same spirit: append only. */

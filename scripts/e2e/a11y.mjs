@@ -63,7 +63,7 @@ for (const lang of ["en", "fr"]) {
     if (lang === "fr") await setLang(page, "fr");
     await castFixture(page, FIXTURE_A);
     const fr = lang === "fr";
-    for (const mode of ["natal", "transits", "timing", "synastry", "design", "numerology", "numerology-cycles"]) {
+    for (const mode of ["natal", "transits", "timing", "synastry", "design", "design-pair", "numerology", "numerology-cycles", "numerology-pair"]) {
       await goStudioPage(page, mode).catch(() => {});
       await page.waitForTimeout(700);
       for (const tab of ["reading", "bodies", "look", "birth"]) {
@@ -288,7 +288,7 @@ for (const [width, height] of [[390, 664], [640, 450]]) {
 
 /* --------------------------------------------- the Chinese pages (part 30) */
 
-const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home"];
+const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-cycles", "fengshui-pair", "fengshui-home"];
 /** Each page's table twin, shown by the toolbar's Table. */
 const TWIN = {
   zodiac: "zodiac-table",
@@ -298,6 +298,7 @@ const TWIN = {
   "bazi-luck": "bazi-luck-table",
   "bazi-pair": "bazi-pair-table",
   fengshui: "fengshui-table",
+  "fengshui-cycles": "fengshui-cycles-table",
   "fengshui-pair": "fengshui-pair-table",
   "fengshui-home": "fengshui-home-table",
 };
@@ -310,6 +311,7 @@ const FIGURE = {
   "bazi-luck": "bazi-luck",
   "bazi-pair": "bazi-pair",
   fengshui: "fengshui",
+  "fengshui-cycles": "fengshui-cycles",
   "fengshui-pair": "fengshui-pair",
   "fengshui-home": "fengshui-home",
 };
@@ -390,7 +392,16 @@ async function figureKeys(page, fail) {
     const chosen = await page
       .waitForFunction((t) => document.querySelector(`[data-testid="${t}"]`)?.getAttribute("aria-pressed") === "true", next, { timeout: 4000 })
       .then(() => true, () => false);
-    if (!chosen) fail(`${g.id}: Enter does not choose ${next}`);
+    if (!chosen) {
+      fail(`${g.id}: Enter does not choose ${next}`);
+      continue;
+    }
+    // Escape, the focus still on that part (an SVG element, not an HTML one), lets go of it (review of 2.0's week 3).
+    await page.keyboard.press("Escape");
+    const free = await page
+      .waitForFunction((t) => document.querySelector(`[data-testid="${t}"]`)?.getAttribute("aria-pressed") !== "true", next, { timeout: 4000 })
+      .then(() => true, () => false);
+    if (!free) fail(`${g.id}: Escape on ${next} does not let go of it`);
   }
   return groups.length;
 }
@@ -516,10 +527,11 @@ const CHOOSE = {
   "bazi-luck": "bazi-luck-yang-2",
   "bazi-pair": "bazi-pair-a-day-branch",
   fengshui: "fengshui-wedge-yang-s",
+  "fengshui-cycles": "fengshui-cycles-wedge-yang-s",
   "fengshui-pair": "fengshui-pair-wedge-s",
   "fengshui-home": "fengshui-stars-main-c",
 };
-const WESTERN = ["natal", "transits", "design", "numerology", "timing"];
+const WESTERN = ["natal", "transits", "design", "design-pair", "numerology", "timing"];
 const contrastCounts = [];
 /** Per Western page and theme: the words its chart draws in its own colours, under the ratio (listed, not failed). */
 const westernDrawn = new Map();

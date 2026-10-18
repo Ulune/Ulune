@@ -9,7 +9,7 @@ import { calendarIcs, type IcsKind } from "@/lib/i18n/calendar-export";
 import { downloadText } from "@/lib/download-text";
 import { eventsOf, mergeEvents, windowId } from "@/lib/chart/calendar-sky";
 import { shownLayers, type CalendarLayerId } from "@/lib/chart/calendar-layers";
-import { CALENDAR_DEFAULTS, deviceZone, loadCalendarPrefs, saveCalendarPrefs, type CalendarPrefs, type CalendarZone } from "@/lib/chart/calendar-prefs";
+import { CALENDAR_DEFAULTS, PREFS_EVENT, deviceZone, loadCalendarPrefs, saveCalendarPrefs, type CalendarPrefs, type CalendarZone } from "@/lib/chart/calendar-prefs";
 import { slowWindowsFromYears, transitsInSlices, type TransitWindow } from "@/lib/chart/personal-transits";
 import { skyEventId, type SkyEvent } from "@/lib/chart/sky-events";
 import { bodyAt, type SkyWindow } from "@/lib/chart/sky-window";
@@ -100,6 +100,19 @@ export function useTiming() {
   // Which clock the times follow (this device's by default), and the layers: kept in this browser.
   const [prefs, setPrefs] = useState<CalendarPrefs>(CALENDAR_DEFAULTS);
   useEffect(() => setPrefs(loadCalendarPrefs()), []);
+  // A layer switched on from another page (Feng Shui's Cycles opens the flying stars): followed once
+  // this tick is over, so a save made here, inside the state's own update, is never answered within it.
+  useEffect(() => {
+    const follow = () =>
+      queueMicrotask(() =>
+        setPrefs((cur) => {
+          const next = loadCalendarPrefs();
+          return next === cur || JSON.stringify(next) === JSON.stringify(cur) ? cur : next;
+        }),
+      );
+    window.addEventListener(PREFS_EVENT, follow);
+    return () => window.removeEventListener(PREFS_EVENT, follow);
+  }, []);
   const updatePrefs = useCallback((next: Partial<CalendarPrefs>) => {
     setPrefs((cur) => {
       const merged = { ...cur, ...next };

@@ -3609,10 +3609,22 @@ html[data-tour-done] .ob-tour-link {
   }
 }
 /* Most phones: beside three lens tabs there is room for the language's mark
-   only (its name stays in its label and in the picker). */
+   only (its name stays in its label and in the picker), and the tabs give
+   their short names (Pair, Logis: Feng Shui's four lenses fit at 360 px),
+   down to a finger's 44 px. */
+.ob-lens-short {
+  display: none;
+}
 @container stage (max-width: 419.98px) {
-  .ob-nav:has(> .ob-lenses) .ob-lang-short {
+  .ob-nav:has(> .ob-lenses) .ob-lang-short,
+  .ob-lens-long {
     display: none;
+  }
+  .ob-lens-short {
+    display: inline;
+  }
+  .ob-lens {
+    min-width: 44px;
   }
 }
 /* The Calendar's toolbar (timing.css) kept a place at its start for Time's

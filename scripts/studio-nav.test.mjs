@@ -75,7 +75,7 @@ test("each language's ⓘ leads to its home in the encyclopedia, in the reader's
 });
 
 test("the bars' order: each language's lenses and sub-modes, then the Calendar", () => {
-  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "numerology", "numerology-cycles", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home", "timing"]);
+  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "design-pair", "numerology", "numerology-cycles", "numerology-pair", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-cycles", "fengshui-pair", "fengshui-home", "timing"]);
   assert.deepEqual([...PAGE_ORDER].sort(), [...STUDIO_PAGES].sort(), "every page once");
 });
 
@@ -158,8 +158,8 @@ test("a lens a language lacks is never offered", () => {
   for (const l of LANGUAGES) {
     for (const lens of lensesOf(l.id)) assert.ok((l.lenses[lens]?.length ?? 0) > 0, `${l.id} ${lens}`);
   }
-  assert.deepEqual(lensesOf("human-design"), ["natal"], "one lens: no lens tabs (ChartsNav.tsx)");
-  assert.deepEqual(lensesOf("numerology"), ["natal", "cycles"]);
+  assert.deepEqual(lensesOf("human-design"), ["natal", "relationship"], "its bodygraph and its connection chart (share and compare plan, feature 5a)");
+  assert.deepEqual(lensesOf("numerology"), ["natal", "cycles", "relationship"], "its two people (share and compare plan, feature 5c)");
 });
 
 test("the language button's hint: a reader of 1.x gets it until it is done, a new reader never", () => {
@@ -273,6 +273,7 @@ test("storage switched off (reaching it throws, as with cookies blocked): nothin
     assert.doesNotThrow(() => rememberPage("bazi-luck"));
     assert.equal(pageFor("bazi", "relationship"), "bazi-pair", "the switcher's pair button");
     assert.equal(pageFor("feng-shui", "relationship"), "fengshui-pair", "and from Feng Shui, its own (FS32)");
+    assert.equal(pageFor("human-design", "relationship"), "design-pair", "and from Human Design, its connection chart (feature 5a)");
     assert.equal(pageFor("astrology", "relationship"), "synastry");
     assert.deepEqual(recentLanguages(), []);
     assert.equal(pickerSeen(Date.UTC(2026, 9, 13)), null);
@@ -306,7 +307,8 @@ test("⌘K finds a language by its name, case and accents aside, and a Chinese o
   assert.deepEqual(found("bāzì cycles"), ["lens:bazi:cycles"]);
   assert.deepEqual(found("風水　home"), ["lens:feng-shui:home"], "an ideographic space between the words");
   assert.deepEqual(found("fēngshuǐ relationship"), ["lens:feng-shui:relationship"], "Feng Shui's two people (FS32)");
-  assert.deepEqual(found("风水"), ["lang:feng-shui", "lens:feng-shui:natal", "lens:feng-shui:relationship", "lens:feng-shui:home"]);
+  assert.deepEqual(found("风水"), ["lang:feng-shui", "lens:feng-shui:natal", "lens:feng-shui:cycles", "lens:feng-shui:relationship", "lens:feng-shui:home"]);
+  assert.deepEqual(found("fēngshuǐ cycles"), ["lens:feng-shui:cycles"], "Feng Shui's directions through the years (feature 5d)");
   // Accents aside in French too; nothing typed, nothing narrowed.
   assert.ok(paletteFinds(typedWords("numerologie"), paletteWords("Numérologie")));
   assert.ok(paletteFinds(typedWords("ÉCLIPSE"), paletteWords("éclipse")));

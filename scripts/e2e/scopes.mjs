@@ -32,8 +32,10 @@ const PAGES = [
   { id: "synastry", ready: "svg[data-depth-base] [data-kind=planet][data-body=sun]", wheel: "sun", pair: "synastry" },
   { id: "composite", ready: "svg[data-depth-base] [data-kind=planet][data-body=sun]", wheel: "sun", pair: "composite" },
   { id: "design", ready: ".ulune-hd-gate:not([data-tone=off])", press: ".ulune-hd-gate:not([data-tone=off])" },
+  { id: "design-pair", ready: "[data-testid=hd-pair-graph] .ulune-hd-gate:not([data-tone=off])", press: "[data-testid=hd-pair-kind-electromagnetic]", pair: "design-pair" },
   { id: "numerology", ready: "[data-testid=numerology-tile-lifepath]", press: "[data-testid=numerology-tile-lifepath]", own: { sel: "[data-testid=numerology-tile-lifepath] .ulune-num-tile-n", a: /(^|\/)4$/, b: /(^|\/)3$/ } },
   { id: "numerology-cycles", ready: "[data-testid=num-month-1]", press: "[data-testid=num-month-1]" },
+  { id: "numerology-pair", ready: "[data-testid=numerology-pair-rel]", press: "[data-testid=numerology-pair-rel]", pair: "numerology-pair" },
   { id: "zodiac", ready: "[data-testid=zodiac-card-year]", press: "[data-testid=zodiac-card-year]", own: { sel: "[data-testid=zodiac-card-year]", a: /Horse/, b: /Rabbit/ } },
   { id: "zodiac-years", ready: "[data-testid=zodiac-year]", press: "[data-testid=zodiac-year]" },
   { id: "zodiac-pair", ready: "[data-testid=zodiac-pair] button[aria-pressed]", press: "[data-testid=zodiac-pair] button[aria-pressed]", pair: "zodiac-pair" },
@@ -42,6 +44,7 @@ const PAGES = [
   { id: "bazi-pair", ready: "[data-testid^=bazi-pair-meet-]", press: "[data-testid^=bazi-pair-meet-]", pair: "bazi-pair" },
   { id: "fengshui", ready: "[data-testid^=fengshui-kua-]", press: "[data-testid^=fengshui-kua-]", own: { sel: "[data-testid^=fengshui-kua-]" } },
   { id: "fengshui-pair", ready: "[data-testid=fengshui-pair-kua-a]", press: "[data-testid=fengshui-pair-kua-a]", pair: "fengshui-pair" },
+  { id: "fengshui-cycles", ready: "[data-testid^=fengshui-cycles-you-]", press: "[data-testid^=fengshui-cycles-you-]", own: { sel: "[data-testid^=fengshui-cycles-you-]", a: /Kua 1\b/i, b: /Kua 4\b/i } },
 ];
 const MAIN_ONLY = ["timing", "fengshui-home"];
 

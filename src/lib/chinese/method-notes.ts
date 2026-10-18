@@ -33,7 +33,7 @@ import { PLACE_ANIMAL } from "./zodiac-places";
 import { deFr } from "./both";
 
 /** The Chinese pages that say how they were calculated. */
-export type ChinesePageId = "zodiac" | "zodiac-pair" | "bazi" | "bazi-luck" | "bazi-pair" | "fengshui" | "fengshui-pair" | "fengshui-home";
+export type ChinesePageId = "zodiac" | "zodiac-pair" | "bazi" | "bazi-luck" | "bazi-pair" | "fengshui" | "fengshui-pair" | "fengshui-home" | "fengshui-cycles";
 
 export type MethodNote = {
   /** What it is about, stable for tests: "day-boundary", "formula", "near-day", "new-year-beijing"… */
@@ -49,7 +49,7 @@ export type NotePrefs = Pick<ChinesePrefs, "clock" | "dayBoundary" | "script" | 
 
 const MINUTE_MS = 60_000;
 const ZODIAC_PAGES: readonly ChinesePageId[] = ["zodiac", "zodiac-pair"];
-const FENGSHUI_PAGES: readonly ChinesePageId[] = ["fengshui", "fengshui-pair", "fengshui-home"];
+const FENGSHUI_PAGES: readonly ChinesePageId[] = ["fengshui", "fengshui-pair", "fengshui-home", "fengshui-cycles"];
 const PLACES: readonly ZodiacPlaceId[] = ["year", "month", "day", "hour"];
 const PILLAR_KEY: Record<ZodiacPlaceId, ChineseWordKey> = { year: "bzPillarYear", month: "bzPillarMonth", day: "bzPillarDay", hour: "bzPillarHour" };
 
@@ -234,6 +234,8 @@ export function howUluneCalculates(page: ChinesePageId, prefs: Pick<ChinesePrefs
   else if (page === "bazi-pair") items = [say("cnmHowBazi"), say("cnmHowPillars"), clockItem(prefs, locale), cnWord(locale, "cnmHowSourceTerms", source)];
   else if (page === "bazi" || page === "bazi-luck") items = [say("cnmHowBazi"), say("cnmHowPillars"), clockItem(prefs, locale), say("cnmHowLuck"), cnWord(locale, "cnmHowSourceTerms", source)];
   else if (page === "fengshui" || page === "fengshui-pair") items = [say("cnmHowKua"), cnWord(locale, "cnmHowSourceTerms", source)];
+  // Feng Shui's Cycles (share and compare plan, feature 5d): the Kua, the year's and the month's stars, how they are read over your directions.
+  else if (page === "fengshui-cycles") items = [say("cnmHowKua"), say("cnmHowStars"), say("cnmHowCycles"), cnWord(locale, "cnmHowSourceTerms", source)];
   else items = [say("cnmHowKua"), say("cnmHowHome"), say("cnmHowPeriod"), say("cnmHowStars"), cnWord(locale, "cnmHowSourceTerms", source)];
   return { title: say("cnmHowTitle"), items };
 }

@@ -1,8 +1,7 @@
 import { useMemo, useState } from "react";
 import { partRows } from "@/lib/csv";
 import { SegmentedToggle } from "@/components/segmented-toggle";
-import { chartDisplayName, type SavedChart } from "@/lib/chart/library";
-import { castNumerology, numerologyOptionsOf, type NumerologyChart, type NumerologyName } from "@/lib/chart/numerology";
+import type { NumerologyChart, NumerologyName } from "@/lib/chart/numerology";
 import type { AgeSpan } from "@/lib/chart/numerology-cycles";
 import { GRID_CELLS, type GridLayoutId } from "@/lib/chart/numerology-grid";
 import type { NameLetter } from "@/lib/chart/numerology-name";
@@ -11,7 +10,6 @@ import {
   TABLE_CORES,
   agesText,
   bridgeRows,
-  compareRows,
   cycleRows,
   detailRows,
   numerologyTableCsv,
@@ -38,21 +36,21 @@ import { DataTable } from "@/studio/tables/DataTable";
 import { NumerologyLifeLine } from "@/studio/tables/numerology-life";
 import { TermWord } from "@/encyclopedia/TermWord";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
+import { useStudioUrl } from "@/studio/use-studio-url";
 
 /**
  * The numerology table (part 61 of the launch plan): one scroll under the
  * pinned bar, as every mode's table: the core numbers with their steps, the
  * name letter by letter, the birth grid, the long cycles, the years, the
- * bridges (and two people side by side) and what the numbers mean. Copy and
- * CSV for the whole and for each part; everything is worked out here, on the
- * device.
+ * bridges and what the numbers mean. Copy and CSV for the whole and for each
+ * part; everything is worked out here, on the device. Two people side by side
+ * (its former "Compare") are numerology's Relationship page since 2.0's week 3
+ * (share and compare plan, feature 5c): the Bridges part leads there.
  */
 export function NumerologyTable({
   chart,
   name = "",
   nameFrom = null,
-  rows,
-  activeId,
   selectedId,
   onSelect,
   openBirth,
@@ -63,9 +61,6 @@ export function NumerologyTable({
   name?: string;
   /** Where the name numbers' name comes from: the full name at birth, or the chart's name. */
   nameFrom?: "birth" | "chart" | null;
-  /** The library, for two people side by side. */
-  rows: SavedChart[];
-  activeId: string | null;
   selectedId: string | null;
   onSelect: (id: string) => void;
   openBirth: () => void;
@@ -75,20 +70,8 @@ export function NumerologyTable({
   const { locale, t } = useI18n();
   const [layout, setLayout] = useState<GridLayoutId>("phillips");
   const [wholeLife, setWholeLife] = useState(false);
-  const [pair, setPair] = useState<{ a?: string; b?: string }>({});
 
-  // Two people from the library: the chart shown first, then another.
-  const aId = pair.a && rows.some((r) => r.id === pair.a) ? pair.a : (activeId ?? rows[0]?.id);
-  const bId = pair.b && pair.b !== aId && rows.some((r) => r.id === pair.b) ? pair.b : rows.find((r) => r.id !== aId)?.id;
-  const rowA = rows.find((r) => r.id === aId);
-  const rowB = rows.find((r) => r.id === bId);
-  const year = chart.calendarYear;
-  const castA = useMemo(() => (rowA ? castNumerology(rowA.chart, { ...numerologyOptionsOf(rowA.input, rowA.chart), calendarYear: year }) : null), [rowA, year]);
-  const castB = useMemo(() => (rowB ? castNumerology(rowB.chart, { ...numerologyOptionsOf(rowB.input, rowB.chart), calendarYear: year }) : null), [rowB, year]);
-  const other = castA && castB && rowB ? { name: chartDisplayName(rowB.input), chart: castB } : null;
-  const whoA = rowA ? chartDisplayName(rowA.input) : name;
-
-  const text = () => numerologyTextParts(chart, locale, { who: name, layout, wholeLife, other: other && castA ? other : null });
+  const text = () => numerologyTextParts(chart, locale, { who: name, layout, wholeLife });
   const partText = (id: string) => () => text().find((x) => x.id === id)?.lines.join("\n") ?? "";
   const pick = { selectedId, onSelect };
   const gate = chart.names.birth ? null : <NameGate locale={locale} openBirth={openBirth} />;
@@ -160,20 +143,7 @@ export function NumerologyTable({
       terms: ["bridge"],
       copyText: partText("bridges"),
       table: csvOf(["bridge"]),
-      children: (
-        <BridgesPart
-          chart={chart}
-          locale={locale}
-          {...pick}
-          rows={rows}
-          aId={aId}
-          bId={bId}
-          whoA={whoA}
-          castA={castA}
-          castB={castB}
-          setPair={(a, b) => setPair({ a, b })}
-        />
-      ),
+      children: <BridgesPart chart={chart} locale={locale} {...pick} />,
     },
     {
       id: "numbers",
@@ -758,31 +728,9 @@ function YearsPart({
   );
 }
 
-/** The two bridges, then two people from the library side by side. */
-function BridgesPart({
-  chart,
-  locale,
-  rows,
-  aId,
-  bId,
-  whoA,
-  castA,
-  castB,
-  setPair,
-  selectedId,
-  onSelect,
-}: Pick & {
-  chart: NumerologyChart;
-  locale: AppLocale;
-  rows: SavedChart[];
-  aId: string | undefined;
-  bId: string | undefined;
-  whoA: string;
-  castA: NumerologyChart | null;
-  castB: NumerologyChart | null;
-  setPair: (a?: string, b?: string) => void;
-}) {
-  const rowB = rows.find((r) => r.id === bId);
+/** The two bridges; two people's numbers side by side are numerology's Relationship page (feature 5c), one press away. */
+function BridgesPart({ chart, locale, selectedId, onSelect }: Pick & { chart: NumerologyChart; locale: AppLocale }) {
+  const { setPage } = useStudioUrl({ hydrate: false });
   return (
     <div className="ulune-num-part">
       <DataTable stickyFirst={false} className="ulune-num-bridges">
@@ -812,67 +760,12 @@ function BridgesPart({
         </tbody>
       </DataTable>
       <h3 className="ulune-num-subhead">{p(locale, "compareTitle")}</h3>
-      {rows.length < 2 ? (
-        <div data-testid="numerology-compare-empty" className="ulune-num-gate">
-          <p>{p(locale, "emptyCompare")}</p>
-          <p className="ulune-num-note">{p(locale, "emptyCompareHint")}</p>
-        </div>
-      ) : (
-        <>
-          <div className="ulune-num-pair">
-            <label>
-              <span>{p(locale, "personA")}</span>
-              <select data-testid="numerology-compare-a" value={aId ?? ""} onChange={(e) => setPair(e.target.value || undefined, bId)}>
-                {rows.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {chartDisplayName(r.input)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <span>{p(locale, "personB")}</span>
-              <select data-testid="numerology-compare-b" value={bId ?? ""} onChange={(e) => setPair(aId, e.target.value || undefined)}>
-                {rows
-                  .filter((r) => r.id !== aId)
-                  .map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {chartDisplayName(r.input)}
-                    </option>
-                  ))}
-              </select>
-            </label>
-          </div>
-          {castA && castB ? (
-            <DataTable stickyFirst={false} className="ulune-num-compare">
-              <thead>
-                <tr>
-                  <th data-col="number">{p(locale, "col_number")}</th>
-                  <th data-col="a">{whoA || p(locale, "personA")}</th>
-                  <th data-col="b">{rowB ? chartDisplayName(rowB.input) : p(locale, "personB")}</th>
-                  <th data-col="gap">{p(locale, "col_gap")}</th>
-                </tr>
-              </thead>
-              <tbody data-testid="numerology-compare-table">
-                {compareRows(castA, castB).map((r) => (
-                  <tr key={r.id} data-testid={`numerology-compare-row-${r.id}`}>
-                    <td data-col="number">{tableCoreLabel(locale, r.id)}</td>
-                    <td data-col="a">
-                      <ValueCell value={r.a} locale={locale} />
-                    </td>
-                    <td data-col="b">
-                      <ValueCell value={r.b} locale={locale} />
-                    </td>
-                    <td data-col="gap" className="font-mono tabular-nums">
-                      {r.gap?.number ?? "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </DataTable>
-          ) : null}
-        </>
-      )}
+      <p className="ulune-num-note" data-testid="numerology-pair-link-note">
+        {p(locale, "pairLinkNote")}{" "}
+        <button type="button" className="ob-keep-link" data-testid="numerology-pair-link" onClick={() => setPage("numerology-pair")}>
+          {p(locale, "pairLinkGo")}
+        </button>
+      </p>
     </div>
   );
 }

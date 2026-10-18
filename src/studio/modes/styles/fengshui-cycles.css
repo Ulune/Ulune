@@ -1,0 +1,341 @@
+/* Feng Shui's Cycles, your directions through the years (share and compare plan,
+   feature 5d; studio/modes/fengshui-cycles.tsx). The rose, cards, rows and phase
+   colours are fengshui.css's and zodiac.css's; here the year's and the month's
+   stars on the rose, the year's afflictions on its rim, what the year makes of
+   each direction (outlined when strengthened, framed in dashes when resting:
+   shapes, so colour is never the only signal), the dial's cards and the key. */
+
+/* The year and the month on the dial. */
+.ulune-fsc-times {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+.ulune-fsc-month {
+  padding-top: 6px;
+}
+.ulune-fsc-month.is-on,
+.ulune-fsc-month:hover {
+  background: var(--color-bg-elevated);
+}
+.ulune-fsc-month-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+}
+.ulune-fsc-month-head .ulune-fs-h {
+  margin: 0;
+}
+.ulune-fsc-now {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-halo) 22%, transparent);
+  font: 500 11px/1.5 var(--font-ui);
+  color: var(--color-fg);
+}
+.ulune-fsc-month-steps {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: auto;
+}
+.ulune-fsc-step {
+  display: inline-grid;
+  place-items: center;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  color: var(--color-fg-muted);
+}
+.ulune-fsc-step.is-back {
+  padding: 0 8px;
+  font: 500 12px/1 var(--font-ui);
+  color: var(--color-fg);
+}
+.ulune-fsc-step:disabled {
+  opacity: 0.4;
+}
+.ulune-fsc-step:focus-visible,
+.ulune-fsc-month-line:focus-visible,
+.ulune-fsc-cal:focus-visible,
+.ulune-fsc-btn:focus-visible {
+  outline: 2px solid var(--color-fg);
+  outline-offset: 1px;
+}
+@media (hover: hover) {
+  .ulune-fsc-step:hover:not(:disabled) {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
+}
+.ulune-fsc-month-line {
+  margin: 0 -6px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font: 400 13px/1.45 var(--font-ui);
+  color: var(--color-fg);
+  text-align: left;
+}
+.ulune-fsc-month-line[aria-pressed="true"],
+.ulune-fsc-month-line:hover {
+  background: var(--color-bg-subtle);
+}
+
+/* The rose and its key. */
+.ulune-fsc-figure {
+  flex: 0 1 min(520px, 58%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.ulune-fsc-figure .ulune-fsc-rose-box {
+  flex: none;
+  width: 100%;
+}
+.ulune-fs-counts[data-n="2"] .ulune-fsc-figure {
+  flex: none;
+  width: min(100%, 420px);
+  margin: 0 auto;
+}
+.ulune-fsc-wedge.is-sky .ulune-fs-cell {
+  fill: transparent;
+}
+.ulune-fsc-wedge.is-sky:hover .ulune-fs-cell,
+.ulune-fsc-wedge.is-sky.is-on .ulune-fs-cell {
+  fill: var(--color-bg-subtle);
+}
+/* Strengthened: an outline in the accent; resting: a frame in dashes. */
+.ulune-fsc-strong {
+  fill: none;
+  stroke: var(--color-halo);
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+.ulune-fsc-rest {
+  fill: none;
+  stroke: var(--color-fg-muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+/* The year's star in a disc, the month's in a small ring; a 5 Yellow's ring in dashes. */
+.ulune-fsc-ystar circle {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-fg);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fsc-ystar text {
+  font: 650 13px/1 var(--font-ui);
+}
+.ulune-fsc-mstar circle {
+  fill: var(--color-bg-elevated);
+  stroke: var(--color-fg-muted);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fsc-mstar text {
+  font: 500 9.5px/1 var(--font-ui);
+  fill: var(--color-fg-muted) !important;
+}
+.ulune-fsc-ystar.is-five circle,
+.ulune-fsc-mstar.is-five circle {
+  stroke-dasharray: 3 2;
+}
+.ulune-fs-wedge.is-hard .ulune-fsc-ystar text,
+.ulune-fs-wedge.is-hard .ulune-fsc-mstar text {
+  paint-order: normal;
+  stroke: none;
+}
+/* The year's afflictions on the rim: solid, dashed, dotted. */
+.ulune-fsc-arc {
+  fill: none;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.ulune-fsc-arc.is-taisui {
+  stroke: var(--color-halo);
+}
+.ulune-fsc-arc.is-breaker {
+  stroke: var(--color-fg-muted);
+  stroke-dasharray: 5 4;
+  stroke-linecap: butt;
+}
+.ulune-fsc-arc.is-killings {
+  stroke: var(--color-fg-muted);
+  stroke-width: 3;
+  stroke-dasharray: 0.5 6;
+  opacity: 0.85;
+}
+.ulune-fsc-centre .ulune-fs-centre-n {
+  font-size: 30px;
+}
+.ulune-fsc-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font: 400 12.5px/1.4 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-fsc-legend p {
+  margin: 0;
+}
+.ulune-fsc-key-star,
+.ulune-fsc-key-month {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-right: 2px;
+  border: 1.4px solid var(--color-fg);
+  border-radius: 50%;
+  font: 650 10.5px/1 var(--font-ui);
+  color: var(--color-fg);
+  vertical-align: -4px;
+}
+.ulune-fsc-key-month {
+  width: 14px;
+  height: 14px;
+  border-width: 1px;
+  border-color: var(--color-fg-muted);
+  font: 500 8.5px/1 var(--font-ui);
+  color: var(--color-fg-muted);
+  vertical-align: -2px;
+}
+
+/* The lists beside the rose: the year's star and what the year makes of each direction. */
+.ulune-fsc-row {
+  align-items: center;
+}
+.ulune-fsc-row-end {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+.ulune-fsc-chip {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1.2px solid var(--color-fg);
+  border-radius: 50%;
+  font: 650 11px/1 var(--font-ui);
+  color: var(--color-fg);
+}
+.ulune-fsc-chip.is-five {
+  border-style: dashed;
+}
+.ulune-fsc-state {
+  min-width: 5.5rem;
+  font: 500 12px/1.3 var(--font-ui);
+  color: var(--color-fg-muted);
+}
+.ulune-fsc-state[data-state="strengthened"] {
+  color: var(--color-fg);
+  text-decoration: underline;
+  text-decoration-color: var(--color-halo);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.ulune-fsc-state[data-state="rest"] {
+  font-style: italic;
+}
+
+/* Where the year asks for quiet, and the way to the Calendar. */
+.ulune-fsc-quiet ul,
+.ulune-fsc-invite ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-fsc-quiet {
+  gap: var(--space-2);
+}
+.ulune-fsc-quiet.ulune-fs-card:hover {
+  background: var(--color-bg-elevated);
+}
+/* Its rows say a place on the rim, not a mansion: no mansion's edge, the swatch leads. */
+.ulune-fsc-quiet .ulune-fs-row {
+  border-left: none;
+  padding-left: 2px;
+}
+.ulune-fsc-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 0;
+  margin-right: 4px;
+  border-top: 3px solid var(--color-fg-muted);
+  vertical-align: 3px;
+}
+.ulune-fsc-swatch.is-tai-sui {
+  border-top-color: var(--color-halo);
+}
+.ulune-fsc-swatch.is-year-breaker {
+  border-top-style: dashed;
+}
+.ulune-fsc-swatch.is-three-killings {
+  border-top-style: dotted;
+}
+.ulune-fsc-swatch.is-five-yellow {
+  width: 10px;
+  height: 10px;
+  border: 1.4px dashed var(--color-fg);
+  border-radius: 50%;
+  vertical-align: -1px;
+}
+.ulune-fsc-cal,
+.ulune-fsc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border-field);
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font: 500 13px/1.3 var(--font-ui);
+  text-align: left;
+}
+@media (hover: hover) {
+  .ulune-fsc-cal:hover,
+  .ulune-fsc-btn:hover {
+    background: var(--color-bg-subtle);
+  }
+}
+.ulune-fsc-invite.ulune-fs-card:hover {
+  background: var(--color-bg-elevated);
+}
+
+/* A finger: the dial's steps, the month's line, the Calendar's and the cast's buttons reach 44 px. */
+@media (pointer: coarse) {
+  .ulune-fsc-step {
+    min-width: 44px;
+    height: 44px;
+  }
+  .ulune-fsc-month-line,
+  .ulune-fsc-cal,
+  .ulune-fsc-btn {
+    min-height: 44px;
+  }
+}
+
+/* A narrow stage (a phone, a tablet upright): the year and the month one under the other, the rose on top. */
+@container (max-width: 720px) {
+  .ulune-fsc-figure {
+    flex: none;
+    width: min(100%, 440px);
+    margin: 0 auto;
+  }
+}
+@container (max-width: 560px) {
+  .ulune-fsc-times {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
