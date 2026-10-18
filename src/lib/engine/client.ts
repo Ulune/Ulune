@@ -1,17 +1,24 @@
 /**
- * The page's side of the calculations on the device (on-device plan, step 2):
- * one background worker (worker.ts) holding one engine, started on the first
- * request, and a typed way to ask it, each answer the same as the matching
- * server function's (protocol.ts). Every request can be cancelled with an
- * AbortSignal: it then rejects at once with an AbortError, and the worker
- * drops it (or stops it at its next step).
+ * The page's side of the calculations on the device (on-device plan, steps 2
+ * and 5): one background worker (worker.ts) holding one engine, started on
+ * the first request, and a typed way to ask it, each answer the same as the
+ * matching server function's (protocol.ts). Every request can be cancelled
+ * with an AbortSignal: it then rejects at once with an AbortError, and the
+ * worker drops it (or stops it at its next step).
  *
- * Nothing imports this in the first load; the "calculate" door (step 4)
- * will load it when a chart is cast on the device. Not used by any page yet.
+ * While the engine's files come over the network the worker says how far
+ * they have got (onEngineProgress), and a worker that falls silent while it
+ * starts (a download stalled, nothing arriving for 25 s) is let go: its
+ * requests fail with "E:engine.timeout", and the "calculate" door offers
+ * Ulune's server (door.ts).
+ *
+ * Loaded by the door (door.ts) when a chart is first calculated on the
+ * device, never in a page's first load.
  */
 import type {
   EngineAnswers,
   EngineJob,
+  EngineProgress,
   FromEngine,
   HumanDesignRequest,
   NatalRequest,
@@ -20,14 +27,24 @@ import type {
   ToEngine,
   TransitsRequest,
 } from "./protocol";
+// The worker built on its own (/assets/engine-worker-<hash>.js, vite.config.ts), by its address.
+import workerScript from "./worker.ts?worker&url";
 
-export type { EngineStatus, NatalAnswer, NatalRequest } from "./protocol";
+export type { EngineProgress, EngineStatus, NatalAnswer, NatalRequest } from "./protocol";
 
 type Pending = { resolve: (value: unknown) => void; reject: (err: Error) => void; done: () => void };
 
 let worker: Worker | null = null;
 let seq = 0;
 const waiting = new Map<number, Pending>();
+
+/** How long a starting worker may stay silent (no file arriving, no answer) before it is let go. */
+const STALL_MS = 25_000;
+let stall: ReturnType<typeof setTimeout> | null = null;
+/** The worker has answered once: its engine is up, and its silences are calculations. */
+let answered = false;
+
+const progressListeners = new Set<(p: EngineProgress) => void>();
 
 /** What a calculation on this device needs: workers that load modules, and WebAssembly. */
 export function deviceEngineSupported(): boolean {
@@ -39,16 +56,39 @@ export function deviceEngineSupported(): boolean {
   );
 }
 
+/** Told how far the engine's files have got while they come over the network; returns the way to stop. */
+export function onEngineProgress(fn: (p: EngineProgress) => void): () => void {
+  progressListeners.add(fn);
+  return () => {
+    progressListeners.delete(fn);
+  };
+}
+
 function abortError(): Error {
   return typeof DOMException === "function" ? new DOMException("Aborted", "AbortError") : Object.assign(new Error("Aborted"), { name: "AbortError" });
 }
 
+function quiet() {
+  if (stall) clearTimeout(stall);
+  stall = null;
+}
+
+/** While the engine starts, silence for STALL_MS lets the worker go. */
+function watch() {
+  quiet();
+  if (answered || !worker) return;
+  stall = setTimeout(() => failAll("E:engine.timeout"), STALL_MS);
+}
+
 /** Every waiting request fails with `code`, and the next one starts a new worker. */
 function failAll(code: string) {
+  quiet();
   const all = [...waiting.values()];
   waiting.clear();
   worker?.terminate();
   worker = null;
+  answered = false;
+  for (const fn of progressListeners) fn({ loaded: 0, total: 0, done: true });
   for (const p of all) {
     p.done();
     p.reject(new Error(code));
@@ -57,9 +97,16 @@ function failAll(code: string) {
 
 function spawn(): Worker {
   if (worker) return worker;
-  const w = new Worker(new URL("./worker.ts", import.meta.url), { type: "module", name: "ulune-engine" });
+  const w = new Worker(workerScript, { type: "module", name: "ulune-engine" });
   w.onmessage = (event: MessageEvent<FromEngine>) => {
     const msg = event.data;
+    if ("progress" in msg) {
+      watch();
+      for (const fn of progressListeners) fn(msg.progress);
+      return;
+    }
+    answered = true;
+    quiet();
     const p = waiting.get(msg.id);
     if (!p) return;
     waiting.delete(msg.id);
@@ -73,6 +120,8 @@ function spawn(): Worker {
     failAll("E:engine.worker");
   };
   worker = w;
+  answered = false;
+  watch();
   return w;
 }
 
@@ -124,3 +173,12 @@ export const deviceEngine = {
 };
 
 export type DeviceEngine = typeof deviceEngine;
+
+/**
+ * The page's own files the calculations need besides those the worker keeps (the engine and the
+ * ephemeris, in its cache): the worker's script and the code that starts it. Kept by the offline
+ * worker (public/sw.js) once a chart has been calculated here, so a chart is calculated offline too.
+ */
+export function engineCodeFiles(): string[] {
+  return [new URL(workerScript, location.href).href, import.meta.url];
+}

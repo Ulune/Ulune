@@ -16,11 +16,17 @@
 // didn't load.", with "Try again"), inside the app, rather than breaking; once
 // the connection is back, it opens when loaded again. Without a build this
 // part is skipped, and says so; `--built` runs it alone (after `npm run build`).
+// A chart calculated offline (on-device plan, step 5), in the same part: the
+// reader's first chart was calculated on the device before Ulune was kept, so
+// the engine and its files are in the worker's own cache, and keeping Ulune
+// keeps the code that starts it; without a connection, the chart's time
+// changed in the Birth tab is calculated again on the device, nothing asked
+// of the server.
 import { spawn } from "node:child_process";
 import { existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { chromium } from "playwright";
-import { DEV, FIXTURE_A, ROOT, SHOTS, VIEWPORTS, castFixture, ensureShotsDir, goStudioPage, gotoApp, keepCharts, readSpaceRecord } from "./_lib.mjs";
+import { CALCULATE, DEV, FIXTURE_A, ROOT, SHOTS, VIEWPORTS, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, keepCharts, readSpaceRecord } from "./_lib.mjs";
 
 const fail = [];
 const BUILT_ONLY = process.argv.includes("--built");
@@ -151,6 +157,37 @@ const kept = (page) =>
     files: (await (await caches.open("ulune-files-v1")).keys()).length,
   }));
 
+/** The chart open, as the private space keeps it (its time and its moment). */
+async function keptChart(page) {
+  const id = (await readSpaceRecord(page, "state/library"))?.activeId;
+  const row = id ? await readSpaceRecord(page, `chart/${id}`) : null;
+  return row?.chart?.meta ?? null;
+}
+
+/** Offline: Fixture A's time changed in the Birth tab, the chart calculated again on the device. */
+async function castOffline(page) {
+  await page.goto(`${BASE}/astrology`, { waitUntil: "load", timeout: 45000 });
+  await page.getByTestId("studio-natal").waitFor({ timeout: 30000 });
+  const before = await keptChart(page);
+  if (before?.time !== "12:00") throw new Error(`offline, the chart kept: ${JSON.stringify(before)?.slice(0, 120)}`);
+  await clickDockTab(page, "birth");
+  await page.locator("#birth-time").fill("13:00");
+  await page.getByTestId("cast-submit").click();
+  const until = Date.now() + 30000;
+  let after = before;
+  while (Date.now() < until && after?.time !== "13:00") {
+    await page.waitForTimeout(300);
+    after = await keptChart(page);
+  }
+  if (await page.getByTestId("engine-ask").count()) throw new Error("offline, the device asked to use the server");
+  if (after?.time !== "13:00" || Date.parse(after.utc) - Date.parse(before.utc) !== 3_600_000) {
+    const said = await page.getByRole("alert").allInnerTexts().catch(() => []);
+    throw new Error(`offline, the chart was not calculated again: ${after?.time} ${after?.utc} (the page said: ${said.join(" | ")})`);
+  }
+  await page.screenshot({ path: join(SHOTS, "offline-cast-1280.png") }).catch(() => {});
+  console.log(`offline: Fixture A calculated again at 13:00 on the device (${before.utc} → ${after.utc}), nothing asked of the server`);
+}
+
 async function chineseOffline() {
   await ensureShotsDir();
   await serverUp();
@@ -220,6 +257,7 @@ async function chineseOffline() {
     const pillars = await page.locator("[data-testid=bazi-board] > [data-place]").count();
     if (pillars !== 4) throw new Error(`offline, BaZi drew ${pillars} pillars`);
     console.log("offline: BaZi reloaded whole, four pillars");
+    if (CALCULATE === "device") await castOffline(page);
     const broken = errors.length;
 
     // A Chinese page never opened: what any part not yet downloaded says, inside the app.

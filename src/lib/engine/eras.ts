@@ -42,6 +42,33 @@ export function eraFiles(start: EraStart): string[] {
 /** What a device mounts when its engine starts: 1800–2399 and the single files. */
 export const STARTUP_FILES: readonly string[] = [...eraFiles(1800), ...SINGLE_FILES];
 
+/**
+ * Each file's size in bytes, as the browser reads it (uncompressed), and the engine's: what a
+ * download is measured against while the page shows how far it has got (step 5). The files are
+ * fixed (ephe/, sweph-wasm's build); scripts/engine-device.test.mjs checks these against them.
+ */
+export const FILE_BYTES: Readonly<Record<string, number>> = {
+  "swisseph.wasm": 584227,
+  "sepl_18.se1": 484061,
+  "semo_18.se1": 1304771,
+  "seas_18.se1": 223004,
+  "s136199s.se1": 14499,
+  "se90377s.se1": 10279,
+  "sefstars.txt": 136618,
+  "sepl_12.se1": 483743,
+  "semo_12.se1": 1305932,
+  "seas_12.se1": 223396,
+  "sepl_06.se1": 482956,
+  "semo_06.se1": 1316056,
+  "seas_06.se1": 223811,
+  "sepl_00.se1": 483932,
+  "semo_00.se1": 1322594,
+  "seas_00.se1": 224345,
+  "seplm06.se1": 484263,
+  "semom06.se1": 1332989,
+  "seasm06.se1": 225332,
+};
+
 /** Every file Ulune ships, in the order a device would want them (newest era first). */
 export const ALL_FILES: readonly string[] = [
   ...STARTUP_FILES,

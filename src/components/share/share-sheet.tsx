@@ -1,4 +1,4 @@
-import { Check, Copy, Share2, X } from "lucide-react";
+import { Share2, X } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { SegmentedToggle } from "@/components/segmented-toggle";
@@ -8,11 +8,11 @@ import { bookT } from "@/lib/i18n/words-book";
 import { hasOwnName, isPairPage, partnerRow, previewLine, sharedBirthOf } from "@/lib/share/compose";
 import type { SharePayload } from "@/lib/share/format";
 import { makeShareLink } from "@/lib/share/link";
-import { encodeQr, qrPath } from "@/lib/share/qr";
-import { cn } from "@/lib/utils";
 import { PAGE_LABEL } from "@/studio/modes/meta";
 import { useStudioStore } from "@/studio/store";
-import { closeShareSheet } from "./share-state";
+import { LinkOut, Switch } from "./link-out";
+import { trapTab } from "./trap-tab";
+import { closeShareSheet, useShareUi } from "./share-state";
 import "./share.css";
 
 /*
@@ -27,37 +27,13 @@ import "./share.css";
  * the link as a QR code for someone next to you. There is no password, ever
  * (S4). The link is made in the browser and never passes through Ulune's
  * server (lib/share/link.ts).
+ *
+ * Opened from "Send it back" (idea B4), it shares the chart just cast for
+ * the person who asked for it, says so in a line, and starts with the name
+ * in (as it always does): the asker receives an ordinary share link.
  */
 
 type Which = "one" | "both";
-
-/** One switch: its name and what it means, the track showing on or off (aria-checked says it too). */
-function Switch({ id, on, onChange, label, hint, testId }: { id: string; on: boolean; onChange: (next: boolean) => void; label: string; hint: string; testId: string }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      aria-labelledby={`${id}-label`}
-      aria-describedby={`${id}-hint`}
-      data-testid={testId}
-      className={cn("ob-share-switch", on && "is-on")}
-      onClick={() => onChange(!on)}
-    >
-      <span className="ob-share-switch-words">
-        <span id={`${id}-label`} className="ob-share-switch-name">
-          {label}
-        </span>
-        <span id={`${id}-hint`} className="ob-share-switch-hint">
-          {hint}
-        </span>
-      </span>
-      <span className="ob-share-switch-track" aria-hidden>
-        <span className="ob-share-switch-thumb" />
-      </span>
-    </button>
-  );
-}
 
 export function ShareSheet() {
   const { t: tc, locale } = useI18n();
@@ -76,14 +52,13 @@ export function ShareSheet() {
   const [keepPlace, setKeepPlace] = useState(true);
   const [link, setLink] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
-  const [copied, setCopied] = useState<"no" | "yes" | "failed">("no");
+  // Sending a chart back to the person who asked for it (idea B4).
+  const reply = useShareUi((s) => s.reply);
   const base = useId();
   const titleId = `${base}-title`;
   const bodyId = `${base}-body`;
-  const linkId = `${base}-link`;
   const cardRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLButtonElement>(null);
-  const linkRef = useRef<HTMLInputElement>(null);
   const returnTo = useRef<HTMLElement | null>(null);
 
   const both = canBoth && which === "both";
@@ -103,7 +78,6 @@ export function ShareSheet() {
     let on = true;
     setLink(null);
     setFailed(false);
-    setCopied("no");
     makeShareLink(window.location.origin, { page, charts: charts as SharePayload["charts"] }).then(
       (made) => {
         if (on) setLink(made);
@@ -116,8 +90,6 @@ export function ShareSheet() {
       on = false;
     };
   }, [charts, page]);
-
-  const qr = useMemo(() => (link ? encodeQr(link) : null), [link]);
 
   // The focus goes to Copy link once the first link is made, and back where it was when the sheet closes.
   useEffect(() => {
@@ -140,49 +112,8 @@ export function ShareSheet() {
       closeShareSheet();
       return;
     }
-    if (e.key !== "Tab") return;
     // The focus stays inside the sheet.
-    const items = Array.from(cardRef.current?.querySelectorAll<HTMLElement>("button:not([disabled]), input:not([disabled]), a[href]") ?? []).filter(
-      (el) => el.offsetParent !== null,
-    );
-    if (!items.length) return;
-    const first = items[0];
-    const last = items[items.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  }
-
-  const canSend = typeof navigator !== "undefined" && typeof navigator.share === "function";
-
-  async function send() {
-    if (!link) return;
-    const data = { title: "Ulune", url: link };
-    if (navigator.canShare && !navigator.canShare(data)) return void copy();
-    try {
-      // Only the link: no name or birth in the message's text.
-      await navigator.share(data);
-    } catch {
-      /* closed without sharing */
-    }
-  }
-
-  async function copy() {
-    if (!link) return;
-    try {
-      await navigator.clipboard.writeText(link);
-      setCopied("yes");
-      window.setTimeout(() => setCopied((now) => (now === "yes" ? "no" : now)), 2400);
-    } catch {
-      // Copied by hand, then: the link is selected for it.
-      setCopied("failed");
-      linkRef.current?.focus();
-      linkRef.current?.select();
-    }
+    trapTab(e, cardRef.current);
   }
 
   if (typeof document === "undefined") return null;
@@ -205,6 +136,12 @@ export function ShareSheet() {
             <X className="size-4" strokeWidth={1.75} aria-hidden />
           </button>
         </div>
+
+        {reply ? (
+          <p className="ob-share-reply" data-testid="share-reply">
+            {reply.asker ? t("shareReplyTo", { name: reply.asker }) : t("shareReplyToAnon")}
+          </p>
+        ) : null}
 
         {canBoth ? (
           <div className="ob-share-which">
@@ -255,72 +192,7 @@ export function ShareSheet() {
           </p>
         ) : null}
 
-        <div className="ob-share-actions">
-          {canSend ? (
-            <button type="button" className="ob-btn ob-btn--primary" data-testid="share-send" disabled={!link} onClick={() => void send()}>
-              <Share2 className="size-4" strokeWidth={1.75} aria-hidden />
-              <span>{t("shareSend")}</span>
-            </button>
-          ) : null}
-          <button
-            ref={copyRef}
-            type="button"
-            className={cn("ob-btn", canSend ? "ob-btn--ghost" : "ob-btn--primary")}
-            data-testid="share-copy"
-            data-copied={copied === "yes" ? "" : undefined}
-            disabled={!link}
-            onClick={() => void copy()}
-          >
-            {copied === "yes" ? <Check className="size-4" strokeWidth={2} aria-hidden /> : <Copy className="size-4" strokeWidth={1.75} aria-hidden />}
-            <span>{copied === "yes" ? t("shareCopied") : t("shareCopy")}</span>
-          </button>
-        </div>
-        <p className="sr-only" role="status" aria-live="polite">
-          {copied === "yes" ? t("shareCopied") : copied === "failed" ? t("shareCopyFailed") : ""}
-        </p>
-        {copied === "failed" ? (
-          <p className="ob-space-err" data-testid="share-copy-failed">
-            {t("shareCopyFailed")}
-          </p>
-        ) : null}
-
-        <div className="ob-share-link">
-          <label htmlFor={linkId} className="ob-share-h">
-            {t("shareLinkLabel")}
-          </label>
-          <input
-            ref={linkRef}
-            id={linkId}
-            className="ob-space-input ob-share-link-input"
-            data-testid="share-link"
-            readOnly
-            value={link ?? t("shareMaking")}
-            aria-busy={!link}
-            spellCheck={false}
-            autoComplete="off"
-            onFocus={(e) => e.currentTarget.select()}
-          />
-        </div>
-
-        <figure className="ob-share-qr" data-testid="share-qr-box">
-          {qr ? (
-            <svg
-              className="ob-share-qr-svg"
-              viewBox={`0 0 ${qr.size + 8} ${qr.size + 8}`}
-              role="img"
-              aria-label={t("shareQrLabel")}
-              data-testid="share-qr"
-              data-version={qr.version}
-              shapeRendering="crispEdges"
-            >
-              <rect className="ob-share-qr-paper" width={qr.size + 8} height={qr.size + 8} />
-              <path className="ob-share-qr-ink" d={qrPath(qr, 4)} />
-            </svg>
-          ) : (
-            <span className="ob-share-qr-svg ob-share-qr-wait" aria-hidden />
-          )}
-          <figcaption className="ob-space-note">{t("shareQrHint")}</figcaption>
-        </figure>
+        <LinkOut link={link} prefix="share" qrHint={t("shareQrHint")} copyRef={copyRef} />
       </div>
     </div>,
     document.body,

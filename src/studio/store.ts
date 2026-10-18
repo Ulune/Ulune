@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { importWithRetry } from "@/lib/lazy-retry";
 import { openVault } from "@/lib/space/state";
 import { setStaleReloadCheck } from "@/lib/stale-chunks";
-import { castChart, searchPlaces } from "@/lib/chart/functions";
+import { searchPlaces } from "@/lib/chart/functions";
 import { loadPack, packNow } from "@/lib/content/packs";
 import {
   blankBirth,
@@ -79,7 +79,13 @@ export function setStudioLocale(v: "en" | "fr") {
   locale = v;
 }
 
-/** A natal cast's deadline: a minute (the server stops at 90 s anyway). */
+/**
+ * The "calculate" door (on-device plan, step 4): this device or Ulune's server, as Settings says.
+ * Loaded with the first cast, out of the first load.
+ */
+const calculateDoor = () => importWithRetry(() => import("@/lib/engine/door")).then((m) => m.door);
+
+/** A natal cast's deadline: a minute (the server stops at 90 s anyway; the device's first download is about 2 MB). */
 const CAST_TIMEOUT_MS = 60_000;
 function castDeadline(): AbortSignal | undefined {
   return typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function"
@@ -178,6 +184,12 @@ type StudioState = LibrarySlice &
       /** The relationship chart shown: the composite (midpoints) or the Davison (review 3 Oct, P6); for the visit. */
       compositeKind: "composite" | "davison";
     };
+    /**
+     * Compare (share and compare plan, feature 2; studio/compare): on or off, the second chart (B,
+     * a chart id; A is the chart shown) and linked selection. In memory, sealed in the private
+     * space (space-sync.ts, state/compare), never in the address.
+     */
+    compare: { on: boolean; partnerId: string | null; linked: boolean };
     applySaved: (row: SavedChart) => void;
     restoreLibrary: (rows: SavedChart[], pickId?: string | null) => void;
     persistRow: (entry: {
@@ -255,6 +267,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   dockOpen: true,
   time: { at: Date.now(), live: true, spanOrigin: Date.now(), progressionTarget: Date.now() },
   pair: { partnerId: null, compositePartnerId: null, addingPartnerFor: null, anchorId: null, compositeKind: "composite" },
+  compare: { on: false, partnerId: null, linked: true },
 
   applySaved: (row) => {
     draft = false;
@@ -337,7 +350,7 @@ export const useStudioStore = create<StudioState>((set, get) => ({
       normalizeBirth({ ...next, placeLabel: "" });
       const place = await resolvePlace(next, locale);
       if (gen !== castGen) return;
-      const result = await castChart({
+      const result = await (await calculateDoor()).castChart({
         // A cast is well under a second; one with no answer in a minute stops here.
         signal: castDeadline(),
         data: {

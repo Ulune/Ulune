@@ -1,8 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { LoadFailed, LoadingLines } from "@/components/loading-lines";
 import { OfflineOffer } from "@/components/offline-offer";
 import { usePack } from "@/lib/content/packs";
-import { canPrefetchAhead, prefetch, whenIdle } from "@/lib/lazy-component";
+import { canPrefetchAhead, lazyNamed, prefetch, whenIdle } from "@/lib/lazy-component";
 import { inferGrokLocale } from "@/lib/chart/grok-locale";
 import { AI_ENABLED } from "@/lib/features";
 import { useI18n } from "@/lib/i18n/locale";
@@ -14,15 +14,19 @@ import { useSpace } from "@/lib/space/state";
 import { startTour } from "@/lib/tour/state";
 import { BirthTab } from "@/studio/dock/BirthTab";
 import { Dock } from "@/studio/dock/Dock";
-import { isWide } from "@/studio/dock/dock-layout";
+import { panelBeside } from "@/studio/dock/dock-layout";
 import { ModeRuntimes } from "@/studio/modes/data";
 import { DevScopeHarness } from "@/studio/dev/harness-mount";
+import { comparablePage } from "@/studio/compare/comparable";
 import { MODE_META, PAGE_LABEL } from "@/studio/modes/meta";
 import { loadNatalTable } from "@/studio/modes/natal";
 import { prefetchModesAtIdle, useModeDef } from "@/studio/modes/registry";
 import { Stage } from "@/studio/stage/Stage";
 import { bindStudioI18n, setStudioLocale, useStudioStore } from "@/studio/store";
 import { isReturning } from "@/studio/return-parts";
+
+/** Compare's two charts (share and compare plan, feature 2): their own download, once Compare is on (through gate.ts). */
+const CompareView = lazyNamed(() => import("@/studio/compare/gate").then((m) => m.loadCompareView()), "CompareView");
 
 export function StudioWorkspace() {
   const { locale, t, subscribeUserLocale } = useI18n();
@@ -99,6 +103,9 @@ export function StudioWorkspace() {
   const panelOn = (Boolean(chart) || chartFree) && !creating && !addingPartnerFor;
   // With no chart, every other page is the form: a link to a mode asks for a birth chart first.
   const formOnStage = Boolean(addingPartnerFor) || creating || (!chart && !chartFree);
+  // Compare (studio/compare): two charts over the page's figure, on the pages it shows; the page stays under it as it was.
+  const compareOn = useStudioStore((s) => s.compare.on);
+  const compareShown = compareOn && panelOn && Boolean(chart) && comparablePage(page);
   // The form asked for from a page that needs no chart: a line on what it brings, and the way back.
   const fromChartFree = formOnStage && !meta.needsChart && !chart && !addingPartnerFor;
   const fromCalendar = fromChartFree && page === "timing";
@@ -117,7 +124,7 @@ export function StudioWorkspace() {
   const sheetAt = useRef<string | null>(null);
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
-    if (isWide()) return;
+    if (panelBeside()) return;
     const at = `${panelOn}|${page}|${view}`;
     // The mount (or React's second one in development): the same place as before.
     const mounting = sheetAt.current === null || sheetAt.current === at;
@@ -202,6 +209,13 @@ export function StudioWorkspace() {
           viewIntent={def?.preloadData}
           // The offer to keep Ulune here waits for a chart on screen (offline-offer.tsx).
           overlay={panelOn && chart ? <OfflineOffer /> : null}
+          beside={
+            compareShown ? (
+              <Suspense fallback={null}>
+                <CompareView />
+              </Suspense>
+            ) : null
+          }
         >
           {body}
         </Stage>

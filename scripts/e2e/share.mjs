@@ -18,16 +18,37 @@
  *   - every request: no fragment, no name or place in any; the only call to
  *     the server is the cast (a date, a time, coordinates); the address bar
  *     shows no fragment once the page has read it.
+ * Asking for someone's chart (idea B4), the whole round trip:
+ *   - the asker (1280, a private space open): from Share and export on
+ *     BaZi, the sheet (no name by default, what the recipient will read,
+ *     the page their chart opens on, the link and its QR code, nothing
+ *     readable in it), the name switched on; from the switcher and ⌘K too;
+ *   - the recipient (a fresh browser, no space): the birth form on BaZi
+ *     under "TraceQA asked for your chart"; their chart cast, kept nowhere
+ *     but the tab, not marked as shared; "Send it back" opens the share
+ *     sheet set to that chart (its line for the asker, the name in), whose
+ *     link the asker opens: kept in their space with its note and mark;
+ *   - in French: the asker's language for a recipient who chose none (not
+ *     saved as theirs), the recipient's own when they chose one; a recipient
+ *     with an open space keeps their chart there as any chart they cast;
+ *     a request link cut short.
+ * Flipping between the last two charts (idea B3): the P key and the
+ *   switcher's "Back to…" row, on the same page; with a space that stays
+ *   unlocked, the chart before is remembered through a reload, sealed with
+ *   the library's record and in no plain storage.
  */
 import { chromium } from "playwright";
 import {
   DEV,
   FIXTURE_A,
   FIXTURE_B,
+  CALCULATE,
   PASSPHRASE,
   VIEWPORTS,
   castFixture,
   createSpace,
+  keepCharts,
+  pickPlace,
   databases,
   ensureTheme,
   goStudioPage,
@@ -267,7 +288,8 @@ if (linkA) {
     await page.getByTestId("share-note-later").click();
     await page.getByTestId("share-note").waitFor({ state: "detached", timeout: 4000 });
     const casts = checkSent(watch, linkA, "no space");
-    if (casts !== 1) fail(`no space: ${casts} casts`);
+    // Cast on the device by default (on-device plan): no call to the server at all.
+    if (casts !== (CALCULATE === "server" ? 1 : 0)) fail(`no space: ${casts} casts on the server`);
     console.log("no space OK: opened, the offer, the switcher's mark until opened, nothing stored, one cast with no name or place");
   } catch (e) {
     fail(`no space: ${e instanceof Error ? e.message : String(e)}`);
@@ -407,7 +429,7 @@ for (const [link, path, prefix] of [
     if (rows.length !== 2 || rows.some((r) => !r.shared)) fail(`${prefix}: the switcher ${JSON.stringify(rows)}`);
     if (!/Keep these charts/.test(await page.getByTestId("share-note").innerText().catch(() => ""))) fail(`${prefix}: the offer for two`);
     const casts = checkSent(watch, link, prefix);
-    if (casts !== 2) fail(`${prefix}: ${casts} casts`);
+    if (casts !== (CALCULATE === "server" ? 2 : 0)) fail(`${prefix}: ${casts} casts on the server`);
     console.log(`${prefix} OK: one link, two charts, the same page with the partner set`);
   } catch (e) {
     fail(`${prefix}: ${e instanceof Error ? e.message : String(e)}`);
@@ -494,6 +516,328 @@ if (linkA) {
     console.log("390 fr OK: the sheet through ⋯ in French, tap targets, the offer in French, a broken link's page");
   } catch (e) {
     fail(`390 fr: ${e instanceof Error ? e.message : String(e)}`);
+  } finally {
+    await context.close();
+  }
+}
+
+/* ---------------------------------------------------------------- asking for someone's chart (idea B4) */
+
+/** The request sheet from the share menu, its link made. */
+async function openAsk(page) {
+  await openExport(page);
+  await page.getByTestId("ask-open").click();
+  await page.getByTestId("ask-sheet").waitFor();
+  return readAskLink(page);
+}
+
+async function readAskLink(page, not = "") {
+  await page.waitForFunction((was) => {
+    const v = document.querySelector("[data-testid=ask-link]")?.value ?? "";
+    return /^https?:\/\/.+\/s#2\./.test(v) && v !== was;
+  }, not, { timeout: 10000 });
+  return page.getByTestId("ask-link").inputValue();
+}
+
+/** The birth form filled with a fixture and cast, on whatever page it stands. */
+async function castHere(page, fixture, stage) {
+  await page.locator("#native-name").fill(fixture.name);
+  await page.locator("#birth-date").fill(fixture.date);
+  await page.locator("#birth-time").fill(fixture.time);
+  await pickPlace(page, fixture.place);
+  await page.getByTestId("cast-submit").click();
+  await page.getByTestId(stage).waitFor({ timeout: 45000 });
+}
+
+/**
+ * What a request's recipient sent: never the link's fragment nor the asker's name in any request,
+ * the fragment out of the address bar at once, no page error. (The place they type goes to the
+ * place search, and their birth to the cast, as for any chart they cast.)
+ */
+function checkRequestSent(watch, link, label) {
+  const fragment = link.slice(link.indexOf("#") + 1);
+  const [, key, sealed] = fragment.split(".");
+  for (const r of watch.requests) {
+    const url = r.url();
+    const body = r.postData() ?? "";
+    for (const piece of [fragment, key, sealed.slice(0, 20), "TraceQA"]) if (url.includes(piece) || body.includes(piece)) fail(`${label}: a request carries "${piece.slice(0, 20)}": ${url.slice(0, 100)}`);
+  }
+  const shown = watch.shown;
+  for (let i = 0; i < shown.length; i++) {
+    if (!shown[i].includes("#")) continue;
+    let j = i + 1;
+    while (j < shown.length && shown[j] === shown[i]) j++;
+    if (shown[j] !== shown[i].split("#")[0]) fail(`${label}: the fragment was not taken out of the address bar at once (then ${shown[j]?.slice(0, 50)})`);
+    i = j;
+  }
+  if (watch.errors.length) fail(`${label}: ${watch.errors.join(" | ")}`);
+}
+
+let askLink = "";
+let askLinkFr = "";
+{
+  const { context: asker, page, watch } = await freshPage(1280);
+  await asker.grantPermissions(["clipboard-read", "clipboard-write"]);
+  try {
+    await gotoApp(page);
+    await createSpace(page);
+    await castFixture(page, FIXTURE_A);
+    await goStudioPage(page, "bazi");
+    await page.getByTestId("studio-bazi").waitFor({ timeout: 30000 });
+    const anonymous = await openAsk(page);
+    if ((await page.getByTestId("ask-say-name").getAttribute("aria-checked")) !== "false") fail("ask: the name is in by default");
+    if ((await page.getByTestId("ask-preview").innerText()) !== "“Someone asked you for your chart”") fail(`ask: the preview "${await page.getByTestId("ask-preview").innerText()}"`);
+    if (!/^Their chart opens on: BaZi/.test(await page.getByTestId("ask-opens").innerText())) fail(`ask: opens on "${await page.getByTestId("ask-opens").innerText()}"`);
+    if (!(await page.getByTestId("ask-qr").count())) fail("ask: no QR code");
+    if (anonymous.length > 120) fail(`ask: the link is ${anonymous.length} characters`);
+    // The asker says it is them: the preview and the link change; the name is not readable in it.
+    await page.getByTestId("ask-say-name").click();
+    await page.getByTestId("ask-name").fill("TraceQA");
+    askLink = await readAskLink(page, anonymous);
+    if ((await page.getByTestId("ask-preview").innerText()) !== "“TraceQA asked for your chart”") fail(`ask: the named preview "${await page.getByTestId("ask-preview").innerText()}"`);
+    for (const w of [...PERSONAL, "bazi", "BaZi"]) if (askLink.includes(w)) fail(`ask: the link shows "${w}"`);
+    await page.getByTestId("ask-copy").click();
+    await page.waitForFunction(() => document.querySelector("[data-testid=ask-copy]")?.hasAttribute("data-copied"), null, { timeout: 4000 }).catch(() => fail("ask: Copy link never said Copied"));
+    if ((await page.evaluate(() => navigator.clipboard.readText())) !== askLink) fail("ask: the clipboard does not hold the link");
+    await page.keyboard.press("Escape");
+    await page.getByTestId("ask-sheet").waitFor({ state: "detached", timeout: 4000 });
+    // From the switcher, and from ⌘K.
+    await page.getByTestId("chart-chip").click();
+    await page.getByTestId("ask-chart").click();
+    await page.getByTestId("ask-sheet").waitFor();
+    await page.getByTestId("ask-close").click();
+    await page.getByTestId("ask-sheet").waitFor({ state: "detached", timeout: 4000 });
+    await page.keyboard.press("Control+k");
+    await page.getByTestId("command-palette").waitFor();
+    await page.keyboard.type("ask someone");
+    await page.getByTestId("cmd-chart:ask").click();
+    await page.getByTestId("ask-sheet").waitFor();
+    await page.keyboard.press("Escape");
+    await page.getByTestId("ask-sheet").waitFor({ state: "detached", timeout: 4000 });
+
+    /* the recipient: a fresh browser, no space */
+    let back = "";
+    const { context: c2, page: p2, watch: w2 } = await freshPage(1280);
+    await c2.grantPermissions(["clipboard-read", "clipboard-write"]);
+    try {
+      await p2.goto(askLink, { waitUntil: "load", timeout: 45000 });
+      await p2.waitForFunction(() => location.pathname === "/bazi", null, { timeout: 30000 });
+      await p2.getByTestId("request-head").waitFor({ timeout: 20000 });
+      if ((await p2.getByTestId("request-title").innerText()) !== "TraceQA asked for your chart") fail(`recipient: the header "${await p2.getByTestId("request-title").innerText()}"`);
+      if (!(await p2.locator("#birth-date").isVisible())) fail("recipient: no birth form");
+      if (new URL(p2.url()).hash) fail("recipient: the address still has a fragment");
+      await castHere(p2, FIXTURE_B, "studio-bazi");
+      if (new URL(p2.url()).pathname !== "/bazi") fail(`recipient: the chart opened on ${new URL(p2.url()).pathname}`);
+      await p2.getByTestId("reply-card").waitFor({ timeout: 10000 });
+      if (!/ready to send back to TraceQA/.test(await p2.getByTestId("reply-card").innerText())) fail("recipient: the card's words");
+      if ((await databases(p2)).includes("ulune-space")) fail("recipient: a database was made");
+      const rows = await switcher(p2);
+      if (rows.length !== 1 || rows[0].shared) fail(`recipient: the switcher ${JSON.stringify(rows)}`);
+      // Send it back: the share sheet, set to that chart, its line for the asker, the name in.
+      await p2.getByTestId("reply-send").click();
+      await p2.getByTestId("share-sheet").waitFor();
+      back = await readLink(p2);
+      if ((await p2.getByTestId("share-reply").innerText()) !== "For TraceQA, who asked for your chart") fail(`recipient: the sheet's line "${await p2.getByTestId("share-reply").innerText()}"`);
+      if ((await p2.getByTestId("share-keep-name").getAttribute("aria-checked")) !== "true") fail("recipient: the name is not in");
+      if (!(await p2.getByTestId("share-preview").innerText()).startsWith("Sample B · 3 November 1987, 23:10 · Oslo")) fail(`recipient: the link holds "${await p2.getByTestId("share-preview").innerText()}"`);
+      if (!/BaZi/.test(await p2.getByTestId("share-opens").innerText())) fail("recipient: the link does not open BaZi");
+      await p2.getByTestId("share-copy").click();
+      await p2.waitForFunction(() => document.querySelector("[data-testid=share-copy]")?.hasAttribute("data-copied"), null, { timeout: 4000 }).catch(() => fail("recipient: Copy link never said Copied"));
+      await p2.getByTestId("share-close").click();
+      await p2.getByTestId("share-sheet").waitFor({ state: "detached", timeout: 4000 });
+      // Answered: the card goes.
+      await p2.getByTestId("reply-card").waitFor({ state: "detached", timeout: 4000 }).catch(() => fail("recipient: the card stayed once sent"));
+      if ((await plainHolds(p2)).length || (await p2.evaluate(() => [...Object.values(localStorage), ...Object.values(sessionStorage)].join("|").includes("TraceQA")))) fail("recipient: plain storage holds a name");
+      checkRequestSent(w2, askLink, "recipient");
+      console.log("request OK: the asker's sheet (switch off, preview, page, link, QR, switcher, ⌘K); the recipient's form and header, their chart kept nowhere, Send it back");
+    } finally {
+      await c2.close();
+    }
+
+    /* the asker receives the chart sent back: kept in their space */
+    if (back) {
+      const before = (await readSpaceRecord(page, "state/library"))?.order?.length ?? 0;
+      // From here on: what the asker's browser sends as the chart arrives.
+      watch.requests.length = 0;
+      watch.shown.length = 0;
+      await arrive(page, back, "/bazi");
+      await toastSays(page, "Sample B’s chart is now in your private space.", "asker");
+      const order = (await readSpaceRecord(page, "state/library"))?.order ?? [];
+      if (order.length !== before + 1) fail(`asker: ${order.length} charts kept, not ${before + 1}`);
+      const shared = (await switcher(page)).find((r) => r.name === FIXTURE_B.name);
+      if (!shared?.shared) fail("asker: the chart sent back is not marked as shared");
+      if ((await page.getByTestId("chart-chip").innerText()).trim() !== FIXTURE_B.name) fail("asker: the chart sent back is not shown");
+      checkSent(watch, back, "asker");
+      console.log("request OK: the chart sent back joins the asker's space, marked, on BaZi");
+    }
+  } catch (e) {
+    fail(`request: ${e instanceof Error ? e.message : String(e)}`);
+  } finally {
+    await asker.close();
+  }
+}
+
+/* ---------------------------------------------------------------- a request in French; a recipient who chose a language; one with a space */
+{
+  const { context, page } = await freshPage(390, { touch: true });
+  try {
+    await gotoApp(page);
+    await setLang(page, "fr");
+    await castFixture(page, FIXTURE_A);
+    await page.getByTestId("stage-more").click();
+    await page.getByTestId("stage-more-menu").waitFor();
+    await page.getByTestId("ask-open").click();
+    await page.getByTestId("ask-sheet").waitFor();
+    askLinkFr = await readAskLink(page);
+    const sheet = (await page.getByTestId("ask-sheet").textContent()) ?? "";
+    for (const words of ["Demander le thème de quelqu’un", "Dire que c’est vous", "« Quelqu’un vous demande votre thème »", "Son thème s’ouvrira sur : Thème natal", "Copier le lien"]) {
+      if (!sheet.includes(words)) fail(`ask fr: the sheet lacks "${words}"`);
+    }
+    const box = await page.locator(".ob-share").boundingBox();
+    if (!box || box.x < 0 || box.x + box.width > 390) fail(`ask fr: the sheet overflows ${JSON.stringify(box)}`);
+    const small = await page.evaluate(() =>
+      [...document.querySelectorAll("[data-testid=ask-sheet] button")].filter((b) => b.offsetParent && (b.offsetHeight < 44 || b.offsetWidth < 44)).map((b) => b.dataset.testid ?? b.textContent),
+    );
+    if (small.length) fail(`ask fr: tap targets under 44 px: ${small.join(", ")}`);
+  } catch (e) {
+    fail(`ask fr: ${e instanceof Error ? e.message : String(e)}`);
+  } finally {
+    await context.close();
+  }
+}
+if (askLinkFr) {
+  // No language chosen: the asker's, for this visit only.
+  const { context, page, watch } = await freshPage(390, { touch: true });
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  try {
+    await page.goto(askLinkFr, { waitUntil: "load", timeout: 45000 });
+    await page.waitForFunction(() => location.pathname === "/astrology", null, { timeout: 30000 });
+    await page.getByTestId("request-head").waitFor({ timeout: 20000 });
+    if ((await page.getByTestId("request-title").innerText()) !== "Quelqu’un vous demande votre thème") fail(`fr recipient: the header "${await page.getByTestId("request-title").innerText()}"`);
+    if ((await page.evaluate(() => document.documentElement.lang)) !== "fr") fail("fr recipient: the page is not in French");
+    if (await page.evaluate(() => localStorage.getItem("ulune.locale"))) fail("fr recipient: the asker's language was saved as the recipient's");
+    await castHere(page, FIXTURE_B, "studio-natal");
+    await page.getByTestId("reply-card").waitFor({ timeout: 10000 });
+    if (!/Votre thème est prêt à être renvoyé\./.test(await page.getByTestId("reply-card").innerText())) fail("fr recipient: the card's words");
+    await page.getByTestId("reply-send").click();
+    await page.getByTestId("share-sheet").waitFor();
+    await readLink(page);
+    if ((await page.getByTestId("share-reply").innerText()) !== "Pour la personne qui vous a demandé votre thème") fail(`fr recipient: the sheet's line "${await page.getByTestId("share-reply").innerText()}"`);
+    await page.getByTestId("share-close").click();
+    checkRequestSent(watch, askLinkFr, "fr recipient");
+  } catch (e) {
+    fail(`fr recipient: ${e instanceof Error ? e.message : String(e)}`);
+  } finally {
+    await context.close();
+  }
+
+  // A language chosen: theirs, whatever the asker's.
+  const { context: c3, page: p3 } = await freshPage(1280);
+  try {
+    await gotoApp(p3);
+    // A choice saved: French, then English.
+    await setLang(p3, "fr");
+    await setLang(p3, "en");
+    await p3.goto(askLinkFr, { waitUntil: "load", timeout: 45000 });
+    await p3.getByTestId("request-head").waitFor({ timeout: 30000 });
+    if ((await p3.getByTestId("request-title").innerText()) !== "Someone asked you for your chart") fail(`chosen language: the header "${await p3.getByTestId("request-title").innerText()}"`);
+    // Set aside: the form stays, for a chart of one's own.
+    await p3.getByTestId("request-dismiss").click();
+    await p3.getByTestId("request-head").waitFor({ state: "detached", timeout: 4000 });
+    if (!(await p3.locator("#birth-date").isVisible())) fail("chosen language: the form went with the request");
+  } catch (e) {
+    fail(`chosen language: ${e instanceof Error ? e.message : String(e)}`);
+  } finally {
+    await c3.close();
+  }
+}
+if (askLink) {
+  // A recipient with an open space: their chart is kept there, as any chart they cast, not marked as shared.
+  const { context, page } = await freshPage(1280);
+  try {
+    await gotoApp(page);
+    await createSpace(page);
+    await arrive(page, askLink, "/bazi");
+    await page.getByTestId("request-head").waitFor({ timeout: 20000 });
+    await castHere(page, FIXTURE_B, "studio-bazi");
+    await page.getByTestId("reply-card").waitFor({ timeout: 10000 });
+    const until = Date.now() + 8000;
+    let order = [];
+    while (Date.now() < until && !order.length) {
+      order = (await readSpaceRecord(page, "state/library"))?.order ?? [];
+      if (!order.length) await page.waitForTimeout(150);
+    }
+    const kept = order.length ? await readSpaceRecord(page, `chart/${order[0]}`) : null;
+    if (order.length !== 1 || kept?.input?.name !== FIXTURE_B.name || kept?.sharedAt !== undefined) fail(`space recipient: kept ${JSON.stringify({ order: order.length, name: kept?.input?.name, sharedAt: kept?.sharedAt })}`);
+    // Not now: the request goes, the chart stays.
+    await page.getByTestId("reply-later").click();
+    await page.getByTestId("reply-card").waitFor({ state: "detached", timeout: 4000 });
+    console.log("request OK: in French (the asker's language, not saved), a chosen language kept, a recipient's space keeping their chart");
+  } catch (e) {
+    fail(`space recipient: ${e instanceof Error ? e.message : String(e)}`);
+  } finally {
+    await context.close();
+  }
+
+  // A request cut short.
+  const { context: c4, page: p4 } = await freshPage(1280);
+  try {
+    await p4.goto(`${DEV}/s#2.${askLink.split("#2.")[1].slice(0, 30)}`, { waitUntil: "load" });
+    await p4.getByTestId("share-problem").waitFor({ timeout: 15000 });
+    if (new URL(p4.url()).hash) fail("broken request: the fragment stayed in the address bar");
+  } catch (e) {
+    fail(`broken request: ${e instanceof Error ? e.message : String(e)}`);
+  } finally {
+    await c4.close();
+  }
+}
+
+/* ---------------------------------------------------------------- flipping between the last two charts (idea B3) */
+{
+  const { context, page, watch } = await freshPage(1280);
+  try {
+    await gotoApp(page);
+    await keepCharts(page);
+    await castFixture(page, FIXTURE_A);
+    await castFixture(page, FIXTURE_B);
+    await goStudioPage(page, "bazi");
+    await page.getByTestId("studio-bazi").waitFor({ timeout: 30000 });
+    await page.locator("body").click({ position: { x: 5, y: 600 } }).catch(() => {});
+    await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur());
+    await page.keyboard.press("p");
+    await page.waitForFunction((n) => document.querySelector("[data-testid=chart-chip]")?.textContent?.trim() === n, FIXTURE_A.name, { timeout: 8000 }).catch(() => fail("flip: P did not open the chart before"));
+    if (new URL(page.url()).pathname !== "/bazi") fail(`flip: P left BaZi for ${new URL(page.url()).pathname}`);
+    await page.keyboard.press("p");
+    await page.waitForFunction((n) => document.querySelector("[data-testid=chart-chip]")?.textContent?.trim() === n, FIXTURE_B.name, { timeout: 8000 }).catch(() => fail("flip: P did not flip back"));
+    // The switcher's row.
+    await page.getByTestId("chart-chip").click();
+    const row = page.getByTestId("chart-previous");
+    await row.waitFor({ timeout: 4000 });
+    if ((await row.innerText()).replace(/\s+/g, " ").trim() !== "Back to TraceQA P") fail(`flip: the switcher's row "${await row.innerText()}"`);
+    await row.click();
+    await page.waitForFunction((n) => document.querySelector("[data-testid=chart-chip]")?.textContent?.trim() === n, FIXTURE_A.name, { timeout: 8000 }).catch(() => fail("flip: the switcher's row did not open the chart before"));
+    if (new URL(page.url()).pathname !== "/bazi") fail("flip: the switcher's row left BaZi");
+    // Sealed with the library's record, never in plain storage; remembered through a reload.
+    let library = null;
+    const until = Date.now() + 8000;
+    while (Date.now() < until) {
+      library = await readSpaceRecord(page, "state/library");
+      if (library?.previousId && library.activeId && library.previousId !== library.activeId) break;
+      await page.waitForTimeout(150);
+    }
+    if (!library?.previousId) fail(`flip: no previous chart in the sealed record ${JSON.stringify(library)}`);
+    const plain = await page.evaluate(() => [...Object.values(localStorage), ...Object.values(sessionStorage)].join("|"));
+    if (library?.previousId && plain.includes(library.previousId)) fail("flip: the previous chart's id is in plain storage");
+    await page.reload({ waitUntil: "load" });
+    await page.waitForFunction((n) => document.querySelector("[data-testid=chart-chip]")?.textContent?.trim() === n, FIXTURE_A.name, { timeout: 30000 }).catch(() => fail(`flip: after the reload the chart shown is not ${FIXTURE_A.name}`));
+    await page.getByTestId("chart-chip").click();
+    await page.getByTestId("chart-previous").waitFor({ timeout: 8000 }).catch(() => fail("flip: the chart before was not remembered through the reload"));
+    if (!/Sample B/.test(await page.getByTestId("chart-previous").innerText().catch(() => ""))) fail("flip: after the reload, the chart before is not Sample B");
+    await page.keyboard.press("Escape");
+    if (watch.errors.length) fail(`flip: ${watch.errors.join(" | ")}`);
+    console.log("flip OK: P both ways and the switcher's row on BaZi; sealed with the library, remembered through a reload, not in plain storage");
+  } catch (e) {
+    fail(`flip: ${e instanceof Error ? e.message : String(e)}`);
   } finally {
     await context.close();
   }

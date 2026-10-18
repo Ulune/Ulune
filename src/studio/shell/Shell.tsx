@@ -5,6 +5,7 @@ import { TopLeft, TopRight } from "@/studio/shell/TopBar";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { Toaster } from "@/components/toaster";
 import { CommandPalette } from "@/studio/shell/CommandPalette";
+import { ExtrasHost } from "@/studio/show/host";
 import { useEffect } from "react";
 import { importWithRetry } from "@/lib/lazy-retry";
 import { useI18n } from "@/lib/i18n/locale";
@@ -102,6 +103,8 @@ export function Shell() {
       {import.meta.env.DEV ? <SelfTest /> : null}
       <CommandPalette />
       <TopRight />
+      {/* Show mode and asking for someone's chart (share and compare plan, ideas B2 and B4): loaded when wanted. */}
+      <ExtrasHost />
       <main id="main" className="ob-body-slot" tabIndex={-1}>
         <ErrorSlot>
           <HomeTree />

@@ -1,0 +1,649 @@
+/* Compare: two charts side by side (share and compare plan, feature 2; CompareView.tsx).
+   Loaded with Compare's own code, never with the first page. */
+
+/* ---- The page under Compare: kept as it was, out of sight and out of reach ---- */
+
+.ob-stage[data-compare] {
+  overflow: hidden !important;
+}
+.ob-stage[data-compare] > .ob-figure,
+.ob-stage[data-compare] > .ob-foot {
+  visibility: hidden;
+}
+/* The page's table links belong to its own table, waiting under Compare. */
+.ob-stage[data-compare] > .ob-strip .ob-strip-tabs {
+  display: none;
+}
+
+/* ---- The view: over the figure and its footer, under the toolbar ---- */
+
+.ob-compare {
+  position: absolute;
+  z-index: 6;
+  top: var(--cmp-top, 0px);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-bg);
+  animation: ob-fade var(--dur-move) var(--ease-out) both;
+}
+
+/* The bar: the two people, Swap, linked selection, Relationship, out. */
+.ob-compare-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: 6px var(--stage-pad);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+.ob-compare-bar .ulune-synastry-pair-bar {
+  flex: 1 1 22rem;
+  width: auto;
+  max-width: 34rem;
+}
+.ob-compare-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.ob-compare-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--ctl-h);
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg-muted);
+  font-size: var(--ctl-text);
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out);
+}
+@media (hover: hover) {
+  .ob-compare-tool:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg);
+  }
+}
+/* Linked selection on: the switch reads as pressed. */
+.ob-compare-link[aria-checked="true"] {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+}
+.ob-compare-leave {
+  background: var(--color-bg-subtle);
+}
+@media (pointer: coarse) {
+  .ob-compare-tool,
+  .ob-compare-leave {
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+  }
+}
+
+/* ---- The two panes ---- */
+
+.ob-compare-panes {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  gap: 1px;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-border);
+}
+.ob-compare[data-layout="stacked"] .ob-compare-panes {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+.ob-compare-pane {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-bg);
+}
+/* One chart full size for a moment: over both, the bar included. */
+.ob-compare-pane[data-full] {
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+}
+.ob-compare[data-full] .ob-compare-bar {
+  visibility: hidden;
+}
+.ob-compare-panes:has(> [data-full]) {
+  position: static;
+}
+
+.ob-compare-panes[hidden] {
+  display: none;
+}
+
+/* Two tables, or one with A and B columns (numerology's core numbers, BaZi's pillars: merged.tsx). */
+.ob-compare-tables {
+  display: flex;
+  flex: 0 0 auto;
+  padding: 6px var(--stage-pad);
+  border-bottom: 1px solid var(--color-border);
+}
+.ob-compare-tables .ulune-seg {
+  width: min(100%, 22rem);
+}
+.ob-compare-merged {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-4) var(--stage-pad) var(--space-6);
+}
+.ob-compare-merged .ulune-table-wrap,
+.ob-compare-merged table {
+  max-width: 52rem;
+}
+
+/* Each pane is a stage of its own (ScopeStage.tsx): never the page's stage rules for where it stands. */
+.ob-compare .ob-compare-pane > .ob-stage {
+  position: relative !important;
+  inset: auto !important;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden !important;
+}
+.ob-compare .ob-stage .ob-strip {
+  min-height: 0;
+  padding-top: 6px;
+  padding-bottom: 0;
+}
+/* A pane's bar: its person first, its table's part links under them (the page's rule for a bar without the
+   language button would put the links first, shell.css). */
+.ob-compare .ob-stage .ob-strip > .ob-scope-label {
+  grid-column: 1;
+  grid-row: 1;
+}
+.ob-compare .ob-stage .ob-strip > .ob-strip-extra {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+.ob-compare .ob-stage .ob-strip > .ob-strip-extra:empty {
+  display: none;
+}
+/* A pane's figure fits its box, both ways (the phone's full-width wheel rule is the page's). */
+.ob-compare .ob-figure {
+  flex: 1 1 auto !important;
+  min-height: 0;
+}
+.ob-compare .ob-figure .ulune-wheel-port {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-height: 0;
+  aspect-ratio: auto !important;
+  margin-inline: 0 !important;
+}
+.ob-compare .ob-figure .ulune-biwheel {
+  flex: 1 1 auto !important;
+  min-height: 0;
+}
+.ob-compare .ob-foot {
+  padding-top: 2px;
+  padding-bottom: 6px;
+}
+.ob-compare .ob-foot-cap {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+/* The rings are the toolbar's, for both. */
+.ob-compare .ob-rings-slot {
+  display: none;
+}
+/* Half the height each (a phone held upright): the aspect key gives its rows to the wheel (it comes back full size). */
+.ob-compare[data-layout="stacked"] .ob-compare-pane:not([data-full]) .ob-aspect-slot {
+  display: none;
+}
+
+/* A pane's person: its mark (A a filled dot, B a ring, as on the Pair pages), letter and name. */
+.ob-scope-label {
+  display: flex;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.ob-compare-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 28px;
+  padding: 0 4px 0 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg);
+  font: 600 13px/1.25 var(--font-ui);
+}
+.ob-compare-label.is-button {
+  padding: 0 8px 0 6px;
+  background: var(--color-bg-subtle);
+}
+@media (pointer: coarse) {
+  .ob-compare-label.is-button {
+    min-height: 44px;
+  }
+}
+.ob-compare-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ob-compare-grow {
+  flex: none;
+  color: var(--color-fg-muted);
+}
+.ob-compare-full-close {
+  margin-left: 4px;
+  background: var(--color-bg-subtle);
+}
+.ob-compare-mark {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-fg);
+}
+.ob-compare-mark.is-b {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--color-fg);
+}
+
+/* B without a second person yet. */
+.ob-compare-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+  max-width: 28rem;
+  margin: auto;
+  padding: 16px var(--stage-pad);
+  font-family: var(--font-ui);
+}
+.ob-compare-empty-h {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+.ob-compare-empty-p {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* A narrow view: the bar's words give way to their icons (their names stay in their labels). */
+@container stage (max-width: 760px) {
+  .ob-compare-tool-word {
+    display: none;
+  }
+  .ob-compare-tool {
+    padding: 0 8px;
+  }
+  .ob-compare-bar .ulune-synastry-pair-bar {
+    flex: 1 1 12rem;
+  }
+}
+/* Held upright on a phone, A is the chart in the top bar: the bar keeps B's list, Swap and the tools. */
+.ob-compare[data-layout="stacked"] .ob-compare-bar .ulune-synastry-pair-slot:first-child {
+  display: none;
+}
+.ob-compare[data-layout="stacked"] .ob-compare-bar {
+  flex-wrap: nowrap;
+}
+.ob-compare[data-layout="stacked"] .ob-compare-bar .ulune-synastry-pair-bar {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ob-compare[data-layout="stacked"] .ob-compare-bar .ulune-synastry-pair-slot {
+  min-width: 0;
+}
+
+/* ---- The reading from the bottom on a wide screen (CompareView: data-compare-sheet) ----
+   The Dock's phone sheet (shell.css, compact), when two charts and the side panel do not fit. */
+
+@media (min-width: 1024px) {
+  .ob-body[data-compare-sheet] {
+    display: block;
+  }
+  .ob-body[data-compare-sheet] .ob-only-wide {
+    display: none !important;
+  }
+  .ob-body[data-compare-sheet] .ob-only-compact {
+    display: inline-grid !important;
+  }
+  .ob-body[data-compare-sheet][data-panel="on"] > .ob-stage {
+    position: absolute;
+    inset: 0 0 var(--ob-peek-h) 0;
+  }
+  .ob-body[data-compare-sheet][data-panel="on"]:has(> .ob-panel:not([data-detent="peek"])) > .ob-stage {
+    bottom: 50%;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel {
+    --ob-vis: var(--ob-peek-h);
+    --dock-bg: var(--color-bg-elevated);
+    position: absolute;
+    z-index: 20;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    height: 100%;
+    border-left: 0;
+    border-top: 1px solid var(--color-border-strong);
+    border-radius: 14px 14px 0 0;
+    background: var(--color-bg-elevated);
+    box-shadow: var(--ob-shadow);
+    transform: translateY(calc(100% - var(--ob-vis)));
+    will-change: transform;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel[data-ready] {
+    transition:
+      transform var(--sheet-move) var(--sheet-ease),
+      border-radius var(--sheet-move) var(--sheet-ease);
+  }
+  .ob-body[data-compare-sheet] > .ob-panel[data-detent="half"] {
+    --ob-vis: 50%;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel[data-detent="full"] {
+    --ob-vis: 100%;
+    border-radius: 0;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel[data-dragging] {
+    --ob-vis: var(--ob-sheet-drag);
+    transition: none !important;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel .ob-panel-head,
+  .ob-body[data-compare-sheet] > .ob-panel[data-dock-open="false"] .ob-panel-head {
+    flex-direction: row;
+    align-items: center;
+    height: var(--ob-peek-h);
+    padding: 0 4px 0 8px;
+    border-bottom: 1px solid transparent;
+    touch-action: none;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel:not([data-detent="peek"]) .ob-panel-head {
+    border-bottom-color: var(--color-border);
+  }
+  .ob-body[data-compare-sheet] > .ob-panel .ob-sheet-grip {
+    display: block;
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    margin-left: -18px;
+    border-radius: 999px;
+    background: var(--color-border-strong);
+    pointer-events: none;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel .ob-panel-tabs,
+  .ob-body[data-compare-sheet] > .ob-panel[data-dock-open="false"] .ob-panel-tabs {
+    flex-direction: row;
+    order: 0;
+    padding-top: 4px;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel[data-dock-open="false"] .ob-panel-tab {
+    flex: 0 1 auto;
+    flex-direction: row;
+    gap: 6px;
+    padding: 0 10px;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel[data-dock-open="false"] .ob-panel-tab.is-on {
+    background: var(--color-bg-subtle);
+  }
+  .ob-body[data-compare-sheet] > .ob-panel[data-dock-open="false"] .ob-panel-tab-label {
+    display: block;
+    font-size: 13px;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel[data-dock-open="false"] .ob-panel-tab-icon {
+    display: none;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel[data-dock-open="false"] .ob-panel-actions {
+    order: 0;
+    flex-direction: row;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel[data-dock-open="false"] .ob-panel-body {
+    display: flex;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel[data-detent="peek"] .ob-panel-body {
+    visibility: hidden;
+  }
+  .ob-body[data-compare-sheet] > .ob-panel .ob-panel-body {
+    max-height: calc(var(--ob-vis) - var(--ob-peek-h));
+  }
+  .ob-body[data-compare-sheet] > .ob-panel:is([data-dragging], [data-moving]) .ob-panel-body {
+    visibility: visible;
+    max-height: calc(100% - var(--ob-peek-h));
+  }
+  .ob-body[data-compare-sheet]:has(> .ob-panel:not([data-detent="peek"])) .ob-foot-cap {
+    display: none;
+  }
+  /* The side panel beside Compare keeps its usual width: each chart needs its room (CompareView.tsx). */
+  .ob-body:has(> .ob-stage[data-compare]) > .ob-panel[data-width="wide"] {
+    width: var(--ob-panel-w);
+  }
+  .ob-body:has(> .ob-stage[data-compare]) [data-testid="panel-width"] {
+    display: none;
+  }
+}
+
+/* ---- The reading for two (CompareReading.tsx), over the page's own in the Reading tab ---- */
+
+.ob-panel-pane:has(> .ob-compare-reading) {
+  position: relative;
+}
+.ob-panel-pane:has(> .ob-compare-reading) > .ulune-dock-scroll:not(.ob-compare-reading) {
+  visibility: hidden;
+}
+.ob-compare-reading {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-3) var(--stage-pad) var(--space-5);
+  background: var(--dock-bg, var(--color-bg));
+}
+.ob-compare-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.ob-compare-side + .ob-compare-side {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+.ob-compare-who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--color-fg-muted);
+  font: 600 12px/1.3 var(--font-ui);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+span.ob-compare-who {
+  display: inline-flex;
+  color: var(--color-fg);
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ob-compare-lacks,
+.ob-compare-note,
+.ob-compare-about,
+.ob-compare-hint,
+.ob-compare-sub {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ob-compare-lacks {
+  color: var(--color-fg);
+}
+.ob-compare-first {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.ob-compare-inline {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-fg);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.ob-compare-h {
+  margin: 0;
+  font: 600 15px/1.3 var(--font-ui);
+}
+.ob-compare-shared {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ob-compare-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ob-compare-chip {
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-bg-subtle);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  color: var(--color-fg);
+  font: 500 13px/1.3 var(--font-ui);
+  text-align: left;
+}
+@media (hover: hover) {
+  .ob-compare-chip:hover {
+    box-shadow: inset 0 0 0 1px var(--color-border-strong);
+  }
+}
+@media (pointer: coarse) {
+  .ob-compare-chip {
+    min-height: 44px;
+  }
+}
+.ob-compare-fold {
+  border-top: 1px solid var(--color-border);
+}
+.ob-compare-fold > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+}
+.ob-compare-fold > summary::-webkit-details-marker {
+  display: none;
+}
+.ob-compare-fold > summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-left: auto;
+  border-right: 1.5px solid var(--color-fg-muted);
+  border-bottom: 1.5px solid var(--color-fg-muted);
+  transform: rotate(45deg);
+  transition: transform var(--dur-move) var(--ease-glide);
+}
+.ob-compare-fold[open] > summary::after {
+  transform: rotate(225deg);
+}
+.ob-compare-fold-body {
+  padding-bottom: var(--space-3);
+}
+
+/* "Both side by side" in the Export menu (or ⋯), after the page's own. */
+.ob-compare-export {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ob-compare {
+    animation: none;
+  }
+}
+
+/* Over the two readings: each person's, a press away. */
+.ob-compare-jump {
+  position: sticky;
+  z-index: 2;
+  top: calc(-1 * var(--space-3));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: calc(-1 * var(--space-3)) calc(-1 * var(--stage-pad)) 0;
+  padding: var(--space-2) var(--stage-pad);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--dock-bg, var(--color-bg));
+}
+.ob-compare-jump .ob-compare-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ob-compare-side {
+  scroll-margin-top: 52px;
+}
+.ob-compare-who:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+/* Share and export in Compare: the picture is both charts' ("Both side by side", CompareView.tsx), not the page's under it. */
+[data-testid="export-panel"]:has(.ob-compare-export) > :is([data-testid="export-png"], [data-testid="export-svg"], [data-testid="export-caption"]) {
+  display: none;
+}

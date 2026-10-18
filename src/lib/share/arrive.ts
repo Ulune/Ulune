@@ -13,8 +13,10 @@
  * A chart received carries "Shared with you, <date>" in the switcher until
  * the reader opens it there; the mark is kept in the sealed record only. A
  * link only adds: it never changes or removes a chart the reader keeps.
+ * A request for the reader's own chart (idea B4) arrives here too: it opens
+ * the birth form (receiveRequest, below).
  */
-import { showArrivalNote } from "@/components/share/share-state";
+import { holdRequest, showArrivalNote } from "@/components/share/share-state";
 import { birthKey, saveLocalLibrary, toStoredRow, type StoredRow } from "@/lib/chart/library";
 import type { BirthInput } from "@/lib/chart/types";
 import { shareWords } from "@/lib/i18n/catalog/share-words";
@@ -27,6 +29,7 @@ import { useStudioStore } from "@/studio/store";
 import type { StudioPage } from "@/studio/url";
 import { partnerSlot } from "./compose";
 import type { SharedBirth, SharePayload } from "./format";
+import type { ChartRequest } from "./request";
 
 function say(key: keyof typeof shareWords, vars: Record<string, string> = {}): string {
   let text: string = shareWords[key][document.documentElement.lang === "fr" ? 1 : 0];
@@ -187,4 +190,25 @@ export async function receiveShared(payload: SharePayload, go: (href: string) =>
     showArrivalNote({ kind: "offer", both });
   }
   return true;
+}
+
+/**
+ * A request for the reader's chart (share and compare plan, idea B4): the
+ * birth form opens for a chart of their own, on the page the asker chose,
+ * with the request above it (components/share/request-head.tsx); once they
+ * have cast it, "Send it back" makes the share link for the asker
+ * (components/share/reply-card.tsx). Nothing is cast, kept or sent here:
+ * their chart is theirs, kept as any chart they cast is (the private space
+ * if one is open, the usual offer otherwise), and the request lives in this
+ * tab's memory only.
+ */
+export async function receiveRequest(request: ChartRequest, go: (href: string) => Promise<unknown>, locale: string): Promise<void> {
+  // As for a shared chart: the space's answer first (it may ask to unlock, over the form).
+  await until(() => useSpace.getState().status !== "checking", 15_000);
+  const page = request.page ?? "natal";
+  holdRequest({ asker: request.asker ?? null, page, at: Date.now() });
+  // A chart already being made stays as it is.
+  if (!useStudioStore.getState().creating) useStudioStore.getState().startNew();
+  await go(pagePath(page, locale));
+  window.requestAnimationFrame(() => document.getElementById("native-name")?.focus());
 }

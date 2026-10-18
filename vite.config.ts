@@ -1,4 +1,3 @@
-import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
@@ -11,9 +10,6 @@ import { qaSelftestPlugin } from "./scripts/qa-selftest/plugin.mjs";
 // @ts-expect-error JS plugin alongside the TS vite config
 import { encyclopediaPlugin } from "./scripts/encyclopedia/vite-plugin.mjs";
 import { ENGINE_WORKER_CSP, ENGINE_WORKER_PATH, SECURITY_HEADERS } from "./src/lib/security-headers";
-
-/** The build's chunk that names the calculations' worker (the "ulune:engine" plugin below). */
-const ENGINE_SHIP = "\0ulune-engine-ship";
 
 // The development server answers this machine only (127.0.0.1), on the
 // launcher's port; `vite preview` serves the built output on 8081.
@@ -84,9 +80,14 @@ export default defineConfig(({ command, isPreview }) => ({
             // text, and most of the natal wheel, a round trip late.
             codeSplitting: {
               groups: [
-                // The calculations on the device (src/lib/engine, on-device plan, step 2): a chunk of
-                // their own, loaded only when a chart is calculated on the device, never with a page.
-                { name: "engine-client", test: /[\\/]src[\\/]lib[\\/]engine[\\/]/, priority: 5 },
+                // The calculations on the device (src/lib/engine, on-device plan, steps 2–5): the engine's
+                // page side in a chunk of their own, loaded with the first calculation, never with a page.
+                // A group takes along everything its modules import, so four stay out of it: the
+                // "calculate" door (door.ts, whose dynamic imports would bring Vite's preload helper, which
+                // every page imports, and the first load with it), the setting's few lines (choice.ts, read
+                // by Settings, which needs none of the engine) and the server calls (zone-lookup.ts and
+                // server-calls.ts, whose client is TanStack Start's own). The door gets a chunk of its own.
+                { name: "engine-client", test: /[\\/]src[\\/]lib[\\/]engine[\\/](?!choice\.ts|zone-lookup\.ts|server-calls\.ts|door\.ts)/, priority: 5 },
                 { name: "vendor-react", test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/, priority: 4 },
                 {
                   name: "vendor-router",
@@ -129,35 +130,9 @@ export default defineConfig(({ command, isPreview }) => ({
     },
   },
   plugins: [
-    // The calculations on the device ship with every build (on-device plan, step 2), before any
-    // page uses them: a chunk of the client's build names the engine's worker (Vite's ?worker&url),
-    // so the worker, the engine and the ephemeris files are built into /assets/ under names that
-    // change with their content. No page loads that chunk: it is emitted here and marked a chunk to
-    // be imported later rather than an entry (TanStack Start's manifest takes the app's one entry).
-    // The "calculate" door (step 4) will import the engine's page side (src/lib/engine/client.ts),
-    // which names the same worker; this plugin can go then.
-    {
-      name: "ulune:engine",
-      apply: "build",
-      applyToEnvironment: (environment) => environment.name === "client",
-      buildStart() {
-        this.emitFile({ type: "chunk", id: ENGINE_SHIP, name: "engine-ship", preserveSignature: "strict" });
-      },
-      resolveId: (id) => (id === ENGINE_SHIP ? id : null),
-      load(id) {
-        if (id !== ENGINE_SHIP) return null;
-        const worker = fileURLToPath(new URL("./src/lib/engine/worker.ts", import.meta.url));
-        return `export { default as engineWorker } from ${JSON.stringify(`${worker}?worker&url`)};`;
-      },
-      generateBundle(_options, bundle) {
-        for (const chunk of Object.values(bundle)) {
-          if (chunk.type === "chunk" && chunk.name === "engine-ship" && chunk.isEntry) {
-            chunk.isEntry = false;
-            chunk.isDynamicEntry = true;
-          }
-        }
-      },
-    },
+    // (The calculations' worker, the engine and the ephemeris files are built into /assets/ because
+    // the "calculate" door's engine side, src/lib/engine/client.ts, names the worker: on-device
+    // plan, step 4. Week 1's "ulune:engine" plugin, which shipped them before any page did, is gone.)
     // Reading text in one language per download (src/lib/content/packs.ts).
     contentPacksPlugin(),
     // Development only: where `?qa=<suite>` runs send their reports.

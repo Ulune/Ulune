@@ -12,6 +12,9 @@
  *     encyclopedia's entries), named by their content;
  *   - /src/…, /node_modules/…, /@vite/client, /@react-refresh, /@id/…,
  *     /@fs/…, /@tanstack-start/…: the same, from the development server;
+ *   - the calculations' engine and its ephemeris files (on-device plan): the
+ *     build's /assets/…, the development server's /ephe/… (the same for
+ *     everyone, fetched once by the engine's worker, never with a chart);
  *   - the icons and the manifest the page names, the offline worker's own
  *     script (/sw.js) and the list of the encyclopedia's files it keeps
  *     (/encyclopedia-offline.json), the pictures of the encyclopedia's
@@ -35,11 +38,12 @@ export const APP_FILES = [
   /^\/@(?:vite\/client$|react-refresh$|id\/|fs\/|tanstack-start\/)/,
   /^\/(?:favicon\.(?:ico|svg)|manifest\.webmanifest|sw\.js|encyclopedia-offline\.json)$/,
   /^\/(?:icons\/[\w-]+\.png|previews\/[\w-]+\.jpg)$/,
+  /^\/ephe\/[\w.-]+\.(?:se1|txt)$/,
 ];
 
 /** The development server's modules, and the only query they may carry: its own (cache stamps, kinds of import, a route list). */
-const DEV_MODULES = /^\/(?:src\/|node_modules\/|@)/;
-const DEV_QUERY = new Set(["t", "v", "import", "url", "raw", "inline", "direct", "worker_file", "type", "used", "lang", "tsr-split", "routes", "html-proxy", "index"]);
+const DEV_MODULES = /^\/(?:src\/|node_modules\/|ephe\/|@)/;
+const DEV_QUERY = new Set(["t", "v", "import", "url", "raw", "inline", "direct", "worker", "worker_file", "type", "used", "lang", "tsr-split", "routes", "html-proxy", "index"]);
 
 /**
  * Ulune's own pages: the studio's addresses (src/studio/map.ts), Settings, the encyclopedia's pages,

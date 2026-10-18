@@ -1,7 +1,7 @@
 import "@/components/settings-page.css";
 import { Link } from "@tanstack/react-router";
 import { Download, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { AI_ENABLED } from "@/lib/features";
 import { useI18n } from "@/lib/i18n/locale";
 import { bookT } from "@/lib/i18n/words-book";
@@ -19,6 +19,7 @@ import { SPACE_FLAG } from "@/lib/space/flag";
 import { ERASED_NOTE, LEGACY_PREFIX, LEGACY_SPACE_DB, OLD_SIGN_IN_PREFIX } from "@/lib/space/legacy";
 import { loadSpaceRuntime } from "@/lib/space/load";
 import { useSpace, type SpaceStatus } from "@/lib/space/state";
+import { chosenCalculateOn, onCalculateOn } from "@/lib/engine/choice";
 
 const PREFIX = "ulune.";
 const SPACE_DB = "ulune-space";
@@ -76,6 +77,8 @@ export function YourData() {
   const [erasing, setErasing] = useState(false);
   const [offline, setOffline] = useState<boolean | null>(null);
   const [reports, setReports] = useState(true);
+  // What goes to the server depends on where charts are calculated (Settings, just below).
+  const where = useSyncExternalStore(onCalculateOn, chosenCalculateOn, () => "device");
 
   useEffect(() => {
     setCount(settingKeys().length);
@@ -147,7 +150,7 @@ export function YourData() {
   const allRows: { title: MessageKey; body: string; id: string }[] = [
     { id: "here", title: "dataHereTitle", body: t("dataHere", { n: count }) },
     { id: "space", title: "dataSpaceTitle", body: t(SPACE_LINE[status]) },
-    { id: "server", title: "dataServerTitle", body: t("dataServer") },
+    { id: "server", title: "dataServerTitle", body: t(where === "server" ? "dataServerCalc" : "dataServer") },
     { id: "reports", title: "dataReportsTitle", body: t("dataReports") },
     { id: "ai", title: "dataAiTitle", body: t("dataAi") },
     { id: "never", title: "dataNeverTitle", body: t("dataNever") },
@@ -234,7 +237,11 @@ export function YourData() {
             onChange={(e) => {
               const on = e.target.checked;
               setOffline(on);
-              void (on ? turnOfflineOn() : turnOfflineOff()).then(() => toast(on ? t("offlineOn") : t("offlineOff")));
+              void (on ? turnOfflineOn() : turnOfflineOff()).then((ok) => {
+                toast(on ? t("offlineOn") : t("offlineOff"));
+                // A chart calculated here before: the engine's code kept too, so charts are calculated offline (on-device plan, step 5).
+                if (on && ok) void import("@/lib/engine/door").then((m) => m.keepEngineOffline(true)).catch(() => {});
+              });
             }}
           />
           <span>

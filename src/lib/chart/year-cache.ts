@@ -1,8 +1,11 @@
 /**
- * The year sky files in the browser (sky-year.ts): fetched once from
- * /api/sky-year (the edge and the browser keep them for a year), held in
- * memory. Nothing personal goes out: a file is asked for by its year only.
+ * The year sky files in the browser (sky-year.ts): through the "calculate"
+ * door (lib/engine/door.ts, on-device plan, step 4), worked out on this
+ * device (and kept by the browser) or fetched from /api/sky-year (the edge
+ * and the browser keep them for a year), as Settings says; held in memory.
+ * Nothing personal goes out: a file is asked for by its year only.
  */
+import { door } from "@/lib/engine/door";
 import { CALC_VERSION } from "./constants";
 import { SKY_YEAR_FORMAT, SKY_YEAR_MAX, SKY_YEAR_MIN, yearOf, type SkyYear } from "./sky-year";
 
@@ -52,9 +55,7 @@ export function loadYear(y: number): Promise<SkyYear | null> {
   if (failed != null && Date.now() - failed < RETRY_MS) return Promise.resolve(null);
   const run = (async () => {
     try {
-      const res = await fetch(`/api/sky-year?y=${y}&v=${CALC_VERSION}.${SKY_YEAR_FORMAT}`);
-      if (!res.ok) throw new Error(String(res.status));
-      const file: unknown = await res.json();
+      const file: unknown = await door.skyYear(y, { v: `${CALC_VERSION}.${SKY_YEAR_FORMAT}` });
       if (!valid(file, y)) throw new Error("bad year file");
       keep(file);
       failedAt.delete(y);

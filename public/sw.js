@@ -9,6 +9,11 @@
  *     their content, so a copy never goes stale: from the device once fetched.
  *   - The calculations' engine and its ephemeris files (/assets/*.se1, the
  *     .wasm): kept in the worker's own cache, the same files for everyone.
+ *     Once a chart has been calculated on the device, the page asks for the
+ *     code that starts the engine (its worker's script and the "calculate"
+ *     door) to be kept too ({ type: "engine-keep", urls }), even if that
+ *     chart came before this worker: then a chart is calculated offline too
+ *     (on-device plan, step 5). Never before a first chart.
  *   - The sky's files (/api/sky-window, /api/sky-year): the same for
  *     everyone, asked for by date and version only, never changing for a
  *     given address; kept so the calendar's months open offline.
@@ -127,11 +132,17 @@ async function anyEncyclopediaPage(cache, fr) {
  * "Keep the encyclopedia on this device": { type: "enc-keep", lang, files,
  * pages } fetches and keeps a language's files (and the shared ones), telling
  * the page how far it is; { type: "enc-drop", lang } lets them go.
+ * The calculations on the device: { type: "engine-keep", urls } keeps the
+ * app's own files that start the engine (/assets/ only), as if fetched here.
  */
 self.addEventListener("message", (event) => {
   const msg = event.data;
   if (!msg || typeof msg !== "object") return;
   const reply = (data) => event.source?.postMessage(data);
+  if (msg.type === "engine-keep" && Array.isArray(msg.urls)) {
+    event.waitUntil(keepEngineCode(msg.urls));
+    return;
+  }
   if (msg.type === "enc-keep" && (msg.lang === "en" || msg.lang === "fr")) {
     event.waitUntil(keepEncyclopedia(msg, reply));
   } else if (msg.type === "enc-drop") {
@@ -144,6 +155,28 @@ self.addEventListener("message", (event) => {
     );
   }
 });
+
+/** The engine's starting code, kept with the app's files (fetched once if not kept yet). */
+async function keepEngineCode(urls) {
+  const cache = await caches.open(FILES);
+  for (const u of urls.slice(0, 8)) {
+    let url;
+    try {
+      url = new URL(u, self.location.origin);
+    } catch {
+      continue;
+    }
+    if (url.origin !== self.location.origin || !url.pathname.startsWith("/assets/")) continue;
+    try {
+      if (await caches.match(url.href)) continue;
+      const res = await fetch(url.href, { credentials: "same-origin" });
+      if (res.ok && res.type === "basic") await cache.put(url.href, res);
+    } catch {
+      /* offline now: kept the next time */
+    }
+  }
+  await trim(cache, MAX_FILES);
+}
 
 async function keepEncyclopedia(msg, reply) {
   const own = await caches.open(ENC_KEPT[msg.lang]);

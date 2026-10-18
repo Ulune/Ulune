@@ -36,6 +36,12 @@ function savedLocale(): string | null {
   }
 }
 
+/** Whether the reader chose a language on this device (a request link's language gives way to it: share plan, idea B4). */
+export function localeChosen(): boolean {
+  const saved = savedLocale();
+  return saved === "en" || saved === "fr";
+}
+
 function detectLocale(pathLocale: Locale | null): Locale {
   if (typeof window === "undefined") return pathLocale ?? "en";
   return pickLocale(savedLocale(), pathLocale, navigator.language);
@@ -63,7 +69,8 @@ function runLocaleSwap(apply: () => void) {
 
 type I18n = {
   locale: Locale;
-  setLocale: (next: Locale) => void;
+  /** `keep` false: for this visit only, not saved as the reader's choice (a request link's language). */
+  setLocale: (next: Locale, keep?: boolean) => void;
   t: (key: MessageKey, vars?: Record<string, string | number>) => string;
   subscribeUserLocale: (fn: (locale: Locale) => void) => () => void;
 };
@@ -103,8 +110,9 @@ export function LocaleProvider({ children, pathLocale = null }: { children: Reac
     };
   }, []);
 
-  const setLocale = useCallback((next: Locale) => {
+  const setLocale = useCallback((next: Locale, keep = true) => {
     const save = () => {
+      if (!keep) return;
       try {
         window.localStorage.setItem(STORAGE_KEY, next);
       } catch {

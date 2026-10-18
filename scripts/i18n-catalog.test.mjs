@@ -15,6 +15,7 @@ import { guideBodyWords } from "../src/lib/i18n/catalog/guide-body-words.ts";
 import { bodiesWords } from "../src/lib/i18n/catalog/bodies-words.ts";
 import { lookWords } from "../src/lib/i18n/catalog/look-words.ts";
 import { tablesWords } from "../src/lib/i18n/catalog/tables-words.ts";
+import { engineWords } from "../src/lib/i18n/catalog/engine-words.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const CAT_DIR = join(ROOT, "src/lib/i18n/catalog");
@@ -79,7 +80,7 @@ test("no English literal in aria-label", () => {
 
 test("the catalogs read on their own, outside the index (the calendar's layers, the language picker, the Chinese traditions, the space sheet's, Your data's, the AI accounts', the switcher's homes', the guide's, the Bodies tab's, the Look tab's and the table's books), are complete too", () => {
   // Kept out of the index so they stay out of the first download; held to the same rules.
-  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords, chinese, spaceWords, dataWords, aiWords, placesWords, guideWords, guideBodyWords, bodiesWords, lookWords, tablesWords })) {
+  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords, chinese, spaceWords, dataWords, aiWords, placesWords, guideWords, guideBodyWords, bodiesWords, lookWords, tablesWords, engineWords })) {
     for (const [key, [en, fr]] of Object.entries(words)) {
       assert.ok(en && en.trim(), `${name}.${key}: English missing`);
       assert.ok(fr && fr.trim(), `${name}.${key}: French missing`);
@@ -115,6 +116,8 @@ test("every word of the books kept out of the first download is said somewhere, 
     [bodiesWords, ["src/studio/dock/BodiesTab.tsx", "src/components/body-mixer.tsx", "src/components/aspect-layer-toggle.tsx", "src/components/wheel-hidden-note.tsx"]],
     [lookWords, ["src/studio/dock/LookTab.tsx", "src/components/look-panel.tsx", "src/components/look-profiles.tsx"]],
     [tablesWords, ["src/lib/chart/table-cells.ts"]],
+    // The calculations on the device (on-device plan, step 5): their notices and their setting.
+    [engineWords, ["src/components/engine/engine-ui.ts", "src/components/calculate-settings.tsx"]],
   ]) {
     const corpus = files.map(read).join("\n");
     const unsaid = Object.keys(words).filter((key) => !new RegExp(`["'\`]${key}["'\`]`).test(corpus));

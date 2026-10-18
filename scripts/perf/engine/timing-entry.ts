@@ -10,7 +10,7 @@
 import { Calculator } from "@/lib/engine/calculate";
 import { ALL_FILES } from "@/lib/engine/eras";
 import { browserFiles, ENGINE_CACHE } from "@/lib/engine/files-browser";
-import { castHumanDesign, castNatal, castProgressions, castTransits, skyWindow, timing } from "@/lib/engine/requests";
+import { castHumanDesign, castNatal, castProgressions, castTransits, skyWindow, skyYear, timing } from "@/lib/engine/requests";
 
 const URLS = {
   wasm: "/engine/swisseph.wasm",
@@ -51,7 +51,16 @@ async function start(cold: boolean): Promise<number> {
   return ms;
 }
 
+/** The first chart on a device (on-device plan, step 6): its files downloaded (here from a local server), the engine started, the chart cast. */
+async function firstChart(): Promise<number> {
+  const t0 = performance.now();
+  await start(true);
+  await castNatal(calc!, NATAL);
+  return performance.now() - t0;
+}
+
 async function run() {
+  const first = await firstChart();
   const coldStart = await start(true);
   const keptStart = (await timed(3, () => start(false))).median;
   const c = calc!;
@@ -80,6 +89,14 @@ async function run() {
     progressions: await timed(3, (i) => castProgressions(c, { ...sky(i), natalUtc: natalChart.meta.utc, targetUtc: sky(i).at })),
     transits: await timed(3, (i) => castTransits(c, sky(i))),
     timingYear: await timed(3, () => timing(c, span("2025-12-31T23:00:00.000Z", "2026-12-31T23:00:00.000Z"))),
+    firstChart: first,
+    // The Calendar on the device: a year's sky file, and a year view's chunks (each worked out once, then kept by the browser).
+    skyYear: await timed(1, () => skyYear(c, 2026)),
+    calendarYear: await timed(1, async () => {
+      const from = Date.UTC(2026, 0, 1) - 3 * 86_400_000;
+      const to = Date.UTC(2027, 0, 1) + 3 * 86_400_000;
+      for (let t = EPOCH + Math.floor((from - EPOCH) / CHUNK) * CHUNK; t <= to; t += CHUNK) await skyWindow(c, t);
+    }),
   };
 }
 

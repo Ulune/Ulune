@@ -288,6 +288,9 @@ async function runNatalLayout(width) {
       if (Math.abs(c - b) > 8) throw new Error(`natal wheel collapsed ${b} → ${c}`);
       await goMode(page, "transits");
       await page.getByTestId("studio-transits").waitFor({ timeout: 20000 });
+      // The transits' aspects come with their exact cast, and their strip then takes its row under the wheel
+      // (a moment after the page opens, sooner when the device calculates): measured once it is there.
+      await page.getByTestId("aspect-strip").first().waitFor({ timeout: 20000 }).catch(() => {});
       await page.waitForTimeout(400);
       const t1 = await wheelSide(page);
       if (t1 < 400) throw new Error(`transit wheel ${t1} < 400`);

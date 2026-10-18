@@ -43,8 +43,8 @@ export const guideBodyWords = {
     "Votre nombre Kua et vos huit directions\u202f; avec Logement, les Étoiles volantes d’un logement, d’après son orientation et son année de construction.",
   ],
   guideDoLenses: [
-    "The tabs beside the language, as each has them: Natal, the birth chart itself; Cycles, the chart through time (transits, progressions; numerology’s years and life cycles; BaZi’s luck pillars); Relationship, beside a second person’s; Home, a place, for Feng Shui.",
-    "Les onglets à côté du langage, selon ceux qu’il a\u202f: Natal, le thème natal lui-même\u202f; Cycles, le thème au fil du temps (transits, progressions\u202f; les années et les cycles de vie de la numérologie\u202f; les piliers de chance du BaZi)\u202f; Relation, à côté de celui d’une autre personne\u202f; Logement, un lieu, pour le Feng Shui.",
+    "The tabs beside the language, as each has them: Natal, the birth chart itself; Cycles, the chart through time (transits, progressions; numerology’s years and life cycles; BaZi’s luck pillars); Relationship, beside a second person’s; Home, a place, for Feng Shui. Compare sets two charts side by side.",
+    "Les onglets à côté du langage, selon ceux qu’il a\u202f: Natal, le thème natal lui-même\u202f; Cycles, le thème au fil du temps (transits, progressions\u202f; les années et les cycles de vie de la numérologie\u202f; les piliers de chance du BaZi)\u202f; Relation, à côté de celui d’une autre personne\u202f; Logement, un lieu, pour le Feng Shui. Comparer place deux thèmes côte à côte.",
   ],
   // The Calendar's layers by language (src/lib/chart/calendar-layers.ts): those on by default, then those kept off until asked for.
   guideDoCalendar: [
@@ -85,8 +85,8 @@ export const guideBodyWords = {
     "Pas de compte, pas de cookies, pas de mesure d’audience, pas de publicité.",
   ],
   guideData2: [
-    "To draw a chart, its date, time and coordinates go to Ulune’s server, which calculates, answers and keeps nothing. The names stay on this device.",
-    "Pour tracer un thème, sa date, son heure et ses coordonnées partent vers le serveur d’Ulune, qui calcule, répond et ne garde rien. Les noms restent sur cet appareil.",
+    "Charts are calculated on this device: the date, time and names stay here; only the place is looked up through Ulune’s server, which keeps nothing.",
+    "Les thèmes sont calculés sur cet appareil\u202f: la date, l’heure et les noms restent ici\u202f; seul le lieu est cherché par le serveur d’Ulune, qui ne garde rien.",
   ],
   guideData3: [
     "While you look, charts stay in the open tab and go when it closes.",
@@ -99,8 +99,8 @@ export const guideBodyWords = {
   guideDataLink: ["Read the privacy notice", "Lire la politique de confidentialité"],
   guidePreciseTitle: ["Precise, and open about it", "Précis, et transparent"],
   guidePrecise1: [
-    "Positions come from the Swiss Ephemeris, built from NASA JPL’s DE441; the table shows them to the arc-second.",
-    "Les positions viennent de la Swiss Ephemeris, tirée de DE441 (NASA JPL)\u202f; le tableau les donne à la seconde d’arc.",
+    "Positions come from the Swiss Ephemeris, built from NASA JPL’s DE441, calculated on your device by default; the table shows them to the arc-second.",
+    "Les positions viennent de la Swiss Ephemeris, tirée de DE441 (NASA JPL), calculées par défaut sur votre appareil\u202f; le tableau les donne à la seconde d’arc.",
   ],
   guidePrecise2: [
     "A birth time is read with the birthplace’s full time-zone history, summer time included; before standard time, with its Local Mean Time; before 15 October 1582, in the Julian calendar.",

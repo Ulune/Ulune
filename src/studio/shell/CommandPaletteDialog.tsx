@@ -20,6 +20,10 @@ import { placeWord } from "@/lib/i18n/places-words";
 import { useTheme } from "@/lib/theme";
 import { openKeptHome, readHomeList, useHomeList } from "@/studio/modes/fengshui-home-list";
 import { PAGE_LABEL } from "@/studio/modes/meta";
+import { enterCompare, leaveCompare } from "@/studio/compare/gate";
+import { openAskSheet } from "@/components/share/share-state";
+import { flipRow } from "@/studio/show/flip";
+import { enterShowMode } from "@/studio/show/show-state";
 import { useStudioStore } from "@/studio/store";
 import {
   ENCYCLOPEDIA_PATHS,
@@ -67,6 +71,10 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
   const rows = useStudioStore((s) => s.rows);
   const page = useStudioStore((s) => s.page);
   const chart = useStudioStore((s) => s.chart);
+  const activeId = useStudioStore((s) => s.activeId);
+  const compareOn = useStudioStore((s) => s.compare.on);
+  // The chart open before this one (idea B3).
+  const back = useStudioStore((s) => flipRow(s));
   const view = useStudioStore((s) => s.view);
   const chartView = useChartView();
   const depth = useDepthPrefs();
@@ -158,6 +166,25 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
         keys: "T",
         run: () => setView(view === "table" ? "wheel" : "table"),
       });
+      // Compare (studio/compare): on (on the page shown, or its language's Natal page), or off again.
+      list.push({
+        id: "compare:toggle",
+        section: secModes,
+        label: t("compare"),
+        hint: compareOn ? "✓" : undefined,
+        keys: "C",
+        run: () => (compareOn ? leaveCompare() : enterCompare(null, setPage)),
+      });
+      // Show mode (idea B2): the page on screen as a presentation, where one is on screen (its button is there).
+      list.push({
+        id: "show:mode",
+        section: secModes,
+        label: t("showMode"),
+        keys: "F",
+        run: () => {
+          if (document.querySelector("[data-testid=show-open]")) enterShowMode();
+        },
+      });
     }
     const secCharts = t("charts");
     for (const r of rows) {
@@ -169,7 +196,34 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
         run: () => useStudioStore.getState().select(r.id),
       });
     }
+    // Back to the chart open before this one (idea B3), as the P key does.
+    if (back) {
+      const id = back.id;
+      list.push({
+        id: "chart:previous",
+        section: secCharts,
+        label: t("flipBack", { name: chartDisplayName(back.input, t("untitled")) }),
+        keys: "P",
+        run: () => useStudioStore.getState().select(id),
+      });
+    }
     list.push({ id: "chart:new", section: secCharts, label: t("newNatal"), run: () => useStudioStore.getState().startNew() });
+    // Ask someone for their chart (idea B4): a link to Ulune's birth form for them.
+    // (Once the palette has given the focus back, a frame after it closes: the sheet then takes it.)
+    list.push({ id: "chart:ask", section: secCharts, label: t("askChart"), run: () => window.requestAnimationFrame(() => window.requestAnimationFrame(openAskSheet)) });
+    // "Compare with Sample B", found by typing: beside the chart shown (studio/compare).
+    if (chart) {
+      for (const r of rows) {
+        if (r.id === activeId) continue;
+        list.push({
+          id: `compare:${r.id}`,
+          section: secCharts,
+          label: t("compareWith", { name: chartDisplayName(r.input, t("untitled")) }),
+          find: true,
+          run: () => enterCompare(r.id, setPage),
+        });
+      }
+    }
     // A home opens on Feng Shui's Home page, as from the switcher; the chart stays.
     const secHomes = placeWord(locale, "placesHomes");
     for (const h of homes) {
@@ -278,7 +332,7 @@ export function CommandPaletteDialog({ onClose }: { onClose: () => void }) {
       { id: "set:open", section: secSettings, label: t("shellSettings"), run: () => void navigate({ to: "/settings" }) },
     );
     return list;
-  }, [t, locale, page, rows, homes, chart, view, look, setPage, setView, setTheme, setLocale, navigate, chartView, depth.view]);
+  }, [t, locale, page, rows, homes, chart, activeId, compareOn, back, view, look, setPage, setView, setTheme, setLocale, navigate, chartView, depth.view]);
 
   // Each command's words, case and accents set aside once (palette-find.ts): "bazi", "bāzì" and 八字 find BaZi.
   const hays = useMemo(() => cmds.map((c) => paletteWords(c.label, c.hint, c.section, c.terms)), [cmds]);

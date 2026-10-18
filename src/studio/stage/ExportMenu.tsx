@@ -1,57 +1,29 @@
-import { Copy, Download, FileImage, Printer, Share2 } from "lucide-react";
+import { Share2 } from "lucide-react";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { AnchoredPopover } from "@/components/anchored-popover";
-import { openShareSheet, useShareUi } from "@/components/share/share-state";
+import { useShareUi } from "@/components/share/share-state";
 import { useI18n } from "@/lib/i18n/locale";
-import { lazyNamed, prefetch } from "@/lib/lazy-component";
-import { importWithRetry } from "@/lib/lazy-retry";
-import { toast } from "@/lib/toast";
-import { MODE_META } from "@/studio/modes/meta";
+import { canPrefetchAhead, lazyNamed, prefetch, whenIdle } from "@/lib/lazy-component";
 import { useExportShown } from "@/studio/stage/export-shown";
-import { useStudioStore } from "@/studio/store";
-import { HOUSE_SYSTEM_LABEL } from "@/lib/chart/constants";
-import { formatEuropeanDate } from "@/lib/chart/parse-birth";
-import type { NatalChart } from "@/lib/chart/types";
 
 /*
- * The export code is its own download, fetched when the menu is pointed at,
- * focused or opened, so it is there by the time an item is picked (copying
- * must happen within the click in Safari).
+ * The toolbar's Share and export: its button and its menu. The menu's items
+ * (export-items.tsx: a link to the chart, the picture, print, copy, asking
+ * for someone's chart) are their own download, fetched at idle, or when the
+ * button is pointed at, focused or pressed, with the export code they use,
+ * so it is there by the time an item is picked (copying must happen within
+ * the click in Safari).
  */
-type ExportCode = [
-  typeof import("@/lib/export/chart-summary"),
-  typeof import("@/lib/export/wheel-export"),
-];
-let exportCode: ExportCode | null = null;
-let exportLoading: Promise<ExportCode> | null = null;
-
-function loadExportCode(): Promise<ExportCode> {
-  if (exportCode) return Promise.resolve(exportCode);
-  exportLoading ??= importWithRetry(
-    () => Promise.all([import("@/lib/export/chart-summary"), import("@/lib/export/wheel-export")]),
-    { attempts: 2 },
-  ).then(
-    (code) => (exportCode = code),
-    (err: unknown) => {
-      exportLoading = null;
-      throw err;
-    },
-  );
-  return exportLoading;
-}
-
-function exportAhead() {
-  loadExportCode().catch(() => {});
-}
+const loadItems = () => import("@/studio/stage/export-items");
+const ExportItems = lazyNamed(loadItems, "ExportItems");
+const itemsAhead = () => prefetch(() => Promise.all([loadItems(), import("@/lib/export/chart-summary"), import("@/lib/export/wheel-export")]));
 
 /*
  * The share sheet and a shared chart's arrival note (share plan, feature 1):
  * their code (components/share/share-ui.tsx) comes when one of them shows, or
- * ahead when "Share a link" is pointed at or focused.
+ * ahead when "Share a link" is pointed at or focused (export-items.tsx).
  */
-const loadShareUi = () => import("@/components/share/share-ui");
-const ShareUi = lazyNamed(loadShareUi, "ShareUi");
-const shareAhead = () => prefetch(loadShareUi);
+const ShareUi = lazyNamed(() => import("@/components/share/share-ui"), "ShareUi");
 
 /** Where they are drawn, mounted with the toolbar's menu (they open from here or from the phone's ⋯ menu, MorePanel.tsx). */
 function ShareHost() {
@@ -63,213 +35,6 @@ function ShareHost() {
   ) : null;
 }
 
-function slugName(name: string) {
-  return (
-    name
-      .trim()
-      .replace(/\s+/g, "-")
-      .replace(/[^\p{L}\p{N}-]/gu, "")
-      .toLowerCase() || "chart"
-  );
-}
-
-const CAPTION_KEY = "ulune.export.caption";
-
-/** The band under an exported image: the name, then the birth's date, time, place and houses. */
-function figureCaption(
-  chart: NatalChart,
-  locale: string,
-  timeUnknown: boolean,
-  t: ReturnType<typeof useI18n>["t"],
-) {
-  const m = chart.meta;
-  const line = [
-    formatEuropeanDate(m.date) || m.date,
-    timeUnknown || m.timeUnknown ? t("timeUnknown") : m.time,
-    m.placeLabel,
-    HOUSE_SYSTEM_LABEL[m.houseSystem] ? t(HOUSE_SYSTEM_LABEL[m.houseSystem]) : "",
-  ].filter(Boolean);
-  void locale;
-  return { title: m.name || "Ulune", line: line.join(" · ") };
-}
-
-/**
- * The ways out, as menu items: a link to the chart (share plan, feature 1),
- * download the figure, print a chart sheet, copy a summary, then what the
- * page adds (the Calendar's file, a table's text and CSV) in `extraSlot`.
- * Drawn in the Share and export menu on a computer and in the toolbar's ⋯
- * menu on a phone (UI plan, part 96).
- */
-export function ExportItems({
-  close,
-  extraSlot,
-}: {
-  close: () => void;
-  extraSlot?: (el: HTMLElement | null) => void;
-}) {
-  const { locale, t } = useI18n();
-  const chart = useStudioStore((s) => s.chart);
-  const timeUnknown = useStudioStore((s) => s.timeUnknown);
-  const view = useStudioStore((s) => s.view);
-  const page = useStudioStore((s) => s.page);
-  const [busy, setBusy] = useState(false);
-  // Whose chart and which moment, in a band under the image (on by default; off for privacy).
-  const [withCaption, setWithCaption] = useState(() => {
-    try {
-      // Off until asked for: an image is often shared, and birth details are personal.
-      return typeof window !== "undefined" && window.localStorage.getItem(CAPTION_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
-  // A page's own items, drawn into the menu's end: picking one closes it too.
-  const [extra, setExtra] = useState<HTMLElement | null>(null);
-  useEffect(() => {
-    extraSlot?.(extra);
-    if (!extra) return;
-    const picked = (e: MouseEvent) => {
-      // After the item's own click has run (React handles it at the root, later in the bubble).
-      if ((e.target as HTMLElement).closest("[role=menuitem]:not(:disabled)")) window.setTimeout(close, 0);
-    };
-    extra.addEventListener("click", picked);
-    return () => {
-      extra.removeEventListener("click", picked);
-      extraSlot?.(null);
-    };
-  }, [extra, extraSlot, close]);
-  useEffect(exportAhead, []);
-  // No chart (the Calendar's sky alone, reorganisation plan R5; Feng Shui's Home, FS13): only the page's own items, its file and its table.
-  if (!chart) return extraSlot ? <div ref={setExtra} className="ob-menu-extra" style={{ marginTop: 0, paddingTop: 0, borderTop: 0 }} /> : null;
-  const name = slugName(`${chart.meta.name || "ulune"}-${page}`);
-  // A picture of the figure, where it is one drawing: not the Calendar's days nor numerology's cycles.
-  const hasFigure = view === "wheel" && !MODE_META[page].noPicture;
-
-  async function run(kind: "png" | "svg" | "print" | "copy") {
-    if (!chart) return;
-    setBusy(true);
-    try {
-      const [
-        { chartSheetHtml, chartSummaryText, printHtml },
-        { figurePng, findFigureSvg, saveBlob, serializeFigure },
-      ] = exportCode ?? (await loadExportCode());
-      if (kind === "copy") {
-        await navigator.clipboard.writeText(chartSummaryText(chart, locale, timeUnknown));
-        toast(t("exportCopied"));
-        return;
-      }
-      const svgEl = findFigureSvg();
-      if (kind === "print") {
-        const natalSvg = page === "natal" && svgEl ? await serializeFigure(svgEl, 900) : null;
-        printHtml(chartSheetHtml(chart, locale, natalSvg, timeUnknown));
-        return;
-      }
-      if (!svgEl) {
-        toast(t("exportNoFigure"), "error");
-        return;
-      }
-      const size = 1600;
-      const text = await serializeFigure(
-        svgEl,
-        size,
-        withCaption ? figureCaption(chart, locale, timeUnknown, t) : null,
-      );
-      if (kind === "svg") {
-        saveBlob(`${name}.svg`, new Blob([text], { type: "image/svg+xml" }));
-      } else {
-        const h = Number(/^<svg[^>]*\sheight="(\d+)"/.exec(text)?.[1]) || size;
-        const png = await figurePng(text, size, h);
-        if (!png) throw new Error("png");
-        saveBlob(`${name}.png`, png);
-      }
-      toast(t("exportSaved"));
-    } catch {
-      toast(t("exportFailed"), "error");
-    } finally {
-      setBusy(false);
-      close();
-    }
-  }
-
-  const item = (
-    kind: "png" | "svg" | "print" | "copy",
-    icon: React.ReactNode,
-    label: string,
-    disabled = false,
-  ) => (
-    <button
-      type="button"
-      role="menuitem"
-      className="ob-menu-item"
-      data-testid={`export-${kind}`}
-      disabled={disabled || busy}
-      onClick={() => void run(kind)}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
-  );
-
-  return (
-    <>
-      {/* A link to the chart first (share plan, feature 1): its sheet comes when asked for (ShareHost above). */}
-      <button
-        type="button"
-        role="menuitem"
-        className="ob-menu-item"
-        data-testid="share-open"
-        onPointerEnter={shareAhead}
-        onFocus={shareAhead}
-        onClick={() => {
-          close();
-          openShareSheet();
-        }}
-      >
-        <Share2 className="size-4" strokeWidth={1.75} aria-hidden />
-        <span>{t("shareLink")}</span>
-      </button>
-      {/* The picture's ways out only where there is a picture (part 97: no greyed items on a table). */}
-      {hasFigure
-        ? item(
-            "png",
-            <FileImage className="size-4" strokeWidth={1.75} aria-hidden />,
-            t("exportPng"),
-          )
-        : null}
-      {hasFigure
-        ? item(
-            "svg",
-            <Download className="size-4" strokeWidth={1.75} aria-hidden />,
-            t("exportSvg"),
-          )
-        : null}
-      {hasFigure ? (
-        <label className="ob-menu-item ob-menu-check" data-testid="export-caption">
-          <input
-            type="checkbox"
-            checked={withCaption}
-            onChange={(e) => {
-              setWithCaption(e.target.checked);
-              try {
-                window.localStorage.setItem(CAPTION_KEY, e.target.checked ? "1" : "0");
-              } catch {
-                /* this visit only */
-              }
-            }}
-          />
-          <span>{t("exportCaption")}</span>
-        </label>
-      ) : null}
-      {item(
-        "print",
-        <Printer className="size-4" strokeWidth={1.75} aria-hidden />,
-        t("exportPrint"),
-      )}
-      {item("copy", <Copy className="size-4" strokeWidth={1.75} aria-hidden />, t("exportCopy"))}
-      {extraSlot ? <div ref={setExtra} className="ob-menu-extra" /> : null}
-    </>
-  );
-}
-
 /** The toolbar's Share and export: the ways out in a menu under its button. */
 export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null) => void } = {}) {
   const { t } = useI18n();
@@ -277,6 +42,8 @@ export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null)
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => setOpen(false), []);
+  // The items' code at idle, on a good connection (the button's point, focus and press fetch it too).
+  useEffect(() => (canPrefetchAhead() ? whenIdle(() => prefetch(loadItems), 6000) : undefined), []);
   if (!shown) return null;
   return (
     <>
@@ -289,10 +56,10 @@ export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null)
         aria-expanded={open}
         aria-label={t("exportMenu")}
         title={t("exportMenu")}
-        onPointerEnter={exportAhead}
-        onFocus={exportAhead}
+        onPointerEnter={itemsAhead}
+        onFocus={itemsAhead}
         onClick={() => {
-          exportAhead();
+          itemsAhead();
           setOpen((v) => !v);
         }}
       >
@@ -313,7 +80,9 @@ export function ExportMenu({ extraSlot }: { extraSlot?: (el: HTMLElement | null)
           className="ob-menu"
           data-testid="export-panel"
         >
-          <ExportItems close={close} extraSlot={extraSlot} />
+          <Suspense fallback={null}>
+            <ExportItems close={close} extraSlot={extraSlot} />
+          </Suspense>
         </div>
       </AnchoredPopover>
       <ShareHost />

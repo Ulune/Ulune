@@ -13,8 +13,8 @@ export const dataWords = {
   dataPrivacy: ["Read the privacy notice", "Lire la politique de confidentialité"],
   dataHereTitle: ["In this browser", "Dans ce navigateur"],
   dataHere: [
-    "Display settings only, in the clear: appearance, language, looks and views ({n} kept now).",
-    "Des réglages d’affichage seulement, en clair\u202f: apparence, langue, styles et vues ({n} gardés pour l’instant).",
+    "Display settings only, in the clear: appearance, language, looks and views ({n} kept now). In the browser’s cache, once a chart has been calculated here: the calculations’ files and the sky they worked out, the same for everyone.",
+    "Des réglages d’affichage seulement, en clair\u202f: apparence, langue, styles et vues ({n} gardés pour l’instant). Dans le cache du navigateur, dès qu’un thème a été calculé ici\u202f: les fichiers de calcul et le ciel qu’ils ont calculé, les mêmes pour tous.",
   ],
   dataSpaceTitle: ["In your private space", "Dans votre espace privé"],
   dataSpaceOpen: [
@@ -34,9 +34,14 @@ export const dataWords = {
     "Rien\u202f: ce navigateur ne peut pas garder d’espace privé. Les thèmes restent dans l’onglet ouvert et sont effacés à sa fermeture.",
   ],
   dataServerTitle: ["Sent to Ulune’s server", "Envoyé au serveur d’Ulune"],
+  // Where charts are calculated (Settings; on-device plan, step 7): this device by default, or the server.
   dataServer: [
-    "The date, time and coordinates of each chart and view it calculates, and the places you search for, which it looks up with Open-Meteo’s place finder without your IP address. It keeps nothing about you: only the finder’s answers stay in its memory, for a day at most, under the words searched. Names never leave this device.",
-    "La date, l’heure et les coordonnées de chaque thème et de chaque vue qu’il calcule, et les lieux que vous cherchez, qu’il trouve avec le service de lieux d’Open-Meteo sans votre adresse IP. Il ne conserve aucune donnée vous concernant\u202f: seules les réponses du service restent dans sa mémoire, un jour au plus, sous les mots cherchés. Les noms ne quittent jamais cet appareil.",
+    "The places you search for, which it looks up with Open-Meteo’s place finder without your IP address, and coordinates you type, alone, to find their time zone. Charts are calculated on this device: no date or time goes there. It keeps nothing about you: only the finder’s answers stay in its memory, for a day at most, under the words searched. Names never leave this device.",
+    "Les lieux que vous cherchez, qu’il trouve avec le service de lieux d’Open-Meteo sans votre adresse IP, et les coordonnées que vous tapez, seules, pour trouver leur fuseau horaire. Les thèmes sont calculés sur cet appareil\u202f: aucune date ni heure n’y part. Il ne conserve aucune donnée vous concernant\u202f: seules les réponses du service restent dans sa mémoire, un jour au plus, sous les mots cherchés. Les noms ne quittent jamais cet appareil.",
+  ],
+  dataServerCalc: [
+    "Charts are calculated there, as chosen in Settings: the date, time and coordinates of each chart and view, and the places you search for, which it looks up with Open-Meteo’s place finder without your IP address. It keeps nothing about you: only the finder’s answers stay in its memory, for a day at most, under the words searched. Names never leave this device.",
+    "Les thèmes y sont calculés, comme choisi dans les Réglages\u202f: la date, l’heure et les coordonnées de chaque thème et de chaque vue, et les lieux que vous cherchez, qu’il trouve avec le service de lieux d’Open-Meteo sans votre adresse IP. Il ne conserve aucune donnée vous concernant\u202f: seules les réponses du service restent dans sa mémoire, un jour au plus, sous les mots cherchés. Les noms ne quittent jamais cet appareil.",
   ],
   dataAiTitle: ["Sent to an AI", "Envoyé à une IA"],
   dataAi: [

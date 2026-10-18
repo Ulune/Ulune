@@ -26,6 +26,13 @@ import { toast } from "@/lib/toast";
 type Places = typeof import("@/studio/shell/picker-places");
 let placesMod: Places | undefined;
 const loadPlaces = () => importWithRetry(() => import("@/studio/shell/picker-places"), { attempts: 2 }).then((m) => (placesMod = m));
+/**
+ * "Back to…", each row's "Compare with…" and "Ask someone for their chart" (share and compare plan,
+ * ideas B3 and B4, feature 2): their own download, at idle (or as the switcher opens, if that is sooner).
+ */
+type Extras = typeof import("@/studio/show/picker-extras");
+let extrasMod: Extras | undefined;
+const loadExtras = () => importWithRetry(() => import("@/studio/show/picker-extras"), { attempts: 2 }).then((m) => (extrasMod = m));
 
 /**
  * Where the pair button compares: in the Relationship lens of the language on
@@ -103,6 +110,14 @@ export function ChartPicker() {
     setConfirmId(null);
   }, []);
 
+  // Its rows of ideas B3 and B4 and each row's Compare: fetched once the page is idle (or as it opens, if that is sooner).
+  const [extras, setExtras] = useState(extrasMod);
+  useEffect(() => {
+    if (extras) return;
+    const load = () => void loadExtras().then(setExtras, () => {});
+    if (!open) return whenIdle(load, 4000);
+    load();
+  }, [extras, open]);
   const active = rows.find((row) => row.id === activeId);
   const chip =
     creating && !addingPartner
@@ -166,6 +181,7 @@ export function ChartPicker() {
               </select>
             </div>
           ) : null}
+          {extras ? <extras.PickerBack onClose={close} /> : null}
           {rows.length ? (
             <ul className="ob-picker-list">
               {shown.length === 0 ? <li className="ob-picker-none">{t("libraryNone")}</li> : null}
@@ -257,21 +273,25 @@ export function ChartPicker() {
                             </button>
                           </>
                         ) : activeId ? (
-                          <button
-                            type="button"
-                            data-testid="chart-pair"
-                            title={pair}
-                            aria-label={pair}
-                            onClick={() => {
-                              // Composite keeps its own partner; the other pages share synastry's.
-                              setPartner(pairPage === "composite" ? "composite" : "synastry", row.id);
-                              setPage(pairPage);
-                              close();
-                            }}
-                            className="ob-icon-btn ob-icon-btn--quiet"
-                          >
-                            <Users className="size-4" strokeWidth={1.75} />
-                          </button>
+                          <>
+                            {/* Side by side with the chart shown (Compare, studio/compare): with the rows of ideas B3 and B4. */}
+                            {extras ? <extras.RowCompare id={row.id} name={label} go={setPage} onClose={close} /> : null}
+                            <button
+                              type="button"
+                              data-testid="chart-pair"
+                              title={pair}
+                              aria-label={pair}
+                              onClick={() => {
+                                // Composite keeps its own partner; the other pages share synastry's.
+                                setPartner(pairPage === "composite" ? "composite" : "synastry", row.id);
+                                setPage(pairPage);
+                                close();
+                              }}
+                              className="ob-icon-btn ob-icon-btn--quiet"
+                            >
+                              <Users className="size-4" strokeWidth={1.75} />
+                            </button>
+                          </>
                         ) : null}
                       </>
                     )}
@@ -292,6 +312,7 @@ export function ChartPicker() {
             <Plus className="size-4" strokeWidth={1.75} aria-hidden />
             {t("new")}
           </button>
+          {extras ? <extras.PickerAsk onClose={close} /> : null}
           {places ? <places.PickerPlaces go={setPage} onClose={close} /> : null}
         </div>
       </AnchoredPopover>

@@ -163,7 +163,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
           list: [
             "[Swiss Ephemeris](https://www.astro.com/swisseph/), © Astrodienst AG, Zurich: the planets, houses and fixed stars, with ephemeris files built from NASA JPL’s DE441.",
             "[sweph-wasm](https://github.com/ptprashanttripathi/sweph-wasm): the Swiss Ephemeris compiled to WebAssembly (GNU AGPL 3.0).",
-            `When your device calculates the charts, Ulune sends it the Swiss Ephemeris compiled to WebAssembly and its ephemeris files, from Ulune’s own address and under the same licence, the GNU AGPL: the source code is [the Swiss Ephemeris’s](https://github.com/aloistr/swisseph), [sweph-wasm’s](https://github.com/ptprashanttripathi/sweph-wasm) and [Ulune’s](${SOURCE_URL}).`,
+            `Charts are calculated on your device by default (or on Ulune’s server, as you choose in Settings). For that, Ulune sends your device the Swiss Ephemeris compiled to WebAssembly and its ephemeris files, from Ulune’s own address and under the same licence, the GNU AGPL: the source code is [the Swiss Ephemeris’s](https://github.com/aloistr/swisseph), [sweph-wasm’s](https://github.com/ptprashanttripathi/sweph-wasm) and [Ulune’s](${SOURCE_URL}).`,
           ],
         },
         {
@@ -215,7 +215,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
           list: [
             "[Swiss Ephemeris](https://www.astro.com/swisseph/), © Astrodienst AG, Zurich\u202f: les planètes, les maisons et les étoiles fixes, avec des fichiers d’éphémérides tirés de DE441 (NASA JPL).",
             "[sweph-wasm](https://github.com/ptprashanttripathi/sweph-wasm)\u202f: la Swiss Ephemeris compilée en WebAssembly (GNU AGPL 3.0).",
-            `Quand votre appareil calcule les thèmes, Ulune lui envoie la Swiss Ephemeris compilée en WebAssembly et ses fichiers d’éphémérides, depuis sa propre adresse et sous la même licence, la GNU AGPL\u202f: le code source est celui de [la Swiss Ephemeris](https://github.com/aloistr/swisseph), de [sweph-wasm](https://github.com/ptprashanttripathi/sweph-wasm) et [d’Ulune](${SOURCE_URL}).`,
+            `Les thèmes sont calculés par défaut sur votre appareil (ou sur le serveur d’Ulune, au choix dans les Réglages). Pour cela, Ulune envoie à votre appareil la Swiss Ephemeris compilée en WebAssembly et ses fichiers d’éphémérides, depuis sa propre adresse et sous la même licence, la GNU AGPL\u202f: le code source est celui de [la Swiss Ephemeris](https://github.com/aloistr/swisseph), de [sweph-wasm](https://github.com/ptprashanttripathi/sweph-wasm) et [d’Ulune](${SOURCE_URL}).`,
           ],
         },
         {

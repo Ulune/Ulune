@@ -451,12 +451,16 @@ function otherAsks(parsed: ParsedPlaceQuery): OtherAsk[] {
  * typed finds nothing like it, other spellings are asked at the same time
  * ("St Etienne" → Saint-Étienne). When the geocoder can't be reached, the
  * major cities still answer (gazetteerHits); a search the reader cancelled
- * stays cancelled.
+ * stays cancelled. `zoned` gives each place its time zone as a chart there
+ * would be cast in (searchPlaces hands in the server's own map, so a chart
+ * calculated on the device and one calculated on the server agree: on-device
+ * plan, W1-9), before the list is kept for the day.
  */
 export async function geocodePlace(
   q: string,
   language: AppLocale = "en",
   signal?: AbortSignal,
+  zoned: (hits: PlaceHit[]) => Promise<PlaceHit[]> = async (hits) => hits,
 ): Promise<PlaceHit[]> {
   const query = q.trim();
   const parsed = parsePlaceQuery(query);
@@ -495,10 +499,11 @@ export async function geocodePlace(
   // The geocoder said nothing at all: the major cities answer, but only for now (never kept, never "sure").
   if (state.failure && first.length === 0) {
     const local = gazetteerHits(query);
-    if (local.length) return local;
+    if (local.length) return zoned(local);
     throw state.failure;
   }
-  const hits = hitsOf(best, language);
+  // Each place with the zone a chart there would be cast in (`zoned`, the server's map: W1-9), kept with it.
+  const hits = await zoned(hitsOf(best, language));
   if (!state.failure) PLACE_CACHE.set(key, hits);
   return hits;
 }

@@ -282,11 +282,15 @@ test("which era a date reads, as Swiss Ephemeris names its files", () => {
   assert.deepEqual([...ALL_FILES].sort(), shipped.sort());
 });
 
-// The "calculate" door (src/lib/engine/door.ts, step 4 prepared): the server's until step 5's setting.
-const { calculateOn, makeDoor, DEV_CALCULATE_KEY } = await import("../src/lib/engine/door.ts");
+// The "calculate" door (src/lib/engine/door.ts, steps 4 and 5) and the setting it follows (choice.ts).
+const { makeDoor } = await import("../src/lib/engine/door.ts");
+const choice = await import("../src/lib/engine/choice.ts");
 
-/** A door over recorded parts; `device` answers with `natal` (or fails with it, if it is an Error). */
-function recordedDoor(where, { natal = { chart: "device" }, supported = true, zone = { zone: "Europe/Berlin", source: "coordinates" } } = {}) {
+/**
+ * A door over recorded parts; `device` answers with `natal` (or fails with it, if it is an
+ * Error), the reader answers the door's question with `answer`.
+ */
+function recordedDoor(where, { natal = { chart: "device" }, supported = true, zone = { zone: "Europe/Berlin", source: "coordinates" }, answer = "cancel", kept = null, sky = "device window" } = {}) {
   const calls = [];
   const door = makeDoor({
     where: () => where,
@@ -295,39 +299,94 @@ function recordedDoor(where, { natal = { chart: "device" }, supported = true, zo
       castTransits: async (call) => (calls.push(["server.castTransits", call.data]), "server sky"),
       castProgressions: async (call) => (calls.push(["server.castProgressions", call.data]), "server progressed"),
       castHumanDesign: async (call) => (calls.push(["server.castHumanDesign", call.data]), "server design"),
+      skyWindow: async (t0, v) => (calls.push(["server.skyWindow", t0, v]), "server window"),
+      skyYear: async (y, v) => (calls.push(["server.skyYear", y, v]), "server year"),
     },
     lookupZone: async (call) => (calls.push(["lookupZone", call.data]), zone),
     device: async () => ({
       supported: () => supported,
       engine: {
-        natal: async (data) => {
+        natal: async (data, opts) => {
           calls.push(["device.natal", data.place]);
-          const next = Array.isArray(natal) ? natal.shift() : natal;
+          const next = Array.isArray(natal) ? natal.shift() : typeof natal === "function" ? await natal(opts) : natal;
           if (next instanceof Error) throw next;
           return next;
         },
-        transits: async (data) => (calls.push(["device.transits", data.timezone]), "device sky"),
+        transits: async (data) => {
+          calls.push(["device.transits", data.timezone]);
+          if (data.timezone === "Mars/Olympus") throw new Error("E:engine.zone|Mars/Olympus");
+          return "device sky";
+        },
         progressions: async (data) => (calls.push(["device.progressions", data.timezone]), "device progressed"),
         humanDesign: async () => (calls.push(["device.humanDesign"]), "device design"),
+        skyWindow: async (t0) => {
+          calls.push(["device.skyWindow", t0]);
+          if (sky instanceof Error) throw sky;
+          return sky;
+        },
+        skyYear: async (y) => (calls.push(["device.skyYear", y]), "device year"),
       },
     }),
+    ask: async (err) => (calls.push(["ask", err.message]), answer),
+    useServer: (how) => calls.push(["useServer", how]),
+    ...(kept ? { kept } : {}),
   });
   return { door, calls };
 }
 
 const PARIS_DATA = { date: "1990-06-15", time: "12:00", latitude: 48.8566, longitude: 2.3522 };
+/** The versions a sky file is asked for and kept under (window-cache.ts and year-cache.ts pass them). */
+const WINDOW_V = { v: "3.2" };
+const YEAR_V = { v: "3.1" };
 
-test("the door: Ulune's server until the setting exists; the development flag only in development", async () => {
-  globalThis.localStorage = { getItem: (k) => (k === DEV_CALCULATE_KEY ? "device" : null) };
+/** A device's calculation that never answers: it fails as the worker's client does when its signal ends. */
+function abortedBy(signal) {
+  const error = () => Object.assign(new Error("Aborted"), { name: "AbortError" });
+  if (signal.aborted) return Promise.reject(error());
+  return new Promise((_, reject) => signal.addEventListener("abort", () => reject(error()), { once: true }));
+}
+
+/** A browser's plain storage, for the setting. */
+function withStorage(values, run) {
+  const store = new Map(Object.entries(values));
+  globalThis.localStorage = { getItem: (k) => store.get(k) ?? null, setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) };
   try {
-    assert.equal(calculateOn(), "server", "a build that is not development never reads the flag");
+    return run(store);
   } finally {
     delete globalThis.localStorage;
   }
+}
+
+test("where charts are calculated: on this device unless Ulune's server is chosen; \"once\" for this visit only", () => {
+  withStorage({}, (store) => {
+    assert.equal(choice.calculateOn(), "device", "the device by default");
+    let told = 0;
+    const stop = choice.onCalculateOn(() => (told += 1));
+    choice.setCalculateOn("server");
+    assert.equal(store.get(choice.CALCULATE_KEY), "server");
+    assert.equal(choice.calculateOn(), "server");
+    choice.setCalculateOn("device");
+    assert.equal(choice.calculateOn(), "device");
+    choice.calculateOnServerForNow();
+    assert.equal(choice.calculateOn(), "server", "Use the server once: the server for now");
+    assert.equal(choice.chosenCalculateOn(), "device", "the setting itself unchanged");
+    assert.equal(store.get(choice.CALCULATE_KEY), "device");
+    choice.setCalculateOn("device");
+    assert.equal(choice.calculateOn(), "device", "a choice in Settings ends it");
+    stop();
+    assert.equal(told, 4);
+  });
+  assert.equal(choice.calculateOn(), "device", "no storage at all (a private window): the device");
+});
+
+test("the door on the server: today's requests, the zone left to the server", async () => {
   const { door, calls } = recordedDoor("server");
   assert.deepEqual(await door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" } }), { chart: "server" });
   await door.castTransits({ data: { at: "2026-01-01T00:00:00.000Z", latitude: 1, longitude: 2, natalCusps: [], natalBodies: [], timezone: "Europe/Paris" } });
-  assert.deepEqual(calls.map((c) => c[0]), ["server.castChart", "server.castTransits"]);
+  assert.equal(await door.skyWindow(1789948800000, WINDOW_V), "server window");
+  assert.equal(await door.skyYear(2026, YEAR_V), "server year");
+  assert.deepEqual(calls.map((c) => c[0]), ["server.castChart", "server.castTransits", "server.skyWindow", "server.skyYear"]);
+  assert.deepEqual(calls.slice(2), [["server.skyWindow", 1789948800000, "3.2"], ["server.skyYear", 2026, "3.1"]], "asked for with their versions");
   assert.ok(!("timezone" in calls[1][1]), "the server's request carries no zone: it looks it up itself");
 });
 
@@ -342,18 +401,100 @@ test("the door on the device: the search's zone, else the server asked for the c
   r = recordedDoor("device", { natal: [new Error("E:engine.zone|Mars/Olympus"), { chart: "device" }] });
   assert.deepEqual(await r.door.castChart({ data: { ...PARIS_DATA, zone: "Mars/Olympus" } }), { chart: "device" });
   assert.deepEqual(r.calls.map((c) => c[0]), ["device.natal", "lookupZone", "device.natal"], "a zone the table does not know: the server's, then again");
+  // A zone chosen in the form (the Davison chart's universal time, a reader's own): the place's zone plays no part.
+  r = recordedDoor("device");
+  await r.door.castChart({ data: { ...PARIS_DATA, tz: "Etc/UTC" } });
+  assert.deepEqual(r.calls, [["device.natal", { zone: "Etc/UTC", source: "place" }]], "a chosen zone: no lookup");
+  r = recordedDoor("device");
+  await r.door.castChart({ data: { ...PARIS_DATA, tz: "+05:30" } });
+  assert.equal(r.calls[0][0], "lookupZone", "a fixed offset still names the place's zone in the chart");
   r = recordedDoor("device");
   await r.door.castProgressions({ data: { natalUtc: "1990-06-15T10:00:00.000Z", targetUtc: "2026-01-01T00:00:00.000Z", latitude: 1, longitude: 2, natalCusps: [], natalBodies: [], timezone: "Europe/Oslo" } });
   assert.deepEqual(r.calls, [["device.progressions", "Europe/Oslo"]]);
+  // A chart whose zone the table does not know: the zone of its coordinates, as the server would.
+  r = recordedDoor("device");
+  assert.equal(await r.door.castTransits({ data: { at: "2026-01-01T00:00:00.000Z", latitude: 1, longitude: 2, natalCusps: [], natalBodies: [], timezone: "Mars/Olympus" } }), "device sky");
+  assert.deepEqual(r.calls, [["device.transits", "Mars/Olympus"], ["lookupZone", { latitude: 1, longitude: 2 }], ["device.transits", "Europe/Berlin"]]);
 });
 
-test("the door never turns to the server by itself when the device cannot calculate", async () => {
+test("the sky on the device: worked out once, then from the browser's copy", async () => {
+  const shelf = new Map();
+  const kept = { get: async (k) => shelf.get(k) ?? null, put: (k, v) => shelf.set(k, v) };
+  const r = recordedDoor("device", { kept });
+  assert.equal(await r.door.skyWindow(1789948800000, WINDOW_V), "device window");
+  assert.equal(await r.door.skyWindow(1789948800000, WINDOW_V), "device window");
+  assert.equal(await r.door.skyYear(2026, YEAR_V), "device year");
+  assert.deepEqual(r.calls.map((c) => c[0]), ["device.skyWindow", "device.skyYear"], "the second time from the copy");
+  assert.deepEqual([...shelf.keys()], ["/api/sky-window?t0=1789948800000&v=3.2", "/api/sky-year?y=2026&v=3.1"], "kept under the server's own addresses");
+});
+
+test("when the device can't, the door asks the reader and never turns to the server by itself", async () => {
+  // Cancel: nothing sent, the calculation fails.
   let r = recordedDoor("device", { supported: false });
-  await assert.rejects(r.door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" } }), /E:engine\.unsupported/);
-  r = recordedDoor("device", { natal: new Error("E:engine.offline") });
-  await assert.rejects(r.door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" } }), /E:engine\.offline/);
-  await assert.rejects(r.door.castChart({ data: PARIS_DATA }), /E:engine\.offline/);
-  assert.ok(!r.calls.some((c) => c[0].startsWith("server.")), "no server call");
+  await assert.rejects(r.door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" } }), /E:engine\.declined/);
+  assert.deepEqual(r.calls, [["ask", "E:engine.unsupported"]]);
+  // Once: this calculation on the server, the setting left for the visit.
+  r = recordedDoor("device", { natal: new Error("E:engine.files|404"), answer: "once" });
+  assert.deepEqual(await r.door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" } }), { chart: "server" });
+  assert.deepEqual(r.calls.map((c) => c[0]), ["device.natal", "ask", "useServer", "server.castChart"]);
+  assert.deepEqual(r.calls[2], ["useServer", "once"]);
+  // Always: the setting changed.
+  r = recordedDoor("device", { natal: new Error("E:engine.worker"), answer: "always" });
+  await r.door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" } });
+  assert.deepEqual(r.calls[2], ["useServer", "always"]);
+  // A device that fell silent, a deadline that ran out: asked too; the server's call starts afresh.
+  r = recordedDoor("device", { natal: new Error("E:engine.timeout"), answer: "once" });
+  assert.deepEqual(await r.door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" } }), { chart: "server" });
+  // As AbortSignal.timeout ends it (its own timer would not keep this test's process alive).
+  const late = new AbortController();
+  setTimeout(() => late.abort(new DOMException("The operation timed out.", "TimeoutError")), 5);
+  const deadline = late.signal;
+  r = recordedDoor("device", {
+    answer: "once",
+    natal: (opts) => abortedBy(opts.signal),
+  });
+  assert.deepEqual(await r.door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" }, signal: deadline }), { chart: "server" });
+  assert.deepEqual(r.calls.map((c) => c[0]), ["device.natal", "ask", "useServer", "server.castChart"]);
+  // A reader who left (an abort, not a deadline): nothing asked.
+  const leave = new AbortController();
+  r = recordedDoor("device", { natal: (opts) => abortedBy(opts.signal) });
+  const left = r.door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" }, signal: leave.signal });
+  leave.abort();
+  await assert.rejects(left, /Aborted/);
+  assert.ok(!r.calls.some((c) => c[0] === "ask"));
+  // What the server would refuse too is no reason to ask.
+  r = recordedDoor("device", { natal: new Error("E:moment.range") });
+  await assert.rejects(r.door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" } }), /E:moment\.range/);
+  assert.ok(!r.calls.some((c) => c[0] === "ask" || c[0].startsWith("server.")));
+});
+
+test("after Cancel, only a new chart asks again; the questions of one moment are one", async () => {
+  const r = recordedDoor("device", { supported: false, answer: "cancel" });
+  const both = await Promise.allSettled([r.door.skyWindow(1789948800000, WINDOW_V), r.door.skyYear(2026, YEAR_V), r.door.castHumanDesign({ data: { natalUtc: "1990-06-15T10:00:00.000Z" } })]);
+  assert.ok(both.every((x) => x.status === "rejected" && /E:engine\.declined/.test(x.reason.message)));
+  assert.equal(r.calls.filter((c) => c[0] === "ask").length, 1, "three calculations, one question");
+  await assert.rejects(r.door.skyWindow(1792713600000, WINDOW_V), /E:engine\.declined/);
+  assert.equal(r.calls.filter((c) => c[0] === "ask").length, 1, "the Calendar's next chunk asks nothing");
+  await assert.rejects(r.door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" } }), /E:engine\.declined/);
+  assert.equal(r.calls.filter((c) => c[0] === "ask").length, 2, "a new chart asks again");
+  assert.ok(!r.calls.some((c) => c[0].startsWith("server.")));
+});
+
+test("offline, a device without its files says the connection is missing: the server could not answer either", async () => {
+  const had = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+  Object.defineProperty(globalThis, "navigator", { value: { onLine: false }, configurable: true });
+  try {
+    const r = recordedDoor("device", { natal: new Error("E:engine.offline") });
+    await assert.rejects(r.door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" } }), /E:net\.offline/);
+    assert.ok(!r.calls.some((c) => c[0] === "ask"));
+  } finally {
+    if (had) Object.defineProperty(globalThis, "navigator", had);
+    else delete globalThis.navigator;
+  }
+  // Online, files that can't be fetched (a filter, a captive portal): asked.
+  const r = recordedDoor("device", { natal: new Error("E:engine.offline") });
+  await assert.rejects(r.door.castChart({ data: { ...PARIS_DATA, zone: "Europe/Paris" } }), /E:engine\.declined/);
+  assert.deepEqual(r.calls.map((c) => c[0]), ["device.natal", "ask"]);
 });
 
 test("through the door, the device's answers are the server's", async () => {
@@ -361,11 +502,15 @@ test("through the door, the device's answers are the server's", async () => {
   const parts = (where) =>
     makeDoor({
       where: () => where,
+      ask: async () => "cancel",
+      useServer: () => {},
       server: {
         castChart: ({ data }) => serverCast(data),
         castTransits: ({ data }) => serverAnswer({ kind: "transits", data }),
         castProgressions: ({ data }) => serverAnswer({ kind: "progressions", data }),
         castHumanDesign: ({ data }) => serverAnswer({ kind: "humanDesign", data }),
+        skyWindow: (t0) => serverAnswer({ kind: "skyWindow", t0 }),
+        skyYear: (year) => serverAnswer({ kind: "skyYear", year }),
       },
       lookupZone: ({ data }) => zoneAt(data.latitude, data.longitude),
       device: async () => ({
@@ -375,6 +520,8 @@ test("through the door, the device's answers are the server's", async () => {
           transits: (data) => castTransits(calc, data),
           progressions: (data) => castProgressions(calc, data),
           humanDesign: (data) => castHumanDesign(calc, data),
+          skyWindow: (t0) => skyWindow(calc, t0),
+          skyYear: (year) => skyYear(calc, year),
         },
       }),
     });
@@ -388,4 +535,35 @@ test("through the door, the device's answers are the server's", async () => {
     const hd = { natalUtc: a.chart.meta.utc };
     assert.equal(JSON.stringify(await device.castHumanDesign({ data: hd })), JSON.stringify(await server.castHumanDesign({ data: hd })));
   }
+  // The Davison chart, cast in universal time chosen as its zone (lib/chart/davison.ts): no zone asked for, the server's to the last digit.
+  const davison = { date: "1988-08-24", time: "17:35:12", latitude: 47.31, longitude: 6.79, tz: "Etc/UTC", houseSystem: "placidus", timeUnknown: false };
+  const d = await device.castChart({ data: davison });
+  assert.equal(JSON.stringify(d), JSON.stringify(await server.castChart({ data: davison })));
+  assert.equal(d.chart.meta.timezone, "Etc/UTC");
+  // The sky's chunks and year files.
+  const t0 = Date.UTC(2000, 0, 1) + 300 * 32 * 864e5;
+  assert.equal(JSON.stringify(await device.skyWindow(t0, WINDOW_V)), JSON.stringify(await server.skyWindow(t0, WINDOW_V)));
+});
+
+test("the download is measured against the files' own sizes, and heard as it arrives", async () => {
+  // eras.ts FILE_BYTES: each shipped file's size, and the engine's.
+  const { FILE_BYTES } = await import("../src/lib/engine/eras.ts");
+  const { statSync } = await import("node:fs");
+  for (const name of ALL_FILES) assert.equal(FILE_BYTES[name], statSync(ROOT + "ephe/" + name).size, name);
+  assert.equal(FILE_BYTES["swisseph.wasm"], statSync(ROOT + "node_modules/sweph-wasm/dist/wasm/swisseph.wasm").size);
+  // The first start: every byte heard, against the startup files' and the engine's sizes; then done.
+  const heard = [];
+  const net = site();
+  const caches = memoryCaches();
+  const files = browserFiles(URLS, { fetch: net.fetch, caches, base: ORIGIN, onProgress: (p) => heard.push(p) });
+  await new Calculator(files).ready();
+  const total = [...STARTUP_FILES, "swisseph.wasm"].reduce((n, f) => n + FILE_BYTES[f], 0);
+  const last = heard.at(-1);
+  assert.ok(heard.length > 3, `${heard.length} reports`);
+  assert.ok(last.done && last.loaded === total && last.total === total, JSON.stringify(last));
+  assert.ok(heard.every((p, i) => i === 0 || p.loaded >= heard[i - 1].loaded || heard[i - 1].done), "it only grows");
+  // The next start reads the browser's copy: nothing to hear.
+  const again = [];
+  await new Calculator(browserFiles(URLS, { fetch: site().fetch, caches, base: ORIGIN, onProgress: (p) => again.push(p) })).ready();
+  assert.deepEqual(again, []);
 });

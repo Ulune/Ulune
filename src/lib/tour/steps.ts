@@ -82,8 +82,8 @@ export const TOUR_STEPS: readonly TourStep[] = [
     targets: ['[data-testid="view-table"]'],
     title: ["Wheel or table", "Roue ou tableau"],
     body: [
-      "Prefer numbers? Table shows the same chart as positions to the arc-second.",
-      "Vous préférez les chiffres\u202f? Le tableau montre le même thème, positions à la seconde d’arc.",
+      "Prefer numbers? Table shows the same chart as positions to the arc-second. Compare, beside it, sets a second person’s chart next to this one.",
+      "Vous préférez les chiffres\u202f? Le tableau montre le même thème, positions à la seconde d’arc. Comparer, juste à côté, place le thème d’une autre personne près de celui-ci.",
     ],
   },
   {

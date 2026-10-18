@@ -8,7 +8,9 @@ import { cn } from "@/lib/utils";
 import { ChartsNav } from "@/studio/shell/ChartsNav";
 import { AspectSlotContext, ExportSlotContext, MoreSlotsContext, RingsSlotContext, TableTabsSlotContext, ZoomSlotContext, type MoreSlots } from "@/studio/stage/stage-slots";
 import { ExportMenu } from "@/studio/stage/ExportMenu";
+import { ShowButton } from "@/studio/show/show-button";
 import { KeepOffer } from "@/components/space/keep-offer";
+import { CompareButton } from "@/studio/compare/CompareButton";
 import { useStudioStore } from "@/studio/store";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { useKeptScroll } from "@/studio/return-parts";
@@ -120,6 +122,7 @@ export function Stage({
   swapKey,
   viewIntent,
   overlay,
+  beside,
 }: {
   children: ReactNode;
   caption?: ReactNode;
@@ -135,6 +138,8 @@ export function Stage({
   viewIntent?: () => void;
   /** Something standing over the figure for a moment (the offer to keep Ulune here). */
   overlay?: ReactNode;
+  /** Over the figure and its footer, under the toolbar, kept across pages and views (Compare, studio/compare). */
+  beside?: ReactNode;
 }) {
   const [zoomSlot, setZoomSlot] = useState<HTMLElement | null>(null);
   const [aspectSlot, setAspectSlot] = useState<HTMLElement | null>(null);
@@ -227,7 +232,9 @@ export function Stage({
                 <span className="contents" onPointerEnter={viewIntent} onFocusCapture={viewIntent}>
                   <ViewToggle />
                 </span>
+                <CompareButton />
                 <ExportMenu extraSlot={setExportSlot} />
+                <ShowButton />
                 <MoreButton open={moreOpen} setOpen={setMoreOpen} viewIntent={viewIntent} anchor={moreRef} />
                 {moreOpen ? (
                   <Suspense fallback={null}>
@@ -264,6 +271,7 @@ export function Stage({
             <div ref={setAspectSlot} className="ob-aspect-slot" data-testid="aspect-slot" />
           </div>
         )}
+        {beside}
       </section>
     </TableTabsSlotContext.Provider>
     </MoreSlotsContext.Provider>

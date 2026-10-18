@@ -178,7 +178,9 @@ test("hostile links are refused, each for its reason", async () => {
     ["#1.abc", "shape"],
     ["#1.a.b.c", "shape"],
     [`#${"x".repeat(MAX_FRAGMENT + 1)}`, "long"],
-    [`#2.${key}.${sealed}`, "newer"],
+    // Version 2 is the typed link (a request, idea B4: scripts/share-request.test.mjs): a share's seal does not hold under it.
+    [`#2.${key}.${sealed}`, "sealed"],
+    [`#3.${key}.${sealed}`, "newer"],
     [`#999.${key}.${sealed}`, "newer"],
     [`#0.${key}.${sealed}`, "version"],
     [`#01.${key}.${sealed}`, "version"],

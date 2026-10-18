@@ -89,6 +89,28 @@ export async function zoneAt(latitude: number, longitude: number, hint?: string 
   return { zone: "Etc/UTC", source: "approximate" };
 }
 
+/**
+ * The places a search found, each with the zone a chart there is cast in: geo-tz's map, the
+ * geocoder's zone as the tie-break (zoneAt), so a chart calculated on the reader's device from
+ * the place's zone is the one this server calculates (on-device plan, W1-9). Where nothing but
+ * a coarse guess knows the place, it keeps the geocoder's zone (or none, and a device then asks
+ * for the zone of its coordinates). geo-tz keeps each region of its map once read: a search in a
+ * region already read costs a fraction of a millisecond a place (the cold cost: npm run budgets).
+ */
+export async function zonedPlaces<T extends { latitude: number; longitude: number; timezone: string }>(hits: T[]): Promise<T[]> {
+  const out: T[] = [];
+  for (const hit of hits) {
+    const z = await zoneAt(hit.latitude, hit.longitude, hit.timezone);
+    out.push(z.source === "approximate" || z.zone === hit.timezone ? hit : { ...hit, timezone: z.zone });
+  }
+  return out;
+}
+
+/** Start loading geo-tz's map now (a search's call to the geocoder runs meanwhile). */
+export function warmZones(): void {
+  void geoTz();
+}
+
 /** Resolve a birth's local date/time and place to UTC, with how it was done. */
 export async function resolveBirthMoment(input: BirthInput): Promise<BirthMoment> {
   const place = await zoneAt(input.latitude, input.longitude, input.zone);

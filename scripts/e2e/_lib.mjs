@@ -33,6 +33,40 @@ export const FIXTURE_B = {
   place: "Oslo, Norway",
 };
 
+/**
+ * Where the run's charts are calculated (on-device plan, step 7): on the device, the app's
+ * default, unless ULUNE_CALCULATE=server, which sets Settings › "Where charts are calculated" to
+ * Ulune's server in every page of every browser the run opens (unless a page set it itself).
+ */
+export const CALCULATE = process.env.ULUNE_CALCULATE === "server" ? "server" : "device";
+if (CALCULATE === "server" && !chromium.__uluneServer) {
+  const onServer = () => {
+    try {
+      if (!localStorage.getItem("ulune.calculate")) localStorage.setItem("ulune.calculate", "server");
+    } catch {
+      /* no storage: the app's default */
+    }
+  };
+  const launch0 = chromium.launch.bind(chromium);
+  chromium.__uluneServer = true;
+  chromium.launch = async (...args) => {
+    const browser = await launch0(...args);
+    const newContext = browser.newContext.bind(browser);
+    const newPage = browser.newPage.bind(browser);
+    browser.newContext = async (...a) => {
+      const context = await newContext(...a);
+      await context.addInitScript(onServer);
+      return context;
+    };
+    browser.newPage = async (...a) => {
+      const page = await newPage(...a);
+      await page.context().addInitScript(onServer);
+      return page;
+    };
+    return browser;
+  };
+}
+
 export async function launch(size) {
   const viewport = typeof size === "number" ? VIEWPORTS[size] : size;
   const browser = await chromium.launch({
@@ -145,7 +179,19 @@ export async function castFixture(page, fixture) {
     await page.getByTestId("birth-count").selectOption(fixture.chineseCount);
   }
   await page.getByTestId("cast-submit").click();
-  await page.getByTestId("studio-natal").waitFor({ timeout: 45000 });
+  // The chart, or the engine's question when this device could not calculate it (on-device plan,
+  // step 5): said at once, with its reason, rather than as a chart that never came.
+  await page.waitForFunction(
+    () => {
+      const natal = document.querySelector("[data-testid=studio-natal]");
+      return Boolean(document.querySelector("[data-testid=engine-ask]")) || Boolean(natal && natal.getClientRects().length && getComputedStyle(natal).visibility !== "hidden");
+    },
+    null,
+    { timeout: 45000 },
+  );
+  const asked = await page.evaluate(() => document.querySelector("[data-testid=engine-ask]")?.getAttribute("data-why") ?? null);
+  if (asked) throw new Error(`castFixture: the device could not calculate ${fixture.name}'s chart (${asked})`);
+  await page.getByTestId("studio-natal").waitFor({ timeout: 10000 });
   // With a space, a reload right after the cast must find the chart kept.
   if (spaced) {
     const until = Date.now() + 8000;
@@ -357,8 +403,24 @@ export async function createSpace(page, pass = PASSPHRASE, { shared = false } = 
   await page.getByTestId("space-use-passphrase").click();
   await page.getByTestId("space-pass").fill(pass);
   await page.getByTestId("space-pass-again").fill(pass);
+  // Both read back before Create: a field that lost what was typed (seen once, "The two don't match",
+  // in a browser profile kept on disk) is filled again, and said, rather than failing the suite there.
+  for (let i = 0; i < 2; i += 1) {
+    const [a, b] = await Promise.all(["space-pass", "space-pass-again"].map((id) => page.getByTestId(id).inputValue()));
+    if (a === pass && b === pass) break;
+    console.log(`createSpace: the passphrase fields held ${a.length} and ${b.length} characters of ${pass.length}; filled again`);
+    if (a !== pass) await page.getByTestId("space-pass").fill(pass);
+    if (b !== pass) await page.getByTestId("space-pass-again").fill(pass);
+  }
   await page.getByTestId("space-create").click();
-  await page.getByTestId("space-code").waitFor({ timeout: 30000 });
+  await page.getByTestId("space-code").waitFor({ timeout: 30000 }).catch(async (err) => {
+    // What the sheet showed instead of the recovery code (its step, an error it said).
+    const said = await page.evaluate(() => {
+      const sheet = document.querySelector("[data-testid=space-sheet]");
+      return sheet ? `step ${sheet.getAttribute("data-step")}: ${(sheet.querySelector("[role=alert]")?.textContent ?? "").trim() || "no error shown"}` : "no sheet";
+    }).catch(() => "page gone");
+    throw new Error(`createSpace: no recovery code (${said}): ${err instanceof Error ? err.message.split("\n")[0] : err}`);
+  });
   const code = (await page.getByTestId("space-code").innerText()).trim();
   await page.getByTestId("space-code-kept").check();
   await page.getByTestId("space-done").click();
@@ -454,8 +516,47 @@ export function serverFnName(url) {
   }
 }
 
-/** The next cast's answer ({ chart, timeUnknown }), decoded as the page receives it. */
+/**
+ * The next cast's answer ({ chart, timeUnknown }), as the page receives it: from Ulune's server
+ * (its answer decoded), or from the device's engine, which the development build's "calculate"
+ * door announces ("ulune:calculated", lib/engine/door.ts). Called before the cast, even before
+ * the page opens: the device's announcement is listened for again on each page the tab opens (a
+ * navigation ends a page's own listener).
+ */
 export function nextCastAnswer(page) {
+  if (CALCULATE === "device") {
+    return new Promise((resolve) => {
+      let done = false;
+      const listen = () => {
+        if (done) return;
+        page
+          .evaluate(
+            () =>
+              new Promise((heard) => {
+                const on = (e) => {
+                  if (e.detail?.kind !== "natal" || !e.detail.answer?.chart) return;
+                  window.removeEventListener("ulune:calculated", on);
+                  heard(e.detail.answer);
+                };
+                window.addEventListener("ulune:calculated", on);
+              }),
+          )
+          .then(
+            (answer) => {
+              if (done) return;
+              done = true;
+              page.off("domcontentloaded", listen);
+              resolve(answer);
+            },
+            () => {
+              /* the page went on: heard on the next one */
+            },
+          );
+      };
+      page.on("domcontentloaded", listen);
+      listen();
+    });
+  }
   return new Promise((resolve) => {
     const on = async (r) => {
       if (!serverFnName(r.url()).startsWith("castChart")) return;

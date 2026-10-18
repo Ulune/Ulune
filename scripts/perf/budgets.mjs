@@ -8,7 +8,7 @@
 // bundle  what "/" downloads for a returning reader (npm run build, serve.mjs on :9311)
 // scrub   wheel updates per second while the scrubber is dragged (the same served build)
 // engine  the calculations on the device: what a browser downloads (the build's own files) and
-//         the engine's times with the CPU slowed 6× (scripts/perf/engine/timing.mjs)
+//         the engine's times with the CPU slowed 4× and 6× (scripts/perf/engine/timing.mjs)
 // chinese what each Chinese language's pages download after "/", the term table, and the BaZi
 //         and Flying Star engines' time with the CPU slowed 6× (the same served build)
 //
@@ -84,6 +84,14 @@ if (want.has("server")) {
   // With the sky's own events since part 53 (about 130 a chunk, found and polished on Swiss).
   check("server", "scrub window chunk", t() - s, 300, "ms");
   check("server", "scrub window chunk, size", JSON.stringify(win).length / 1024, 45, "KB");
+  // The place search's zones (on-device plan, W1-9, 17 Oct 2026): each place found comes with the zone of
+  // the server's map, so a chart calculated on the device agrees with the server's. In a process of its own,
+  // as a server function starts: the module, geo-tz's index and the regions of eight places scattered over
+  // four continents, 170–260 ms (the first cast paid it before); then 0.03–0.08 ms for the eight (geo-tz keeps
+  // what it read, and each search's list is kept a day anyway).
+  const zones = jsonOf(nodeTs([join(ROOT, "scripts/perf/zones-bench.mjs")]));
+  check("server", "a search's 8 places zoned, server cold", zones.cold, 800, "ms");
+  check("server", "a search's 8 places zoned, warm", zones.warm, 2, "ms");
 }
 
 if (want.has("3d")) {
@@ -191,6 +199,15 @@ if (want.has("bundle")) {
   // wheel's chunk, which AI is called directly moved to lib/ai/providers.ts, the dormant AI plumbing
   // went behind AI_ENABLED and the offline offer's card loads when it asks: 272.2, 273.4 when the small
   // chunks land, as before the week.
+  // Week 2 (17 Oct 2026) took it to 274.6, 275.9 with the small chunks (276.2–277.3 before the device's
+  // own trims): Show mode's button and host, the flip between the last two charts, the switcher's rows and
+  // asking for someone's chart, 1.1; Compare's button, its rows, its record and the C key, 0.7; the
+  // calculations' setting in the birth form's note, 0.2. The review moved out of the first load what acts
+  // only once pressed: Share and export's items (export-items.tsx, fetched as its button is pointed at,
+  // focused or pressed, or at idle: 1.1 of the menu's own), each switcher row's "Compare with…" (with
+  // the switcher's other rows, picker-extras.tsx), the flip's history cut to two ids checked when
+  // offered, one Compare switch for the button, the C key, ⋯ and Show mode: 273.1, 274.3 when the small
+  // chunks land within the load. The limit stays 276.
   check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 276, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
@@ -210,9 +227,12 @@ if (want.has("bundle")) {
   // reorganisation, R2–R5 (7 Oct 2026): the sections and lens bars in the shell's
   // sheet, the Calendar's layers menu and its sky without a chart: 52.2, limit 53;
   // the sheets the first paint waits for stay within their 32.5. Languages plan, part 6
-  // (9 Oct): the solar terms in the Calendar's day, year and key, 0.3: 53.1, limit 53.5.)
+  // (9 Oct): the solar terms in the Calendar's day, year and key, 0.3: 53.1, limit 53.5. 2.0's week 2
+  // (17 Oct): Compare's toolbar button, its look folded into the rules it shares: 53.47 -> 53.50, a hair
+  // under; the next rule here needs room made first.)
   check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 53.5, "KB gz");
-  const largest = Math.max(...home.files.filter((f) => f.type === "script").map((f) => f.gz ?? 0));
+  // (The engine's worker, fetched when a chart is first calculated on the device, has its own row: engine.)
+  const largest = Math.max(...home.files.filter((f) => f.type === "script" && !/\/engine-worker-/.test(f.file)).map((f) => f.gz ?? 0));
   // (The natal wheel's chunk: 79.4-80.2 since parts 96-97, as shared modules land in it or not; limit 81.
   // 77.4 since R6, TanStack Start's client and the helpers the other pages share having left it.)
   check("bundle", "largest script", largest / 1024, 81, "KB gz");
@@ -340,16 +360,40 @@ if (want.has("engine")) {
   // 118 ms (324 ms the first visit, its files from a local server), a natal chart 32 ms, a Timing year
   // 2.48 s; unslowed 17 ms, 9.7 ms and 0.40 s. Limits: the sizes a few per cent above, the times
   // about half again (this machine's timings vary by a third from run to run).
-  const ENGINE_LIMITS = { workerKb: 100, firstMb: 2.2, eraMb: 1.8, startMs: 200, natalMs: 50, yearMs: 3700 };
+  // Step 6 (17 Oct 2026, the device the default): the first chart (its files from a local server, the
+  // engine started, the chart cast) 0.37 s unslowed, 0.40 s at 4× (a loop 2.9× slower), 0.69 s at 6×
+  // (5.3×); over a real connection add the 2.2 MB's download, about 2 s on 4G and 10 s on a slow 3G
+  // line, once. A Timing year 0.37, 1.61 and 2.52 s. The Calendar's own work on a device, in the
+  // background and once (its files are kept by the browser): a year's sky file 0.75, 3.2 and 4.8 s; a year
+  // view's 13 chunks 1.4, 7.2 and 12.3 s (a month's two or three, 0.3, 1.5 and 2.5 s).
+  const ENGINE_LIMITS = {
+    workerKb: 100,
+    firstMb: 2.2,
+    eraMb: 1.8,
+    startMs: 200,
+    natalMs: 50,
+    yearMs: 3700,
+    firstChartMs4: 1200,
+    firstChartMs6: 1500,
+    yearMs4: 2800,
+    skyYearMs6: 7500,
+    calendarYearMs6: 18000,
+  };
   check("engine", "the worker's script", brKb(worker), ENGINE_LIMITS.workerKb, "KB br");
   check("engine", "first download: worker, engine, 1800–2399 files", sum(first) / 1024, ENGINE_LIMITS.firstMb, "MB br");
   check("engine", "an earlier era (1200–1799)", sum(era("_12")) / 1024, ENGINE_LIMITS.eraMb, "MB br");
   const timing = jsonOf(nodeTs([join(ROOT, "scripts/perf/engine/timing.mjs"), "--json"]));
-  const x6 = timing.x6;
+  const { x4, x6 } = timing;
+  check("engine", "the first chart (download, start, cast), CPU 4× slower", x4.firstChart, ENGINE_LIMITS.firstChartMs4, "ms");
+  check("engine", "the first chart (download, start, cast), CPU 6× slower", x6.firstChart, ENGINE_LIMITS.firstChartMs6, "ms");
   check("engine", "engine start from the browser's copy, CPU 6× slower", x6.keptStart, ENGINE_LIMITS.startMs, "ms");
   check("engine", "a natal chart, CPU 6× slower", x6.natal.median, ENGINE_LIMITS.natalMs, "ms");
+  check("engine", "a Timing year, CPU 4× slower", x4.timingYear.median, ENGINE_LIMITS.yearMs4, "ms");
   check("engine", "a Timing year, CPU 6× slower", x6.timingYear.median, ENGINE_LIMITS.yearMs, "ms");
-  check("engine", "the slowdown those timings ran under (a fixed loop)", x6.slowdown, 3.5, "×", "higher");
+  check("engine", "the Calendar: a year's sky file, CPU 6× slower", x6.skyYear.median, ENGINE_LIMITS.skyYearMs6, "ms");
+  check("engine", "the Calendar: a year view's chunks, CPU 6× slower", x6.calendarYear.median, ENGINE_LIMITS.calendarYearMs6, "ms");
+  check("engine", "the slowdown the 4× timings ran under (a fixed loop)", x4.slowdown, 2.4, "×", "higher");
+  check("engine", "the slowdown the 6× timings ran under (a fixed loop)", x6.slowdown, 3.5, "×", "higher");
 }
 
 let failed = 0;

@@ -1,0 +1,230 @@
+/*
+ * Show mode (share and compare plan, idea B2): the page as a presentation,
+ * all under html[data-show], which show-mode.tsx sets while it is on. Loaded
+ * with Show mode's code, never with the first page. The page's own layout
+ * stays as it is (its figure, the side panel's reading, Compare's panes);
+ * only what frames it goes, and the reading's type grows with the screen.
+ */
+
+html[data-show] {
+  /* The reading's type, and the pages drawn at a set size: larger as the screen grows. */
+  --show-read: 1.1;
+  --show-larger: 1;
+  /* The reading beside the figure, on a wide or sideways screen. */
+  --show-side: clamp(22rem, 34vw, 48rem);
+}
+@media (min-width: 1280px) {
+  html[data-show] {
+    --show-read: 1.2;
+    --show-larger: 1.12;
+  }
+}
+@media (min-width: 1600px) and (min-height: 860px) {
+  html[data-show] {
+    --show-read: 1.35;
+    --show-larger: 1.28;
+  }
+}
+
+/* What frames the page goes: the top bar, the sections, the toolbar, the footer, the zoom, the hints, Compare's own bar. */
+html[data-show] :is(.ob-top, .ob-sections, .ob-stage:not(.ob-stage--scope) > .ob-strip, .ob-foot, .ob-zoom-slot, .ulune-wheel-hint, .ob-offline-offer, .ob-skip, .ob-compare-bar) {
+  display: none !important;
+}
+/* Compare's panes keep whose chart each is (their label), not their controls. */
+html[data-show] .ob-stage--scope > .ob-strip > :not(.ob-scope-label) {
+  display: none !important;
+}
+html[data-show] .ob-app {
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  grid-template-areas: "body";
+}
+html[data-show] .ob-panel-pane {
+  zoom: var(--show-read);
+}
+/* The Chinese pages and numerology, drawn at a set size: larger where there is room. */
+html[data-show][data-show-larger] .ob-figure > :not(.ob-zoom-slot) {
+  zoom: var(--show-larger);
+}
+
+/* A computer, a TV: the reading in a wider column beside the figure, without its tabs. */
+@media (min-width: 1024px) {
+  html[data-show] .ob-panel {
+    width: var(--show-side);
+  }
+  html[data-show] .ob-panel-head {
+    display: none;
+  }
+  /* Compare's two charts with the reading from the bottom (a laptop's width, studio/compare): its
+     sheet keeps its head, where a choice's card and its Read wait while it is folded; only its tabs go. */
+  html[data-show] .ob-body[data-compare-sheet] > .ob-panel {
+    width: auto;
+  }
+  html[data-show] .ob-body[data-compare-sheet] > .ob-panel .ob-panel-head {
+    display: flex;
+  }
+  html[data-show] .ob-body[data-compare-sheet] :is(.ob-panel-tabs, .ob-panel-actions) {
+    visibility: hidden;
+  }
+}
+
+/* A phone or a tablet upright: the reading in the sheet under the figure, its handle kept to pull it up or down. */
+@media (max-width: 1023.98px) {
+  html[data-show] :is(.ob-panel-tabs, .ob-panel-actions) {
+    visibility: hidden;
+  }
+}
+
+/* Held sideways: the reading beside the figure, as on a computer. */
+@media (max-width: 1023.98px) and (orientation: landscape) {
+  html[data-show] {
+    --show-side: min(44vw, 26rem);
+  }
+  html[data-show] .ob-body[data-panel="on"] .ob-stage {
+    inset: 0 var(--show-side) 0 0 !important;
+  }
+  html[data-show] .ob-panel {
+    top: 0;
+    left: auto;
+    width: var(--show-side);
+    border-top: 0;
+    border-left: 1px solid var(--color-border);
+    border-radius: 0;
+    box-shadow: none;
+    transform: none !important;
+    transition: none;
+  }
+  html[data-show] .ob-panel-head {
+    display: none;
+  }
+  html[data-show] .ob-panel-body {
+    max-height: none !important;
+    visibility: visible !important;
+  }
+}
+
+/* The bar: at the top, when the mouse moves or the screen is tapped; there while pointed at or while the
+   keyboard is in it (a button pressed with the mouse keeps the focus, not the bar). */
+.ob-show-bar {
+  position: fixed;
+  z-index: 85;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: max(6px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 6px max(16px, env(safe-area-inset-left));
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 90%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  opacity: 0;
+  transform: translateY(-100%);
+  pointer-events: none;
+  transition:
+    opacity var(--dur-out, 180ms) var(--ease-out, ease-out),
+    transform var(--dur-out, 180ms) var(--ease-out, ease-out);
+}
+.ob-show-bar[data-shown],
+.ob-show-bar:has(:focus-visible) {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.ob-show-where {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.ob-show-page {
+  font-family: var(--font-display, "Fraunces", serif);
+  font-size: 19px;
+}
+.ob-show-dot {
+  color: var(--color-fg-subtle);
+}
+.ob-show-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-fg-muted);
+}
+.ob-show-keys {
+  flex: 0 1 auto;
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--color-fg-muted);
+  white-space: nowrap;
+}
+.ob-show-tools {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+}
+.ob-show-leave {
+  gap: 6px;
+}
+/* The keys are a keyboard's: not on a narrow screen, nor where fingers tap. */
+@media (max-width: 899.98px), (pointer: coarse) {
+  .ob-show-keys {
+    display: none;
+  }
+}
+@media (pointer: coarse) {
+  .ob-show-bar .ob-show-btn,
+  .ob-show-bar .ob-show-leave {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+@media (max-width: 479.98px) {
+  .ob-show-leave > span {
+    display: none;
+  }
+}
+
+/* A phone held upright: once, the hint to turn it. */
+.ob-show-rotate {
+  position: fixed;
+  z-index: 84;
+  top: calc(max(6px, env(safe-area-inset-top)) + 58px);
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  padding: 8px 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-bg-elevated);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.24);
+  color: var(--color-fg);
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  line-height: 1.35;
+  transform: translateX(-50%);
+  /* A hint, never in the way: a tap goes through to the chart under it. */
+  pointer-events: none;
+  animation: ob-pop-in var(--dur-swap, 220ms) var(--ease-out, ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ob-show-bar {
+    transform: none;
+    transition: none;
+  }
+  .ob-show-rotate {
+    animation: none;
+  }
+}

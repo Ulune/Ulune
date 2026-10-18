@@ -1,7 +1,7 @@
 import { browserZone } from "@/lib/chart/client-zone";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
-import { castProgressions } from "@/lib/chart/functions";
+import { door } from "@/lib/engine/door";
 import { usePack } from "@/lib/content/packs";
 import { progressedUtcFromNatal, yearsOfLife } from "@/lib/chart/progressions";
 import { isAbort, lru } from "@/lib/chart/result-cache";
@@ -153,18 +153,21 @@ export function useProgressions() {
     const handle = window.setTimeout(() => {
       if (!ready.current) setBusy(true);
       setError(null);
-      void castProgressions({
-        data: {
-          natalUtc: natalUtc.toISOString(),
-          targetUtc: new Date(at).toISOString(),
-          latitude: chart.meta.latitude,
-          longitude: chart.meta.longitude,
-          natalCusps,
-          natalBodies,
-          houseSystem: chart.meta.houseSystem,
-        },
-        signal: ctrl.signal,
-      })
+      // Through the "calculate" door: this device or Ulune's server, as Settings says (on-device plan, step 4).
+      void door
+        .castProgressions({
+          data: {
+            natalUtc: natalUtc.toISOString(),
+            targetUtc: new Date(at).toISOString(),
+            latitude: chart.meta.latitude,
+            longitude: chart.meta.longitude,
+            natalCusps,
+            natalBodies,
+            houseSystem: chart.meta.houseSystem,
+            timezone: chart.meta.timezone,
+          },
+          signal: ctrl.signal,
+        })
         .then((next) => {
           skyCache.set(key, next);
           if (n !== gen.current) return;

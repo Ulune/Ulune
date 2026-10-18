@@ -33,7 +33,12 @@ export function davisonMoment(a: NatalChart, b: NatalChart): DavisonMoment | nul
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** The cast's date and time, in universal time ("+00:00"), to the second. */
+/**
+ * The cast's date and time, in universal time, to the second. Universal time is chosen as the
+ * chart's zone (Etc/UTC), so the halfway place's own zone plays no part: a chart calculated on
+ * the device needs no zone from Ulune's server for it (on-device plan, step 4), and the chart
+ * says the time it was cast in.
+ */
 export function davisonCastInput(m: DavisonMoment) {
   const u = m.utc;
   return {
@@ -41,6 +46,6 @@ export function davisonCastInput(m: DavisonMoment) {
     time: `${pad(u.getUTCHours())}:${pad(u.getUTCMinutes())}:${pad(u.getUTCSeconds())}`,
     latitude: Number(m.latitude.toFixed(6)),
     longitude: Number(m.longitude.toFixed(6)),
-    tz: "+00:00",
+    tz: "Etc/UTC",
   };
 }

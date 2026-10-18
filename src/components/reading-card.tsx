@@ -17,6 +17,7 @@ import { useChartView } from "@/lib/chart/use-chart-view";
 import type { ReadingLink } from "@/lib/chart/types";
 import { lazyNamed } from "@/lib/lazy-component";
 import { CHINESE_READING, LIVE_FAMILIES } from "@/lib/chinese/term-live";
+import { useDomIds } from "@/studio/scope";
 
 // The entries of what a chart reading is about (encyclopedia part 7): their own download.
 const ReadingTerms = lazyNamed(() => import("@/encyclopedia/ReadingTerms"), "ReadingTerms");
@@ -197,6 +198,8 @@ export function ReadingCard({
 }) {
   const { t } = useI18n();
   const color = useMarkColor(reading, chart);
+  // A Compare pane's reading names itself with its letter (studio/scope.tsx): two cards side by side, two ids.
+  const titleId = useDomIds()("ob-rc-title");
   const linked = (text: string) =>
     tradition ? (
       <Suspense fallback={text}>
@@ -238,7 +241,7 @@ export function ReadingCard({
       data-kind={reading.kind}
       data-depth={depth}
       style={{ ["--rc-tint" as string]: color }}
-      aria-labelledby="ob-rc-title"
+      aria-labelledby={titleId}
     >
       {back && onBack ? (
         <button type="button" className="ob-rc-back" data-testid="reading-back" onClick={onBack}>
@@ -253,7 +256,7 @@ export function ReadingCard({
           </span>
         ) : null}
         <div className="ob-rc-heading">
-          <h2 id="ob-rc-title" className="ob-rc-title">
+          <h2 id={titleId} className="ob-rc-title">
             {reading.title}
           </h2>
           {reading.kicker && !reading.facts?.length ? <p className="ob-rc-kicker">{reading.kicker}</p> : null}

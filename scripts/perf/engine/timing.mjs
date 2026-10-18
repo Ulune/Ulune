@@ -1,8 +1,10 @@
 // The calculations on the device in Chromium, unslowed and with the CPU slowed 4× and 6× (CDP
 // Emulation.setCPUThrottlingRate: a mid-range and a cheap phone), as the on-device plan's
-// timings table and its step 6 ask: the engine's start (the first visit, its files downloaded; a
-// return visit, its files from the browser's copy), a natal chart, Human Design, a Timing month,
-// a scrub-window chunk, progressions and transits with their exact times, a Timing year.
+// timings table and its step 6 ask: the first chart (its files downloaded from a local server, the
+// engine started, the chart cast), the engine's start (the first visit; a return visit, its files
+// from the browser's copy), a natal chart, Human Design, a Timing month, a scrub-window chunk,
+// progressions and transits with their exact times, a Timing year, and the Calendar's own work on
+// a device (a year's sky file, a year's chunks).
 // Bundles timing-entry.ts with rolldown into scripts/perf/.out/engine/, serves it with the
 // engine's files (ephe/, swisseph.wasm) on a local port, and runs it on a page's main thread
 // (the protocol does not slow workers; the worker runs the same code). Medians.
@@ -86,6 +88,7 @@ if (process.argv.includes("--json")) console.log(JSON.stringify(result));
 else {
   const ms = (x) => (typeof x === "number" ? x : x.median);
   const rows = [
+    ["the first chart (download, start, cast)", "firstChart"],
     ["engine start, first visit (download, compile, mount)", "coldStart"],
     ["engine start, from the browser's copy", "keptStart"],
     ["a natal chart", "natal"],
@@ -95,6 +98,8 @@ else {
     ["progressions at one moment", "progressions"],
     ["transits at one moment, with exact times", "transits"],
     ["Timing, a year", "timingYear"],
+    ["the year's sky file (the Calendar)", "skyYear"],
+    ["the Calendar's year: its 13 chunks", "calendarYear"],
   ];
   console.log(`${"".padEnd(52)} ${Object.entries(result).map(([k, r]) => `${k} (${r.slowdown.toFixed(1)}×)`.padStart(14)).join(" ")}`);
   for (const [label, key] of rows) {

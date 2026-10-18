@@ -1,13 +1,14 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LoadingLines } from "@/components/loading-lines";
-import { useI18n } from "@/lib/i18n/locale";
+import { localeChosen, useI18n } from "@/lib/i18n/locale";
 import { bookT } from "@/lib/i18n/words-book";
 import { shareWords } from "@/lib/i18n/catalog/share-words";
 import { importWithRetry } from "@/lib/lazy-retry";
 import { ShareLinkError } from "@/lib/share/bytes";
 import type { SharePayload } from "@/lib/share/format";
-import { readShareFragment } from "@/lib/share/link";
+import { readLink } from "@/lib/share/link";
+import type { ChartRequest } from "@/lib/share/request";
 import "./share.css";
 
 /*
@@ -19,9 +20,13 @@ import "./share.css";
  * link names (lib/share/arrive.ts). A link that does not read says so, in
  * the reader's language, with a way into Ulune; a cast that fails (offline)
  * can be tried again with what was read.
+ *
+ * A link asking for the reader's chart (idea B4) opens the birth form
+ * instead, in the asker's language unless the reader chose one on this
+ * device (for this visit only: it is not saved as their choice).
  */
 
-type Shown = "opening" | "broken" | "newer" | "failed";
+type Shown = "opening" | "asking" | "broken" | "newer" | "failed";
 
 /**
  * The part after "#", taken out of the address bar (the page's history
@@ -40,11 +45,12 @@ function takeFragment(): string {
 }
 
 export function ShareLanding() {
-  const { t: tc, locale } = useI18n();
+  const { t: tc, locale, setLocale } = useI18n();
   const t = bookT(shareWords, tc, locale);
   const router = useRouter();
   const [shown, setShown] = useState<Shown>("opening");
   const payload = useRef<SharePayload | null>(null);
+  const [asker, setAsker] = useState<string | null>(null);
   const busy = useRef(false);
   const localeRef = useRef(locale);
   localeRef.current = locale;
@@ -68,11 +74,38 @@ export function ShareLanding() {
     [router],
   );
 
+  const ask = useCallback(
+    async (request: ChartRequest) => {
+      if (busy.current) return;
+      busy.current = true;
+      setAsker(request.asker ?? null);
+      setShown("asking");
+      // The asker's language, unless the reader chose one here: for this visit, never saved.
+      const lang = request.lang && !localeChosen() ? request.lang : localeRef.current;
+      if (lang !== localeRef.current) setLocale(lang, false);
+      try {
+        const { receiveRequest } = await importWithRetry(() => import("@/lib/share/arrive"));
+        await receiveRequest(request, (href) => router.navigate({ href, replace: true }), lang);
+        taken = "";
+      } catch {
+        setShown("broken");
+      } finally {
+        busy.current = false;
+      }
+    },
+    [router, setLocale],
+  );
+
   useEffect(() => {
     const arrive = async () => {
       const fragment = takeFragment();
       try {
-        payload.current = await readShareFragment(fragment);
+        const link = await readLink(fragment);
+        if (link.kind === "request") {
+          await ask(link.request);
+          return;
+        }
+        payload.current = link.share;
       } catch (err) {
         setShown(err instanceof ShareLinkError && err.reason === "newer" ? "newer" : "broken");
         return;
@@ -86,7 +119,7 @@ export function ShareLanding() {
     };
     window.addEventListener("hashchange", again);
     return () => window.removeEventListener("hashchange", again);
-  }, [open]);
+  }, [open, ask]);
 
   return (
     <div className="min-h-dvh" data-testid="share-page" data-state={shown}>
@@ -96,10 +129,12 @@ export function ShareLanding() {
         </Link>
       </header>
       <main className="ob-share-landing">
-        {shown === "opening" ? (
+        {shown === "opening" || shown === "asking" ? (
           <>
-            <h1 className="ob-share-landing-title font-display">{t("sharePageTitle")}</h1>
-            <p className="ob-share-landing-p">{t("shareOpening")}</p>
+            <h1 className="ob-share-landing-title font-display">
+              {shown === "opening" ? t("sharePageTitle") : asker ? t("requestHead", { name: asker }) : t("requestHeadAnon")}
+            </h1>
+            <p className="ob-share-landing-p">{t(shown === "opening" ? "shareOpening" : "requestOpening")}</p>
             <LoadingLines />
           </>
         ) : (

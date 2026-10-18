@@ -30,12 +30,24 @@ const PLACE_TIMEOUT_MS = 8000;
  * Place search, relayed so the geocoder (Open-Meteo) sees Ulune's server
  * rather than the reader's address. Nothing is logged; Open-Meteo's answers
  * stay a day in the server's memory, keyed only by the words typed
- * (geocode.ts, PLACE_CACHE).
+ * (geocode.ts, PLACE_CACHE). Each place comes back with the zone of this
+ * server's own map (geo-tz, as a cast here reads it), so a chart calculated
+ * on the reader's device agrees with one calculated here (on-device plan, W1-9).
  */
 export const searchPlaces = createServerFn({ method: "POST" })
   .validator((data: { q: string; locale?: string }) => placeQuery(data))
   .handler(async ({ data }): Promise<PlaceHit[]> => {
-    return await geocodePlace(data.q, data.locale, AbortSignal.timeout(PLACE_TIMEOUT_MS));
+    // The map starts loading while the geocoder answers.
+    const zones = import("./birth-time.server");
+    zones.then((m) => m.warmZones()).catch(() => {});
+    const zoned = async (hits: PlaceHit[]) => {
+      try {
+        return await (await zones).zonedPlaces(hits);
+      } catch {
+        return hits;
+      }
+    };
+    return await geocodePlace(data.q, data.locale, AbortSignal.timeout(PLACE_TIMEOUT_MS), zoned);
   });
 
 export const castChart = createServerFn({ method: "POST" })

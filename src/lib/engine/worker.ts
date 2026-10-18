@@ -9,13 +9,15 @@
  *
  * A request the page no longer wants (cancel) is dropped if it has not
  * started; a long one (a Timing year, a year's sky file) stops at its next
- * step. Messages: protocol.ts. Started by client.ts only, never in the first
- * load.
+ * step. What a reader waits for goes first (protocol.ts, JOB_PRIORITY): a
+ * chart before the sky's chunks, those before a year's sky file. While files
+ * come over the network, the page hears how far they have got (step 5).
+ * Messages: protocol.ts. Started by client.ts only, never in the first load.
  */
 import { ENGINE_URLS } from "./assets";
 import { Calculator } from "./calculate";
 import { browserFiles, type BrowserFiles } from "./files-browser";
-import type { EngineJob, EngineStatus, FromEngine, ToEngine } from "./protocol";
+import { JOB_PRIORITY, type EngineJob, type EngineProgress, type EngineStatus, type FromEngine, type ToEngine } from "./protocol";
 import { answer } from "./requests";
 
 type Scope = {
@@ -24,7 +26,32 @@ type Scope = {
 };
 const scope = self as unknown as Scope;
 
-let files: BrowserFiles = browserFiles(ENGINE_URLS);
+/** The download's progress, sent at most every 100 ms (the latest, a moment later if it came sooner), and always its end. */
+let lastProgress = 0;
+let latest: EngineProgress | null = null;
+let later: ReturnType<typeof setTimeout> | null = null;
+function sendProgress(p: EngineProgress) {
+  if (later) clearTimeout(later);
+  later = null;
+  latest = null;
+  lastProgress = performance.now();
+  scope.postMessage({ id: 0, progress: p });
+}
+function progress(p: EngineProgress) {
+  const wait = 100 - (performance.now() - lastProgress);
+  if (p.done || wait <= 0) {
+    sendProgress(p);
+    return;
+  }
+  latest = p;
+  later ??= setTimeout(() => {
+    later = null;
+    if (latest) sendProgress(latest);
+  }, wait);
+}
+
+const filesNow = () => browserFiles(ENGINE_URLS, { onProgress: progress });
+let files: BrowserFiles = filesNow();
 let calc = new Calculator(files);
 /** The engine's start, timed once (the first request pays it). */
 let started: Promise<number> | null = null;
@@ -77,11 +104,19 @@ async function run(id: number, job: EngineJob): Promise<unknown> {
   return answer(calc, job, { pause: pauseFor(id) });
 }
 
+/** Before a background job starts (the sky's chunks and years), a moment for what a reader waits for to arrive and go first. */
+const BACKGROUND_WAIT_MS = 25;
+const background = () => queue.length > 0 && (JOB_PRIORITY[queue[0].job.kind] ?? 1) > 0;
+
 async function pump() {
   if (busy) return;
   busy = true;
   try {
-    for (let next = queue.shift(); next; next = queue.shift()) {
+    for (;;) {
+      // A page asks for its sky's chunks and for its chart's sky at the same moment: the chart's first.
+      if (background()) await new Promise((resolve) => setTimeout(resolve, BACKGROUND_WAIT_MS));
+      const next = queue.shift();
+      if (!next) break;
       const { id, job } = next;
       if (cancelled.delete(id)) continue;
       current = id;
@@ -96,7 +131,7 @@ async function pump() {
         if (!stopped && FILE_FAULT.test(message)) {
           // A damaged or missing copy: let the kept files go, and start afresh next time.
           await files.forget();
-          files = browserFiles(ENGINE_URLS);
+          files = filesNow();
           calc = new Calculator(files);
           started = null;
         }
@@ -122,6 +157,10 @@ scope.onmessage = (event) => {
     } else if (current === msg.id) cancelled.add(msg.id);
     return;
   }
-  queue.push({ id: msg.id, job: msg.job });
+  // In order of priority, then of asking.
+  const rank = JOB_PRIORITY[msg.job?.kind] ?? 1;
+  const at = queue.findIndex((q) => (JOB_PRIORITY[q.job.kind] ?? 1) > rank);
+  if (at < 0) queue.push({ id: msg.id, job: msg.job });
+  else queue.splice(at, 0, { id: msg.id, job: msg.job });
   void pump();
 };

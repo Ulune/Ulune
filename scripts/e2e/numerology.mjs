@@ -30,7 +30,7 @@
  */
 import { join } from "node:path";
 import { chromium } from "playwright";
-import { DEV, SHOTS, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, serverFnName, setLang, openCalendarView, setView, openExport } from "./_lib.mjs";
+import { CALCULATE, DEV, SHOTS, castFixture, clickDockTab, ensureShotsDir, goStudioPage, gotoApp, serverFnName, setLang, openCalendarView, setView, openExport } from "./_lib.mjs";
 
 const CAMILLE = { name: "Camille Marie Laurent", date: "15/06/1990", time: "12:00", place: "Paris, France" };
 const YOLANDA = { name: "Yolanda Mary Kyle", date: "29/11/1984", time: "12:00", place: "Paris, France" };
@@ -179,10 +179,19 @@ async function desktop() {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     page.setDefaultTimeout(20000);
     const errors = watch(page);
-    // The casts sent (numerology's names must not need one).
+    // The casts made (numerology's names must not need one): sent to the server, or calculated on the device
+    // (a development build says so on the page: lib/engine/door.ts).
     const castCalls = [];
     page.on("request", (r) => {
       if (serverFnName(r.url()).startsWith("castChart")) castCalls.push(r.url());
+    });
+    page.on("console", (m) => {
+      if (m.text() === "ulune-test:natal") castCalls.push("device");
+    });
+    await page.addInitScript(() => {
+      window.addEventListener("ulune:calculated", (e) => {
+        if (e.detail?.kind === "natal" && e.detail.on === "device") console.debug("ulune-test:natal");
+      });
     });
     await open(page, CAMILLE);
     const thisYear = new Date().getFullYear();
@@ -576,6 +585,13 @@ async function desktop() {
       }
       await route.continue();
     });
+    // On the device, the development build's door holds its answer back the same way (lib/engine/door.ts).
+    if (CALCULATE === "device") {
+      await page.evaluate(() => {
+        let held = false;
+        window.__uluneCalcGate = (kind) => (kind === "natal" && !held ? ((held = true), new Promise((resolve) => setTimeout(resolve, 2500))) : undefined);
+      });
+    }
     await clickDockTab(page, "birth");
     await page.getByTestId("cast-submit").click();
     await page.locator("#birth-current-name").fill("Camille Rivière");

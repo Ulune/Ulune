@@ -300,7 +300,10 @@ async function checkRoutes() {
 }
 
 process.env.ULUNE_DEV = BASE;
-const { FIXTURE_A, castFixture, goStudioPage, gotoApp, launch } = await import("./e2e/_lib.mjs");
+// The casts below go to Ulune's server (Settings' other choice), so their answers can be read off the network
+// and the device's checked against them; the device's own cast through the page comes after (deviceCast).
+process.env.ULUNE_CALCULATE = "server";
+const { FIXTURE_A, assertFixtureA, castFixture, goStudioPage, gotoApp, launch } = await import("./e2e/_lib.mjs");
 const { browser, page } = await launch(1280);
 const errors = [];
 page.on("console", (m) => {
@@ -441,6 +444,8 @@ async function engineCheck(cast) {
         const w = new Worker(`/assets/${file}`, { type: "module" });
         const t0 = performance.now();
         w.onmessage = (e) => {
+          // (The download's progress comes first, as { id: 0, progress }: the answer is the request's own.)
+          if (e.data?.id !== 1) return;
           w.terminate();
           resolve({ ...e.data, wall: performance.now() - t0 });
         };
@@ -469,6 +474,39 @@ async function engineCheck(cast) {
   console.log(`engine: the worker (its own policy), the engine and ${ephe.length} files in /assets; the chart cast again in the page, the server's to the last digit (${answer.wall.toFixed(0)} ms with the engine's start)`);
 }
 
+/**
+ * The default (on-device plan, step 5): a chart cast through the page on the device, under the page's
+ * and the worker's policies, the engine's files from /assets: the QA fixture's positions, nothing sent
+ * to the server but the place search, no policy refusing anything.
+ */
+async function deviceCast() {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  await context.addInitScript(() => localStorage.setItem("ulune.calculate", "device"));
+  const p = await context.newPage();
+  p.setDefaultTimeout(20000);
+  const seen = [];
+  p.on("console", (m) => {
+    if (m.type() === "error") errors.push(`device: ${m.text()}`);
+  });
+  p.on("pageerror", (e) => errors.push(`device: ${e.message}`));
+  await p.addInitScript(() => {
+    document.addEventListener("securitypolicyviolation", (e) => console.error(`content security policy blocked ${e.blockedURI || "an inline script"} (${e.violatedDirective})`));
+  });
+  // (A production build names its server functions by hash: a calculation is known by what it carries.)
+  p.on("request", (r) => {
+    if (r.url().includes("/_serverFn/") && /"(?:date|natalUtc|at|t0|latitude)"/.test(r.postData() ?? "")) seen.push(r.postData().slice(0, 80));
+  });
+  try {
+    await gotoApp(p);
+    await castFixture(p, FIXTURE_A);
+    await assertFixtureA(p);
+    if (seen.length) fail(`on the device, a calculation was sent to the server: ${seen.join(" | ")}`);
+    console.log("device: Fixture A calculated in the page's worker, under the policies, nothing but the place search sent");
+  } finally {
+    await context.close();
+  }
+}
+
 let ok = false;
 try {
   await checkHeaders();
@@ -486,6 +524,7 @@ try {
   console.log("typed coordinates: America/New_York from geo-tz's map");
   await tour();
   await engineCheck(paris);
+  await deviceCast();
   if (errors.length) fail(`console: ${errors.join(" | ")}`);
   ok = true;
 } finally {

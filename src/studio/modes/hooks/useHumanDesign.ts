@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { castHumanDesign } from "@/lib/chart/functions";
+import { door } from "@/lib/engine/door";
 import { usePack } from "@/lib/content/packs";
 import type { HdView, HumanDesignChart } from "@/lib/chart/human-design";
 import { useI18n } from "@/lib/i18n/locale";
@@ -64,7 +64,9 @@ export function useHumanDesign() {
     let cancelled = false;
     if (!ready.current) setBusy(true);
     setError(null);
-    void castHumanDesign({ data: spanMinutes ? { natalUtc: utc, spanMinutes } : { natalUtc: utc } })
+    // Through the "calculate" door: this device or Ulune's server, as Settings says (on-device plan, step 4).
+    void door
+      .castHumanDesign({ data: spanMinutes ? { natalUtc: utc, spanMinutes } : { natalUtc: utc } })
       .then((next) => {
         if (cancelled) return;
         ready.current = true;

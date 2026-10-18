@@ -1275,12 +1275,15 @@ html.theme-switching::view-transition-new(root) {
   font-weight: 600;
   letter-spacing: 0.04em;
 }
-.ulune-wheel-depth-btn[aria-pressed="true"] {
+/* (And Compare's button while two charts are side by side: studio/compare/CompareButton.tsx.) */
+.ulune-wheel-depth-btn[aria-pressed="true"],
+.ob-compare-btn[aria-pressed="true"] {
   background: var(--color-fg);
   color: var(--color-bg);
 }
 @media (hover: hover) {
-  .ulune-wheel-depth-btn[aria-pressed="true"]:hover {
+  .ulune-wheel-depth-btn[aria-pressed="true"]:hover,
+  .ob-compare-btn[aria-pressed="true"]:hover {
     background: color-mix(in oklab, var(--color-fg) 88%, transparent);
   }
 }
@@ -2030,11 +2033,14 @@ html.theme-switching::view-transition-new(root) {
   background: var(--color-bg-elevated);
   box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
 }
-.ob-menu .ob-menu-item:disabled {
+/* (And Compare's button on a page Compare does not show: studio/compare/CompareButton.tsx.) */
+.ob-menu .ob-menu-item:disabled,
+.ob-compare-btn[aria-disabled="true"] {
   opacity: 0.45;
   cursor: default;
 }
-.ob-export-btn {
+.ob-export-btn,
+.ob-compare-btn {
   background: var(--color-bg-subtle);
 }
 

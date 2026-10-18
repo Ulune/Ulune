@@ -25,7 +25,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { cn } from "@/lib/utils";
 import { BirthTab } from "@/studio/dock/BirthTab";
-import { isWide, loadPanelWidth, savePanelWidth, type PanelWidth } from "@/studio/dock/dock-layout";
+import { loadPanelWidth, panelBeside, savePanelWidth, type PanelWidth } from "@/studio/dock/dock-layout";
 import { ReadingTab } from "@/studio/dock/ReadingTab";
 import { useStudioStore, type DockTab } from "@/studio/store";
 import { keptOr, useKeep } from "@/studio/return-parts";
@@ -145,7 +145,7 @@ export function Dock() {
   useLayoutEffect(() => {
     if (shownWidth.current === width) return;
     shownWidth.current = width;
-    if (ready && isWide()) playStage(true);
+    if (ready && panelBeside()) playStage(true);
     else dropStage();
   }, [width, ready]);
   const shownDetent = useRef(detent);
@@ -158,7 +158,7 @@ export function Dock() {
       return;
     }
     // A computer's side panel: the stage and the panel slide together.
-    if (isWide()) {
+    if (panelBeside()) {
       playStage(true);
       return;
     }
@@ -185,13 +185,13 @@ export function Dock() {
   const onTab = useCallback(
     (id: DockTab) => {
       const s = useStudioStore.getState();
-      if (!isWide() && s.dockOpen && s.dock === id) {
+      if (!panelBeside() && s.dockOpen && s.dock === id) {
         toggleDock();
         return;
       }
       // On a phone the birth form opens the sheet whole (review 3 Oct, C12): at
       // half height its button sat over the date field.
-      if (!isWide() && id === "birth") setFull(true);
+      if (!panelBeside() && id === "birth") setFull(true);
       // Another tab of the open panel: its pane cross-fades in place.
       if (s.dockOpen && s.dock !== id) {
         swapTransition(() => openDock(id), { part: "pane" });
@@ -241,7 +241,7 @@ export function Dock() {
   }, []);
 
   const onHeadDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (isWide() || e.button !== 0) return;
+    if (panelBeside() || e.button !== 0) return;
     const h = sheetRef.current?.parentElement?.getBoundingClientRect().height ?? 0;
     drag.current = { y: e.clientY, start: visibleFor(detent, h), moved: false, h, trail: [] };
   };
@@ -308,7 +308,7 @@ export function Dock() {
   useEffect(() => {
     if (!dockOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape" || isWide()) return;
+      if (e.key !== "Escape" || panelBeside()) return;
       if (e.target instanceof Element && scopeOfNode(e.target) !== "main") return;
       if (document.querySelector("[data-testid=account-menu-panel], [data-testid=chart-picker]"))
         return;
@@ -320,7 +320,7 @@ export function Dock() {
 
   // A focused input in the sheet (birth edit) gets the whole screen.
   const onFocusIn = (e: ReactFocusEvent) => {
-    if (isWide()) return;
+    if (panelBeside()) return;
     const el = e.target as HTMLElement;
     if (el.matches("input, textarea, select")) setFull(true);
   };

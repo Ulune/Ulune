@@ -3,7 +3,9 @@
  * (share plan, feature 1, and idea B1's QR code): the share sheet
  * (components/share/share-sheet.tsx), the notes when a shared chart arrives
  * (components/share/arrival-note.tsx, lib/share/arrive.ts, lib/space/inbox.ts)
- * and the /s page (components/share/share-landing.tsx). Kept out of the app's
+ * and the /s page (components/share/share-landing.tsx); and of asking for
+ * someone's chart (idea B4): the asker's sheet, the request above the
+ * recipient's birth form and the card that sends it back. Kept out of the app's
  * catalog (index.ts) so they load with that code, not with every page's first
  * download; read through bookT (src/lib/i18n/words-book.ts) or directly.
  * scripts/share-link.test.mjs holds them to the catalog's rules.
@@ -92,4 +94,44 @@ export const shareWords = {
   shareFailedBody: ["Check your connection, then try again.", "Vérifiez votre connexion, puis réessayez."],
   shareRetry: ["Try again", "Réessayer"],
   shareOpenUlune: ["Open Ulune", "Ouvrir Ulune"],
+
+  // Asking for someone's chart (idea B4): the asker's sheet (ask-sheet.tsx).
+  askTitle: ["Ask for someone’s chart", "Demander le thème de quelqu’un"],
+  askIntro: [
+    "A link that opens Ulune’s birth form for them. Once they’ve cast their chart, one tap sends it back to you: you never type their birth details, and they choose their own birthplace.",
+    "Un lien qui ouvre pour la personne le formulaire de naissance d’Ulune. Une fois son thème calculé, elle vous le renvoie d’un geste\u202f: vous n’avez jamais à saisir ses données de naissance, et elle choisit elle-même son lieu de naissance.",
+  ],
+  askSayName: ["Say it’s you", "Dire que c’est vous"],
+  askSayNameHint: ["Your first name goes in the link, so they know who’s asking", "Votre prénom part dans le lien, pour que la personne sache qui demande"],
+  askNameLabel: ["Your first name", "Votre prénom"],
+  askTheySee: ["They’ll see", "La personne verra"],
+  askOpensOn: ["Their chart opens on: {page}", "Son thème s’ouvrira sur\u202f: {page}"],
+  askPrivacy: [
+    "The link holds no birth details, only your request. What they type stays with them until they choose to send it back.",
+    "Le lien ne contient aucune donnée de naissance, seulement votre demande. Ce que la personne saisit reste chez elle tant qu’elle ne choisit pas de vous le renvoyer.",
+  ],
+  askQrHint: [
+    "Someone next to you can scan it and fill in the form on their own phone.",
+    "Une personne à côté de vous peut le scanner et remplir le formulaire sur son propre téléphone.",
+  ],
+
+  // The request, on the recipient's side: above the birth form (request-head.tsx), on the way there (share-landing.tsx), then the card to send it back (reply-card.tsx) and the share sheet's line.
+  requestHead: ["{name} asked for your chart", "{name} vous demande votre thème"],
+  requestHeadAnon: ["Someone asked you for your chart", "Quelqu’un vous demande votre thème"],
+  requestHeadLine: [
+    "Fill in your birth details and cast your chart; then one tap sends it back. It goes to no one until you choose to send it.",
+    "Remplissez vos données de naissance et calculez votre thème\u202f; un geste suffit ensuite pour le renvoyer. Il ne part chez personne tant que vous ne choisissez pas de l’envoyer.",
+  ],
+  requestDismiss: ["Set the request aside", "Mettre la demande de côté"],
+  requestOpening: ["Opening the birth form…", "Ouverture du formulaire de naissance…"],
+  replyMain: ["Your chart is ready to send back to {name}.", "Votre thème est prêt à être renvoyé à {name}."],
+  replyMainAnon: ["Your chart is ready to send back.", "Votre thème est prêt à être renvoyé."],
+  replyNote: [
+    "It goes as a link, as Share and export makes one: you see what it holds before it goes.",
+    "Il part sous forme de lien, comme avec Partager et exporter\u202f: vous voyez ce qu’il contient avant qu’il parte.",
+  ],
+  replySend: ["Send it back", "Le renvoyer"],
+  replyLabel: ["Your chart, asked for", "Votre thème, demandé"],
+  shareReplyTo: ["For {name}, who asked for your chart", "Pour {name}, qui vous a demandé votre thème"],
+  shareReplyToAnon: ["For the person who asked for your chart", "Pour la personne qui vous a demandé votre thème"],
 } as const;

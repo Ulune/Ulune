@@ -269,6 +269,83 @@ html.light .ob-share-qr {
   margin-top: 6px;
 }
 
+/* Asking for someone's chart (idea B4): the asker's sheet, the line on a sheet that answers a request. */
+.ob-share-intro {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-fg-muted);
+  text-wrap: pretty;
+}
+.ob-share-name {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 8px 6px;
+}
+.ob-share-quote {
+  font-family: var(--font-display, "Fraunces", serif);
+  font-size: 17px;
+}
+.ob-share-reply {
+  margin: 0;
+  padding: 10px 12px;
+  border-left: 2px solid var(--color-accent, var(--color-fg));
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--color-bg-subtle);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--color-fg);
+}
+
+/* Above the birth form opened for a request: who asked, and what comes next. */
+.ob-request-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 14px 8px 14px 16px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 12px;
+  background: var(--color-bg-elevated);
+  text-align: left;
+}
+.ob-request-words {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.ob-request-title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--color-fg);
+  overflow-wrap: anywhere;
+}
+.ob-request-line {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--color-fg-muted);
+  text-wrap: pretty;
+}
+.ob-request-dismiss {
+  flex: none;
+}
+@media (pointer: coarse) {
+  .ob-request-dismiss {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Send it back: the card at the foot of the page, its button the page's first call. */
+.ob-reply {
+  border-color: var(--color-fg-muted);
+}
+
 /* A finger's target: the sheet's close button as large as its other buttons. */
 @media (pointer: coarse) {
   .ob-share .ob-space-head .ob-icon-btn {

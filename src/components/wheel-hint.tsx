@@ -11,6 +11,7 @@ import type { SelectionStore } from "@/lib/chart/selection-store";
 import { createPortal } from "react-dom";
 import { useI18n } from "@/lib/i18n/locale";
 import { useTour } from "@/lib/tour/state";
+import { useScopeId } from "@/studio/scope";
 
 export const WHEEL_HINT_KEY = "ulune.hint.wheel.v1";
 const KEY = WHEEL_HINT_KEY;
@@ -66,8 +67,10 @@ export function WheelHint({ selection }: { selection: SelectionStore }) {
   const touring = useTour((s) => s.active);
   // Off the chart (review 3 Oct, C5: it sat on the MC until closed).
   const { anchor, ref, port, place } = usePortPlace(open, touring);
+  // Compare's two wheels (share and compare plan, feature 2): the hint once, on A's, not on both.
+  const second = useScopeId() === "b";
   useEffect(() => {
-    if (seen()) return;
+    if (seen() || second) return;
     setTouch(typeof window.matchMedia === "function" && window.matchMedia("(hover: none)").matches);
     // After the wheel has drawn itself in.
     // Once per device (part 95): seen as soon as it shows.
@@ -76,7 +79,7 @@ export function WheelHint({ selection }: { selection: SelectionStore }) {
       remember();
     }, 1600);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [second]);
   useEffect(() => {
     if (pinned && open) {
       remember();

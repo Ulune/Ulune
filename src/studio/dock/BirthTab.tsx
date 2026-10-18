@@ -11,6 +11,27 @@ import { useStudioStore } from "@/studio/store";
 import { useSpace } from "@/lib/space/state";
 import { PathLink } from "@/components/path-link";
 import { ENCYCLOPEDIA_PATHS, pagePath } from "@/studio/map";
+import { useSyncExternalStore } from "react";
+import { Suspense } from "react";
+import { useShareUi } from "@/components/share/share-state";
+import { lazyNamed } from "@/lib/lazy-component";
+
+/** Above the form when it opened for a request for the reader's chart (share and compare plan, idea B4): its own download, with the request. */
+const RequestHead = lazyNamed(() => import("@/components/share/request-head"), "RequestHead");
+
+/**
+ * Where charts are calculated, as Settings › "Where charts are calculated" keeps it (the key of
+ * lib/engine/choice.ts, read here without that module, which stays out of the first load). Settings
+ * is a page of its own: coming back draws this form again, and reads it again.
+ */
+function calculatedOn(): "device" | "server" {
+  try {
+    return localStorage.getItem("ulune.calculate") === "server" ? "server" : "device";
+  } catch {
+    return "device";
+  }
+}
+const noChange = () => () => {};
 
 /**
  * The birth form: on the stage for a new chart or a second person, in the
@@ -50,8 +71,11 @@ export function BirthTab({
   const composing = useStudioStore((s) => s.composing);
   const spaceStatus = useSpace((s) => s.status);
   const spaceOpen = spaceStatus === "open";
+  const asked = useShareUi((s) => s.request !== null);
   // What is kept of what is typed here: nothing, or the private space.
   const keptHint = spaceOpen ? t("birthKeptSpace") : t("birthKeptNothing");
+  // Where the chart is calculated (Settings, on-device plan, step 5): the device by default, as the server's page says.
+  const where = useSyncExternalStore(noChange, calculatedOn, () => "device");
 
   const mode = addingPartnerFor ? "partner" : creating || !chart ? "new" : "edit";
   const firstVisit = mode === "new" && !chart && rows.length === 0 && spaceStatus !== "locked";
@@ -100,6 +124,11 @@ export function BirthTab({
       data-on-stage={onStage ? "1" : undefined}
     >
       <div className="ob-birth-head">
+        {asked && onStage && mode === "new" ? (
+          <Suspense fallback={null}>
+            <RequestHead />
+          </Suspense>
+        ) : null}
         {back ? (
           <button type="button" className="ob-sample-link ob-birth-back" data-testid="birth-back" onClick={back.onBack}>
             {back.label}
@@ -140,8 +169,8 @@ export function BirthTab({
         onNames={mode === "edit" ? setNumerologyNames : undefined}
         onChineseCount={mode === "edit" ? setChineseCount : undefined}
       />
-      <p className="ob-cast-note" data-testid="cast-note">
-        {t("castNote")}
+      <p className="ob-cast-note" data-testid="cast-note" data-calculate={where}>
+        {t(where === "server" ? "castNoteServer" : "castNote")}
       </p>
       {firstVisit ? (
         <noscript>

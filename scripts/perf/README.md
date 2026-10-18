@@ -21,6 +21,8 @@ with the same browser only.
 | **What is in each chunk** | `npx vite build --config scripts/perf/load/analyze.vite.config.mjs`, then `node scripts/perf/load/chunk-report.mjs`; `node scripts/perf/load/graph.mjs --why <module>` shows why a module is in the first download |
 | **The Chinese languages** (what each one's pages download after "/", figure and table, and what they share; the term table) | with `serve.mjs` running: `node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/perf/load/languages.mjs` (`bazi,feng-shui` for some of them) |
 | **The Chinese engines' time** (a full BaZi chart with its luck pillars, a home's Flying Star charts; Chromium, unslowed and with the CPU slowed 6× through CDP) | `node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/perf/chinese/timing.mjs` |
+| **The calculations on the device** (on-device plan, step 6: the first chart, its files downloaded from a local server, the engine started, the chart cast; the engine's start, a natal chart, Human Design, transits and progressions with their exact times, a Timing month and year, the Calendar's year file and a year view's chunks; Chromium, unslowed and with the CPU slowed 4× and 6×; the limits: `npm run budgets -- engine`, after `npm run build`) | `node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/perf/engine/timing.mjs` |
+| **The place search's zones** (each place found with the zone of the server's map, W1-9: a cold server and a warm one) | `node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/perf/zones-bench.mjs` |
 
 The wheel page is QA chart A (Paris, 15 Jun 1990, 12:00) and its transits on
 24 Sep 2026, an 830 px wheel at DPR 2 on a 1000 × 860 stage.

@@ -8,7 +8,8 @@
  *
  * Page → worker: { id, job } to ask, { id, cancel: true } to stop asking.
  * Worker → page: { id, ok: true, result, ms } or { id, ok: false, error },
- * `error` an "E:…" code or the engine's own message.
+ * `error` an "E:…" code or the engine's own message; and { id: 0, progress }
+ * while its files download (step 5).
  */
 import type { ZoneLookup } from "./birth-time";
 import type { TransitNatalBody } from "./calculate";
@@ -107,6 +108,29 @@ export type EngineAnswers = {
 
 export type ToEngine = { id: number; job: EngineJob } | { id: number; cancel: true };
 
+/**
+ * The engine's files coming over the network (the first chart's 2.8 MB, or an earlier era's):
+ * bytes arrived and expected, so the page can say so (step 5); `done` once they are all here.
+ */
+export type EngineProgress = { loaded: number; total: number; done: boolean };
+
 export type FromEngine =
   | { id: number; ok: true; result: unknown; ms: number }
-  | { id: number; ok: false; error: string; cancelled?: boolean };
+  | { id: number; ok: false; error: string; cancelled?: boolean }
+  | { id: 0; progress: EngineProgress };
+
+/**
+ * Which job the worker takes next (lower first, then in the order asked): what a reader waits for
+ * (a chart, a sky with its exact times) before the sky's chunks for scrubbing and the Calendar,
+ * and those before a year's sky file, the longest (about a second, several on a slow phone).
+ */
+export const JOB_PRIORITY: Record<EngineJob["kind"], number> = {
+  warm: 0,
+  natal: 0,
+  transits: 0,
+  progressions: 0,
+  humanDesign: 0,
+  timing: 1,
+  skyWindow: 1,
+  skyYear: 2,
+};

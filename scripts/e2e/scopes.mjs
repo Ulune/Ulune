@@ -76,8 +76,15 @@ async function press(page, spec, who) {
   const root = page.locator(pane(who));
   if (spec.wheel) {
     const halo = root.locator(`svg[data-depth-base] [data-kind=planet][data-body=${spec.wheel}] .ulune-wheel-halo`).first();
-    await halo.scrollIntoViewIfNeeded();
-    const box = await halo.boundingBox();
+    // A wheel still settling (its bodies drawn again as a pair's second chart or its aspects arrive)
+    // can swap the body between the scroll and the measure: measured again until it holds still.
+    let box = null;
+    for (let i = 0; i < 20 && !box; i += 1) {
+      await halo.waitFor({ state: "visible", timeout: 10000 }).catch(() => {});
+      await halo.scrollIntoViewIfNeeded().catch(() => {});
+      box = await halo.boundingBox().catch(() => null);
+      if (!box) await page.waitForTimeout(250);
+    }
     if (!box) throw new Error(`${who}: no ${spec.wheel} on the wheel`);
     await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
   } else {

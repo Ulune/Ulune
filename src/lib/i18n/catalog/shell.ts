@@ -73,6 +73,10 @@ export const shell = {
   // Sharing a chart by link (share plan, feature 1): the menu's first item, and the switcher's mark on a chart received.
   shareLink: ["Share a link", "Partager un lien"],
   sharedWithYou: ["Shared with you, {date}", "Partagé avec vous le {date}"],
+  // Share and compare plan, ideas B2–B4 (EXTRAS): Show mode's button, the switcher's way back to the chart before, asking for someone's chart.
+  showMode: ["Show mode", "Mode présentation"],
+  flipBack: ["Back to {name}", "Revenir à {name}"],
+  askChart: ["Ask someone for their chart", "Demander son thème à quelqu’un"],
   stageMore: ["More options", "Plus d’options"],
   settingsLangHint: [
     "Language and appearance are in the account menu, at the top right.",
@@ -93,7 +97,12 @@ export const shell = {
   librarySortName: ["Name", "Nom"],
   librarySortBirth: ["Birth date", "Date de naissance"],
   libraryNone: ["No chart matches.", "Aucun thème ne correspond."],
-  libraryPair: ["Compare with {name} ({page})", "Comparer avec {name} ({page})"],
+  // The Relationship page with that person (named apart from Compare's "Compare with…", which stands beside it).
+  libraryPair: ["Relationship with {name} ({page})", "Relation avec {name} ({page})"],
+  // Compare (share and compare plan, feature 2): the toolbar's button, the switcher's and ⌘K's; the view's own words are a book (compare-words.ts).
+  compare: ["Compare", "Comparer"],
+  compareWith: ["Compare with {name}, side by side", "Comparer avec {name}, côte à côte"],
+  compareNotHere: ["Compare: not on this page", "Comparer\u202f: pas sur cette page"],
   paletteTitle: ["Go to…", "Aller à…"],
   palettePlaceholder: [
     "Search modes, charts, planets, settings",

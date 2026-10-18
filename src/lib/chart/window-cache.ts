@@ -1,9 +1,12 @@
 /**
- * The scrub window's chunks in the browser (sky-window.ts): fetched once from
- * /api/sky-window (the edge and the browser keep them), held in memory, and
+ * The scrub window's chunks in the browser (sky-window.ts): through the
+ * "calculate" door (lib/engine/door.ts, on-device plan, step 4), worked out on
+ * this device (and kept by the browser) or fetched from /api/sky-window (the
+ * edge and the browser keep them), as Settings says; held in memory, and
  * looked up synchronously while time moves. Nothing personal goes out: a chunk
  * is asked for by its start time only.
  */
+import { door } from "@/lib/engine/door";
 import { CALC_VERSION } from "./constants";
 import { chunkStart, chunksAround, covers, SKY_WINDOW_FORMAT, WINDOW_TIMES, type SkyWindow } from "./sky-window";
 
@@ -76,13 +79,17 @@ export function loadWindow(t0: number): Promise<SkyWindow | null> {
   if (failed != null && Date.now() - failed < RETRY_MS) return Promise.resolve(null);
   const run = (async () => {
     try {
-      const res = await fetch(`/api/sky-window?t0=${t0}&v=${CALC_VERSION}.${SKY_WINDOW_FORMAT}`);
-      if (res.status === 404) {
-        unavailable = true;
-        return null;
+      let win: unknown;
+      try {
+        win = await door.skyWindow(t0, { v: `${CALC_VERSION}.${SKY_WINDOW_FORMAT}` });
+      } catch (err) {
+        // An old deploy without the window's route: stop asking this session.
+        if (err instanceof Error && err.message === "E:sky.unavailable") {
+          unavailable = true;
+          return null;
+        }
+        throw err;
       }
-      if (!res.ok) throw new Error(String(res.status));
-      const win: unknown = await res.json();
       if (!valid(win, t0)) throw new Error("bad window");
       keep(win);
       working = true;

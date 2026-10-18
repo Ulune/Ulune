@@ -6,11 +6,17 @@
  *     (numerology's full name at birth and name used now included),
  *     except the place search, which carries the place typed there, and the
  *     birth date only in the calculations, which need it;
- *   - a cast carries a date, a time and coordinates, and no name or place;
+ *   - on the device (the default, on-device plan, step 5): no request carries a
+ *     birth date, time or coordinates, and no chart, sky or Calendar request goes
+ *     to the server at all: only the place search (the place typed), and the zone
+ *     of typed coordinates (lookupZone: the coordinates alone);
+ *   - on Ulune's server (ULUNE_CALCULATE=server, Settings' other choice): a cast
+ *     carries a date, a time and coordinates, and no name or place;
  *   - nothing goes to the geocoder from the page (Ulune's server asks it);
  *   - an AI request carries positions, not the name, date, time or place;
- *   - The calendar asks only for the sky, by date (the transits are worked out in
- *     the page), and nothing else goes with those requests;
+ *   - the calendar works out the sky on the device; on the server it asks only
+ *     for the sky, by date (the transits are worked out in the page), and
+ *     nothing else goes with those requests;
  *   - the encyclopedia asks for its own files only, by GET (_sent.mjs).
  * The AI providers are answered here (page.route): no real key is used.
  *
@@ -41,14 +47,16 @@
  * fresh browsers: with no private space nothing is written to IndexedDB (no
  * database made) and plain storage holds none of it; with a locked space the
  * chart is sealed into the space's inbox and no store holds anything
- * readable; every request is the app's own files by GET or the cast (a
- * date, a time, coordinates), none carries the link's fragment, and the
- * address bar keeps no fragment once the page has read it.
+ * readable; every request is the app's own files by GET (on the device), or
+ * those and the cast (a date, a time, coordinates, on the server), none
+ * carries the link's fragment, and the address bar keeps no fragment once the
+ * page has read it.
  * `node scripts/e2e/privacy.mjs --share` runs it alone.
  */
 import { chromium } from "playwright";
 import {
   AI_ON,
+  CALCULATE,
   DEV,
   FIXTURE_A,
   FIXTURE_B,
@@ -75,6 +83,14 @@ const DATES = ["15/06/1990", "1990-06-15", "03/11/1987", "1987-11-03"];
 const PERSONAL = [...NAMES, ...DATES];
 /** The place search carries the place typed into it, and only that. */
 const PLACE_SEARCH_OK = ["Paris", "Oslo", "Paris, France", "Oslo, Norway"];
+/** On the device, no request may carry the births' times or coordinates either (the places found: Paris, Oslo). */
+const BIRTH_MOMENTS = ["12:00", "23:10", "12%3A00", "23%3A10", "1990-06-15T", "1987-11-03T", "1990-06-15", "1987-11-03"];
+const BIRTH_PLACES = ["48.85", "2.348", "2.352", "59.91", "10.74", "10.75"];
+/** What the calculations on the device announce in a development build (lib/engine/door.ts), counted. */
+const heardCalcs = () => {
+  window.__calcs = [];
+  window.addEventListener("ulune:calculated", (e) => window.__calcs.push(`${e.detail.kind}:${e.detail.on}`));
+};
 
 const MODES = ["natal", "transits", "timing", "progressions", "synastry", "composite", "design", "numerology"];
 
@@ -121,8 +137,10 @@ const ENCYCLOPEDIA_FILES = [/^\/(?:encyclopedia|encyclopedie)(?:\/[a-z0-9-]+)?\/
 
 async function run() {
   const { browser, page } = await launch(1280);
+  await page.context().addInitScript(heardCalcs);
   let encFrom = 0;
   let encTo = 0;
+  let calcs = [];
   const seen = [];
   page.on("request", (r) => {
     seen.push({ url: r.url(), method: r.method(), body: r.postData() ?? "", request: r });
@@ -205,6 +223,7 @@ async function run() {
     await page.waitForTimeout(1000);
     encTo = seen.length;
     console.log("encyclopedia read");
+    calcs = await page.evaluate(() => window.__calcs ?? []);
   } finally {
     await browser.close();
   }
@@ -226,10 +245,36 @@ async function run() {
     if (/open-meteo/.test(r.url)) failures.push(`the page asked the geocoder itself: ${r.url.slice(0, 80)}`);
   }
   const casts = fnCalls.filter((r) => decodeFnName(r.url).startsWith("castChart"));
-  if (casts.length < 2) failures.push(`expected 2 casts, saw ${casts.length}`);
-  for (const c of casts) {
-    if (/"name"|"placeLabel"|"birthName"|"currentName"|"numerologyY"|"chineseCount"/.test(c.body)) failures.push(`a cast carries a name, place or count field: ${c.body.slice(0, 200)}`);
-    if (!/"latitude"/.test(c.body) || !/"date"/.test(c.body)) failures.push("a cast lacks its date or coordinates");
+  if (CALCULATE === "server") {
+    if (casts.length < 2) failures.push(`expected 2 casts, saw ${casts.length}`);
+    for (const c of casts) {
+      if (/"name"|"placeLabel"|"birthName"|"currentName"|"numerologyY"|"chineseCount"/.test(c.body)) failures.push(`a cast carries a name, place or count field: ${c.body.slice(0, 200)}`);
+      if (!/"latitude"/.test(c.body) || !/"date"/.test(c.body)) failures.push("a cast lacks its date or coordinates");
+    }
+  } else {
+    // On the device: the charts and every view calculated here, nothing of them sent.
+    const natal = calcs.filter((c) => c === "natal:device").length;
+    if (natal < 2) failures.push(`expected 2 charts calculated on the device, heard ${calcs.join(", ") || "none"}`);
+    if (calcs.some((c) => c.endsWith(":server"))) failures.push(`calculated on the server: ${calcs.filter((c) => c.endsWith(":server")).join(", ")}`);
+    for (const r of fnCalls) {
+      const name = decodeFnName(r.url);
+      if (/^(?:searchPlaces|relayAi)/.test(name)) continue;
+      if (name.startsWith("lookupZone")) {
+        // Typed coordinates' zone: the coordinates and nothing else.
+        if (/date|time|name|place|zone/i.test(r.body.replace(/lookupZone/g, "")) || !/latitude/.test(r.body)) failures.push(`lookupZone carries more than coordinates: ${r.body.slice(0, 200)}`);
+        continue;
+      }
+      failures.push(`on the device, a request went to the server: ${name}`);
+    }
+    for (const r of seen) {
+      const name = isServerFn(r.url) ? decodeFnName(r.url) : "";
+      const text = `${r.url}\n${r.body}`;
+      // (An AI's prompt holds positions, which may share digits with a coordinate: its own checks are above.)
+      if (name.startsWith("relayAi")) continue;
+      for (const w of [...BIRTH_MOMENTS, ...(name.startsWith("lookupZone") ? [] : BIRTH_PLACES)]) {
+        if (text.includes(w)) failures.push(`on the device, ${r.method} ${name || r.url.slice(0, 80)} carries "${w}"`);
+      }
+    }
   }
   if (!AI_ON) {
     // No request to an AI provider, and none to the relay.
@@ -248,7 +293,7 @@ async function run() {
     if (!/Person A|Personne A|ASC/.test(r.body)) failures.push("the relayed prompt lacks the positions");
   }
 
-  // The calendar asks the server only for the sky, by date; the transits are worked out here.
+  // The calendar works the sky out on the device; on the server it asks only for the sky, by date, and works out the transits here.
   if (fnCalls.some((r) => /^castTiming/.test(decodeFnName(r.url)))) failures.push("The calendar sent the chart to the server");
   let skyAsks = 0;
   for (const r of seen) {
@@ -258,7 +303,9 @@ async function run() {
     const keys = [...u.searchParams.keys()].sort().join(",");
     if (r.method !== "GET" || r.body || !(keys === "t0,v" || keys === "v,y")) failures.push(`a sky request carries more than a date: ${r.method} ${r.url.slice(0, 100)}`);
   }
-  if (!skyAsks) failures.push("The calendar asked for no sky");
+  if (CALCULATE === "server" && !skyAsks) failures.push("The calendar asked for no sky");
+  if (CALCULATE === "device" && skyAsks) failures.push(`on the device, the calendar asked the server for the sky ${skyAsks} times`);
+  if (CALCULATE === "device" && !calcs.some((c) => c === "skyWindow:device")) failures.push("on the device, no sky was worked out for the calendar");
 
   // The encyclopedia's part of the visit: its pages, its previews and the app's files, by GET.
   if (encTo <= encFrom) failures.push("the encyclopedia was not visited");
@@ -274,7 +321,11 @@ async function run() {
     console.error(failures.join("\n"));
     throw new Error(`${failures.length} privacy failure(s)`);
   }
-  console.log(`privacy ok: ${seen.length} requests, ${casts.length} casts, ${aiBodies.length} direct AI and ${relayed.length} relayed AI requests checked (${DEV})`);
+  console.log(
+    CALCULATE === "server"
+      ? `privacy ok (calculated on Ulune's server): ${seen.length} requests, ${casts.length} casts, ${aiBodies.length} direct AI and ${relayed.length} relayed AI requests checked (${DEV})`
+      : `privacy ok (calculated on the device): ${seen.length} requests, none with a birth's date, time or coordinates, ${calcs.length} calculations on the device (${calcs.filter((c) => c.startsWith("natal")).length} charts), ${aiBodies.length} direct AI and ${relayed.length} relayed AI requests checked (${DEV})`,
+  );
 }
 
 /* ------------------------------------------------- the Chinese pages (languages plan, part 30) */
@@ -317,6 +368,7 @@ const DISPLAY_KEYS = [
   /^ulune\.chinese$/, // Settings → Chinese traditions (lib/chinese/prefs.ts)
   /^ulune\.dock\.(?:w|open)$/, // the side panel's width and whether it is open (studio/dock/dock-layout.ts)
   /^ulune\.hint\.[\w.-]+$/, // a one-time hint, seen (lib/first-hint.ts, studio/shell/lang-hint.ts)
+  /^ulune\.calculate$/, // Settings › Where charts are calculated: "device" or "server" (lib/engine/choice.ts)
 ];
 
 /** Every Chinese page but Home: how it is reached, its figure, what is chosen on it, its table. */
@@ -814,7 +866,7 @@ async function shareLeg() {
       } finally {
         await context.close();
       }
-      // Every request: the app's own files by GET, or the cast with a date, a time and coordinates; never the fragment.
+      // Every request: the app's own files by GET, or (on the server) the cast with a date, a time and coordinates; never the fragment.
       let casts = 0;
       for (const r of asked) {
         const body = r.postData() ?? "";
@@ -830,7 +882,10 @@ async function shareLeg() {
         }
         failures.push(`${label}: sent ${why}`);
       }
-      if (casts !== 1) failures.push(`${label}: ${casts} casts, not one`);
+      if (casts !== (CALCULATE === "server" ? 1 : 0)) failures.push(`${label}: ${casts} casts sent to the server (calculated on the ${CALCULATE === "server" ? "server" : "device"})`);
+      if (CALCULATE === "device") {
+        for (const r of asked) for (const w of found(`${r.url()} ${r.postData() ?? ""}`, ["1990-06-15", "12:00", "12%3A00", "48.85"])) failures.push(`${label}: a request carries "${w}"`);
+      }
       // The address bar: the fragment only as the page opens, then gone; no address shows the birth.
       const at = shown.findIndex((u) => u.includes("#"));
       const after = shown.slice(at + 1).filter((u) => u !== shown[at]);

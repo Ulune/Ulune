@@ -77,6 +77,11 @@ const PERSONAL = [FIXTURE_A.name, FIXTURE_B.name, B_NAMED.birthName, B_NAMED.cur
 const clearPart = (text) => JSON.stringify(JSON.parse(text), (k, v) => (k === "ct" || k === "iv" || k === "salt" ? "" : v));
 // Personal keys under either name: Ulune's, or those the prototype wrote (legacy names).
 const PERSONAL_KEYS = /^(orbis|ulune)\.(charts|firstview|synastry\.partner|composite\.partner|account|login)/;
+/** The calculations' caches, by what each may hold: the engine's files (a build's or the repository's), the sky's files by date. */
+const SAME_FOR_EVERYONE = {
+  "ulune-engine-v1": /^\/[\w./@-]+\.(?:se1|wasm|txt)$/,
+  "ulune-sky-v1": /^\/api\/sky-(?:window\?t0=-?\d+|year\?y=-?\d+)&v=[\w.]+$/,
+};
 const MODES = ["natal", "transits", "timing", "progressions", "synastry", "composite", "design", "numerology"];
 const KEY = "sk-ant-test-0000000000000000";
 
@@ -117,7 +122,15 @@ async function storageDump(page) {
       db.close();
     }
     const cacheNames = "caches" in window ? await caches.keys() : [];
-    return { local, session, dbs, records, cookies: document.cookie, cacheNames };
+    // The calculations' own caches (on-device plan, step 5): what each holds, by address.
+    const engineKeys = {};
+    for (const name of cacheNames.filter((n) => n === "ulune-engine-v1" || n === "ulune-sky-v1")) {
+      engineKeys[name] = (await (await caches.open(name)).keys()).map((r) => {
+        const u = new URL(r.url);
+        return u.origin === location.origin ? u.pathname + u.search : r.url;
+      });
+    }
+    return { local, session, dbs, records, cookies: document.cookie, cacheNames, engineKeys };
   });
 }
 
@@ -134,7 +147,17 @@ function assertNothingPersonal(dump, where) {
     if (dump.records.includes(w)) out.push(`${where}: the database holds "${w}" in the clear`);
     if (dump.cookies.includes(w)) out.push(`${where}: a cookie holds "${w}"`);
   }
-  if (dump.cacheNames.length) out.push(`${where}: caches ${dump.cacheNames.join(",")}`);
+  // A chart calculated on the device keeps the engine's files and the sky's files, the same for
+  // everyone (on-device plan, step 5): allowed while they hold nothing else; any other cache is not.
+  for (const name of dump.cacheNames) {
+    const same = SAME_FOR_EVERYONE[name];
+    if (!same) {
+      out.push(`${where}: cache ${name}`);
+      continue;
+    }
+    const odd = (dump.engineKeys?.[name] ?? []).filter((k) => !same.test(k) || PERSONAL.some((w) => k.includes(w)));
+    if (odd.length) out.push(`${where}: ${name} holds ${odd.slice(0, 3).join(", ")}`);
+  }
   if (out.length) throw new Error(out.join("\n"));
 }
 
@@ -308,7 +331,7 @@ async function run() {
       await page.waitForTimeout(600);
       const dump = await storageDump(page);
       assertNothingPersonal(dump, "private space");
-      const extra = Object.keys(dump.local).filter((k) => !/^ulune\.(look|boot|studio|dock|depth|wheel|reading|numerology|bodies|chart\.view|scrub|offline|hint|theme|locale|space)/.test(k));
+      const extra = Object.keys(dump.local).filter((k) => !/^ulune\.(look|boot|studio|dock|depth|wheel|reading|numerology|bodies|chart\.view|scrub|offline|hint|theme|locale|space|calculate$)/.test(k));
       if (extra.length) throw new Error(`unexpected keys: ${extra.join(", ")}`);
       if (dump.local["ulune.space"] !== "stay") throw new Error(`flag ${dump.local["ulune.space"]}`);
       console.log("signed in: the chart cast before joined, nothing readable stored");

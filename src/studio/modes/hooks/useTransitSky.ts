@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { castTransits } from "@/lib/chart/functions";
+import { door } from "@/lib/engine/door";
 import { usePack } from "@/lib/content/packs";
 import type { TransitSky } from "@/lib/chart/types";
 import { useI18n } from "@/lib/i18n/locale";
@@ -117,17 +117,20 @@ export function useTransitSky() {
     const handle = window.setTimeout(() => {
       if (!ready.current) setBusy(true);
       setError(null);
-      void castTransits({
-        data: {
-          at: new Date(atMs).toISOString(),
-          latitude: chart.meta.latitude,
-          longitude: chart.meta.longitude,
-          natalCusps,
-          natalBodies,
-          houseSystem: chart.meta.houseSystem,
-        },
-        signal: ctrl.signal,
-      })
+      // Through the "calculate" door: this device or Ulune's server, as Settings says (on-device plan, step 4).
+      void door
+        .castTransits({
+          data: {
+            at: new Date(atMs).toISOString(),
+            latitude: chart.meta.latitude,
+            longitude: chart.meta.longitude,
+            natalCusps,
+            natalBodies,
+            houseSystem: chart.meta.houseSystem,
+            timezone: chart.meta.timezone,
+          },
+          signal: ctrl.signal,
+        })
         .then((next) => {
           skyCache.set(key, next);
           if (n !== gen.current) return;

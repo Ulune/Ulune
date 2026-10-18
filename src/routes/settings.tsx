@@ -11,6 +11,7 @@ import { pageHead } from "@/lib/page-head";
 import { problemMailto } from "@/lib/contact";
 import { TermLinksSetting } from "@/encyclopedia/TermLinksSetting";
 import { ChineseSettings } from "@/components/chinese-settings";
+import { CalculateSettings } from "@/components/calculate-settings";
 
 export const Route = createFileRoute("/settings")({
   // Nothing here for a search engine: the page is about this browser.
@@ -32,6 +33,7 @@ function Settings() {
         </header>
         <SpaceSettings />
         <YourData />
+        <CalculateSettings />
         <section className="ulune-panel ob-settings-card" data-testid="settings-legal">
           <h2 className="ob-settings-h">{t("legalAbout")}</h2>
           <LegalNav />

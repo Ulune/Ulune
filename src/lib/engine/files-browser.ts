@@ -8,8 +8,14 @@
  *
  * `fetch` and `caches` can be handed in, so Node's tests run this very code
  * against files served from the repository (scripts/engine-device.test.mjs).
+ *
+ * While files come over the network, `onProgress` hears how far they have got
+ * (bytes arrived of those expected, eras.ts FILE_BYTES), so the page can show
+ * the first chart's one-time download (on-device plan, step 5); files read
+ * from the browser's copy are not counted.
  */
-import { STARTUP_FILES } from "./eras";
+import { FILE_BYTES, STARTUP_FILES } from "./eras";
+import type { EngineProgress } from "./protocol";
 import type { EngineFiles } from "./swiss";
 
 /** The cache the engine's files are kept in (public/sw.js keeps it, and serves from it). */
@@ -32,6 +38,8 @@ export type BrowserFileOptions = {
   caches?: CachesLike | null;
   /** Absolute addresses for the cache's keys (a worker's own location by default). */
   base?: string;
+  /** Told as files arrive from the network: bytes arrived and expected for those on their way; `done` when none is left. */
+  onProgress?: (progress: EngineProgress) => void;
 };
 
 export type BrowserFiles = EngineFiles & {
@@ -58,6 +66,65 @@ export function browserFiles(urls: EngineUrls, options: BrowserFileOptions = {})
   let opened: Promise<CacheLike | null> | null = null;
   const traffic = { network: 0, kept: 0 };
 
+  // What the network is bringing now: the bytes expected of each file on its way, and those arrived.
+  const expected = new Map<string, number>([
+    [abs(urls.wasm), FILE_BYTES["swisseph.wasm"] ?? 0],
+    ...Object.entries(urls.files).map(([name, url]) => [abs(url), FILE_BYTES[name] ?? 0] as [string, number]),
+  ]);
+  const onProgress = options.onProgress;
+  const batch = { loaded: 0, total: 0, open: 0 };
+  const report = (done: boolean) => onProgress?.({ loaded: batch.loaded, total: Math.max(batch.total, batch.loaded), done });
+  const started = (key: string) => {
+    batch.total += expected.get(key) ?? 0;
+    batch.open += 1;
+    report(false);
+  };
+  const arrived = (n: number) => {
+    batch.loaded += n;
+    report(false);
+  };
+  const finished = () => {
+    batch.open -= 1;
+    if (batch.open > 0) return;
+    report(true);
+    batch.loaded = 0;
+    batch.total = 0;
+  };
+
+  /** A response's bytes, counted as they arrive when someone is listening. */
+  async function readCounting(res: Response): Promise<Uint8Array> {
+    if (!onProgress || !res.body) return new Uint8Array(await res.arrayBuffer());
+    const reader = res.body.getReader();
+    const parts: Uint8Array[] = [];
+    let size = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      parts.push(value);
+      size += value.length;
+      arrived(value.length);
+    }
+    const out = new Uint8Array(size);
+    let at = 0;
+    for (const part of parts) {
+      out.set(part, at);
+      at += part.length;
+    }
+    return out;
+  }
+
+  /** The same answer, its body counted as it streams (for the engine, compiled as it downloads). */
+  function counted(res: Response): Response {
+    if (!onProgress || !res.body || typeof TransformStream !== "function") return res;
+    const count = new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, out) {
+        arrived(chunk.byteLength);
+        out.enqueue(chunk);
+      },
+    });
+    return new Response(res.body.pipeThrough(count), { headers: res.headers });
+  }
+
   const cache = () =>
     (opened ??= (async () => {
       if (!store) return null;
@@ -74,19 +141,27 @@ export function browserFiles(urls: EngineUrls, options: BrowserFileOptions = {})
       }
     })());
 
-  /** A file's answer: the kept copy, or the network's (then kept). */
+  /**
+   * A file's answer: the kept copy, or the network's (then kept). A file from the network is
+   * counted in the download under way until `finished` is called for it.
+   */
   async function get(url: string): Promise<{ res: Response; kept: boolean }> {
     const key = abs(url);
     const c = await cache();
     const hit = await c?.match(key).catch(() => undefined);
     if (hit) return { res: hit, kept: true };
+    started(key);
     let res: Response;
     try {
       res = await doFetch(key, { credentials: "same-origin" });
     } catch {
+      finished();
       throw new Error("E:engine.offline");
     }
-    if (!res.ok) throw new Error(`E:engine.files|${res.status}`);
+    if (!res.ok) {
+      finished();
+      throw new Error(`E:engine.files|${res.status}`);
+    }
     // Kept before it is read; a full disk only means no copy.
     if (c) await c.put(key, res.clone()).catch(() => {});
     return { res, kept: false };
@@ -94,9 +169,18 @@ export function browserFiles(urls: EngineUrls, options: BrowserFileOptions = {})
 
   async function bytesOf(url: string): Promise<Uint8Array> {
     const { res, kept } = await get(url);
-    const bytes = new Uint8Array(await res.arrayBuffer());
-    traffic[kept ? "kept" : "network"] += bytes.length;
-    return bytes;
+    if (kept) {
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      traffic.kept += bytes.length;
+      return bytes;
+    }
+    try {
+      const bytes = await readCounting(res);
+      traffic.network += bytes.length;
+      return bytes;
+    } finally {
+      finished();
+    }
   }
 
   const files: BrowserFiles = {
@@ -107,15 +191,20 @@ export function browserFiles(urls: EngineUrls, options: BrowserFileOptions = {})
     async wasm() {
       const { res, kept } = await get(urls.wasm);
       traffic[kept ? "kept" : "network"] += Number(res.headers.get("content-length") ?? 0);
-      // Compiled while it streams in, when the answer says it is WebAssembly.
-      if (typeof WebAssembly.compileStreaming === "function" && /application\/wasm/.test(res.headers.get("content-type") ?? "")) {
-        try {
-          return await WebAssembly.compileStreaming(res.clone());
-        } catch {
-          /* read whole below */
+      try {
+        // Compiled while it streams in, when the answer says it is WebAssembly.
+        if (typeof WebAssembly.compileStreaming === "function" && /application\/wasm/.test(res.headers.get("content-type") ?? "")) {
+          const whole = res.clone();
+          try {
+            return await WebAssembly.compileStreaming(kept ? res : counted(res));
+          } catch {
+            return new Uint8Array(await whole.arrayBuffer());
+          }
         }
+        return kept ? new Uint8Array(await res.arrayBuffer()) : await readCounting(res);
+      } finally {
+        if (!kept) finished();
       }
-      return new Uint8Array(await res.arrayBuffer());
     },
     async read(name) {
       const url = urls.files[name];

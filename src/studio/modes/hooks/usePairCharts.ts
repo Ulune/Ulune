@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { buildComposite } from "@/lib/chart/composite";
 import { davisonCastInput, davisonMoment } from "@/lib/chart/davison";
-import { castChart } from "@/lib/chart/functions";
+import { door } from "@/lib/engine/door";
+import { errorForState, localizeError } from "@/lib/i18n/errors";
 import type { NatalChart } from "@/lib/chart/types";
 import { buildSynastry, partnerBodies } from "@/lib/chart/synastry";
 import { usePack } from "@/lib/content/packs";
@@ -72,7 +73,9 @@ export function usePairCharts(mode: "synastry" | "composite", enabled = true) {
     if (!m) return;
     let gone = false;
     setDavisonError(null);
-    castChart({ data: { ...davisonCastInput(m), houseSystem: inner.meta.houseSystem, timeUnknown: false, locale } })
+    // Through the "calculate" door: this device or Ulune's server, as Settings says (on-device plan, step 4).
+    door
+      .castChart({ data: { ...davisonCastInput(m), houseSystem: inner.meta.houseSystem, timeUnknown: false, locale } })
       .then((res) => {
         if (gone) return;
         const chart: NatalChart = {
@@ -82,7 +85,8 @@ export function usePairCharts(mode: "synastry" | "composite", enabled = true) {
         setDavison({ key: davisonKey, chart });
       })
       .catch((err: unknown) => {
-        if (!gone) setDavisonError(err instanceof Error ? err.message : String(err));
+        // In the reader's words (an engine's or a framework's message never reaches the screen).
+        if (!gone) setDavisonError(localizeError(errorForState(err), locale));
       });
     return () => {
       gone = true;

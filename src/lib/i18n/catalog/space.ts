@@ -32,9 +32,14 @@ export const space = {
     "Kept in your private space, on this device only, encrypted.",
     "Gardé dans votre espace privé, sur cet appareil seulement, chiffré.",
   ],
+  // Where the chart is calculated (on-device plan, step 5): this device by default, Ulune's server if chosen in Settings.
   castNote: [
-    "To draw the chart, the date, time and coordinates go to Ulune’s server, which answers and keeps nothing. The names never leave this device.",
-    "Pour tracer le thème, la date, l’heure et les coordonnées partent vers le serveur d’Ulune, qui répond et ne garde rien. Les noms ne quittent jamais cet appareil.",
+    "Calculated on this device: the date and time stay here; only the place is looked up through Ulune’s server.",
+    "Calculé sur cet appareil\u202f: la date et l’heure restent ici\u202f; seul le lieu est cherché par le serveur d’Ulune.",
+  ],
+  castNoteServer: [
+    "Calculated on Ulune’s server, which keeps nothing; the names stay on this device.",
+    "Calculé sur le serveur d’Ulune, qui ne garde rien\u202f; les noms restent sur cet appareil.",
   ],
   spaceLockClose: ["When Ulune is closed", "À la fermeture d’Ulune"],
   spaceLockIdle: ["After 15 minutes away", "Après 15 minutes d’absence"],

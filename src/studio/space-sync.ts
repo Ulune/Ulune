@@ -23,6 +23,8 @@ import {
   CHART_RECORD as CHART,
   LIBRARY_RECORD as LIBRARY,
   PAIR_RECORD as PAIR,
+  COMPARE_RECORD as COMPARE,
+  type CompareRecord,
   type LibraryRecord as LibraryState,
   type PairRecord as PairState,
 } from "@/lib/space/records";
@@ -31,11 +33,12 @@ import type { LockMode } from "@/lib/space/store";
 import type { Vault } from "@/lib/space/vault";
 import { toast } from "@/lib/toast";
 import { hydratePair, useStudioStore } from "@/studio/store";
+import { adoptPreviousChart, previousChartId } from "@/studio/show/flip";
 
 /*
  * The studio's charts in the private space (lib/space). While it is open,
  * every change to the library (a cast, a reading written, a chart removed,
- * another chosen) and to the partners is sealed into it, one record per
+ * another chosen), to the partners and to Compare is sealed into it, one record per
  * chart; when it opens, its charts come into the studio, with those cast in
  * this tab while just looking and those kept in the clear before private
  * spaces existed (which are then erased). When it locks, they leave the page.
@@ -46,6 +49,7 @@ let vault: Vault | null = null;
 let written = new Map<string, SavedChart>();
 let writtenLibrary = "";
 let writtenPair = "";
+let writtenCompare = "";
 let unsubscribe: (() => void) | null = null;
 let chain: Promise<void> = Promise.resolve();
 let pending = 0;
@@ -68,7 +72,7 @@ function lang(): "en" | "fr" {
 async function flush(): Promise<void> {
   const v = vault;
   if (!v?.isOpen) return;
-  const { rows, activeId, pair } = useStudioStore.getState();
+  const { rows, activeId, pair, compare } = useStudioStore.getState();
   const puts: [string, unknown][] = [];
   const deletes: string[] = [];
   const now = new Map<string, SavedChart>();
@@ -77,12 +81,17 @@ async function flush(): Promise<void> {
     if (written.get(row.id) !== row) puts.push([CHART + row.id, toStoredRow(row)]);
   }
   for (const id of written.keys()) if (!now.has(id)) deletes.push(CHART + id);
-  const library: LibraryState = { order: rows.map((r) => r.id), activeId };
+  // With the chart open before this one (share and compare plan, idea B3: the P key's).
+  const previousId = previousChartId();
+  const library: LibraryState = { order: rows.map((r) => r.id), activeId, ...(previousId ? { previousId } : {}) };
   const libraryText = JSON.stringify(library);
   if (libraryText !== writtenLibrary) puts.push([LIBRARY, library]);
   const partners: PairState = { partnerId: pair.partnerId, compositePartnerId: pair.compositePartnerId };
   const pairText = JSON.stringify(partners);
   if (pairText !== writtenPair) puts.push([PAIR, partners]);
+  // Compare, its second chart and linked selection (studio/compare): kept like the partners, as the store holds it.
+  const compareText = JSON.stringify(compare satisfies CompareRecord);
+  if (compareText !== writtenCompare) puts.push([COMPARE, compare]);
   // The first view shows the chart that is open; another chosen, it goes.
   const shown = firstViewChart();
   if (shown && shown !== activeId) forgetFirstView();
@@ -91,6 +100,7 @@ async function flush(): Promise<void> {
   written = now;
   writtenLibrary = libraryText;
   writtenPair = pairText;
+  writtenCompare = compareText;
   if (deletes.length || puts.some(([name]) => name.startsWith(CHART))) chartsWritten();
 }
 
@@ -151,9 +161,11 @@ async function open(v: Vault): Promise<void> {
   vault = v;
   const { kept, library } = await readKept(v);
   const partners = await v.get<PairState>(PAIR).catch(() => null);
+  const compared = await v.get<CompareRecord>(COMPARE).catch(() => null);
   written = new Map(kept.map((row) => [row.id, row]));
-  writtenLibrary = library ? JSON.stringify({ order: library.order, activeId: library.activeId }) : "";
+  writtenLibrary = library ? JSON.stringify({ order: library.order, activeId: library.activeId, ...(library.previousId ? { previousId: library.previousId } : {}) }) : "";
   writtenPair = partners ? JSON.stringify({ partnerId: partners.partnerId, compositePartnerId: partners.compositePartnerId }) : "";
+  writtenCompare = compared ? JSON.stringify(compared) : "";
 
   // Charts cast in this tab while just looking, and those kept in the clear
   // before private spaces: they join it.
@@ -170,9 +182,13 @@ async function open(v: Vault): Promise<void> {
     partnerId: state.pair.partnerId ?? partners?.partnerId ?? legacy?.partnerId ?? null,
     compositePartnerId: state.pair.compositePartnerId ?? partners?.compositePartnerId ?? legacy?.compositePartnerId ?? null,
   });
+  // Compare as the space left it (its own record, written above), unless this tab opened it meanwhile.
+  if (compared && !state.compare.on) useStudioStore.setState({ compare: { ...state.compare, ...compared } });
   const same = merged.length === state.rows.length && merged.every((row, i) => row === state.rows[i]);
   if (!same) useStudioStore.getState().restoreLibrary(merged, activeId);
   else if (activeId !== state.activeId) useStudioStore.getState().select(activeId ?? "");
+  // The chart open before (idea B3), as the space remembers it, unless this tab has one of its own.
+  adoptPreviousChart(library?.previousId);
 
   // The first view is kept only while the space stays unlocked on this device.
   if (v.meta.lock === "stay") {
@@ -184,7 +200,7 @@ async function open(v: Vault): Promise<void> {
 
   unsubscribe?.();
   unsubscribe = useStudioStore.subscribe((s, prev) => {
-    if (s.rows !== prev.rows || s.activeId !== prev.activeId || s.pair !== prev.pair) schedule();
+    if (s.rows !== prev.rows || s.activeId !== prev.activeId || s.pair !== prev.pair || s.compare !== prev.compare) schedule();
   });
   await queue();
   if (legacy && v.isOpen) {
@@ -227,6 +243,7 @@ function close(): void {
   written = new Map();
   writtenLibrary = "";
   writtenPair = "";
+  writtenCompare = "";
   setFirstViewSink(null);
   clearLocalLibrary();
   const pair = useStudioStore.getState().pair;
@@ -242,6 +259,7 @@ function close(): void {
     error: null,
     composeError: null,
     pair: { ...pair, partnerId: null, compositePartnerId: null, addingPartnerFor: null, anchorId: null },
+    compare: { on: false, partnerId: null, linked: true },
     formEpoch: useStudioStore.getState().formEpoch + 1,
   });
 }

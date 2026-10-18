@@ -54,3 +54,17 @@ export function isWide(): boolean {
   if (typeof window === "undefined") return true;
   return window.matchMedia(WIDE_QUERY).matches;
 }
+
+/**
+ * Compare's layout (studio/compare; share and compare plan, feature 2) brings the reading up from
+ * the bottom on a wide screen too, when two charts and the side panel do not fit side by side.
+ */
+let sheetOnWide = false;
+export function setSheetOnWide(on: boolean): void {
+  sheetOnWide = on;
+}
+
+/** The panel stands beside the stage (a computer's side panel), not as a sheet from the bottom. */
+export function panelBeside(): boolean {
+  return !sheetOnWide && isWide();
+}
