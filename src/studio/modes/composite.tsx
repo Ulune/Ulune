@@ -5,7 +5,8 @@ import { ChartWheel } from "@/components/chart-wheel";
 import { CompositeHello } from "@/components/composite-hello";
 import { LoadingLines } from "@/components/loading-lines";
 import { HOUSE_SYSTEM_LABEL } from "@/lib/chart/constants";
-import { usePack } from "@/lib/content/packs";
+import { NOW_REF } from "@/lib/chart/pair-now";
+import { registerPack, usePack } from "@/lib/content/packs";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { useI18n } from "@/lib/i18n/locale";
 import {
@@ -16,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
 import { usePairCharts } from "@/studio/modes/hooks/usePairCharts";
+import { usePairNowSky, type PairNowSky } from "@/studio/modes/hooks/usePairNowSky";
 import { MODE_META } from "@/studio/modes/meta";
 import { PairSelects } from "@/studio/modes/pair-selects";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
@@ -25,10 +27,21 @@ import { useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/pair.css";
 
+// "You two, now"'s reading text (lib/content/packs.ts), shared with the other astrology Relationship page: its loaders arrive with the page, not in the first download.
+registerPack("pairnow", {
+  en: () => import("@/lib/content/pack-pair-now?lang=en"),
+  fr: () => import("@/lib/content/pack-pair-now?lang=fr"),
+});
+
 const loadTable = () => import("@/studio/tables/composite-table");
 const CompositeTable = lazyNamed(loadTable, "CompositeTable");
+// "You two, now" (share and compare plan, feature 5e): a chunk of its own, with its style sheet (this page is fetched at idle with the first one).
+const AstroNow = lazyNamed(() => import("@/studio/modes/pair-now/astro-now"), "AstroNow");
 
-export type CompositeState = ReturnType<typeof usePairCharts>;
+export type CompositeState = ReturnType<typeof usePairCharts> & {
+  /** "You two, now": today's sky over the relationship's chart shown, the composite or the Davison (feature 5e). */
+  now: PairNowSky;
+};
 
 function CompositeControls() {
   return <PairSelects mode="composite" />;
@@ -166,6 +179,10 @@ function CompositeHelloEmpty() {
     <>
       <MixedHousesNote />
       <CompositeHello chart={composite.composite} selectedId={w.selectedId} onSelect={w.pick} />
+      {/* "You two, now" (feature 5e): the relationship chart's transits today, under the first read. */}
+      <Suspense fallback={null}>
+        <AstroNow page="composite" now={composite.now} davison={composite.kind === "davison"} />
+      </Suspense>
     </>
   );
 }
@@ -179,7 +196,13 @@ function CompositeData() {
       <RelationshipKind />
       <MixedHousesNote />
       <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
-        <CompositeTable chart={composite.composite} selectedId={w.selectedId} onSelect={w.pick} davison={composite.kind === "davison"} />
+        <CompositeTable
+          chart={composite.composite}
+          selectedId={w.selectedId}
+          onSelect={w.pick}
+          davison={composite.kind === "davison"}
+          now={{ contacts: composite.now.contacts, at: composite.now.at, ready: Boolean(composite.now.sky), failed: Boolean(composite.now.error) }}
+        />
       </Suspense>
     </>
   );
@@ -191,13 +214,25 @@ function useCompositeRuntime(): ModeRuntime<CompositeState> {
   const composite = usePairCharts("composite", page === "composite");
   const selectedId = useScoped((s) => s.selectedId);
   const astro = usePack("astro", locale, composite.enabled);
+  // "You two, now" (feature 5e): today's sky over the relationship's chart shown (the composite or the Davison),
+  // cast through the door while the page is shown; its texts are a pack of their own.
+  const relChart = composite.enabled ? composite.composite : null;
+  const now = usePairNowSky(Boolean(relChart), relChart);
+  const nowPack = usePack("pairnow", locale, Boolean(now.sky));
   const selected =
     selectedId && composite.compositeDossier ? (composite.compositeDossier.byId[selectedId] ?? null) : null;
-  const reading = useMemo(
-    () => (selected && astro ? astro.withClickNote(selected, locale) : null),
-    [selected, astro, locale],
-  );
-  return useMemo(() => ({ data: composite, reading }), [composite, reading]);
+  const reading = useMemo(() => {
+    if (selectedId?.startsWith("two:")) {
+      if (!nowPack || !relChart || !now.sky) return null;
+      const ctx = { chart: relChart, at: now.at, kind: composite.kind };
+      if (selectedId === NOW_REF) return nowPack.pairNowSummary(now.contacts, ctx, locale);
+      const contact = now.contacts.find((c) => c.ref === selectedId);
+      return contact ? nowPack.pairNowReading(contact, ctx, locale) : null;
+    }
+    return selected && astro ? astro.withClickNote(selected, locale) : null;
+  }, [selectedId, selected, astro, locale, nowPack, relChart, now, composite.kind]);
+  const data = useMemo(() => ({ ...composite, now }), [composite, now]);
+  return useMemo(() => ({ data, reading }), [data, reading]);
 }
 
 export const compositeMode: ModeDef = {

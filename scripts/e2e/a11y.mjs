@@ -63,7 +63,7 @@ for (const lang of ["en", "fr"]) {
     if (lang === "fr") await setLang(page, "fr");
     await castFixture(page, FIXTURE_A);
     const fr = lang === "fr";
-    for (const mode of ["natal", "transits", "timing", "synastry", "design", "design-pair", "numerology", "numerology-cycles", "numerology-pair"]) {
+    for (const mode of ["natal", "transits", "timing", "synastry", "design", "design-cycles", "design-pair", "numerology", "numerology-cycles", "numerology-pair"]) {
       await goStudioPage(page, mode).catch(() => {});
       await page.waitForTimeout(700);
       for (const tab of ["reading", "bodies", "look", "birth"]) {
@@ -531,7 +531,7 @@ const CHOOSE = {
   "fengshui-pair": "fengshui-pair-wedge-s",
   "fengshui-home": "fengshui-stars-main-c",
 };
-const WESTERN = ["natal", "transits", "design", "design-pair", "numerology", "timing"];
+const WESTERN = ["natal", "transits", "design", "design-cycles", "design-pair", "numerology", "timing"];
 const contrastCounts = [];
 /** Per Western page and theme: the words its chart draws in its own colours, under the ratio (listed, not failed). */
 const westernDrawn = new Map();
@@ -600,6 +600,8 @@ for (const width of [1280, 390]) {
       for (const id of WESTERN) {
         await goStudioPage(page, id);
         if (id === "timing") await page.getByTestId("calendar-month").waitFor({ timeout: 30000 });
+        // Human Design's Cycles: measured with its moment and its life cycles in.
+        if (id === "design-cycles") await page.getByTestId("hd-cycles-life-saturn1").waitFor({ timeout: 30000 });
         await page.waitForTimeout(1200);
         await measure(page, `${theme} ${width} ${id}`, false);
       }

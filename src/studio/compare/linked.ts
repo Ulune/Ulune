@@ -19,7 +19,9 @@ import type { StudioPage } from "@/studio/url";
  *     B's chart" when B lacks it; the reading panel says so under B's heading.
  */
 
-export type Who = "a" | "b";
+/** Compare's panes: A (the chart shown), B, and with three or four people (idea B8) C and D. */
+export type Who = "a" | "b" | "c" | "d";
+export const WHO: readonly Who[] = ["a", "b", "c", "d"];
 export const other = (who: Who): Who => (who === "a" ? "b" : "a");
 
 /** The yin or yang counts a chart shows: its own when its birth gives one, else both. */

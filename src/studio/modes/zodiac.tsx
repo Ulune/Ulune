@@ -22,8 +22,7 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
-import { useScopeKey, useScoped } from "@/studio/scope";
-import { useStudioStore } from "@/studio/store";
+import { useScoped, useScopedPage, useScopeKey } from "@/studio/scope";
 import "@/studio/modes/styles/zodiac.css";
 
 /*
@@ -287,7 +286,7 @@ function useZodiacRuntime(): ModeRuntime<ZodiacState> {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const chart = useScoped((s) => s.chart);
-  const page = useStudioStore((s) => s.page);
+  const page = useScopedPage();
   const selectedId = useScoped((s) => s.selectedId);
   const enabled = page === "zodiac" && Boolean(chart);
   const zodiac = useMemo(

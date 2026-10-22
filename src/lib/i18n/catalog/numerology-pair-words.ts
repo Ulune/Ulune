@@ -35,7 +35,7 @@ export const numPairWords = {
   npDigitTitle: ["Both have a {d}", "Tous deux ont un {d}"],
   npDigitLead: ["The {d}: for {a}, {aList}; for {b}, {bList}.", "Le {d}\u202f: chez {a}, {aList}\u202f; chez {b}, {bList}."],
   npDigitShared: ["A digit both hold is common ground; the {d} brings {brings}.", "Un chiffre porté par les deux est un terrain commun\u202f; le {d} apporte {brings}."],
-  npNowHead: ["You two, now", "Vous deux, en ce moment"],
+  npNowHead: ["You two, now", "Vous deux, maintenant"],
   npYearLine: [
     "In {year}, a {pa} year for {a} beside a {pb} year for {b}: the relationship’s year is a {pt}.",
     "En {year}, une année {pa} pour {a} à côté d’une année {pb} pour {b}\u202f: l’année de la relation est une année {pt}.",
@@ -76,7 +76,7 @@ export const numPairWords = {
   npPartPairsHint: ["Each pair of numbers, the same and the crossed, read as a dynamic.", "Chaque paire de nombres, les mêmes et les croisées, lue comme une dynamique."],
   npPartShared: ["Relationship and shared digits", "Relation et chiffres en commun"],
   npPartSharedHint: ["The relationship number, and the digits both people’s numbers hold.", "Le nombre de la relation, et les chiffres que portent les nombres des deux."],
-  npPartNow: ["You two, now", "Vous deux, en ce moment"],
+  npPartNow: ["You two, now", "Vous deux, maintenant"],
   npPartNowHint: ["Both personal years for the year shown, and the relationship’s year.", "Les deux années personnelles de l’année montrée, et l’année de la relation."],
   npColPair: ["Pair", "Paire"],
   npColDynamic: ["Dynamic", "Dynamique"],

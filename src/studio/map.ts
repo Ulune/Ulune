@@ -54,12 +54,14 @@ export const LANGUAGES: readonly Language[] = [
   },
   // Human Design: its bodygraph, and since 2.0's week 3 its Relationship
   // lens, the connection chart of two people (share and compare plan,
-  // feature 5a). Relationship stays the third lens (Alt+3).
+  // feature 5a); since week 4 its Cycles, the moment over your bodygraph and
+  // the life cycles (feature 5b). Cycles is the second lens (Alt+2),
+  // Relationship stays the third (Alt+3).
   {
     id: "human-design",
     path: "/human-design",
     home: { en: "human-design", fr: "design-humain" },
-    lenses: { natal: ["design"], relationship: ["design-pair"] },
+    lenses: { natal: ["design"], cycles: ["design-cycles"], relationship: ["design-pair"] },
   },
   {
     id: "numerology",
@@ -150,6 +152,7 @@ export const PAGE_PATHS: Readonly<Record<StudioPage, string>> = {
   composite: "/astrology/composite",
   design: "/human-design",
   "design-pair": "/human-design/pair",
+  "design-cycles": "/human-design/cycles",
   numerology: "/numerology",
   "numerology-cycles": "/numerology/cycles",
   "numerology-pair": "/numerology/pair",

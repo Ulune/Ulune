@@ -74,21 +74,30 @@ function periodOffset(zone: string, scope: TimingScope, civil: CivilDate): strin
   return from === to ? from : `${from} → ${to}`;
 }
 
+/** The calendar file's question while the kept charts' birthdays and returns show (idea B10): its words, and the answer (off by default). */
+export type IcsPeople = { on: boolean; set: (on: boolean) => void; words: { ask: string; off: string; on: string } };
+
 /**
  * The calendar file's choices as menu items (in an Export menu): the sky's
  * main events, those with your slow transits (while they show), everything.
+ * With the kept charts' birthdays and returns showing (share and compare plan,
+ * idea B10), first the question whether the file holds them: no until the
+ * reader says yes, so a file holds no names unless chosen.
  */
 export function IcsItems({
   onExport,
   loading,
   testId,
   transits = true,
+  people = null,
 }: {
   onExport: (kind: IcsKind) => void;
   loading: boolean;
   testId: string;
   /** Your transits show: the file can hold them. */
   transits?: boolean;
+  /** The kept charts' birthdays and returns show: whether the file holds them. */
+  people?: IcsPeople | null;
 }) {
   const { locale } = useI18n();
   const kinds: IcsKind[] = transits ? ["main", "mine", "all"] : ["main", "all"];
@@ -98,6 +107,24 @@ export function IcsItems({
         {pick(CALENDAR_UI.switches.file, locale)}
         {loading ? <LoaderCircle className="size-3.5 animate-spin" aria-label={pick(CALENDAR_UI.switches.fileWait, locale)} /> : null}
       </p>
+      {people ? (
+        <button
+          type="button"
+          role="menuitemcheckbox"
+          aria-checked={people.on}
+          className="ob-menu-item ulune-cal-ics-people"
+          data-testid={`${testId}-people`}
+          onClick={() => people.set(!people.on)}
+        >
+          <span className={cn("ulune-cal-ics-box", people.on && "is-on")} aria-hidden>
+            {people.on ? "✓" : ""}
+          </span>
+          <span className="ulune-cal-ics-people-words">
+            <span>{people.words.ask}</span>
+            <span className="ulune-cal-layer-hint">{people.on ? people.words.on : people.words.off}</span>
+          </span>
+        </button>
+      ) : null}
       {kinds.map((k) => (
         <button
           key={k}
@@ -121,10 +148,10 @@ export function IcsItems({
  * The calendar file's choices at the end of the stage's Export menu (UI
  * plan, part 93): every way to save or share is in that one menu.
  */
-function IcsExportItems({ onExport, loading, transits }: { onExport: (kind: IcsKind) => void; loading: boolean; transits: boolean }) {
+function IcsExportItems({ onExport, loading, transits, people }: { onExport: (kind: IcsKind) => void; loading: boolean; transits: boolean; people: IcsPeople | null }) {
   const slot = useExportSlot();
   if (!slot) return null;
-  return createPortal(<IcsItems onExport={onExport} loading={loading} testId="calendar-export" transits={transits} />, slot);
+  return createPortal(<IcsItems onExport={onExport} loading={loading} testId="calendar-export" transits={transits} people={people} />, slot);
 }
 
 /** The layers' switches and their state, as the bar hands them to View. */
@@ -137,6 +164,8 @@ export type CalendarBarLayers = {
   onLayer: (id: CalendarLayerId, on: boolean) => void;
   /** Opens the birth form, while no chart is cast. */
   onCast?: () => void;
+  /** What a layer brings under its switch (the kept charts' groups, idea B10). */
+  extras?: Partial<Record<CalendarLayerId, ReactNode>>;
 };
 
 // The month picker the birth form uses (its own download).
@@ -277,7 +306,7 @@ function CalendarView({
               {zoneLine}
             </span>
           </label>
-          <CalendarLayers on={layers.on} hasChart={layers.hasChart} onLayer={layers.onLayer} onCast={layers.onCast} />
+          <CalendarLayers on={layers.on} hasChart={layers.hasChart} onLayer={layers.onLayer} onCast={layers.onCast} extras={layers.extras} />
           {legend && !table ? (
             <div className="ulune-cal-view-key">
               <span className="ulune-cal-view-h">{pick(CALENDAR_UI.switches.key, locale)}</span>
@@ -308,6 +337,7 @@ export function CalendarBar({
   onNum,
   onJump,
   legend,
+  people = null,
 }: {
   scope: TimingScope;
   civil: CivilDate;
@@ -334,6 +364,8 @@ export function CalendarBar({
   onJump?: (next: CivilDate) => void;
   /** The key to the symbols, in View. */
   legend?: ReactNode;
+  /** The calendar file's question about the kept charts' birthdays and returns, while they show (idea B10). */
+  people?: IcsPeople | null;
 }) {
   const { locale, t } = useI18n();
   const z = CALENDAR_UI.zone;
@@ -382,7 +414,7 @@ export function CalendarBar({
           legend={legend}
         />
       </div>
-      {table ? null : <IcsExportItems onExport={onExport} loading={loading} transits={layers.shown.transits} />}
+      {table ? null : <IcsExportItems onExport={onExport} loading={loading} transits={layers.shown.transits} people={people} />}
     </div>
   );
 }

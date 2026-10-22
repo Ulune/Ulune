@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, type ComponentType, type KeyboardEvent, type ReactNode } from "react";
+import type { PersonEvent } from "@/lib/chart/calendar-people";
 import { PairIcon, SignMark, SkyEventIcon } from "@/components/calendar-icons";
 import { PlanetGlyph } from "@/components/glyphs";
 import { MoonGlyph } from "@/components/moon-glyph";
@@ -67,6 +68,7 @@ export function CalendarMonth({
   num = null,
   animals = null,
   stars = null,
+  people = null,
 }: {
   civil: CivilDate;
   tz: string;
@@ -86,6 +88,11 @@ export function CalendarMonth({
   animals?: { yearBranch: number | null; glyphs: readonly string[] | null } | null;
   /** Feng Shui's flying stars (with their layer on, part 25): the month's star from each month's jie, the year's from Lichun. */
   stars?: { changes: readonly StarChange[] } | null;
+  /**
+   * The kept charts' birthdays and returns (with their layer on, share and compare plan, idea B10): a day's
+   * events, the mark that draws them (their layer's own code) and each one in words for the day's label.
+   */
+  people?: { of: (day: string) => readonly PersonEvent[]; Cell: ComponentType<{ events: readonly PersonEvent[]; day: string }>; say: (ev: PersonEvent) => string } | null;
 }) {
   const { locale } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
@@ -245,6 +252,7 @@ export function CalendarMonth({
           // The day's animal, and whether it clashes with the reader's year animal (the almanac's clash day).
           const da = animals ? dayAnimalAt(date.year, date.month, date.day) : null;
           const clash = Boolean(da && animals?.yearBranch != null && da.clashes === animals.yearBranch);
+          const ppl = people?.of(key) ?? [];
           const label = [
             dayName.format(Date.UTC(date.year, date.month - 1, date.day, 12)),
             moonWords,
@@ -258,6 +266,7 @@ export function CalendarMonth({
             d?.star ? cnWord(locale, "fsyCalMonth", { n: d.star.month }) : "",
             d?.star?.year != null ? cnWord(locale, "fsyCalYear", { n: d.star.year }) : "",
             clash ? cnWord(locale, "zkCalClash") : "",
+            ...(people ? ppl.map(people.say) : []),
           ]
             .filter(Boolean)
             .join("; ");
@@ -271,6 +280,7 @@ export function CalendarMonth({
               data-mine={mine.length}
               data-sky={heads.length}
               data-clash={clash ? "1" : undefined}
+              data-people={ppl.length || undefined}
               aria-label={label}
               aria-pressed={selectedDay === key}
               aria-current={todayKey === key ? "date" : undefined}
@@ -355,6 +365,7 @@ export function CalendarMonth({
                   ))}
                 </span>
               ) : null}
+              {people && ppl.length ? <people.Cell events={ppl} day={key} /> : null}
               {mine.length ? (
                 <span
                   className="ulune-cal-yours"
@@ -393,6 +404,7 @@ export function CalendarLegend({
   terms = false,
   animals = false,
   stars = false,
+  people = null,
 }: {
   sky?: boolean;
   yours?: boolean;
@@ -403,6 +415,8 @@ export function CalendarLegend({
   animals?: boolean;
   /** Feng Shui's flying stars (part 25): the month's star from its day. */
   stars?: boolean;
+  /** The kept charts' birthdays and returns (idea B10): their key, drawn by their layer's code. */
+  people?: ReactNode;
 }) {
   const { locale } = useI18n();
   const cnPrefs = useChinesePrefs();
@@ -475,6 +489,7 @@ export function CalendarLegend({
           <i className="ulune-cal-clashmark" aria-hidden /> {cnWord(locale, "zkCalClash")}
         </span>
       ) : null}
+      {people}
     </p>
   );
 }

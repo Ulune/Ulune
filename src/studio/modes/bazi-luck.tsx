@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useRef, useSyncExternalStore } from "react";
+import { Suspense, useCallback, useMemo, useRef, useSyncExternalStore } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LoadingLines } from "@/components/loading-lines";
 import { BRANCHES, SIXTY, STEMS, phaseWord } from "@/lib/chinese/names";
@@ -34,8 +34,8 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
-import { useDomIds, useScopeKey, useScoped } from "@/studio/scope";
-import { useStudioStore } from "@/studio/store";
+import { useDomIds, useScoped, useScopedPage, useScopeKey } from "@/studio/scope";
+import { useScopedSetYear, useScopedYear } from "@/studio/scope-time";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/zodiac-time.css";
 import "@/studio/modes/styles/bazi-luck.css";
@@ -68,7 +68,8 @@ export type BaziLuckState = {
 };
 
 // The year stepped to (null: this year), for this tab only, as Chinese astrology's Cycles keeps its own: time,
-// shared by every chart scope (both of Compare's panes show the same year, each held within its own life on read).
+// shared by every chart scope (both of Compare's panes show the same year, each held within its own life on read),
+// but a pane with a moment of its own (Compare's two moments: studio/scope-time.ts, useLuckYear below).
 let chosen: number | null = null;
 const listeners = new Set<() => void>();
 const subscribe = (fn: () => void) => {
@@ -77,9 +78,12 @@ const subscribe = (fn: () => void) => {
     listeners.delete(fn);
   };
 };
+/** A year as the slider keeps it: within the life's years, null for this one. */
+function yearOf(year: number | null, first: number, last: number): number | null {
+  return year == null || year === flowYearOf(Date.now()) ? null : Math.min(last, Math.max(first, Math.trunc(year)));
+}
 function setYear(year: number | null, first: number, last: number) {
-  const now = flowYearOf(Date.now());
-  const next = year == null || year === now ? null : Math.min(last, Math.max(first, Math.trunc(year)));
+  const next = yearOf(year, first, last);
   if (next === chosen) return;
   chosen = next;
   for (const fn of listeners) fn();
@@ -90,6 +94,13 @@ const useSteppedYear = () =>
     () => chosen,
     () => null,
   );
+
+/** How this part steps the year, within the life's years: the one year, or its Compare pane's own. */
+function useLuckYear(first: number, last: number): (year: number | null) => void {
+  const shared = useCallback((year: number | null) => setYear(year, first, last), [first, last]);
+  const norm = useCallback((year: number | null) => yearOf(year, first, last), [first, last]);
+  return useScopedSetYear(shared, norm);
+}
 
 /** A meeting's tone, for its chip. */
 const toneOf = (m: Meeting) => interactionTone(m.kind);
@@ -198,6 +209,7 @@ function LuckFigure() {
   // With nothing chosen the side panel reads the year: this page's first read is here, so are its method notes (part 29).
   const notes = useMethodNotes("bazi-luck", w.chart);
   const domId = useDomIds();
+  const toYear = useLuckYear(data?.firstYear ?? 0, data?.lastYear ?? 0);
   if (!c || !y || !data) return null;
   const both = data.lucks.length > 1;
   const now = Date.now();
@@ -235,7 +247,7 @@ function LuckFigure() {
           step={1}
           value={y.year}
           data-testid="bazi-luck-slider"
-          onChange={(e) => setYear(Number(e.target.value), data.firstYear, data.lastYear)}
+          onChange={(e) => toYear(Number(e.target.value))}
         />
       </label>
 
@@ -330,6 +342,7 @@ function LuckFigure() {
 function LuckControls() {
   const { locale } = useI18n();
   const data = useModeData("bazi-luck");
+  const toYear = useLuckYear(data?.firstYear ?? 0, data?.lastYear ?? 0);
   const y = data?.year;
   if (!y || !data) return null;
   const now = flowYearOf(Date.now());
@@ -341,7 +354,7 @@ function LuckControls() {
         data-testid="bazi-luck-prev"
         aria-label={cnWord(locale, "bzlYearPrev")}
         disabled={y.year <= data.firstYear}
-        onClick={() => setYear(y.year - 1, data.firstYear, data.lastYear)}
+        onClick={() => toYear(y.year - 1)}
       >
         <ChevronLeft className="size-4" strokeWidth={1.75} />
       </button>
@@ -352,7 +365,7 @@ function LuckControls() {
         data-now={y.year === now ? "1" : undefined}
         aria-label={y.year === now ? String(y.year) : cnWord(locale, "bzlYearBack", { year: y.year })}
         title={y.year === now ? undefined : cnWord(locale, "bzlYearBack", { year: y.year })}
-        onClick={() => setYear(null, data.firstYear, data.lastYear)}
+        onClick={() => toYear(null)}
       >
         {y.year}
       </button>
@@ -362,7 +375,7 @@ function LuckControls() {
         data-testid="bazi-luck-next"
         aria-label={cnWord(locale, "bzlYearNext")}
         disabled={y.year >= data.lastYear}
-        onClick={() => setYear(y.year + 1, data.firstYear, data.lastYear)}
+        onClick={() => toYear(y.year + 1)}
       >
         <ChevronRight className="size-4" strokeWidth={1.75} />
       </button>
@@ -393,9 +406,9 @@ function useLuckRuntime(): ModeRuntime<BaziLuckState> {
   const prefs = useChinesePrefs();
   const chart = useScoped((s) => s.chart);
   const count = useScoped((s) => s.input.chineseCount);
-  const page = useStudioStore((s) => s.page);
+  const page = useScopedPage();
   const selectedId = useScoped((s) => s.selectedId);
-  const stepped = useSteppedYear();
+  const stepped = useScopedYear(useSteppedYear());
   const enabled = page === "bazi-luck" && Boolean(chart);
   const bazi = useMemo(
     () =>

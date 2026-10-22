@@ -1,11 +1,14 @@
 /**
  * The calendar's rows for a period (part 57 of the launch plan): the sky's
  * events, your exacts and numerology's long cycles changing on birthdays
- * (part 62), in time order, for the events table and the calendar file. Each
+ * (part 62), in time order, for the events table and the calendar file; and
+ * the birthdays and returns of the charts you keep (share and compare plan,
+ * idea B10), which a calendar file holds only when the reader says so. Each
  * kind of row comes from a layer (calendar-layers.ts): only the layers shown
  * give theirs.
  */
 import { rowShown, type ShownLayers } from "./calendar-layers";
+import type { PersonEvent } from "./calendar-people";
 import type { NumerologyCalendar } from "./numerology-calendar";
 import { skyEventId, type SkyEvent } from "./sky-events";
 import type { TimingHit } from "./types";
@@ -13,10 +16,14 @@ import type { TimingHit } from "./types";
 /** A long cycle changing on a birthday, with the start of that day (ms UTC, in the calendar's clock). */
 export type NumRow = { kind: "num"; t: number; id: string; change: NumerologyCalendar["changes"][number] };
 
+/** A kept person's birthday or return (idea B10): its moment (a birthday's day start), its id. */
+export type PeopleRow = { kind: "people"; t: number; id: string; ev: PersonEvent };
+
 export type CalRow =
   | { kind: "sky"; t: number; id: string; ev: SkyEvent }
   | { kind: "you"; t: number; id: string; hit: TimingHit }
-  | NumRow;
+  | NumRow
+  | PeopleRow;
 
 /** The Moon's own events (its sign changes, aspects and void-of-course spans): many, and the day view's. */
 export function isMoonOwn(ev: SkyEvent): boolean {
@@ -32,6 +39,8 @@ export function calendarRows(
   opts: { layers: Partial<ShownLayers>; moon: boolean },
   /** Numerology's changes, already placed in the calendar's clock. */
   num: readonly NumRow[] = [],
+  /** The kept charts' birthdays and returns (idea B10), with their layer on. */
+  people: readonly PeopleRow[] = [],
 ): CalRow[] {
   const rows: CalRow[] = [];
   const sky = rowShown("sky", opts.layers);
@@ -56,6 +65,7 @@ export function calendarRows(
     }
   }
   if (rowShown("num", opts.layers)) for (const r of num) if (r.t >= from && r.t < to) rows.push(r);
-  const rank = { sky: 0, you: 1, num: 2 } as const;
+  if (rowShown("people", opts.layers)) for (const r of people) if (r.t >= from && r.t < to) rows.push(r);
+  const rank = { sky: 0, you: 1, num: 2, people: 3 } as const;
   return rows.sort((a, b) => a.t - b.t || rank[a.kind] - rank[b.kind]);
 }

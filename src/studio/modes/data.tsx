@@ -13,6 +13,7 @@ import type { ElementReading } from "@/lib/chart/types";
 import type { CompositeState } from "@/studio/modes/composite";
 import type { DesignState } from "@/studio/modes/design";
 import type { DesignPairState } from "@/studio/modes/design-pair";
+import type { DesignCyclesState } from "@/studio/modes/design-cycles";
 import type { NumerologyState } from "@/studio/modes/numerology";
 import type { NumerologyPairState } from "@/studio/modes/numerology-pair";
 import type { ProgressionsState } from "@/studio/modes/progressions";
@@ -52,6 +53,7 @@ export type ModeData = {
   composite: CompositeState;
   design: DesignState;
   "design-pair": DesignPairState;
+  "design-cycles": DesignCyclesState;
   numerology: NumerologyState;
   "numerology-cycles": NumerologyState;
   "numerology-pair": NumerologyPairState;
@@ -89,7 +91,9 @@ function Runtime({ def, slots }: { def: ModeDef; slots: SlotStore }) {
 export function ModeRuntimes() {
   const scope = useChartScope();
   const slots = scope?.slots ?? mainSlots;
-  const page = useStudioStore((s) => s.page);
+  // A Compare pane with a page of its own (ideas B7) runs that page's hooks.
+  const studioPage = useStudioStore((s) => s.page);
+  const page = scope?.page ?? studioPage;
   const loaded = useLoadedModes();
   const opened = useRef(new Set<StudioPage>());
   if (!scope || !MODE_META[page].mainOnly) opened.current.add(page);
@@ -119,7 +123,9 @@ export function useModeData<K extends Exclude<StudioPage, "natal">>(page: K, sco
 
 /** The reading of the selected item in the mode on screen: the scope's around the caller, or the scope given. */
 export function useModeReading(scope?: ChartScope | null): ElementReading | null {
-  const page = useStudioStore((s) => s.page);
+  const studioPage = useStudioStore((s) => s.page);
+  const around = useChartScope();
+  const page = (scope ?? around)?.page ?? studioPage;
   const slots = useSlots(scope);
   return useSyncExternalStore(
     slots.subscribe,

@@ -11,6 +11,43 @@ import { qaSelftestPlugin } from "./scripts/qa-selftest/plugin.mjs";
 import { encyclopediaPlugin } from "./scripts/encyclopedia/vite-plugin.mjs";
 import { ENGINE_WORKER_CSP, ENGINE_WORKER_PATH, SECURITY_HEADERS } from "./src/lib/security-headers";
 
+/*
+ * A lazy part's preload list (the files Vite fetches beside it, `__vite__mapDeps`) leaves out the files
+ * its importer has already loaded: the importer's own static imports, which always run before its code
+ * can ask for anything. The lists are written into the chunks that ask, the first download's among them;
+ * every name left out was a preload that could never be needed (2.0 week 4 review: 0.4 KB gz of "/"). CSS
+ * files are never in what Vite hands over, so a part's style sheets still come with it.
+ */
+let written: Record<string, { imports?: string[] }> = {};
+const alreadyLoaded = new Map<string, Set<string>>();
+function loadedBefore(host: string): Set<string> {
+  const hit = alreadyLoaded.get(host);
+  if (hit) return hit;
+  const seen = new Set<string>();
+  const walk = (file: string) => {
+    for (const dep of written[file]?.imports ?? []) {
+      if (seen.has(dep)) continue;
+      seen.add(dep);
+      walk(dep);
+    }
+  };
+  walk(host);
+  alreadyLoaded.set(host, seen);
+  return seen;
+}
+const preloadLists = {
+  name: "ulune:preload-lists",
+  apply: "build" as const,
+  generateBundle: {
+    order: "pre" as const,
+    handler(this: { environment?: { name: string } }, _options: unknown, bundle: Record<string, { imports?: string[] }>) {
+      if (this.environment?.name !== "client") return;
+      written = bundle;
+      alreadyLoaded.clear();
+    },
+  },
+};
+
 // The development server answers this machine only (127.0.0.1), on the
 // launcher's port; `vite preview` serves the built output on 8081.
 export default defineConfig(({ command, isPreview }) => ({
@@ -69,6 +106,13 @@ export default defineConfig(({ command, isPreview }) => ({
       build: {
         // ULUNE_MAPS=1 npm run build: with source maps, to see what each chunk holds (the first-load trim, 13 Oct 2026).
         sourcemap: process.env.ULUNE_MAPS === "1",
+        // (See preloadLists above.)
+        modulePreload: {
+          resolveDependencies: (_file: string, deps: string[], { hostId }: { hostId: string }) => {
+            const have = loadedBefore(hostId);
+            return deps.filter((dep) => !have.has(dep));
+          },
+        },
         rollupOptions: {
           output: {
             // React and the router in chunks of their own: an app deploy
@@ -130,6 +174,7 @@ export default defineConfig(({ command, isPreview }) => ({
     },
   },
   plugins: [
+    preloadLists,
     // (The calculations' worker, the engine and the ephemeris files are built into /assets/ because
     // the "calculate" door's engine side, src/lib/engine/client.ts, names the worker: on-device
     // plan, step 4. Week 1's "ulune:engine" plugin, which shipped them before any page did, is gone.)

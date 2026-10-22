@@ -1,13 +1,15 @@
 /**
  * The calendar's rows as a calendar file (.ics), in the reader's language:
  * each event's title and a short description, your slow transits as the
- * whole days they stay within 1°.
+ * whole days they stay within 1°; the kept charts' birthdays and returns
+ * (share and compare plan, idea B10) only when the reader includes them,
+ * through `people` (their names go nowhere else).
  */
 import { buildIcs, type IcsItem } from "@/lib/chart/calendar-ics";
 import { isHeadline } from "@/lib/chart/calendar-sky";
 import { MEAN_SPEED } from "@/lib/chart/constants";
 import type { BodyId } from "@/lib/chart/types";
-import type { CalRow } from "@/lib/chart/calendar-rows";
+import type { CalRow, PeopleRow } from "@/lib/chart/calendar-rows";
 import type { TransitWindow } from "@/lib/chart/personal-transits";
 import type { SkyAspect } from "@/lib/chart/sky-events";
 import { dateFormat } from "@/lib/intl-cache";
@@ -30,7 +32,8 @@ const SLOW_MOVERS = new Set<string>(["mars", "jupiter", "saturn", "uranus", "nep
 
 export function icsKeeps(r: CalRow, kind: IcsKind): boolean {
   if (kind === "all") return true;
-  if (r.kind === "num") return true;
+  // Numerology's turns, and the birthdays and returns the reader chose to include, whatever the kind.
+  if (r.kind === "num" || r.kind === "people") return true;
   if (r.kind === "sky") return isHeadline(r.ev) || r.ev.k === "term";
   return kind === "mine" && SLOW_MOVERS.has(r.hit.moving);
 }
@@ -47,15 +50,18 @@ export function calendarIcs(
     kind?: IcsKind;
     /** A transit's one line of meaning, once the calendar's reading text is here. */
     meaning?: (hit: Extract<CalRow, { kind: "you" }>["hit"]) => string;
+    /** A kept chart's birthday or return as an item (idea B10): without it, such rows stay out of the file. */
+    people?: (r: PeopleRow) => IcsItem;
   } = {},
 ): string {
-  const { lonAt, kind = "all", meaning } = opts;
+  const { lonAt, kind = "all", meaning, people } = opts;
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
   const time = (ms: number) => dateFormat(loc, { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(ms));
   const shortDay = (ms: number) => dateFormat(loc, { timeZone: tz, weekday: "short", day: "numeric", month: "short" }).format(new Date(ms));
   const degree = (lon: number) => `${formatDegree(lon)} ${signWord(Math.floor((((lon % 360) + 360) % 360) / 30), locale)}`;
-  const kept = rows.filter((r) => icsKeeps(r, kind));
+  const kept = rows.filter((r) => icsKeeps(r, kind) && (r.kind !== "people" || Boolean(people)));
   const items: IcsItem[] = kept.map((r) => {
+    if (r.kind === "people") return people!(r);
     if (r.kind === "sky") {
       const ev = r.ev;
       const detail = skyEventDetail(ev, locale, degree);

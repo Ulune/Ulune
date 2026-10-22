@@ -9,7 +9,7 @@ import { NP_REL_REF, NP_YEAR_REF, digitLine, npDigitRef, npPairRef, pairLabel, y
 import { polar, sectorAngle, sectorPath } from "@/lib/chart/numerology-wheel";
 import { isMaster, wholeText, type NumerologyValue } from "@/lib/chart/numerology-reduce";
 import type { NatalChart } from "@/lib/chart/types";
-import { usePack, type NumPairPack } from "@/lib/content/packs";
+import { registerPack, usePack, type NumPairPack } from "@/lib/content/packs";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { focusField } from "@/lib/focus-field";
 import { npWord } from "@/lib/i18n/catalog/numerology-pair-words";
@@ -31,6 +31,12 @@ import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/first-read.css";
 import "@/studio/modes/styles/pair.css";
 import "@/studio/modes/styles/numerology-pair.css";
+
+// This page's reading text (lib/content/packs.ts): its loaders arrive with the page, not in the first download.
+registerPack("numpair", {
+  en: () => import("@/lib/content/pack-num-pair?lang=en"),
+  fr: () => import("@/lib/content/pack-num-pair?lang=fr"),
+});
 
 /*
  * Numerology's Relationship (share and compare plan, feature 5c; decision

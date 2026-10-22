@@ -17,7 +17,7 @@
  *   - The sky's files (/api/sky-window, /api/sky-year): the same for
  *     everyone, asked for by date and version only, never changing for a
  *     given address; kept so the calendar's months open offline.
- *   - The studio's pages ("/" and its paths: /astrology…, /human-design (and /pair),
+ *   - The studio's pages ("/" and its paths: /astrology…, /human-design (and /cycles, /pair),
  *     /numerology, /numerology/cycles and /pair, /chinese-astrology (and /cycles, /pair), /bazi (and /cycles, /pair), /feng-shui (and /cycles, /pair, /home), /calendar,
  *     /calendrier): from the
  *     network as always (checked with the server, never an older copy from
@@ -56,7 +56,7 @@ const ENGINE = "ulune-engine-v1";
 const ENGINE_FILE = /^\/assets\/(?:[\w-]+\.se1|swisseph-[\w-]+\.wasm|sefstars-[\w-]+\.txt)$/;
 const ENCYCLOPEDIA = /^\/(?:encyclopedia|encyclopedie)(?:\/[a-z0-9-]+)?\/?$/;
 /** The studio's paths (src/studio/map.ts): the same page, each kept under its own address. */
-const STUDIO = /^\/(?:astrology(?:\/(?:transits|progressions|synastry|composite))?|human-design(?:\/pair)?|numerology(?:\/(?:cycles|pair))?|chinese-astrology(?:\/(?:cycles|pair))?|bazi(?:\/(?:cycles|pair))?|feng-shui(?:\/(?:cycles|pair|home))?|calendar|calendrier)?\/?$/;
+const STUDIO = /^\/(?:astrology(?:\/(?:transits|progressions|synastry|composite))?|human-design(?:\/(?:cycles|pair))?|numerology(?:\/(?:cycles|pair))?|chinese-astrology(?:\/(?:cycles|pair))?|bazi(?:\/(?:cycles|pair))?|feng-shui(?:\/(?:cycles|pair|home))?|calendar|calendrier)?\/?$/;
 
 self.addEventListener("install", () => {
   self.skipWaiting();

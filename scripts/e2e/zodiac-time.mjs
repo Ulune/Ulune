@@ -9,6 +9,10 @@
  *   - Pair (/chinese-astrology/pair): A's and B's animals on one wheel (eight
  *     badges, B's as rings), the year animals in a destruction (Horse–Rabbit),
  *     the day animals in a clash (Pig–Snake), a meeting's reading, the table;
+ *     "You two, now" (share and compare plan, feature 5e) beside the wheel
+ *     and in the first read: this year's animal for both, each one's year
+ *     animal meeting it, the month for both, a line for the two; the year
+ *     opens its reading; the table's last part says the same;
  *   - the Calendar's "The day's animal" layer: each day of the month drawn,
  *     the clash days (the Rat's, against a Horse year animal) marked; the
  *     day view's animal opening its reading, whose glossary claims none of
@@ -28,8 +32,8 @@ const LIVE = /LIVE_FAMILIES[^=]*=\s*new Set<ChineseFamily>\(\[([^\]]*)\]/.exec(r
 const ANY_LIVE = /"[a-z-]+"/.test(LIVE?.[1] ?? "");
 
 const WORDS = {
-  en: { fireHorse: "Yang Fire Horse", goat: "Yin Fire Goat", own: "Own year", harmony: "Harmony", ratMonth: "The Rat month", destruction: "Destruction", clash: "Clash", pairText: "One of the six destructions", day: "Day of the" },
-  fr: { fireHorse: "Cheval de Feu yang", goat: "Chèvre de Feu yin", own: "Année propre", harmony: "Harmonie", ratMonth: "Le mois du Rat", destruction: "Destruction", clash: "Choc", pairText: "Une des six destructions", day: "Jour " },
+  en: { fireHorse: "Yang Fire Horse", goat: "Yin Fire Goat", own: "Own year", harmony: "Harmony", ratMonth: "The Rat month", destruction: "Destruction", clash: "Clash", pairText: "One of the six destructions", day: "Day of the", nowHead: "You two, now" },
+  fr: { fireHorse: "Cheval de Feu yang", goat: "Chèvre de Feu yin", own: "Année propre", harmony: "Harmonie", ratMonth: "Le mois du Rat", destruction: "Destruction", clash: "Choc", pairText: "Une des six destructions", day: "Jour ", nowHead: "Vous deux, maintenant" },
 };
 
 const note = (page) => page.getByTestId("click-note").evaluate((e) => e.textContent ?? "");
@@ -107,12 +111,49 @@ async function run(width, lang) {
     await page.getByTestId("zodiac-pair-year-year").click();
     if (width < 1024) await clickDockTab(page, "reading");
     await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), w.pairText, { timeout: 8000 });
+    if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
+    // "You two, now" beside the wheel (feature 5e): this year's animal for both, the month, a line for the two.
+    const nowOf = (id) =>
+      page.evaluate((t) => {
+        const root = document.querySelector(`[data-testid=${t}]`);
+        const row = (x) => root?.querySelector(`[data-testid=${t}-${x}]`);
+        return {
+          head: root?.querySelector("h3")?.textContent ?? "",
+          when: root?.querySelector(`[data-testid=${t}-when]`)?.textContent ?? "",
+          lead: root?.querySelector(".ulune-two-now-lead")?.textContent ?? "",
+          a: row("a")?.querySelector(".ulune-two-now-title")?.textContent ?? "",
+          b: row("b")?.querySelector(".ulune-two-now-title")?.textContent ?? "",
+          tones: [row("a")?.getAttribute("data-tone"), row("b")?.getAttribute("data-tone")],
+          month: row("month")?.querySelector(".ulune-two-now-sub")?.textContent ?? "",
+        };
+      }, id);
+    const now = await nowOf("zodiac-pair-now-side");
+    if (now.head !== w.nowHead || !/^\d{4}, /.test(now.when) || !now.lead) throw new Error(`${label}: "You two, now" ${JSON.stringify(now)}`);
+    if (!now.a.startsWith(`${FIXTURE_A.name} · `) || !now.b.startsWith(`${FIXTURE_B.name} · `)) throw new Error(`${label}: whose year "${now.a}" "${now.b}"`);
+    if (!now.tones.every((t) => ["support", "quiet", "move"].includes(t)) || !now.month.includes(FIXTURE_A.name) || !now.month.includes(FIXTURE_B.name)) throw new Error(`${label}: the year and the month for both ${JSON.stringify(now)}`);
+    await page.getByTestId("zodiac-pair-now-side-when").evaluate((e) => e.scrollIntoView({ block: "center" }));
+    await page.getByTestId("zodiac-pair-now-side-when").click();
+    if (width < 1024) await clickDockTab(page, "reading");
+    await page.waitForFunction((t) => document.querySelector("[data-testid=click-note]")?.textContent?.includes(t), now.lead, { timeout: 8000 });
+    if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
+    // The same part ends the first read (the side panel; a phone's sheet).
+    await page.keyboard.press("Escape").catch(() => {});
+    await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur());
+    await page.waitForFunction(() => !document.querySelector("[data-testid=click-note]"), null, { timeout: 4000 }).catch(() => {});
+    if (width < 1024) await clickDockTab(page, "reading");
+    await page.getByTestId("zodiac-pair-now").waitFor({ state: "attached", timeout: 8000 });
+    const hello = await nowOf("zodiac-pair-now");
+    if (JSON.stringify(hello) !== JSON.stringify(now)) throw new Error(`${label}: the first read's "You two, now" ${JSON.stringify(hello)} against ${JSON.stringify(now)}`);
+    if (width < 1024) await clickDockTab(page, "reading").catch(() => {});
     await assertNoOverflow(page);
     await page.screenshot({ path: join(SHOTS, `zodiac-pair-${lang}-${width}.png`) }).catch(() => {});
     await setView(page, "table");
     await page.getByTestId("zodiac-pair-table").waitFor({ timeout: 10000 });
     const prow = await page.locator("[data-testid^=zodiac-pair-row-]").count();
     if (prow !== 9) throw new Error(`${label}: ${prow} meetings in the table`);
+    // Its last part, "You two, now": each person's year animal meeting this year's, then the month.
+    const nowTable = await page.locator("[data-testid=table-now] [data-testid^=zodiac-pair-now-]").evaluateAll((els) => els.map((e) => e.getAttribute("data-testid")));
+    if (nowTable.join() !== "zodiac-pair-now-table-together,zodiac-pair-now-table,zodiac-pair-now-row-a,zodiac-pair-now-row-b,zodiac-pair-now-month-a,zodiac-pair-now-month-b,zodiac-pair-now-table-year") throw new Error(`${label}: the table's "You two, now" ${nowTable}`);
     await setView(page, "wheel");
 
     // ── The Calendar: the day's animal (the sky it shows comes from the server, as always) ──

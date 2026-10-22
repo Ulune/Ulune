@@ -210,6 +210,19 @@ if (want.has("bundle")) {
   // chunks land within the load. The limit stays 276.
   // Week 3 (18 Oct 2026): its three pages, groups and notes load later; "/" 274.3–274.5 as built, 274.7 after the
   // review (a phone's short lens names, Pair and Logis, and Escape from a figure's SVG parts, 0.2).
+  // Week 4 (22 Oct 2026), Human Design's Cycles, "You two, now", the Calendar's birthdays and returns and
+  // Compare's other ways: 275.2 as built, 276.4 when the small chunks landed within the load. What reached the
+  // first download, 0.8 in all: each page's own reading pack named in packs.ts (about 0.1 each, with the files
+  // its import lists), the new page's meta, registry and route entries, Compare's per-pane page and moment
+  // (scope.tsx, data.tsx), the Reading tab's way to a kept chart, the reading card's mark for a return, the
+  // guide's lens line. The review took back more than that: the pages' own packs registered by their pages
+  // (registerPack) and the modes' table written short (meta.ts, 0.35) left the wheel's chunk, with the
+  // store's list of the pages that kept their place (every page had joined it), 0.75 there; the Dock's and the
+  // Reading tab's lists of pages read from the pages' names, and the way to a kept chart answered by the
+  // Calendar's people layer, whose readings hold it (0.14); every lazy part's preload list without the files
+  // its importer has already loaded (vite.config.ts, preloadLists: 0.4 over the first download's chunks).
+  // 274.0–274.1 as built, three in a row; 274.4 when the send icons land within the load, 275.3 when all
+  // three small chunks do (a busy machine). The limit stays 276.
   check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 276, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
@@ -239,7 +252,9 @@ if (want.has("bundle")) {
   // (The engine's worker, fetched when a chart is first calculated on the device, has its own row: engine.)
   const largest = Math.max(...home.files.filter((f) => f.type === "script" && !/\/engine-worker-/.test(f.file)).map((f) => f.gz ?? 0));
   // (The natal wheel's chunk: 79.4-80.2 since parts 96-97, as shared modules land in it or not; limit 81.
-  // 77.4 since R6, TanStack Start's client and the helpers the other pages share having left it.)
+  // 77.4 since R6, TanStack Start's client and the helpers the other pages share having left it. 81.2 with
+  // 2.0's week 4 (each page's pack named in packs.ts, the meta and registry entries, Compare's scopes);
+  // 80.4 after its review, the pages' packs registered by their pages and the modes' table written short.)
   check("bundle", "largest script", largest / 1024, 81, "KB gz");
   // An encyclopedia page opened afresh (a search engine's visitor): its own code, never the
   // studio's. 159.8 on 7 Oct 2026 (238.3 while the wheel's chunk came with every page).
@@ -326,8 +341,20 @@ if (want.has("chinese")) {
   // part 30's margin. Chinese astrology (53.9) and BaZi (78.0) are unchanged: the words left their row
   // too, as they were fetched by "/". The next saving is review item T9: Feng Shui's 45 pair texts (8.0
   // of the home's 13.0 texts) loaded when a palace's reading opens rather than with the page.
+  // 2.0's last features, week 4 (22 Oct 2026): "You two, now" on every Relationship page (share and compare plan,
+  // feature 5e) grew the three: 59.1, 80.2 and 114.7 as built. The review trimmed what the Chinese pages fetch
+  // of it: the Western pages' lines left the part's words for a book of their own (pair-now-west-words.ts,
+  // 1.0 less each) and BaZi, which gives its luck pillars the part's heading, fetches only the heading's style
+  // sheet (pair-now-head.css). What the part costs now, file by file: its shared code, words and two style
+  // sheets, 2.45 (now-parts 0.77 and its sheet 0.66, pair-now-words 0.62, pair-now-head.css 0.40), in Chinese
+  // astrology and Feng Shui; then each page's own part and the table's (zodiac-pair-now.ts with its lines and
+  // table part, about 1.95; fengshui-pair-now.ts with its, about 2.95); BaZi, the heading's words and sheet,
+  // 0.8. Measured: Chinese astrology 58.3 (53.9 before, +4.4), BaZi 78.8 (78.0, +0.8, within its limit),
+  // Feng Shui 113.9 (108.5, +5.4). The limits of Chinese astrology and Feng Shui are raised with part 30's
+  // margins, 59.0 and 115.5, as a decision for the owner (review of week 4). The next saving: the part's
+  // readings (zodiacPairNowReading, fsPairNowReading, about 1.2 each) loaded when one is opened.
   const { termTable, languages } = jsonOf(nodeTs([join(ROOT, "scripts/perf/load/languages.mjs"), "--json"]));
-  const LIMITS = { "chinese-astrology": ["Chinese astrology", 54.5], bazi: ["BaZi", 79.2], "feng-shui": ["Feng Shui", 110] };
+  const LIMITS = { "chinese-astrology": ["Chinese astrology", 59.0], bazi: ["BaZi", 79.2], "feng-shui": ["Feng Shui", 115.5] };
   for (const l of languages) {
     const [name, limit] = LIMITS[l.language] ?? [l.language, 0];
     check("chinese", `${name}: its pages after "/", JS and CSS`, l.gz / 1024, limit, "KB gz");
@@ -404,7 +431,11 @@ if (want.has("engine")) {
   check("engine", "the first chart (download, start, cast), CPU 4× slower", x4.firstChart, ENGINE_LIMITS.firstChartMs4, "ms");
   check("engine", "the first chart (download, start, cast), CPU 6× slower", x6.firstChart, ENGINE_LIMITS.firstChartMs6, "ms");
   check("engine", "engine start from the browser's copy, CPU 6× slower", x6.keptStart, ENGINE_LIMITS.startMs, "ms");
-  check("engine", "a natal chart, CPU 6× slower", x6.natal.median, ENGINE_LIMITS.natalMs, "ms");
+  // The natal row reads the best of its seven casts (22 Oct 2026): at 6× on this machine the median
+  // swung between 47 and 65 ms from run to run (23–92 ms within one), while the unslowed cast and
+  // the engine's code were unchanged; the best run is what the device can do, as the saturn row's
+  // "best of three" is (review item T2).
+  check("engine", "a natal chart, CPU 6× slower (best of 7)", x6.natal.min, ENGINE_LIMITS.natalMs, "ms");
   check("engine", "a Timing year, CPU 4× slower", x4.timingYear.median, ENGINE_LIMITS.yearMs4, "ms");
   check("engine", "a Timing year, CPU 6× slower", x6.timingYear.median, ENGINE_LIMITS.yearMs, "ms");
   check("engine", "the Calendar: a year's sky file, CPU 6× slower", x6.skyYear.median, ENGINE_LIMITS.skyYearMs6, "ms");

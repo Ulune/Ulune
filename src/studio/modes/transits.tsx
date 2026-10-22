@@ -21,7 +21,7 @@ import { useWheelView } from "@/studio/modes/wheel-view";
 import { WheelPort } from "@/studio/stage/WheelPort";
 import { TimeDial } from "@/studio/modes/time-dial";
 import { useDomIds, useScoped } from "@/studio/scope";
-import { useStudioStore } from "@/studio/store";
+import { useScopedTime, useScopedTimeSet } from "@/studio/scope-time";
 import { useClockZone } from "@/studio/modes/hooks/useClockZone";
 import "@/studio/modes/styles/transits.css";
 
@@ -37,9 +37,9 @@ export type TransitsState = ReturnType<typeof useTransitSky>;
 /** The fields to type a moment in, opened from the dial's readout (UI plan, part 94). */
 function TransitPicker() {
   const { locale, t } = useI18n();
-  // The moment is shared by every scope (one date for both of Compare's panes); the fields are each pane's own.
-  const at = useStudioStore((s) => s.time.at);
-  const pin = useStudioStore((s) => s.pin);
+  // The moment is shared by every scope (one date for Compare's panes, but for a pane with its own: scope-time.ts); the fields are each pane's own.
+  const at = useScopedTime("at");
+  const { pin } = useScopedTimeSet();
   const domId = useDomIds();
   // In the Calendar's clock, said under the fields (review 3 Oct, T4).
   const clock = useClockZone(at);
@@ -98,9 +98,8 @@ function TransitsFigure() {
   const w = useWheelView();
   const clockZone = useClockZone(Date.now()).tz;
   const transits = useModeData("transits");
-  const pin = useStudioStore((s) => s.pin);
-  const now = useStudioStore((s) => s.now);
-  const live = useStudioStore((s) => s.time.live);
+  const { pin, now } = useScopedTimeSet();
+  const live = useScopedTime("live");
   if (!w.chart || !transits) return null;
   return (
     <BiWheelFrame

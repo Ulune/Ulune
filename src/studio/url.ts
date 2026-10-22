@@ -34,6 +34,8 @@ export const STUDIO_PAGES = [
   "design-pair",
   // 2.0: numerology's Relationship lens, two people's numbers side by side (share and compare plan, feature 5c).
   "numerology-pair",
+  // 2.0: Human Design's Cycles lens, the moment over your bodygraph and the life cycles (share and compare plan, feature 5b).
+  "design-cycles",
 ] as const;
 
 export type StudioPage = (typeof STUDIO_PAGES)[number];

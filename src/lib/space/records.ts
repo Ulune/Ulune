@@ -4,7 +4,7 @@
  *   chart/<id>     a chart of the library (lib/chart/library.ts, StoredRow)
  *   state/library  the library's order, the chart open and the one open before it
  *   state/pair     the partners chosen for synastry and composite
- *   state/compare  Compare on or off, its second chart and linked selection (studio/compare)
+ *   state/compare  Compare on or off, its second chart and linked selection, its way and that way's choices (studio/compare)
  *   state/ai       the AI keys (lib/ai/use-ai-account.ts)
  *   state/backup   when a backup was last downloaded, and of which charts
  *   state/groups   the reader's groups of charts: names, order, members (studio/groups, idea B5)
@@ -16,6 +16,7 @@
  *   fs/homes       Feng Shui's homes kept (lib/chinese/fengshui-home-record.ts)
  *   inbox/key      the inbox's key pair: charts shared while the space is locked are sealed to it (lib/space/inbox.ts)
  */
+import type { StudioPage } from "@/studio/url";
 
 export const CHART_RECORD = "chart/";
 export const INBOX_KEY_RECORD = "inbox/key";
@@ -44,8 +45,23 @@ export const KEPT_CHANGED = "ulune:groups-kept";
 /** `previousId`: the chart open before the one open (share and compare plan, idea B3), when there is one. */
 export type LibraryRecord = { order: string[]; activeId: string | null; previousId?: string };
 export type PairRecord = { partnerId: string | null; compositePartnerId: string | null };
-/** Compare's state, as the studio's store holds it (studio/store.ts, `compare`). */
-export type CompareRecord = { on: boolean; partnerId: string | null; linked: boolean };
+/**
+ * Compare's state, as the studio's store holds it (studio/store.ts, `compare`): on, B and linked
+ * selection; since ideas B7 and B8 its way of comparing and that way's choices (studio/compare/
+ * compare-modes.ts reads them with care): C and D (people), B's page (one person, two languages),
+ * B's page and moment (one chart, two moments).
+ */
+export type CompareRecord = {
+  on: boolean;
+  partnerId: string | null;
+  linked: boolean;
+  mode?: "people" | "languages" | "moments";
+  more?: string[];
+  langPage?: StudioPage;
+  moment?: CompareMoment;
+};
+/** The second pane's page and moment in Compare's two moments (studio/scope.tsx, ScopeMoment). */
+export type CompareMoment = { page: StudioPage; at: number; live: boolean; progressionTarget: number; year: number | null; month: number | null };
 /** `mark`: the charts' sealed state then (lib/space/vault.ts, Vault.mark), and their notes' and groups' once there are any. */
 export type BackupRecord = { at: number; mark: string };
 /** A group: its own name, its charts (ids, in the order added), when it last changed. In the reader's order. */

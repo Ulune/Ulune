@@ -48,6 +48,7 @@ import { Route as StudioFengShuiCyclesRouteImport } from './routes/_studio.feng-
 import { Route as StudioFengShuiHomeRouteImport } from './routes/_studio.feng-shui.home'
 import { Route as StudioFengShuiPairRouteImport } from './routes/_studio.feng-shui.pair'
 import { Route as StudioHumanDesignIndexRouteImport } from './routes/_studio.human-design.index'
+import { Route as StudioHumanDesignCyclesRouteImport } from './routes/_studio.human-design.cycles'
 import { Route as StudioHumanDesignPairRouteImport } from './routes/_studio.human-design.pair'
 import { Route as StudioNumerologyIndexRouteImport } from './routes/_studio.numerology.index'
 import { Route as StudioNumerologyCyclesRouteImport } from './routes/_studio.numerology.cycles'
@@ -252,6 +253,11 @@ const StudioHumanDesignIndexRoute = StudioHumanDesignIndexRouteImport.update({
   path: '/human-design/',
   getParentRoute: () => StudioRoute,
 } as any)
+const StudioHumanDesignCyclesRoute = StudioHumanDesignCyclesRouteImport.update({
+  id: '/human-design/cycles',
+  path: '/human-design/cycles',
+  getParentRoute: () => StudioRoute,
+} as any)
 const StudioHumanDesignPairRoute = StudioHumanDesignPairRouteImport.update({
   id: '/human-design/pair',
   path: '/human-design/pair',
@@ -307,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/feng-shui/cycles': typeof StudioFengShuiCyclesRoute
   '/feng-shui/home': typeof StudioFengShuiHomeRoute
   '/feng-shui/pair': typeof StudioFengShuiPairRoute
+  '/human-design/cycles': typeof StudioHumanDesignCyclesRoute
   '/human-design/pair': typeof StudioHumanDesignPairRoute
   '/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/numerology/pair': typeof StudioNumerologyPairRoute
@@ -351,6 +358,7 @@ export interface FileRoutesByTo {
   '/feng-shui/cycles': typeof StudioFengShuiCyclesRoute
   '/feng-shui/home': typeof StudioFengShuiHomeRoute
   '/feng-shui/pair': typeof StudioFengShuiPairRoute
+  '/human-design/cycles': typeof StudioHumanDesignCyclesRoute
   '/human-design/pair': typeof StudioHumanDesignPairRoute
   '/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/numerology/pair': typeof StudioNumerologyPairRoute
@@ -397,6 +405,7 @@ export interface FileRoutesById {
   '/_studio/feng-shui/cycles': typeof StudioFengShuiCyclesRoute
   '/_studio/feng-shui/home': typeof StudioFengShuiHomeRoute
   '/_studio/feng-shui/pair': typeof StudioFengShuiPairRoute
+  '/_studio/human-design/cycles': typeof StudioHumanDesignCyclesRoute
   '/_studio/human-design/pair': typeof StudioHumanDesignPairRoute
   '/_studio/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/_studio/numerology/pair': typeof StudioNumerologyPairRoute
@@ -443,6 +452,7 @@ export interface FileRouteTypes {
     | '/feng-shui/cycles'
     | '/feng-shui/home'
     | '/feng-shui/pair'
+    | '/human-design/cycles'
     | '/human-design/pair'
     | '/numerology/cycles'
     | '/numerology/pair'
@@ -487,6 +497,7 @@ export interface FileRouteTypes {
     | '/feng-shui/cycles'
     | '/feng-shui/home'
     | '/feng-shui/pair'
+    | '/human-design/cycles'
     | '/human-design/pair'
     | '/numerology/cycles'
     | '/numerology/pair'
@@ -532,6 +543,7 @@ export interface FileRouteTypes {
     | '/_studio/feng-shui/cycles'
     | '/_studio/feng-shui/home'
     | '/_studio/feng-shui/pair'
+    | '/_studio/human-design/cycles'
     | '/_studio/human-design/pair'
     | '/_studio/numerology/cycles'
     | '/_studio/numerology/pair'
@@ -841,6 +853,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudioHumanDesignIndexRouteImport
       parentRoute: typeof StudioRoute
     }
+    '/_studio/human-design/cycles': {
+      id: '/_studio/human-design/cycles'
+      path: '/human-design/cycles'
+      fullPath: '/human-design/cycles'
+      preLoaderRoute: typeof StudioHumanDesignCyclesRouteImport
+      parentRoute: typeof StudioRoute
+    }
     '/_studio/human-design/pair': {
       id: '/_studio/human-design/pair'
       path: '/human-design/pair'
@@ -887,6 +906,7 @@ interface StudioRouteChildren {
   StudioFengShuiCyclesRoute: typeof StudioFengShuiCyclesRoute
   StudioFengShuiHomeRoute: typeof StudioFengShuiHomeRoute
   StudioFengShuiPairRoute: typeof StudioFengShuiPairRoute
+  StudioHumanDesignCyclesRoute: typeof StudioHumanDesignCyclesRoute
   StudioHumanDesignPairRoute: typeof StudioHumanDesignPairRoute
   StudioNumerologyCyclesRoute: typeof StudioNumerologyCyclesRoute
   StudioNumerologyPairRoute: typeof StudioNumerologyPairRoute
@@ -913,6 +933,7 @@ const StudioRouteChildren: StudioRouteChildren = {
   StudioFengShuiCyclesRoute: StudioFengShuiCyclesRoute,
   StudioFengShuiHomeRoute: StudioFengShuiHomeRoute,
   StudioFengShuiPairRoute: StudioFengShuiPairRoute,
+  StudioHumanDesignCyclesRoute: StudioHumanDesignCyclesRoute,
   StudioHumanDesignPairRoute: StudioHumanDesignPairRoute,
   StudioNumerologyCyclesRoute: StudioNumerologyCyclesRoute,
   StudioNumerologyPairRoute: StudioNumerologyPairRoute,

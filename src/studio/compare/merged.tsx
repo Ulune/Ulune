@@ -9,22 +9,26 @@ import { bookT } from "@/lib/i18n/words-book";
 import { lazyNamed } from "@/lib/lazy-component";
 import type { ChartScope } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
-import { chooseBoth, letGo, useCompare, useScopeData } from "@/studio/compare/compare-store";
+import { chooseAll, letGo, useCompare, useScopeData } from "@/studio/compare/compare-store";
+import type { Who } from "@/studio/compare/linked";
 
 /*
- * Compare's tables (share and compare plan, feature 2): two tables side by
- * side, each pane its page's own; and where one table reads more clearly with
- * an A column and a B column, numerology's core numbers and BaZi's four
- * pillars, that table as well, chosen above the panes. Its rows choose in
- * both charts. That table's code (merged-numerology.tsx, merged-bazi.tsx)
- * comes when it is shown.
+ * Compare's tables (share and compare plan, feature 2, and idea B8): a table
+ * for each pane, its page's own; and where one table reads more clearly with
+ * a column for each person, numerology's core numbers and BaZi's four
+ * pillars, that table as well, chosen above the panes (two to four columns).
+ * Its rows choose in every chart. That table's code (merged-numerology.tsx,
+ * merged-bazi.tsx) comes when it is shown.
  */
 
 const NumerologyCoresMerged = lazyNamed(() => import("@/studio/compare/merged-numerology"), "NumerologyCoresMerged");
 const BaziPillarsMerged = lazyNamed(() => import("@/studio/compare/merged-bazi"), "BaziPillarsMerged");
 
-/** A merged table's rows: chosen in both charts, the one chosen marked. */
+/** A merged table's rows: chosen in every chart, the one chosen marked. */
 export type MergedPick = { selectedId: string | null; onSelect: (id: string) => void };
+
+/** One person's column of a merged table: their letter and name, and their page's chart. */
+export type MergedColumn<C> = { who: Who; name: string; chart: C };
 
 /**
  * The pages' table frame (studio/tables/DataTable.tsx, its styles loaded with the panes' tables),
@@ -53,11 +57,12 @@ export function TableFrame({ className, stickyFirst = true, children }: { classN
   );
 }
 
-/** Two tables, or one with A and B columns: above the panes, on those pages' table view. */
+/** A table for each pane, or one with a column for each person: above the panes, on those pages' table view. */
 export function TablesChoice() {
   const { locale, t } = useI18n();
   const T = bookT(compareWords, t, locale);
   const merged = useCompare((s) => s.merged);
+  const n = useCompare((s) => s.shown.length);
   return (
     <div className="ob-compare-tables" data-testid="compare-tables" data-chart-pick>
       <SegmentedToggle
@@ -65,33 +70,46 @@ export function TablesChoice() {
         value={merged ? "one" : "two"}
         onChange={(v) => useCompare.setState({ merged: v === "one" })}
         options={[
-          { value: "two", testId: "compare-tables-two", label: T("cmpTablesTwo") },
-          { value: "one", testId: "compare-tables-one", label: T("cmpTablesOne") },
+          { value: "two", testId: "compare-tables-two", label: n > 2 ? T("cmpTablesEach") : T("cmpTablesTwo") },
+          { value: "one", testId: "compare-tables-one", label: n > 2 ? T("cmpTablesOneMany") : T("cmpTablesOne") },
         ]}
       />
     </div>
   );
 }
 
-/** The one table, A and B side by side in its columns. */
-export function MergedTable({ a, b, nameA, nameB }: { a: ChartScope; b: ChartScope; nameA: string; nameB: string }) {
+type Person = { who: Who; scope: ChartScope; name: string };
+
+/** The one table, each person's column side by side. */
+export function MergedTable({ people }: { people: Person[] }) {
   const { locale, t } = useI18n();
   const T = bookT(compareWords, t, locale);
   const page = useStudioStore((s) => s.page);
   const sel = useCompare((s) => s.sel);
-  const da = useScopeData(a, page) as { numbers?: NumerologyChart | null; bazi?: BaziChart | null } | undefined;
-  const db = useScopeData(b, page) as { numbers?: NumerologyChart | null; bazi?: BaziChart | null } | undefined;
-  // A row is both charts' element: chosen in both, or let go when chosen again.
-  const onSelect = (id: string) => (sel.a === id && sel.b === id ? letGo() : chooseBoth({ a: id, b: id }));
-  const selectedId = sel.a === sel.b ? sel.a : null;
+  type Data = { numbers?: NumerologyChart | null; bazi?: BaziChart | null } | undefined;
+  // Four reads, always made (hooks keep their order); the people shown pick theirs.
+  const data: Record<Who, Data> = {
+    a: useScopeData(people.find((p) => p.who === "a")?.scope ?? null, page) as Data,
+    b: useScopeData(people.find((p) => p.who === "b")?.scope ?? null, page) as Data,
+    c: useScopeData(people.find((p) => p.who === "c")?.scope ?? null, page) as Data,
+    d: useScopeData(people.find((p) => p.who === "d")?.scope ?? null, page) as Data,
+  };
+  const ids = people.map((p) => p.who);
+  // A row is every chart's element: chosen in all, or let go when chosen again.
+  const same = (id: string) => ids.every((w) => sel[w] === id);
+  const onSelect = (id: string) => (same(id) ? letGo() : chooseAll(Object.fromEntries(ids.map((w) => [w, id]))));
+  const first = ids[0] ? sel[ids[0]] : null;
+  const selectedId = first && same(first) ? first : null;
   let table = null;
-  if (page === "numerology" && da?.numbers && db?.numbers) {
-    table = <NumerologyCoresMerged a={da.numbers} b={db.numbers} nameA={nameA} nameB={nameB} selectedId={selectedId} onSelect={onSelect} />;
-  } else if (page === "bazi" && da?.bazi && db?.bazi) {
-    table = <BaziPillarsMerged a={da.bazi} b={db.bazi} nameA={nameA} nameB={nameB} selectedId={selectedId} onSelect={onSelect} />;
+  if (page === "numerology") {
+    const cols = people.map((p) => ({ who: p.who, name: p.name, chart: data[p.who]?.numbers ?? null }));
+    if (cols.every((c) => c.chart)) table = <NumerologyCoresMerged people={cols as MergedColumn<NumerologyChart>[]} selectedId={selectedId} onSelect={onSelect} />;
+  } else if (page === "bazi") {
+    const cols = people.map((p) => ({ who: p.who, name: p.name, chart: data[p.who]?.bazi ?? null }));
+    if (cols.every((c) => c.chart)) table = <BaziPillarsMerged people={cols as MergedColumn<BaziChart>[]} selectedId={selectedId} onSelect={onSelect} />;
   }
   return (
-    <section className="ob-compare-merged" data-testid="compare-merged" aria-labelledby="ob-cmp-merged-h">
+    <section className="ob-compare-merged" data-testid="compare-merged" data-count={people.length} aria-labelledby="ob-cmp-merged-h">
       <h2 id="ob-cmp-merged-h" className="ob-compare-h">
         {page === "bazi" ? T("cmpMergedPillars") : T("cmpMergedCore")}
       </h2>
@@ -99,3 +117,4 @@ export function MergedTable({ a, b, nameA, nameB }: { a: ChartScope; b: ChartSco
     </section>
   );
 }
+

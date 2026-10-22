@@ -3,8 +3,7 @@ import { door } from "@/lib/engine/door";
 import { usePack } from "@/lib/content/packs";
 import type { HdView, HumanDesignChart } from "@/lib/chart/human-design";
 import { useI18n } from "@/lib/i18n/locale";
-import { useScopeId, useScopeKey, useScoped } from "@/studio/scope";
-import { useStudioStore } from "@/studio/store";
+import { useScoped, useScopedPage, useScopeId, useScopeKey } from "@/studio/scope";
 import { errorForState } from "@/lib/i18n/errors";
 import { keptOr, useKeep } from "@/studio/return-parts";
 import { noteBodygraph } from "@/encyclopedia/your-chart";
@@ -40,7 +39,7 @@ export function useHumanDesign() {
   const { locale, t } = useI18n();
   const chart = useScoped((s) => s.chart);
   const creating = useScoped((s) => s.creating);
-  const page = useStudioStore((s) => s.page);
+  const page = useScopedPage();
   const selectedId = useScoped((s) => s.selectedId);
   const main = useScopeId() === "main";
   const enabled = page === "design" && Boolean(chart) && !creating;

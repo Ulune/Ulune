@@ -43,13 +43,13 @@ export const guideBodyWords = {
     "Votre nombre Kua et vos huit directions\u202f; avec Logement, les Étoiles volantes d’un logement, d’après son orientation et son année de construction.",
   ],
   guideDoLenses: [
-    "The tabs beside the language, as each has them: Natal, the birth chart itself; Cycles, the chart through time (transits, progressions; numerology’s years and life cycles; BaZi’s luck pillars); Relationship, beside a second person’s; Home, a place, for Feng Shui. Compare sets two charts side by side.",
-    "Les onglets à côté du langage, selon ceux qu’il a\u202f: Natal, le thème natal lui-même\u202f; Cycles, le thème au fil du temps (transits, progressions\u202f; les années et les cycles de vie de la numérologie\u202f; les piliers de chance du BaZi)\u202f; Relation, à côté de celui d’une autre personne\u202f; Logement, un lieu, pour le Feng Shui. Comparer place deux thèmes côte à côte.",
+    "The tabs beside the language, as each has them: Natal, the birth chart itself; Cycles, the chart through time (transits, progressions; Human Design’s gates of the moment and life cycles; numerology’s years and life cycles; Chinese astrology’s year ahead; BaZi’s luck pillars; Feng Shui’s directions this year); Relationship, beside a second person’s; Home, a place, for Feng Shui. Compare sets up to four charts side by side.",
+    "Les onglets à côté du langage, selon ceux qu’il a\u202f: Natal, le thème natal lui-même\u202f; Cycles, le thème au fil du temps (transits, progressions\u202f; les portes du moment et les cycles de vie du Human Design\u202f; les années et les cycles de vie de la numérologie\u202f; l’année à venir de l’astrologie chinoise\u202f; les piliers de chance du BaZi\u202f; vos directions cette année en Feng Shui)\u202f; Relation, à côté de celui d’une autre personne\u202f; Logement, un lieu, pour le Feng Shui. Comparer place jusqu’à quatre thèmes côte à côte.",
   ],
   // The Calendar's layers by language (src/lib/chart/calendar-layers.ts): those on by default, then those kept off until asked for.
   guideDoCalendar: [
-    "Day by day, in layers by language: the sky, your transits and the solar terms; in View, you can add your personal year, month and day, the day’s animal and Feng Shui’s flying stars. It works without a chart too.",
-    "Jour après jour, en calques par langage\u202f: le ciel, vos transits et les termes solaires\u202f; dans Affichage, vous pouvez ajouter votre année, votre mois et votre jour personnels, l’animal du jour et les étoiles volantes du Feng Shui. Il fonctionne aussi sans thème.",
+    "Day by day, in layers by language: the sky, your transits and the solar terms; in View, you can add your personal year, month and day, the day’s animal, Feng Shui’s flying stars and the birthdays and returns of the charts you keep. It works without a chart too.",
+    "Jour après jour, en calques par langage\u202f: le ciel, vos transits et les termes solaires\u202f; dans Affichage, vous pouvez ajouter votre année, votre mois et votre jour personnels, l’animal du jour, les étoiles volantes du Feng Shui et les anniversaires et retours des thèmes que vous gardez. Il fonctionne aussi sans thème.",
   ],
   // The Chinese languages' pages come with the encyclopedia plan's parts 23 to 26: name them here then.
   guideDoEncyclopedia: [

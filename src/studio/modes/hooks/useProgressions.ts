@@ -10,8 +10,8 @@ import { onWindow, prefetchWindows, windowAt } from "@/lib/chart/window-cache";
 import type { Placement, ProgressedSky } from "@/lib/chart/types";
 import { useI18n } from "@/lib/i18n/locale";
 import { natalBodiesOf } from "@/studio/modes/hooks/natal-bodies";
-import { useScoped } from "@/studio/scope";
-import { useStudioStore } from "@/studio/store";
+import { useScoped, useScopedPage } from "@/studio/scope";
+import { useScopedTime } from "@/studio/scope-time";
 import { errorForState } from "@/lib/i18n/errors";
 
 function natalTimeOf(chart: { meta: { time?: string } }): string {
@@ -52,13 +52,13 @@ function outerBodies(sky: ProgressedSky, planets: Placement[]): Placement[] {
   ];
 }
 
-/** The progressed chart of the scope around the caller (studio/scope.tsx), to the date every scope shares. */
+/** The progressed chart of the scope around the caller (studio/scope.tsx), to the date every scope shares (or its own: scope-time.ts). */
 export function useProgressions() {
   const { locale, t } = useI18n();
   const chart = useScoped((s) => s.chart);
   const creating = useScoped((s) => s.creating);
-  const page = useStudioStore((s) => s.page);
-  const targetMs = useStudioStore((s) => s.time.progressionTarget);
+  const page = useScopedPage();
+  const targetMs = useScopedTime("progressionTarget");
   const enabled = page === "progressions" && Boolean(chart) && !creating;
   const natalUtc = useMemo(() => (chart ? natalUtcOf(chart) : new Date()), [chart]);
   const tz = browserZone(chart?.meta.timezone);

@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { Fragment, useId, type ReactNode } from "react";
 import {
   LAYER_LANGUAGE_LABEL,
   layerAvailable,
@@ -22,6 +22,7 @@ export function CalendarLayers({
   hasChart,
   onLayer,
   onCast,
+  extras,
 }: {
   /** Each switch's position: the reader's choice, else the layer's default. */
   on: ShownLayers;
@@ -29,6 +30,8 @@ export function CalendarLayers({
   onLayer: (id: CalendarLayerId, on: boolean) => void;
   /** Opens the birth form: offered while no chart is cast. */
   onCast?: () => void;
+  /** What a layer brings under its switch while it is on (the kept charts' groups, idea B10). */
+  extras?: Partial<Record<CalendarLayerId, ReactNode>>;
 }) {
   const { locale } = useI18n();
   const base = useId();
@@ -55,34 +58,36 @@ export function CalendarLayers({
               const nameId = `${base}-layer-${layer.id}`;
               const hintId = `${nameId}-hint`;
               return (
-                <button
-                  key={layer.id}
-                  type="button"
-                  role="switch"
-                  aria-checked={checked}
-                  // Unavailable, not disabled: it stays in the Tab order, so its reason is heard.
-                  aria-disabled={ok ? undefined : true}
-                  aria-labelledby={nameId}
-                  aria-describedby={hintId}
-                  data-testid={`calendar-layer-${layer.id}`}
-                  data-available={ok ? "1" : "0"}
-                  className={cn("ob-menu-item ulune-cal-layer", checked && "is-on", !ok && "is-unavailable")}
-                  onClick={() => {
-                    if (ok) onLayer(layer.id, !on[layer.id]);
-                  }}
-                >
-                  <span className="ulune-cal-layer-words">
-                    <span id={nameId} className="ulune-cal-layer-name">
-                      {calWord(locale, layer.label)}
+                <Fragment key={layer.id}>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={checked}
+                    // Unavailable, not disabled: it stays in the Tab order, so its reason is heard.
+                    aria-disabled={ok ? undefined : true}
+                    aria-labelledby={nameId}
+                    aria-describedby={hintId}
+                    data-testid={`calendar-layer-${layer.id}`}
+                    data-available={ok ? "1" : "0"}
+                    className={cn("ob-menu-item ulune-cal-layer", checked && "is-on", !ok && "is-unavailable")}
+                    onClick={() => {
+                      if (ok) onLayer(layer.id, !on[layer.id]);
+                    }}
+                  >
+                    <span className="ulune-cal-layer-words">
+                      <span id={nameId} className="ulune-cal-layer-name">
+                        {calWord(locale, layer.label)}
+                      </span>
+                      <span id={hintId} className="ulune-cal-layer-hint">
+                        {calWord(locale, ok ? layer.hint : "calLayerNeedsChart")}
+                      </span>
                     </span>
-                    <span id={hintId} className="ulune-cal-layer-hint">
-                      {calWord(locale, ok ? layer.hint : "calLayerNeedsChart")}
+                    <span className="ulune-cal-layer-track" aria-hidden>
+                      <span className="ulune-cal-layer-thumb" />
                     </span>
-                  </span>
-                  <span className="ulune-cal-layer-track" aria-hidden>
-                    <span className="ulune-cal-layer-thumb" />
-                  </span>
-                </button>
+                  </button>
+                  {checked ? extras?.[layer.id] : null}
+                </Fragment>
               );
             })}
           </div>

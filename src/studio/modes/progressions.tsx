@@ -20,7 +20,7 @@ import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { WheelPort } from "@/studio/stage/WheelPort";
 import { useDomIds, useScoped } from "@/studio/scope";
-import { useStudioStore } from "@/studio/store";
+import { useScopedTimeSet } from "@/studio/scope-time";
 import { TimeDial } from "@/studio/modes/time-dial";
 import { numberFormat } from "@/lib/intl-cache";
 import "@/studio/modes/styles/progressions.css";
@@ -40,8 +40,8 @@ function ProgressionsPicker() {
   const { locale, t } = useI18n();
   const chart = useScoped((s) => s.chart);
   const progressions = useModeData("progressions");
-  // The date is shared by every scope (one date for both of Compare's panes); the field is each pane's own.
-  const setTarget = useStudioStore((s) => s.setProgressionTarget);
+  // The date is shared by every scope (one date for Compare's panes, but for a pane with its own: scope-time.ts); the field is each pane's own.
+  const { setProgressionTarget: setTarget } = useScopedTimeSet();
   const domId = useDomIds();
   if (!chart || !progressions) return null;
   const value = formatEuropeanDate(dateInZone(new Date(progressions.at), progressions.tz));
@@ -75,7 +75,7 @@ function ProgressionsFigure() {
   const { locale, t } = useI18n();
   const w = useWheelView();
   const progressions = useModeData("progressions");
-  const setTarget = useStudioStore((s) => s.setProgressionTarget);
+  const { setProgressionTarget: setTarget } = useScopedTimeSet();
   const yearsNow = progressions?.yearsNow ?? 0;
   const spanMax = Math.max(MAX_YEARS, Math.ceil(yearsNow + 1));
   if (!w.chart || !progressions) return null;

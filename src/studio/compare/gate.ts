@@ -24,11 +24,14 @@ export function comparePageFor(page: StudioPage, store?: Parameters<typeof pageF
   return pageFor(lang, "natal", store);
 }
 
-/** Opens Compare, with this chart as B (null: the one chosen last, else the view picks one), on a page it shows. */
+/**
+ * Opens Compare, with this chart as B (null: the one chosen last, else the view picks one), on a page it
+ * shows; a chart asked for is compared as a person (ideas B7, B8: not in another of Compare's ways).
+ */
 export function enterCompare(partnerId: string | null, go: (page: StudioPage) => void): void {
   const s = useStudioStore.getState();
   if (!s.chart) return;
-  useStudioStore.setState({ compare: { ...s.compare, on: true, partnerId: partnerId ?? s.compare.partnerId } });
+  useStudioStore.setState({ compare: { ...s.compare, on: true, partnerId: partnerId ?? s.compare.partnerId, ...(partnerId ? { mode: "people" as const } : {}) } });
   if (!comparablePage(s.page)) go(comparePageFor(s.page));
 }
 

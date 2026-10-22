@@ -25,6 +25,7 @@ import { pairTableCsv, pairTextParts } from "@/lib/chinese/bazi-pair-table";
 import { meetPieces } from "@/lib/chinese/bazi-term-pieces";
 import { partRows } from "@/lib/csv";
 import { useI18n } from "@/lib/i18n/locale";
+import { pnWord } from "@/lib/i18n/catalog/pair-now-words";
 import { DataTable } from "@/studio/tables/DataTable";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
@@ -109,7 +110,9 @@ export function BaziPairTable({ p, b, names, selectedId, onSelect }: { p: BaziPa
     const meets = luckRows(p, names, locale, prefs).find((r) => r.id === "meets");
     parts.push({
       id: "luck",
-      label: w("bzpLuckHead"),
+      // BaZi's "You two, now" (share and compare plan, feature 5e): the heading every Relationship page gives its time.
+      label: pnWord(locale, "ptnHead"),
+      heading: `${pnWord(locale, "ptnHead")} · ${w("bzpLuckHead")}`,
       hint: w("bzpPartLuckHint"),
       copyText: partText("luck"),
       table: csvOf(["luck", "luckmeet"]),

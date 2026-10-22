@@ -5,6 +5,10 @@
  * what the two share, worked out from the made-up fixtures' charts (Fixture
  * A, 15/06/1990 12:00 Paris; Fixture B, 03/11/1987 23:10 Oslo); and its book
  * of words, held to the catalog's rules and said by its own code only.
+ * Ideas B7 and B8 (compare-modes.ts, agree.ts, shared-group.ts, small.ts):
+ * its three ways and how a kept record is read back; where two languages
+ * agree, and only where they truly do; what three or four share, all of them
+ * or most; how three or four stand on the screen.
  */
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -59,7 +63,7 @@ test("Compare shows every page that reads one person's chart, and none of the ot
   const shown = STUDIO_PAGES.filter(comparablePage);
   assert.deepEqual(
     [...shown].sort(),
-    ["bazi", "bazi-luck", "design", "fengshui", "fengshui-cycles", "natal", "numerology", "numerology-cycles", "progressions", "transits", "zodiac", "zodiac-years"],
+    ["bazi", "bazi-luck", "design", "design-cycles", "fengshui", "fengshui-cycles", "natal", "numerology", "numerology-cycles", "progressions", "transits", "zodiac", "zodiac-years"],
   );
   // From a page it does not show, it opens on its language's Natal page.
   const none = { getItem: () => null, setItem: () => {} };
@@ -79,6 +83,8 @@ test("Compare shows every page that reads one person's chart, and none of the ot
 
 test("“See how they meet” leads to its language's Relationship page, where there is one", () => {
   for (const p of ["natal", "transits", "progressions"]) assert.equal(relationshipPageOf(p), "synastry");
+  // Human Design's Cycles (feature 5b) leads to its connection chart too.
+  assert.equal(relationshipPageOf("design-cycles"), "design-pair");
   for (const p of ["zodiac", "zodiac-years"]) assert.equal(relationshipPageOf(p), "zodiac-pair");
   for (const p of ["bazi", "bazi-luck"]) assert.equal(relationshipPageOf(p), "bazi-pair");
   assert.equal(relationshipPageOf("fengshui"), "fengshui-pair");
@@ -256,4 +262,230 @@ test("Compare stays out of the first download: the workspace and the reading loa
   // The workspace fetches the view through gate.ts, which fetches the view itself.
   assert.match(readFileSync(join(ROOT, "src/studio/workspace.tsx"), "utf8"), /import\("@\/studio\/compare\/gate"\)\.then\(\(m\) => m\.loadCompareView\(\)\)/);
   assert.match(readFileSync(join(ROOT, "src/studio/compare/gate.ts"), "utf8"), /import\("@\/studio\/compare\/CompareView"\)/);
+});
+
+/* ---- Ideas B7 and B8: Compare's other ways ---- */
+
+import * as modes from "../src/studio/compare/compare-modes.ts";
+import { agreeItems, solarMonthBranch } from "../src/studio/compare/agree.ts";
+import { groupShared, pairsOf } from "../src/studio/compare/shared-group.ts";
+import { SMALL_SUMMARY, smallSummaryNow } from "../src/studio/compare/small.ts";
+import { languageOf, lensOf } from "../src/studio/map.ts";
+
+test("Compare's three ways: the panes each shows, and its choices read back with care", () => {
+  assert.equal(modes.modeOf(undefined), "people", "a record from before ideas B7 and B8 compares people");
+  assert.equal(modes.modeOf("moments"), "moments");
+  assert.equal(modes.modeOf("everyone"), "people");
+  assert.deepEqual(modes.panesOf("people", 0), ["a", "b"]);
+  assert.deepEqual(modes.panesOf("people", 1), ["a", "b", "c"]);
+  assert.deepEqual(modes.panesOf("people", 2), ["a", "b", "c", "d"]);
+  assert.deepEqual(modes.panesOf("people", 9), ["a", "b", "c", "d"], "four at most");
+  assert.deepEqual(modes.panesOf("languages", 2), ["a", "b"], "one person: two panes");
+  assert.deepEqual(modes.panesOf("moments", 2), ["a", "b"]);
+  // C and D: kept charts only, never A or B, none twice, two at most.
+  const ids = ["a1", "b1", "c1", "d1", "e1"];
+  assert.deepEqual(modes.morePeople(["c1", "d1"], ids, "a1", "b1"), ["c1", "d1"]);
+  assert.deepEqual(modes.morePeople(["a1", "gone", "c1", "c1", 7, "b1", "d1", "e1"], ids, "a1", "b1"), ["c1", "d1"]);
+  assert.deepEqual(modes.morePeople("c1", ids, "a1", "b1"), []);
+  // Two languages: B's page is another language's page Compare shows; else Human Design beside astrology, astrology beside the rest.
+  assert.equal(modes.languagesPageOf("natal", undefined), "design");
+  assert.equal(modes.languagesPageOf("transits", "bazi"), "bazi");
+  assert.equal(modes.languagesPageOf("numerology", "bazi"), "bazi");
+  assert.equal(modes.languagesPageOf("numerology", undefined), "natal");
+  assert.equal(modes.languagesPageOf("natal", "progressions"), "design", "not A's own language");
+  assert.equal(modes.languagesPageOf("bazi", "zodiac-pair"), "natal", "a Relationship page is not compared");
+  assert.equal(modes.languagesPageOf("bazi", "nowhere"), "natal");
+  // Every page the picker offers is one Compare shows, language by language, in the lenses' order.
+  for (const g of modes.comparableByLanguage()) {
+    for (const p of g.pages) {
+      assert.equal(languageOf(p), g.lang);
+      assert.ok(comparablePage(p), p);
+    }
+  }
+  assert.deepEqual(modes.comparableByLanguage().find((g) => g.lang === "astrology")?.pages, ["natal", "transits", "progressions"]);
+  // Two moments: B's page is its language's Cycles page (the one kept if it is one); beside a Cycles page, that page.
+  assert.equal(modes.momentsPageOf("natal", undefined), "transits");
+  assert.equal(modes.momentsPageOf("natal", "progressions"), "progressions");
+  assert.equal(modes.momentsPageOf("progressions", undefined), "progressions");
+  assert.equal(modes.momentsPageOf("numerology", "transits"), "numerology-cycles", "a page of another language is not B's");
+  assert.equal(modes.momentsPageOf("bazi", undefined), "bazi-luck");
+  // Human Design's Cycles (feature 5b): the bodygraph beside its moment, and beside itself a year on.
+  assert.equal(modes.momentsPageOf("design", undefined), "design-cycles");
+  assert.equal(modes.momentsPageOf("design-cycles", undefined), "design-cycles");
+  assert.equal(modes.momentsPageOf("fengshui", undefined), "fengshui-cycles");
+  assert.equal(modes.momentsPageOf("zodiac-years", undefined), "zodiac-years");
+  for (const lang of ["astrology", "human-design", "numerology", "chinese-astrology", "bazi", "feng-shui"]) {
+    for (const p of modes.cyclesPagesOf(lang)) assert.equal(lensOf(p), "cycles");
+  }
+  assert.deepEqual(modes.cyclesPagesOf(undefined), []);
+});
+
+test("one chart at two moments: B starts now, or a step on beside the same page; a kept moment is read with care", () => {
+  const now = Date.UTC(2026, 9, 18, 9, 0);
+  const fresh = modes.startMoment("natal", "transits", now);
+  assert.deepEqual(fresh, { page: "transits", at: now, live: true, progressionTarget: now, year: null, month: null });
+  const year = modes.startMoment("transits", "transits", now);
+  assert.equal(year.live, false);
+  assert.ok(Math.abs(year.at - now - 365.2425 * 86_400_000) < 2, "a year on");
+  assert.equal(year.year, 2027);
+  assert.equal(modes.startMoment("numerology-cycles", "numerology-cycles", now).year, 2027, "numerology: this year beside next year");
+  assert.equal(modes.startMoment("bazi-luck", "bazi-luck", now).year, 2036, "BaZi: a luck pillar's ten years on");
+  assert.equal(modes.startMoment("numerology", "numerology-cycles", now).year, null, "beside the Natal page: now");
+  // Kept: read back as it was; live, it follows now; anything out of place starts afresh.
+  const kept = { page: "transits", at: Date.UTC(2030, 0, 1), live: false, progressionTarget: now, year: null, month: null };
+  assert.deepEqual(modes.momentOf(kept, now), kept);
+  assert.equal(modes.momentOf({ ...kept, live: true }, now)?.at, now);
+  assert.equal(modes.momentOf({ ...kept, page: "natal" }, now), null, "a Natal page has no moment");
+  assert.equal(modes.momentOf({ ...kept, page: "synastry" }, now), null);
+  assert.equal(modes.momentOf({ ...kept, page: "x" }, now), null);
+  assert.equal(modes.momentOf(null, now), null);
+  assert.equal(modes.momentOf({ ...kept, at: 1e20 }, now)?.at, now, "an instant out of the ephemeris's years");
+  assert.equal(modes.momentOf({ ...kept, page: "fengshui-cycles", year: 2027.5, month: 3 }, now)?.year, null);
+  assert.deepEqual(
+    [modes.momentOf({ ...kept, page: "fengshui-cycles", year: 2027, month: 3 }, now)?.month, modes.momentOf({ ...kept, page: "fengshui-cycles", year: 2027, month: 12 }, now)?.month],
+    [3, null],
+  );
+  assert.equal(modes.momentOf({ ...kept, page: "fengshui-cycles", year: null, month: 3 }, now)?.month, null, "a month only with its year");
+  // The kept record as the view reads it: the way, C and D, B's pages.
+  const way = modes.wayOf({ on: true, partnerId: "b1", linked: true, mode: "moments", more: ["c1", "a1"], langPage: "bazi", moment: kept }, "natal", ["a1", "b1", "c1"], "a1", "b1");
+  assert.deepEqual(way, { mode: "moments", more: ["c1"], langPage: "bazi", momentPage: "transits" });
+});
+
+test("three or four stand as a row or a grid of two by two, whichever draws each larger; the reading's side holds steady", () => {
+  // 1920 × 1080 with the side panel: three in a row, four in a grid.
+  assert.deepEqual(modes.arrange(3, 1540, 880), { cols: 3, rows: 1, cell: 1540 / 3 });
+  assert.deepEqual(modes.arrange(4, 1540, 880), { cols: 2, rows: 2, cell: 440 });
+  // A laptop beside the panel (1024): a grid of about 320 px.
+  assert.deepEqual(modes.arrange(4, 644, 658), { cols: 2, rows: 2, cell: 322 });
+  assert.deepEqual(modes.arrange(2, 1060, 700), { cols: 2, rows: 1, cell: 530 });
+  // Two keep the owner's rule (about 490 px of pane beside the panel); three or four keep SMALL_MIN.
+  assert.equal(modes.readingBeside(2, 1440, 790, 380, 490), true);
+  assert.equal(modes.readingBeside(2, 1280, 790, 380, 490), false);
+  assert.equal(modes.readingBeside(4, 1024, 658, 380, 490), true);
+  assert.equal(modes.readingBeside(4, 900, 658, 380, 490), false);
+  // Within a few pixels of the line, it stays where it was (no to and fro).
+  const edge = 380 + 2 * (modes.SMALL_MIN - 8);
+  assert.equal(modes.readingBeside(4, edge, 900, 380, 490, false), false);
+  assert.equal(modes.readingBeside(4, edge, 900, 380, 490, true), true);
+  // Small panes: Human Design and numerology show their summary, three or four to a screen and narrow only.
+  assert.deepEqual([...SMALL_SUMMARY].sort(), ["design", "numerology"]);
+  assert.equal(smallSummaryNow("design", 4, 322), true);
+  assert.equal(smallSummaryNow("design", 2, 322), false);
+  assert.equal(smallSummaryNow("design", 4, 530), false);
+  assert.equal(smallSummaryNow("natal", 4, 322), false);
+  assert.equal(smallSummaryNow("numerology", 3, 0), false, "not measured yet");
+  // Human Design needs height for its keys and bodygraph: four short panes at 1440 (530 × 370) show its summary, three tall ones at 1920 do not.
+  assert.equal(smallSummaryNow("design", 4, 530, 370), true);
+  assert.equal(smallSummaryNow("design", 3, 513, 880), false);
+  assert.equal(smallSummaryNow("numerology", 4, 530, 370), false, "numerology's wheel and cards read at that size");
+  assert.equal(smallSummaryNow("design", 2, 530, 370), false, "two charts draw the figure as ever");
+});
+
+test("where two languages agree: only where a real correspondence holds, each item choosing in both panes", async () => {
+  const [ca, cb] = await Promise.all([calculateNatal(A), calculateNatal(B)]);
+  const ha = await calculateHumanDesign({ natalUtc: new Date(ca.meta.utc) });
+  const birth = (c) => ({ utc: c.meta.utc, date: c.meta.date, time: c.meta.time, longitude: c.meta.longitude });
+  const prefs = { clock: "true-solar", dayBoundary: "23:00" };
+  const side = (page, chart, data) => ({ page, chart, data });
+  // The Chinese solar month turns at 15° of each sign: Lichun at 315° is the Tiger's.
+  assert.equal(solarMonthBranch(315), 2);
+  assert.equal(solarMonthBranch(314.9), 1);
+  assert.equal(solarMonthBranch(0), 3, "0° Aries is in the Rabbit month (Jingzhe, 345°, to Qingming, 15°)");
+  assert.equal(solarMonthBranch(84), 6, "24° Gemini: the Horse month");
+  // Astrology beside Human Design: the Personality Sun and Moon are the birth chart's.
+  const hd = agreeItems(side("natal", ca, null), side("design", ca, { hd: ha }), "en", say("en"));
+  assert.equal(hd.why, "cmpAgreeWhyHd");
+  const sunGate = ha.activations.find((x) => x.body === "sun" && x.layer === "personality");
+  assert.deepEqual(hd.items.map((i) => i.ids), [
+    { a: "planet:sun", b: `gate:${sunGate.gate}` },
+    { a: "planet:moon", b: `gate:${ha.activations.find((x) => x.body === "moon" && x.layer === "personality").gate}` },
+  ]);
+  assert.equal(hd.items[0].label, `Sun in Gemini: Gate ${sunGate.gate}.${sunGate.line}`);
+  assert.match(agreeItems(side("natal", ca, null), side("design", ca, { hd: ha }), "fr", say("fr")).items[0].label, /^Le Soleil en Gémeaux\u202f: Porte \d+\.\d$/);
+  // The other way round, each pane's own ids; on Transits, the natal Sun (drawn inside) all the same.
+  assert.deepEqual(agreeItems(side("design", ca, { hd: ha }), side("transits", ca, null), "en", say("en")).items[0].ids, { a: `gate:${sunGate.gate}`, b: "planet:sun" });
+  // Human Design's data not there yet: the list, empty.
+  assert.deepEqual(agreeItems(side("natal", ca, null), side("design", ca, undefined), "en", say("en")).items, []);
+  // Astrology beside Chinese astrology and BaZi: the month's animal follows the Sun, for both fixtures.
+  for (const c of [ca, cb]) {
+    const z = zodiacChart(birth(c), prefs);
+    const bz = baziChart(birth(c), prefs);
+    const sun = c.planets.find((p) => p.id === "sun");
+    const month = z.places.find((p) => p.id === "month");
+    assert.equal(solarMonthBranch(sun.ecliptic), month.branch, "the calendar's month and the Sun's agree");
+    const zk = agreeItems(side("natal", c, null), side("zodiac", c, { zodiac: z }), "en", say("en"));
+    assert.equal(zk.why, "cmpAgreeWhyMonth");
+    assert.deepEqual(zk.items.map((i) => i.ids), [{ a: "planet:sun", b: "zk:month" }]);
+    const pillars = agreeItems(side("bazi", c, { bazi: bz }), side("progressions", c, null), "en", say("en"));
+    assert.deepEqual(pillars.items.map((i) => i.ids), [{ a: "bz:branch:month", b: "planet:sun" }]);
+  }
+  const z = zodiacChart(birth(ca), prefs);
+  const bz = baziChart(birth(ca), prefs);
+  assert.match(agreeItems(side("natal", ca, null), side("zodiac", ca, { zodiac: z }), "en", say("en")).items[0].label, /^Sun at 24° Gemini · Month: Horse$/);
+  // Chinese astrology beside BaZi: the four animals are the four branches; the elements named together only when the same.
+  const zb = agreeItems(side("zodiac", ca, { zodiac: z }), side("bazi", ca, { bazi: bz }), "en", say("en"));
+  assert.equal(zb.why, "cmpAgreeWhyBranches");
+  const places = zb.items.filter((i) => i.key !== "agree-element");
+  assert.deepEqual(places.map((i) => i.ids), ["year", "month", "day", "hour"].map((p) => ({ a: `zk:${p}`, b: `bz:branch:${p}` })));
+  assert.match(places[0].label, /^Year: Horse, in both$/);
+  const sameElement = z.places.find((p) => p.id === "year").stemPhase === STEMS_PHASE(bz.dayMaster);
+  assert.equal(zb.items.some((i) => i.key === "agree-element"), sameElement);
+  // No correspondence, no list: numerology beside BaZi, Human Design beside numerology, Feng Shui beside astrology; nor on a Cycles page.
+  assert.equal(agreeItems(side("numerology", ca, null), side("bazi", ca, { bazi: bz }), "en", say("en")), null);
+  assert.equal(agreeItems(side("design", ca, { hd: ha }), side("numerology-cycles", ca, null), "en", say("en")), null);
+  assert.equal(agreeItems(side("fengshui", ca, null), side("natal", ca, null), "en", say("en")), null);
+  assert.equal(agreeItems(side("natal", ca, null), side("zodiac-years", ca, null), "en", say("en")), null);
+});
+
+import { STEMS } from "../src/lib/chinese/names.ts";
+const STEMS_PHASE = (i) => STEMS[i].phase;
+
+test("what three or four share: what all of them do, and what most of them do with its count", async () => {
+  const [ca, cb] = await Promise.all([calculateNatal(A), calculateNatal(B)]);
+  const people = (charts) => charts.map((chart) => ({ chart, data: null }));
+  const run = (charts) => {
+    const who = ["a", "b", "c", "d"].slice(0, charts.length);
+    const sides = people(charts);
+    const at = (w) => sides[who.indexOf(w)];
+    return groupShared(who, pairsOf(who).map(([x, y]) => ({ x, y, items: sharedAstro("natal", at(x), at(y), "en", say("en")) })));
+  };
+  assert.deepEqual(pairsOf(["a", "b", "c", "d"]), [["a", "b"], ["a", "c"], ["a", "d"], ["b", "c"], ["b", "d"], ["c", "d"]]);
+  // Four (the second pair the first's twins): all four share the late 1980s' Neptune and Pluto; two of four is not most.
+  const four = run([ca, cb, ca, cb]);
+  assert.deepEqual(four.all.map((g) => g.label), ["Neptune in Capricorn", "Pluto in Scorpio"]);
+  assert.deepEqual(four.all[0].ids, { a: "planet:neptune", b: "planet:neptune", c: "planet:neptune", d: "planet:neptune" });
+  assert.deepEqual(four.most, []);
+  // Three (A twice): what A shares with its twin is shared by two of three, most of them; the Sun first, as the lists give it.
+  const three = run([ca, cb, ca]);
+  assert.deepEqual(three.all.map((g) => g.label), ["Neptune in Capricorn", "Pluto in Scorpio"]);
+  assert.equal(three.most[0].label, "Sun in Gemini");
+  assert.deepEqual(three.most[0].ids, { a: "planet:sun", c: "planet:sun" });
+  assert.ok(three.most.every((g) => g.count === 2));
+  // Different values are never joined: B's Sun is not A's.
+  assert.ok(!three.most.some((g) => g.ids.b && g.label === "Sun in Gemini"));
+  // A Chinese animal in different places joins as it does for two, chosen where each has it.
+  const birth = (c) => ({ utc: c.meta.utc, date: c.meta.date, time: c.meta.time, longitude: c.meta.longitude });
+  const prefs = { clock: "true-solar", dayBoundary: "23:00" };
+  const [za, zb] = [zodiacChart(birth(ca), prefs), zodiacChart(birth(cb), prefs)];
+  const zSides = { a: { chart: ca, data: { zodiac: za } }, b: { chart: cb, data: { zodiac: zb } }, c: { chart: ca, data: { zodiac: za } } };
+  const zk = groupShared(["a", "b", "c"], pairsOf(["a", "b", "c"]).map(([x, y]) => ({ x, y, items: sharedZodiac("zodiac", zSides[x], zSides[y], "en", say("en")) })));
+  const snake = zk.all.find((g) => /Snake/.test(g.label));
+  assert.ok(snake, JSON.stringify(zk.all));
+  assert.notEqual(snake.ids.a, snake.ids.b);
+  assert.equal(snake.ids.a, snake.ids.c);
+});
+
+test("the new ways stay out of the first download: the first page reads its scope's page, not Compare's time", () => {
+  const scope = readFileSync(join(ROOT, "src/studio/scope.tsx"), "utf8");
+  assert.ok(!/from "@\/studio\/(scope-time|compare\/)/.test(scope), "scope.tsx brings no more than its hooks");
+  for (const f of ["src/studio/modes/natal.tsx", "src/studio/modes/wheel-view.ts", "src/studio/modes/data.tsx", "src/studio/workspace.tsx"]) {
+    const src = readFileSync(join(ROOT, f), "utf8");
+    assert.ok(!/from "@\/studio\/scope-time"|from "@\/studio\/compare\/(compare-modes|agree|shared-group|small|pane-label|compare-bar)"/.test(src), `${f} imports Compare's ways statically`);
+  }
+  // Every page's runtime reads the page through its scope (a pane of two languages draws its own).
+  for (const f of ["bazi.tsx", "bazi-luck.tsx", "zodiac.tsx", "zodiac-years.tsx", "fengshui.tsx", "fengshui-cycles.tsx", "hooks/useHumanDesign.ts", "hooks/useNumerology.ts", "hooks/useTransitSky.ts", "hooks/useProgressions.ts"]) {
+    const src = readFileSync(join(ROOT, "src/studio/modes", f), "utf8");
+    assert.ok(!/useStudioStore\(\(s\) => s\.page\)/.test(src), `${f} reads the studio's page, not its scope's`);
+    assert.ok(!/s\.time\./.test(src), `${f} reads the studio's time, not its scope's`);
+  }
 });

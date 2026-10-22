@@ -13,11 +13,16 @@
  *     direction reached; a Kua's reading, named for its person;
  *   - Sample B's yin count chosen (Kua 2): two groups, eight mixed directions,
  *     the east the best middle ground, the west supporting Sample B;
+ *   - "You two, now" (share and compare plan, feature 5e) beside the rose:
+ *     the year's and the month's stars over the four directions the two
+ *     share, each strengthened, steady or resting, one to face together at
+ *     most; with two groups, each one's own direction to face this year;
  *   - the first read in the side panel: each Kua, the groups, the best, the
- *     practice, each opening its reading; "How Ulune calculates" at its end;
+ *     practice and "You two, now", each opening its reading; "How Ulune
+ *     calculates" at its end;
  *   - (part 28) from Feng Shui, the chart switcher's pair button leads here;
  *   - the table: both counts of both people, the one on the compass marked;
- *     the eight directions; the practice; Copy and CSV;
+ *     the eight directions; the practice; "You two, now"; Copy and CSV;
  *   - (at 1280 in English, 390 in French) the second person added from the
  *     page, with a yin count in the birth form: back on the page with them as
  *     the partner, their one Kua (no choice offered), two groups;
@@ -45,6 +50,9 @@ const WORDS = {
     compare: "Relationship with Sample B (Feng Shui: two people’s directions)",
     copy: ["TraceQA · Sample B · The two Kua", "The eight directions for two", "In practice, for two"],
     noneMixed: "None: in the same group",
+    nowHead: "You two, now",
+    noShared: "No direction supports you both",
+    nowCsv: "now,year,month,direction,who,yearStar,monthStar,state,face",
   },
   fr: {
     groups: "TraceQA (Kua 1) et Sample B (Kua 4) sont du même groupe, le groupe de l’Est",
@@ -61,6 +69,9 @@ const WORDS = {
     compare: "Relation avec Sample B (Feng Shui\u202f: les directions de deux personnes)",
     copy: ["TraceQA · Sample B · Les deux Kua", "Les huit directions à deux", "En pratique, à deux"],
     noneMixed: "Aucune\u202f: dans le même groupe",
+    nowHead: "Vous deux, maintenant",
+    noShared: "Aucune direction n’est favorable pour vous deux",
+    nowCsv: "now;year;month;direction;who;yearStar;monthStar;state;face",
   },
 };
 const note = (page) => page.getByTestId("click-note").evaluate((e) => e.textContent ?? "").catch(() => "");
@@ -97,6 +108,19 @@ const figure = (page) =>
       groups: document.querySelector("[data-testid=fengshui-pair-groups]")?.textContent ?? "",
       practice: document.querySelector("[data-testid=fengshui-pair-practice]")?.textContent ?? "",
       counts: [...document.querySelectorAll("[data-testid^=fengshui-pair-count-]")].map((b) => `${b.getAttribute("data-testid").slice(20)}:${b.getAttribute("aria-pressed")}`),
+    };
+  });
+
+/** "You two, now" beside the rose (feature 5e): its heading, its year, its line, its rows. */
+const nowSide = (page) =>
+  page.evaluate(() => {
+    const root = document.querySelector("[data-testid=fengshui-pair-now-side]");
+    return {
+      shown: Boolean(root),
+      head: root?.querySelector("h3")?.textContent ?? "",
+      when: root?.querySelector("[data-testid=fengshui-pair-now-side-when]")?.textContent ?? "",
+      lead: root?.querySelector(".ulune-two-now-lead")?.textContent ?? "",
+      rows: [...(root?.querySelectorAll("[data-testid=fengshui-pair-now-side-row]") ?? [])].map((r) => ({ dir: r.getAttribute("data-dir"), state: r.getAttribute("data-state"), face: r.getAttribute("data-face") === "1", title: r.querySelector(".ulune-two-now-title")?.textContent ?? "", h: r.getBoundingClientRect().height })),
     };
   });
 
@@ -157,6 +181,19 @@ async function run(width, lang) {
     if (!f.groups.includes(w.groups)) throw new Error(`${label}: the groups "${f.groups}"`);
     if (!f.practice.includes(w.desk)) throw new Error(`${label}: the practice "${f.practice}"`);
     if (f.counts.join() !== "a-yang:true,a-yin:false,b-yang:true,b-yin:false") throw new Error(`${label}: the counts ${f.counts}`);
+    // "You two, now" (feature 5e): this year's and this month's stars over the four shared directions.
+    let now = await nowSide(page);
+    if (!now.shown || now.head !== w.nowHead || !/^\d{4}\u202f?: /.test(now.when)) throw new Error(`${label}: "You two, now" ${JSON.stringify(now)}`);
+    if (now.rows.map((r) => r.dir).sort().join() !== "e,n,s,se") throw new Error(`${label}: "You two, now" rows ${now.rows.map((r) => r.dir)}`);
+    if (now.rows.some((r) => !["strengthened", "steady", "rest"].includes(r.state))) throw new Error(`${label}: the states ${now.rows.map((r) => r.state)}`);
+    if (now.rows.filter((r) => r.face).length > 1 || !now.lead || now.lead.startsWith(w.noShared)) throw new Error(`${label}: the direction to face together "${now.lead}" ${now.rows.map((r) => r.face)}`);
+    if (now.rows.some((r) => r.h < (touch ? 44 : 24))) throw new Error(`${label}: a row of "You two, now" under its tap size ${now.rows.map((r) => r.h)}`);
+    await press(page, "fengshui-pair-now-side-when", touch);
+    await reading();
+    await page.waitForFunction((t) => new RegExp(`^${t} · \\d{4}$`).test(document.querySelector("[data-testid=click-note] .ob-rc-title")?.textContent ?? ""), w.nowHead, { timeout: 8000 }).catch(async () => {
+      throw new Error(`${label}: the year's reading "${(await note(page)).slice(0, 200)}"`);
+    });
+    await back();
     await assertNoOverflow(page);
     await page.screenshot({ path: join(SHOTS, `fengshui-pair-${lang}-${width}.png`) }).catch(() => {});
 
@@ -192,6 +229,10 @@ async function run(width, lang) {
     if (Object.values(f.kinds).some((k) => k !== "mixed")) throw new Error(`${label}: the kinds ${JSON.stringify(f.kinds)}`);
     if (!f.groups.includes(w.two)) throw new Error(`${label}: the groups "${f.groups}"`);
     if (f.counts.join() !== "a-yang:true,a-yin:false,b-yang:false,b-yin:true") throw new Error(`${label}: the counts ${f.counts}`);
+    // Two groups share no direction: "You two, now" gives each one's own to face this year.
+    now = await nowSide(page);
+    if (!now.lead.startsWith(w.noShared) || !now.rows.length || now.rows.length > 2) throw new Error(`${label}: "You two, now" with two groups ${JSON.stringify(now)}`);
+    if (!now.rows[0].title.startsWith(FIXTURE_A.name) || (now.rows[1] && !now.rows[1].title.startsWith(FIXTURE_B.name))) throw new Error(`${label}: whose directions ${now.rows.map((r) => r.title)}`);
     await press(page, "fengshui-pair-dir-w", touch);
     await reading();
     await waitNote(page, w.west, label, "the west's reading");
@@ -226,7 +267,10 @@ async function run(width, lang) {
       steps: [...e.querySelectorAll("[data-testid^=fengshui-pair-hello-]")].map((s) => s.getAttribute("data-testid").slice(20)),
       how: e.querySelector("[data-testid=method-notes]")?.getAttribute("data-page") ?? "",
     }));
-    if (hello.steps.join() !== "kua-a,kua-b,groups,best,practice") throw new Error(`${label}: the first read's steps ${hello.steps}`);
+    if (hello.steps.join() !== "kua-a,kua-b,groups,best,practice,now") throw new Error(`${label}: the first read's steps ${hello.steps}`);
+    // Its last step, "You two, now", says what the part beside the rose says.
+    const nowStep = await page.getByTestId("fengshui-pair-hello-now").evaluate((e) => e.querySelector(".ulune-hd-step-text")?.textContent ?? "");
+    if (nowStep !== now.lead) throw new Error(`${label}: the first read's "You two, now" "${nowStep}" against "${now.lead}"`);
     if (!hello.text.includes(w.first) || !hello.text.includes(w.middle)) throw new Error(`${label}: the first read "${hello.text.slice(0, 300)}"`);
     if (hello.how !== "fengshui-pair" || !hello.text.includes(w.how)) throw new Error(`${label}: no "${w.how}" (${hello.how})`);
     await page.getByTestId("method-notes").evaluate((d) => (d.open = true));
@@ -255,6 +299,9 @@ async function run(width, lang) {
       practice: document.querySelectorAll("[data-testid^=fengshui-pair-row-practice-]").length,
     }));
     if (table.kua.join() !== "a-yang*,a-yin,b-yang,b-yin*" || table.dirs !== 8 || table.practice !== 4) throw new Error(`${label}: the table ${JSON.stringify(table)}`);
+    // Its last part, "You two, now": the same rows as beside the rose.
+    const nowRows = await page.locator("[data-testid=table-now] [data-testid^=fengshui-pair-now-row-]").count();
+    if (nowRows !== now.rows.length) throw new Error(`${label}: the table's "You two, now" has ${nowRows} rows, the page ${now.rows.length}`);
     await assertNoOverflow(page);
     await page.screenshot({ path: join(SHOTS, `fengshui-pair-table-${lang}-${width}.png`) }).catch(() => {});
     const csv = await csvOf(page);
@@ -262,6 +309,7 @@ async function run(width, lang) {
     for (const row of [["kua", "a", "yang", "1", "kan", "east", "1", "0"], ["kua", "b", "yin", "2", "kun", "west", "1", "0"], ["dir", "w", "huo-hai", "challenging", "tian-yi", "supportive", "mixed", "b"], ["practice", "desk", "e"], ["practice", "bed", "w"]]) {
       if (!csv.split("\n").includes(row.join(sep))) throw new Error(`${label}: the CSV lacks ${row.join(sep)}\n${csv.slice(0, 400)}`);
     }
+    if (!csv.split("\n").includes(w.nowCsv)) throw new Error(`${label}: the CSV lacks "You two, now" (${w.nowCsv})`);
     await openExport(page);
     await page.getByTestId("table-copy").click();
     await page.waitForTimeout(300);

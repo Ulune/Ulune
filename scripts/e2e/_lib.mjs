@@ -262,6 +262,7 @@ export const PAGE_PLACE = {
   composite: ["astrology", "relationship"],
   design: ["human-design", "natal"],
   "design-pair": ["human-design", "relationship"],
+  "design-cycles": ["human-design", "cycles"],
   numerology: ["numerology", "natal"],
   "numerology-cycles": ["numerology", "cycles"],
   "numerology-pair": ["numerology", "relationship"],

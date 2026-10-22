@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import { AnimalGlyph } from "@/components/animal-glyph";
 import { LoadingLines } from "@/components/loading-lines";
 import { chartDisplayName } from "@/lib/chart/library";
@@ -12,6 +12,9 @@ import type { ZodiacChart, ZodiacPlaceId } from "@/lib/chinese/zodiac";
 import { PLACE_WORD, placeRef, zodiacReading } from "@/lib/chinese/zodiac-reading";
 import { pairMeetings, type PairMeeting } from "@/lib/chinese/zodiac-time";
 import { meetName, meetingLine, meetingRef, pairMeetingReading } from "@/lib/chinese/zodiac-time-reading";
+import { ZKP_NOW, zodiacPairNow, zodiacPairNowReading, type ZodiacPairNow } from "@/lib/chinese/zodiac-pair-now";
+import { pnWord } from "@/lib/i18n/catalog/pair-now-words";
+import { useVisibleInterval } from "@/lib/use-visible-interval";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
@@ -26,6 +29,7 @@ import { usePairPick } from "@/studio/modes/hooks/usePairPick";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { AnimalWheel, type WheelBadge, type WheelLine } from "@/studio/modes/zodiac-wheel";
+import { ZodiacNow } from "@/studio/modes/pair-now/zodiac-now";
 import { useKeptScroll } from "@/studio/return-parts";
 import { useScopeKey, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
@@ -43,7 +47,9 @@ import "@/studio/modes/styles/pair.css";
  * the year animals' meeting, the day animals' (the self with a partner) and
  * every other, each opening its reading. Worked out here; nothing is sent.
  * Part 29 adds the method notes to the side panel's first read, each named
- * for its person (chinese-notes.tsx).
+ * for its person (chinese-notes.tsx). "You two, now" (share and compare plan,
+ * feature 5e) ends the list and the first read: the year's animal for both,
+ * the year ahead of part 11 completed for two (pair-now/zodiac-now.tsx).
  */
 
 export type ZodiacPairState = {
@@ -52,6 +58,8 @@ export type ZodiacPairState = {
   b: ZodiacChart | null;
   names: { a: string; b: string };
   meetings: PairMeeting[];
+  /** "You two, now" (feature 5e): the year and the month we are in, for both. */
+  now: ZodiacPairNow | null;
   /** The two cast charts, for the method notes (part 29). */
   charts: { a: NatalChart | null; b: NatalChart | null };
   enabled: boolean;
@@ -215,6 +223,7 @@ function PairFigure() {
             </ul>
           </>
         ) : null}
+        {data.now ? <ZodiacNow now={data.now} z={{ a, b }} names={names} onFigure ruled /> : null}
       </div>
     </div>
   );
@@ -259,6 +268,7 @@ function PairHello() {
           </li>
         ))}
       </ul>
+      {data.now ? <ZodiacNow now={data.now} z={{ a: data.a, b: data.b }} names={data.names} ruled /> : null}
       <HowUluneCalculates page="zodiac-pair" />
     </section>
   );
@@ -273,7 +283,7 @@ function PairData() {
   if (!data?.a || !data.b) return null;
   return (
     <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
-      <ZodiacPairTable meetings={data.meetings} names={data.names} selectedId={w.selectedId} onSelect={w.pick} />
+      <ZodiacPairTable meetings={data.meetings} names={data.names} selectedId={w.selectedId} onSelect={w.pick} now={data.now} z={{ a: data.a, b: data.b }} />
     </Suspense>
   );
 }
@@ -296,8 +306,16 @@ function usePairRuntime(): ModeRuntime<ZodiacPairState> {
     [inner, chartB, t],
   );
   const meetings = useMemo(() => (a && b ? pairMeetings(a, b) : []), [a, b]);
+  // "You two, now" (feature 5e): the year and the solar month we are in, read again every ten minutes while shown.
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  useVisibleInterval(() => setNowMs(Date.now()), 600_000, enabled);
+  const monthKey = Math.floor(nowMs / 3_600_000);
+  const now = useMemo(() => (a && b ? zodiacPairNow(a, b, monthKey * 3_600_000) : null), [a, b, monthKey]);
   const reading = useMemo(() => {
     if (!a || !selectedId) return null;
+    if (selectedId.startsWith(ZKP_NOW)) {
+      return now && b ? zodiacPairNowReading(now, { a, b }, names, selectedId, locale, prefs, pnWord(locale, "ptnHead"), { a: inner?.meta.timezone, b: chartB?.meta.timezone }) : null;
+    }
     const meet = meetings.find((m) => meetingRef(m) === selectedId);
     if (meet && b) return pairMeetingReading(meet, a, b, names, locale, prefs);
     const who = /^zkp:(a|b):(year|month|day|hour)$/.exec(selectedId);
@@ -309,8 +327,8 @@ function usePairRuntime(): ModeRuntime<ZodiacPairState> {
     }
     // An animal of the wheel: read against A's animals, as on the natal page.
     return selectedId.startsWith("zk:branch:") ? zodiacReading(a, selectedId, locale, prefs) : null;
-  }, [a, b, meetings, selectedId, names, locale, prefs, inner, chartB]);
-  const data = useMemo(() => ({ pick, a, b, names, meetings, charts: { a: inner, b: chartB }, enabled }), [pick, a, b, names, meetings, inner, chartB, enabled]);
+  }, [a, b, meetings, selectedId, names, locale, prefs, inner, chartB, now]);
+  const data = useMemo(() => ({ pick, a, b, names, meetings, now, charts: { a: inner, b: chartB }, enabled }), [pick, a, b, names, meetings, now, inner, chartB, enabled]);
   return useMemo(() => ({ data, reading }), [data, reading]);
 }
 

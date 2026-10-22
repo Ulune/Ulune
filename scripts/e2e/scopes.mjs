@@ -32,6 +32,8 @@ const PAGES = [
   { id: "synastry", ready: "svg[data-depth-base] [data-kind=planet][data-body=sun]", wheel: "sun", pair: "synastry" },
   { id: "composite", ready: "svg[data-depth-base] [data-kind=planet][data-body=sun]", wheel: "sun", pair: "composite" },
   { id: "design", ready: ".ulune-hd-gate:not([data-tone=off])", press: ".ulune-hd-gate:not([data-tone=off])" },
+  // Human Design's Cycles (feature 5b): the moment's gate of the week, the life cycles each person's own, one time for both.
+  { id: "design-cycles", ready: "[data-testid=hd-cycles-week]", press: "[data-testid=hd-cycles-week]", dial: "hd-cycles-dial", own: { sel: "[data-testid=hd-cycles-life-saturn1]", a: /2020/, b: /2016/ } },
   { id: "design-pair", ready: "[data-testid=hd-pair-graph] .ulune-hd-gate:not([data-tone=off])", press: "[data-testid=hd-pair-kind-electromagnetic]", pair: "design-pair" },
   { id: "numerology", ready: "[data-testid=numerology-tile-lifepath]", press: "[data-testid=numerology-tile-lifepath]", own: { sel: "[data-testid=numerology-tile-lifepath] .ulune-num-tile-n", a: /(^|\/)4$/, b: /(^|\/)3$/ } },
   { id: "numerology-cycles", ready: "[data-testid=num-month-1]", press: "[data-testid=num-month-1]" },

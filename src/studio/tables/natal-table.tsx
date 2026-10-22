@@ -69,6 +69,7 @@ import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePa
 import { ParallelGlyph } from "@/studio/tables/table-glyphs";
 import { Maybe, OrbLimit, ToolCheck, UnknownNote } from "@/studio/tables/cross-parts";
 import { previewProps } from "@/lib/depth/preview-bus";
+import { rowsCsv } from "@/lib/pair-now-csv";
 
 /** The parts of the natal table, in reading order. */
 const PARTS: TablePartId[] = ["identity", "points", "houses", "aspects", "grid", "dignities", "patterns", "balance", "stars"];
@@ -97,6 +98,7 @@ export function NatalTable({
   parts,
   name = "natal",
   testId = "studio-table",
+  extra = [],
 }: {
   chart: NatalChart;
   selectedId?: string | null;
@@ -106,16 +108,19 @@ export function NatalTable({
   /** Which table (the part last read is kept per table, for the visit). */
   name?: string;
   testId?: string;
+  /** Parts after the chart's own (the Composite's "You two, now", share and compare plan, feature 5e). */
+  extra?: TablePart[];
 }) {
   const { locale, t } = useI18n();
   const patterns = useMemo(() => hydratePatterns(chart), [chart]);
   const shown = parts ?? PARTS;
   const scope = { parts, composite: name === "composite" };
 
+  // The parts after the chart's own join the whole table's Copy and CSV, each as its own table.
   const actions = (
     <TableActions
-      text={() => formatChartTableText(chart, locale, scope)}
-      csv={() => formatChartTableCsv(chart, locale, scope)}
+      text={() => [formatChartTableText(chart, locale, scope), ...extra.map((p) => p.copyText?.() ?? "")].filter(Boolean).join("\n\n")}
+      csv={() => [formatChartTableCsv(chart, locale, scope), ...extra.map((p) => (p.table ? rowsCsv(p.table()) : ""))].filter(Boolean).join("\n\n")}
       fileName={`${chart.meta.name || name} table`}
     />
   );
@@ -145,15 +150,18 @@ export function NatalTable({
     return () => partRows(formatChartTableCsv(chart, locale, scope), kinds, id === "aspects" ? shownAspectKeep(chart, locale) : undefined);
   };
 
-  const page: TablePart[] = shown.map((id) => ({
-    id,
-    label: tablePartLabel(locale, id),
-    hint: tablePartHint(locale, id),
-    terms: TERMS[id],
-    copyText: id === "grid" ? undefined : textOf(id as ChartTextPartId),
-    table: tableOf(id),
-    children: content[id],
-  }));
+  const page: TablePart[] = [
+    ...shown.map((id) => ({
+      id,
+      label: tablePartLabel(locale, id),
+      hint: tablePartHint(locale, id),
+      terms: TERMS[id],
+      copyText: id === "grid" ? undefined : textOf(id as ChartTextPartId),
+      table: tableOf(id),
+      children: content[id],
+    })),
+    ...extra,
+  ];
 
   return (
     <div data-testid={testId} data-chart-pick data-selected={selectedId ?? ""} className="min-w-0">

@@ -7,17 +7,17 @@ import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
 import { useI18n } from "@/lib/i18n/locale";
 import { pillarGod } from "@/studio/compare/shared-bazi";
-import { TableFrame, type MergedPick } from "@/studio/compare/merged";
+import { TableFrame, type MergedColumn, type MergedPick } from "@/studio/compare/merged";
 
 /*
- * Compare's one BaZi table for two people (merged.tsx): the four pillars,
- * each person's with the god of its stem (as the page's table gives them,
- * studio/tables/bazi-table.tsx), an A column and a B column; a row chooses its
- * pillar in both charts. BaZi's helpers come with shared-bazi.ts's (it says
+ * Compare's one BaZi table for two to four people (merged.tsx): the four
+ * pillars, each person's with the god of its stem (as the page's table gives
+ * them, studio/tables/bazi-table.tsx), a column for each person; a row
+ * chooses its pillar in every chart. BaZi's helpers come with shared-bazi.ts's (it says
  * why).
  */
 
-export function BaziPillarsMerged({ a, b, nameA, nameB, selectedId, onSelect }: { a: BaziChart; b: BaziChart; nameA: string; nameB: string } & MergedPick) {
+export function BaziPillarsMerged({ people, selectedId, onSelect }: { people: MergedColumn<BaziChart>[] } & MergedPick) {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const cell = (c: BaziChart, place: BaziPlaceId) => {
@@ -37,8 +37,9 @@ export function BaziPillarsMerged({ a, b, nameA, nameB, selectedId, onSelect }: 
       <thead>
         <tr>
           <th data-col="place">{cnWord(locale, "zkPillar")}</th>
-          <th data-col="a">{`A · ${nameA}`}</th>
-          <th data-col="b">{`B · ${nameB}`}</th>
+          {people.map((p) => (
+            <th key={p.who} data-col={p.who}>{`${p.who.toUpperCase()} · ${p.name}`}</th>
+          ))}
         </tr>
       </thead>
       <tbody>
@@ -52,8 +53,9 @@ export function BaziPillarsMerged({ a, b, nameA, nameB, selectedId, onSelect }: 
                   {cnWord(locale, PILLAR_WORD[place])}
                 </button>
               </th>
-              <td>{cell(a, place)}</td>
-              <td>{cell(b, place)}</td>
+              {people.map((p) => (
+                <td key={p.who}>{cell(p.chart, place)}</td>
+              ))}
             </tr>
           );
         })}

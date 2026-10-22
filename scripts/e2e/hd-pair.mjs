@@ -21,8 +21,12 @@
  *     Enter opens one;
  *   - on a phone a tap near a gate keeps the figure whole behind a card that
  *     names it; Read opens its reading;
+ *   - "You two, now" (feature 5e): beside the figure and under the first
+ *     read, the planets' gates at this moment over the two, the channels
+ *     they complete that the two do not form, each by whose gate it meets;
+ *     a row lights its channel and opens its reading;
  *   - the table: the channels by kind (and the half ones), the centres, the
- *     gates; its CSV and Copy;
+ *     gates, then "You two, now"; its CSV and Copy;
  *   - Share both: one link with the two charts, which opens this page with
  *     the partner set;
  *   - contrast of the page's own words in both themes; nothing sent beyond
@@ -47,6 +51,10 @@ const WORDS = {
     card: ["Gate 20", "Throat", "TraceQA"],
     copy: ["20–57", "Electromagnetic", "TraceQA: Gate 20 · Sample B: Gate 57"],
     sheet: "Human Design: connection chart",
+    nowHead: "You two, now",
+    nowWhen: /^Today at \d{2}:\d{2}$/,
+    nowLead: "The planets’ gates at this moment over your connection chart",
+    nowCsv: "now,at,channel,by,held,brings,bodies",
   },
   fr: {
     pairButton: "Relation avec Sample B (Human Design\u202f: carte de connexion)",
@@ -59,6 +67,10 @@ const WORDS = {
     card: ["Porte 20", "Gorge", "TraceQA"],
     copy: ["20–57", "Électromagnétique", "TraceQA\u202f: Porte 20 · Sample B\u202f: Porte 57"],
     sheet: "Human Design\u202f: carte de connexion",
+    nowHead: "Vous deux, maintenant",
+    nowWhen: /^Aujourd’hui à \d{2}:\d{2}$/,
+    nowLead: "Les portes des planètes en ce moment sur votre carte de connexion",
+    nowCsv: "now;at;channel;by;held;brings;bodies",
   },
 };
 
@@ -117,6 +129,38 @@ const figureFacts = (page) =>
       focusable: svg.querySelectorAll("[tabindex]").length,
     };
   });
+
+/** "You two, now" as drawn (feature 5e): its heading, its moment, its rows (or the quiet line) once the moment's gates are here. */
+async function nowPart(page, id) {
+  await page.getByTestId(id).waitFor({ state: "attached", timeout: 30000 });
+  await page.waitForFunction((t) => document.querySelector(`[data-testid=${t}-list], [data-testid=${t}-quiet], [data-testid=${t}-error]`), id, { timeout: 45000 });
+  return page.evaluate((t) => {
+    const root = document.querySelector(`[data-testid=${t}]`);
+    return {
+      head: root.querySelector("h3")?.textContent ?? "",
+      when: root.querySelector(`[data-testid=${t}-when]`)?.textContent ?? "",
+      lead: root.querySelector(".ulune-two-now-lead")?.textContent ?? "",
+      error: root.querySelector(`[data-testid=${t}-error]`)?.textContent ?? "",
+      quiet: Boolean(root.querySelector(`[data-testid=${t}-quiet]`)),
+      rows: [...root.querySelectorAll(`[data-testid=${t}-row]`)].map((r) => ({ channel: r.getAttribute("data-channel"), by: r.getAttribute("data-by"), title: r.querySelector(".ulune-two-now-title")?.textContent ?? "", h: r.getBoundingClientRect().height })),
+    };
+  }, id);
+}
+
+/** The part held to its rules: no channel the two already form, each by whose gate it meets. */
+function checkNow(now, w, label, touch) {
+  if (now.error) throw new Error(`${label}: the moment's gates could not be read: ${now.error}`);
+  if (now.head !== w.nowHead || !w.nowWhen.test(now.when)) throw new Error(`${label}: "You two, now" heads "${now.head}" "${now.when}"`);
+  if (!now.quiet && !now.rows.length) throw new Error(`${label}: "You two, now" has neither channels nor its quiet line`);
+  for (const r of now.rows) {
+    if (FORMED[(r.channel ?? "").replace("–", "-")]) throw new Error(`${label}: "You two, now" lists ${r.channel}, which the two form`);
+    if (!["a", "b", "both", "sky"].includes(r.by)) throw new Error(`${label}: ${r.channel} meets "${r.by}"`);
+    if (!r.title.startsWith(r.channel ?? "?")) throw new Error(`${label}: ${r.channel} said "${r.title}"`);
+    if (r.h < (touch ? 44 : 24)) throw new Error(`${label}: ${r.channel} ${Math.round(r.h)} px tall`);
+  }
+  const order = now.rows.map((r) => ["a", "b", "both", "sky"].indexOf(r.by));
+  if (order.some((x, i) => i && x < order[i - 1])) throw new Error(`${label}: "You two, now" not in its order ${now.rows.map((r) => r.by)}`);
+}
 
 async function contrast(page, label) {
   const issues = [];
@@ -220,6 +264,20 @@ async function run(width, lang) {
     }));
     const centre = lang === "fr" ? { sacral: "Sacral", rest: "Ajna, Cœur, Rate", open: "Plexus solaire", def: "Simple · 8–1" } : { sacral: "Sacral", rest: "Ajna, Heart, Spleen", open: "Solar Plexus", def: "Single · 8–1" };
     if (side.a !== centre.sacral || side.b !== centre.rest || side.open !== centre.open || side.def !== centre.def) throw new Error(`${label}: the centres' rows ${JSON.stringify(side)}`);
+    // "You two, now" beside the figure (feature 5e): the moment's gates, read through the door on this device.
+    const nowSide = await nowPart(page, "hd-pair-now-side");
+    checkNow(nowSide, w, `${label} beside the figure`, touch);
+    if (!touch && nowSide.rows.length) {
+      // A row lights its channel on the figure and opens its reading.
+      const first = nowSide.rows[0];
+      await page.locator("[data-testid=hd-pair-now-side-row]").first().evaluate((e) => e.scrollIntoView({ block: "center" }));
+      await page.locator("[data-testid=hd-pair-now-side-row]").first().click();
+      await page.waitForFunction((c) => document.querySelector(`[data-testid=hd-pair-graph] [data-testid=hd-channel-${c}][data-lit]`), first.channel.replace("–", "-"), { timeout: 8000 }).catch(() => {
+        throw new Error(`${label}: "You two, now" did not light ${first.channel}`);
+      });
+      await waitNote(page, `${first.channel} · `, label, "a channel of the moment's reading");
+      await page.keyboard.press("Escape");
+    }
     await assertNoOverflow(page);
     await page.screenshot({ path: join(SHOTS, `hd-pair-${lang}-${width}.png`) }).catch(() => {});
 
@@ -279,6 +337,15 @@ async function run(width, lang) {
       if (steps.join() !== "summary,electromagnetic,companionship,dominance,compromise,conditioning-a,conditioning-b,open,definition") throw new Error(`${label}: the first read's steps ${steps}`);
       if (!(await page.getByTestId("hd-pair-hello").evaluate((e) => e.textContent ?? "")).includes(w.first)) throw new Error(`${label}: the first read's title`);
       if (!(await page.getByTestId("hd-pair-method").count())) throw new Error(`${label}: no method notes`);
+      // Under the steps, "You two, now": the same channels as beside the figure; its moment opens the part's reading.
+      const nowHello = await nowPart(page, "hd-pair-now");
+      checkNow(nowHello, w, `${label} in the first read`, touch);
+      if (!nowHello.lead.startsWith(w.nowLead)) throw new Error(`${label}: "You two, now" leads "${nowHello.lead}"`);
+      if (nowHello.rows.map((r) => r.channel).join() !== nowSide.rows.map((r) => r.channel).join()) throw new Error(`${label}: the first read's channels ${nowHello.rows.map((r) => r.channel)} against ${nowSide.rows.map((r) => r.channel)}`);
+      await page.getByTestId("hd-pair-now-when").click();
+      await waitNote(page, w.nowHead, label, "the moment's reading");
+      await page.keyboard.press("Escape");
+      await page.getByTestId("hd-pair-hello").waitFor({ timeout: 8000 });
       // The keyboard: one Tab stop on the figure; the arrows walk it, Enter opens a piece.
       await page.getByTestId("hd-pair-keys").focus();
       const first = await page.getByTestId("hd-pair-keys").getAttribute("aria-activedescendant");
@@ -306,6 +373,11 @@ async function run(width, lang) {
     const formedRows = table.channels.filter((k) => k !== "none");
     if (formedRows.join() !== "electromagnetic,electromagnetic,electromagnetic,electromagnetic,electromagnetic,electromagnetic,dominance,dominance,compromise,compromise,compromise" || table.centres !== 9 || table.gates !== 34)
       throw new Error(`${label}: the table ${JSON.stringify(table)}`);
+    // Its last part, "You two, now": the same channels as the page.
+    await page.getByTestId("table-now").waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => !document.querySelector("[data-testid=hd-pair-now-table-loading]"), null, { timeout: 30000 });
+    const nowRows = await page.locator("[data-testid=hd-pair-now-table-row]").count();
+    if (nowRows !== nowSide.rows.length) throw new Error(`${label}: the table's "You two, now" has ${nowRows} channels, the page ${nowSide.rows.length}`);
     await assertNoOverflow(page);
     await page.screenshot({ path: join(SHOTS, `hd-pair-table-${lang}-${width}.png`) }).catch(() => {});
     const csv = await csvOf(page);
@@ -318,11 +390,13 @@ async function run(width, lang) {
     ]) {
       if (!csv.split("\n").includes(row.join(sep))) throw new Error(`${label}: the CSV lacks ${row.join(sep)}\n${csv.slice(0, 400)}`);
     }
+    if (!csv.split("\n").includes(w.nowCsv)) throw new Error(`${label}: the CSV lacks "You two, now" (${w.nowCsv})`);
     await openExport(page);
     await page.getByTestId("table-copy").click();
     await page.waitForTimeout(300);
     const copied = await page.evaluate(() => navigator.clipboard.readText()).catch(() => "");
     for (const line of w.copy) if (!copied.includes(line)) throw new Error(`${label}: Copy lacks "${line}" in "${copied.slice(0, 300)}"`);
+    if (!copied.includes(`${w.nowHead}${lang === "fr" ? "\u202f: " : ": "}${nowSide.when}`)) throw new Error(`${label}: Copy lacks "You two, now"`);
     await page.keyboard.press("Escape").catch(() => {});
     await setView(page, "wheel");
     await page.getByTestId("hd-pair-graph").waitFor({ timeout: 15000 });

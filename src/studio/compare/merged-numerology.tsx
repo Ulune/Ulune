@@ -6,12 +6,12 @@ import type { AppLocale } from "@/lib/i18n/messages";
 import { numerologyPageText as p } from "@/lib/i18n/numerology-ui";
 import { cn } from "@/lib/utils";
 import { TABLE_CORES, tableCoreLabel, tableCoreValue, valueNote, type TableCoreId } from "@/studio/compare/shared-numerology";
-import { TableFrame, type MergedPick } from "@/studio/compare/merged";
+import { TableFrame, type MergedColumn, type MergedPick } from "@/studio/compare/merged";
 
 /*
- * Compare's one numerology table for two people (merged.tsx): the page's core
- * numbers (its table's first part, studio/tables/numerology-table.tsx), an A
- * column and a B column; a row chooses that number in both charts.
+ * Compare's one numerology table for two to four people (merged.tsx): the
+ * page's core numbers (its table's first part, studio/tables/numerology-table.tsx),
+ * a column for each person; a row chooses that number in every chart.
  */
 
 /** "13/4" with "karmic debt 13" under it (as numerology-table.tsx's ValueCell). */
@@ -26,7 +26,7 @@ function ValueCell({ value, locale }: { value: NumerologyValue; locale: AppLocal
   );
 }
 
-export function NumerologyCoresMerged({ a, b, nameA, nameB, selectedId, onSelect }: { a: NumerologyChart; b: NumerologyChart; nameA: string; nameB: string } & MergedPick) {
+export function NumerologyCoresMerged({ people, selectedId, onSelect }: { people: MergedColumn<NumerologyChart>[] } & MergedPick) {
   const { locale } = useI18n();
   const refOf = (id: TableCoreId) => (id === "attitude" || id === "rationalThought" ? `detail:${id}` : `core:${id}`);
   return (
@@ -34,14 +34,15 @@ export function NumerologyCoresMerged({ a, b, nameA, nameB, selectedId, onSelect
       <thead>
         <tr>
           <th data-col="number">{p(locale, "col_number")}</th>
-          <th data-col="a">{`A · ${nameA}`}</th>
-          <th data-col="b">{`B · ${nameB}`}</th>
+          {people.map((p) => (
+            <th key={p.who} data-col={p.who}>{`${p.who.toUpperCase()} · ${p.name}`}</th>
+          ))}
         </tr>
       </thead>
       <tbody>
         {TABLE_CORES.map((id) => {
           const ref = refOf(id);
-          const live = tableCoreValue(a, id).number != null || tableCoreValue(b, id).number != null;
+          const live = people.some((p) => tableCoreValue(p.chart, id).number != null);
           const on = selectedId === ref;
           return (
             <tr
@@ -61,12 +62,11 @@ export function NumerologyCoresMerged({ a, b, nameA, nameB, selectedId, onSelect
                   tableCoreLabel(locale, id)
                 )}
               </td>
-              <td data-col="a">
-                <ValueCell value={tableCoreValue(a, id)} locale={locale} />
-              </td>
-              <td data-col="b">
-                <ValueCell value={tableCoreValue(b, id)} locale={locale} />
-              </td>
+              {people.map((p) => (
+                <td key={p.who} data-col={p.who}>
+                  <ValueCell value={tableCoreValue(p.chart, id)} locale={locale} />
+                </td>
+              ))}
             </tr>
           );
         })}

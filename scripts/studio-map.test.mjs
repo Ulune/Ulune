@@ -63,7 +63,10 @@ test("every page belongs to one language and one lens, except the Calendar, a se
     assert.ok(pagePath(page).startsWith(lang.path), `${page} under ${lang.path}`);
   }
   assert.deepEqual(lensesOf("astrology"), ["natal", "cycles", "relationship"]);
-  assert.deepEqual(lensesOf("human-design"), ["natal", "relationship"], "Human Design's connection chart (share and compare plan, feature 5a)");
+  assert.deepEqual(lensesOf("human-design"), ["natal", "cycles", "relationship"], "Human Design's transits and life cycles (feature 5b) and its connection chart (share and compare plan, feature 5a)");
+  assert.equal(pagePath("design-cycles"), "/human-design/cycles");
+  assert.equal(pageFromPath("/human-design/cycles/"), "design-cycles");
+  assert.equal(lensOf("design-cycles"), "cycles");
   assert.equal(pagePath("design-pair"), "/human-design/pair");
   assert.equal(pageFromPath("/human-design/pair/"), "design-pair");
   assert.equal(pageFromPath("/human-design/"), "design", "the bodygraph keeps its address");
@@ -105,7 +108,7 @@ test("every 1.x address lands on its 2.0 page", () => {
     numerology: "/numerology",
   };
   // 2.0's own pages have no 1.x name to carry.
-  const NEW_IN_2 = ["design-pair", "numerology-cycles", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home", "numerology-pair", "fengshui-cycles"];
+  const NEW_IN_2 = ["design-pair", "design-cycles", "numerology-cycles", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-pair", "fengshui-home", "numerology-pair", "fengshui-cycles"];
   assert.deepEqual(Object.keys(cases).sort(), STUDIO_PAGES.filter((p) => !NEW_IN_2.includes(p)).sort(), "every 1.0.4 name is covered");
   for (const [studio, path] of Object.entries(cases)) {
     assert.deepEqual(legacyStudioPath({ studio }), { path, view: undefined }, studio);

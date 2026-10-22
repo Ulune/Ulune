@@ -96,6 +96,7 @@ export const PAGE_CODES: Record<StudioPage, number> = {
   "fengshui-cycles": 18,
   "design-pair": 19,
   "numerology-pair": 20,
+  "design-cycles": 21,
 };
 
 /** House systems by code, in the same spirit: append only. */

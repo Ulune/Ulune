@@ -2,14 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { blankBirth, hydrateBirthInput, type SavedChart } from "@/lib/chart/library";
 import { usePack } from "@/lib/content/packs";
 import { useI18n } from "@/lib/i18n/locale";
-import { createSlotStore, type ChartScope, type ScopeState } from "@/studio/scope";
+import { createSlotStore, type ChartScope, type ScopeMoment, type ScopeState } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import type { StudioPage } from "@/studio/url";
 
 /*
- * A chart scope of its own, "a" or "b" (share and compare plan, feature 2,
- * the foundation; scope.tsx says what a scope is). Compare's view makes one
- * per pane with useChartScopeHandle and draws the pane inside
+ * A chart scope of its own, "a" to "d" (share and compare plan, feature 2,
+ * the foundation, and ideas B7 and B8; scope.tsx says what a scope is).
+ * Compare's view makes one per pane with useChartScopeHandle (with, in its
+ * mixed ways, a page or a moment of the pane's own) and draws the pane inside
  * <ChartScopeProvider scope={…}> (scope-provider.tsx): the pages drawn there
  * read that chart, keep their own selection and run their own runtime
  * (modes/data.tsx). Outside the provider, the handle still gives the scope's
@@ -26,7 +27,7 @@ import type { StudioPage } from "@/studio/url";
 export type ScopeSelectHow = "pick" | "choose" | "clear";
 
 export type ChartScopeOptions = {
-  id: "a" | "b";
+  id: "a" | "b" | "c" | "d";
   /** The saved chart the scope draws (null: nothing to draw). */
   row: SavedChart | null;
   /** The second person of its Relationship pages (synastry's and the Chinese pages'), then the composite's; chosen there afterwards. */
@@ -47,6 +48,11 @@ export type ChartScopeOptions = {
   onAddPerson?: (page: StudioPage) => void;
   /** The pick card's Read: opens this scope's reading. */
   openReading?: () => void;
+  /** A page of its own, other than the studio's (Compare's two languages and two moments, idea B7). */
+  page?: StudioPage;
+  /** A moment of its own, and how its dials move it (Compare's two moments, idea B7; scope-time.ts). */
+  moment?: ScopeMoment;
+  setMoment?: (patch: Partial<ScopeMoment>) => void;
 };
 
 const keepAsIs = () => {};
@@ -132,8 +138,10 @@ export function useChartScopeHandle(opts: ChartScopeOptions): ChartScope {
   const readingBeside = opts.readingBeside ?? false;
   const openReading = useCallback(() => optsRef.current.openReading?.(), []);
   const canRead = Boolean(opts.openReading);
+  const { page, moment } = opts;
+  const setMoment = useCallback((patch: Partial<ScopeMoment>) => optsRef.current.setMoment?.(patch), []);
   return useMemo<ChartScope>(
-    () => ({ id: opts.id, state, slots, readingBeside, openReading: canRead ? openReading : undefined }),
-    [opts.id, state, slots, readingBeside, canRead, openReading],
+    () => ({ id: opts.id, state, slots, readingBeside, openReading: canRead ? openReading : undefined, page, moment, setMoment: moment ? setMoment : undefined }),
+    [opts.id, state, slots, readingBeside, canRead, openReading, page, moment, setMoment],
   );
 }

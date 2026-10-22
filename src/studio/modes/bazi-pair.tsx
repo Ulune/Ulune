@@ -31,6 +31,7 @@ import type { LuckCount } from "@/lib/chinese/bazi-luck";
 import { hanziLang } from "@/lib/chinese/animal-chars";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
+import { pnWord } from "@/lib/i18n/catalog/pair-now-words";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
@@ -48,6 +49,8 @@ import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/zodiac-time.css";
 import "@/studio/modes/styles/pair.css";
 import "@/studio/modes/styles/bazi-pair.css";
+// "You two, now"'s heading only: its luck pillars are listed the page's own way (pair-now-head.css).
+import "@/studio/modes/styles/pair-now-head.css";
 
 /*
  * BaZi's Relationship lens (languages plan, part 19: "two BaZi charts side
@@ -62,7 +65,8 @@ import "@/studio/modes/styles/bazi-pair.css";
  * (the review's BZ9) adds each person's luck pillar of the moment, by their
  * own yin or yang count (both without one), what it is to the other and how
  * the two decades meet; each row opens that person's decade as Cycles reads
- * it.
+ * it. Under "You two, now", as every Relationship page's time (share and
+ * compare plan, feature 5e).
  */
 
 export type BaziPairState = {
@@ -215,7 +219,7 @@ function PairFigure() {
   );
 }
 
-/** Each person's luck pillar of the moment, then how the two decades meet (part 20). */
+/** Each person's luck pillar of the moment, then how the two decades meet (part 20): BaZi's "You two, now" (feature 5e). */
 function LuckSection({ pair, names }: { pair: BaziPair; names: PairNames }) {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
@@ -225,9 +229,15 @@ function LuckSection({ pair, names }: { pair: BaziPair; names: PairNames }) {
   if (!rows.length) return null;
   return (
     <section className="ulune-bzp-meets ulune-bzp-luck" aria-labelledby={domId("bzp-luck-h")} data-testid="bazi-pair-luck">
-      <h2 id={domId("bzp-luck-h")} className="ulune-zky-h">
-        {cnWord(locale, "bzpLuckHead")}
-      </h2>
+      {/* The heading every Relationship page gives its time, and what it is here. */}
+      <div className="ulune-two-now-head">
+        <h2 id={domId("bzp-luck-h")} className="ulune-zky-h">
+          {pnWord(locale, "ptnHead")}
+        </h2>
+        <span className="ulune-two-now-when" data-testid="bazi-pair-now-side-when">
+          {cnWord(locale, "bzpLuckHead")}
+        </span>
+      </div>
       <ul>
         {rows.map((r) => (
           <li key={r.id}>
@@ -265,6 +275,7 @@ function PairHello() {
   const w = useWheelView();
   const data = useModeData("bazi-pair");
   const notes = useMethodNotes("bazi-pair", data?.charts.a ?? null, { chart: data?.charts.b ?? null, names: data?.names ?? { a: "A", b: "B" } });
+  const domId = useDomIds();
   if (!data?.a) return null;
   if (!data.pair) {
     return (
@@ -281,8 +292,9 @@ function PairHello() {
     [PAIR_DM_REF, dmLine(data.pair, data.names, locale, prefs)],
     [PAIR_PALACE_REF, palaceLine(data.pair, data.names, locale, prefs)],
     ...giftLines(data.pair, data.names, locale).map((l) => [PAIR_GIFTS_REF, l] as [string, string]),
-    ...luckLines(data.pair, data.names, locale, prefs).map((l) => [l.ref, l.text] as [string, string]),
   ];
+  // The luck pillars of the moment (part 20), under "You two, now" as on every Relationship page (feature 5e).
+  const luck: [string, string][] = luckLines(data.pair, data.names, locale, prefs).map((l) => [l.ref, l.text] as [string, string]);
   return (
     <section className="ulune-zk-hello" data-testid="bazi-pair-hello">
       <MethodNotes notes={notes} />
@@ -297,6 +309,27 @@ function PairHello() {
           </li>
         ))}
       </ul>
+      {luck.length ? (
+        <section className="ulune-two-now is-ruled" data-testid="bazi-pair-now" aria-labelledby={domId("bzp-hello-now-h")}>
+          <div className="ulune-two-now-head">
+            <h3 id={domId("bzp-hello-now-h")} className="ulune-kicker ulune-two-now-h">
+              {pnWord(locale, "ptnHead")}
+            </h3>
+            <span className="ulune-two-now-when" data-testid="bazi-pair-now-when">
+              {cnWord(locale, "bzpLuckHead")}
+            </span>
+          </div>
+          <ul className="ulune-zk-hello-list">
+            {luck.map(([ref, line], i) => (
+              <li key={i}>
+                <button type="button" className="ulune-zk-hello-row is-rel" data-testid="bazi-pair-hello-row" onClick={() => w.pick(ref)}>
+                  <span>{line}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       <HowUluneCalculates page="bazi-pair" />
     </section>
   );

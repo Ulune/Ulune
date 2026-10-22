@@ -75,7 +75,7 @@ test("each language's ⓘ leads to its home in the encyclopedia, in the reader's
 });
 
 test("the bars' order: each language's lenses and sub-modes, then the Calendar", () => {
-  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "design-pair", "numerology", "numerology-cycles", "numerology-pair", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-cycles", "fengshui-pair", "fengshui-home", "timing"]);
+  assert.deepEqual(PAGE_ORDER, ["natal", "transits", "progressions", "synastry", "composite", "design", "design-cycles", "design-pair", "numerology", "numerology-cycles", "numerology-pair", "zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-cycles", "fengshui-pair", "fengshui-home", "timing"]);
   assert.deepEqual([...PAGE_ORDER].sort(), [...STUDIO_PAGES].sort(), "every page once");
 });
 
@@ -158,7 +158,7 @@ test("a lens a language lacks is never offered", () => {
   for (const l of LANGUAGES) {
     for (const lens of lensesOf(l.id)) assert.ok((l.lenses[lens]?.length ?? 0) > 0, `${l.id} ${lens}`);
   }
-  assert.deepEqual(lensesOf("human-design"), ["natal", "relationship"], "its bodygraph and its connection chart (share and compare plan, feature 5a)");
+  assert.deepEqual(lensesOf("human-design"), ["natal", "cycles", "relationship"], "its bodygraph, its transits and life cycles (feature 5b) and its connection chart (share and compare plan, feature 5a)");
   assert.deepEqual(lensesOf("numerology"), ["natal", "cycles", "relationship"], "its two people (share and compare plan, feature 5c)");
 });
 

@@ -7,8 +7,8 @@ import { isAbort, lru } from "@/lib/chart/result-cache";
 import { provisionalTransitSky } from "@/lib/chart/sky-window";
 import { onWindow, prefetchWindows, windowAt, windowsWork } from "@/lib/chart/window-cache";
 import { natalBodiesOf } from "@/studio/modes/hooks/natal-bodies";
-import { useScoped } from "@/studio/scope";
-import { useStudioStore } from "@/studio/store";
+import { useScoped, useScopedPage } from "@/studio/scope";
+import { useScopedTime, useScopedTimeSet } from "@/studio/scope-time";
 import { useVisibleInterval } from "@/lib/use-visible-interval";
 import { errorForState } from "@/lib/i18n/errors";
 
@@ -22,14 +22,15 @@ const skyCache = lru<TransitSky>(48);
 const SETTLE_MS = 150;
 const DEBOUNCE_MS = 50;
 
-/** The sky over the chart of the scope around the caller (studio/scope.tsx), at the moment every scope shares. */
+/** The sky over the chart of the scope around the caller (studio/scope.tsx), at the moment every scope shares (or its own: scope-time.ts). */
 export function useTransitSky() {
   const { locale, t } = useI18n();
   const chart = useScoped((s) => s.chart);
   const creating = useScoped((s) => s.creating);
-  const page = useStudioStore((s) => s.page);
-  const atMs = useStudioStore((s) => s.time.at);
-  const live = useStudioStore((s) => s.time.live);
+  const page = useScopedPage();
+  const atMs = useScopedTime("at");
+  const live = useScopedTime("live");
+  const { now } = useScopedTimeSet();
   const enabled = page === "transits" && Boolean(chart) && !creating;
 
   /** What is on screen: the exact cast, or a provisional sky while time moves. */
@@ -65,7 +66,7 @@ export function useTransitSky() {
   );
 
   // The live sky follows the clock, but not in a hidden tab.
-  useVisibleInterval(() => useStudioStore.getState().now(), 60_000, live && enabled);
+  useVisibleInterval(now, 60_000, live && enabled);
 
   // A chunk of the scrub window arriving may let the sky follow at once.
   useEffect(() => onWindow(() => setWinTick((n) => n + 1)), []);

@@ -4,14 +4,18 @@ import { RingsKey } from "@/components/rings-menu";
 import { ChartWheel } from "@/components/chart-wheel";
 import { SynastryHello } from "@/components/synastry-hello";
 import { LoadingLines } from "@/components/loading-lines";
+import { buildComposite } from "@/lib/chart/composite";
 import { chartDisplayName } from "@/lib/chart/library";
-import { usePack } from "@/lib/content/packs";
+import { NOW_REF } from "@/lib/chart/pair-now";
+import type { NatalChart } from "@/lib/chart/types";
+import { registerPack, usePack } from "@/lib/content/packs";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { useI18n } from "@/lib/i18n/locale";
 import { synastryAddSecond, synastryLegend, synastryNoNatal } from "@/lib/i18n/synastry-ui";
 import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
 import { usePairCharts } from "@/studio/modes/hooks/usePairCharts";
+import { usePairNowSky, type PairNowSky } from "@/studio/modes/hooks/usePairNowSky";
 import { MODE_META } from "@/studio/modes/meta";
 import { PairSelects } from "@/studio/modes/pair-selects";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
@@ -21,10 +25,22 @@ import { useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
 import "@/studio/modes/styles/pair.css";
 
+// "You two, now"'s reading text (lib/content/packs.ts), shared with the other astrology Relationship page: its loaders arrive with the page, not in the first download.
+registerPack("pairnow", {
+  en: () => import("@/lib/content/pack-pair-now?lang=en"),
+  fr: () => import("@/lib/content/pack-pair-now?lang=fr"),
+});
+
 const loadTable = () => import("@/studio/tables/synastry-table");
 const SynastryTable = lazyNamed(loadTable, "SynastryTable");
+// "You two, now" (share and compare plan, feature 5e): a chunk of its own, with its style sheet (this page is fetched at idle with the first one).
+const AstroNow = lazyNamed(() => import("@/studio/modes/pair-now/astro-now"), "AstroNow");
 
-export type SynastryState = ReturnType<typeof usePairCharts>;
+export type SynastryState = ReturnType<typeof usePairCharts> & {
+  /** "You two, now": today's sky over the two people's composite chart (feature 5e). */
+  now: PairNowSky;
+  nowChart: NatalChart | null;
+};
 
 function SynastryControls() {
   return <PairSelects mode="synastry" />;
@@ -125,13 +141,19 @@ function SynastryHelloEmpty() {
     );
   }
   return (
-    <SynastryHello
-      a={synastry.inner}
-      b={synastry.chartB ?? undefined}
-      majors={synastry.synastry?.majors ?? []}
-      selectedId={w.selectedId}
-      onSelect={w.pick}
-    />
+    <>
+      <SynastryHello
+        a={synastry.inner}
+        b={synastry.chartB ?? undefined}
+        majors={synastry.synastry?.majors ?? []}
+        selectedId={w.selectedId}
+        onSelect={w.pick}
+      />
+      {/* "You two, now" (feature 5e): the composite's transits today, under the first read. */}
+      <Suspense fallback={null}>
+        <AstroNow page="synastry" now={synastry.now} davison={false} />
+      </Suspense>
+    </>
   );
 }
 
@@ -141,7 +163,14 @@ function SynastryData() {
   if (!synastry?.inner || !synastry.chartB || !synastry.synastry) return null;
   return (
     <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
-      <SynastryTable a={synastry.inner} b={synastry.chartB} pair={synastry.synastry} selectedId={w.selectedId} onSelect={w.pick} />
+      <SynastryTable
+        a={synastry.inner}
+        b={synastry.chartB}
+        pair={synastry.synastry}
+        selectedId={w.selectedId}
+        onSelect={w.pick}
+        now={{ contacts: synastry.now.contacts, at: synastry.now.at, ready: Boolean(synastry.now.sky), failed: Boolean(synastry.now.error) }}
+      />
     </Suspense>
   );
 }
@@ -152,13 +181,29 @@ function useSynastryRuntime(): ModeRuntime<SynastryState> {
   const synastry = usePairCharts("synastry", page === "synastry");
   const selectedId = useScoped((s) => s.selectedId);
   const astro = usePack("astro", locale, synastry.enabled);
+  // "You two, now" (feature 5e): today's sky over the two people's composite chart (the midpoints), cast
+  // through the door while the page is shown with both of them; its texts are a pack of their own.
+  const both = synastry.enabled && Boolean(synastry.inner && synastry.chartB);
+  const nowChart = useMemo(
+    () => (both && synastry.inner && synastry.chartB ? buildComposite(synastry.inner, synastry.chartB) : null),
+    [both, synastry.inner, synastry.chartB],
+  );
+  const now = usePairNowSky(both, nowChart);
+  const nowPack = usePack("pairnow", locale, Boolean(now.sky));
   const selected =
     selectedId && synastry.synastryDossier ? (synastry.synastryDossier.byId[selectedId] ?? null) : null;
-  const reading = useMemo(
-    () => (selected && astro ? astro.withClickNote(selected, locale) : null),
-    [selected, astro, locale],
-  );
-  return useMemo(() => ({ data: synastry, reading }), [synastry, reading]);
+  const reading = useMemo(() => {
+    if (selectedId?.startsWith("two:")) {
+      if (!nowPack || !nowChart || !now.sky) return null;
+      const ctx = { chart: nowChart, at: now.at, kind: "composite" as const };
+      if (selectedId === NOW_REF) return nowPack.pairNowSummary(now.contacts, ctx, locale);
+      const contact = now.contacts.find((c) => c.ref === selectedId);
+      return contact ? nowPack.pairNowReading(contact, ctx, locale) : null;
+    }
+    return selected && astro ? astro.withClickNote(selected, locale) : null;
+  }, [selectedId, selected, astro, locale, nowPack, nowChart, now]);
+  const data = useMemo(() => ({ ...synastry, now, nowChart }), [synastry, now, nowChart]);
+  return useMemo(() => ({ data, reading }), [data, reading]);
 }
 
 export const synastryMode: ModeDef = {

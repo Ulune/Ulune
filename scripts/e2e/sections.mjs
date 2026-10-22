@@ -114,9 +114,9 @@ async function computer() {
     await waitStudioPage(page, "design");
     await page.getByTestId("lang-picker").waitFor({ state: "detached", timeout: 4000 });
     check((await attr(page, "lang-button", "data-language")) === "human-design", "the card did not open Human Design");
-    // Its two lenses (share and compare plan, feature 5a): Natal and Relationship, the connection chart.
+    // Its three lenses (share and compare plan, features 5a and 5b): Natal, Cycles (its transits and life cycles) and Relationship, the connection chart.
     const hdLenses = await page.locator("[data-testid^=lens-]").evaluateAll((els) => els.map((e) => e.dataset.testid));
-    check(JSON.stringify(hdLenses) === JSON.stringify(["lens-natal", "lens-relationship"]), `Human Design's lenses ${JSON.stringify(hdLenses)}`);
+    check(JSON.stringify(hdLenses) === JSON.stringify(["lens-natal", "lens-cycles", "lens-relationship"]), `Human Design's lenses ${JSON.stringify(hdLenses)}`);
     console.log("picker by mouse OK");
 
     // The picker by keyboard: Enter opens it on the current card, the arrows move, Escape gives the focus back.
@@ -219,9 +219,15 @@ async function computer() {
     await waitStudioPage(page, "natal");
     await clickTestId(page, "lang-chip-human-design");
     await waitStudioPage(page, "design");
+    // Human Design's Cycles (feature 5b): Alt+2 opens its transits and life cycles, Alt+1 the bodygraph again.
     await page.keyboard.press("Alt+2");
+    await waitStudioPage(page, "design-cycles");
+    await page.keyboard.press("Alt+1");
+    await waitStudioPage(page, "design");
+    // Nothing on a lens the language lacks: Home is Feng Shui's alone.
+    await page.keyboard.press("Alt+4");
     await page.waitForTimeout(500);
-    check((await studioPageNow(page)) === "design", `Alt+2 on Human Design went to ${await studioPageNow(page)}`);
+    check((await studioPageNow(page)) === "design", `Alt+4 on Human Design went to ${await studioPageNow(page)}`);
     // From the Calendar, L opens Charts and its picker.
     await goStudioPage(page, "timing");
     await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : null));
@@ -371,7 +377,7 @@ async function french() {
 
 /** No page wider than the screen, and no toolbar wider than its row, from 360 to 1440 px, in both languages. */
 async function overflow() {
-  const pages = ["natal", "transits", "progressions", "synastry", "composite", "design", "design-pair", "numerology", "numerology-cycles", "numerology-pair", ...CHINESE, "timing"];
+  const pages = ["natal", "transits", "progressions", "synastry", "composite", "design", "design-cycles", "design-pair", "numerology", "numerology-cycles", "numerology-pair", ...CHINESE, "timing"];
   for (const lang of ["en", "fr"]) {
     for (const width of [360, 390, 768, 1024, 1280, 1440]) {
       const touch = width < 1024;

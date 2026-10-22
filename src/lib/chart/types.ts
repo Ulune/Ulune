@@ -428,6 +428,8 @@ export type ElementReading = {
   mark?: string;
   /** An original drawing for the mark, the inner markup of a 24 × 24 SVG (the Chinese animals, lib/chinese/animal-glyphs.ts); drawn before `mark`. */
   markSvg?: string;
+  /** A body whose glyph is the mark, when the id does not say it (the Calendar's returns, idea B10: the planet that returns). */
+  glyph?: string;
   /** Composed (AI) text for this element, shown above the local reading. */
   ai?: string[];
   /** Short curated meaning (click note), shown as the first section. */

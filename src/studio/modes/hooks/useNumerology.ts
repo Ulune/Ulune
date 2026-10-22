@@ -4,15 +4,16 @@ import { usePack } from "@/lib/content/packs";
 import { useI18n } from "@/lib/i18n/locale";
 import { useNumerologyFirstPending } from "@/studio/numerology-first";
 import { useNumerologyYear } from "@/studio/numerology-year";
-import { useScoped } from "@/studio/scope";
-import { useStudioStore } from "@/studio/store";
+import { useScoped, useScopedPage } from "@/studio/scope";
+import { useScopedYear } from "@/studio/scope-time";
 
 /**
  * Numerology's data for one of its pages: the numbers wheel (`numerology`,
  * always this year) or its Cycles (`numerology-cycles`, the year the toolbar's
  * steps are on; page reorganisation, numerology's Cycles lens), for the
  * chart and names of the scope around the caller (studio/scope.tsx). The
- * year stepped to is shared by every scope, as the other pages' time is.
+ * year stepped to is shared by every scope, as the other pages' time is, but
+ * by a Compare pane with a moment of its own (studio/scope-time.ts).
  */
 export function useNumerology(target: "numerology" | "numerology-cycles" = "numerology") {
   const { locale } = useI18n();
@@ -22,8 +23,8 @@ export function useNumerology(target: "numerology" | "numerology-cycles" = "nume
   const currentName = useScoped((s) => s.input.currentName);
   const numerologyY = useScoped((s) => s.input.numerologyY);
   const selectedId = useScoped((s) => s.selectedId);
-  const page = useStudioStore((s) => s.page);
-  const stepped = useNumerologyYear();
+  const page = useScopedPage();
+  const stepped = useScopedYear(useNumerologyYear());
   const cycles = target === "numerology-cycles";
   const year = cycles ? stepped : null;
   const enabled = page === target && Boolean(chart);

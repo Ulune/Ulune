@@ -15,6 +15,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { timingNoNatal } from "@/lib/i18n/timing-ui";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
 import { useModeData } from "@/studio/modes/data";
+import { civilKey } from "@/lib/chart/timing-window";
 import { useTiming } from "@/studio/modes/hooks/useTiming";
 import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
@@ -51,7 +52,12 @@ function TimingBar({ table = false }: { table?: boolean }) {
   const pick = useStudioStore((s) => s.pick);
   const choices = timing?.prefs.layers;
   const on = useMemo(() => layersOn(choices), [choices]);
+  const { locale } = useI18n();
   if (!timing) return null;
+  // The kept charts' birthdays and returns (idea B10): which group, under the layer's switch; the calendar file's question.
+  const ppl = timing.people;
+  const extras = ppl ? { people: <ppl.mod.PeopleGroupSelect groups={ppl.groups} value={ppl.group} onChange={ppl.setGroup} /> } : undefined;
+  const icsPeople = ppl && ppl.rows.length ? { on: ppl.inFile, set: ppl.setInFile, words: ppl.mod.peopleIcsWords(locale) } : null;
   return (
     <CalendarBar
       scope={timing.scope}
@@ -62,7 +68,8 @@ function TimingBar({ table = false }: { table?: boolean }) {
       zones={timing.zones}
       onZone={(zone) => timing.updatePrefs({ zone })}
       nowMs={timing.nowMs}
-      layers={{ on, shown: timing.shown, hasChart: timing.hasChart, onLayer: timing.setLayer, onCast: castFromCalendar }}
+      layers={{ on, shown: timing.shown, hasChart: timing.hasChart, onLayer: timing.setLayer, onCast: castFromCalendar, extras }}
+      people={icsPeople}
       onExport={timing.exportIcs}
       loading={timing.loading}
       table={table}
@@ -70,7 +77,19 @@ function TimingBar({ table = false }: { table?: boolean }) {
       numOn={!!timing.numTitle && selectedId === timing.numTitle.id}
       onNum={pick}
       onJump={timing.setCivil}
-      legend={timing.scope === "month" ? <CalendarLegend sky={timing.shown.sky} yours={timing.shown.transits} num={!!timing.numShown} terms={timing.shown.terms} animals={Boolean(timing.animals?.yearBranch != null)} stars={Boolean(timing.stars)} /> : null}
+      legend={
+        timing.scope === "month" ? (
+          <CalendarLegend
+            sky={timing.shown.sky}
+            yours={timing.shown.transits}
+            num={!!timing.numShown}
+            terms={timing.shown.terms}
+            animals={Boolean(timing.animals?.yearBranch != null)}
+            stars={Boolean(timing.stars)}
+            people={ppl ? <ppl.mod.PeopleLegend /> : null}
+          />
+        ) : null
+      }
     />
   );
 }
@@ -94,6 +113,8 @@ function TimingFigure() {
   // What the layers let through (lib/chart/calendar-layers.ts): the sky, your transits, your numerology.
   const { sky, transits } = timing.shown;
   const num = timing.numShown;
+  // The kept charts' birthdays and returns (idea B10), with their layer on.
+  const ppl = timing.people;
   return (
     <div
       ref={hero}
@@ -120,6 +141,7 @@ function TimingFigure() {
           num={num && timing.dayView ? numDayOf(num, timing.civil) : null}
           animals={timing.animals}
           stars={timing.stars}
+          people={ppl ? <ppl.mod.PeopleDay events={ppl.mod.eventsOfDay(ppl.events, civilKey(timing.civil))} tz={timing.tz} selectedId={selectedId} onSelect={pick} /> : null}
         />
       ) : null}
       {timing.scope === "month" ? (
@@ -139,6 +161,7 @@ function TimingFigure() {
             num={num}
             animals={timing.animals}
             stars={timing.stars}
+            people={ppl ? { of: (day) => ppl.mod.eventsOfDay(ppl.events, day), Cell: ppl.mod.PeopleCell, say: (ev) => ppl.mod.personShort(ev, locale) } : null}
           />
         </>
       ) : null}
@@ -153,6 +176,14 @@ function TimingFigure() {
           onSelect={pick}
           onOpenMonth={(month) => timing.pickMonth({ year: timing.civil.year, month, day: 1 })}
           num={num}
+          people={
+            ppl && ppl.events.length
+              ? {
+                  lane: (x, pct, heading) => <ppl.mod.PeopleLane events={ppl.events} x={x} pct={pct} tz={timing.tz} heading={heading} selectedId={selectedId} onSelect={pick} />,
+                  month: (from, to) => <ppl.mod.PeopleMonthLines events={ppl.events.filter((e) => e.t >= from && e.t < to)} tz={timing.tz} selectedId={selectedId} onSelect={pick} />,
+                }
+              : null
+          }
         />
       ) : null}
     </div>
@@ -208,9 +239,13 @@ function TimingHelloEmpty() {
 
 function TimingData() {
   const w = useWheelView();
+  const { locale } = useI18n();
   const timing = useModeData("timing");
   const chartName = useStudioStore((s) => s.chart?.meta.name ?? "");
   if (!timing?.cast) return null;
+  // The kept charts' birthdays and returns (idea B10), with their layer on: their rows and words come with its code.
+  const ppl = timing.people;
+  const Icon = ppl?.mod.PersonIcon ?? (() => null);
   return (
     <div className="ulune-cal-tableview">
       {timing.hasChart ? null : <CalendarInvite onCast={castFromCalendar} />}
@@ -232,6 +267,20 @@ function TimingData() {
           num={timing.numShown ? timing.numRows : NO_ROWS}
           loading={timing.loading}
           who={chartName}
+          people={
+            ppl
+              ? {
+                  rows: ppl.rows,
+                  title: (ev) => ppl.mod.personTitle(ev, locale),
+                  detail: (ev) => ppl.mod.personDetail(ev, locale, timing.tz),
+                  icon: (kind) => <Icon kind={kind} size={14} />,
+                  ics: (r) => ppl.mod.personIcsItem(r, locale, timing.tz),
+                  include: ppl.inFile,
+                  setInclude: ppl.setInFile,
+                  words: ppl.mod.peopleIcsWords(locale),
+                }
+              : null
+          }
         />
       </Suspense>
     </div>

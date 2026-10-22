@@ -14,16 +14,19 @@
  * theirs at the end of CALENDAR_LAYERS, with a language of their own: the
  * solar terms (the only one on by default besides the sky and your
  * transits), the day's pillar, lunar dates and the year's flying stars; the
- * almanac's day officers follow in wave 2. Pure, no browser: the unit tests
- * read it as it is (scripts/calendar-layers.test.mjs).
+ * almanac's day officers follow in wave 2. Last, the charts you keep (share
+ * and compare plan, idea B10): each kept person's birthday, solar return and
+ * big returns, off by default, its rows the "people" kind, its names on the
+ * page only (calendar-people.ts). Pure, no browser: the unit tests read it
+ * as it is (scripts/calendar-layers.test.mjs).
  */
 import type { CalendarWordKey } from "@/lib/i18n/calendar-layer-words";
 import type { CalRow } from "./calendar-rows";
 
-export type CalendarLayerId = "sky" | "transits" | "numerology" | "terms" | "animals" | "stars";
+export type CalendarLayerId = "sky" | "transits" | "numerology" | "terms" | "animals" | "stars" | "people";
 
-/** The language a layer belongs to: the View menu names it above its switches. */
-export type LayerLanguage = "astrology" | "numerology" | "chinese";
+/** The language a layer belongs to: the View menu names it above its switches ("people": the charts you keep, B10). */
+export type LayerLanguage = "astrology" | "numerology" | "chinese" | "people";
 
 /** Who a row of the events table is for: everyone (the sky) or the chart's person. */
 export type RowKind = CalRow["kind"];
@@ -108,6 +111,18 @@ export const CALENDAR_LAYERS: readonly CalendarLayer[] = [
     label: "calLayerStars",
     hint: "calLayerStarsHint",
   },
+  // Birthdays and returns of the charts you keep (share and compare plan, idea B10): each kept person's
+  // birthday, solar return and big returns. Off by default; it needs a chart (the people are the kept
+  // charts); its rows carry names, which never leave the page unless the reader puts them in a file.
+  {
+    id: "people",
+    language: "people",
+    defaultOn: false,
+    needsChart: true,
+    rows: ["people"],
+    label: "calLayerPeople",
+    hint: "calLayerPeopleHint",
+  },
 ];
 
 /** The heading each language's switches stand under. */
@@ -115,6 +130,7 @@ export const LAYER_LANGUAGE_LABEL: Record<LayerLanguage, CalendarWordKey> = {
   astrology: "calLayerLangAstrology",
   numerology: "calLayerLangNumerology",
   chinese: "calLayerLangChinese",
+  people: "calLayerLangPeople",
 };
 
 /** The reader's switches, as kept: a layer never switched follows its default. */

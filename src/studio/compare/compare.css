@@ -49,6 +49,73 @@
   width: auto;
   max-width: 34rem;
 }
+/* How to compare (ideas B7, B8): people, two languages, two moments. */
+.ob-compare-ways {
+  flex: 0 0 auto;
+}
+.ob-compare-ways .ulune-seg-btn {
+  padding-inline: 10px;
+}
+/* The people: A and B as on a Relationship page, then C and D, each with its ✕, and one more. */
+.ob-compare-people {
+  display: flex;
+  flex: 1 1 22rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  min-width: 0;
+}
+.ob-compare-people[data-count="3"],
+.ob-compare-people[data-count="4"] {
+  flex-basis: 34rem;
+}
+/* Three or four: each list a little narrower, so all stand on one row on a laptop. */
+.ob-compare-people:is([data-count="3"], [data-count="4"]) .ulune-synastry-pair-bar {
+  flex: 0 1 18rem;
+}
+/* Where the people need a row of their own (three or four on a laptop beside the panel, or a narrow
+   stage), how to compare and the tools share the first. */
+@container stage (max-width: 1199.98px) {
+  .ob-compare-people:is([data-count="3"], [data-count="4"]) {
+    order: 3;
+    flex: 1 1 100%;
+  }
+}
+@container stage (max-width: 700px) {
+  .ob-compare-people {
+    order: 3;
+    flex: 1 1 100%;
+  }
+}
+.ob-compare-people > .ob-compare-mark {
+  margin-right: -2px;
+}
+.ob-compare-people > .ulune-pair-slot {
+  flex: 0 1 14rem;
+  min-width: 9rem;
+}
+.ob-compare-more {
+  display: inline-flex;
+  flex: 0 1 12rem;
+  align-items: center;
+  gap: 6px;
+  min-width: 8.5rem;
+}
+.ob-compare-more .ulune-pair-slot {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ob-compare-remove {
+  flex: none;
+  width: 28px;
+  height: 28px;
+}
+@media (pointer: coarse) {
+  .ob-compare-remove {
+    width: 44px;
+    height: 44px;
+  }
+}
 .ob-compare-tools {
   display: flex;
   align-items: center;
@@ -94,6 +161,17 @@
     min-height: 44px;
     justify-content: center;
   }
+  /* A finger: every control of Compare's bar reaches 44 px (its ways, the people's lists, Swap), and so
+     do a pane's own page controls in its bar (two languages, two moments): the app's bars' 40, raised. */
+  .ob-compare-bar,
+  .ob-compare-pane .ob-strip-extra {
+    --ctl-h: 44px;
+    --ctl-icon: 44px;
+  }
+  /* The Cycles pages' year steps, set at 36 px wide on their own pages (num.css, zodiac-time.css). */
+  .ob-compare-pane .ob-strip-extra :is(.ulune-num-step, .ulune-zky-step) {
+    width: 44px;
+  }
 }
 
 /* ---- The two panes ---- */
@@ -112,6 +190,29 @@
 .ob-compare[data-layout="stacked"] .ob-compare-panes {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+/* Three or four (idea B8): a row, or a grid of two by two (CompareView's arrange()); a third chart in the
+   grid takes its row's width. Held upright on a phone, one above the other, two to a screen, scrolling. */
+.ob-compare-panes[data-count="3"],
+.ob-compare-panes[data-count="4"] {
+  grid-template-columns: repeat(var(--cmp-cols, 2), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--cmp-rows, 2), minmax(0, 1fr));
+}
+.ob-compare-panes[data-count="3"][data-arrange="grid"] > .ob-compare-pane:nth-child(3) {
+  grid-column: 1 / -1;
+}
+.ob-compare[data-layout="stacked"] .ob-compare-panes:is([data-count="3"], [data-count="4"]) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: none;
+  grid-auto-rows: calc((100% - 1px) / 2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* A figure too small to read in a pane of three or four: the table instead, said in one line (small.ts). */
+.ob-compare-small {
+  margin: 0 0 var(--space-2);
+  color: var(--color-fg-muted);
+  font: 400 12.5px/1.4 var(--font-ui);
 }
 .ob-compare-pane {
   position: relative;
@@ -219,12 +320,19 @@
 .ob-compare .ob-rings-slot {
   display: none;
 }
-/* Half the height each (a phone held upright): the aspect key gives its rows to the wheel (it comes back full size). */
-.ob-compare[data-layout="stacked"] .ob-compare-pane:not([data-full]) .ob-aspect-slot {
+/* Three or four to a screen: the first visit's hint on A's wheel would cover a third of it; it waits for a
+   page with room (it is not marked as read). */
+.ob-compare:is([data-count="3"], [data-count="4"]) .ulune-wheel-hint {
+  display: none;
+}
+/* Half the height each (a phone held upright), or three or four to a screen: the aspect key gives its rows
+   to the wheel (it comes back full size). */
+.ob-compare[data-layout="stacked"] .ob-compare-pane:not([data-full]) .ob-aspect-slot,
+.ob-compare:is([data-count="3"], [data-count="4"]) .ob-compare-pane:not([data-full]) .ob-aspect-slot {
   display: none;
 }
 
-/* A pane's person: its mark (A a filled dot, B a ring, as on the Pair pages), letter and name. */
+/* A pane's label: its person (mark, letter and name), and in the mixed ways what it shows (ideas B7, B8). */
 .ob-scope-label {
   display: flex;
   flex: 0 1 auto;
@@ -232,9 +340,17 @@
 }
 .ob-compare-label {
   display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 0;
+}
+.ob-compare-person {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   min-width: 0;
+  max-width: 100%;
   min-height: 28px;
   padding: 0 4px 0 0;
   border: 0;
@@ -243,12 +359,12 @@
   color: var(--color-fg);
   font: 600 13px/1.25 var(--font-ui);
 }
-.ob-compare-label.is-button {
+.ob-compare-person.is-button {
   padding: 0 8px 0 6px;
   background: var(--color-bg-subtle);
 }
 @media (pointer: coarse) {
-  .ob-compare-label.is-button {
+  .ob-compare-person.is-button {
     min-height: 44px;
   }
 }
@@ -265,6 +381,52 @@
   margin-left: 4px;
   background: var(--color-bg-subtle);
 }
+/* What a pane shows (two languages, two moments): its page in words or a compact list, its moment. */
+.ob-compare-what,
+.ob-compare-when {
+  overflow: hidden;
+  color: var(--color-fg-muted);
+  font: 500 12.5px/1.25 var(--font-ui);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ob-compare-when {
+  color: var(--color-fg);
+  font-variant-numeric: tabular-nums;
+}
+.ob-compare-pick {
+  min-width: 0;
+  max-width: min(16rem, 100%);
+  height: 30px;
+  padding: 0 26px 0 10px;
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-fg-muted) 50%), linear-gradient(135deg, var(--color-fg-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 9px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  color: var(--color-fg);
+  font: 500 13px/1 var(--font-ui);
+  text-overflow: ellipsis;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.ob-compare-pick:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .ob-compare-pick {
+    height: 44px;
+    font-size: 16px;
+  }
+}
+
+/* Each person's mark, told apart by shape, not colour: A a filled dot, B a ring (as on the Pair pages),
+   C a filled diamond, D a diamond's outline (idea B8). */
 .ob-compare-mark {
   display: inline-block;
   flex: none;
@@ -274,6 +436,17 @@
   background: var(--color-fg);
 }
 .ob-compare-mark.is-b {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--color-fg);
+}
+.ob-compare-mark.is-c,
+.ob-compare-mark.is-d {
+  width: 9px;
+  height: 9px;
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+.ob-compare-mark.is-d {
   background: transparent;
   box-shadow: inset 0 0 0 2px var(--color-fg);
 }
@@ -314,11 +487,26 @@
     flex: 1 1 12rem;
   }
 }
+/* The ways keep their icons only on a narrower stage (their names stay in their labels); linked selection's
+   word gives way first, its switch drawn pressed or not. */
+@container stage (max-width: 999.98px) {
+  .ob-compare-way-word {
+    display: none;
+  }
+}
+@container stage (max-width: 1199.98px) {
+  .ob-compare-link .ob-compare-tool-word {
+    display: none;
+  }
+}
 /* Held upright on a phone, A is the chart in the top bar: the bar keeps B's list, Swap and the tools. */
 .ob-compare[data-layout="stacked"] .ob-compare-bar .ulune-synastry-pair-slot:first-child {
   display: none;
 }
-.ob-compare[data-layout="stacked"] .ob-compare-bar {
+/* Two rows on a phone: how to compare and the tools first, the people (or the one person) under them. */
+.ob-compare[data-layout="stacked"] .ob-compare-people {
+  order: 3;
+  flex: 1 1 100%;
   flex-wrap: nowrap;
 }
 .ob-compare[data-layout="stacked"] .ob-compare-bar .ulune-synastry-pair-bar {
@@ -327,6 +515,13 @@
 }
 .ob-compare[data-layout="stacked"] .ob-compare-bar .ulune-synastry-pair-slot {
   min-width: 0;
+}
+.ob-compare[data-layout="stacked"] .ob-compare-people[data-count="3"],
+.ob-compare[data-layout="stacked"] .ob-compare-people[data-count="4"] {
+  flex-wrap: wrap;
+}
+.ob-compare[data-layout="stacked"] .ob-compare-more {
+  flex: 1 1 9rem;
 }
 
 /* ---- The reading from the bottom on a wide screen (CompareView: data-compare-sheet) ----
@@ -646,4 +841,166 @@ span.ob-compare-who {
 /* Share and export in Compare: the picture is both charts' ("Both side by side", CompareView.tsx), not the page's under it. */
 [data-testid="export-panel"]:has(.ob-compare-export) > :is([data-testid="export-png"], [data-testid="export-svg"], [data-testid="export-caption"]) {
   display: none;
+}
+
+/* ---- Three or four people's reading (idea B8; CompareReading.tsx): one element, a short list, names first ---- */
+
+.ob-compare-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ob-compare-rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ob-compare-row {
+  scroll-margin-top: 52px;
+  border-top: 1px solid var(--color-border);
+}
+.ob-compare-row:last-child {
+  border-bottom: 1px solid var(--color-border);
+}
+.ob-compare-row > .ob-compare-row-text {
+  padding: 10px 0;
+}
+.ob-compare-row-fold {
+  border-top: 0;
+}
+.ob-compare-row-fold > summary {
+  align-items: flex-start;
+  padding: 10px 0;
+}
+.ob-compare-row-fold > summary::after {
+  margin-top: 6px;
+}
+.ob-compare-row-fold > summary:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+.ob-compare-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-right: 10px;
+  font-family: var(--font-ui);
+}
+.ob-compare-row-who {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.ob-compare-row-name {
+  overflow: hidden;
+  color: var(--color-fg);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ob-compare-row-title {
+  color: var(--color-fg);
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.ob-compare-row-line {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-fg-muted);
+  font-size: 13.5px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.ob-compare-most {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.ob-compare-h4 {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font: 600 13px/1.3 var(--font-ui);
+}
+
+/* ---- Show mode (src/studio/show) over Compare's other ways ---- */
+
+/* The pages drawn at a set size are drawn larger in Show mode (show.css): in Compare, only the panes that
+   draw one of them (the studio's page decides the page's own, not a mixed pane's), and not three or four
+   to a screen, where they keep the size of their pane. */
+html[data-show][data-show-larger] .ob-compare .ob-compare-pane:not([data-larger]) .ob-figure > :not(.ob-zoom-slot) {
+  zoom: 1;
+}
+html[data-show] .ob-compare .ob-compare-pane[data-larger] .ob-figure > :not(.ob-zoom-slot) {
+  zoom: var(--show-larger, 1);
+}
+
+/* A figure's summary in a pane too small to read it (small.ts, small-summary.tsx). */
+.ob-compare-small-box {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px var(--stage-pad) var(--space-3);
+}
+.ob-compare-summary {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-ui);
+  font-size: 14px;
+}
+.ob-compare-summary th,
+.ob-compare-summary td {
+  padding: 0;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: middle;
+}
+.ob-compare-summary td {
+  padding: 6px 0 6px 8px;
+  color: var(--color-fg);
+  font-weight: 600;
+  text-align: right;
+}
+.ob-compare-summary-pick {
+  display: block;
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--color-fg-muted);
+  font: inherit;
+  text-align: left;
+}
+.ob-compare-summary tr.is-on .ob-compare-summary-pick,
+.ob-compare-summary tr.is-on td {
+  color: var(--color-fg);
+}
+.ob-compare-summary tr.is-on {
+  background: var(--color-bg-subtle);
+}
+.ob-compare-summary-pick:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm, 4px);
+}
+@media (pointer: coarse) {
+  .ob-compare-summary-pick {
+    min-height: 44px;
+  }
+}
+
+/* Human Design's columns of planets beside a short bodygraph (a pane of three or four, 1920 px): kept to the top
+   of their row when they are taller than it, rather than centred up over the keys above them (hd.css). */
+.ob-compare .ulune-hd-col {
+  justify-content: safe center;
 }

@@ -40,7 +40,9 @@ import { useDomIds, useScopeId } from "@/studio/scope";
  * as well as colour, an electromagnetic one marked where its halves meet;
  * the centres the two define are filled, with a mark for who defines them.
  * No columns; what is said and lit is the pair's. Without it, nothing
- * changes from the natal bodygraph.
+ * changes from the natal bodygraph. Human Design's Cycles page (feature 5b,
+ * modes/design-cycles.tsx) draws a person and the moment the same way, the
+ * moment as the second "person", in its own colour (hd-cycles.css).
  */
 
 /** A connection chart drawn on the bodygraph: what modes/design-pair.tsx hands it, from lib/chart/hd-pair.ts. */
@@ -61,6 +63,10 @@ export type HdPairFigure = {
   parts: FigurePart[];
   /** The figure's name for screen readers. */
   label: string;
+  /** The page's own parts' prefix, previewed and named like the figure's pieces: the connection chart's "hdp" (the default), Human Design Cycles' "hdc". */
+  own?: string;
+  /** The prefix of the figure's test ids: "hd-pair" (the default), "hd-cycles". */
+  testPrefix?: string;
 };
 
 type Tone = "off" | "personality" | "design" | "both";
@@ -71,8 +77,8 @@ const HOVER_LINGER_MS = 90;
 const TOUCH_GATE_PX = 14;
 /** What a panel may point at on the chart (a row, a fact, a reading's link). */
 const PREVIEWABLE = /^(gate|channel|center|act):|^hello:(authority|profile|cross)$/;
-/** On a connection chart: its pieces, and the page's own parts (a kind, the conditioning, the open centres…). */
-const PAIR_PREVIEWABLE = /^(gate|channel|center|hdp):/;
+/** On a connection chart: its pieces, and the page's own parts (a kind, the conditioning, the open centres…; Human Design Cycles' moment, week, cycles…). */
+const pairPreviewable = (own: string) => new RegExp(`^(gate|channel|center|${own}):`);
 
 /** Where a centre's mark stands on a connection chart: its middle, the small Heart's nudged clear of gate 51. */
 function markAt(c: HdCenterId): readonly [number, number] {
@@ -167,7 +173,8 @@ export function HumanDesignGraph({
   // Previews and hovers stay in this figure's chart scope (studio/scope.tsx: the main page, or a Compare pane).
   const scopeId = useScopeId();
   const domId = useDomIds();
-  const previewable = pair ? PAIR_PREVIEWABLE : PREVIEWABLE;
+  const own = pair?.own ?? "hdp";
+  const previewable = useMemo(() => (pair ? pairPreviewable(own) : PREVIEWABLE), [pair, own]);
   useEffect(() => onChartPreview((id) => setPreview(id && previewable.test(id) ? id : null), scopeId), [scopeId, previewable]);
   useEffect(() => () => window.clearTimeout(linger.current), []);
   useEffect(() => () => announceChartHover(null, scopeId), [scopeId]);
@@ -228,7 +235,7 @@ export function HumanDesignGraph({
   // The line under the chart: what the pointer is on, else the chosen row or
   // piece, else what a panel points at, else the hint.
   const sayId = pair
-    ? (hover ?? focus?.hero ?? (selectedId?.startsWith("hdp:") ? selectedId : null) ?? outline?.hero ?? (preview?.startsWith("hdp:") ? preview : null))
+    ? (hover ?? focus?.hero ?? (selectedId?.startsWith(`${own}:`) ? selectedId : null) ?? outline?.hero ?? (preview?.startsWith(`${own}:`) ? preview : null))
     : (hover ??
       (parseHdActId(selectedId) ? selectedId : (focus?.hero ?? null)) ??
       (preview && parseHdActId(preview) ? preview : (outline?.hero ?? null)));
@@ -286,16 +293,17 @@ export function HumanDesignGraph({
     />
   );
 
+  const tp = pair?.testPrefix ?? "hd-pair";
   return (
-    <div className="ulune-hd-graph" data-testid={pair ? "hd-pair-box" : "hd-box"} data-focus={mode ?? undefined} data-pair={pair ? "" : undefined}>
+    <div className="ulune-hd-graph" data-testid={pair ? `${tp}-box` : "hd-box"} data-focus={mode ?? undefined} data-pair={pair ? "" : undefined}>
       <div ref={row3} className="ulune-hd-row3">
         {pair ? null : column("design")}
-        <FigureZoom testId={pair ? "hd-pair-zoom" : "hd-zoom"}>
+        <FigureZoom testId={pair ? `${tp}-zoom` : "hd-zoom"}>
           <svg
             ref={svgRef}
             viewBox={`0 0 ${BODYGRAPH_W} ${BODYGRAPH_H}`}
             className="ulune-hd-svg"
-            data-testid={pair ? "hd-pair-graph" : "hd-graph"}
+            data-testid={pair ? `${tp}-graph` : "hd-graph"}
             data-view={pair ? undefined : view}
             data-focus={mode ?? undefined}
             role="img"
@@ -436,11 +444,11 @@ export function HumanDesignGraph({
         </FigureZoom>
         {pair ? null : column("personality")}
       </div>
-      <p className="ulune-hd-say" data-testid={pair ? "hd-pair-say" : "hd-say"} data-on={sayId ? "1" : undefined}>
+      <p className="ulune-hd-say" data-testid={pair ? `${tp}-say` : "hd-say"} data-on={sayId ? "1" : undefined}>
         {sayLine}
       </p>
       <FigureKeys
-        testId={pair ? "hd-pair-keys" : "hd-keys"}
+        testId={pair ? `${tp}-keys` : "hd-keys"}
         parts={parts}
         selectedId={selectedId && /^(gate|channel|center):/.test(selectedId) ? selectedId : (focus?.hero ?? null)}
         label={hdGraphText(locale, "keysLabel")}

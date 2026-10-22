@@ -55,7 +55,8 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
-import { useDomIds, useScopeId, useScopeKey, useScoped } from "@/studio/scope";
+import { useDomIds, useScoped, useScopedPage, useScopeId, useScopeKey } from "@/studio/scope";
+import { useScopedDial, useScopedSetDial } from "@/studio/scope-time";
 import { useStudioStore } from "@/studio/store";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import "@/studio/modes/styles/zodiac.css";
@@ -117,23 +118,33 @@ function nowMonth(): { year: number; month: number } {
   return { year: y.solarYear, month: y.monthIndex };
 }
 
+/** A solar year and month as the dial keeps them: within its years, null for the month we are in. */
+function dialOf(next: Dial): Dial {
+  const to: Dial = next ? { year: Math.min(CYCLES_LAST_YEAR, Math.max(CYCLES_FIRST_YEAR, Math.trunc(next.year))), month: next.month } : null;
+  const now = nowMonth();
+  return to && to.year === now.year && to.month === now.month ? null : to;
+}
+
 /** Another solar year and month on the dial (back to now when it is the month we are in), within the dial's years. */
 export function setCyclesDial(next: Dial): void {
-  let to: Dial = next ? { year: Math.min(CYCLES_LAST_YEAR, Math.max(CYCLES_FIRST_YEAR, Math.trunc(next.year))), month: next.month } : null;
-  const now = nowMonth();
-  if (to && to.year === now.year && to.month === now.month) to = null;
+  const to = dialOf(next);
   if (to?.year === dial?.year && to?.month === dial?.month) return;
   dial = to;
   for (const fn of dialSubs) fn();
 }
 
-function useDial(): Dial {
-  return useSyncExternalStore(
+function useDial() {
+  const shared = useSyncExternalStore(
     dialSubscribe,
     () => dial,
     () => null,
   );
+  // A Compare pane with a moment of its own turns its own dial (Compare's two moments: studio/scope-time.ts).
+  return useScopedDial(shared);
 }
+
+/** How this part turns the dial: the one every scope shares, or its Compare pane's own. */
+const useSetDial = () => useScopedSetDial(setCyclesDial, dialOf);
 
 /* The rose: the Kua page's geometry (fengshui.tsx), the words drawn a little nearer the hub to leave the rim to the stars. */
 const C = 200;
@@ -324,7 +335,8 @@ function TimeCards({ data }: { data: FengShuiCyclesState & { ctx: CyclesContext 
   const { locale } = useI18n();
   const w = useWheelView();
   const { y } = data.ctx;
-  const step = (by: number) => setCyclesDial(stepMonth(y.solarYear, y.monthIndex, by));
+  const setDial = useSetDial();
+  const step = (by: number) => setDial(stepMonth(y.solarYear, y.monthIndex, by));
   const firstMonth = y.solarYear <= CYCLES_FIRST_YEAR && y.monthIndex === 0;
   const lastMonth = y.solarYear >= CYCLES_LAST_YEAR && y.monthIndex === 11;
   return (
@@ -349,7 +361,7 @@ function TimeCards({ data }: { data: FengShuiCyclesState & { ctx: CyclesContext 
               <ChevronLeft className="size-4" strokeWidth={1.75} aria-hidden />
             </button>
             {data.isNow ? null : (
-              <button type="button" className="ulune-fsc-step is-back" data-testid="fengshui-cycles-month-now" onClick={() => setCyclesDial(null)}>
+              <button type="button" className="ulune-fsc-step is-back" data-testid="fengshui-cycles-month-now" onClick={() => setDial(null)}>
                 {fscWord(locale, "fscMonthBack")}
               </button>
             )}
@@ -583,10 +595,11 @@ function CyclesFigure() {
 function CyclesControls() {
   const { locale } = useI18n();
   const data = useModeData("fengshui-cycles");
+  const setDial = useSetDial();
   const y = data?.ctx?.y;
   if (!y || !data.now) return null;
   const now = data.now;
-  const toYear = (year: number) => setCyclesDial({ year, month: y.monthIndex });
+  const toYear = (year: number) => setDial({ year, month: y.monthIndex });
   const thisYear = y.solarYear === now.year;
   return (
     <div className="ulune-zky-stepper" data-testid="fengshui-cycles-steps">
@@ -600,7 +613,7 @@ function CyclesControls() {
         data-now={thisYear ? "1" : undefined}
         aria-label={thisYear ? String(y.solarYear) : cnWord(locale, "zkYearBack", { year: y.solarYear })}
         title={thisYear ? undefined : cnWord(locale, "zkYearBack", { year: y.solarYear })}
-        onClick={() => setCyclesDial(null)}
+        onClick={() => setDial(null)}
       >
         {y.solarYear}
       </button>
@@ -734,7 +747,7 @@ function useCyclesRuntime(): ModeRuntime<FengShuiCyclesState> {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const chart = useScoped((s) => s.chart);
-  const page = useStudioStore((s) => s.page);
+  const page = useScopedPage();
   const selectedId = useScoped((s) => s.selectedId);
   const count = useScoped((s) => s.input.chineseCount);
   const chosen = useDial();

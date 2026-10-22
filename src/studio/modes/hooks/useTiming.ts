@@ -2,7 +2,11 @@ import { browserZone } from "@/lib/chart/client-zone";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { dayOverview } from "@/lib/chart/calendar-day";
 import { yearLayout } from "@/lib/chart/calendar-year";
-import { calendarRows, type NumRow } from "@/lib/chart/calendar-rows";
+import { calendarRows, type NumRow, type PeopleRow } from "@/lib/chart/calendar-rows";
+import type { PersonEvent, PersonSource } from "@/lib/chart/calendar-people";
+import { chartNameOf } from "@/lib/chart/library";
+import { calWord } from "@/lib/i18n/calendar-layer-words";
+import { useKept } from "@/studio/groups/kept-store";
 import { changeId, numerologyCalendarOf, personalMonthOn, personalYearOn } from "@/lib/chart/numerology-calendar";
 import { CALENDAR_UI, fill } from "@/lib/i18n/calendar-words";
 import { calendarIcs, type IcsKind } from "@/lib/i18n/calendar-export";
@@ -42,6 +46,16 @@ import { importWithRetry } from "@/lib/lazy-retry";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 
 type TermsModule = typeof import("@/lib/chinese/terms");
+/** The kept charts' birthdays and returns (share and compare plan, idea B10): loaded with their layer. */
+export type PeopleModule = typeof import("@/components/calendar-people");
+
+/**
+ * The layer's choices for this visit, in memory only: which of the space's groups it shows (null:
+ * every kept chart), and whether a calendar file holds the birthdays and returns (no until the reader
+ * says yes, so a file carries no names unless chosen).
+ */
+let peopleGroupKept: string | null = null;
+let peopleInFileKept = false;
 type CnModule = typeof import("@/lib/chinese/calendar-chinese");
 type StarsModule = typeof import("@/lib/chinese/fengshui-calendar");
 
@@ -87,7 +101,7 @@ async function hitsFor(
 }
 
 export function useTiming() {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const chart = useStudioStore((s) => s.chart);
   const creating = useStudioStore((s) => s.creating);
   const page = useStudioStore((s) => s.page);
@@ -346,6 +360,50 @@ export function useTiming() {
     const pad = 40 * 86_400_000;
     return { changes: starsMod.starChangesBetween(needed.from.getTime() - pad, needed.to.getTime() + pad), at: starsMod.yearStarsAt, name: starsMod.starName };
   }, [shown.stars, starsMod, needed]);
+  // The kept charts' birthdays and returns (share and compare plan, idea B10), with their layer on: their code
+  // (and words and style sheet) once, the people the studio holds (the private space's, else this tab's),
+  // narrowed to a group of the space if the reader chose one; worked out here from the chunks and year files
+  // the Calendar holds, in memory only.
+  const [pplMod, setPplMod] = useState<PeopleModule | null>(null);
+  const wantPeople = enabled && shown.people;
+  useEffect(() => {
+    if (!wantPeople || pplMod) return;
+    let live = true;
+    importWithRetry(() => import("@/components/calendar-people"))
+      .then((m) => {
+        if (live) setPplMod(m);
+      })
+      .catch(() => {
+        /* the days go without their birthdays until the next visit */
+      });
+    return () => {
+      live = false;
+    };
+  }, [wantPeople, pplMod]);
+  const library = useStudioStore((s) => s.rows);
+  const groups = useKept((s) => s.groups);
+  const [peopleGroup, setPeopleGroupState] = useState<string | null>(() => peopleGroupKept);
+  const setPeopleGroup = useCallback((id: string | null) => {
+    peopleGroupKept = id;
+    setPeopleGroupState(id);
+  }, []);
+  const [peopleInFile, setPeopleInFileState] = useState(() => peopleInFileKept);
+  const setPeopleInFile = useCallback((on: boolean) => {
+    peopleInFileKept = on;
+    setPeopleInFileState(on);
+  }, []);
+  const group = peopleGroup ? (groups.find((g) => g.id === peopleGroup) ?? null) : null;
+  const untitled = t("untitled");
+  const people = useMemo<PersonSource[]>(
+    () => (shown.people && pplMod ? pplMod.peopleOfGroup(library.map((r) => ({ id: r.id, name: chartNameOf(r.chart, untitled), chart: r.chart })), group ? group.members : null) : []),
+    [shown.people, pplMod, library, untitled, group],
+  );
+  const peopleEvents = useMemo<PersonEvent[]>(
+    () => (pplMod && people.length ? pplMod.peopleEvents(people, { wins, years: spanYears }, needed.from.getTime(), needed.to.getTime(), tz) : []),
+    [pplMod, people, wins, spanYears, needed, tz],
+  );
+  const peopleRows = useMemo<PeopleRow[]>(() => peopleEvents.map((ev) => ({ kind: "people", t: ev.t, id: ev.id, ev })), [peopleEvents]);
+
   /** The terms of the span, a year before and after it, and of the days ahead (the Now panel names the next one). */
   const termEvents = useMemo<SkyEvent[]>(() => {
     if (!termsMod || !shown.terms) return [];
@@ -434,9 +492,19 @@ export function useTiming() {
     } = texts;
     const dayReading = (key: string) => {
       const parsed = parseCivilKey(key);
-      return parsed ? calendarDayReading(shownDayOf(parsed), civilKey(parsed), locale, tz, nowMs, numShown) : null;
+      if (!parsed) return null;
+      const r = calendarDayReading(shownDayOf(parsed), civilKey(parsed), locale, tz, nowMs, numShown);
+      // The day's birthdays and returns (idea B10) join its links, each opening its reading.
+      const ppl = pplMod ? pplMod.eventsOfDay(peopleEvents, civilKey(parsed)) : [];
+      if (!ppl.length || !pplMod) return r;
+      const rows = ppl.map((ev) => ({ ref: ev.id, label: pplMod.personTitle(ev, locale), detail: pplMod.personDetail(ev, locale, tz) }));
+      return { ...r, links: r.links ? { ...r.links, rows: [...rows, ...r.links.rows] } : { title: calWord(locale, "calLayerPeople"), rows } };
     };
     if (selectedId.startsWith("day:")) return dayReading(selectedId.slice(4));
+    if (selectedId.startsWith("ppl:")) {
+      const ev = peopleEvents.find((e) => e.id === selectedId);
+      return ev && pplMod ? pplMod.personReading(ev, locale, tz) : null;
+    }
     if (selectedId.startsWith("numday:")) return numCal ? numerologyDayReading(numCal, selectedId.slice(7), locale) : null;
     if (selectedId.startsWith("numcycle:")) return numCal ? numerologyChangeReading(numCal, selectedId, locale) : null;
     if (selectedId.startsWith("nummonth:")) return numCal ? numerologyMonthReading(numCal, selectedId.slice(9), locale) : null;
@@ -469,7 +537,7 @@ export function useTiming() {
       );
     }
     return null;
-  }, [selectedId, chart, locale, nowMs, tz, scoped, texts, events, nowEvents, allEvents, allHits, allWindows, shownDayOf, numShown, numCal, cnMod, cnZodiac, cnPrefs]);
+  }, [selectedId, chart, locale, nowMs, tz, scoped, texts, events, nowEvents, allEvents, allHits, allWindows, shownDayOf, numShown, numCal, cnMod, cnZodiac, cnPrefs, pplMod, peopleEvents]);
 
   const pickHit = useCallback((hit: TimingHit) => pick(`timing:${hit.id}`), [pick]);
 
@@ -525,7 +593,9 @@ export function useTiming() {
     (kind: IcsKind = "mine") => {
       const from = bounds.from.getTime();
       const to = bounds.to.getTime();
-      const rows = calendarRows(allEvents, hits ?? [], from, to, { layers: shown, moon: scope === "day" }, numRows);
+      // The kept charts' birthdays and returns only when the reader said yes (idea B10): no names otherwise.
+      const withPeople = peopleInFile && pplMod ? peopleRows : [];
+      const rows = calendarRows(allEvents, hits ?? [], from, to, { layers: shown, moon: scope === "day" }, numRows, withPeople);
       const spans = shown.transits ? allWindows.filter((w) => w.from < to && w.to >= from) : [];
       // Whose calendar it is, in the file and its name (review 3 Oct, T5); it stays on this device.
       const who = chart?.meta.name?.trim() || "";
@@ -537,11 +607,11 @@ export function useTiming() {
       const meaning = texts && chart ? (h: TimingHit) => texts.timingExactReading(h, chart, locale, nowMs, tz).lead ?? "" : undefined;
       downloadText(
         `ulune-${slug ? `${slug}-` : ""}${fileName}.ics`,
-        calendarIcs(rows, spans, locale, tz, `Ulune · ${who ? `${who} · ` : ""}${fileName}`, { lonAt, kind, meaning }),
+        calendarIcs(rows, spans, locale, tz, `Ulune · ${who ? `${who} · ` : ""}${fileName}`, { lonAt, kind, meaning, people: withPeople.length && pplMod ? (r) => pplMod.personIcsItem(r, locale, tz) : undefined }),
         "text/calendar;charset=utf-8",
       );
     },
-    [bounds, allEvents, hits, shown, scope, allWindows, fileName, locale, tz, numRows, chart, wins, nowWins, texts, nowMs],
+    [bounds, allEvents, hits, shown, scope, allWindows, fileName, locale, tz, numRows, chart, wins, nowWins, texts, nowMs, peopleInFile, pplMod, peopleRows],
   );
   const todayKey = useMemo(() => civilKey(civilFromUtc(new Date(nowMs), tz)), [nowMs, tz]);
   // The bar's numerology (with its layer on): the personal month in a month's title, the personal year in a year's.
@@ -601,7 +671,10 @@ export function useTiming() {
       animals,
       stars,
       numTitle,
+      people: pplMod
+        ? { mod: pplMod, events: peopleEvents, rows: peopleRows, groups, group: group?.id ?? null, setGroup: setPeopleGroup, inFile: peopleInFile, setInFile: setPeopleInFile }
+        : null,
     }),
-    [scope, civil, changeScope, shift, goToday, tz, zone, zones, prefs, updatePrefs, setLayer, shown, hasChart, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, loading, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled, numCal, numShown, numRows, numTitle, animals, stars],
+    [scope, civil, changeScope, shift, goToday, tz, zone, zones, prefs, updatePrefs, setLayer, shown, hasChart, cast, wins, events, nowWins, nowEvents, allEvents, allWindows, bounds, fileName, exportIcs, dayView, yearView, hits, nowHits, windows, scoped, busy, loading, error, retry, nowMs, todayKey, reading, pickHit, pickDay, pickMonth, enabled, numCal, numShown, numRows, numTitle, animals, stars, pplMod, peopleEvents, peopleRows, groups, group, setPeopleGroup, peopleInFile, setPeopleInFile],
   );
 }

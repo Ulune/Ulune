@@ -8,7 +8,7 @@ import { canCompare as comparableHere, toggleCompare } from "@/studio/compare/co
 import { isWide, panelBeside } from "@/studio/dock/dock-layout";
 import { PAGE_LABEL } from "@/studio/modes/meta";
 import { useStudioStore } from "@/studio/store";
-import type { StudioPage } from "@/studio/url";
+import { DRAWN_LARGER } from "./drawn-larger";
 import { leaveShowMode, useShowMode } from "./show-state";
 import "./show.css";
 
@@ -37,23 +37,6 @@ import "./show.css";
  * phone held upright is told once that turning it gives a larger chart.
  * With reduced motion asked for, nothing slides or fades.
  */
-
-/** The pages drawn at a set size (pillars, cards, a wheel of numbers): drawn larger on a large screen (show.css). */
-const DRAWN_LARGER: ReadonlySet<StudioPage> = new Set<StudioPage>([
-  "numerology",
-  "numerology-cycles",
-  "numerology-pair",
-  "zodiac",
-  "zodiac-years",
-  "zodiac-pair",
-  "bazi",
-  "bazi-luck",
-  "bazi-pair",
-  "fengshui",
-  "fengshui-pair",
-  "fengshui-home",
-  "fengshui-cycles",
-]);
 
 /** How long the bar stays once the mouse is still (ms). */
 const BAR_MS = 2600;

@@ -10,7 +10,8 @@ import { numerologyCoreLabel, numerologyWheelText } from "@/lib/i18n/numerology-
 import { cn } from "@/lib/utils";
 import { useSwitchY } from "@/studio/modes/hooks/useSwitchY";
 import { useScopeId } from "@/studio/scope";
-import { NUMEROLOGY_FIRST_YEAR, NUMEROLOGY_LAST_YEAR, setNumerologyYear } from "@/studio/numerology-year";
+import { NUMEROLOGY_FIRST_YEAR, NUMEROLOGY_LAST_YEAR, numerologyYearOf, setNumerologyYear } from "@/studio/numerology-year";
+import { useScopedSetYear } from "@/studio/scope-time";
 
 /*
  * Under the numerology wheel (part 60): the switch for a Y chosen on it, and
@@ -47,6 +48,8 @@ export function NumerologyYSwitch({ numbers, selectedId, locale }: { numbers: Nu
 /** ‹ 2026 ›: the year the wheel shows, in the stage's toolbar (UI plan, part 93) or over its chips. */
 export function NumerologyYearSteps({ year, locale }: { year: number; locale: AppLocale }) {
   const thisYear = new Date().getFullYear();
+  // The one year every scope shares, or a Compare pane's own (studio/scope-time.ts).
+  const setYear = useScopedSetYear(setNumerologyYear, numerologyYearOf);
   return (
     <div className="ulune-num-stepper">
         <button
@@ -55,7 +58,7 @@ export function NumerologyYearSteps({ year, locale }: { year: number; locale: Ap
           data-testid="num-year-prev"
           aria-label={numerologyWheelText(locale, "prevYear")}
           disabled={year <= NUMEROLOGY_FIRST_YEAR}
-          onClick={() => setNumerologyYear(year - 1)}
+          onClick={() => setYear(year - 1)}
         >
           <ChevronLeft className="size-4" strokeWidth={1.75} />
         </button>
@@ -66,7 +69,7 @@ export function NumerologyYearSteps({ year, locale }: { year: number; locale: Ap
           data-now={year === thisYear ? "1" : undefined}
           aria-label={year === thisYear ? String(year) : numerologyWheelText(locale, "backToNow", { year })}
           title={year === thisYear ? undefined : numerologyWheelText(locale, "backToNow", { year })}
-          onClick={() => setNumerologyYear(null)}
+          onClick={() => setYear(null)}
         >
           {year}
         </button>
@@ -76,7 +79,7 @@ export function NumerologyYearSteps({ year, locale }: { year: number; locale: Ap
           data-testid="num-year-next"
           aria-label={numerologyWheelText(locale, "nextYear")}
           disabled={year >= NUMEROLOGY_LAST_YEAR}
-          onClick={() => setNumerologyYear(year + 1)}
+          onClick={() => setYear(year + 1)}
         >
           <ChevronRight className="size-4" strokeWidth={1.75} />
         </button>

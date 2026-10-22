@@ -29,6 +29,10 @@ import {
   type FsPairNames,
 } from "@/lib/chinese/fengshui-pair-reading";
 import { declination, decimalYear } from "@/lib/chinese/geomag";
+import { FSP_NOW, fsNowLead, fsPairNow, fsPairNowReading, type FsPairNow } from "@/lib/chinese/fengshui-pair-now";
+import { directionName as dirName } from "@/lib/chinese/fengshui-reading";
+import { pnWord } from "@/lib/i18n/catalog/pair-now-words";
+import { useVisibleInterval } from "@/lib/use-visible-interval";
 import { deFr, said } from "@/lib/chinese/both";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { useI18n } from "@/lib/i18n/locale";
@@ -43,6 +47,7 @@ import { MODE_META } from "@/studio/modes/meta";
 import { PairSelects, type PairPick } from "@/studio/modes/pair-selects";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
+import { FsNow } from "@/studio/modes/pair-now/fengshui-now";
 import { useKeptScroll } from "@/studio/return-parts";
 import { useDomIds, useScopeKey, useScoped } from "@/studio/scope";
 import { useStudioStore } from "@/studio/store";
@@ -69,8 +74,10 @@ import "@/studio/modes/styles/fengshui-pair.css";
  * One Tab stop, the arrows walk round it. Beside it: the two Kua, the groups,
  * the three lists (supportive for both, challenging for both, mixed) and the
  * practical lines for two, every part opening its reading. With a home on
- * the Home lens, its facing is read beside the two Kua. Worked out here;
- * nothing is sent.
+ * the Home lens, its facing is read beside the two Kua. "You two, now"
+ * (share and compare plan, feature 5e) ends the column and the first read:
+ * the year's and the month's stars over the directions the two share
+ * (pair-now/fengshui-now.tsx). Worked out here; nothing is sent.
  */
 
 export type FengShuiPairState = {
@@ -84,6 +91,8 @@ export type FengShuiPairState = {
   setCount: (person: PairPerson, count: FsCount) => void;
   /** The two cast charts, for the method notes. */
   charts: { a: NatalChart | null; b: NatalChart | null };
+  /** "You two, now" (feature 5e): the year and the month we are in over the directions the two share. */
+  now: FsPairNow | null;
   enabled: boolean;
 };
 
@@ -437,6 +446,7 @@ function PairFigure() {
             <span className="ulune-fs-card-line">{practice[0]!.text}</span>
             {practice.some((l) => l.id === "home") ? <span className="ulune-fs-card-note">{practice.find((l) => l.id === "home")!.text}</span> : null}
           </button>
+          {data.now ? <FsNow now={data.now} names={ctx.names} onFigure ruled /> : null}
         </div>
       </div>
     </div>
@@ -501,6 +511,10 @@ function PairHello() {
     { id: "groups", ref: FSP_SUMMARY_REF, label: cnWord(locale, "fspGroups"), value: cnWord(locale, p.sameGroup ? "fspSameGroup" : "fspTwoGroups"), text: groupsLine(p, names, locale) },
     { id: "best", ref: fspDirRef(best), label: cnWord(locale, p.shared.length ? "fspFirstBest" : "fspFirstMiddle"), value: directionName(best, locale), text: bestLine(p, names, locale) },
     { id: "practice", ref: FSP_PRACTICE_REF, label: cnWord(locale, "fspPracticeHead"), value: "", text: pairPracticeLines(ctx, locale)[0]!.text },
+    // "You two, now" (feature 5e): the direction to face together this year.
+    ...(data.now
+      ? [{ id: "now", ref: FSP_NOW, label: pnWord(locale, "ptnHead"), value: data.now.face ? dirName(data.now.face, locale) : String(data.now.y.solarYear), text: fsNowLead(data.now, names, locale) }]
+      : []),
   ];
   return (
     <section className="ulune-hd-first ulune-fs-first" data-testid="fengshui-pair-hello" aria-labelledby={domId("ulune-fsp-first-title")}>
@@ -555,7 +569,7 @@ function PairData() {
   if (!data?.ctx) return null;
   return (
     <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
-      <FengShuiPairTable ctx={data.ctx} selectedId={w.selectedId} onSelect={w.pick} />
+      <FengShuiPairTable ctx={data.ctx} selectedId={w.selectedId} onSelect={w.pick} now={data.now} />
     </Suspense>
   );
 }
@@ -620,10 +634,19 @@ function usePairRuntime(): ModeRuntime<FengShuiPairState> {
   );
   const home = usePairHome(chart);
   const ctx = useMemo<FsPairContext | null>(() => (pair ? { pair, names, lists: { a: listA, b: listB }, home } : null), [pair, names, listA, listB, home]);
-  const reading = useMemo(() => (enabled ? fsPairReading(ctx, selectedId, locale, prefs) : null), [enabled, ctx, selectedId, locale, prefs]);
+  // "You two, now" (feature 5e): the year and the month we are in, read again every ten minutes while shown.
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  useVisibleInterval(() => setNowMs(Date.now()), 600_000, enabled);
+  const hour = Math.floor(nowMs / 3_600_000);
+  const now = useMemo(() => (pair ? fsPairNow(pair, hour * 3_600_000) : null), [pair, hour]);
+  const reading = useMemo(() => {
+    if (!enabled) return null;
+    if (selectedId?.startsWith(FSP_NOW)) return now ? fsPairNowReading(now, names, selectedId, locale, prefs, pnWord(locale, "ptnHead"), inner?.meta.timezone) : null;
+    return fsPairReading(ctx, selectedId, locale, prefs);
+  }, [enabled, ctx, selectedId, locale, prefs, now, names, inner]);
   const data = useMemo(
-    () => ({ pick, lists: { a: listA, b: listB }, ctx, names, setCount, charts: { a: inner, b: chartB }, enabled }),
-    [pick, listA, listB, ctx, names, setCount, inner, chartB, enabled],
+    () => ({ pick, lists: { a: listA, b: listB }, ctx, names, setCount, charts: { a: inner, b: chartB }, now, enabled }),
+    [pick, listA, listB, ctx, names, setCount, inner, chartB, now, enabled],
   );
   return useMemo(() => ({ data, reading }), [data, reading]);
 }

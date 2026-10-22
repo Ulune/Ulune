@@ -72,22 +72,8 @@ export function Dock() {
   // Human Design, numerology and Chinese astrology read their own bodies, all of them: the Bodies
   // tab (the wheels' bodies, aspects and stars) is left out there, and comes back with the wheels.
   const studioPage = useStudioStore((s) => s.page);
-  const noBodies =
-    studioPage === "design" ||
-    studioPage === "design-pair" ||
-    studioPage === "numerology" ||
-    studioPage === "numerology-cycles" ||
-    studioPage === "numerology-pair" ||
-    studioPage === "zodiac" ||
-    studioPage === "zodiac-years" ||
-    studioPage === "zodiac-pair" ||
-    studioPage === "bazi" ||
-    studioPage === "bazi-luck" ||
-    studioPage === "bazi-pair" ||
-    studioPage === "fengshui" ||
-    studioPage === "fengshui-pair" ||
-    studioPage === "fengshui-home" ||
-    studioPage === "fengshui-cycles";
+  // (Every page of those languages, by its name: design*, numerology*, zodiac*, bazi*, fengshui*.)
+  const noBodies = /^(design|numerology|zodiac|bazi|fengshui)/.test(studioPage);
   // The Calendar without a chart (reorganisation plan, R5), and Feng Shui's Home (FS13): their
   // readings only; the birth form comes on the stage when asked for, as for a new chart.
   const chartFree = useStudioStore((s) => !s.chart && !MODE_META[s.page].needsChart);
@@ -341,7 +327,7 @@ export function Dock() {
       data-ready={ready ? "1" : undefined}
       onFocus={onFocusIn}
     >
-      {wideLayout || studioPage === "design" || studioPage === "design-pair" ? null : <PickCard text={pickText} />}
+      {wideLayout || studioPage.startsWith("design") ? null : <PickCard text={pickText} />}
       <div
         className="ob-panel-head"
         onPointerDown={onHeadDown}

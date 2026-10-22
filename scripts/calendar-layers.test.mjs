@@ -40,7 +40,7 @@ function memory(seed = {}) {
 test("the layers come by language, astrology first, each with its words in English and French", () => {
   assert.deepEqual(
     CALENDAR_LAYERS.map((l) => `${l.language}/${l.id}`),
-    ["astrology/sky", "astrology/transits", "numerology/numerology", "chinese/terms", "chinese/animals", "chinese/stars"],
+    ["astrology/sky", "astrology/transits", "numerology/numerology", "chinese/terms", "chinese/animals", "chinese/stars", "people/people"],
   );
   assert.deepEqual(
     layerGroups().map((g) => [g.language, g.layers.map((l) => l.id)]),
@@ -48,6 +48,8 @@ test("the layers come by language, astrology first, each with its words in Engli
       ["astrology", ["sky", "transits"]],
       ["numerology", ["numerology"]],
       ["chinese", ["terms", "animals", "stars"]],
+      // The kept charts' birthdays and returns (share and compare plan, idea B10): a group of their own.
+      ["people", ["people"]],
     ],
   );
   for (const l of CALENDAR_LAYERS) {
@@ -68,20 +70,21 @@ test("the layers come by language, astrology first, each with its words in Engli
   assert.equal(layerOfRow("sky")?.id, "sky");
   assert.equal(layerOfRow("you")?.id, "transits");
   assert.equal(layerOfRow("num")?.id, "numerology");
+  assert.equal(layerOfRow("people")?.id, "people");
 });
 
 test("the sky, your transits and the solar terms are on until switched, numerology waits to be asked for", () => {
-  assert.deepEqual(layersOn(), { sky: true, transits: true, numerology: false, terms: true, animals: false, stars: false });
-  assert.deepEqual(layersOn({ numerology: true, sky: false }), { sky: false, transits: true, numerology: true, terms: true, animals: false, stars: false });
+  assert.deepEqual(layersOn(), { sky: true, transits: true, numerology: false, terms: true, animals: false, stars: false, people: false });
+  assert.deepEqual(layersOn({ numerology: true, sky: false }), { sky: false, transits: true, numerology: true, terms: true, animals: false, stars: false, people: false });
   // The sky and the solar terms are everyone's; the rest is read from a chart.
   for (const l of CALENDAR_LAYERS) assert.equal(l.needsChart, l.id !== "sky" && l.id !== "terms" && l.id !== "animals" && l.id !== "stars", `${l.id} needs a chart`);
 });
 
 test("without a chart the Calendar is the sky alone, and the reader's switches wait for one", () => {
   const choices = { numerology: true };
-  assert.deepEqual(shownLayers(choices, false), { sky: true, transits: false, numerology: false, terms: true, animals: false, stars: false });
-  assert.deepEqual(shownLayers(choices, true), { sky: true, transits: true, numerology: true, terms: true, animals: false, stars: false });
-  assert.deepEqual(shownLayers({ sky: false, transits: false, terms: false, animals: false, stars: false }, true), { sky: false, transits: false, numerology: false, terms: false, animals: false, stars: false });
+  assert.deepEqual(shownLayers(choices, false), { sky: true, transits: false, numerology: false, terms: true, animals: false, stars: false, people: false });
+  assert.deepEqual(shownLayers(choices, true), { sky: true, transits: true, numerology: true, terms: true, animals: false, stars: false, people: false });
+  assert.deepEqual(shownLayers({ sky: false, transits: false, terms: false, animals: false, stars: false }, true), { sky: false, transits: false, numerology: false, terms: false, animals: false, stars: false, people: false });
   const [sky, transits, numerology] = CALENDAR_LAYERS;
   assert.equal(layerAvailable(sky, false), true);
   assert.equal(layerAvailable(transits, false), false);
@@ -97,13 +100,13 @@ test("the switches are kept on this device only, read with care", () => {
   // A first visit: nothing kept, the defaults.
   const store = memory();
   assert.deepEqual(loadCalendarPrefs(store), CALENDAR_DEFAULTS);
-  assert.deepEqual(layersOn(loadCalendarPrefs(store).layers), { sky: true, transits: true, numerology: false, terms: true, animals: false, stars: false });
+  assert.deepEqual(layersOn(loadCalendarPrefs(store).layers), { sky: true, transits: true, numerology: false, terms: true, animals: false, stars: false, people: false });
   // Switched, kept, read back; the clock kept beside them.
   saveCalendarPrefs({ zone: "utc", layers: { numerology: true, transits: false } }, store);
   assert.deepEqual(JSON.parse(store.data.get(KEY)), { zone: "utc", layers: { numerology: true, transits: false } });
   const back = loadCalendarPrefs(store);
   assert.equal(back.zone, "utc");
-  assert.deepEqual(layersOn(back.layers), { sky: true, transits: false, numerology: true, terms: true, animals: false, stars: false });
+  assert.deepEqual(layersOn(back.layers), { sky: true, transits: false, numerology: true, terms: true, animals: false, stars: false, people: false });
   // A layer that no longer exists, or a value that is not a yes or no, is dropped.
   assert.deepEqual(cleanChoices({ sky: false, almanac: true, numerology: "yes" }), { sky: false });
   assert.deepEqual(cleanChoices(null), {});
@@ -120,7 +123,7 @@ test("the two switches of Ulune 1.x are read as the layers of the same name", ()
   const old = parseCalendarPrefs({ zone: "birth", sky: false, yours: false });
   assert.equal(old.zone, "birth");
   // (1.x had no solar terms: their layer keeps its default.)
-  assert.deepEqual(layersOn(old.layers), { sky: false, transits: false, numerology: false, terms: true, animals: false, stars: false });
+  assert.deepEqual(layersOn(old.layers), { sky: false, transits: false, numerology: false, terms: true, animals: false, stars: false, people: false });
   assert.deepEqual(layersOn(parseCalendarPrefs({ zone: "device", sky: true, yours: true }).layers), layersOn());
   // Once the layers are kept, the old switches are history.
   assert.deepEqual(parseCalendarPrefs({ zone: "device", sky: false, layers: { numerology: true } }).layers, { numerology: true });
@@ -170,10 +173,10 @@ test("each layer lets its own rows through, and only the layers shown", () => {
 test("the table's for-whom filter chooses among the layers shown", () => {
   const shown = shownLayers({ numerology: true }, true);
   assert.deepEqual(layersForWhom(shown, "all"), shown);
-  assert.deepEqual(layersForWhom(shown, "sky"), { sky: true, transits: false, numerology: false, terms: true, animals: false, stars: false });
-  assert.deepEqual(layersForWhom(shown, "yours"), { sky: false, transits: true, numerology: true, terms: false, animals: false, stars: false });
+  assert.deepEqual(layersForWhom(shown, "sky"), { sky: true, transits: false, numerology: false, terms: true, animals: false, stars: false, people: false });
+  assert.deepEqual(layersForWhom(shown, "yours"), { sky: false, transits: true, numerology: true, terms: false, animals: false, stars: false, people: false });
   // It never brings back a layer switched off.
-  assert.deepEqual(layersForWhom(shownLayers({ transits: false }, true), "yours"), { sky: false, transits: false, numerology: false, terms: false, animals: false, stars: false });
+  assert.deepEqual(layersForWhom(shownLayers({ transits: false }, true), "yours"), { sky: false, transits: false, numerology: false, terms: false, animals: false, stars: false, people: false });
   const rows = calendarRows(EVENTS, HITS, T0, T0 + 3 * 24 * H, { layers: layersForWhom(shown, "yours"), moon: false }, NUM);
   assert.deepEqual(rows.map((r) => r.kind), ["num", "you"]);
 });

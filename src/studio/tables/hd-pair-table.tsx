@@ -1,6 +1,6 @@
 import { useMemo, type ReactNode } from "react";
 import { useHdNames } from "@/components/use-hd-names";
-import { HD_PAIR_KINDS, HD_PAIR_PEOPLE, type HdPairContext } from "@/lib/chart/hd-pair";
+import { HD_PAIR_KINDS, HD_PAIR_PEOPLE, type HdPairContext, type HdPairNow } from "@/lib/chart/hd-pair";
 import { KIND_WORD, betweenState, conditionCell, hdPairTableCsv, hdPairTextParts, holdCell, ownState, tableChannels, tableGates } from "@/lib/chart/hd-pair-table";
 import { HD_CENTER_IDS, HD_GATE_CENTER } from "@/lib/chart/human-design";
 import { partRows } from "@/lib/csv";
@@ -11,6 +11,8 @@ import { useI18n } from "@/lib/i18n/locale";
 import { bookT } from "@/lib/i18n/words-book";
 import { cn } from "@/lib/utils";
 import { DataTable } from "@/studio/tables/DataTable";
+import { rowsCsv } from "@/lib/pair-now-csv";
+import { hdNowPart, hdNowRows, hdNowTextLines } from "@/studio/tables/pair-now-hd-part";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
 const upper = (s: string) => (s ? s.charAt(0).toLocaleUpperCase() + s.slice(1) : s);
@@ -21,8 +23,24 @@ const upper = (s: string) => (s ? s.charAt(0).toLocaleUpperCase() + s.slice(1) :
  * gate between them; the nine centres in each chart and between them, with
  * who conditions whom; every gate either person activates. Everything on the
  * figure exists here as text, with Copy and CSV (lib/chart/hd-pair-table.ts).
+ * Then "You two, now" (feature 5e): what the moment completes for the two.
  */
-export function HdPairTable({ ctx, selectedId, onSelect }: { ctx: HdPairContext; selectedId: string | null; onSelect: (id: string) => void }) {
+export function HdPairTable({
+  ctx,
+  selectedId,
+  onSelect,
+  now = null,
+  nowAt = 0,
+  nowFailed = false,
+}: {
+  ctx: HdPairContext;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  /** "You two, now" (feature 5e): the moment over the connection chart (null while its gates come), the moment read, whether they could not be had. */
+  now?: HdPairNow | null;
+  nowAt?: number;
+  nowFailed?: boolean;
+}) {
   const { locale, t } = useI18n();
   const w = useMemo(() => bookT(hdPairWords, t, locale), [t, locale]);
   const names = useHdNames(locale);
@@ -198,6 +216,7 @@ export function HdPairTable({ ctx, selectedId, onSelect }: { ctx: HdPairContext;
         </DataTable>
       ),
     },
+    hdNowPart(now, nowFailed, nowAt, who, names, locale, selectedId, onSelect),
   ];
   const file = `${who.a} ${who.b} human design`;
   return (
@@ -207,7 +226,13 @@ export function HdPairTable({ ctx, selectedId, onSelect }: { ctx: HdPairContext;
         label={t("tableSections")}
         parts={parts}
         fileStem={file}
-        actions={<TableActions text={() => text().map((p) => p.lines.join("\n")).join("\n\n")} csv={() => hdPairTableCsv(ctx)} fileName={file} />}
+        actions={
+          <TableActions
+            text={() => [...text().map((p) => p.lines.join("\n")), ...(now ? [hdNowTextLines(now, nowAt, who, names, locale).join("\n")] : [])].join("\n\n")}
+            csv={() => [hdPairTableCsv(ctx), ...(now ? [rowsCsv(hdNowRows(now, nowAt))] : [])].join("\n\n")}
+            fileName={file}
+          />
+        }
       />
     </div>
   );

@@ -21,8 +21,8 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
-import { useDomIds, useScopeKey, useScoped } from "@/studio/scope";
-import { useStudioStore } from "@/studio/store";
+import { useDomIds, useScoped, useScopedPage, useScopeKey } from "@/studio/scope";
+import { useScopedSetYear, useScopedYear } from "@/studio/scope-time";
 import "@/studio/modes/styles/zodiac-time.css";
 
 /*
@@ -43,7 +43,8 @@ export type ZodiacYearsState = {
 };
 
 // The year stepped to (null: this year), for this tab only, as numerology's Cycles keeps its own: time,
-// shared by every chart scope (both of Compare's panes show the same year, as they share one date).
+// shared by every chart scope (both of Compare's panes show the same year, as they share one date), but
+// a pane with a moment of its own (Compare's two moments: studio/scope-time.ts).
 let chosen: number | null = null;
 const listeners = new Set<() => void>();
 const subscribe = (fn: () => void) => {
@@ -52,9 +53,12 @@ const subscribe = (fn: () => void) => {
     listeners.delete(fn);
   };
 };
+/** A year as the stepper keeps it: within its years, null for this one. */
+function yearOf(year: number | null): number | null {
+  return year == null || year === yearAheadOf(Date.now()) ? null : Math.min(LAST_YEAR, Math.max(FIRST_YEAR, Math.trunc(year)));
+}
 function setYear(year: number | null) {
-  const now = yearAheadOf(Date.now());
-  const next = year == null || year === now ? null : Math.min(LAST_YEAR, Math.max(FIRST_YEAR, Math.trunc(year)));
+  const next = yearOf(year);
   if (next === chosen) return;
   chosen = next;
   for (const fn of listeners) fn();
@@ -183,6 +187,7 @@ function YearsFigure() {
 function YearsControls() {
   const { locale } = useI18n();
   const data = useModeData("zodiac-years");
+  const step = useScopedSetYear(setYear, yearOf);
   const y = data?.ahead;
   if (!y) return null;
   const now = yearAheadOf(Date.now());
@@ -194,7 +199,7 @@ function YearsControls() {
         data-testid="zodiac-years-prev"
         aria-label={cnWord(locale, "zkYearPrev")}
         disabled={y.year <= FIRST_YEAR}
-        onClick={() => setYear(y.year - 1)}
+        onClick={() => step(y.year - 1)}
       >
         <ChevronLeft className="size-4" strokeWidth={1.75} />
       </button>
@@ -205,7 +210,7 @@ function YearsControls() {
         data-now={y.year === now ? "1" : undefined}
         aria-label={y.year === now ? String(y.year) : cnWord(locale, "zkYearBack", { year: y.year })}
         title={y.year === now ? undefined : cnWord(locale, "zkYearBack", { year: y.year })}
-        onClick={() => setYear(null)}
+        onClick={() => step(null)}
       >
         {y.year}
       </button>
@@ -215,7 +220,7 @@ function YearsControls() {
         data-testid="zodiac-years-next"
         aria-label={cnWord(locale, "zkYearNext")}
         disabled={y.year >= LAST_YEAR}
-        onClick={() => setYear(y.year + 1)}
+        onClick={() => step(y.year + 1)}
       >
         <ChevronRight className="size-4" strokeWidth={1.75} />
       </button>
@@ -246,9 +251,9 @@ function useYearsRuntime(): ModeRuntime<ZodiacYearsState> {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const chart = useScoped((s) => s.chart);
-  const page = useStudioStore((s) => s.page);
+  const page = useScopedPage();
   const selectedId = useScoped((s) => s.selectedId);
-  const stepped = useSteppedYear();
+  const stepped = useScopedYear(useSteppedYear());
   const enabled = page === "zodiac-years" && Boolean(chart);
   const zodiac = useZodiacOf(chart, prefs, enabled);
   const year = stepped ?? yearAheadOf(Date.now());

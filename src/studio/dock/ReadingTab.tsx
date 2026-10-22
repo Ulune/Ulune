@@ -1,4 +1,5 @@
 import { ComposeToolbar, FullReading, ReadingPanel } from "@/components/reading-panel";
+import type { AskMode } from "@/components/ask-grok";
 import { AiReadingFocus } from "@/components/ai-reading-focus";
 import { ModeCompose, isComposeMode } from "@/studio/dock/ModeCompose";
 import { natalRootReading } from "@/lib/chart/dossier";
@@ -83,6 +84,9 @@ export function ReadingTab() {
       setStudioPage(target);
       return;
     }
+    // A link answered by the code that wrote it (the Calendar's birthdays and returns open a kept chart,
+    // idea B10: calendar-people.tsx), so its handling stays out of the first download.
+    if (!window.dispatchEvent(new CustomEvent("ulune:reading-link", { cancelable: true, detail: { ref, open: setStudioPage } }))) return;
     // "calendar-year:2027": the Calendar's year view on that year.
     if (ref.startsWith("calendar-year:")) {
       const year = Number(ref.slice("calendar-year:".length));
@@ -123,7 +127,8 @@ export function ReadingTab() {
             onGo={go}
             back={trail.length ? trail[trail.length - 1].title : null}
             onBack={back}
-            mode={page === "numerology-cycles" || page === "numerology-pair" ? "numerology" : page === "design-pair" ? undefined : page === "zodiac" || page === "zodiac-years" || page === "zodiac-pair" || page === "bazi" || page === "bazi-luck" || page === "bazi-pair" || page === "fengshui" || page === "fengshui-pair" || page === "fengshui-home" || page === "fengshui-cycles" ? undefined : page}
+            // Numerology's other lenses ask as numerology; Human Design's other lenses and the Chinese pages have no "ask" of their own.
+            mode={page.startsWith("numerology-") ? "numerology" : /^(design-|zodiac|bazi|fengshui)/.test(page) ? undefined : (page as AskMode)}
             tradition={languageOf(page) ?? "astrology"}
           />
         </div>
@@ -164,6 +169,8 @@ function packKindOf(page: StudioPage): PackKind {
   if (page === "design") return "hd";
   // Human Design's connection chart (feature 5a): its readings come from a pack of their own.
   if (page === "design-pair") return "hdpair";
+  // Human Design's Cycles (feature 5b): the moment's, the life cycles' and the solar return's texts, a pack of their own.
+  if (page === "design-cycles") return "hdcycles";
   if (page === "numerology" || page === "numerology-cycles") return "num";
   // Numerology's Relationship (feature 5c): its pairs' texts, a pack of their own.
   if (page === "numerology-pair") return "numpair";

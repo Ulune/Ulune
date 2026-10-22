@@ -34,6 +34,13 @@ export const calendarLayerWords = {
     "Feng Shui’s stars of the month and the year, changing with each month’s solar term and at Lichun",
     "Les étoiles du mois et de l’année du Feng Shui, qui changent à chaque terme solaire du mois et à Lichun",
   ],
+  // The charts you keep (share and compare plan, idea B10).
+  calLayerLangPeople: ["Your charts", "Vos thèmes"],
+  calLayerPeople: ["Birthdays and returns", "Anniversaires et retours"],
+  calLayerPeopleHint: [
+    "Each kept chart’s birthday and solar return, its Saturn returns, Uranus opposition and Chiron return, worked out on this device",
+    "L’anniversaire et le retour solaire de chaque thème gardé, ses retours de Saturne, son opposition d’Uranus et son retour de Chiron, calculés sur cet appareil",
+  ],
   calLayerNeedsChart: ["Needs a birth chart", "Nécessite un thème natal"],
   calInvite: ["Cast a chart to add your transits", "Calculez un thème pour ajouter vos transits"],
 } as const satisfies Record<string, readonly [string, string]>;

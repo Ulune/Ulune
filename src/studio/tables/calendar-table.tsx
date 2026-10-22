@@ -1,9 +1,11 @@
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState, type ReactNode } from "react";
 import { PairIcon, SkyEventIcon } from "@/components/calendar-icons";
 import { SegmentedToggle } from "@/components/segmented-toggle";
 import { periodOf, type Period } from "@/lib/chart/calendar-periods";
 import { anyPersonalShown, layersForWhom, type ShownLayers } from "@/lib/chart/calendar-layers";
-import { calendarRows, type CalRow, type NumRow } from "@/lib/chart/calendar-rows";
+import { calendarRows, type CalRow, type NumRow, type PeopleRow } from "@/lib/chart/calendar-rows";
+import type { IcsItem } from "@/lib/chart/calendar-ics";
+import type { PeopleKind, PersonEvent } from "@/lib/chart/calendar-people";
 import type { TransitWindow } from "@/lib/chart/personal-transits";
 import type { SkyAspect, SkyEvent } from "@/lib/chart/sky-events";
 import { bodyAt, type SkyWindow } from "@/lib/chart/sky-window";
@@ -20,6 +22,22 @@ import { DataTable } from "@/studio/tables/DataTable";
 import { PartAbout, TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 import { IcsItems } from "@/components/calendar-bar";
 import type { IcsKind } from "@/lib/i18n/calendar-export";
+
+/**
+ * The kept charts' birthdays and returns (share and compare plan, idea B10), with their layer on: their
+ * rows and how the layer says them (its own code, loaded with it), and whether the reader puts them in a
+ * calendar file (asked; off by default, so a file holds no names).
+ */
+export type TablePeople = {
+  rows: readonly PeopleRow[];
+  title: (ev: PersonEvent) => string;
+  detail: (ev: PersonEvent) => string;
+  icon: (kind: PeopleKind) => ReactNode;
+  ics: (r: PeopleRow) => IcsItem;
+  include: boolean;
+  setInclude: (on: boolean) => void;
+  words: { ask: string; off: string; on: string };
+};
 
 const FIRST_ROWS = 250;
 const MORE_ROWS = 250;
@@ -57,6 +75,7 @@ export function CalendarTable({
   num = [],
   loading = false,
   who = "",
+  people = null,
 }: {
   events: readonly SkyEvent[];
   hits: readonly TimingHit[];
@@ -81,6 +100,8 @@ export function CalendarTable({
   loading?: boolean;
   /** Whose calendar, for the file and its name (it stays on this device). */
   who?: string;
+  /** The kept charts' birthdays and returns, with their layer on (idea B10). */
+  people?: TablePeople | null;
 }) {
   const { locale, t } = useI18n();
   const loc = locale === "fr" ? "fr-FR" : "en-GB";
@@ -90,9 +111,10 @@ export function CalendarTable({
   const filterWho: Who = canFilter ? chosenWho : "all";
   const [moon, setMoon] = useState(scope === "day");
   useEffect(() => setMoon(scope === "day"), [scope]);
+  const peopleRows = people?.rows;
   const rows = useMemo(
-    () => calendarRows(events, hits, from, to, { layers: layersForWhom(layers, filterWho), moon }, num),
-    [events, hits, from, to, layers, filterWho, moon, num],
+    () => calendarRows(events, hits, from, to, { layers: layersForWhom(layers, filterWho), moon }, num, peopleRows ?? []),
+    [events, hits, from, to, layers, filterWho, moon, num, peopleRows],
   );
   const columns = timingTableColumns(locale);
   const time = (ms: number) => dateFormat(loc, { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(ms));
@@ -104,7 +126,7 @@ export function CalendarTable({
     return w ? (bodyAt(w, body as Parameters<typeof bodyAt>[1], t)?.lon ?? null) : null;
   };
   const where = (r: CalRow): string => {
-    if (r.kind === "num") return "";
+    if (r.kind === "num" || r.kind === "people") return "";
     // Where a moving body stands at a moment, from the chunks at hand.
     const lonAt = (body: string, t: number) => {
       const w = wins.find((x) => t >= x.t0 && t <= x.t0 + (x.n - 1) * x.step * 3_600_000);
@@ -132,15 +154,27 @@ export function CalendarTable({
       ? skyEventTitle(r.ev, locale, time)
       : r.kind === "num"
         ? numChangeTitle(r.change, locale)
-        : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale);
+        : r.kind === "people"
+          ? (people?.title(r.ev) ?? r.ev.name)
+          : yourAspectWords(r.hit.moving, r.hit.type as SkyAspect, r.hit.natal, locale);
   const detail = (r: CalRow) =>
-    r.kind === "sky" && r.ev.k === "void" ? skyEventDetail(r.ev, locale, degree) : r.kind === "num" ? numChangeDetail(r.change, locale) : "";
-  const forWho = (r: CalRow) => pick(r.kind === "sky" ? T.everyone : T.you, locale);
-  /** A cycle's change has no hour: the whole birthday. */
+    r.kind === "sky" && r.ev.k === "void"
+      ? skyEventDetail(r.ev, locale, degree)
+      : r.kind === "num"
+        ? numChangeDetail(r.change, locale)
+        : r.kind === "people"
+          ? (people?.detail(r.ev) ?? "")
+          : "";
+  // A kept chart's birthday or return is that person's: their name (on this device only).
+  const forWho = (r: CalRow) => (r.kind === "people" ? r.ev.name : pick(r.kind === "sky" ? T.everyone : T.you, locale));
+  const dayOnly = (ms: number) => `${scope === "day" ? "" : `${dateFormat(loc, { timeZone: tz, weekday: "short", day: "numeric", month: "short" }).format(new Date(ms))} `}`;
+  /** A cycle's change has no hour: the whole birthday; a birthday, its day. */
   const whenOf = (r: CalRow) =>
     r.kind === "num"
-      ? `${scope === "day" ? "" : `${dateFormat(loc, { timeZone: tz, weekday: "short", day: "numeric", month: "short" }).format(new Date(r.t))} `}${pick(CALENDAR_UI.num.birthday, locale)}`
-      : when(r.t);
+      ? `${dayOnly(r.t)}${pick(CALENDAR_UI.num.birthday, locale)}`
+      : r.kind === "people" && (r.ev.kind === "birthday" || r.ev.uncertain)
+        ? (dayOnly(r.t).trim() || pick(CALENDAR_UI.num.birthday, locale))
+        : when(r.t);
   const what = (r: CalRow) => {
     const extra = detail(r);
     return extra ? `${title(r)} (${extra})` : title(r);
@@ -178,7 +212,12 @@ export function CalendarTable({
     const person = who.trim();
     const slug = person.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "");
     const name = `Ulune · ${person ? `${person} · ` : ""}${fileName}`;
-    downloadText(`ulune-${slug ? `${slug}-` : ""}${fileName}.ics`, calendarIcs(rows, spans, locale, tz, name, { lonAt: lonAtWins, kind }), "text/calendar;charset=utf-8");
+    // The kept charts' birthdays and returns go in only when the reader says so (idea B10): no names otherwise.
+    downloadText(
+      `ulune-${slug ? `${slug}-` : ""}${fileName}.ics`,
+      calendarIcs(rows, spans, locale, tz, name, { lonAt: lonAtWins, kind, people: people?.include ? people.ics : undefined }),
+      "text/calendar;charset=utf-8",
+    );
   };
 
   const table = (list: { row: CalRow; index: number }[]) => (
@@ -210,6 +249,8 @@ export function CalendarTable({
                       <SkyEventIcon ev={r.ev} size={14} />
                     ) : r.kind === "num" ? (
                       <span className="ulune-cal-numbadge">{r.change.value.number}</span>
+                    ) : r.kind === "people" ? (
+                      people?.icon(r.ev.kind)
                     ) : (
                       <PairIcon a={r.hit.moving} type={r.hit.type as SkyAspect} b={r.hit.natal} size={14} />
                     )}
@@ -293,7 +334,15 @@ export function CalendarTable({
             csv={csv}
             fileName={`ulune-${fileName}`}
             disabled={loading}
-            extra={<IcsItems onExport={exportIcs} loading={loading} testId="calendar-ics" transits={layers.transits && filterWho !== "sky"} />}
+            extra={
+              <IcsItems
+                onExport={exportIcs}
+                loading={loading}
+                testId="calendar-ics"
+                transits={layers.transits && filterWho !== "sky"}
+                people={people && people.rows.length && filterWho !== "sky" ? { on: people.include, set: people.setInclude, words: people.words } : null}
+              />
+            }
           />
         }
       />

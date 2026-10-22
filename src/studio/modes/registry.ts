@@ -23,6 +23,7 @@ const LOADERS: Record<LazyPage, () => Promise<ModeDef>> = {
   composite: () => import("@/studio/modes/composite").then((m) => m.compositeMode),
   design: () => import("@/studio/modes/design").then((m) => m.designMode),
   "design-pair": () => import("@/studio/modes/design-pair").then((m) => m.designPairMode),
+  "design-cycles": () => import("@/studio/modes/design-cycles").then((m) => m.designCyclesMode),
   numerology: () => import("@/studio/modes/numerology").then((m) => m.numerologyMode),
   "numerology-cycles": () => import("@/studio/modes/numerology-cycles").then((m) => m.numerologyCyclesMode),
   "numerology-pair": () => import("@/studio/modes/numerology-pair").then((m) => m.numerologyPairMode),

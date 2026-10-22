@@ -19,13 +19,20 @@ import type { StudioPage } from "@/studio/url";
  * panes follow the toolbar.
  *
  * Everything a scope draws stands inside an element marked data-chart-scope="a"
- * or "b" (ScopeStage does it): presses and previews are told apart by that mark
+ * to "d" (ScopeStage does it): presses and previews are told apart by that mark
  * (chart-wheel.tsx, lib/depth/preview-bus.ts, the Dock's Escape). What only
  * some pages' figures ask of their scope (the phone's quiet choice, where the
  * reading stands) is in scope-figure.ts, out of the first download.
+ *
+ * Compare's other ways (ideas B7 and B8) bend two of those rules for their
+ * panes alone: a pane may draw a page of its own (one person in two
+ * languages: useScopedPage, which every page's runtime reads), and a moment of
+ * its own (one chart at two moments: scope-time.ts, which the Cycles pages
+ * read). Up to four scopes, "a" to "d", stand side by side (three or four
+ * people at once).
  */
 
-export type ScopeId = "main" | "a" | "b";
+export type ScopeId = "main" | "a" | "b" | "c" | "d";
 
 type StudioState = ReturnType<typeof useStudioStore.getState>;
 
@@ -82,6 +89,21 @@ export function createSlotStore(): SlotStore {
   };
 }
 
+/**
+ * A scope's own moment (Compare's "one chart, two moments", idea B7): what its
+ * page reads instead of the studio's one time (the store's `time`, the Cycles
+ * pages' years), moved by that pane's dials alone (scope-time.ts).
+ */
+export type ScopeMoment = {
+  /** Transits' moment and whether it follows the clock, and the progressed date (as the store's `time`). */
+  at: number;
+  live: boolean;
+  progressionTarget: number;
+  /** A Cycles page's year (numerology's, the year ahead's, BaZi's luck, Feng Shui's) and Feng Shui's solar month; null: now. */
+  year: number | null;
+  month: number | null;
+};
+
 /** A scope other than the main one: what its pages read, and where its runtimes publish. */
 export type ChartScope = {
   id: Exclude<ScopeId, "main">;
@@ -94,6 +116,11 @@ export type ChartScope = {
   readingBeside: boolean;
   /** Opens this scope's reading (the pick card's Read), when the view hosting the scope has one. */
   openReading?: () => void;
+  /** The page it draws when not the studio's (a pane of Compare's two languages or two moments). */
+  page?: StudioPage;
+  /** Its own moment and how its dials move it (Compare's two moments); without one, the studio's time. */
+  moment?: ScopeMoment;
+  setMoment?: (patch: Partial<ScopeMoment>) => void;
 };
 
 export const ChartScopeContext = createContext<ChartScope | null>(null);
@@ -105,6 +132,12 @@ export function useChartScope(): ChartScope | null {
 
 export function useScopeId(): ScopeId {
   return useContext(ChartScopeContext)?.id ?? "main";
+}
+
+/** The page this part draws: its scope's own (a pane of Compare's mixed ways), else the studio's. */
+export function useScopedPage(): StudioPage {
+  const page = useStudioStore((s) => s.page);
+  return useContext(ChartScopeContext)?.page ?? page;
 }
 
 const nothing = () => null;
@@ -129,6 +162,8 @@ const SUFFIX: Record<ScopeId, (base: string) => string> = {
   main: (base) => base,
   a: (base) => `${base}-a`,
   b: (base) => `${base}-b`,
+  c: (base) => `${base}-c`,
+  d: (base) => `${base}-d`,
 };
 
 /**

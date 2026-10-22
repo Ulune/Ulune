@@ -23,6 +23,7 @@ import { personalWords, type Hidden } from "@/lib/ai/scrub";
 import { translate, type AppLocale } from "@/lib/i18n/messages";
 import { errorForState } from "@/lib/i18n/errors";
 import { saveDockOpen } from "@/studio/dock/dock-layout";
+import type { CompareRecord } from "@/lib/space/records";
 import type { StudioPage, StudioView } from "@/studio/url";
 
 export type DockTab = "reading" | "bodies" | "look" | "birth";
@@ -186,10 +187,11 @@ type StudioState = LibrarySlice &
     };
     /**
      * Compare (share and compare plan, feature 2; studio/compare): on or off, the second chart (B,
-     * a chart id; A is the chart shown) and linked selection. In memory, sealed in the private
+     * a chart id; A is the chart shown) and linked selection, and since ideas B7 and B8 its way of
+     * comparing with that way's choices (lib/space/records.ts). In memory, sealed in the private
      * space (space-sync.ts, state/compare), never in the address.
      */
-    compare: { on: boolean; partnerId: string | null; linked: boolean };
+    compare: CompareRecord;
     applySaved: (row: SavedChart) => void;
     restoreLibrary: (rows: SavedChart[], pickId?: string | null) => void;
     persistRow: (entry: {
@@ -398,28 +400,6 @@ export const useStudioStore = create<StudioState>((set, get) => ({
       creatingLock = false;
       composingLock = false;
       const nextDossier = packNow("astro", locale)?.dossierFor(result.chart, locale) ?? null;
-      const page = get().page;
-      const keepPage =
-        page === "transits" ||
-        page === "timing" ||
-        page === "synastry" ||
-        page === "composite" ||
-        page === "progressions" ||
-        page === "numerology" ||
-        page === "numerology-cycles" ||
-        page === "numerology-pair" ||
-        page === "zodiac" ||
-        page === "zodiac-years" ||
-        page === "zodiac-pair" ||
-        page === "bazi" ||
-        page === "bazi-luck" ||
-        page === "bazi-pair" ||
-        page === "fengshui" ||
-        page === "fengshui-pair" ||
-        page === "fengshui-home" ||
-        page === "fengshui-cycles" ||
-        page === "design" ||
-        page === "design-pair";
       set((s) => ({
         chart: result.chart,
         dossier: nextDossier,
@@ -428,7 +408,8 @@ export const useStudioStore = create<StudioState>((set, get) => ({
         creating: false,
         selectedId:
           s.selectedId && (!nextDossier || nextDossier.byId[s.selectedId]) ? s.selectedId : null,
-        page: !opts?.keepGrok && !keepPage ? "natal" : s.page,
+        // (The page stays as it is: every page reads the new chart. Until 2.0 week 4 a list of the pages that
+        // kept their place sent the others to Natal; every page had joined it.)
         dock: opts?.keepGrok ? s.dock : "reading",
         dockOpen: true,
       }));

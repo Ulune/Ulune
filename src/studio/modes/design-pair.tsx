@@ -10,10 +10,13 @@ import {
   HD_PAIR_KINDS,
   HD_PAIR_PEOPLE,
   HDP_DEFINITION,
+  HDP_NOW,
   HDP_OPEN,
   HDP_SUMMARY,
   hdPair,
   hdPairFocus,
+  hdPairNow,
+  hdPairNowFocus,
   hdPairUncertain,
   hdpConditionRef,
   hdpKindRef,
@@ -21,13 +24,16 @@ import {
   parseHdpRef,
   type HdPairChannel,
   type HdPairContext,
+  type HdMomentGate,
   type HdPairKind,
+  type HdPairNow,
   type HdPairPerson,
 } from "@/lib/chart/hd-pair";
 import { HD_CENTER_IDS, HD_GATE_CENTER, type HdCenterId, type HumanDesignChart } from "@/lib/chart/human-design";
 import { chartDisplayName } from "@/lib/chart/library";
+import { nowMoment } from "@/lib/chart/pair-now";
 import type { NatalChart } from "@/lib/chart/types";
-import { usePack } from "@/lib/content/packs";
+import { registerPack, usePack } from "@/lib/content/packs";
 import { previewProps } from "@/lib/depth/preview-bus";
 import { door } from "@/lib/engine/door";
 import { errorForState, localizeError } from "@/lib/i18n/errors";
@@ -37,12 +43,16 @@ import { useI18n } from "@/lib/i18n/locale";
 import type { AppLocale } from "@/lib/i18n/messages";
 import { bookT } from "@/lib/i18n/words-book";
 import { lazyNamed, prefetch } from "@/lib/lazy-component";
+import { useVisibleInterval } from "@/lib/use-visible-interval";
 import { cn } from "@/lib/utils";
 import { useModeData } from "@/studio/modes/data";
 import { usePairPick } from "@/studio/modes/hooks/usePairPick";
+import { useHdMoment } from "@/studio/modes/hooks/useHdMoment";
 import { hdKeyOf, keepHd, keptHd } from "@/studio/modes/hooks/useHumanDesign";
 import { MODE_META } from "@/studio/modes/meta";
 import { PairSelects, type PairPick } from "@/studio/modes/pair-selects";
+import { HdNow } from "@/studio/modes/pair-now/hd-now";
+import { hdNowCentresLine, hdNowTime, hdNowTitle, hdNowWith } from "@/studio/modes/pair-now/hd-now-words";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
@@ -53,6 +63,12 @@ import "@/studio/modes/styles/hd.css";
 import "@/studio/modes/styles/first-read.css";
 import "@/studio/modes/styles/pair.css";
 import "@/studio/modes/styles/hd-pair.css";
+
+// This page's reading text (lib/content/packs.ts): its loaders arrive with the page, not in the first download.
+registerPack("hdpair", {
+  en: () => import("@/lib/content/pack-hd-pair?lang=en"),
+  fr: () => import("@/lib/content/pack-hd-pair?lang=fr"),
+});
 
 /*
  * Human Design's Relationship lens, the connection chart (share and compare
@@ -84,6 +100,10 @@ export type DesignPairState = {
   names: Record<HdPairPerson, string>;
   /** The two birth charts the bodygraphs are cast from. */
   charts: Record<HdPairPerson, NatalChart | null>;
+  /** "You two, now" (feature 5e): the moment's gates over the connection chart, the moment read, and whether its sky could not be had. */
+  now: HdPairNow | null;
+  nowAt: number;
+  nowFailed: boolean;
   busy: boolean;
   error: string | null;
   retry: () => void;
@@ -180,12 +200,20 @@ function pairSay(ctx: HdPairContext, id: string, locale: AppLocale, w: Say, name
   return "";
 }
 
+/** "You two, now" in one line, for the phone's card: the part, or one channel the moment completes. */
+function nowSay(now: HdPairNow | null, at: number, id: string, names: HdNames | null, people: Record<HdPairPerson, string>, locale: AppLocale): string | null {
+  if (!now || !id.startsWith(HDP_NOW)) return null;
+  if (id === HDP_NOW) return [hdNowTime(at, locale), ...now.channels.map((c) => c.channel.id), hdNowCentresLine(now, locale)].filter(Boolean).join(" · ");
+  const c = now.channels.find((x) => `${HDP_NOW}:${x.channel.id}` === id);
+  return c ? `${hdNowTitle(c, names)} · ${hdNowWith(c, now.moment, people, locale)}` : null;
+}
+
 /** What the bodygraph draws of the connection chart, and how it names its pieces. */
-function usePairFigure(ctx: HdPairContext | null, w: Say, locale: AppLocale, names: HdNames | null): HdPairFigure | null {
+function usePairFigure(ctx: HdPairContext | null, w: Say, locale: AppLocale, names: HdNames | null, now: HdPairNow | null = null, nowAt = 0): HdPairFigure | null {
   return useMemo(() => {
     if (!ctx) return null;
     const { pair } = ctx;
-    const say = (id: string) => pairSay(ctx, id, locale, w, names);
+    const say = (id: string) => nowSay(now, nowAt, id, names, ctx.names, locale) ?? pairSay(ctx, id, locale, w, names);
     const parts: FigurePart[] = [];
     const centres = [...HD_CENTER_IDS].sort((x, y) => Number(pair.centres.find((c) => c.id === y)!.pair) - Number(pair.centres.find((c) => c.id === x)!.pair));
     for (const c of centres) parts.push({ id: `center:${c}`, label: say(`center:${c}`), kind: "center" });
@@ -199,12 +227,13 @@ function usePairFigure(ctx: HdPairContext | null, w: Say, locale: AppLocale, nam
       kinds: new Map(pair.formed.map((ch) => [ch.id, ch.kind!] as const)),
       uncertain: ctx.uncertain,
       centres: new Map(pair.centres.filter((c) => c.by).map((c) => [c.id, c.by!] as const)),
-      focusOf: (id) => hdPairFocus(pair, id),
+      // "You two, now" lights the channels the moment completes (feature 5e).
+      focusOf: (id) => hdPairNowFocus(now, id) ?? hdPairFocus(pair, id),
       say,
       parts,
       label: w("hdpAria", { a: ctx.names.a, b: ctx.names.b, deA: deName(ctx.names.a), deB: deName(ctx.names.b) }),
     };
-  }, [ctx, w, locale, names]);
+  }, [ctx, w, locale, names, now, nowAt]);
 }
 
 /** A kind's line, as the figure draws it (the legend's sample). */
@@ -398,8 +427,18 @@ function Side({ ctx }: { ctx: HdPairContext }) {
           <SideRow refId={HDP_DEFINITION} testId="hd-pair-definition" label={w("hdpDefinitionTogether")} value={definitionWord(ctx, locale)} />
         </div>
       </section>
+      <SideNow />
     </div>
   );
+}
+
+/** "You two, now" (feature 5e) beside the figure: a choice lights the channels the moment completes and readies their reading. */
+function SideNow() {
+  const { locale } = useI18n();
+  const data = useModeData("design-pair");
+  const names = useHdNames(locale);
+  if (!data?.ctx) return null;
+  return <HdNow now={data.now} at={data.nowAt} people={data.ctx.names} names={names} failed={data.nowFailed} onFigure ruled />;
 }
 
 /** On a phone, a piece chosen on the figure: one line and Read (pick-card.tsx); a Compare pane's in its own place. */
@@ -420,7 +459,7 @@ function DesignPairFigure() {
   const data = useModeData("design-pair");
   const partnerBirth = useScoped((s) => s.pair.addingPartnerFor === "design-pair");
   const hdNames = useHdNames(locale);
-  const figure = usePairFigure(data?.ctx ?? null, w, locale, hdNames);
+  const figure = usePairFigure(data?.ctx ?? null, w, locale, hdNames, data?.now ?? null, data?.nowAt ?? 0);
   // Its own scroll comes back where it was when the studio does (reorganisation R6).
   const scroller = useRef<HTMLDivElement>(null);
   useKeptScroll(scroller, useScopeKey("design-pair-scroll"), Boolean(data?.ctx));
@@ -504,14 +543,19 @@ function Method() {
 }
 
 /**
- * "You two, now" (share and compare plan, 5e, next week): where both people
- * are in time, for Human Design today's gates over the connection chart and
- * what the day completes for the two. Its place is here, under the first
- * read's steps, fed by the same context (the pair and both bodygraphs) and
- * the day's activations from the door; until then it draws nothing.
+ * "You two, now" (share and compare plan, 5e): where both people are in time,
+ * for Human Design the planets' gates at this moment over the connection
+ * chart and what they complete for the two (pair-now/hd-now.tsx). Its place
+ * is here, under the first read's steps and their last line, fed by the same
+ * context (the pair and both bodygraphs) and the moment's gates from the
+ * sky's chunks, which come through the door like every calculation.
  */
-function YouTwoNow(): null {
-  return null;
+function YouTwoNow() {
+  const { locale } = useI18n();
+  const data = useModeData("design-pair");
+  const names = useHdNames(locale);
+  if (!data?.ctx) return null;
+  return <HdNow now={data.now} at={data.nowAt} people={data.ctx.names} names={names} failed={data.nowFailed} ruled />;
 }
 
 /** The side panel with nothing chosen: the connection in steps, each opening its reading and lighting its part of the figure. */
@@ -598,8 +642,8 @@ function DesignPairHello() {
           </li>
         ))}
       </ol>
-      <YouTwoNow />
       {first?.next ? <p className="ulune-hd-first-next">{first.next}</p> : null}
+      <YouTwoNow />
       <Method />
     </section>
   );
@@ -614,7 +658,7 @@ function DesignPairData() {
   if (!data?.ctx) return null;
   return (
     <Suspense fallback={<LoadingLines testId="table-loading" lines={6} />}>
-      <HdPairTable ctx={data.ctx} selectedId={view.selectedId} onSelect={view.pick} />
+      <HdPairTable ctx={data.ctx} selectedId={view.selectedId} onSelect={view.pick} now={data.now} nowAt={data.nowAt} nowFailed={data.nowFailed} />
     </Suspense>
   );
 }
@@ -667,6 +711,19 @@ function useBodygraphs(enabled: boolean, a: NatalChart | null, b: NatalChart | n
   return { a: hdA, b: hdB, error, retry };
 }
 
+/**
+ * The planets' gates at this moment ("You two, now", feature 5e): the bodygraph's thirteen bodies as
+ * Human Design's Cycles page reads them (hooks/useHdMoment.ts: the sky's chunk around now, through the
+ * door like every calculation, the same for everyone; a cast with no place and no chart when no chunk can
+ * be had), read again when the ten minutes it stands for have passed.
+ */
+function useNowGates(enabled: boolean): { at: number; gates: HdMomentGate[] | null; failed: boolean } {
+  const [at, setAt] = useState(() => nowMoment(Date.now()));
+  useVisibleInterval(() => setAt(nowMoment(Date.now())), 60_000, enabled);
+  const sky = useHdMoment(at, enabled);
+  return { at, gates: sky.moment?.rows ?? null, failed: Boolean(sky.error) };
+}
+
 function useDesignPairRuntime(): ModeRuntime<DesignPairState> {
   const { locale, t } = useI18n();
   const page = useStudioStore((s) => s.page);
@@ -686,13 +743,20 @@ function useDesignPairRuntime(): ModeRuntime<DesignPairState> {
     () => (hdA && hdB ? { pair: hdPair(hdA, hdB), charts: { a: hdA, b: hdB }, names, uncertain: hdPairUncertain(hdA, hdB) } : null),
     [hdA, hdB, names],
   );
+  // "You two, now" (feature 5e): the moment's gates over the connection chart, once both bodygraphs are here.
+  const moment = useNowGates(enabled && Boolean(ctx));
+  const now = useMemo(() => (ctx && moment.gates ? hdPairNow(ctx.pair, moment.gates) : null), [ctx, moment.gates]);
   // The readings come with the connection chart's reading pack (its own download, one language at a time).
   const pack = usePack("hdpair", locale, enabled);
-  const reading = useMemo(() => (enabled && pack && ctx ? pack.hdPairReading(ctx, selectedId, locale) : null), [enabled, pack, ctx, selectedId, locale]);
+  const reading = useMemo(() => {
+    if (!enabled || !pack || !ctx) return null;
+    if (selectedId?.startsWith(HDP_NOW)) return now ? pack.hdPairNowReading(ctx, now, moment.at, selectedId, locale) : null;
+    return pack.hdPairReading(ctx, selectedId, locale);
+  }, [enabled, pack, ctx, selectedId, locale, now, moment.at]);
   const busy = Boolean(inner && chartB && !ctx && !hd.error);
   const data = useMemo(
-    () => ({ pick, ctx, names, charts: { a: inner, b: chartB }, busy, error: chartB ? hd.error : null, retry: hd.retry, enabled }),
-    [pick, ctx, names, inner, chartB, busy, hd.error, hd.retry, enabled],
+    () => ({ pick, ctx, names, charts: { a: inner, b: chartB }, busy, error: chartB ? hd.error : null, retry: hd.retry, enabled, now, nowAt: moment.at, nowFailed: moment.failed }),
+    [pick, ctx, names, inner, chartB, busy, hd.error, hd.retry, enabled, now, moment.at, moment.failed],
   );
   return useMemo(() => ({ data, reading }), [data, reading]);
 }

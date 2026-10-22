@@ -16,17 +16,28 @@
  *     cast there (FIXTURE_A) brings your transits onto their days;
  *     numerology's personal days show only once its layer is on, and the
  *     choice is still there after a reload (the chart kept in a private
- *     space that stays unlocked here).
+ *     space that stays unlocked here);
+ *   - the kept charts' birthdays and returns (share and compare plan, idea
+ *     B10), two charts in a private space, Sample B alone in a group: off
+ *     until asked for; on, Sample B's birthday and solar return on 3 November
+ *     in the month, the day, the year and the table, each opening its
+ *     reading (the solar return's moment in Oslo's clock), the chart opened
+ *     from it; the group narrows the layer; the calendar file holds no name
+ *     until the reader includes them, plain storage none at all, and no
+ *     request and no address a name or a birth date.
  */
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   DEV,
   FIXTURE_A,
+  FIXTURE_B,
   SHOTS,
   assertNoOverflow,
+  castFixture,
   clickDockTab,
   ensureShotsDir,
+  goStudioPage,
   gotoApp,
   keepCharts,
   launch,
@@ -35,6 +46,7 @@ import {
   pickPlace,
   setLang,
   setView,
+  waitStudioPage,
 } from "./_lib.mjs";
 
 const SITE = "https://ulune.app";
@@ -42,16 +54,16 @@ const WORDS = {
   en: {
     invite: "Cast a chart to add your transits",
     phases: /New Moon|First quarter|Full Moon|Last quarter/,
-    layers: { sky: "The sky", transits: "Your transits", numerology: "Personal day, month and year", terms: "Solar terms", animals: "The day’s animal", stars: "Flying stars" },
-    langs: { astrology: "Astrology", numerology: "Numerology", chinese: "Chinese calendar" },
+    layers: { sky: "The sky", transits: "Your transits", numerology: "Personal day, month and year", terms: "Solar terms", animals: "The day’s animal", stars: "Flying stars", people: "Birthdays and returns" },
+    langs: { astrology: "Astrology", numerology: "Numerology", chinese: "Chinese calendar", people: "Your charts" },
     nextTerm: "Next solar term",
     needs: "Needs a birth chart",
   },
   fr: {
     invite: "Calculez un thème pour ajouter vos transits",
     phases: /Nouvelle Lune|Premier quartier|Pleine Lune|Dernier quartier/,
-    layers: { sky: "Le ciel", transits: "Vos transits", numerology: "Jour, mois et année personnels", terms: "Termes solaires", animals: "L’animal du jour", stars: "Étoiles volantes" },
-    langs: { astrology: "Astrologie", numerology: "Numérologie", chinese: "Calendrier chinois" },
+    layers: { sky: "Le ciel", transits: "Vos transits", numerology: "Jour, mois et année personnels", terms: "Termes solaires", animals: "L’animal du jour", stars: "Étoiles volantes", people: "Anniversaires et retours" },
+    langs: { astrology: "Astrologie", numerology: "Numérologie", chinese: "Calendrier chinois", people: "Vos thèmes" },
     nextTerm: "Prochain terme solaire",
     needs: "Nécessite un thème natal",
   },
@@ -221,6 +233,8 @@ async function skyAlone(path, width, lang) {
       `animals:switch:false:available:${w.langs.chinese}`,
       // Feng Shui's flying stars (part 25): everyone's, off until asked for.
       `stars:switch:false:available:${w.langs.chinese}`,
+      // The kept charts' birthdays and returns (share and compare plan, idea B10): off until asked for, with a chart.
+      `people:switch:false:unavailable:${w.langs.people}`,
     ];
     if (shape.join() !== wantShape.join()) throw new Error(`${label}: layers ${shape.join(" | ")}`);
     for (const [id, l] of Object.entries(layers)) {
@@ -472,6 +486,184 @@ async function withChart() {
   }
 }
 
+/** The month on November of this year (Sample B's birthday and solar return, 3 November), by the bar's arrows. */
+async function toNovember(page) {
+  const year = new Date().getFullYear();
+  const shown = () =>
+    page.evaluate(() => [...document.querySelectorAll("[data-testid^=calendar-day-]")].map((d) => d.getAttribute("data-testid")).find((id) => /^calendar-day-\d{4}-\d{2}-\d{2}$/.test(id)) ?? "");
+  for (let i = 0; i < 24; i += 1) {
+    const first = await shown();
+    const [, y, m] = /^calendar-day-(\d{4})-(\d{2})/.exec(first) ?? [];
+    const steps = (year - Number(y)) * 12 + (11 - Number(m));
+    if (!Number.isFinite(steps)) throw new Error(`the month shown: "${first}"`);
+    if (steps === 0) break;
+    await page.getByTestId(steps > 0 ? "timing-next" : "timing-prev").click();
+    await page.waitForFunction((was) => ![...document.querySelectorAll("[data-testid^=calendar-day-]")].some((d) => d.getAttribute("data-testid") === was), first, { timeout: 8000 });
+  }
+  await skyMonth(page);
+  return year;
+}
+
+/** A reading's link row, by the start of its reference ("open-chart:"…). */
+const linkRow = (page, ref, end = "") => page.locator(`[data-testid=click-note] button.ob-rc-row[data-ref^="${ref}"]${end ? `[data-ref$="${end}"]` : ""}`).first();
+
+/** Birthdays and returns (share and compare plan, idea B10): two kept charts, Sample B alone in a group. */
+async function people() {
+  const { browser, page } = await launch(1280);
+  const errors = watch(page);
+  try {
+    await gotoApp(page);
+    await keepCharts(page);
+    await castFixture(page, FIXTURE_B);
+    await castFixture(page, FIXTURE_A);
+    // Sample B alone in a group of the space (B5), from the switcher.
+    await page.getByTestId("chart-chip").click();
+    await page.getByTestId("groups-row").click({ timeout: 15000 });
+    await page.getByTestId("group-new-name").fill("Family");
+    await page.getByTestId("group-new-name").press("Enter");
+    await page.locator("[data-testid=group-item][data-group=Family]").waitFor({ timeout: 8000 });
+    await page.keyboard.press("Escape");
+    await page.getByTestId("chart-picker").waitFor({ state: "detached", timeout: 8000 });
+    await page.getByTestId("chart-chip").click();
+    const row = page.locator(`[data-testid=chart-picker] [data-testid=chart-row][data-name="${FIXTURE_B.name}"]`).first();
+    await row.getByTestId("chart-groups").click();
+    await row.locator("[data-testid=group-toggle][data-group=Family]").click();
+    await page.keyboard.press("Escape");
+    await page.getByTestId("chart-picker").waitFor({ state: "detached", timeout: 8000 });
+
+    // Off until asked for, in a group of its own in View: the charts you keep.
+    await goStudioPage(page, "timing");
+    await skyMonth(page);
+    const year = await toNovember(page);
+    const day = `${year}-11-03`;
+    await openCalendarView(page);
+    const p = (await layerState(page)).people;
+    if (!p || p.on !== "false" || p.unavailable || p.name !== WORDS.en.layers.people || p.lang !== WORDS.en.langs.people) throw new Error(`the layer in View ${JSON.stringify(p)}`);
+    if (await page.locator("[data-testid^=calendar-people-]").count()) throw new Error("birthdays before their layer");
+    // From here on, nothing of a kept chart leaves the page: no name and no birth date in any request (the
+    // layer is worked out from what the Calendar has already), nor in the address (the review of week 4).
+    const asked = [];
+    page.on("request", (r) => asked.push(`${r.method()} ${r.url()} ${r.postData() ?? ""}`));
+    await page.getByTestId("calendar-layer-people").click();
+    // With a group in the space, View asks whose, under the switch.
+    await page.getByTestId("calendar-group-select").waitFor({ timeout: 15000 });
+    await closeView(page);
+
+    // The month: Sample B's birthday and solar return on the 3rd, a cake and the Sun beside the name; the key says so.
+    await page.getByTestId(`calendar-people-${day}`).waitFor({ timeout: 45000 });
+    const marks = await page.locator("[data-testid^=calendar-people-]").evaluateAll((els) => els.map((e) => `${e.getAttribute("data-testid")}=${e.getAttribute("title")}`));
+    if (marks.join("|") !== `calendar-people-${day}=Sample B · birthday\nSample B · solar return`) throw new Error(`the month's marks ${JSON.stringify(marks)}`);
+    const label = await page.getByTestId(`calendar-day-${day}`).getAttribute("aria-label");
+    if (!label?.includes("Sample B · birthday") || !label.includes("Sample B · solar return")) throw new Error(`the day's label "${label}"`);
+    await page.getByTestId("calendar-legend-people").waitFor({ timeout: 8000 });
+    await assertNoOverflow(page);
+    await page.screenshot({ path: join(SHOTS, "calendar-people-month-1280.png") }).catch(() => {});
+    // Kept like the other layers; no name in plain storage.
+    // (Whose they are, a group, is kept for the visit only, in memory.)
+    const kept = await page.evaluate(() => JSON.parse(localStorage.getItem("ulune.calendar.v1") ?? "{}"));
+    if (kept.layers?.people !== true || Object.keys(kept).some((k) => k !== "zone" && k !== "layers")) throw new Error(`kept ${JSON.stringify(kept)}`);
+    const plain = await page.evaluate(() => JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }) + document.cookie);
+    for (const name of [FIXTURE_A.name, FIXTURE_B.name]) if (plain.includes(name)) throw new Error(`"${name}" in plain storage`);
+
+    // The day's reading lists them first; the day shows a bar each.
+    await page.getByTestId(`calendar-day-${day}`).click();
+    await clickDockTab(page, "reading");
+    await linkRow(page, "ppl:birthday:").waitFor({ timeout: 15000 });
+    await linkRow(page, "ppl:solar:").waitFor({ timeout: 4000 });
+    await page.getByTestId("timing-scope-day").click();
+    await page.getByTestId("calendar-peopleday").waitFor({ timeout: 20000 });
+    const bars = await page
+      .locator("[data-testid=calendar-peopleday] button")
+      .evaluateAll((els) => els.map((e) => `${e.getAttribute("data-testid")}:${e.querySelector(".ulune-cal-numbar-title")?.textContent}:${e.querySelector(".ulune-cal-numbar-line")?.textContent}`));
+    if (!/^calendar-person-birthday:Sample B’s birthday:turns \d+,calendar-person-solar:Sample B’s solar return:\d{2}:\d{2}$/.test(bars.join())) throw new Error(`the day's bars ${bars.join(" | ")}`);
+    // The solar return's reading: its moment, in Oslo's clock too, and the ways to the chart.
+    await page.getByTestId("calendar-person-solar").click();
+    await page.locator("[data-testid=click-note] [data-testid=reading-card]", { hasText: "Sample B’s solar return" }).waitFor({ timeout: 8000 });
+    const solar = await page.getByTestId("click-note").innerText();
+    if (!/The Sun comes back to its place at Sample B’s birth \(\d+°\d+' Scorpio\) on 3 November \d{4} at \d{2}:\d{2}/.test(solar)) throw new Error(`the solar return's reading: ${solar.slice(0, 300)}`);
+    if (!/\d+ Nov, \d{2}:\d{2} in Oslo/.test(solar)) throw new Error(`the solar return at the birthplace: ${solar.slice(0, 400)}`);
+    await linkRow(page, "open-chart:", ":natal").waitFor({ timeout: 4000 });
+    if ((await page.locator("[data-testid=click-note] button.ob-rc-row[data-ref*=':transits:']").count()) !== 1) throw new Error("no way to the transits at that moment");
+    await assertNoOverflow(page);
+    await page.screenshot({ path: join(SHOTS, "calendar-people-day-1280.png") }).catch(() => {});
+
+    // The year: a lane for each kept chart; the group narrows it to Sample B.
+    await page.getByTestId("timing-scope-year").click();
+    await page.getByTestId("calendar-year").waitFor({ timeout: 30000 });
+    await page.waitForFunction(() => document.querySelectorAll("[data-testid=calendar-year-person]").length === 2 && document.querySelectorAll("[data-testid=calendar-year-person-solar]").length === 2, null, { timeout: 45000 });
+    const lanes = await page.locator("[data-testid=calendar-year-person] .ulune-cal-tl-label").allInnerTexts();
+    if (lanes.map((x) => x.trim()).sort().join() !== `${FIXTURE_B.name},${FIXTURE_A.name}`) throw new Error(`the year's lanes ${lanes.join()}`);
+    if ((await page.locator("[data-testid=calendar-year-person-birthday]").count()) !== 2) throw new Error("a birthday missing from the year");
+    await openCalendarView(page);
+    await page.getByTestId("calendar-group-select").selectOption({ label: "Family" });
+    await closeView(page);
+    await page.waitForFunction(() => document.querySelectorAll("[data-testid=calendar-year-person]").length === 1, null, { timeout: 8000 });
+    const only = (await page.locator("[data-testid=calendar-year-person] .ulune-cal-tl-label").innerText()).trim();
+    if (only !== FIXTURE_B.name) throw new Error(`the group's lane "${only}"`);
+    await openCalendarView(page);
+    await page.getByTestId("calendar-group-select").selectOption({ value: "" });
+    await closeView(page);
+    await page.waitForFunction(() => document.querySelectorAll("[data-testid=calendar-year-person]").length === 2, null, { timeout: 8000 });
+
+    // The table: their rows, for whom they are.
+    await page.getByTestId("timing-scope-month").click();
+    await page.getByTestId("calendar-month").waitFor({ timeout: 20000 });
+    await setView(page, "table");
+    await page.locator("[data-testid=calendar-table-row-people]").first().waitFor({ timeout: 30000 });
+    const rows = await page.locator("[data-testid=calendar-table-row-people]").allInnerTexts();
+    if (rows.length !== 2 || !rows.every((r) => r.includes(FIXTURE_B.name))) throw new Error(`the table's rows ${JSON.stringify(rows)}`);
+    await setView(page, "wheel");
+    await page.getByTestId("calendar-month").waitFor({ timeout: 20000 });
+
+    // The calendar file: no name until the reader includes them.
+    await openExport(page);
+    const ask = page.getByTestId("calendar-export-people");
+    await ask.waitFor({ timeout: 8000 });
+    if ((await ask.getAttribute("aria-checked")) !== "false") throw new Error("the names in the file by default");
+    if ((await ask.innerText()).replace(/\s+/g, " ").trim() !== "Include birthdays in the calendar file? Off: the file holds no names") throw new Error(`the question "${await ask.innerText()}"`);
+    await page.waitForFunction(() => !document.querySelector("[data-testid=calendar-export-all]")?.disabled, null, { timeout: 30000 });
+    let [dl] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.getByTestId("calendar-export-all").click()]);
+    let ics = await readFile(await dl.path(), "utf8");
+    if (!ics.startsWith("BEGIN:VCALENDAR")) throw new Error("no calendar file");
+    // No kept chart's birthday or return by default: no other name, no event of theirs; the calendar's own
+    // name says whose it is, as before (review 3 Oct, T5).
+    for (const w of [FIXTURE_B.name, "ppl-"]) if (ics.includes(w)) throw new Error(`the file holds "${w}" by default`);
+    const owner = ics.replace(/\r\n /g, "").split(/\r\n/).filter((l) => l.includes(FIXTURE_A.name));
+    if (owner.some((l) => !l.startsWith("X-WR-CALNAME:"))) throw new Error(`the file names ${FIXTURE_A.name} beyond its own name: ${owner.join(" | ")}`);
+    await openExport(page);
+    await page.getByTestId("calendar-export-people").click();
+    await page.waitForFunction(() => document.querySelector("[data-testid=calendar-export-people]")?.getAttribute("aria-checked") === "true", null, { timeout: 4000 });
+    [dl] = await Promise.all([page.waitForEvent("download", { timeout: 15000 }), page.getByTestId("calendar-export-all").click()]);
+    ics = (await readFile(await dl.path(), "utf8")).replace(/\r\n /g, "");
+    if (!ics.includes(`DTSTART;VALUE=DATE:${year}1103`) || !ics.includes("SUMMARY:Sample B’s birthday") || !ics.includes("SUMMARY:Sample B’s solar return")) throw new Error(`the file with the names: ${ics.slice(0, 600)}`);
+
+    // From the reading, the chart: Sample B's, on its natal page.
+    await page.getByTestId(`calendar-day-${day}`).click();
+    await clickDockTab(page, "reading");
+    await linkRow(page, "ppl:solar:").click();
+    await linkRow(page, "open-chart:", ":natal").click();
+    await waitStudioPage(page, "natal", 15000);
+    await page.waitForFunction((name) => document.querySelector("[data-testid=chart-chip]")?.textContent?.includes(name), FIXTURE_B.name, { timeout: 8000 });
+    // Back on the Calendar the layer is still on; off, its marks go.
+    await goStudioPage(page, "timing");
+    await skyMonth(page);
+    await toNovember(page);
+    await page.getByTestId(`calendar-people-${day}`).waitFor({ timeout: 45000 });
+    await openCalendarView(page);
+    await page.getByTestId("calendar-layer-people").click();
+    await closeView(page);
+    await page.waitForFunction(() => !document.querySelector("[data-testid^=calendar-people-]"), null, { timeout: 4000 });
+    const secrets = [FIXTURE_A.name, FIXTURE_B.name, FIXTURE_A.date, FIXTURE_B.date, "1990-06-15", "1987-11-03"].flatMap((x) => [x, encodeURIComponent(x)]);
+    const leaked = asked.find((r) => secrets.some((x) => r.includes(x)));
+    if (leaked) throw new Error(`a kept chart's name or birth in a request: ${leaked.slice(0, 200)}`);
+    if (secrets.some((x) => page.url().includes(x))) throw new Error(`a name or a birth in the address: ${page.url()}`);
+    if (errors.length) throw new Error(errors.join(" | "));
+    console.log(`calendar birthdays and returns OK (${asked.length} requests, none with a name or a birth)`);
+  } finally {
+    await browser.close();
+  }
+}
+
 await ensureShotsDir();
 const fail = [];
 const run = async (name, fn) => {
@@ -481,13 +673,17 @@ const run = async (name, fn) => {
     fail.push(`${name}: ${err instanceof Error ? err.message : String(err)}`);
   }
 };
-await run("heads", heads);
-await run("/calendar 1280", () => skyAlone("/calendar", 1280, "en"));
-await run("/calendrier 1280", () => skyAlone("/calendrier", 1280, "fr"));
-await run("/calendar 390", () => skyAlone("/calendar", 390, "en"));
-await run("/calendrier 390", () => skyAlone("/calendrier", 390, "fr"));
-await run("keyboard", keyboard);
-await run("with a chart", withChart);
+// `node scripts/e2e/calendar-section.mjs --people` runs the birthdays and returns alone.
+if (!process.argv.includes("--people")) {
+  await run("heads", heads);
+  await run("/calendar 1280", () => skyAlone("/calendar", 1280, "en"));
+  await run("/calendrier 1280", () => skyAlone("/calendrier", 1280, "fr"));
+  await run("/calendar 390", () => skyAlone("/calendar", 390, "en"));
+  await run("/calendrier 390", () => skyAlone("/calendrier", 390, "fr"));
+  await run("keyboard", keyboard);
+  await run("with a chart", withChart);
+}
+await run("birthdays and returns", people);
 if (fail.length) {
   console.error("CALENDAR SECTION FAIL\n" + fail.map((f) => `- ${f}`).join("\n"));
   process.exit(1);

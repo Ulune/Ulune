@@ -67,8 +67,9 @@ export function WheelHint({ selection }: { selection: SelectionStore }) {
   const touring = useTour((s) => s.active);
   // Off the chart (review 3 Oct, C5: it sat on the MC until closed).
   const { anchor, ref, port, place } = usePortPlace(open, touring);
-  // Compare's two wheels (share and compare plan, feature 2): the hint once, on A's, not on both.
-  const second = useScopeId() === "b";
+  // Compare's wheels (share and compare plan, feature 2, idea B8): the hint once, on A's, not on each.
+  const scopeId = useScopeId();
+  const second = scopeId !== "main" && scopeId !== "a";
   useEffect(() => {
     if (seen() || second) return;
     setTouch(typeof window.matchMedia === "function" && window.matchMedia("(hover: none)").matches);

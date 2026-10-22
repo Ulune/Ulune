@@ -112,7 +112,9 @@ function cropAway(box: Box, hit: Box): Box {
 function fitBox(port: HTMLElement): Box {
   const portBox = rectBox(port);
   let box = { ...portBox };
-  for (let el = port.parentElement; el; el = el.parentElement) {
+  // A Compare pane's wheel has its pane for room, in view or scrolled to (three or four on a phone).
+  const pane = port.closest(".ob-compare-pane");
+  for (let el = port.parentElement; el && el !== pane; el = el.parentElement) {
     const cs = getComputedStyle(el);
     const clipX = cs.overflowX === "hidden" || cs.overflowX === "clip";
     const clipY = cs.overflowY === "hidden" || cs.overflowY === "clip";
@@ -131,8 +133,8 @@ function fitBox(port: HTMLElement): Box {
   // A page that cannot scroll makes the viewport a hard edge too. When it can
   // scroll (mobile), content below the fold is reachable and must not shrink
   // the wheel.
-  if (doc.scrollWidth <= doc.clientWidth + 1) box.r = Math.min(box.r, doc.clientWidth);
-  if (doc.scrollHeight <= doc.clientHeight + 1) box.b = Math.min(box.b, doc.clientHeight);
+  if (!pane && doc.scrollWidth <= doc.clientWidth + 1) box.r = Math.min(box.r, doc.clientWidth);
+  if (!pane && doc.scrollHeight <= doc.clientHeight + 1) box.b = Math.min(box.b, doc.clientHeight);
   const clipped = { ...box };
   // The chrome of this wheel's own stage (two stages side by side in Compare each crop their own).
   const stage = port.closest(".ob-stage") ?? document;

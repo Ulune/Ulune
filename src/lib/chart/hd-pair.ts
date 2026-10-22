@@ -46,7 +46,7 @@
  */
 import { hdLitOf, type HdFocus } from "./hd-focus";
 import { hdActId } from "./hd-rows";
-import { HD_CENTER_IDS, HD_CHANNELS, type HdActivation, type HdCenterId, type HdChannel, type HdDefinition, type HumanDesignChart } from "./human-design";
+import { HD_BODY_IDS, HD_CENTER_IDS, HD_CHANNELS, type HdActivation, type HdCenterId, type HdChannel, type HdDefinition, type HumanDesignChart } from "./human-design";
 
 export type HdPairPerson = "a" | "b";
 export const HD_PAIR_PEOPLE: readonly HdPairPerson[] = ["a", "b"];
@@ -379,5 +379,80 @@ export function hdPairFocus(pair: HdPair, id: string | null): HdFocus | null {
     for (const ch of pair.channels) if (ch[ref.who].whole) channel(ch);
     for (const g of pair.gates[ref.who]) lit.add(`gate:${g}`);
   }
+  return lit.size ? { hero: null, lit, rows: new Set() } : null;
+}
+
+/* ── "You two, now" (share and compare plan, feature 5e) ─────────────────────
+   The planets' gates at a moment laid over the connection chart: the
+   channels the moment completes for the two, each by what it meets (one
+   person's gate, a gate both hold, or the moment alone, as it does for
+   everyone), and the centres it defines that the two leave open. The moment's
+   bodies are the bodygraph's thirteen, the Earth and the South Node opposite
+   the Sun and the true North Node, as a birth's are cast (calculate.ts,
+   hdBodiesAt), read as Human Design's Cycles page reads them (hd-transit.ts,
+   hooks/useHdMoment.ts). */
+
+export type HdMomentBody = (typeof HD_BODY_IDS)[number];
+/** One body of the moment in its gate (hd-transit.ts's HdMomentRow, as the Cycles page reads it, fits it). */
+export type HdMomentGate = { body: HdMomentBody; gate: number; line: number };
+
+/** What a channel the moment completes meets: one person's gate, a gate both hold, or nothing of theirs (the moment alone). */
+export type HdNowBy = HdPairPerson | "both" | "sky";
+
+export type HdNowChannel = {
+  channel: HdPairChannel;
+  by: HdNowBy;
+  /** The gate (or gates) the moment brings, and the bodies on them. */
+  brings: number[];
+  bodies: HdMomentBody[];
+  /** The pair's gate in it (none when the moment brings both). */
+  held: number | null;
+};
+
+export type HdPairNow = {
+  moment: HdMomentGate[];
+  /** The channels the moment completes that the two do not form: the pair's own first (A's, B's, both's), then the moment's alone. */
+  channels: HdNowChannel[];
+  /** The centres the moment defines between the two that their connection leaves open. */
+  centres: HdCenterId[];
+};
+
+const NOW_BY_ORDER: Record<HdNowBy, number> = { a: 0, b: 1, both: 2, sky: 3 };
+
+/** The moment over the connection chart. */
+export function hdPairNow(pair: HdPair, moment: readonly HdMomentGate[]): HdPairNow {
+  const now = new Set(moment.map((m) => m.gate));
+  const channels: HdNowChannel[] = [];
+  for (const ch of pair.channels) {
+    if (ch.kind) continue;
+    const held = ch.gates.filter((g) => pair.gates.a.has(g) || pair.gates.b.has(g));
+    const missing = ch.gates.filter((g) => !held.includes(g));
+    if (!missing.length || !missing.every((g) => now.has(g))) continue;
+    const g = held[0] ?? null;
+    const by: HdNowBy = g == null ? "sky" : pair.gates.a.has(g) && pair.gates.b.has(g) ? "both" : pair.gates.a.has(g) ? "a" : "b";
+    channels.push({ channel: ch, by, brings: missing, bodies: moment.filter((m) => missing.includes(m.gate)).map((m) => m.body), held: g });
+  }
+  channels.sort((x, y) => NOW_BY_ORDER[x.by] - NOW_BY_ORDER[y.by]);
+  const before = new Set(pair.centres.filter((c) => c.pair).map((c) => c.id));
+  const after = new Set(partsOf([...pair.formed, ...channels.map((c) => c.channel)]).flat());
+  return { moment: [...moment], channels, centres: HD_CENTER_IDS.filter((c) => after.has(c) && !before.has(c)) };
+}
+
+/** The part as a whole, and one channel the moment completes. */
+export const HDP_NOW = "hdp:now";
+export const hdpNowRef = (channel: string): string => `hdp:now:${channel}`;
+
+/** What "You two, now" lights on the connection chart: the channels the moment completes (their gates and centres), or one of them. */
+export function hdPairNowFocus(now: HdPairNow | null, id: string | null): HdFocus | null {
+  if (!now || !id || !id.startsWith(HDP_NOW)) return null;
+  const one = id === HDP_NOW ? null : id.slice(HDP_NOW.length + 1);
+  const lit = new Set<string>();
+  for (const c of now.channels) {
+    if (one && c.channel.id !== one) continue;
+    lit.add(`channel:${c.channel.id}`);
+    for (const g of c.channel.gates) lit.add(`gate:${g}`);
+    for (const x of c.channel.centers) lit.add(`center:${x}`);
+  }
+  if (!one) for (const c of now.centres) lit.add(`center:${c}`);
   return lit.size ? { hero: null, lit, rows: new Set() } : null;
 }

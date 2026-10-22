@@ -100,7 +100,7 @@ const heardCalcs = () => {
   window.addEventListener("ulune:calculated", (e) => window.__calcs.push(`${e.detail.kind}:${e.detail.on}`));
 };
 
-const MODES = ["natal", "transits", "timing", "progressions", "synastry", "composite", "design", "design-pair", "numerology", "numerology-pair"];
+const MODES = ["natal", "transits", "timing", "progressions", "synastry", "composite", "design", "design-cycles", "design-pair", "numerology", "numerology-pair"];
 
 const READING = `@@TITLE@@
 A test epithet

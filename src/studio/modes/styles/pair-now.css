@@ -1,0 +1,103 @@
+/* "You two, now" (share and compare plan, feature 5e): the part every Relationship page ends its
+   reading with, where both people are in time; its heading is pair-now-head.css. Loaded with the code
+   that draws it (the Relationship pages' own, and astrology's part as a chunk of its own), never with
+   the first page: the style sheets' budget is full (scripts/perf/budgets.mjs). One look on every page:
+   rows like the first reads' steps. */
+.ulune-two-now-lead,
+.ulune-two-now-quiet {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-fg-muted);
+}
+.ulune-two-now-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ulune-two-now-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px 9px 6px;
+  border-radius: 12px;
+  text-align: left;
+  color: var(--color-fg);
+  transition: background 150ms var(--chart-ease);
+}
+.ulune-two-now-row[data-previewed],
+.ulune-two-now-row.is-on {
+  background: var(--color-bg-subtle);
+}
+@media (hover: hover) {
+  .ulune-two-now-row:hover,
+  button.ulune-two-now-when:hover {
+    background: var(--color-bg-subtle);
+  }
+}
+.ulune-two-now-row:focus-visible,
+.ulune-two-now-when:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: -2px;
+}
+.ulune-two-now-mark {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 2px;
+  color: var(--color-fg-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.2;
+}
+.ulune-two-now-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ulune-two-now-title {
+  font-size: 14px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.ulune-two-now-sub {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--color-fg-muted);
+}
+.ulune-two-now-who {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ulune-two-now-mark .ulune-two-now-who {
+  padding-top: 3px;
+}
+.ulune-two-now-spark {
+  color: var(--color-halo);
+  font-size: 13px;
+}
+.ulune-two-now-retry {
+  align-self: flex-start;
+  min-height: 24px;
+  font-size: 13px;
+  text-decoration: underline;
+  color: var(--color-fg);
+}
+@media (pointer: coarse) {
+  .ulune-two-now-row,
+  .ulune-two-now-when,
+  .ulune-two-now-retry {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ulune-two-now-row {
+    transition: none;
+  }
+}

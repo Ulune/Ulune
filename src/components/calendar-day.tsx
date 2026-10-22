@@ -30,6 +30,7 @@ import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
 import { dateFormat } from "@/lib/intl-cache";
 import { cn, formatArc, formatDegree } from "@/lib/utils";
+import type { ReactNode } from "react";
 
 const D = CALENDAR_UI.day;
 
@@ -53,6 +54,7 @@ export function CalendarDay({
   num = null,
   animals = null,
   stars = null,
+  people = null,
 }: {
   ov: DayOverview;
   civil: CivilDate;
@@ -70,6 +72,8 @@ export function CalendarDay({
   animals?: { yearBranch: number | null; glyphs: readonly string[] | null } | null;
   /** Feng Shui's flying stars (with their layer on, part 25): the year's and the month's of any instant. */
   stars?: { at: (ms: number) => { year: number; month: number }; name: (n: number, locale: string) => string } | null;
+  /** The kept charts' birthdays and returns that day (with their layer on, idea B10), drawn by their layer's code. */
+  people?: ReactNode;
 }) {
   const { locale } = useI18n();
   const cnPrefs = useChinesePrefs();
@@ -228,6 +232,8 @@ export function CalendarDay({
           })}
         </div>
       ) : null}
+
+      {people}
 
       <div className="ulune-cal-rail" aria-hidden>
         <div className="ulune-cal-hours">

@@ -23,6 +23,8 @@ import { modesWord, pointsGroupLabel, pointsText } from "@/lib/i18n/table-ui";
 import { cn } from "@/lib/utils";
 import { Body, CrossAspects, CrossGrid, Maybe, Position, ToolCheck, UnknownNote, shownKeep } from "@/studio/tables/cross-parts";
 import { DataTable } from "@/studio/tables/DataTable";
+import { nowCsv, nowTextLines } from "@/lib/i18n/pair-now-astro";
+import { astroNowPart, type AstroNowTable } from "@/studio/tables/pair-now-astro-part";
 import { TableActions, TablePage, type TablePart } from "@/studio/tables/TablePage";
 
 /** Whether the asteroids, the Vertex and the lots are listed: kept for the visit only (in memory, never stored). */
@@ -43,12 +45,15 @@ export function SynastryTable({
   pair,
   selectedId,
   onSelect,
+  now = null,
 }: {
   a: NatalChart;
   b: NatalChart;
   pair: SynastryPair;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** "You two, now" (share and compare plan, feature 5e): today's contacts with the two people's composite (its lines until cast). */
+  now?: AstroNowTable | null;
 }) {
   const { locale, t } = useI18n();
   const aName = chartNameOf(a, t("untitled"));
@@ -158,6 +163,7 @@ export function SynastryTable({
         />
       ),
     },
+    ...(now ? [astroNowPart(now, locale, selectedId, onSelect)] : []),
   ];
 
   return (
@@ -167,7 +173,13 @@ export function SynastryTable({
         label={t("tableSections")}
         parts={parts}
         fileStem={`${aName} ${bName} synastry`}
-        actions={<TableActions text={() => joinParts(text())} csv={() => synastryTableCsv(pair, a, b, names)} fileName={`${aName} ${bName} synastry`} />}
+        actions={
+          <TableActions
+            text={() => [joinParts(text()), ...(now?.ready ? [nowTextLines(now.contacts, now.at, locale).join("\n")] : [])].join("\n\n")}
+            csv={() => [synastryTableCsv(pair, a, b, names), ...(now?.ready ? [nowCsv(now.contacts, now.at)] : [])].join("\n\n")}
+            fileName={`${aName} ${bName} synastry`}
+          />
+        }
       />
     </div>
   );

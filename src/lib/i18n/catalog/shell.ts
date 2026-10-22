@@ -32,6 +32,7 @@ export const shell = {
   pageComposite: ["Composite", "Composite"],
   pageDesign: ["Human Design", "Human Design"],
   pageDesignPair: ["Human Design: connection chart", "Human Design\u202f: carte de connexion"],
+  pageDesignCycles: ["Human Design: transits and life cycles", "Human Design\u202f: transits et cycles de vie"],
   pageNatal: ["Birth chart", "Thème natal"],
   pageNotFound: ["This page isn’t in Ulune.", "Cette page n’est pas dans Ulune."],
   pageNumerology: ["Numerology", "Numérologie"],

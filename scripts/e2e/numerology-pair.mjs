@@ -58,7 +58,7 @@ const WORDS = {
     hintTouch: "Touchez un nombre pour voir la paire à laquelle il appartient.",
     first: "Première lecture\u202f: vous deux en nombres",
     pairButton: "Relation avec Sample B (Numérologie\u202f: deux personnes)",
-    copy: ["Côte à côte", "TraceQA · Sample B", "Chemin de vie\u202f: 13/4 · 3 · écart 1", "Les paires", "Nombre de la relation\u202f: 7 (4 + 3 = 7)", "Vous deux, en ce moment"],
+    copy: ["Côte à côte", "TraceQA · Sample B", "Chemin de vie\u202f: 13/4 · 3 · écart 1", "Les paires", "Nombre de la relation\u202f: 7 (4 + 3 = 7)", "Vous deux, maintenant"],
   },
 };
 /** Each pair's two numbers, smaller first (lib/chart/numerology-pair.ts, pairKey): TraceQA's and Sample B's. */

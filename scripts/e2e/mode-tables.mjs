@@ -26,8 +26,9 @@ import {
 const MODES = [
   { id: "transits", wrap: "transit-table", parts: ["aspects", "sky", "grid"] },
   { id: "progressions", wrap: "progressions-table", parts: ["aspects", "positions", "angles", "moon"] },
-  { id: "synastry", wrap: "synastry-table", parts: ["aspects", "overlays", "both", "grid"] },
-  { id: "composite", wrap: "composite-table", parts: ["points", "houses", "aspects", "grid", "balance"] },
+  // Synastry and Composite end with "You two, now" (share and compare plan, feature 5e): today's sky over the relationship's chart.
+  { id: "synastry", wrap: "synastry-table", parts: ["aspects", "overlays", "both", "grid", "now"] },
+  { id: "composite", wrap: "composite-table", parts: ["points", "houses", "aspects", "grid", "balance", "now"] },
   { id: "design", wrap: "hd-table", parts: ["keys", "activations", "channels", "centres"] },
 ];
 

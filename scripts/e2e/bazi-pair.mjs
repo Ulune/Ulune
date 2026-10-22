@@ -38,6 +38,7 @@ const WORDS = {
     cell: "TraceQA ·",
     compare: "Relationship with Sample B (BaZi: two charts)",
     luckHead: "Luck pillars now",
+    nowHead: "You two, now",
     yang: "Yang count",
     decade: "For ten years",
     meetHead: "How the two decades meet",
@@ -53,6 +54,7 @@ const WORDS = {
     cell: "TraceQA ·",
     compare: "Relation avec Sample B (BaZi\u202f: deux thèmes)",
     luckHead: "Piliers de chance en cours",
+    nowHead: "Vous deux, maintenant",
     yang: "Compte yang",
     decade: "Pendant dix ans",
     meetHead: "Comment les deux décennies se rencontrent",
@@ -127,6 +129,7 @@ async function run(width, lang) {
     // The luck pillars of the moment (part 20): TraceQA by both counts, Sample B by hers, then how the decades meet.
     const luck = await page.evaluate(() => ({
       head: document.querySelector("[data-testid=bazi-pair-luck] h2")?.textContent ?? "",
+      when: document.querySelector("[data-testid=bazi-pair-now-side-when]")?.textContent ?? "",
       rows: [...document.querySelectorAll("[data-testid^=bazi-pair-luck-]")].map((e) => ({
         id: e.getAttribute("data-testid").slice(15),
         kind: e.querySelector(".ulune-bz-ixrow-kind")?.textContent ?? "",
@@ -134,7 +137,8 @@ async function run(width, lang) {
         h: e.getBoundingClientRect().height,
       })),
     }));
-    if (luck.head !== w.luckHead) throw new Error(`${label}: the luck pillars' heading "${luck.head}"`);
+    // Under "You two, now", as on every Relationship page (share and compare plan, feature 5e).
+    if (luck.head !== w.nowHead || luck.when !== w.luckHead) throw new Error(`${label}: the luck pillars' heading "${luck.head}" / "${luck.when}"`);
     if (luck.rows.map((r) => r.id).join() !== "a-yang,a-yin,b-yang,meets") throw new Error(`${label}: the luck rows ${luck.rows.map((r) => r.id)}`);
     if (luck.rows[0].kind !== `${FIXTURE_A.name} · ${w.yang}` || luck.rows[2].kind !== FIXTURE_B.name) throw new Error(`${label}: who the rows name ${luck.rows.map((r) => r.kind)}`);
     if (!luck.rows[0].sub.includes(FIXTURE_B.name) || !luck.rows[2].sub.includes(FIXTURE_A.name)) throw new Error(`${label}: what each decade is to the other ${luck.rows.map((r) => r.sub)}`);
@@ -147,6 +151,9 @@ async function run(width, lang) {
       await page.getByTestId("bazi-pair-hello").waitFor({ timeout: 8000 });
       const hello = await page.locator("[data-testid=bazi-pair-hello-row]").allTextContents();
       if (hello.length < 7 || !hello.some((t) => t.startsWith(`${FIXTURE_B.name}: `) || t.startsWith(`${FIXTURE_B.name}\u202f: `))) throw new Error(`${label}: the side panel's lines ${hello.join(" | ")}`);
+      // The luck pillars of the moment under "You two, now", as on every Relationship page (feature 5e).
+      const helloNow = await page.getByTestId("bazi-pair-now").evaluate((e) => ({ head: e.querySelector("h3")?.textContent ?? "", when: e.querySelector("[data-testid=bazi-pair-now-when]")?.textContent ?? "", rows: e.querySelectorAll("[data-testid=bazi-pair-hello-row]").length }));
+      if (helloNow.head !== w.nowHead || helloNow.when !== w.luckHead || helloNow.rows !== luck.rows.length) throw new Error(`${label}: the first read's "You two, now" ${JSON.stringify(helloNow)}`);
     }
     await assertNoOverflow(page);
     await page.screenshot({ path: join(SHOTS, `bazi-pair-${lang}-${width}.png`) }).catch(() => {});

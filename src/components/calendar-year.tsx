@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PairIcon, SignMark } from "@/components/calendar-icons";
 import { PlanetGlyph } from "@/components/glyphs";
 import { MoonGlyph } from "@/components/moon-glyph";
@@ -19,6 +19,7 @@ import { SOLAR_TERMS } from "@/lib/chinese/names";
 import { readChinesePrefs, type ChinesePrefs } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
 import { cnWord } from "@/lib/chinese/words";
+import { calWord } from "@/lib/i18n/calendar-layer-words";
 
 const Y = CALENDAR_UI.year;
 
@@ -40,6 +41,7 @@ export function CalendarYear({
   onSelect,
   onOpenMonth,
   num = null,
+  people = null,
 }: {
   layout: YearLayout;
   tz: string;
@@ -52,8 +54,13 @@ export function CalendarYear({
   onOpenMonth: (month: number) => void;
   /** Your numerology (with its layer on): the personal months, a long cycle changing on a birthday. */
   num?: NumerologyCalendar | null;
+  /**
+   * The kept charts' birthdays and returns (with their layer on, share and compare plan, idea B10), drawn by
+   * their layer's code: a lane per person on the line, a month's on its card.
+   */
+  people?: { lane: (x: (ms: number) => number, pct: (v: number) => string, heading: string) => ReactNode; month: (from: number, to: number) => ReactNode } | null;
 }) {
-  const props = { layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth, num };
+  const props = { layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth, num, people };
   return (
     <div className="ulune-cal-year" data-testid="calendar-year">
       <YearTimeline {...props} />
@@ -101,7 +108,7 @@ function yearChanges(num: NumerologyCalendar | null | undefined, year: number, t
   });
 }
 
-function YearTimeline({ layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth, num }: Props) {
+function YearTimeline({ layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth, num, people }: Props) {
   const f = useFormats(tz);
   const { locale } = f;
   const cnPrefs = useChinesePrefs();
@@ -227,6 +234,7 @@ function YearTimeline({ layout, tz, nowMs, showSky, showYours, selectedId, onSel
         </div>
       ) : null}
       {num ? <NumLane layout={layout} tz={tz} num={num} x={x} pct={pct} selectedId={selectedId} onSelect={onSelect} /> : null}
+      {people?.lane(x, pct, calWord(locale, "calLayerPeople"))}
       {showYours ? (
         <>
           <p className="ulune-cal-tl-sect">{pick(Y.yoursHead, locale)}</p>
@@ -387,7 +395,7 @@ function TransitRow({
 }
 
 /** A phone's year: a card per month with its sky and your big transits. */
-function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth, num }: Props) {
+function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelect, onOpenMonth, num, people }: Props) {
   const f = useFormats(tz);
   const { locale } = f;
   const shownTransits = headlineTransits(layout.transits, 99);
@@ -486,6 +494,7 @@ function YearMonths({ layout, tz, nowMs, showSky, showYours, selectedId, onSelec
                 </button>
               );
             })}
+            {people?.month(m, end)}
             {yours.map(({ t, days }) => {
               const id = windowId(t.windows[0]!);
               return (

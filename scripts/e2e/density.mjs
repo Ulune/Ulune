@@ -27,7 +27,8 @@
  *     day and year and its View menu) is listed for the owner, not failed.
  *
  * Pages: Chart, Transits, Progressions, Calendar, Synastry, Composite, Human
- * Design, Numerology and its Cycles and two people (Relationship); Chinese
+ * Design and its Cycles and connection chart (Relationship), Numerology and
+ * its Cycles and two people (Relationship); Chinese
  * astrology and its Cycles and Pair, BaZi and its luck pillars and Pair,
  * Feng Shui and its Cycles, two people (Relationship) and Home.
  */
@@ -35,7 +36,7 @@ import { chromium } from "playwright";
 import { DEV, FIXTURE_A, FIXTURE_B, castFixture, clickDockTab, goStudioPage, gotoApp, openCalendarView, pickPlace } from "./_lib.mjs";
 
 const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "bazi-pair", "fengshui", "fengshui-cycles", "fengshui-pair", "fengshui-home"];
-const WESTERN = ["natal", "transits", "progressions", "timing", "synastry", "composite", "design", "design-pair", "numerology", "numerology-cycles", "numerology-pair"];
+const WESTERN = ["natal", "transits", "progressions", "timing", "synastry", "composite", "design", "design-cycles", "design-pair", "numerology", "numerology-cycles", "numerology-pair"];
 /** The Western pages whose own controls reach 44 × 44 px on a finger (part 30; numerology's two people, feature 5c, from the start): held to it. */
 const WESTERN_44 = ["natal", "synastry", "composite", "numerology", "numerology-pair", "timing"];
 const PAGES = [...WESTERN, ...CHINESE];

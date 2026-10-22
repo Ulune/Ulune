@@ -64,6 +64,7 @@ export function ReadingMark({ reading, size = 26 }: { reading: ElementReading; s
     );
   }
   if (reading.mark) return <span className="ob-rc-mark-text">{reading.mark}</span>;
+  if (reading.glyph) return <PlanetGlyph id={reading.glyph} size={size} />;
   if (reading.kind === "planet" || reading.kind === "angle") {
     return <PlanetGlyph id={raw} size={size} />;
   }

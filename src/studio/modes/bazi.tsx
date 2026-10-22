@@ -51,8 +51,7 @@ import { MODE_META } from "@/studio/modes/meta";
 import type { ModeDef, ModeRuntime } from "@/studio/modes/types";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useKeptScroll } from "@/studio/return-parts";
-import { useDomIds, useScopeKey, useScoped } from "@/studio/scope";
-import { useStudioStore } from "@/studio/store";
+import { useDomIds, useScoped, useScopedPage, useScopeKey } from "@/studio/scope";
 import "@/studio/modes/styles/zodiac.css";
 import "@/studio/modes/styles/bazi.css";
 
@@ -674,7 +673,7 @@ function useBaziRuntime(): ModeRuntime<BaziState> {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
   const chart = useScoped((s) => s.chart);
-  const page = useStudioStore((s) => s.page);
+  const page = useScopedPage();
   const selectedId = useScoped((s) => s.selectedId);
   const enabled = page === "bazi" && Boolean(chart);
   const bazi = useMemo(
