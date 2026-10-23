@@ -4,10 +4,12 @@ import { usePack } from "@/lib/content/packs";
 import { aiAccountNow, useAiAccount } from "@/lib/ai/use-ai-account";
 import { providerName } from "@/lib/ai/providers";
 import { aiFailureText } from "@/lib/ai/failure-text";
-import { aiHiddenWords } from "@/studio/store";
+import { aiHiddenWords } from "@/studio/ai-compose";
 import { whenSpaceLocks } from "@/lib/space/state";
 import type { ElementReading, NatalChart } from "@/lib/chart/types";
 import { useI18n } from "@/lib/i18n/locale";
+import { bookT } from "@/lib/i18n/words-book";
+import { aiWords } from "@/lib/i18n/catalog/ai-words";
 
 type Turn = { q: string; a: string };
 
@@ -41,7 +43,8 @@ export function AskGrokBox({
   /** Inside the reading card: no top rule, no extra heading. */
   bare?: boolean;
 }) {
-  const { locale, t } = useI18n();
+  const { locale, t: tc } = useI18n();
+  const t = bookT(aiWords, tc, locale);
   const ai = useAiAccount();
   const model = ai.active ? providerName(ai.active) : "AI";
   const key = `${mode}|${threadKey(chart, reading.id)}`;

@@ -3,7 +3,8 @@
  * part 29): the registry's ids are unique, cannot meet another tradition's
  * entries or addresses, and follow the engines' own lists; every reading the
  * Chinese pages and the Calendar can open names the entries it is about,
- * and none of the glossary's (astrology's) words;
+ * the chart's own first (its Kua, its life stage, its Na Yin, its period:
+ * the 2.0 fixes, item 2), and none of the glossary's (astrology's) words;
  * nothing links before its family is written, and everything does once it
  * is (a live set given to the functions); the tables' cells that name
  * several terms give back their text exactly. Made-up charts only.
@@ -23,7 +24,7 @@ import {
   linkableId,
   traditionOfTerm,
 } from "../src/lib/chinese/term-ids.ts";
-import { chineseRefTerms, chineseSubjectOf } from "../src/lib/chinese/term-refs.ts";
+import { chineseReadingTerms, chineseRefTerms, chineseSubjectOf } from "../src/lib/chinese/term-refs.ts";
 import { hiddenStemPieces, placeAnimalPieces } from "../src/lib/chinese/term-pieces.ts";
 import {
   branchPhasePieces,
@@ -178,6 +179,9 @@ test("the lists are the engines' own", () => {
 
 /* ------------------------------------------------------------ the readings */
 
+/** Each reading's own entries as it carried them (the 2.0 fixes, item 2), by its id and language: "fs:yang:kua en" → [{ family, id }]. */
+const OWN = new Map();
+
 /** Every reading a page can open from its seeds, its facts and its links: the ids met on the way. */
 function crawl(read, seeds) {
   const met = new Set(seeds);
@@ -187,6 +191,7 @@ function crawl(read, seeds) {
     for (const locale of LOCALES) {
       const r = read(ref, locale);
       if (!r) continue;
+      if (r.terms) OWN.set(`${r.id} ${locale}`, [...(OWN.get(`${r.id} ${locale}`) ?? []), r.terms]);
       for (const next of [r.id, ...(r.facts ?? []).map((f) => f.ref), ...(r.links?.rows ?? []).map((x) => x.ref)]) {
         if (next && !met.has(next)) {
           met.add(next);
@@ -341,6 +346,82 @@ test("every family of reading ids the Chinese readings build is mapped", () => {
   }
   // The crawl met each prefix the pattern knows.
   for (const prefix of ["zk:", "zky:", "zkp:", "cnday:", "bz:", "bzp:", "fs:", "fsh:", "fss:", "fsy:", "fsp:", "fsp:now", "fsc:", "sky:term-"]) assert.ok([...REFS].some((r) => r.startsWith(prefix)), prefix);
+});
+
+test("a reading names its chart's own entries, the registry's, before what its id gives (the 2.0 fixes, item 2)", () => {
+  assert.ok(OWN.size > 150, `${OWN.size} readings carry their own entries`);
+  const families = new Set();
+  for (const [key, lists] of OWN) {
+    const [ref, locale] = key.split(" ");
+    for (const own of lists) {
+      assert.ok(own.length, key);
+      for (const t of own) {
+        assert.ok(chineseTermId(t.family, t.id), `${key}: ${t.family} ${t.id} is not an entry of the registry`);
+        families.add(t.family);
+      }
+      // Offered first, in their order and each once, then what the id gives.
+      const mine = [...new Set(own.map((t) => chineseTermId(t.family, t.id)))];
+      const offered = chineseReadingTerms(ref, own, ALL_FAMILIES);
+      assert.deepEqual(offered.slice(0, mine.length), mine, key);
+      assert.deepEqual(offered.slice(mine.length), chineseRefTerms(ref).filter((id) => !mine.includes(id)), key);
+    }
+    // The same entries in both languages.
+    if (locale === "en") assert.deepEqual(OWN.get(`${ref} fr`), lists, ref);
+  }
+  // The places and kinds whose ids say only their family now name the chart's own entry too.
+  for (const f of ["life-stage", "na-yin", "structure", "kua", "mansion", "period", "pillar", "pairing", "flying-star", "trigram", "mountain", "stem", "branch", "animal", "ten-god", "phase", "relation", "formation"]) assert.ok(families.has(f), f);
+  // Nothing before a family is written; then only what is written.
+  assert.deepEqual(chineseReadingTerms("fs:yang:kua", [{ family: "kua", id: 1 }], new Set()), []);
+  assert.deepEqual(chineseReadingTerms("fs:yang:kua", [{ family: "kua", id: 1 }, { family: "trigram", id: "kan" }], new Set(["kua"])), ["kua-1", "kua"]);
+  assert.deepEqual(chineseReadingTerms("bz:stage:day", [{ family: "life-stage", id: "death" }]), ["life-stage-death", "life-stage"]);
+});
+
+test("“In the encyclopedia” names the reader's own entries first, then the family, by name (the 2.0 fixes, item 2)", () => {
+  const title = (id, lang) => encyclopedia.data.cards[`${lang}/${terms[id][0]}`][id][0];
+  // As ChineseReadingTerms shows them: the written entries that have a page, by their titles.
+  const offered = (r, lang = "en") => chineseReadingTerms(r.id, r.terms).filter((id) => terms[id]?.[4] === 1).map((id) => title(id, lang));
+  const names = { a: "A", b: "B" };
+  // BaZi's board: a pillar's life stage and Na Yin, the structure, a stem.
+  const c = baziChart(CAMILLE);
+  assert.deepEqual(offered(BZ.baziReading(c, BZ.stageRef("hour"), "en", full)), ["Rest stage", "Twelve life stages"]);
+  assert.deepEqual(offered(BZ.baziReading(c, BZ.stageRef("month"), "fr", full), "fr"), ["Stade Retrait", "Douze stades de vie"]);
+  assert.deepEqual(offered(BZ.baziReading(c, BZ.naYinRef("year"), "en", full)), ["Earth by the roadside", "Na Yin"]);
+  assert.deepEqual(offered(BZ.baziReading(c, BZ.STRUCTURE_REF, "en", full)), ["Seven Killings structure", "Structures"]);
+  assert.deepEqual(offered(BZ.baziReading(c, BZ.stemRef("day"), "en", full)), ["Xin · Yin Metal", "Day Master", "Heavenly Stems"]);
+  // A reading named by its id alone offers what its id says.
+  assert.deepEqual(offered(BZ.baziReading(c, BZ.godRef("eating-god"), "en", full)), ["Eating God"]);
+  // BaZi's Cycles: the year's pillar.
+  const lucks = [luckPillars(c, "yang"), luckPillars(c, "yin")];
+  const x = { c, lucks, year: flowYear(c, 2026, lucks), day: null, tz: "Europe/Paris" };
+  assert.deepEqual(offered(BZL.luckReading(x, BZL.FLOW_YEAR_REF, "en", full)), ["Bing Wu · Yang Fire Horse", "Annual pillar"]);
+  // BaZi's Pair: the two Day Masters, the partner palaces and how they meet, a cell of either chart as the board reads it.
+  const b = baziChart(SAMPLE_B);
+  const pair = baziPair(c, b);
+  assert.deepEqual(offered(BZP.pairReading(pair, c, b, BZP.PAIR_DM_REF, names, "en", full)), ["Xin · Yin Metal", "Ding · Yin Fire", "Day Master"]);
+  assert.deepEqual(offered(BZP.pairReading(pair, c, b, BZP.PAIR_PALACE_REF, names, "en", full)), ["Hai · Pig", "Si · Snake", "Clash", "Partner palace"]);
+  assert.deepEqual(offered(BZP.pairReading(pair, c, b, BZP.pairCellRef("b", BZ.stageRef("day")), names, "en", full)), ["Peak stage", "Twelve life stages"]);
+  // Chinese astrology: the year animal with its pillar and Na Yin; the year ahead.
+  const z = zodiacChart(CAMILLE, { nowMs: NOW });
+  assert.deepEqual(offered(zodiacReading(z, placeRef("year"), "en", full)), ["Horse", "Geng Wu · Yang Metal Horse", "Earth by the roadside", "Year animal"]);
+  assert.deepEqual(offered(yearsReading(z, yearAhead(z, 2026), yearRef, "en", full)), ["Horse", "Bing Wu · Yang Fire Horse", "Tai Sui"]);
+  // Feng Shui: the Kua and a direction; a home's facing, period and palace; a direction under the year; two people's Kua.
+  const people = [fengShuiOf(CAMILLE, "yang"), fengShuiOf(CAMILLE, "yin")];
+  assert.deepEqual(offered(FSR.fengShuiReading(people, FSR.fsKuaRef("yang"), "en", full)), ["Kua 1", "Kan · Water", "Kua number"]);
+  assert.deepEqual(offered(FSR.fengShuiReading(people, FSR.fsKuaRef("yang"), "fr", full), "fr"), ["Kua 1", "Kan · Eau", "Nombre Kua"]);
+  assert.deepEqual(offered(FSR.fengShuiReading(people, FSR.fsDirRef("yang", "se"), "en", full)), ["Sheng Qi · Growth", "Xun · Wind", "Eight Mansions"]);
+  const home = homeOf(180, "compass", null);
+  const period = { year: 1998, ...periodOf(1998) };
+  const years = yearStarsAt(NOW);
+  const stars = FSH.homeStars(home, period, 2026, years, [], FS_TEXTS);
+  const ctx = { home, period, people, place: "Paris", declination: 1.2, stars, years, rooms: [], texts: FS_TEXTS };
+  assert.deepEqual(offered(FSH.homeReading(ctx, FSH.FSH_PERIOD_REF, "en", full)), ["Period 7", "Nine periods"]);
+  assert.deepEqual(offered(FSH.homeReading(ctx, FSH.FSH_FACING_REF, "en", full)), ["Wu mountain", "Zi mountain", "Kan · Water", "Facing"]);
+  assert.deepEqual(offered(FSH.homeReading(ctx, FSS.fssPalaceRef("main", "s"), "en", full)), ["6 and 8 · Standing and wealth", "8 White star", "6 White star", "Li · Fire", "Pairs of stars"]);
+  const cc = { y: years, dirs: directionsOfYear(years), people: people.map((fs) => personYear(fs, years)), timeZone: "Europe/Paris" };
+  assert.deepEqual(offered(FSC.cyclesReading(cc, FSC.fscDirRef("yang", "se"), "en", full)), ["Sheng Qi · Growth", "9 Purple star", "Eight Mansions", "Annual stars"]);
+  const fb = fengShuiOf(SAMPLE_B, "yin");
+  const pc = { pair: fengShuiPair(people[0], fb), names, lists: { a: [people[0]], b: [fb] } };
+  assert.deepEqual(offered(FSP.fsPairReading(pc, FSP.FSP_SUMMARY_REF, "en", full)), ["Kua 1", "Kua 2", "Eight Mansions"]);
 });
 
 /* ------------------------------------------------------------ written or not */

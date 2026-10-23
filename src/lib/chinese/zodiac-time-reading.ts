@@ -87,6 +87,7 @@ function yearReading(z: ZodiacChart, y: YearAhead, locale: string, prefs: Shown,
     facts,
     sections,
     mark: pair.hanzi ?? undefined,
+    terms: [{ family: "animal", id: ANIMALS[y.pillar.branch]!.id }, { family: "pillar", id: SIXTY[y.pillar.cycle]!.id }],
     about: aboutTime(locale),
   };
 }
@@ -113,6 +114,7 @@ function monthReading(z: ZodiacChart, y: YearAhead, index: number, locale: strin
     paragraphs: [lead],
     facts,
     mark: pair.hanzi ?? undefined,
+    terms: [{ family: "animal", id: ANIMALS[m.pillar.branch]!.id }, { family: "pillar", id: SIXTY[m.pillar.cycle]!.id }],
     about: aboutTime(locale),
   };
 }
@@ -161,6 +163,7 @@ export function pairMeetingReading(m: PairMeeting, za: ZodiacChart, zb: ZodiacCh
     facts,
     sections,
     mark: name.hanzi ?? undefined,
+    terms: [...m.kinds.filter((k) => k !== "same").map((k) => ({ family: "relation" as const, id: k })), { family: "animal" as const, id: ANIMALS[m.branchA]!.id }, { family: "animal" as const, id: ANIMALS[m.branchB]!.id }],
     about: { title: cnWord(locale, "zkAboutPairTitle"), paragraphs: [cnWord(locale, "zkAboutPair1"), cnWord(locale, "zkAboutTime2")] },
   };
 }

@@ -127,6 +127,26 @@ test("what the analysis says, and why", () => {
   assert.equal(baziReading(c, "bz:phase:air", "en", full), null);
   const follow = baziReading(board(["geng", "you"], ["xin", "you"], ["jia", "you"], ["geng", "you"]), "bz:structure", "en", full);
   assert.match(follow.sections[1].paragraphs[0], /Schools disagree/);
+  // Follow Power says plainly how Ulune reads it, the strength rule of every following chart, and that some classics
+  // keep output away (the 2.0 fixes, item 5): a section of its own in the structure's and the favourable phases' readings,
+  // so the short reading shows it too, in both languages; the engine is left as it is.
+  const powerBoard = board(["geng", "you"], ["xin", "you"], ["jia", "you"], ["geng", "you"]);
+  for (const locale of ["en", "fr"]) {
+    for (const ref of ["bz:structure", "bz:favourable"]) {
+      const r = baziReading(powerBoard, ref, locale, full);
+      const rule = r.sections.find((x) => x.id === "rule");
+      assert.ok(rule, `${locale} ${ref}`);
+      assert.match(rule.paragraphs[0], locale === "fr" ? /règle de force.*Certains classiques la lisent autrement.*écartent l’expression/ : /strength rule.*Some classics read it differently.*keep output away/, `${locale} ${ref}`);
+      assert.ok(r.paragraphs.includes(rule.paragraphs[0]), `${locale} ${ref}: in the reading's text`);
+    }
+  }
+  assert.ok(baziBalance(powerBoard).favourable.good.includes(phaseOfFamily("wood", "output")), "the engine still counts output as help");
+  // Another following chart (Jia among Earth, unrooted: Follow Wealth), or one that does not follow, says nothing of it.
+  const wealthBoard = board(["wu", "xu"], ["ji", "wu"], ["jia", "xu"], ["wu", "xu"]);
+  assert.equal(baziBalance(wealthBoard).special, "follow-wealth");
+  const wealth = baziReading(wealthBoard, "bz:structure", "en", full);
+  assert.ok(!wealth.sections.some((x) => x.id === "rule"), wealth.sections.map((x) => x.id).join(" "));
+  assert.ok(!baziReading(c, "bz:favourable", "en", full).sections.some((x) => x.id === "rule"));
 });
 
 test("every text in both languages, in Ulune's typography and tone", () => {

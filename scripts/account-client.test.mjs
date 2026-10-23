@@ -6,12 +6,13 @@
 // merged the same way on both, deletions (a change beats one), a group deleted that stays deleted,
 // the library's order joined, a cursor too old listing everything again, a record written again
 // unchanged not sent, one too large kept here, a server rolling a record back, the account full,
-// and what the server holds: bucket sizes and hashed names only.
+// and what the server holds: bucket sizes and hashed names only. And whether the server keeps
+// accounts at all (the 2.0 fixes, item 4): asked once a visit, the answer kept when it is clear.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { b64u, fromB64u, randomBytes } from "../src/lib/account/encoding.ts";
 import { openRecord, recordId, sealRecord, syncKeys } from "../src/lib/account/keys.ts";
-import { BUCKETS } from "../src/lib/account/protocol.ts";
+import { API_BASE, BUCKETS } from "../src/lib/account/protocol.ts";
 import { accountService } from "../src/lib/account/service.server.ts";
 import { memoryStore } from "../src/lib/account/store-memory.server.ts";
 import { AccountFailure, AccountSession } from "../src/lib/account/client/api.ts";
@@ -20,6 +21,7 @@ import { SPACE_WAYS, adopt, agrees, kindOf, merge, mergeById, mergeIds, syncs, w
 import { formatAccountId, readAccountId } from "../src/lib/account/client/account-id.ts";
 import { syncKeyBytes, syncKeysFrom } from "../src/lib/account/client/keyring.ts";
 import { ACCOUNT_PRF_SALT } from "../src/lib/account/client/passkeys.ts";
+import { PROBE, accountAvailable, accountKnown, forgetAccountAnswer } from "../src/lib/account/client/available.ts";
 import { prfSalt } from "../src/lib/account/keys.ts";
 import { ORIGIN, call, checkStolenRows, createAccount, linkDevice } from "./account-helpers.mjs";
 
@@ -475,3 +477,50 @@ test("the keys kept in the space's own record are the account's: the same record
   assert.deepEqual((await openRecord(kept, rid, blob)).v, { text: "hello" });
   assert.equal(ACCOUNT_PRF_SALT, b64u(await prfSalt()), "the passkeys' fixed salt is the protocol's");
 });
+
+/* ------------------------------------------------------------ whether the server keeps accounts */
+
+test("whether Ulune's server keeps accounts: asked once a visit with an empty body, the clear answer kept; offline asked again", async () => {
+  assert.equal(PROBE, `${API_BASE}passkey/begin`);
+  const json = (status, body, headers = {}) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...headers } });
+  // The server itself, as production runs it before its database (no store, no secret): 503 "unavailable".
+  const off = accountService({ store: null, secret: null, origins: [ORIGIN], rules: false });
+  const asked = [];
+  const serve = (service) => async (url, init) => {
+    asked.push({ url, body: init.body, method: init.method, credentials: init.credentials });
+    return await service.handle(String(url).slice(API_BASE.length), new Request(`${ORIGIN}${url}`, { method: init.method, headers: init.headers, body: init.body }));
+  };
+  forgetAccountAnswer();
+  assert.equal(accountKnown(), null);
+  // Asked once, however many parts ask at the same time.
+  const [a, b] = await Promise.all([accountAvailable(serve(off)), accountAvailable(serve(off))]);
+  assert.deepEqual([a, b], [false, false]);
+  assert.deepEqual(asked, [{ url: PROBE, body: "{}", method: "POST", credentials: "omit" }]);
+  // Kept for the visit: never asked again.
+  assert.equal(await accountAvailable(serve(off)), false);
+  assert.equal(accountKnown(), false);
+  assert.equal(asked.length, 1);
+  // A server that keeps accounts answers a challenge.
+  forgetAccountAnswer();
+  const on = accountService({ store: memoryStore(), secret: randomBytes(32), origins: [ORIGIN], rules: false });
+  assert.equal(await accountAvailable(serve(on)), true);
+  assert.equal(accountKnown(), true);
+  // No account route at all: not set up.
+  forgetAccountAnswer();
+  assert.equal(await accountAvailable(async () => new Response("<!doctype html>", { status: 404 })), false);
+  // Offline, a passing trouble (a minute), too many tries, an odd answer: taken as set up for now, and asked again next time.
+  for (const answer of [
+    async () => {
+      throw new TypeError("Failed to fetch");
+    },
+    async () => json(503, { error: "unavailable" }, { "Retry-After": "60" }),
+    async () => json(429, { error: "slow-down" }, { "Retry-After": "30" }),
+    async () => new Response("bad gateway", { status: 503 }),
+  ]) {
+    forgetAccountAnswer();
+    assert.equal(await accountAvailable(answer), true);
+    assert.equal(accountKnown(), null);
+  }
+  forgetAccountAnswer();
+});
+

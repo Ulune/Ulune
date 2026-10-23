@@ -442,7 +442,7 @@ test("the Neon executor speaks Neon's protocol: its endpoint, its headers, one t
   await assert.rejects(() => odd.run([{ text: "SELECT 1", params: [] }]), StoreUnavailable);
 });
 
-test("the store and secret a deployment gets: Neon with a connection string; memory only off Vercel and when asked; otherwise none", async () => {
+test("the store and secret a deployment gets: Neon with a connection string; memory only off Vercel and when asked; none when turned off; otherwise none", async () => {
   const { secretFromEnv, storeFromEnv } = await import("../src/lib/account/config.server.ts");
   const saved = { ...process.env };
   try {
@@ -458,6 +458,15 @@ test("the store and secret a deployment gets: Neon with a connection string; mem
     process.env.ACCOUNT_DATABASE_URL = conn("postgresql", "u:p", "ep-x.eu-central-1.aws.neon.tech/db");
     process.env.VERCEL = "1";
     assert.equal(typeof storeFromEnv()?.putRecords, "function", "the database when there is one");
+    // Accounts turned off on purpose (the 2.0 fixes, item 4): none, even with a database, and in development too.
+    process.env.ULUNE_ACCOUNT_STORE = "none";
+    assert.equal(storeFromEnv(), null, "none, even with a database");
+    delete process.env.VERCEL;
+    delete process.env.ACCOUNT_DATABASE_URL;
+    process.env.NODE_ENV = "development";
+    assert.equal(storeFromEnv(), null, "none in development either");
+    process.env.VERCEL = "1";
+    process.env.NODE_ENV = "production";
     process.env.ACCOUNT_SESSION_SECRET = "too short";
     assert.equal(secretFromEnv(), null);
     process.env.ACCOUNT_SESSION_SECRET = "x".repeat(44);

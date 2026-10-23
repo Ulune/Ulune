@@ -131,6 +131,7 @@ function luckPillarReading(x: LuckContext, l: Luck, p: LuckPillar, locale: strin
     ],
     sections,
     mark: name.hanzi ?? undefined,
+    terms: [{ family: "pillar", id: SIXTY[p.pillar.cycle]!.id }],
     about: about(locale),
   };
 }
@@ -161,6 +162,7 @@ function yearReading(x: LuckContext, locale: string, prefs: Shown): ElementReadi
     facts,
     sections,
     mark: name.hanzi ?? undefined,
+    terms: [{ family: "pillar", id: SIXTY[y.pillar.cycle]!.id }],
     about: about(locale),
   };
 }
@@ -186,6 +188,7 @@ function monthReading(x: LuckContext, index: number, locale: string, prefs: Show
     facts: [...pillarFacts(m, cnWord(locale, "bzPillarMonth"), locale, prefs), ...m.meets.map((mm) => meetingFact(mm, locale, prefs)), { label: cnWord(locale, "bzlYearHead", { year: x.year.year }), value: chineseLabel(SIXTY[x.year.pillar.cycle]!, locale, prefs).text, ref: FLOW_YEAR_REF }],
     sections,
     mark: name.hanzi ?? undefined,
+    terms: [{ family: "pillar", id: SIXTY[m.pillar.cycle]!.id }],
     about: about(locale),
   };
 }
@@ -206,6 +209,7 @@ function dayReading(x: LuckContext, locale: string, prefs: Shown): ElementReadin
     facts: [...pillarFacts(d, cnWord(locale, "bzlToday"), locale, prefs), ...d.meets.map((m) => meetingFact(m, locale, prefs))],
     sections,
     mark: name.hanzi ?? undefined,
+    terms: [{ family: "pillar", id: SIXTY[d.pillar.cycle]!.id }],
     about: about(locale),
   };
 }

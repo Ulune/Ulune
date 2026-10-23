@@ -41,6 +41,7 @@ import { closeSpaceSheet, useSpace, type SpaceSheet as SheetKind } from "@/lib/s
 import type { SpaceBackup, WayIn } from "@/lib/space/vault";
 import { toast } from "@/lib/toast";
 import type { AccountWay, Begun, Joined } from "@/lib/account/client/setup";
+import { accountAvailable, accountKnown } from "@/lib/account/client/available";
 
 /*
  * The private space's sheet: signing in for the first time (a passkey or a
@@ -62,6 +63,12 @@ import type { AccountWay, Begun, Joined } from "@/lib/account/client/setup";
  * A passkey's window is asked for straight from the click that wants it, with
  * nothing awaited before, as some browsers only allow it then: the account's
  * challenge is fetched as the step that may need it shows.
+ *
+ * Until Ulune's server keeps accounts (production before its database: the
+ * 2.0 fixes, item 4), the steps that offer the account ask it once a visit
+ * (lib/account/client/available.ts) and say "not available yet" instead: no
+ * choice of where the space is kept, no sync to turn on, only a file to sign
+ * in with on a new device.
  */
 
 /**
@@ -263,6 +270,8 @@ function problem(err: unknown, t: Translate, making: boolean, via: Via = null): 
   if (message === "space-exists") return t("syncUnlockFirst");
   // The account's failures carry the protocol's code (lib/account/client/api.ts, AccountFailure).
   const code = (err as { code?: unknown } | null)?.code;
+  // Ulune's server keeping no accounts yet is said plainly, not as a network fault (the 2.0 fixes, item 4).
+  if (code === "unavailable" && accountKnown() === false) return t("syncNotYet");
   if (code === "network" || code === "unavailable" || message === "offline") return t("syncOffline");
   if (code === "slow-down") return t("syncSlowDown");
   if (code === "denied") {
@@ -380,8 +389,14 @@ export function SpaceSheet() {
   const fileRef = useRef<HTMLInputElement>(null);
   const manage = isManage(sheet) ? sheet : null;
   const legacyCount = step.kind === "legacy" ? legacyChartCount() : 0;
-  // The first step waits for the answer about passkeys, so its buttons don't move.
-  const waiting = step.kind === "choose" && canMake === null;
+  // Whether Ulune's server keeps accounts (the 2.0 fixes, item 4), asked once a visit as a step that offers the account
+  // shows: null until it answers. The first step waits for it a moment too, so its choice never appears or goes from
+  // under the reader's pointer; past that moment it shows as before, and goes if the answer is no.
+  const [service, setService] = useState<boolean | null>(() => accountKnown());
+  const [patient, setPatient] = useState(true);
+  const asksService = step.kind === "choose" || step.kind === "join" || step.kind === "sync-intro";
+  // The first step waits for the answers about passkeys and the account, so its buttons don't move.
+  const waiting = step.kind === "choose" && (canMake === null || (service === null && patient));
 
   useEffect(() => {
     let on = true;
@@ -395,6 +410,26 @@ export function SpaceSheet() {
 
   useEffect(() => () => dropHeld(held), []);
 
+  useEffect(() => {
+    if (!asksService || service !== null) return;
+    let on = true;
+    void accountAvailable().then((ok) => {
+      if (on) setService(ok);
+    });
+    const timer = window.setTimeout(() => {
+      if (on) setPatient(false);
+    }, 1200);
+    return () => {
+      on = false;
+      window.clearTimeout(timer);
+    };
+  }, [asksService, service]);
+
+  // No accounts on this server: the space is kept here, whatever was picked before the answer came.
+  useEffect(() => {
+    if (service === false) setWhere("here");
+  }, [service]);
+
   // A change to the ways in, charts added from a backup, a copy for another device or the account's settings need the space open: if it locks meanwhile, the sheet goes.
   useEffect(() => {
     if (needsOpen(sheet) && status !== "open") closeSpaceSheet();
@@ -402,7 +437,9 @@ export function SpaceSheet() {
 
   // The account's challenge, fetched as a step that may open a passkey's window shows (and again before it ends).
   const wantBegun: "create" | "signin" | null =
-    ((step.kind === "choose" && where === "sync") || step.kind === "sync-key") && canMake
+    service === false
+      ? null
+      : ((step.kind === "choose" && where === "sync") || step.kind === "sync-key") && canMake
       ? "create"
       : (step.kind === "join" && passkeysPossible()) || (step.kind === "confirm" && Boolean(sync) && passkeys.length > 0 && passkeysPossible())
         ? "signin"
@@ -1236,27 +1273,30 @@ export function SpaceSheet() {
         <p id={bodyId} className="ob-space-p">
           {t("spaceBody")}
         </p>
-        <fieldset className="ob-space-locks" data-testid="space-where">
-          <legend className="ob-menu-label">{t("syncWhere")}</legend>
-          {(["here", "sync"] as const).map((option) => (
-            <label key={option} className="ob-check" htmlFor={`space-where-${option}`}>
-              <input
-                id={`space-where-${option}`}
-                type="radio"
-                name="space-where"
-                data-testid={`space-where-${option}`}
-                checked={where === option}
-                onChange={() => setWhere(option)}
-              />
-              <span>
-                {t(option === "here" ? "syncHereOnly" : "syncEverywhere")}
-                <span className="ob-check-hint" style={{ display: "block", marginTop: 2 }}>
-                  {t(option === "here" ? "syncHereOnlyBody" : "syncEverywhereBody")}
+        {/* Where it's kept, while Ulune's server keeps accounts; otherwise here, and no choice to make (the 2.0 fixes, item 4). */}
+        {service === false ? null : (
+          <fieldset className="ob-space-locks" data-testid="space-where">
+            <legend className="ob-menu-label">{t("syncWhere")}</legend>
+            {(["here", "sync"] as const).map((option) => (
+              <label key={option} className="ob-check" htmlFor={`space-where-${option}`}>
+                <input
+                  id={`space-where-${option}`}
+                  type="radio"
+                  name="space-where"
+                  data-testid={`space-where-${option}`}
+                  checked={where === option}
+                  onChange={() => setWhere(option)}
+                />
+                <span>
+                  {t(option === "here" ? "syncHereOnly" : "syncEverywhere")}
+                  <span className="ob-check-hint" style={{ display: "block", marginTop: 2 }}>
+                    {t(option === "here" ? "syncHereOnlyBody" : "syncEverywhereBody")}
+                  </span>
                 </span>
-              </span>
-            </label>
-          ))}
-        </fieldset>
+              </label>
+            ))}
+          </fieldset>
+        )}
         {errorLine}
         <div className="ob-space-actions">
           {canMake ? (
@@ -1686,6 +1726,30 @@ export function SpaceSheet() {
         </div>
       </form>
     );
+  } else if (step.kind === "join" && service === false) {
+    // No accounts on Ulune's server yet (the 2.0 fixes, item 4): said plainly; a file from the other device still brings its space.
+    title = "syncJoinTitle";
+    const here = status === "open";
+    body = (
+      <>
+        <p id={bodyId} className="ob-space-p" data-testid="sync-not-yet">
+          {t("syncNotYet")} {here ? null : t("syncNotYetFile")}
+        </p>
+        {here ? null : filePicker("restore")}
+        {errorLine}
+        <div className="ob-space-actions">
+          {here ? null : (
+            <button type="button" className="ob-btn ob-btn--primary" data-testid="space-backup-choose" data-autofocus onClick={() => fileRef.current?.click()}>
+              {t("syncJoinFile")}
+            </button>
+          )}
+          {here ? null : sharedBox}
+          <button type="button" className="ob-space-link" data-testid="join-back" data-autofocus={here ? true : undefined} onClick={sheet === "create" ? () => go({ kind: "choose" }) : leave}>
+            {t(sheet === "create" ? "spaceBack" : "spaceCancel")}
+          </button>
+        </div>
+      </>
+    );
   } else if (step.kind === "join") {
     title = "syncJoinTitle";
     const possible = passkeysPossible();
@@ -1829,6 +1893,21 @@ export function SpaceSheet() {
             onCancel={() => (sheet === "create" || sheet === "join" ? go({ kind: "join" }) : closeSpaceSheet())}
           />
         </Suspense>
+      </>
+    );
+  } else if (step.kind === "sync-intro" && service === false) {
+    // Asked from Settings before it knew: no accounts on Ulune's server yet (the 2.0 fixes, item 4).
+    title = "syncOnTitle";
+    body = (
+      <>
+        <p id={bodyId} className="ob-space-p" data-testid="sync-not-yet">
+          {t("syncNotYet")} {t("syncNotYetHint")}
+        </p>
+        <div className="ob-space-actions">
+          <button type="button" className="ob-space-link" data-autofocus onClick={leave}>
+            {t("spaceCancel")}
+          </button>
+        </div>
       </>
     );
   } else if (step.kind === "sync-intro") {

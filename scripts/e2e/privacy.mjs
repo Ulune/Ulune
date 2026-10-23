@@ -786,9 +786,14 @@ async function chineseLeg({ width, lang, compass = null, space = false }) {
   }
 
   sent.stop?.();
-  for (const s of sent) failures.push(`${label}: sent ${s}`);
+  // Making the private space asks Ulune's server once whether it keeps accounts, with an empty body (the 2.0 fixes,
+  // item 4: lib/account/client/available.ts): that question, once, and nothing else may leave.
+  const probe = (path) => space && path === "/api/account/v1/passkey/begin";
+  const probes = asked.filter((r) => probe(new URL(r.url).pathname)).length;
+  if (probes > 1) failures.push(`${label}: the account asked ${probes} times`);
+  for (const s of sent) if (!(s.startsWith("POST ") && probe(s.slice(5)))) failures.push(`${label}: sent ${s}`);
   for (const r of asked) {
-    if (r.body) failures.push(`${label}: a request with a body: ${r.url.slice(0, 100)}`);
+    if (r.body && !(probe(new URL(r.url).pathname) && r.body === "{}")) failures.push(`${label}: a request with a body: ${r.url.slice(0, 100)}`);
     for (const w of found(bareAddress(r.url), ADDRESS_WORDS)) failures.push(`${label}: a request's address carries "${w}": ${r.url.slice(0, 120)}`);
     counted += 1;
   }

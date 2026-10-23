@@ -406,7 +406,7 @@ export function ReadingCard({
 
       {hasTerms(reading.id) ? (
         <Suspense fallback={null}>
-          <ReadingTerms readingId={reading.id} chart={chart} />
+          <ReadingTerms readingId={reading.id} chart={chart} terms={reading.terms} />
         </Suspense>
       ) : null}
 

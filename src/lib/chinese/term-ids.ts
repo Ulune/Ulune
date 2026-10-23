@@ -64,6 +64,13 @@ export type ChineseFamily =
   | "pairing"
   | "fengshui-concept";
 
+/**
+ * A thing of a Chinese page by its family and the engine's own id ("life-stage", "death"; "kua", 1;
+ * "na-yin", 0): what a reading names of its own chart for "In the encyclopedia" (ElementReading.terms,
+ * the 2.0 fixes, item 2), turned into an entry's id only where the registry is loaded (term-refs.ts).
+ */
+export type ChineseTermRef = { family: ChineseFamily; id: string | number };
+
 export type FamilyInfo = {
   tradition: ChineseTradition;
   /** The family's own entry (what a Heavenly Stem is), or null for a family of ideas. */

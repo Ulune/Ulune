@@ -3,7 +3,7 @@ import { importWithRetry } from "@/lib/lazy-retry";
 import { openVault } from "@/lib/space/state";
 import { setStaleReloadCheck } from "@/lib/stale-chunks";
 import { searchPlaces } from "@/lib/chart/functions";
-import { loadPack, packNow } from "@/lib/content/packs";
+import { packNow } from "@/lib/content/packs";
 import {
   blankBirth,
   chartDisplayName,
@@ -16,11 +16,7 @@ import {
 import { normalizeBirth, parseCoords, resolveTimeUnknown } from "@/lib/chart/parse-birth";
 import { chartMoved, needsSwissUpgrade } from "@/lib/chart/visibility";
 import type { BirthInput, GrokReading, LocalDossier, NatalChart } from "@/lib/chart/types";
-import { aiAccountNow } from "@/lib/ai/use-ai-account";
-import { providerName } from "@/lib/ai/providers";
-import { aiFailureText } from "@/lib/ai/failure-text";
-import { personalWords, type Hidden } from "@/lib/ai/scrub";
-import { translate, type AppLocale } from "@/lib/i18n/messages";
+import type { AppLocale } from "@/lib/i18n/messages";
 import { errorForState } from "@/lib/i18n/errors";
 import { saveDockOpen } from "@/studio/dock/dock-layout";
 import type { CompareRecord } from "@/lib/space/records";
@@ -122,25 +118,6 @@ async function resolvePlace(
   const hit = hits[0];
   if (!hit) throw new Error(`E:place.notfound|${label.replace(/\s+/g, " ").slice(0, 100)}`);
   return { latitude: hit.latitude, longitude: hit.longitude, placeLabel: hit.label, zone: hit.timezone || undefined };
-}
-
-/**
- * The names and birthplaces an AI must not see: the chart in view first
- * ("Person A"), then the synastry and composite partners, then every other
- * saved chart (lib/ai/scrub.ts).
- */
-export function aiHiddenWords(lang: AppLocale): Hidden[] {
-  const s = useStudioStore.getState();
-  const byId = (id: string | null) => (id ? s.rows.find((r) => r.id === id)?.chart : undefined);
-  const charts = [s.chart, byId(s.pair.partnerId), byId(s.pair.compositePartnerId)];
-  const seen = new Set(charts);
-  for (const row of s.rows) if (!seen.has(row.chart)) charts.push(row.chart);
-  // Numerology's names (part 64) stand for their person too.
-  const names = charts.map((chart) => {
-    const input = chart && chart === s.chart ? s.input : s.rows.find((r) => r.chart === chart)?.input;
-    return input ? [input.birthName, input.currentName] : undefined;
-  });
-  return personalWords(charts, lang, names);
 }
 
 type LibrarySlice = {
@@ -439,47 +416,13 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   },
 
   compose: async (lang = locale, opts) => {
-    const chart = get().chart;
-    if (!chart) return;
-    const account = aiAccountNow();
-    const t = (key: Parameters<typeof translate>[1], vars?: Record<string, string | number>) =>
-      translate(lang, key, vars);
-    if (!account) {
-      if (!opts?.quiet) set({ composeError: t("aiNeedKey") });
-      return;
-    }
-    const gen = ++composeGen;
-    const targetId = get().activeId;
-    set({ composing: true, composeError: null });
-    try {
-      const [{ composeNatalReading }, astro] = await Promise.all([
-        importWithRetry(() => import("@/lib/ai/run")),
-        loadPack("astro", lang),
-      ]);
-      const outcome = await composeNatalReading({
-        chart,
-        locale: lang,
-        account,
-        dump: astro.dumpChartForPrompt,
-        hidden: aiHiddenWords(lang),
-      });
-      if (gen !== composeGen) return;
-      if (outcome.ok) {
-        set({ grok: outcome.value });
-        if (targetId && targetId === get().activeId) {
-          const next = get().rows.map((row) => (row.id === targetId ? { ...row, grok: outcome.value } : row));
-          set({ rows: next });
-          saveLocalLibrary(next, targetId);
-        }
-      } else {
-        set({ composeError: aiFailureText(outcome.kind, t, providerName(account.provider), "couldNotCompose") });
-      }
-    } catch {
-      if (gen !== composeGen) return;
-      set({ composeError: t("couldNotCompose") });
-    } finally {
-      if (gen === composeGen) set({ composing: false });
-    }
+    if (!get().chart) return;
+    // AI readings' own code (ai-compose.ts), fetched when one is composed: none of it in the first download (the 2.0 fixes, item 3).
+    const { composeNatal } = await importWithRetry(() => import("@/studio/ai-compose"));
+    await composeNatal(lang, Boolean(opts?.quiet), () => {
+      const gen = ++composeGen;
+      return () => gen === composeGen;
+    });
   },
 
   startNew: (opts) => {

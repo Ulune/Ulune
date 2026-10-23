@@ -1,7 +1,5 @@
-import { ComposeToolbar, FullReading, ReadingPanel } from "@/components/reading-panel";
+import { ReadingPanel } from "@/components/reading-panel";
 import type { AskMode } from "@/components/ask-grok";
-import { AiReadingFocus } from "@/components/ai-reading-focus";
-import { ModeCompose, isComposeMode } from "@/studio/dock/ModeCompose";
 import { natalRootReading } from "@/lib/chart/dossier";
 import { AI_ENABLED } from "@/lib/features";
 import { LoadingLines } from "@/components/loading-lines";
@@ -16,8 +14,14 @@ import { languageById, languageOf } from "@/studio/map";
 import { useWheelView } from "@/studio/modes/wheel-view";
 import { useStudioUrl } from "@/studio/use-studio-url";
 import { useStudioStore } from "@/studio/store";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { keptOr, useKeep, useKeptScroll } from "@/studio/return-parts";
+import { lazyNamed } from "@/lib/lazy-component";
+
+// While AI readings are on (lib/features.ts): the reading the AI is told about, the composed portrait and each
+// mode's composer, their own downloads; off, none of it is in a page's first download (the 2.0 fixes, item 3).
+const AiReadingFocus = lazyNamed(() => import("@/components/ai-reading-focus"), "AiReadingFocus");
+const AiCompose = lazyNamed(() => import("./ReadingTabAi"), "AiCompose");
 
 export function ReadingTab() {
   const { locale, t } = useI18n();
@@ -135,22 +139,18 @@ export function ReadingTab() {
       ) : (
         <>
           {/* What Your AI reads about, while AI readings are on (lib/features.ts): off, none of it is downloaded. */}
-          {AI_ENABLED ? <AiReadingFocus chart={chart} reading={natalRoot} /> : null}
+          {AI_ENABLED ? (
+            <Suspense fallback={null}>
+              <AiReadingFocus chart={chart} reading={natalRoot} />
+            </Suspense>
+          ) : null}
           <div data-testid="click-reading-empty">
             {def ? <def.HelloEmpty /> : <LoadingLines lines={3} />}
           </div>
-          {!AI_ENABLED ? null : page === "natal" ? (
-            <section className="ob-portrait" data-testid="natal-portrait" style={{ order: grok ? -1 : 0 }}>
-              <FullReading grok={grok} pending={composing} error={composing ? null : composeError} />
-              <ComposeToolbar
-                grok={grok}
-                pending={composing}
-                error={composing ? null : composeError}
-                onCompose={() => void compose(locale)}
-              />
-            </section>
-          ) : isComposeMode(page) && chart ? (
-            <ModeCompose mode={page} chart={chart} />
+          {AI_ENABLED ? (
+            <Suspense fallback={null}>
+              <AiCompose page={page} chart={chart} grok={grok} composing={composing} composeError={composeError} onCompose={() => void compose(locale)} />
+            </Suspense>
           ) : null}
         </>
       )}

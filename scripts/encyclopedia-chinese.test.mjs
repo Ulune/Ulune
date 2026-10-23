@@ -24,7 +24,10 @@ import { FAMILIES, ID_RE, TRADITIONS } from "./encyclopedia/registry.mjs";
 import { prepare, search } from "../src/encyclopedia/search.ts";
 import { compileLexicon, linkText } from "../src/encyclopedia/linker.ts";
 import { CHINESE_FAMILIES, CHINESE_FAMILY_IDS, LIVE_FAMILIES, chineseTermIds, linkableId, traditionOfTerm } from "../src/lib/chinese/term-ids.ts";
-import { chineseSubjectOf } from "../src/lib/chinese/term-refs.ts";
+import { chineseReadingTerms, chineseRefTerms, chineseSubjectOf } from "../src/lib/chinese/term-refs.ts";
+import { baziChart } from "../src/lib/chinese/bazi.ts";
+import { STAGES } from "../src/lib/chinese/bazi-signs.ts";
+import { baziReading, stageRef } from "../src/lib/chinese/bazi-reading.ts";
 import { LIVE_HOMES } from "../src/lib/chinese/term-live.ts";
 import { PHASES, POLARITY_NAMES } from "../src/lib/chinese/names.ts";
 import { LANGUAGES, languageHomePath } from "../src/studio/map.ts";
@@ -440,6 +443,38 @@ test("the lexicons: the shared ideas everywhere, the shared Chinese foundations 
     assert.deepEqual(link("en", "The year turns at Lichun; the solar terms count the months."), ["solar-term-lichun", "solar-term"], t);
     assert.deepEqual(link("en", "From the Start of Spring to Major Cold, but not the start of spring."), ["solar-term-lichun", "solar-term-dahan"], t);
     assert.deepEqual(link("fr", "Par grand froid, au début du printemps, avant le Grand froid et Lichun ; les termes solaires."), ["solar-term-dahan", "solar-term-lichun", "solar-term"], t);
+  }
+});
+
+test("a BaZi stage reading links its stage by name, in French as in English, and offers it first (the 2.0 fixes, items 1 and 2)", () => {
+  const { lexicon } = real.data;
+  const CAMILLE = { utc: "1990-06-15T10:00:00Z", date: "1990-06-15", time: "12:00", longitude: 2.3522 };
+  const full = { script: "hant", show: "full" };
+  const c = baziChart(CAMILLE);
+  for (const [lang, form, own, family] of [
+    ["en", "Retreat stage", "Retreat stage", "Twelve life stages"],
+    ["fr", "stade Retrait", "Stade Retrait", "Douze stades de vie"],
+  ]) {
+    const r = baziReading(c, stageRef("month"), lang, full);
+    const why = r.sections.find((x) => x.id === "why").paragraphs[0];
+    assert.doesNotMatch(why, /[«»“”]/, why);
+    // As the reading card links it: the reading's own words, all but what its id is about (LinkedText.tsx).
+    const pieces = linkText(why, compileLexicon(lexicon[lang].bazi), new Set(chineseRefTerms(r.id)));
+    assert.equal(pieces.map((p) => p.text).join(""), why);
+    assert.equal(pieces.find((p) => p.id === "life-stage-sickness")?.text, form, `${lang}: ${why}`);
+    // "In the encyclopedia": the reader's own stage, then the family.
+    const titles = chineseReadingTerms(r.id, r.terms).map((id) => real.data.cards[`${lang}/bazi`][id][0]);
+    assert.deepEqual(titles, [own, family], lang);
+  }
+  // Every stage's name, as the reading writes it in each language, links its own page.
+  for (const st of STAGES) {
+    for (const [lang, text] of [
+      ["en", `in Rat · zǐ 子 it is at its ${st.en} stage.`],
+      ["fr", `en Rat · zǐ 子, il est au stade ${st.fr}.`],
+    ]) {
+      const ids = linkText(text, compileLexicon(lexicon[lang].bazi), new Set(["life-stage"])).filter((p) => p.id).map((p) => p.id);
+      assert.ok(ids.includes(`life-stage-${st.id}`), `${lang} ${st.id}: ${ids.join(" ")}`);
+    }
   }
 });
 

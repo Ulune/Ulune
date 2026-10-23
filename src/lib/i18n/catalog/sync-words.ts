@@ -85,6 +85,16 @@ export const syncWords = {
     "Le serveur d’Ulune est injoignable. Vérifiez votre connexion et réessayez.",
   ],
   syncSlowDown: ["Too many tries. Wait a few minutes and try again.", "Trop d’essais. Attendez quelques minutes et réessayez."],
+  // While Ulune's server keeps no accounts yet (the 2.0 fixes, item 4): said plainly where sync would be offered, once.
+  syncNotYet: ["Syncing with your other devices isn’t available yet.", "La synchronisation avec vos autres appareils n’est pas encore disponible."],
+  syncNotYetFile: [
+    "A sealed file from your other device still brings its space here.",
+    "Un fichier scellé de votre autre appareil apporte quand même son espace ici.",
+  ],
+  syncNotYetHint: [
+    "Your space stays on this device; to open it on another, send that device a sealed copy.",
+    "Votre espace reste sur cet appareil\u202f; pour l’ouvrir sur un autre, envoyez à cet appareil une copie scellée.",
+  ],
   syncUnlockFirst: [
     "Unlock this device’s private space first: its charts then join the synced one.",
     "Déverrouillez d’abord l’espace privé de cet appareil\u202f: ses thèmes rejoignent ensuite l’espace synchronisé.",

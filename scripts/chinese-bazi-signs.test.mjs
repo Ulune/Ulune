@@ -137,7 +137,8 @@ test("what the stages, Na Yin, empty branches and stars say, and why", () => {
   assert.deepEqual(stage.facts.at(-1), { label: "Classical name", value: "Death · sǐ 死" });
   const fr = baziReading(c, stageRef("month"), "fr", full);
   assert.equal(fr.title, "Retrait");
-  assert.equal(fr.sections[0].paragraphs[0], "Votre Maître du jour xīn 辛 naît en Rat · zǐ 子 et, étant yin, recule dans l’ordre des branches\u202f: en Cheval · wǔ 午, il est au stade «\u202fRetrait\u202f».");
+  // The stage by its name, unquoted, as English says it, so it links to its page (the 2.0 fixes, item 1).
+  assert.equal(fr.sections[0].paragraphs[0], "Votre Maître du jour xīn 辛 naît en Rat · zǐ 子 et, étant yin, recule dans l’ordre des branches\u202f: en Cheval · wǔ 午, il est au stade Retrait.");
   assert.equal(fr.sections[1].paragraphs[0], "Les classiques appellent ce stade bìng 病, «\u202fMaladie\u202f», d’après une vie humaine\u202f; ce nom dit la force de la phase ici, jamais un événement, et rien de la santé.");
   // Names only: the classical name alone, in quotes.
   const named = baziReading(c, stageRef("hour"), "en", { script: "hant", show: "names" });

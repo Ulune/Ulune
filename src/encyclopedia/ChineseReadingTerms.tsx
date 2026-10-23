@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
-import { chineseSubjectOf } from "@/lib/chinese/term-refs";
+import type { ChineseTermRef } from "@/lib/chinese/term-ids";
+import { chineseReadingTerms } from "@/lib/chinese/term-refs";
 import { useI18n } from "@/lib/i18n/locale";
 import { loadCards, loadIndex, termRow } from "./data";
 import { Term } from "./Term";
@@ -9,11 +10,14 @@ import { tr } from "./words";
 /*
  * Under a Chinese reading in the side panel, the entries of what it is about
  * (languages plan, part 29: "every term ready to link"): a Ten God, an
- * animal and its branch, a mountain, a star, the Day Master… from the
- * reading's id (lib/chinese/term-refs.ts), each by its title in the
- * encyclopedia. Only entries whose family is written, and only those with a
- * page: nothing at all until then. Its own download, with the registry of
- * Chinese terms, fetched by ReadingTerms for a Chinese reading.
+ * animal and its branch, a mountain, a star, the Day Master… each by its
+ * title in the encyclopedia. The chart's own entries come first, as the
+ * reading names them where it is built ("Kua 1", the Rest stage, Metal in the sea,
+ * Period 9: the 2.0 fixes, item 2), then those of the reading's id, its
+ * family's own entry or the idea of its place (lib/chinese/term-refs.ts).
+ * Only entries whose family is written, and only those with a page: nothing
+ * at all until then. Its own download, with the registry of Chinese terms,
+ * fetched by ReadingTerms for a Chinese reading.
  */
 
 type Entry = { id: string; title: string; slug: string };
@@ -32,22 +36,23 @@ async function entriesOf(ids: readonly string[], lang: Lang): Promise<Entry[]> {
   return out;
 }
 
-export function ChineseReadingTerms({ readingId }: { readingId: string }) {
+export function ChineseReadingTerms({ readingId, terms }: { readingId: string; terms?: readonly ChineseTermRef[] }) {
   const { locale } = useI18n();
   const lang: Lang = locale === "fr" ? "fr" : "en";
-  const key = `${lang} ${readingId}`;
+  // The entries in their order, as one string: a reading built again with the same entries asks for nothing more.
+  const ids = chineseReadingTerms(readingId, terms).join(" ");
+  const key = `${lang} ${ids}`;
   const [shown, setShown] = useState<{ key: string; items: Entry[] } | null>(null);
   useEffect(() => {
-    const ids = [...chineseSubjectOf(readingId)];
-    if (!ids.length) return;
+    if (!ids) return;
     let live = true;
-    entriesOf(ids, lang)
-      .then((items) => live && setShown({ key: `${lang} ${readingId}`, items }))
+    entriesOf(ids.split(" "), lang)
+      .then((items) => live && setShown({ key: `${lang} ${ids}`, items }))
       .catch(() => {});
     return () => {
       live = false;
     };
-  }, [readingId, lang]);
+  }, [ids, lang]);
   const items = shown?.key === key ? shown.items : [];
   if (!items.length) return null;
   return (

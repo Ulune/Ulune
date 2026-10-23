@@ -14,7 +14,7 @@
  *   zkp:now:month    the solar month we are in, for both
  */
 import type { ElementReading, ReadingFact } from "@/lib/chart/types";
-import { BRANCHES, SIXTY } from "./names";
+import { ANIMALS, BRANCHES, SIXTY } from "./names";
 import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { animalOf, cnWord, theAnimal } from "./words";
 import { PLACE_WORD } from "./zodiac-places";
@@ -201,6 +201,10 @@ export function zodiacPairNowReading(
       paragraphs: lines,
       facts,
       mark: mp.hanzi ?? undefined,
+      terms: [
+        { family: "animal", id: ANIMALS[m.pillar.branch]!.id },
+        { family: "pillar", id: SIXTY[m.pillar.cycle]!.id },
+      ],
       about: about(locale),
     };
   }
@@ -233,6 +237,10 @@ export function zodiacPairNowReading(
       ],
     },
     mark: pillar.hanzi ?? undefined,
+    terms: [
+      { family: "animal", id: ANIMALS[now.ahead.a.pillar.branch]!.id },
+      { family: "pillar", id: SIXTY[now.ahead.a.pillar.cycle]!.id },
+    ],
     about: about(locale),
   };
 }

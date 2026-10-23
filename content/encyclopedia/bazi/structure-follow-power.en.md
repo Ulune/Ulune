@@ -52,6 +52,8 @@ The Ming books, the San Ming Tong Hui among them, already describe a self so sli
 
 Ulune counts the five phases, each visible stem one point and each hidden stem by its weight, the month’s twice. When the Day Master’s own phase and the phase producing it hold 20% of the total or less, when no branch, the day’s included, holds a stem of the Day Master’s phase, and when no stem of the year, month or hour is of its phase or the one producing it, the chart is read as following; it compares the points of output, wealth and power, and the strongest names the structure, output first when two are level. When power leads, Officer and Killings together, Ulune flags Following Power.
 
+Its favourable phases follow the strength rule Ulune applies to every following chart: a Day Master too slight to stand is helped by what the chart is full of, so output, wealth and power all count as help, the one the chart holds least first, and its own phase and its resource are the least helpful. Some classics read Follow Power differently: they keep output away, since output controls the power the self follows, and keep Wealth, which feeds it. Ulune keeps the one rule for every following chart, and its reading says so.
+
 ## Correspondences
 
 | Correspondence | Follow Power |

@@ -194,6 +194,7 @@ function facingReading(c: HomeContext, home: Home, locale: string, prefs: Shown)
     ],
     links: c.people.length ? { title: cnWord(locale, "fshHouseHead"), rows: c.people.map((fs) => ({ ref: fshHouseRef(fs.count), label: cnWord(locale, "fsKuaN", { n: fs.kua }), detail: c.people.length > 1 ? countLabel(fs.count, locale) : undefined })) } : undefined,
     mark: (prefs.show === "full" ? home.facingMountain[prefs.script] : null) ?? mountainCode(home.facingMountain, locale),
+    terms: [{ family: "mountain", id: home.facingMountain.id }, { family: "mountain", id: home.sittingMountain.id }, { family: "trigram", id: home.house.id }],
     about: about(locale),
   };
 }
@@ -218,6 +219,7 @@ function houseReading(c: HomeContext, home: Home, fs: FengShui, locale: string, 
     mark: (prefs.show === "full" ? home.house[prefs.script] : null) ?? home.house.symbol,
     // Without the characters, the trigram drawn rather than a font's ☰…☷ (review fix FS7).
     markSvg: prefs.show === "full" ? undefined : trigramSvgInner(home.house.lines),
+    terms: [{ family: "trigram", id: home.house.id }, { family: "kua", id: fs.kua }, { family: "mansion", id: m.facing }, { family: "mansion", id: m.sitting }],
     about: about(locale),
   };
 }
@@ -270,6 +272,7 @@ function periodReading(c: HomeContext, locale: string): ElementReading {
     facts: c.period ? [{ label: cnWord(locale, "fshYear"), value: String(c.period.year) }, { label: cnWord(locale, "fshPeriodHead"), value: cnWord(locale, "fshPeriodRange", { n: c.period.period, from: c.period.from, to: c.period.to }) }] : undefined,
     sections: [{ id: "period", title: cnWord(locale, "fshPeriodHead"), paragraphs: lines }],
     mark: "元運",
+    terms: c.period ? [{ family: "period", id: c.period.period }] : undefined,
     about: about(locale),
   };
 }

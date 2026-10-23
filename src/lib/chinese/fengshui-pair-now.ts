@@ -180,6 +180,10 @@ export function fsPairNowReading(now: FsPairNow, names: FsNowNames, ref: string 
       sections: [{ id: "month", title: cnWord(locale, "fsyMonthStar"), paragraphs: [month, five] }],
       links: { title: head, rows: fsNowRows(now).map((r) => ({ ref: fspNowRef(r.direction), label: directionName(r.direction, locale), detail: r.who ? names[r.who] : undefined })) },
       mark: String(now.y.year),
+      terms: [
+        { family: "flying-star", id: now.y.year },
+        { family: "flying-star", id: now.y.month },
+      ],
       about: about(locale),
     };
   }
@@ -217,6 +221,11 @@ export function fsPairNowReading(now: FsPairNow, names: FsNowNames, ref: string 
     ],
     links: { title: head, rows: [{ ref: FSP_NOW, label: fsNowWhen(now, locale) }] },
     mark: String(x.year),
+    terms: [
+      { family: "mansion", id: pa.mansion },
+      { family: "mansion", id: pb.mansion },
+      { family: "flying-star", id: x.year },
+    ],
     about: about(locale),
   };
 }

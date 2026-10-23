@@ -9,6 +9,7 @@ import { importWithRetry } from "@/lib/lazy-retry";
 import { encodeQr, qrPath } from "@/lib/share/qr";
 import type { WayIn } from "@/lib/space/vault";
 import type { Joined, LinkSide } from "@/lib/account/client/setup";
+import { accountAvailable } from "@/lib/account/client/available";
 
 /*
  * A device added by QR code (share and compare plan, feature 4; docs/sync-protocol.md, section 8),
@@ -21,6 +22,8 @@ import type { Joined, LinkSide } from "@/lib/account/client/setup";
  *
  * The camera, where offered, is used only after the reader taps Scan, only while scanning, and its
  * pictures never leave this page: the browser's own QR reader (BarcodeDetector) reads them here.
+ * While Ulune's server keeps no accounts yet, a link fails with "not available yet", plainly (the
+ * 2.0 fixes, item 4).
  */
 
 const loadAccount = () => importWithRetry(() => import("@/lib/account/client/setup"));
@@ -141,6 +144,8 @@ export function LinkPanel({
   const [phase, setPhase] = useState<Phase>("opening");
   const [side, setSide] = useState<LinkSide | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  // No accounts on Ulune's server yet: a fact, said calmly, not an error.
+  const [notYet, setNotYet] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [paste, setPaste] = useState("");
   const [copied, setCopied] = useState(false);
@@ -153,6 +158,15 @@ export function LinkPanel({
 
   const fail = useCallback(
     (err: unknown) => {
+      // The server said "unavailable": no accounts there yet (asked once a visit), or a passing trouble.
+      if ((err as { code?: string } | null)?.code === "unavailable") {
+        void accountAvailable().then((ok) => {
+          setNotYet(!ok);
+          setProblem(t(ok ? "syncOffline" : "syncNotYet"));
+          setPhase("failed");
+        });
+        return;
+      }
       setProblem(trouble(err, t));
       setPhase("failed");
     },
@@ -321,7 +335,7 @@ export function LinkPanel({
   if (phase === "failed") {
     return (
       <div ref={setPanel} className="ob-sync-link" data-testid="sync-link" data-phase="failed">
-        <p className="ob-space-err" role="alert" data-testid="sync-link-problem">
+        <p className={notYet ? "ob-space-p" : "ob-space-err"} role={notYet ? "status" : "alert"} data-testid="sync-link-problem">
           {problem}
         </p>
         <div className="ob-space-actions">

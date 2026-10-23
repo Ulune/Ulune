@@ -8,7 +8,7 @@
  * titled with where it comes from: the tradition, or a modern portrait.
  */
 import type { ElementReading, ReadingFact } from "@/lib/chart/types";
-import { BRANCHES, PHASES, POLARITY_NAMES, SIXTY, SOLAR_TERMS, STEMS } from "./names";
+import { ANIMALS, BRANCHES, PHASES, POLARITY_NAMES, SIXTY, SOLAR_TERMS, STEMS } from "./names";
 import { ANIMAL_GLYPH_INNER } from "./animal-glyphs";
 import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { LICHUN, termMs } from "./terms";
@@ -131,6 +131,7 @@ function placeReading(z: ZodiacChart, place: ZodiacPlace, locale: string, prefs:
     sections,
     mark: pair.hanzi ?? undefined,
     markSvg: drawn(place.branch, prefs),
+    terms: [{ family: "animal", id: ANIMALS[place.branch]!.id }, { family: "pillar", id: SIXTY[place.pillar.cycle]!.id }, { family: "na-yin", id: place.naYin.index }],
     about: about(locale),
   };
 }

@@ -246,6 +246,7 @@ function summaryReading(c: FsPairContext, locale: string): ElementReading {
       }),
     },
     mark: "八宅",
+    terms: [{ family: "kua", id: p.a.kua }, { family: "kua", id: p.b.kua }],
     about: about(locale),
   };
 }
@@ -289,6 +290,7 @@ function dirReading(c: FsPairContext, d: DirectionId, locale: string, prefs: Sho
     ],
     sections: [{ id: "two", title: cnWord(locale, "fspForTwo"), paragraphs: two }, ...own],
     mark: (prefs.show === "full" ? dir[prefs.script] : null) ?? dir.short[locale === "fr" ? "fr" : "en"],
+    terms: [{ family: "mansion", id: x.a.mansion }, { family: "mansion", id: x.b.mansion }, { family: "trigram", id: tri.id }],
     about: about(locale),
   };
 }
@@ -329,6 +331,7 @@ function practiceReading(c: FsPairContext, locale: string): ElementReading {
     ],
     sections: [...lines.map((l) => ({ id: l.id, title: practiceHead(l.id, locale), paragraphs: [l.text] })), { id: "note", title: cnWord(locale, "fsNoteHead"), paragraphs: [note] }],
     mark: "八宅",
+    terms: [{ family: "kua", id: p.a.kua }, { family: "kua", id: p.b.kua }],
     about: about(locale),
   };
 }

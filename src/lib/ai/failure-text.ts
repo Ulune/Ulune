@@ -1,7 +1,9 @@
 import type { MessageKey } from "@/lib/i18n/messages";
+import type { AiWord } from "@/lib/i18n/catalog/ai-words";
 import type { AiFailureKind } from "./call";
 
-type T = (key: MessageKey, vars?: Record<string, string | number>) => string;
+/** A `t` that knows the AI words' book (bookT with catalog/ai-words.ts) as well as the app's catalog. */
+type T = (key: MessageKey | AiWord, vars?: Record<string, string | number>) => string;
 
 /** What to tell the reader when their AI did not answer. */
 export function aiFailureText(

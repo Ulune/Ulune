@@ -6,7 +6,7 @@
  * against the Day Master's, and their polarities), so the board can be
  * checked rather than believed.
  */
-import type { ElementReading, ReadingFact } from "@/lib/chart/types";
+import type { ElementReading, ReadingFact, ReadingSection } from "@/lib/chart/types";
 import { BRANCHES, PHASES, POLARITY_NAMES, SIXTY, STEMS, type PhaseId } from "./names";
 import { chineseLabel, type ChinesePrefs } from "./prefs";
 import { cnWord, type ChineseWordKey } from "./words";
@@ -116,6 +116,7 @@ function stemReading(c: BaziChart, p: BaziPillar, locale: string, prefs: Shown):
     facts,
     sections,
     mark: label.hanzi ?? undefined,
+    terms: [{ family: "stem", id: s.id }, ...(god ? [{ family: "ten-god" as const, id: god.id }] : [])],
     about: about(locale),
   };
 }
@@ -152,6 +153,7 @@ function branchReading(c: BaziChart, p: BaziPillar, locale: string, prefs: Shown
     paragraphs: [lead],
     facts,
     mark: label.hanzi ?? undefined,
+    terms: [{ family: "branch", id: b.id }],
     about: about(locale),
   };
 }
@@ -182,6 +184,7 @@ function hiddenReading(c: BaziChart, p: BaziPillar, i: number, locale: string, p
       { id: "hidden", title: cnWord(locale, "zkHidden"), paragraphs: [cnWord(locale, "bzHiddenNote")] },
     ],
     mark: s.hanzi ?? undefined,
+    terms: [{ family: "stem", id: STEMS[h.stem]!.id }, { family: "ten-god", id: god.id }],
     about: about(locale),
   };
 }
@@ -277,6 +280,7 @@ function stageReading(c: BaziChart, signs: BaziSigns, p: BaziPillar, locale: str
     ],
     sections,
     mark: st.hanzi ?? undefined,
+    terms: [{ family: "life-stage", id: ps.stage.id }],
     about: about(locale, true),
   };
 }
@@ -302,6 +306,7 @@ function naYinReading(c: BaziChart, signs: BaziSigns, p: BaziPillar, locale: str
       { label: cnWord(locale, "bzToDm"), value: said(FAMILY_NAMES[family], locale), ref: stemRef("day") },
     ],
     mark: label.hanzi ?? undefined,
+    terms: [{ family: "na-yin", id: ny.index }],
     about: about(locale, true),
   };
 }
@@ -338,6 +343,7 @@ function emptyReading(c: BaziChart, signs: BaziSigns, locale: string, prefs: Sho
     ],
     sections: [{ id: "why", title: cnWord(locale, "bzEmptyWhyTitle"), paragraphs: [why] }],
     mark: "空",
+    terms: [a, b].map((x) => ({ family: "branch" as const, id: BRANCHES[((x % 12) + 12) % 12]!.id })),
     about: about(locale, true),
   };
 }
@@ -596,6 +602,13 @@ function strengthReading(c: BaziChart, b: BaziBalance, locale: string, prefs: Sh
   };
 }
 
+/**
+ * How Ulune reads Follow Power (the 2.0 fixes, item 5): by the strength rule it applies to every following
+ * chart, output, wealth and power all helping, where some classics keep output away; the engine is left as
+ * it is until the owner decides, and the structure's and the favourable phases' readings say so plainly.
+ */
+const followPowerRule = (locale: string): ReadingSection => ({ id: "rule", title: cnWord(locale, "bzFollowPowerHead"), paragraphs: [cnWord(locale, "bzFollowPowerRule")] });
+
 /** The structure: its frame, and how it was found from the month; a "follow" structure when flagged. */
 function structureReading(c: BaziChart, b: BaziBalance, locale: string, prefs: Shown): ElementReading {
   const st = b.structure;
@@ -627,6 +640,8 @@ function structureReading(c: BaziChart, b: BaziBalance, locale: string, prefs: S
       title: `${cnWord(locale, "bzSpecialFlag")} · ${sp.name}`,
       paragraphs: [cnWord(locale, b.special === "follow-strong" ? "bzSpecialStrong" : "bzSpecialWeak", { pct: fmtShare(b.support, locale) }), said(STRUCTURE_TEXTS[b.special], locale)],
     });
+    // Follow Power by the strength rule, where some classics keep output away (the 2.0 fixes, item 5): a section of its own, so even the short reading says it.
+    if (b.special === "follow-power") sections.push(followPowerRule(locale));
   }
   return {
     id: STRUCTURE_REF,
@@ -638,6 +653,7 @@ function structureReading(c: BaziChart, b: BaziBalance, locale: string, prefs: S
     facts,
     sections,
     mark: name.hanzi ?? undefined,
+    terms: [{ family: "structure", id: st.id }, ...(b.special ? [{ family: "structure" as const, id: b.special }] : [])],
     about: about(locale, false, false, true),
   };
 }
@@ -666,13 +682,15 @@ function favourableReading(c: BaziChart, b: BaziBalance, locale: string, prefs: 
     title: cnWord(locale, "bzFavTitle"),
     kicker: [cnWord(locale, "bzFavBalance"), cnWord(locale, "bzFavClimate")].join(" · "),
     lead,
-    paragraphs: [lead, byBalance, byClimate],
+    paragraphs: [lead, byBalance, ...(b.special === "follow-power" ? [cnWord(locale, "bzFollowPowerRule")] : []), byClimate],
     facts,
     sections: [
       { id: "balance", title: cnWord(locale, "bzFavBalance"), paragraphs: [byBalance] },
+      ...(b.special === "follow-power" ? [followPowerRule(locale)] : []),
       { id: "climate", title: cnWord(locale, "bzFavClimate"), paragraphs: [byClimate] },
     ],
     mark: "用神",
+    terms: f.good.map((id) => ({ family: "phase" as const, id })),
     about: about(locale, false, false, true),
   };
 }

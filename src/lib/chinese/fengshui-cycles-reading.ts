@@ -144,6 +144,7 @@ function yearReading(ctx: CyclesContext, locale: string, prefs: Shown): ElementR
       { id: "read", title: fscWord(locale, "fscHowReadHead"), paragraphs: [said(HOW_READ, locale)] },
     ],
     mark: starOf(y.year)[prefs.script],
+    terms: [{ family: "flying-star", id: y.year }],
     about: about(locale),
   };
 }
@@ -168,6 +169,7 @@ function monthReading(ctx: CyclesContext, locale: string, prefs: Shown): Element
       { id: "how", title: cnWord(locale, "fssHowHead"), paragraphs: [cnWord(locale, "fsyHowMonth")] },
     ],
     mark: starOf(y.month)[prefs.script],
+    terms: [{ family: "flying-star", id: y.month }],
     about: about(locale),
   };
 }
@@ -277,6 +279,7 @@ function personDirReading(ctx: CyclesContext, p: PersonYear, d: DirectionId, loc
       rows: p.byMansion.map((m) => ({ ref: fscDirRef(p.fs.count, m.direction), label: mansionName(m.mansion, locale), detail: `${directionName(m.direction, locale)} · ${stateWord(m.state, locale)}` })),
     },
     mark: String(x.year),
+    terms: [{ family: "mansion", id: x.mansion }, { family: "flying-star", id: x.year }],
     about: about(locale),
   };
 }
@@ -302,6 +305,7 @@ function skyDirReading(ctx: CyclesContext, d: DirectionId, locale: string, prefs
       { id: "you", title: cnWord(locale, "fsRose"), paragraphs: [fscWord(locale, "fscInvite")] },
     ],
     mark: String(x.year),
+    terms: [{ family: "flying-star", id: x.year }],
     about: about(locale),
   };
 }
@@ -341,6 +345,7 @@ function youReading(ctx: CyclesContext, p: PersonYear, locale: string, prefs: Sh
       rows: p.byMansion.map((m) => ({ ref: fscDirRef(p.fs.count, m.direction), label: mansionName(m.mansion, locale), detail: `${directionName(m.direction, locale)} · ${stateWord(m.state, locale)}` })),
     },
     mark: "八宅",
+    terms: [{ family: "kua", id: p.fs.kua }],
     about: about(locale),
   };
 }

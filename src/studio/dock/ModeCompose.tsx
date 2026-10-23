@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { importWithRetry } from "@/lib/lazy-retry";
-import { ComposeProgress } from "@/components/reading-panel";
+import { ComposeProgress } from "@/components/reading-ai";
 import { AiStarGlyph } from "@/components/reading-ai-star";
 import { usePack } from "@/lib/content/packs";
 import type { LocalDossier, NatalChart } from "@/lib/chart/types";
@@ -8,8 +8,11 @@ import { aiAccountNow, useAiAccount } from "@/lib/ai/use-ai-account";
 import { providerName } from "@/lib/ai/providers";
 import { aiFailureText } from "@/lib/ai/failure-text";
 import { useI18n } from "@/lib/i18n/locale";
+import { bookT } from "@/lib/i18n/words-book";
+import { aiWords } from "@/lib/i18n/catalog/ai-words";
 import { useModeData } from "@/studio/modes/data";
-import { aiHiddenWords, useStudioStore } from "@/studio/store";
+import { useStudioStore } from "@/studio/store";
+import { aiHiddenWords } from "@/studio/ai-compose";
 import { whenSpaceLocks } from "@/lib/space/state";
 
 type ComposeMode = "transits" | "progressions" | "synastry" | "composite";
@@ -45,7 +48,8 @@ export function isComposeMode(page: string): page is ComposeMode {
  * dynamic or a composite portrait, written from what this mode lists.
  */
 export function ModeCompose({ mode, chart }: { mode: ComposeMode; chart: NatalChart }) {
-  const { locale, t } = useI18n();
+  const { locale, t: tc } = useI18n();
+  const t = bookT(aiWords, tc, locale);
   const ai = useAiAccount();
   const transits = useModeData("transits");
   const progressions = useModeData("progressions");

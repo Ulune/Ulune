@@ -119,7 +119,8 @@ test("every word of the books kept out of the first download is said somewhere, 
   for (const [words, files] of [
     [spaceWords, ["src/components/space/space-sheet.tsx", "src/components/space/space-settings.tsx"]],
     [dataWords, ["src/components/your-data.tsx"]],
-    [aiWords, ["src/components/ai-accounts.tsx"]],
+    // AI readings' own code (the 2.0 fixes, item 3: the rest of the app's AI words joined the book).
+    [aiWords, ["src/components/ai-accounts.tsx", "src/components/reading-ai.tsx", "src/components/ask-grok.tsx", "src/studio/dock/ModeCompose.tsx", "src/studio/ai-compose.ts", "src/lib/ai/failure-text.ts", "src/lib/ai/providers.ts"]],
     [placesWords, ["src/studio/shell/picker-places.tsx", "src/lib/chinese/fengshui-home-line.ts", "src/studio/shell/CommandPaletteDialog.tsx"]],
     [guideWords, ["src/components/first-screen/GuideAnswer.tsx"]],
     [guideBodyWords, ["src/components/first-screen/Guide.tsx"]],

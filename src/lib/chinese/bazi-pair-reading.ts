@@ -264,6 +264,7 @@ function luckPairReading(p: BaziPair, names: PairNames, locale: string, prefs: S
     facts,
     sections,
     mark: "大運",
+    terms: [...L.a, ...L.b].flatMap((d) => (d.pillar ? [{ family: "pillar" as const, id: SIXTY[d.pillar.pillar.cycle]!.id }] : [])),
     about: about(locale),
   };
 }
@@ -319,6 +320,7 @@ function dmReading(p: BaziPair, names: PairNames, locale: string, prefs: Shown):
     ],
     sections: [{ id: "bond", title: cnWord(locale, "bzpDmHead"), paragraphs: [family, ...pairs] }],
     mark: [a.hanzi, b.hanzi].filter(Boolean).join("") || undefined,
+    terms: [{ family: "stem", id: STEMS[p.dm.a]!.id }, { family: "stem", id: STEMS[p.dm.b]!.id }],
     about: about(locale),
   };
 }
@@ -344,6 +346,7 @@ function palaceReading(p: BaziPair, names: PairNames, locale: string, prefs: Sho
     ],
     sections: [{ id: "palace", title: cnWord(locale, "bzpPalaceHead"), paragraphs: [line, ...pairs] }],
     mark: "夫妻",
+    terms: [{ family: "branch" as const, id: BRANCHES[p.palace.a]!.id }, { family: "branch" as const, id: BRANCHES[p.palace.b]!.id }, ...p.palace.kinds.map((k) => ({ family: "relation" as const, id: k }))],
     about: about(locale),
   };
 }
@@ -396,6 +399,7 @@ function meetReading(p: BaziPair, b: BaziChart, from: BaziPlaceId, names: PairNa
     }),
     sections: lines.length ? [{ id: "meets", title: cnWord(locale, "bzpMeetHead"), paragraphs: lines }] : undefined,
     mark: pair.hanzi ?? undefined,
+    terms: [{ family: "pillar" as const, id: SIXTY[pillar.pillar.cycle]!.id }, ...row.meets.map((m) => ({ family: "relation" as const, id: m.kind }))],
     about: about(locale),
   };
 }

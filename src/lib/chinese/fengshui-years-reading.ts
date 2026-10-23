@@ -117,6 +117,7 @@ function yearReading(y: YearStars, locale: string, prefs: Shown, texts: YearText
       ...(sectors.length ? [{ id: "sectors", title: cnWord(locale, "fsySectorsHead"), paragraphs: sectors }] : []),
     ],
     mark: starOf(y.year)[prefs.script],
+    terms: [{ family: "flying-star", id: y.year }],
     about: about(locale),
   };
 }
@@ -142,6 +143,7 @@ function monthReading(y: YearStars, locale: string, prefs: Shown): ElementReadin
       { id: "how", title: cnWord(locale, "fssHowHead"), paragraphs: [cnWord(locale, "fsyHowMonth")] },
     ],
     mark: starOf(y.month)[prefs.script],
+    terms: [{ family: "flying-star", id: y.month }],
     about: about(locale),
   };
 }

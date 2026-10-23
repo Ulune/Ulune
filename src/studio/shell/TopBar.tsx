@@ -1,12 +1,16 @@
 import { Search } from "lucide-react";
 import { useStudioStore } from "@/studio/store";
-import { AiAccountsButton } from "@/components/ai-accounts";
+import { Suspense } from "react";
 import { AI_ENABLED } from "@/lib/features";
+import { lazyNamed } from "@/lib/lazy-component";
 import { useI18n } from "@/lib/i18n/locale";
 import { AccountMenu } from "@/studio/shell/AccountMenu";
 import { SpaceButton } from "@/components/space/space-button";
 import { ChartPicker } from "@/studio/shell/ChartPicker";
 import { UluneMark } from "@/studio/shell/ulune-mark";
+
+// The AI accounts' button while AI readings are on (lib/features.ts): its own download, none of it in the first while they are off (the 2.0 fixes, item 3).
+const AiAccountsButton = lazyNamed(() => import("@/components/ai-accounts"), "AiAccountsButton");
 
 /** Studio top bar, left half: wordmark (wide) + chart switcher. */
 export function TopLeft() {
@@ -45,7 +49,11 @@ export function TopRight() {
   return (
     <div className="ob-top ob-top-r" data-testid="top-right">
       <PaletteButton />
-      {AI_ENABLED ? <AiAccountsButton /> : null}
+      {AI_ENABLED ? (
+        <Suspense fallback={null}>
+          <AiAccountsButton />
+        </Suspense>
+      ) : null}
       <SpaceButton unkept={hasChart} />
       <AccountMenu />
     </div>

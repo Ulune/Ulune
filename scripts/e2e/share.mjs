@@ -156,12 +156,15 @@ function checkSent(watch, link, label) {
   const fragment = link.slice(link.indexOf("#") + 1);
   const [, key, sealed] = fragment.split(".");
   let casts = 0;
+  let probes = 0;
   for (const r of watch.requests) {
     const url = r.url();
     const body = r.postData() ?? "";
     for (const piece of [fragment, key, sealed.slice(0, 24)]) if (url.includes(piece) || body.includes(piece)) fail(`${label}: a request carries the link's fragment: ${url.slice(0, 100)}`);
     const why = notAppFile(r);
     if (!why) continue;
+    // Making a private space asks Ulune's server once whether it keeps accounts, with an empty body (the 2.0 fixes, item 4).
+    if (r.method() === "POST" && new URL(url).pathname === "/api/account/v1/passkey/begin" && body === "{}" && ++probes === 1) continue;
     if (url.includes("/_serverFn/") && /castChart/.test(Buffer.from(url.split("/_serverFn/")[1].split("?")[0], "base64url").toString("utf8"))) {
       casts += 1;
       // A time zone's name is not the place: the coordinates already say where (as the privacy suite reads it).

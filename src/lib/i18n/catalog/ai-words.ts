@@ -1,11 +1,34 @@
 /**
- * ai-words: [English, French]. Words said only by ai-accounts.tsx, kept
- * out of the app's catalog (index.ts) so they load with that code instead of
- * with every page's first download (the first-load trim, 13 Oct 2026). Read
- * through bookT (src/lib/i18n/words-book.ts); scripts/i18n-catalog.test.mjs
- * holds them to the catalog's rules.
+ * ai-words: [English, French]. Words said only by AI readings' own code (the
+ * AI accounts, the ask box, the composers, their failures), kept out of the
+ * app's catalog (index.ts) so they load with that code instead of with every
+ * page's first download (the first-load trim, 13 Oct 2026; the rest of
+ * catalog/ai.ts joined them in the 2.0 fixes, item 3). Read through bookT
+ * (src/lib/i18n/words-book.ts); scripts/i18n-catalog.test.mjs holds them to
+ * the catalog's rules.
  */
 export const aiWords = {
+  // Once the app's catalog's (catalog/ai.ts).
+  aiAccounts: ["Your AI", "Votre IA"],
+  aiHintChatgpt: ["OpenAI platform → API keys", "Plateforme OpenAI → clés API"],
+  aiHintClaude: ["Anthropic console → API keys", "Console Anthropic → clés API"],
+  aiHintGemini: ["Google AI Studio → Get API key", "Google AI Studio → clés API"],
+  aiHintGrok: ["xAI console → API keys", "Console xAI → clés API"],
+  aiNeedKey: ["Connect one of your AI accounts first.", "Connectez d’abord l’un de vos comptes IA."],
+  aiOpenAccounts: ["Connect AI", "Connecter l’IA"],
+  aiErrKey: [
+    "{name} didn’t accept this key. Check it in your {name} account, then save it again.",
+    "{name} n’a pas accepté cette clé. Vérifiez-la dans votre compte {name}, puis enregistrez-la à nouveau.",
+  ],
+  aiErrLimit: [
+    "{name} says this account has reached its limit. Try again later.",
+    "{name} indique que ce compte a atteint sa limite. Réessayez plus tard.",
+  ],
+  aiErrNetwork: [
+    "Couldn’t reach {name}. Check the connection, then try again.",
+    "Impossible de joindre {name}. Vérifiez la connexion, puis réessayez.",
+  ],
+
   aiAccountsBody: [
     "Writing and questions use your own key — Claude, Gemini, Grok or ChatGPT.",
     "La rédaction et les questions utilisent votre propre clé — Claude, Gemini, Grok ou ChatGPT.",
@@ -49,3 +72,5 @@ export const aiWords = {
     "{name} ne répond pas directement aux pages web\u202f: le serveur d’Ulune transmet votre clé et votre question, sans rien garder.",
   ],
 } as const satisfies Record<string, readonly [string, string]>;
+
+export type AiWord = keyof typeof aiWords;

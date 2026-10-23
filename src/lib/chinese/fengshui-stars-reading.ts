@@ -207,6 +207,7 @@ function chartReading(v: ChartVariant, c: FlyingChart, stars: HomeStars, locale:
     ],
     links: { title: cnWord(locale, "fssPalaceCol"), rows: FLIGHT.map((p) => ({ ref: fssPalaceRef(v, p), label: palaceName(p, locale), detail: `${c.palaces[p].mountain} ${c.palaces[p].water} · ${c.palaces[p].period}` })) },
     mark: "飛星",
+    terms: [...c.formations.map((f) => ({ family: "formation" as const, id: f })), { family: "period" as const, id: c.period }],
     about: about(locale),
   };
 }
@@ -256,6 +257,7 @@ function palaceReading(v: ChartVariant, c: FlyingChart, p: PalaceId, stars: Home
     ],
     links: { title: cnWord(locale, "fssHead"), rows: [{ ref: fssChartRef(v), label: chartName(c, locale, prefs) }] },
     mark: String(x.mountain) + String(x.water),
+    terms: [{ family: "pairing", id: `${Math.min(x.mountain, x.water)}-${Math.max(x.mountain, x.water)}` }, { family: "flying-star", id: x.mountain }, { family: "flying-star", id: x.water }],
     about: about(locale),
   };
 }

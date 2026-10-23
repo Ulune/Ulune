@@ -9,6 +9,7 @@ import { importWithRetry } from "@/lib/lazy-retry";
 import { openSpaceSheet, useSpace, type SyncView } from "@/lib/space/state";
 import type { DeviceRow } from "@/lib/account/client/setup";
 import { formatAccountId } from "@/lib/account/client/account-id";
+import { accountAvailable, accountKnown } from "@/lib/account/client/available";
 
 /*
  * Settings › Private space, its sync part (share and compare plan, feature 4): while the space is
@@ -17,7 +18,9 @@ import { formatAccountId } from "@/lib/account/client/account-id";
  * account's id to copy (a new device asks for it with the passphrase), the signed-in devices with
  * their names (sealed on the server, opened here) and the days they joined and were last seen,
  * each one but this removable, the two-year rule said plainly, the recovery code's reminder, and
- * the two ways out: stop syncing (the server's copy deleted), or delete the account.
+ * the two ways out: stop syncing (the server's copy deleted), or delete the account. Until Ulune's
+ * server keeps accounts (the 2.0 fixes, item 4), asked once a visit as this part shows, sync is
+ * "not available yet", quietly, with nothing to press.
  */
 
 const loadAccount = () => importWithRetry(() => import("@/lib/account/client/setup"));
@@ -116,23 +119,44 @@ export function SyncSettings() {
   const sync = useSpace((s) => s.sync);
   const [copied, setCopied] = useState(false);
   const [, tick] = useState(0);
+  // Whether Ulune's server keeps accounts, while this space is on this device only: null until it answers.
+  const [service, setService] = useState<boolean | null>(() => accountKnown());
   // "Synced · 3 min ago" stays true as the minutes pass.
   useEffect(() => {
     const timer = window.setInterval(() => tick((n) => n + 1), 30_000);
     return () => window.clearInterval(timer);
   }, []);
+  useEffect(() => {
+    if (sync || service !== null) return;
+    let on = true;
+    void accountAvailable().then((ok) => {
+      if (on) setService(ok);
+    });
+    return () => {
+      on = false;
+    };
+  }, [sync, service]);
 
   if (!sync) {
+    // Not available yet: said quietly, nothing to press; until the answer comes, only the line that is true either way.
     return (
-      <div className="ob-space-ways" data-testid="sync-settings" data-sync="off">
+      <div className="ob-space-ways" data-testid="sync-settings" data-sync={service === false ? "unavailable" : "off"}>
         <h3 className="ob-menu-label ob-space-ways-h">{t("syncTitle")}</h3>
         <p className="ob-data-body">{t("syncOffLine")}</p>
-        <p className="ob-space-note">{t("syncOffHint")}</p>
-        <div className="ob-data-actions">
-          <button type="button" className="ob-btn ob-btn--ghost" data-testid="settings-sync-on" onClick={() => openSpaceSheet("sync-on")}>
-            {t("syncTurnOn")}
-          </button>
-        </div>
+        {service === false ? (
+          <p className="ob-space-note" data-testid="sync-not-yet">
+            {t("syncNotYet")} {t("syncNotYetHint")}
+          </p>
+        ) : service ? (
+          <>
+            <p className="ob-space-note">{t("syncOffHint")}</p>
+            <div className="ob-data-actions">
+              <button type="button" className="ob-btn ob-btn--ghost" data-testid="settings-sync-on" onClick={() => openSpaceSheet("sync-on")}>
+                {t("syncTurnOn")}
+              </button>
+            </div>
+          </>
+        ) : null}
       </div>
     );
   }

@@ -52,6 +52,8 @@ Les livres des Ming, le San Ming Tong Hui parmi eux, décrivent déjà un soi si
 
 Ulune compte les cinq phases, chaque tronc visible pour un point et chaque tronc caché selon son poids, ceux du mois deux fois. Quand la phase du Maître du jour et celle qui la produit tiennent 20 % du total ou moins, qu’aucune branche, celle du jour comprise, ne porte de tronc de la phase du Maître du jour, et qu’aucun tronc de l’année, du mois ou de l’heure n’est de sa phase ou de celle qui la produit, le thème est lu comme suivant ; Ulune compare alors les points de l’expression, de la richesse et du pouvoir, et le plus fort nomme la structure, l’expression d’abord à égalité. Quand le pouvoir mène, l’Officier et les Tueurs ensemble, Ulune signale Suivre le pouvoir.
 
+Ses phases favorables suivent la règle de force qu’Ulune applique à tous les thèmes qui suivent : un Maître du jour trop mince pour tenir seul est aidé par ce dont le thème est plein, et l’expression, la richesse et le pouvoir comptent donc tous comme une aide, la moins présente d’abord, sa propre phase et sa ressource étant les moins utiles. Certains classiques lisent Suivre le pouvoir autrement : ils tiennent l’expression à l’écart, puisqu’elle contrôle le pouvoir que le soi suit, et gardent la Richesse, qui le nourrit. Ulune garde une seule règle pour tous les thèmes qui suivent, et sa lecture le dit.
+
 ## Correspondances
 
 | Correspondance | Suivre le pouvoir |

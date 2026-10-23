@@ -1,3 +1,5 @@
+import type { ChineseTermRef } from "@/lib/chinese/term-ids";
+
 export const SIGN_IDS = [
   "aries",
   "taurus",
@@ -439,6 +441,13 @@ export type ElementReading = {
   ai?: string[];
   /** Short curated meaning (click note), shown as the first section. */
   note?: string;
+  /**
+   * A Chinese reading's own entries, this chart's (a pillar's life stage and Na Yin, the structure, a Kua,
+   * a direction's mansion, a period…), by family and the engine's id, given where the reading is built:
+   * its "In the encyclopedia" names them before the family's entries its id gives (the 2.0 fixes,
+   * item 2; lib/chinese/term-refs.ts, chineseReadingTerms).
+   */
+  terms?: readonly ChineseTermRef[];
 };
 
 export type LocalDossier = {

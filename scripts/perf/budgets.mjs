@@ -238,6 +238,14 @@ if (want.has("bundle")) {
   // with the sheet, Settings' sync part (lazy, sync-settings.tsx) or the account's own code; the review kept
   // the sheet's and Settings' new files out of the lists "/" names (lucide's Check, account-id.ts, the space's
   // passkey file, sync.css), and the style sheets read as before.
+  // The 2.0 fixes (23 Oct 2026), item 3: every Chinese family linked had taken it to 275.7. What left the first download
+  // is what only AI readings use while they are off (lib/features.ts). The studio's store composed the natal reading
+  // itself, so the AI keys' store, the providers, the scrubbing and the failures' words came with the wheel's and the
+  // shared chunks: they are ai-compose.ts now, loaded when a reading is composed. The AI accounts' button and panel, the
+  // Reading tab's composers and the reading panel's ask box (reading-ai.tsx, ReadingTabAi.tsx) and their words (the app's
+  // catalog/ai.ts joined ai-words.ts) load only while AI readings are on. The popovers' placement and the books' `t`, which
+  // the AI accounts' button had brought up front, joined the shared chunk, so "/" reads the same on every run: 273.5 four
+  // times in a row (17 files). The limit stays 276.
   check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 276, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the

@@ -148,9 +148,12 @@ export default defineConfig(({ command, isPreview }) => ({
                 // top bar's class names, the private-space button's motion check and
                 // tour, the footer's loading lines): a chunk of their own, so the
                 // encyclopedia's, the guide's and the settings' pages leave the wheel alone.
-                // The AI keys' store too: the private space's runtime holds them, and
-                // in the wheel's group it made a reader with a space download the
-                // wheel on every page (encyclopedia plan, part 22, 8 Oct 2026).
+                // (The AI keys' store was here too, the studio's store importing it; since the
+                // 2.0 fixes, item 3, only AI readings' own code and the private space's runtime
+                // do, both loaded when used, so it goes with them, out of every first download.
+                // Two small pieces took its place: the popovers' placement and the books' `t`, which
+                // the AI accounts' button had brought up front, came two imports down once it left,
+                // a round trip late, within the load one run in two.)
                 // And three small pieces the studio's first view needs (the bug-fix round, item 3): the
                 // footer's legal links and their whole words, the guide's linked paragraph, the space
                 // button's lock and send icons. In chunks of their own, two imports down, they were fetched
@@ -158,7 +161,7 @@ export default defineConfig(({ command, isPreview }) => ({
                 // more one run in three. Here, in a chunk the page names up front, every run alike.
                 {
                   name: "shared",
-                  test: /[\\/]src[\\/](lib[\\/](utils|depth[\\/]env|tour[\\/](state|keys)|ai[\\/]use-ai-account|legal[\\/]links)\.ts|components[\\/](loading-lines|keep-whole|first-screen[\\/]guide-linked)\.tsx)|node_modules[\\/](clsx[\\/]|lucide-react[\\/]dist[\\/]esm[\\/]icons[\\/](lock|send)\.js)/,
+                  test: /[\\/]src[\\/](lib[\\/](utils|depth[\\/]env|tour[\\/](state|keys)|legal[\\/]links|popover-place|i18n[\\/]words-book)\.ts|components[\\/](loading-lines|keep-whole|first-screen[\\/]guide-linked)\.tsx)|node_modules[\\/](clsx[\\/]|lucide-react[\\/]dist[\\/]esm[\\/]icons[\\/](lock|send)\.js)/,
                   priority: 1.5,
                 },
                 // The natal wheel and all it imports (the studio's first figure),

@@ -1,16 +1,19 @@
 /*
- * What a Chinese reading is about, from its id alone (languages plan, part
- * 29: "every term ready to link"): the entries its "In the encyclopedia"
- * offers once their families are written (encyclopedia/ChineseReadingTerms.tsx).
- * The registry it reads, each family's entries, is term-ids.ts. A module of
- * its own since the review of part 20 (review item T9): the tables' words
- * link through the registry alone, so a page's table never downloads what
- * only a reading needs.
+ * What a Chinese reading is about (languages plan, part 29: "every term ready
+ * to link"): the entries its "In the encyclopedia" offers once their families
+ * are written (encyclopedia/ChineseReadingTerms.tsx). From its id alone, the
+ * family or the idea of a place ("bz:stage:day": the life stages); and, since
+ * the 2.0 fixes (item 2), first of all the chart's own entries, which the
+ * reading names where it is built (ElementReading.terms: "Kua 1", the Rest
+ * stage, Metal in the sea, Period 9). The registry it reads, each family's entries,
+ * is term-ids.ts. A module of its own since the review of part 20 (review
+ * item T9): the tables' words link through the registry alone, so a page's
+ * table never downloads what only a reading needs.
  *
  * Pure; tested in scripts/chinese-term-ids.test.mjs.
  */
 import { dayCycleOf } from "./day-cycle";
-import { CHINESE_FAMILIES, ENGINE_ORDER, LIVE_FAMILIES, chineseTermId, familyOfTerm, type ChineseFamily } from "./term-ids";
+import { CHINESE_FAMILIES, ENGINE_ORDER, LIVE_FAMILIES, chineseTermId, familyOfTerm, type ChineseFamily, type ChineseTermRef } from "./term-ids";
 
 const { branches: BRANCHES, animals: ANIMALS, sixty: SIXTY, solarTerms: SOLAR_TERMS } = ENGINE_ORDER;
 /** A palace of the Lo Shu is its trigram's (坎宮, the Kan palace, in the north); the centre is the Lo Shu's own. */
@@ -231,8 +234,24 @@ function baziTerms(p: string[], add: Add, concept: (family: ChineseFamily) => vo
   }
 }
 
-/** The entries a Chinese reading is about that are written (linkable): what its "In the encyclopedia" offers. */
+/** The entries a Chinese reading is about, from its id, that are written (linkable). */
 export function chineseSubjectOf(ref: string, live: ReadonlySet<ChineseFamily> = LIVE_FAMILIES): Set<string> {
   if (!live.size) return new Set();
   return new Set(chineseRefTerms(ref).filter((term) => isLive(term, live)));
+}
+
+/**
+ * What a Chinese reading's "In the encyclopedia" offers, in order (the 2.0 fixes, item 2): the chart's own
+ * entries the reading names (its Kua, its life stage, its Na Yin, its period…), then those its id gives
+ * (the family's own entry, the idea of a place); each once, and only those whose family is written.
+ */
+export function chineseReadingTerms(ref: string, own: readonly ChineseTermRef[] = [], live: ReadonlySet<ChineseFamily> = LIVE_FAMILIES): string[] {
+  if (!live.size) return [];
+  const out: string[] = [];
+  const push = (term: string | null) => {
+    if (term && !out.includes(term) && isLive(term, live)) out.push(term);
+  };
+  for (const t of own) push(chineseTermId(t.family, t.id));
+  for (const term of chineseRefTerms(ref)) push(term);
+  return out;
 }

@@ -16,6 +16,10 @@ import type { AccountStore } from "./store.server";
  *     prefix ACCOUNT_). Without it: in development (`npm run dev`) accounts live in memory, kept in
  *     .data/account-store.json; ULUNE_ACCOUNT_STORE=memory keeps them in memory only (the deploy
  *     check, never on Vercel); in production, every account operation answers 503.
+ *   - ULUNE_ACCOUNT_STORE=none: no accounts here, whatever else is set: every account operation
+ *     answers 503, as production does until its database and secrets exist (the 2.0 fixes, item 4).
+ *     The e2e suite sync-unavailable.mjs runs a development server so; on Vercel it would pause
+ *     accounts without removing the database's address.
  *   - ACCOUNT_SESSION_SECRET: at least 32 characters (32 random bytes in base64). In development,
  *     made once and kept in .env.local (which git ignores) when it is not set.
  *   - CRON_SECRET: what Vercel's scheduler sends with the daily clean-up.
@@ -50,6 +54,7 @@ export function secretFromEnv(): Uint8Array | null {
 }
 
 export function storeFromEnv(): AccountStore | null {
+  if (process.env.ULUNE_ACCOUNT_STORE === "none") return null;
   const url = process.env.ACCOUNT_DATABASE_URL?.trim();
   if (url) return sqlStore(neonExecutor({ connectionString: url }));
   if (process.env.ULUNE_ACCOUNT_STORE === "memory" && !process.env.VERCEL) return memoryStore();

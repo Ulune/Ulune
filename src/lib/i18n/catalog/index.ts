@@ -1,7 +1,6 @@
 import { shell } from "./shell";
 import { birth } from "./birth";
 import { readings } from "./readings";
-import { ai } from "./ai";
 import { modes } from "./modes";
 import { tables } from "./tables";
 import { look } from "./look";
@@ -24,7 +23,6 @@ export const CATALOG = {
   ...shell,
   ...birth,
   ...readings,
-  ...ai,
   ...modes,
   ...tables,
   ...look,

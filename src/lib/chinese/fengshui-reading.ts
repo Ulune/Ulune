@@ -102,6 +102,7 @@ function kuaReading(fs: FengShui, both: boolean, locale: string, prefs: Shown): 
     mark: (prefs.show === "full" ? fs.trigram[prefs.script] : null) ?? fs.trigram.symbol,
     // Without the characters, the trigram drawn rather than a font's ☰…☷ (review fix FS7).
     markSvg: prefs.show === "full" ? undefined : trigramSvgInner(fs.trigram.lines),
+    terms: [{ family: "kua", id: fs.kua }, { family: "trigram", id: fs.trigram.id }],
     about: about(locale),
   };
 }
@@ -146,6 +147,7 @@ function dirReading(fs: FengShui, d: DirectionId, both: boolean, locale: string,
       { id: "trigram", title: cnWord(locale, "fsTrigramHead"), paragraphs: trigram },
     ],
     mark: (prefs.show === "full" ? m[prefs.script] : null) ?? directionById(d).short[locale === "fr" ? "fr" : "en"],
+    terms: [{ family: "mansion", id: row.mansion }, { family: "trigram", id: tri.id }],
     about: about(locale),
   };
 }
@@ -182,6 +184,7 @@ function practiceReading(fs: FengShui, both: boolean, locale: string): ElementRe
     })),
     sections: [...lines.map((l) => ({ id: l.id, title: cnWord(locale, PRACTICE_HEAD[l.id]), paragraphs: [l.text] })), { id: "note", title: cnWord(locale, "fsNoteHead"), paragraphs: [note] }],
     mark: "八宅",
+    terms: [{ family: "kua", id: fs.kua }],
     about: about(locale),
   };
 }

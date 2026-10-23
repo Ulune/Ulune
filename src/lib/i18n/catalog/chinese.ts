@@ -315,11 +315,11 @@ export const chinese = {
   bzEmptyWhyTitle: ["Why these branches", "Pourquoi ces branches"],
   bzStageWhyYang: [
     "Your Day Master {dm} is born in {birth} and, being yang, goes forward round the branches: in {branch} it is at its {stage} stage.",
-    "Votre Maître du jour {dm} naît en {birth} et, étant yang, avance dans l’ordre des branches\u202f: en {branch}, il est au stade «\u202f{stage}\u202f».",
+    "Votre Maître du jour {dm} naît en {birth} et, étant yang, avance dans l’ordre des branches\u202f: en {branch}, il est au stade {stage}.",
   ],
   bzStageWhyYin: [
     "Your Day Master {dm} is born in {birth} and, being yin, goes backward round the branches: in {branch} it is at its {stage} stage.",
-    "Votre Maître du jour {dm} naît en {birth} et, étant yin, recule dans l’ordre des branches\u202f: en {branch}, il est au stade «\u202f{stage}\u202f».",
+    "Votre Maître du jour {dm} naît en {birth} et, étant yin, recule dans l’ordre des branches\u202f: en {branch}, il est au stade {stage}.",
   ],
   bzStagesNote: [
     "The twelve stages follow the Day Master’s phase round the twelve branches as a year follows its seasons, from a seed to the harvest and back to a seed. The classics name them after a human life; Ulune calls four of them by the seasons instead, keeping the classical names in their readings, since the stages say how strong the phase is in each branch, not what will happen, and nothing about health.",
@@ -538,6 +538,12 @@ export const chinese = {
   bzSpecialWeak: [
     "Your chart also meets the conditions Ulune checks for a following structure: your Day Master holds almost nothing ({pct}), has no root and no helper among the stems, so some schools read it as following its strongest force. Schools disagree on these structures.",
     "Votre thème remplit aussi les conditions qu’Ulune vérifie pour une structure qui suit\u202f: votre Maître du jour ne tient presque rien ({pct}), n’a ni racine ni appui parmi les troncs, et certaines écoles le lisent comme suivant sa force la plus grande. Les écoles ne s’accordent pas sur ces structures.",
+  ],
+  // Follow Power read by the strength rule, as every following chart, where some classics keep output away (the 2.0 fixes, item 5).
+  bzFollowPowerHead: ["How Ulune reads it", "Comment Ulune la lit"],
+  bzFollowPowerRule: [
+    "Ulune reads Follow Power by the same strength rule as every following chart: a Day Master this slight is helped by what the chart is full of, so output, wealth and power all count as help. Some classics read it differently: they keep output away, since output controls the power the chart follows, and keep wealth, which feeds it.",
+    "Ulune lit Suivre le pouvoir selon la même règle de force que tout thème qui suit\u202f: un Maître du jour aussi faible est aidé par ce dont le thème est plein, et l’expression, la richesse et le pouvoir comptent donc tous comme une aide. Certains classiques la lisent autrement\u202f: ils écartent l’expression, qui contrôle le pouvoir que le thème suit, et gardent la richesse, qui le nourrit.",
   ],
   bzSpecialFlag: ["Also flagged", "Signalée aussi"],
   bzFav: ["Favourable", "Favorables"],
