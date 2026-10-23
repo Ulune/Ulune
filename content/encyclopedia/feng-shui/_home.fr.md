@@ -1,7 +1,7 @@
 ---
 tradition: feng-shui
 lang: fr
-revised: 2026-10-15
+revised: 2026-10-23
 sources:
   - Guo Pu (attribué à), Zangshu (Livre des sépultures), IVe siècle
   - Yang Yunsong (attribué à), Han Long Jing, IXe siècle
@@ -17,4 +17,4 @@ Deux écoles s’y rencontrent. L’école des formes, que la tradition fait rem
 
 Ce que suggère Ulune est toujours une façon d’aménager et d’habiter un lieu, où s’asseoir, quelle pièce donner au repos ou au travail, jamais quelque chose à acheter. Un logement que vous indiquez n’est gardé que dans votre espace privé, chiffré sur votre appareil, et rien n’en est jamais envoyé.
 
-Les fondements que lit le Feng Shui sont dans la [[chinese|cosmologie chinoise]] : les [[phase|cinq phases]], qui donnent sa couleur à chaque direction et à chaque étoile, et le [[yin-yang|yin et le yang]], qui règlent le vol des étoiles ; les trigrammes et le carré du Lo Shu les y rejoignent. Les pages propres au Feng Shui, les nombres Kua et les Huit Demeures d’abord, viennent ensuite.
+Les fondements que lit le Feng Shui sont dans la [[chinese|cosmologie chinoise]] : les [[phase|cinq phases]], qui donnent sa couleur à chaque direction et à chaque étoile, et le [[yin-yang|yin et le yang]], qui règlent le vol des étoiles ; les trigrammes et le carré du [[lo-shu|Lo Shu]] les y rejoignent. Les pages propres au Feng Shui, les nombres Kua et les Huit Demeures d’abord, viennent ensuite.

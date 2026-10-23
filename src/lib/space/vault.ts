@@ -219,11 +219,14 @@ export class Vault {
     seed: SpaceSeed = newSpaceSeed(),
     lock: LockMode = "stay",
     lockSet = false,
-  ): Promise<{ vault: Vault; recoveryCode: string }> {
+    /** The synced account (feature 4) needs the data key's bytes once, to make its own ways in: returned, for the caller to wipe. */
+    options: { rawKey?: boolean } = {},
+  ): Promise<{ vault: Vault; recoveryCode: string; rawKey?: Uint8Array<ArrayBuffer> }> {
     if (!first.passphrase && !first.passkey) throw new Error("no-way-in");
     // One space per browser: a new one never replaces one that exists.
     if (await Vault.find(store)) throw new Error("space-exists");
     const dataKey = await newDataKey();
+    const rawKey = options.rawKey ? new Uint8Array(await crypto.subtle.exportKey("raw", dataKey)) : undefined;
     const recoveryCode = newRecoveryCode();
     const wraps: Wrap[] = [];
     if (first.passphrase) wraps.push(await passphraseWrap(dataKey, seed.id, first.passphrase));
@@ -243,7 +246,20 @@ export class Vault {
     await store.replaceAll(meta, [[CHECK_KEY, check]]);
     const vault = new Vault(store, meta, key);
     if (lock === "stay") await store.putDeviceKey(key);
-    return { vault, recoveryCode };
+    return { vault, recoveryCode, ...(rawKey ? { rawKey } : {}) };
+  }
+
+  /**
+   * The space this browser holds, opened with its data key itself (a new device of the synced
+   * account, feature 4, which received the key from the account or from another device): the key
+   * must open its check record.
+   */
+  static async fromKey(store: SpaceStore, key: CryptoKey): Promise<Vault> {
+    const meta = await Vault.find(store);
+    if (!meta) throw new SpaceLocked();
+    const vault = new Vault(store, meta, key);
+    await vault.verify(true);
+    return vault;
   }
 
   /** The space's description, or null when this browser holds none. */
@@ -371,6 +387,31 @@ export class Vault {
     await unwrapWith(this.metaNow, way, false);
   }
 
+  /**
+   * The data key's bytes, given a way in again (the synced account, feature 4: turning sync on and
+   * adding a device need them once); the caller wipes them. WrongSecret when the way does not open it.
+   */
+  async rawKey(way: WayIn): Promise<Uint8Array<ArrayBuffer>> {
+    this.need();
+    const key = await unwrapWith(this.metaNow, way, true);
+    return new Uint8Array(await crypto.subtle.exportKey("raw", key));
+  }
+
+  /**
+   * The ways in as the reader's other devices changed them (the synced account's "space/ways"
+   * record, feature 4): only a set that still opens the space (a recovery code and something
+   * else), each wrap as a file's would be checked. When it locks stays this device's.
+   */
+  async setWraps(next: { passkeyUser: string; wraps: readonly Wrap[] }): Promise<void> {
+    this.need();
+    const wraps = [...next.wraps];
+    if (!wraps.length || wraps.some((w) => wrapFits(w) !== "ok")) throw new Error("bad-wraps");
+    if (!wraps.some((w) => w.kind === "recovery") || !wraps.some((w) => w.kind !== "recovery")) throw new Error("no-way-in");
+    const meta: SpaceMeta = { ...this.metaNow, passkeyUser: next.passkeyUser, wraps };
+    await this.store.putMeta(meta);
+    this.metaNow = meta;
+  }
+
   private async rewrap(way: WayIn, change: (dataKey: CryptoKey, wraps: Wrap[]) => Promise<Wrap[]>): Promise<void> {
     this.need();
     const dataKey = await unwrapWith(this.metaNow, way, true);
@@ -408,9 +449,8 @@ export class Vault {
     );
   }
 
-  /** A new recovery code; the old one stops working. Returned once. */
-  async newRecoveryCode(way: WayIn): Promise<string> {
-    const code = newRecoveryCode();
+  /** A new recovery code; the old one stops working. Returned once. `code`: one made already (the synced account's, feature 4). */
+  async newRecoveryCode(way: WayIn, code: string = newRecoveryCode()): Promise<string> {
     await this.rewrap(way, async (dataKey, wraps) => [
       ...wraps.filter((w) => w.kind !== "recovery"),
       await recoveryWrap(dataKey, this.metaNow.id, code),

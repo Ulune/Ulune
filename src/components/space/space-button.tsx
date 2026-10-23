@@ -17,7 +17,8 @@ const LOCK_LINE: Record<string, MessageKey> = {
 /**
  * The top bar's way into the private space: "Sign in" with a small lock when
  * there is none, "Unlock" when it is locked, and while it is open "Private",
- * with a menu to lock it now or see what is kept.
+ * with a menu to lock it now or see what is kept (and, once it syncs, how the
+ * sync goes, in a word: feature 4).
  */
 export function SpaceButton({ unkept = false }: { unkept?: boolean } = {}) {
   const { t } = useI18n();
@@ -25,6 +26,7 @@ export function SpaceButton({ unkept = false }: { unkept?: boolean } = {}) {
   const lock = useSpace((s) => s.lock);
   const backupAt = useSpace((s) => s.backupAt);
   const backupDue = useSpace((s) => s.backupDue);
+  const sync = useSpace((s) => s.sync);
   const [menu, setMenu] = useState(false);
   const ref = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => setMenu(false), []);
@@ -32,6 +34,9 @@ export function SpaceButton({ unkept = false }: { unkept?: boolean } = {}) {
   if (status === "unavailable") return null;
 
   if (status === "open") {
+    // Synced with the reader's other devices (feature 4): said in the label, and in the menu when it
+    // waits for the network or is paused (while it syncs, no backup is due: lib/space/runtime.ts).
+    const here = sync ? "spacePrivateSynced" : "spacePrivateHere";
     return (
       <>
         <button
@@ -43,8 +48,8 @@ export function SpaceButton({ unkept = false }: { unkept?: boolean } = {}) {
           data-due={backupDue ? "" : undefined}
           aria-haspopup="menu"
           aria-expanded={menu}
-          aria-label={backupDue ? `${t("spacePrivateHere")} · ${t(backupAt === null ? "spaceBackupNone" : "spaceBackupDue")}` : t("spacePrivateHere")}
-          title={t("spacePrivateHere")}
+          aria-label={backupDue ? `${t(here)} · ${t(backupAt === null ? "spaceBackupNone" : "spaceBackupDue")}` : t(here)}
+          title={t(here)}
           onClick={() => setMenu((v) => !v)}
         >
           <Lock className="size-4" strokeWidth={1.75} aria-hidden />
@@ -58,13 +63,18 @@ export function SpaceButton({ unkept = false }: { unkept?: boolean } = {}) {
           width={260}
           testId="space-menu"
           role="menu"
-          aria-label={t("spacePrivateHere")}
+          aria-label={t(here)}
           hideLabel={t("spaceClose")}
         >
           <div className="ob-pop ob-menu">
             <div className="ob-menu-who">
-              <span className="ob-menu-who-name">{t("spacePrivateHere")}</span>
+              <span className="ob-menu-who-name">{t(here)}</span>
               <span className="ob-menu-who-sub">{t(LOCK_LINE[lock] ?? "spaceLockClose")}</span>
+              {sync?.state === "offline" || sync?.state === "paused" || sync?.state === "full" ? (
+                <span className="ob-menu-who-sub" data-testid="space-sync-line">
+                  {t(sync.state === "offline" ? "spaceSyncWaiting" : "spaceSyncPaused")}
+                </span>
+              ) : null}
             </div>
             <div className="ob-menu-group ob-menu-group--last">
               <button

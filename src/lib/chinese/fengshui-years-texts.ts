@@ -53,6 +53,6 @@ export const AFFLICTION_HOW: Readonly<Record<AfflictionId, Both>> = {
   ],
   "three-killings": [
     "The Three Killings follow the year’s trine, the three branches that share a phase: a Monkey, Rat or Dragon year (water) places them in the south; Tiger, Horse or Dog (fire) in the north; Snake, Rooster or Ox (metal) in the east; Pig, Rabbit or Goat (wood) in the west. They cover the three mountains of that direction.",
-    "Les Trois Sha suivent le trigone de l’année, les trois branches qui partagent une phase\u202f: une année du Singe, du Rat ou du Dragon (eau) les place au sud\u202f; du Tigre, du Cheval ou du Chien (feu) au nord\u202f; du Serpent, du Coq ou du Bœuf (métal) à l’est\u202f; du Cochon, du Lièvre ou de la Chèvre (bois) à l’ouest. Ils couvrent les trois montagnes de cette direction.",
+    "Les Trois Sha suivent le trigone de l’année, les trois branches qui partagent une phase\u202f: une année du Singe, du Rat ou du Dragon (eau) les place au sud\u202f; du Tigre, du Cheval ou du Chien (feu) au nord\u202f; du Serpent, du Coq ou du Bœuf (métal) à l’est\u202f; du Cochon, du Lapin ou de la Chèvre (bois) à l’ouest. Ils couvrent les trois montagnes de cette direction.",
   ],
 };

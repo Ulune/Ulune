@@ -201,11 +201,12 @@ The parts:
 - **Reset.** When tombstones the device has not seen may have been purged (its cursor is older than the account's purge mark), the answer is `{ reset: true, changes: [], cursor: 0, more: true }`. The device then lists everything from cursor 0, and every record it holds from an earlier sync that is not in the listing was deleted elsewhere.
 - **A batch lost on the way** (the network failed after sending): the device sends it again; a conflict whose blob is the one it sent means the first attempt applied.
 
-**What devices do (guidance for the device side; the server does not depend on it):**
+**What devices do (guidance for the device side; the server does not depend on it).** Ulune's own device side is `src/lib/account/client/` (`merge.ts` the rules below, `engine.ts` a round of sync, `runner.ts` when it runs), held to them by `scripts/account-client.test.mjs` and `scripts/e2e/sync.mjs`:
 
-- Sync everything in the space except what belongs to one device: `sys/check`, `view/first`, `inbox/key` and `state/backup`. Whether the AI keys (`state/ai`) go is the owner's decision.
-- The latest write wins for a record (by the envelope's `t`, checked on the device: a server that offered an older blob in place of a newer one is ignored); lists (the charts' order, groups, homes, bookmarks) are merged by their items, not overwritten.
-- Ask for changes when Ulune opens or comes back into view, after writing, and at most every 30 seconds while in view; send changes a couple of seconds after they are made; wait as `Retry-After` says after a 429 or a 503.
+- Sync everything in the space except what belongs to one device: `sys/check`, `view/first`, `inbox/key`, `state/backup`, the AI keys `state/ai` (never synced: the owner's decision), the partners and Compare as left on that device (`state/pair`, `state/compare`), the encyclopedia's pages read (`enc/recent`) and the device's own sync state (`sync/…`). The space's description travels too, as the record `space/ways`: its id, its passkeys' user and its ways in, wrapped (lib/space/crypto.ts), so the same passphrase, passkeys and recovery code open the space on every device.
+- The latest write wins for a record (by the envelope's `t`, checked on the device: a server that offered an older blob in place of a newer one is ignored, and the device's copy is sent again); a device never writes a `t` earlier than the copy it replaces, so a clock behind still writes after what it saw. A change beats a deletion: a record changed on one device and deleted on another comes back. Lists (the library's order, the groups, the homes, the bookmarks, the ways in) are merged item by item against the copy both devices started from, which the device keeps: an item added on either side stays, an item deleted on one side and unchanged on the other goes (a deleted group stays deleted), a name changed on one side wins; what belongs to one device inside a list (the chart open, the home open) stays that device's.
+- Ask for changes when Ulune opens or comes back into view, after writing, and at most every 30 seconds while in view (Ulune: every two minutes); send changes a couple of seconds after they are made; wait as `Retry-After` says after a 429 or a 503.
+- On screen, the account id is the same 16 bytes in Crockford's base32 in groups of four (`8D4Q-X3K2-…`), read back in either spelling.
 
 ## 7. Devices
 
@@ -351,7 +352,7 @@ They do not learn any chart, name, birth date, time, place, note, group, device 
 
 **Production needs, in this order** (none of it is done yet):
 
-1. **The database:** in Vercel's Marketplace, a Neon Postgres database in **Frankfurt (AWS eu-central-1)**, connected to the Ulune project with the environment variable prefix `ACCOUNT_` (so it sets `ACCOUNT_DATABASE_URL`). The old "orbis" database stays apart (and is still to delete).
+1. **The database:** in Vercel's Marketplace, a Neon Postgres database in **Frankfurt (AWS eu-central-1)**, connected to the Ulune project with the environment variable prefix `ACCOUNT_` (so it sets `ACCOUNT_DATABASE_URL`). The prototype's old database stays apart (and is still to delete).
 2. **The tables:** run `db/migrations/0001_accounts.sql` once, either pasted into Neon's SQL editor or with `ACCOUNT_DATABASE_URL=… npm run account:migrate` from a computer with the repository.
 3. **Environment variables** in the Vercel project (Production; Preview only if previews should sync, with a database of their own):
    - `ACCOUNT_DATABASE_URL`: set by the integration;

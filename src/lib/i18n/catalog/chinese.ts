@@ -1316,7 +1316,7 @@ export const chinese = {
   ],
   fsyHowMonth: [
     "The month’s star goes back one each solar month, from the Tiger month’s: the 8 in a Rat, Horse, Rabbit or Rooster year, the 5 in a Dragon, Dog, Ox or Goat year, the 2 in a Tiger, Monkey, Snake or Pig year.",
-    "L’étoile du mois recule d’un à chaque mois solaire, à partir de celle du mois du Tigre\u202f: le 8 une année du Rat, du Cheval, du Lièvre ou du Coq, le 5 une année du Dragon, du Chien, du Bœuf ou de la Chèvre, le 2 une année du Tigre, du Singe, du Serpent ou du Cochon.",
+    "L’étoile du mois recule d’un à chaque mois solaire, à partir de celle du mois du Tigre\u202f: le 8 une année du Rat, du Cheval, du Lapin ou du Coq, le 5 une année du Dragon, du Chien, du Bœuf ou de la Chèvre, le 2 une année du Tigre, du Singe, du Serpent ou du Cochon.",
   ],
   fsyMonthFive: ["This month the 5 Yellow visits {where}.", "Ce mois-ci, le 5 Jaune visite {where}."],
   fsyPalaceLine: [

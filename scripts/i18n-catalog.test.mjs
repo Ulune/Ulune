@@ -25,6 +25,7 @@ import { numPairWords } from "../src/lib/i18n/catalog/numerology-pair-words.ts";
 import { pairNowWords } from "../src/lib/i18n/catalog/pair-now-words.ts";
 import { pairNowWestWords } from "../src/lib/i18n/catalog/pair-now-west-words.ts";
 import { calendarPeopleWords } from "../src/lib/i18n/catalog/calendar-people-words.ts";
+import { syncWords } from "../src/lib/i18n/catalog/sync-words.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const CAT_DIR = join(ROOT, "src/lib/i18n/catalog");
@@ -89,7 +90,7 @@ test("no English literal in aria-label", () => {
 
 test("the catalogs read on their own, outside the index (the calendar's layers, the language picker, the Chinese traditions, the space sheet's, Your data's, the AI accounts', the switcher's homes', the guide's, the Bodies tab's, the Look tab's and the table's books), are complete too", () => {
   // Kept out of the index so they stay out of the first download; held to the same rules.
-  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords, chinese, spaceWords, dataWords, aiWords, placesWords, guideWords, guideBodyWords, bodiesWords, lookWords, tablesWords, engineWords, hdPairWords, hdCyclesWords, fengShuiCyclesWords, groupsWords, groupsNeedWords, numPairWords, pairNowWords, pairNowWestWords, calendarPeopleWords })) {
+  for (const [name, words] of Object.entries({ calendarLayerWords, pickerWords, chinese, spaceWords, dataWords, aiWords, placesWords, guideWords, guideBodyWords, bodiesWords, lookWords, tablesWords, engineWords, hdPairWords, hdCyclesWords, fengShuiCyclesWords, groupsWords, groupsNeedWords, numPairWords, pairNowWords, pairNowWestWords, calendarPeopleWords, syncWords })) {
     for (const [key, [en, fr]] of Object.entries(words)) {
       assert.ok(en && en.trim(), `${name}.${key}: English missing`);
       assert.ok(fr && fr.trim(), `${name}.${key}: French missing`);
@@ -167,6 +168,17 @@ test("every word of the books kept out of the first download is said somewhere, 
     ],
     // The Calendar's birthdays and returns (idea B10): the layer's own module and its texts, loaded when it is on.
     [calendarPeopleWords, ["src/components/calendar-people.tsx", "src/lib/i18n/calendar-people-text.ts"]],
+    // The synced account (feature 4): the space's sheet and settings, the device link's panel, the /link page.
+    [
+      syncWords,
+      [
+        "src/components/space/space-sheet.tsx",
+        "src/components/space/space-settings.tsx",
+        "src/components/space/sync-settings.tsx",
+        "src/components/space/sync-link.tsx",
+        "src/components/space/link-landing.tsx",
+      ],
+    ],
   ]) {
     const corpus = files.map(read).join("\n");
     const unsaid = Object.keys(words).filter((key) => !new RegExp(`["'\`]${key}["'\`]`).test(corpus));

@@ -1,5 +1,5 @@
 import { Download, KeyRound, Lock, Send, Upload } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/locale";
 import { bookT } from "@/lib/i18n/words-book";
 import { spaceWords } from "@/lib/i18n/catalog/space-words";
@@ -14,6 +14,12 @@ import { openSpaceSheet, useSpace } from "@/lib/space/state";
 import type { LockMode } from "@/lib/space/store";
 import { toast } from "@/lib/toast";
 import { loadSpaceRuntime } from "@/lib/space/load";
+import { syncWords } from "@/lib/i18n/catalog/sync-words";
+import { lazyNamed } from "@/lib/lazy-component";
+
+// The synced account's part (feature 4) comes with its own download: its style sheet and code stay out
+// of the list of files "/" names for this page.
+const SyncSettings = lazyNamed(() => import("./sync-settings"), "SyncSettings");
 
 const LOCKS: { id: LockMode; label: MessageKey; hint?: (t: Translate, locale: AppLocale) => string }[] = [
   { id: "stay", label: "spaceLockStay", hint: (t) => t("spaceLockStayWarn") },
@@ -23,15 +29,19 @@ const LOCKS: { id: LockMode; label: MessageKey; hint?: (t: Translate, locale: Ap
 
 type Translate = ReturnType<typeof bookT<typeof spaceWords>>;
 
-/** Your other devices: the space sent to one of them, sealed, through the share sheet (nothing goes through Ulune). */
+/**
+ * Your other devices: the space sent to one of them, sealed, through the share sheet (nothing goes
+ * through Ulune); once it syncs (feature 4), a new device signs in by QR code instead.
+ */
 function OtherDevices() {
   const { t: tc, locale } = useI18n();
   const t = bookT(spaceWords, tc, locale);
   const d = (key: DevicesKey) => devicesText(locale, key);
+  const synced = useSpace((s) => Boolean(s.sync));
   return (
     <div className="ob-space-ways" data-testid="space-devices">
       <h3 className="ob-menu-label ob-space-ways-h">{d("devicesTitle")}</h3>
-      <p className="ob-data-body">{d("devicesBody")}</p>
+      <p className="ob-data-body">{synced ? bookT(syncWords, tc, locale)("syncAddBody") : d("devicesBody")}</p>
       <div className="ob-data-actions">
         <button type="button" className="ob-btn ob-btn--ghost" data-testid="space-add-device" onClick={() => openSpaceSheet("add-device")}>
           <Send className="size-4" strokeWidth={1.75} aria-hidden />
@@ -70,7 +80,7 @@ function WaysIn() {
     };
   }, []);
 
-  const added = (ms: number) => dateFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(ms));
+  const added = (ms: number) => dateFormat(locale === "en" ? "en-GB" : locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(ms));
 
   return (
     <div className="ob-space-ways" data-testid="space-ways">
@@ -178,7 +188,7 @@ function Backup() {
   const last =
     backupAt === null
       ? t("spaceBackupNever")
-      : t("spaceBackupLast", { date: dateFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(backupAt)) });
+      : t("spaceBackupLast", { date: dateFormat(locale === "en" ? "en-GB" : locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(backupAt)) });
 
   return (
     <div className="ob-space-ways" data-testid="space-backup" data-due={backupDue ? "" : undefined}>
@@ -315,6 +325,9 @@ export function SpaceSettings() {
               {t("spaceLockNow")}
             </button>
           </div>
+          <Suspense fallback={null}>
+            <SyncSettings />
+          </Suspense>
           <OtherDevices />
           <Backup />
           <WaysIn />

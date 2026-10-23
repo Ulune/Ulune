@@ -11,8 +11,11 @@
  * - No framing (and frame-ancestors 'none' in the policy): no other site can
  *   show Ulune inside its own page.
  * - COOP: a window Ulune opens, or that opens Ulune, cannot reach into it.
- * - Permissions: no camera, microphone, location, payment or device access,
- *   which Ulune never asks for (passkeys and the clipboard keep their defaults).
+ * - Permissions: no microphone, location, payment or device access, which
+ *   Ulune never asks for (passkeys and the clipboard keep their defaults); the
+ *   camera for Ulune's own pages only, asked for when the reader taps "Scan"
+ *   to read another device's QR code (the synced account, feature 4: the
+ *   browser reads the code on the device, nothing is recorded or sent).
  */
 /**
  * The calculations' worker (src/lib/engine/worker.ts, on-device plan, step 2)
@@ -35,5 +38,5 @@ export const SECURITY_HEADERS: Readonly<Record<string, string>> = {
   "X-Frame-Options": "DENY",
   "Cross-Origin-Opener-Policy": "same-origin",
   "Permissions-Policy":
-    "camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), hid=(), midi=(), display-capture=()",
+    "camera=(self), microphone=(), geolocation=(), payment=(), usb=(), serial=(), hid=(), midi=(), display-capture=()",
 };

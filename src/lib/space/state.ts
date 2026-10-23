@@ -39,8 +39,29 @@ export type SpaceSheet =
   /** A backup file: made this browser's space (none here), or its charts added to the open one. */
   | "restore"
   | "import"
-  /** The space sent to another device of the reader's (a sealed copy through the share sheet). */
-  | "add-device";
+  /** The space sent to another device of the reader's (a sealed copy through the share sheet, or a QR code once it syncs). */
+  | "add-device"
+  /**
+   * The synced account (feature 4): this device joins it (a passkey, a QR code, the account id and the
+   * passphrase, the recovery code); sync turned on, or off with the server's copy deleted; the account
+   * deleted; a device link opened by a QR code (/link); a device removed; signing in again.
+   */
+  | "join"
+  | "sync-on"
+  | "sync-off"
+  | "delete-account"
+  | "link"
+  | "remove-device"
+  | "sign-in-again";
+
+/** The synced account on this device (feature 4), while the space is open and syncs. */
+export type SyncView = {
+  /** ok: synced; busy: syncing now; offline: waiting for the network; paused: sign in again; full: the account is full; error: tried again later. */
+  state: "ok" | "busy" | "offline" | "paused" | "full" | "error";
+  /** When it last synced (ms), or null. */
+  at: number | null;
+  account: string;
+};
 
 export type SpaceView = {
   status: SpaceStatus;
@@ -54,6 +75,8 @@ export type SpaceView = {
   backupAt: number | null;
   /** The charts changed since (or there are charts and no backup yet). */
   backupDue: boolean;
+  /** The synced account, while the open space syncs (feature 4). */
+  sync: SyncView | null;
 };
 
 export const useSpace = create<SpaceView>(() => ({
@@ -65,6 +88,7 @@ export const useSpace = create<SpaceView>(() => ({
   sheetFor: null,
   backupAt: null,
   backupDue: false,
+  sync: null,
 }));
 
 export function openSpaceSheet(sheet: Exclude<SpaceSheet, null>, sheetFor: string | null = null): void {
@@ -86,8 +110,8 @@ export type SpaceBridge = {
   beforeLock: () => Promise<void>;
   close: () => void;
   lockChanged: (lock: LockMode) => void;
-  /** The space's charts changed underneath (a backup's added): read them again. */
-  reload: () => Promise<void>;
+  /** The space's charts changed underneath (a backup's added, or the synced account's): read them again; `fresh`, the charts changed elsewhere. */
+  reload: (fresh?: readonly string[]) => Promise<void>;
   /**
    * Whether the studio holds the open space's charts now (open() has read them and sealed those
    * that joined): a chart shared by a link waits for it before it is looked for there (lib/share/arrive.ts).

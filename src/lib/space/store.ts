@@ -11,7 +11,9 @@ import type { Sealed } from "./crypto";
  *   - items:  one sealed record per chart, partner, AI key or setting;
  *   - device: the data key itself, only while "stay unlocked on this device"
  *             is chosen (a non-extractable CryptoKey: the browser keeps it,
- *             page code cannot read it out).
+ *             page code cannot read it out); and while the space syncs
+ *             (feature 4), this device's signing key for the account, kept
+ *             the same way, which opens nothing.
  * A memory store with the same shape serves the tests.
  */
 
@@ -67,6 +69,13 @@ export interface SpaceStore {
   listItems(prefix?: string): Promise<[string, Sealed][]>;
   getDeviceKey(): Promise<CryptoKey | null>;
   putDeviceKey(key: CryptoKey | null): Promise<void>;
+  /**
+   * This device's key for the synced account (feature 4; docs/sync-protocol.md, 3.7): an ECDSA
+   * private key the browser keeps and page code cannot read out. It signs the device's sessions
+   * in again; it opens nothing. Kept beside the space's own and erased with it.
+   */
+  getAccountKey(): Promise<CryptoKey | null>;
+  putAccountKey(key: CryptoKey | null): Promise<void>;
   /** A whole space at once (a restored backup), replacing what is there (an inbox left from another space goes). */
   replaceAll(meta: SpaceMeta, items: readonly (readonly [string, Sealed])[]): Promise<void>;
   /** Everything gone: meta, items, device key. */
@@ -90,6 +99,7 @@ const ITEMS = "items";
 const DEVICE = "device";
 const META_KEY = "space";
 const DEVICE_KEY = "stay";
+const ACCOUNT_KEY = "account";
 /* The inbox (share plan, feature 1) lives in the meta store too, beside the space's description: its public key, and its sealed entries under "in/<random>". */
 const INBOX_KEY = "inbox";
 export const INBOX_PREFIX = "in/";
@@ -209,6 +219,18 @@ export function idbStore(name: string = DB_NAME): SpaceStore {
       else tx.objectStore(DEVICE).delete(DEVICE_KEY);
       await done(tx);
     },
+    async getAccountKey() {
+      const db = await openDb(name);
+      const row = await req(db.transaction(DEVICE).objectStore(DEVICE).get(ACCOUNT_KEY));
+      return row instanceof CryptoKey ? row : null;
+    },
+    async putAccountKey(key) {
+      const db = await openDb(name);
+      const tx = db.transaction(DEVICE, "readwrite");
+      if (key) tx.objectStore(DEVICE).put(key, ACCOUNT_KEY);
+      else tx.objectStore(DEVICE).delete(ACCOUNT_KEY);
+      await done(tx);
+    },
     async replaceAll(meta, items) {
       const db = await openDb(name);
       const tx = db.transaction([META, ITEMS, DEVICE], "readwrite");
@@ -284,6 +306,7 @@ export function memoryStore(): SpaceStore & {
 } {
   let meta: SpaceMeta | null = null;
   let device: CryptoKey | null = null;
+  let account: CryptoKey | null = null;
   let inboxKey: Uint8Array<ArrayBuffer> | null = null;
   const items = new Map<string, Sealed>();
   const inbox = new Map<string, InboxSealed>();
@@ -313,9 +336,16 @@ export function memoryStore(): SpaceStore & {
     async putDeviceKey(key) {
       device = key;
     },
+    async getAccountKey() {
+      return account;
+    },
+    async putAccountKey(key) {
+      account = key;
+    },
     async replaceAll(nextMeta, nextItems) {
       meta = JSON.parse(JSON.stringify(nextMeta)) as SpaceMeta;
       device = null;
+      account = null;
       inboxKey = null;
       inbox.clear();
       items.clear();
@@ -324,6 +354,7 @@ export function memoryStore(): SpaceStore & {
     async erase() {
       meta = null;
       device = null;
+      account = null;
       inboxKey = null;
       inbox.clear();
       items.clear();

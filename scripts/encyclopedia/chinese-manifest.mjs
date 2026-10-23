@@ -624,6 +624,9 @@ async function status(m) {
     const state = done.length === ids.length ? (isLive ? "live" : "written: add it to LIVE_FAMILIES (src/lib/chinese/term-live.ts)") : isLive ? "LIVE WITH ENTRIES MISSING" : done.length ? "in progress" : "to write";
     lines.push(`${f.terms.padEnd(17)} ${String(done.length).padStart(3)} / ${String(ids.length).padEnd(3)} ${f.tradition}/${f.family} (part ${f.encyclopediaPart}, ${f.kind}): ${state}`);
   }
+  // The written pages whose Chinese name is the manifest's suggestion, not the engine's: for the owner's dictionary check (the writers' guide, section 3).
+  const toCheck = m.entries.filter((e) => e.chinese && !e.chinese.engine && built.data.pages[`en/${e.id}`]?.zh).map((e) => `${e.id} (${e.chinese.hant} ${e.chinese.pinyin})`);
+  lines.push("", toCheck.length ? `${toCheck.length} written page(s) give a suggested Chinese name, to check in a dictionary: ${toCheck.join(", ")}` : "No written page gives a Chinese name still to check.");
   // The build's warnings (a term linked twice in a paragraph…), a missing combination opening apart.
   const warnings = built.warnings.filter((w) => !/no (summary|opening) yet/.test(w.message));
   lines.push("", warnings.length ? `${warnings.length} warning(s):\n${formatErrors(warnings)}` : "The encyclopedia builds with no mistake and no warning.");

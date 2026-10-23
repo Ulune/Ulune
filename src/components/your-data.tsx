@@ -72,6 +72,8 @@ export function YourData() {
   const { t: tc, locale } = useI18n();
   const t = bookT(dataWords, tc, locale);
   const status = useSpace((s) => s.status);
+  // The synced account (feature 4): known while the space is open.
+  const synced = useSpace((s) => Boolean(s.sync));
   const [count, setCount] = useState(0);
   const [confirm, setConfirm] = useState(false);
   const [erasing, setErasing] = useState(false);
@@ -149,7 +151,9 @@ export function YourData() {
 
   const allRows: { title: MessageKey; body: string; id: string }[] = [
     { id: "here", title: "dataHereTitle", body: t("dataHere", { n: count }) },
-    { id: "space", title: "dataSpaceTitle", body: t(SPACE_LINE[status]) },
+    { id: "space", title: "dataSpaceTitle", body: t(status === "open" && synced ? "dataSpaceOpenSynced" : SPACE_LINE[status]) },
+    // What sync keeps on Ulune's server, said while the space is open (whether it syncs is known then).
+    ...(status === "open" ? [{ id: "sync", title: "dataSyncTitle" as MessageKey, body: t(synced ? "dataSyncOn" : "dataSyncOff") }] : []),
     { id: "server", title: "dataServerTitle", body: t(where === "server" ? "dataServerCalc" : "dataServer") },
     { id: "reports", title: "dataReportsTitle", body: t("dataReports") },
     { id: "ai", title: "dataAiTitle", body: t("dataAi") },
@@ -190,7 +194,10 @@ export function YourData() {
       <p className="ob-space-note">{t("dataExportHint")}</p>
       {confirm ? (
         <div className="ob-data-confirm" role="group" aria-label={t("dataWipe")} data-testid="data-wipe-ask">
-          <p className="ob-data-body">{t("dataWipeConfirm")}</p>
+          <p className="ob-data-body">
+            {t("dataWipeConfirm")}
+            {synced ? ` ${t("dataWipeSynced")}` : ""}
+          </p>
           <div className="ob-data-actions">
             <button
               type="button"

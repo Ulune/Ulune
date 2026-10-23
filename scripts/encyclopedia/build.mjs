@@ -45,7 +45,7 @@ import { combinationFiles } from "./combinations.mjs";
 import { figureFor } from "./figures.mjs";
 import { parseEntry, parseHome } from "./parse.mjs";
 import { CHINESE_KEYS, FAMILIES, ID_RE, KINDS, LANGS, REQUIRED_KEYS, SECTIONS, SUMMARY_MAX, TRADITIONS } from "./registry.mjs";
-import { CHINESE_TRADITIONS, MANIFEST_FILE, checkChineseName, manifestEntries, toneless } from "./chinese.mjs";
+import { CHINESE_TRADITIONS, COMBINATION_TERMS, MANIFEST_FILE, checkChineseName, manifestEntries, toneless } from "./chinese.mjs";
 
 export const CONTENT_DIR = "content/encyclopedia";
 /** The repository, for the figures' numbers (src/lib/chart). */
@@ -643,7 +643,10 @@ function assemble(byId, homeTexts = new Map(), known = new Map()) {
   }
 
   // The words a reading's text may link, by language and tradition (part 16).
-  const lexicon = Object.fromEntries(LANGS.map((lang) => [lang, buildLexicon(entries, lang, TRADITIONS.map((t) => t.id))]));
+  // The manifest's Chinese terms too: their names that hold another entry's are matched first (part 24, lexicon.mjs);
+  // not a combination's, whose name is made of its parts ("Yang Earth Dragon"), each of which may link.
+  const terms = [...known.values()].filter((row) => !COMBINATION_TERMS.has(row.terms));
+  const lexicon = Object.fromEntries(LANGS.map((lang) => [lang, buildLexicon(entries, lang, TRADITIONS.map((t) => t.id), terms)]));
   return { index, pages, cards, search, homes, traditionHomes, lexicon };
 
   function listRow(e, lang) {

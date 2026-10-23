@@ -7,7 +7,7 @@
  * and the review script (scripts/encyclopedia/link-review.mjs) share it.
  */
 
-/** [form, entry id, slug] */
+/** [form, entry id, slug]; an empty id keeps the form plain (a Chinese term's name not written yet that holds another's, as "Travelling Horse" holds "Horse"). */
 export type LexiconRow = [string, string, string];
 
 export type Linked = { text: string; id?: string; slug?: string };
@@ -37,7 +37,7 @@ export function linkText(text: string, m: Matcher | null, exclude: ReadonlySet<s
   m.re.lastIndex = 0;
   for (let hit = m.re.exec(text); hit; hit = m.re.exec(text)) {
     const row = m.byForm.get(hit[0]);
-    if (!row || exclude.has(row[1]) || done.has(row[1])) continue;
+    if (!row || !row[1] || exclude.has(row[1]) || done.has(row[1])) continue;
     done.add(row[1]);
     if (hit.index > last) out.push({ text: text.slice(last, hit.index) });
     out.push({ text: hit[0], id: row[1], slug: row[2] });

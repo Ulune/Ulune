@@ -17,13 +17,16 @@ import {
   LIBRARY_RECORD,
   NOTE_RECORD,
   PAIR_RECORD,
+  SYNC_RECORD,
   type BackupRecord,
   type GroupsRecord,
   type LibraryRecord,
   type NoteRecord,
   type PairRecord,
 } from "./records";
-import { idbStore, type LockMode, type SpaceMeta, type SpaceStore } from "./store";
+import { idbStore, type LockMode, type SpaceMeta, type SpaceStore, type Wrap } from "./store";
+import { b64u, itemAad, seal } from "./crypto";
+import type { SyncState } from "@/lib/account/client/engine";
 import { spaceSupported } from "./supported";
 import { joinInbox, sayJoined } from "./inbox";
 import {
@@ -46,6 +49,7 @@ import {
   spaceBridge,
   useSpace,
   type SpaceStatus,
+  type SpaceView,
 } from "./state";
 
 /*
@@ -56,16 +60,44 @@ import {
  * While it is open, the reader's AI keys are kept in it (lib/ai), and the
  * studio's charts and partners (studio/space-sync.ts). Locking drops the key
  * and everything read with it from the page.
+ *
+ * The synced account (share and compare plan, feature 4): a space that holds
+ * a sync/account record syncs while it is open (lib/account/client/runner.ts,
+ * loaded then and only then); every write to it is told to the sync, which
+ * sends it a moment later. A new device's space is made here from the
+ * account's copy (adoptSyncedSpace).
  */
 
 /** "After a while away": fifteen minutes without a touch, or out of sight. */
 const IDLE_MS = 15 * 60 * 1000;
 
 let store: SpaceStore | null = null;
+/** The synced account's code, once a space that syncs opened here. */
+let syncing: typeof import("@/lib/account/client/runner") | null = null;
+
+/** Records written: the sync is told (it ignores those that stay on this device); the space's ways in are "space/ways" to it. */
+function tellSync(names: readonly string[]): void {
+  syncing?.syncWriteHook()?.(names);
+}
+
+/** The store, its writes watched for the synced account. */
+function watched(base: SpaceStore): SpaceStore {
+  return {
+    ...base,
+    async writeItems(puts, deletes = []) {
+      await base.writeItems(puts, deletes);
+      tellSync([...puts.map(([name]) => name), ...deletes]);
+    },
+    async putMeta(meta) {
+      await base.putMeta(meta);
+      tellSync(["space/ways"]);
+    },
+  };
+}
 
 function theStore(): SpaceStore {
   if (!spaceSupported()) throw new Error("space-unavailable");
-  store ??= idbStore();
+  store ??= watched(idbStore());
   return store;
 }
 
@@ -158,7 +190,61 @@ async function opened(vault: Vault, how: "created" | "unlocked"): Promise<void> 
   armIdle(vault.meta.lock);
   keepStorage();
   if (shared) void sayJoined(shared).catch(() => {});
+  // A space that syncs is known as one before its sync starts: no backup reminder shows meanwhile.
+  syncExpected = await syncsHere();
   await checkBackup();
+  // The sync starts beside the page, never in its way (offline, its code may not even load).
+  void startSyncing(vault);
+}
+
+/** The open space holds the account's record: it syncs, or will once its sync has started. */
+let syncExpected = false;
+
+/** The open space syncs when it holds the account's record (only then is the account's code fetched). */
+async function startSyncing(vault: Vault): Promise<void> {
+  const held = await theStore()
+    .getItem(SYNC_RECORD)
+    .catch(() => null);
+  if (!held) return;
+  try {
+    syncing ??= await importWithRetry(() => import("@/lib/account/client/runner"));
+    if (openVault() !== vault) return;
+    await syncing.startSync(vault, theStore(), spaceChanged);
+  } catch {
+    /* not this time: the next opening tries again */
+  }
+}
+
+/** Whether the open space syncs (it holds the account's record), without waiting for its sync to start. */
+export async function syncsHere(): Promise<boolean> {
+  if (!openVault()) return false;
+  return Boolean(await theStore().getItem(SYNC_RECORD).catch(() => null));
+}
+
+/**
+ * The open space starts syncing with an account just made or joined (lib/account/client/setup.ts):
+ * this device's key for it, beside the space's own, and the account's state, sealed in the space.
+ */
+export async function attachAccount(state: SyncState, deviceKey: CryptoKey): Promise<void> {
+  const vault = openVault();
+  if (!vault) throw new Error("space-locked");
+  syncExpected = true;
+  await theStore().putAccountKey(deviceKey);
+  await vault.put(SYNC_RECORD, state);
+  await startSyncing(vault);
+  // The backup reminder rests from now on.
+  void checkBackup();
+}
+
+/** The open space stops syncing (the account deleted, or this device left it): its record and key here go; the space stays. */
+export async function detachAccount(): Promise<void> {
+  syncExpected = false;
+  syncing?.stopSync();
+  await theStore()
+    .putAccountKey(null)
+    .catch(() => {});
+  const vault = openVault();
+  if (vault) await vault.remove(SYNC_RECORD).catch(() => {});
 }
 
 /** Ask the browser to keep the space's data (Safari may otherwise drop it after seven days away). */
@@ -183,6 +269,81 @@ export async function createSpace(
   return recoveryCode;
 }
 
+/**
+ * A new space for the synced account (feature 4), opened: as createSpace, with the data key's bytes
+ * once, for the account's own ways in (the caller wipes them).
+ */
+export async function createSpaceWithKey(
+  first: { passphrase?: string; passkey?: PasskeySecret & { prfSalt: string } },
+  seed: SpaceSeed | undefined,
+  shared: boolean,
+): Promise<{ recoveryCode: string; rawKey: Uint8Array<ArrayBuffer> }> {
+  const { vault, recoveryCode, rawKey } = await Vault.create(theStore(), first, seed, shared ? "close" : "stay", shared, { rawKey: true });
+  booted = Promise.resolve();
+  await opened(vault, "created");
+  return { recoveryCode, rawKey: rawKey! };
+}
+
+/** What a new device's space is made of: the account's copy, opened (lib/account/client/setup.ts). */
+export type SyncedSpace = {
+  rawKey: Uint8Array;
+  ways: { id: string; passkeyUser: string; wraps: Wrap[] };
+  records: readonly (readonly [string, unknown])[];
+  /** The engine's state, each record's fingerprint filled in here as it is sealed. */
+  state: SyncState;
+  deviceKey: CryptoKey;
+  shared: boolean;
+};
+
+/**
+ * This browser's space made from the synced account's copy (a new device of the reader's): the same
+ * id, data key and ways in as on their other devices, every record sealed here, the account's state
+ * beside them; then opened. A space already here (open: its records were read before, to join this
+ * one) is replaced.
+ */
+export async function adoptSyncedSpace(input: SyncedSpace): Promise<void> {
+  const here = theStore();
+  const existing = await Vault.find(here);
+  if (existing && !openVault()) throw new Error("space-exists");
+  const key = await crypto.subtle.importKey("raw", new Uint8Array(input.rawKey), { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+  const id = input.ways.id;
+  const meta: SpaceMeta = {
+    v: 1,
+    id,
+    created: Date.now(),
+    lock: input.shared ? "close" : "stay",
+    ...(input.shared ? { lockSet: true } : {}),
+    passkeyUser: input.ways.passkeyUser,
+    wraps: input.ways.wraps,
+  };
+  // The check record (vault.ts) proves the key; the rest as the account holds them.
+  const items: [string, Awaited<ReturnType<typeof seal>>][] = [["sys/check", await seal(key, itemAad(id, "sys/check"), { space: id })]];
+  const state: SyncState = { ...input.state, known: { ...input.state.known } };
+  for (const [name, value] of input.records) {
+    const sealed = await seal(key, itemAad(id, name), value);
+    items.push([name, sealed]);
+    if (state.known[name]) state.known[name] = { ...state.known[name]!, fp: b64u(sealed.iv) };
+  }
+  items.push([SYNC_RECORD, await seal(key, itemAad(id, SYNC_RECORD), state)]);
+  // The space here gives way to the synced one; the page goes on saying a space is open (it is, a moment later).
+  if (existing) await closeVault();
+  await here.replaceAll(meta, items);
+  if (!input.shared) await here.putDeviceKey(key);
+  await here.putAccountKey(input.deviceKey);
+  const vault = await Vault.fromKey(here, key);
+  booted = Promise.resolve();
+  await opened(vault, "unlocked");
+}
+
+/** Every record of the open space, read (to join them to the synced space that replaces it here). */
+export async function readAllRecords(): Promise<Map<string, unknown>> {
+  const vault = openVault();
+  if (!vault) throw new Error("space-locked");
+  await spaceBridge()?.beforeLock().catch(() => {});
+  const { rows } = await vault.list<unknown>("");
+  return new Map(rows.filter(([name]) => name !== "sys/check" && name !== SYNC_RECORD));
+}
+
 /** Open the space with a way in; throws WrongSecret when it does not open it. */
 export async function unlockSpace(way: WayIn): Promise<void> {
   const vault = await Vault.unlock(theStore(), way);
@@ -191,8 +352,16 @@ export async function unlockSpace(way: WayIn): Promise<void> {
 
 /** Lock now: what waits to be written is sealed, then the key and everything read with it leave the page. */
 export async function lockSpace(): Promise<void> {
+  const meta = await closeVault();
+  describe(meta, meta ? "locked" : "none");
+}
+
+/** The open space closed (its description returned): as when it locks, without saying so yet (a synced space replaces it). */
+async function closeVault(): Promise<SpaceMeta | null> {
   const vault = openVault();
   const meta = vault?.meta ?? null;
+  syncExpected = false;
+  syncing?.stopSync();
   if (vault) await spaceBridge()?.beforeLock().catch(() => {});
   vault?.lock();
   setOpenVault(null);
@@ -202,7 +371,7 @@ export async function lockSpace(): Promise<void> {
   spaceBridge()?.close();
   runLockHooks();
   useSpace.setState({ backupAt: null, backupDue: false });
-  describe(meta, meta ? "locked" : "none");
+  return meta;
 }
 
 /** When the space locks by itself: when Ulune closes, after a while away, or never on this device. */
@@ -232,6 +401,14 @@ export function spaceChanged(): void {
  * in can start again): its records, its key, its description, the flag.
  */
 export async function eraseSpace(): Promise<void> {
+  // A space that syncs: this device leaves the account first, when it can (the account and the other devices stay).
+  const leaving = syncing?.runningSync();
+  if (leaving) {
+    await Promise.race([
+      leaving.session.call("devices/remove", { device: leaving.session.device }).catch(() => {}),
+      new Promise((resolve) => setTimeout(resolve, 4000)),
+    ]);
+  }
   await lockSpace();
   await theStore().erase();
   writeSpaceFlag(null);
@@ -255,7 +432,11 @@ async function backupMark(vault: Vault): Promise<{ mark: string; count: number }
   return notes.count || groups.count ? { mark: `${charts.mark}.${notes.mark}.${groups.mark}`, count: charts.count } : charts;
 }
 
-/** Whether a backup is due: the charts (or their notes, or the groups) changed since the last one, or there are charts and none yet. */
+/**
+ * Whether a backup is due: the charts (or their notes, or the groups) changed since the last one, or
+ * there are charts and none yet. Not while the space syncs (feature 4): the server's sealed copy does
+ * what the reminder is for; paused or full, it is due again.
+ */
 function checkBackup(): Promise<void> {
   backupCheck = backupCheck.then(async () => {
     const vault = openVault();
@@ -264,13 +445,23 @@ function checkBackup(): Promise<void> {
       const note = await vault.get<BackupRecord>(BACKUP_RECORD).catch(() => null);
       const { mark, count } = await backupMark(vault);
       if (openVault() !== vault) return;
-      useSpace.setState({ backupAt: note?.at ?? null, backupDue: count > 0 && mark !== note?.mark });
+      useSpace.setState({ backupAt: note?.at ?? null, backupDue: count > 0 && mark !== note?.mark && !syncKeeps(useSpace.getState()) });
     } catch {
       /* locked meanwhile */
     }
   });
   return backupCheck;
 }
+
+/** The open space syncs (or will once its sync starts), and its copy on the server is up to date or on its way. */
+function syncKeeps(view: SpaceView): boolean {
+  return view.sync ? view.sync.state !== "paused" && view.sync.state !== "full" : syncExpected;
+}
+
+// The reminder follows the sync: looked at again when it starts or stops keeping the copy.
+useSpace.subscribe((now, before) => {
+  if (syncKeeps(now) !== syncKeeps(before)) void checkBackup();
+});
 
 function saveBlob(name: string, blob: Blob): void {
   const url = URL.createObjectURL(blob);
@@ -378,7 +569,14 @@ export async function restoreSpace(backup: SpaceBackup, way: WayIn, shared = fal
 export async function importBackup(backup: SpaceBackup, way: WayIn): Promise<number> {
   const vault = openVault();
   if (!vault) throw new Error("space-locked");
-  const records = await openBackup(backup, way);
+  return await importRecords(vault, await openBackup(backup, way));
+}
+
+/**
+ * Another space's records, read (a backup's, or this device's own space before it joined the synced
+ * account, feature 4), added to the space open here as a backup's are. Returns how many charts.
+ */
+export async function importRecords(vault: Vault, records: Map<string, unknown>): Promise<number> {
   const bridge = spaceBridge();
   await bridge?.beforeLock().catch(() => {});
   await importEncyclopedia(vault, records);

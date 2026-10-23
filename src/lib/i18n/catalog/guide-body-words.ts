@@ -81,8 +81,8 @@ export const guideBodyWords = {
   guideNewSample: ["See the sample chart", "Voir le thème d’exemple"],
   guideDataTitle: ["Your data stays yours", "Vos données restent à vous"],
   guideData1: [
-    "No account, no cookies, no analytics, no advertising.",
-    "Pas de compte, pas de cookies, pas de mesure d’audience, pas de publicité.",
+    "No account needed, no cookies, no analytics, no advertising.",
+    "Aucun compte nécessaire, pas de cookies, pas de mesure d’audience, pas de publicité.",
   ],
   guideData2: [
     "Charts are calculated on this device: the date, time and names stay here; only the place is looked up through Ulune’s server, which keeps nothing.",
@@ -93,8 +93,8 @@ export const guideBodyWords = {
     "Tant que vous regardez, les thèmes restent dans l’onglet ouvert et sont effacés à sa fermeture.",
   ],
   guideData4: [
-    "To keep them, “Sign in” opens a private space on this device, sealed with AES-256-GCM under your passphrase, a passkey or a recovery code. Ulune never receives it.",
-    "Pour les garder, «\u202fSe connecter\u202f» ouvre un espace privé sur cet appareil, scellé avec AES-256-GCM sous votre phrase secrète, une clé d’accès ou un code de récupération. Ulune ne le reçoit jamais.",
+    "To keep them, “Sign in” opens a private space on this device, sealed with AES-256-GCM under your passphrase, a passkey or a recovery code. Ulune can never read it, even synced.",
+    "Pour les garder, «\u202fSe connecter\u202f» ouvre un espace privé sur cet appareil, scellé avec AES-256-GCM sous votre phrase secrète, une clé d’accès ou un code de récupération. Ulune ne peut jamais le lire, même synchronisé.",
   ],
   guideDataLink: ["Read the privacy notice", "Lire la politique de confidentialité"],
   guidePreciseTitle: ["Precise, and open about it", "Précis, et transparent"],

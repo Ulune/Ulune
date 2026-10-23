@@ -15,11 +15,19 @@
  *   enc/recent     the encyclopedia's pages recently read
  *   fs/homes       Feng Shui's homes kept (lib/chinese/fengshui-home-record.ts)
  *   inbox/key      the inbox's key pair: charts shared while the space is locked are sealed to it (lib/space/inbox.ts)
+ *   sync/account   the synced account as this device knows it (feature 4, lib/account/client): its ids, how far it
+ *                  has read, each record's version; never synced itself
+ *
+ * With the synced account, every record syncs but those of one device (lib/account/client/merge.ts, syncs):
+ * sys/check, view/first, inbox/key, state/backup, state/ai (the AI keys: never), state/pair, state/compare,
+ * enc/recent and sync/…; the space's ways in travel too, as the account's "space/ways".
  */
 import type { StudioPage } from "@/studio/url";
 
 export const CHART_RECORD = "chart/";
 export const INBOX_KEY_RECORD = "inbox/key";
+/** The synced account's state on this device (feature 4): present only while the space syncs. */
+export const SYNC_RECORD = "sync/account";
 export const LIBRARY_RECORD = "state/library";
 export const PAIR_RECORD = "state/pair";
 export const COMPARE_RECORD = "state/compare";

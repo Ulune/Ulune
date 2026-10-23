@@ -6,9 +6,13 @@
 // reads as plain words; the lexicons borrow the shared foundations and never
 // the phases' everyday names; search finds a Chinese term by its characters
 // and by its pinyin with or without tones; the pilot (the five phases, yin
-// and yang) is written and live in both languages, and the three Chinese
-// languages' homes are where the language picker's ⓘ leads. Made-up entries
-// only, besides the real content.
+// and yang) and every family written since (the stems, the branches, the
+// shared ideas, the relations and the solar terms of part 23; the animals
+// and the zodiac's ideas of part 24; BaZi's Ten Gods of part 25) are
+// written and live in both languages, and a Chinese term's name that holds
+// another's ("Travelling Horse") never links the wrong page; the three
+// Chinese languages' homes are where the language picker's ⓘ leads. Made-up
+// entries only, besides the real content.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -18,6 +22,7 @@ import { manifestText } from "./encyclopedia/chinese-manifest.mjs";
 import { GENERIC } from "./encyclopedia/lexicon.mjs";
 import { FAMILIES, ID_RE, TRADITIONS } from "./encyclopedia/registry.mjs";
 import { prepare, search } from "../src/encyclopedia/search.ts";
+import { compileLexicon, linkText } from "../src/encyclopedia/linker.ts";
 import { CHINESE_FAMILIES, CHINESE_FAMILY_IDS, LIVE_FAMILIES, chineseTermIds, linkableId, traditionOfTerm } from "../src/lib/chinese/term-ids.ts";
 import { chineseSubjectOf } from "../src/lib/chinese/term-refs.ts";
 import { LIVE_HOMES } from "../src/lib/chinese/term-live.ts";
@@ -236,16 +241,20 @@ test("a term still to be written: plain words in a page, out of its related list
 
 /* ------------------------------------------------------------ the real content */
 
-test("content/encyclopedia builds clean, the pilot written in both languages with its Chinese names", () => {
+test("content/encyclopedia builds clean, every live family written in both languages to the pilot’s standard, with its Chinese names", () => {
   assert.equal(real.errors.length, 0, formatErrors(real.errors));
   const ids = ["phase", ...PHASES.map((p) => `phase-${p.id}`), "yin-yang"];
-  for (const id of ids) {
+  // The pilot (the five phases, yin and yang) and every family written since (encyclopedia parts 23–24): the writers’ guide, section 4.
+  const written = [...LIVE_FAMILIES].flatMap((family) => chineseTermIds(family));
+  assert.ok(ids.every((id) => written.includes(id)));
+  for (const id of written) {
     const row = rows.get(id);
     for (const lang of ["en", "fr"]) {
       const page = real.data.pages[`${lang}/${id}`];
       assert.ok(page, `${lang}/${id}`);
       assert.equal(page.slug, row.slug[lang]);
-      assert.deepEqual(page.zh, { hant: row.chinese.hant, hans: row.chinese.hans, pinyin: row.chinese.pinyin });
+      // Its Chinese name: the manifest’s, the engine’s where it has one; none where the manifest has none.
+      assert.deepEqual(page.zh ?? null, row.chinese ? { hant: row.chinese.hant, hans: row.chinese.hans, pinyin: row.chinese.pinyin } : null, id);
       assert.equal(page.tradition.id, row.tradition);
       // At the encyclopedia’s standard: its sections, its sources, a summary for the card.
       assert.deepEqual(page.sections.map((s) => s.key), ["meaning", "practice", "traditions", "history", "calculation", "correspondences"], id);
@@ -254,7 +263,7 @@ test("content/encyclopedia builds clean, the pilot written in both languages wit
       assert.ok(words > 550, `${lang}/${id}: ${words} words`);
     }
     // The card names its pinyin too.
-    assert.equal(real.data.cards[`en/${row.tradition}`][id][2], row.chinese.pinyin);
+    if (row.chinese) assert.equal(real.data.cards[`en/${row.tradition}`][id][2], row.chinese.pinyin);
   }
   // The five phases in the engine’s order, the family’s own entry first; their neighbours follow the generating cycle.
   assert.deepEqual(FAMILIES.chinese.find((f) => f.id === "phases").order, ids.slice(0, 6));
@@ -265,13 +274,37 @@ test("content/encyclopedia builds clean, the pilot written in both languages wit
   assert.ok(letter("en", "W").includes("phase-wood") && letter("fr", "B").includes("phase-wood") && letter("fr", "Y").includes("yin-yang"));
 });
 
-test("the pilot is live: its words link, its readings offer it; every live family is written", () => {
-  assert.ok(LIVE_FAMILIES.has("phase") && LIVE_FAMILIES.has("polarity"));
+test("the written families are live: their words link, their readings offer them; every live family is written", () => {
+  for (const family of ["phase", "polarity", "stem", "branch", "animal", "zodiac-concept", "chinese-concept", "relation", "solar-term", "ten-god"]) assert.ok(LIVE_FAMILIES.has(family), family);
   for (const family of LIVE_FAMILIES) for (const id of chineseTermIds(family)) assert.equal(real.data.index.terms[id]?.[4], 1, `${family}: ${id}`);
   assert.equal(linkableId("phase", "wood"), "phase-wood");
   assert.equal(linkableId("polarity", "yin"), "yin-yang");
-  assert.equal(linkableId("stem", "jia"), null, "the stems are not written yet");
+  assert.equal(linkableId("stem", "jia"), "stem-jia");
+  assert.equal(linkableId("branch", "zi"), "branch-zi");
+  assert.equal(linkableId("animal", "horse"), "animal-horse");
+  assert.equal(linkableId("zodiac-concept", "day-animal"), "day-animal");
+  assert.equal(linkableId("life-stage", "peak"), null, "the life stages are not written yet");
   assert.deepEqual([...chineseSubjectOf("bz:phase:fire")], ["phase-fire"]);
+  assert.deepEqual([...chineseSubjectOf("bz:stem:day")], ["stem"], "a stem’s reading offers the stems, not yet the Day Master");
+  // The zodiac’s readings offer their animal, its branch, their place (encyclopedia part 24); a day of the Calendar its animal, not yet its pillar.
+  assert.deepEqual([...chineseSubjectOf("zk:branch:6")], ["animal-horse", "branch-wu"]);
+  assert.deepEqual([...chineseSubjectOf("zkp:m:year:day")], ["year-animal", "day-animal"]);
+  assert.deepEqual([...chineseSubjectOf("cnday:2026-10-23")], ["animal-horse"]);
+  // The shared ideas and the relations (part 23’s second batch): BaZi’s interactions, its hidden stems, the year’s ruler, the Lo Shu’s centre.
+  assert.equal(linkableId("relation", "season"), "relation-seasonal-trio");
+  assert.equal(linkableId("chinese-concept", "tai-sui"), "tai-sui");
+  assert.deepEqual([...chineseSubjectOf("bz:ix:season:year-month-day")], ["relation-seasonal-trio"]);
+  assert.deepEqual([...chineseSubjectOf("bz:hidden:year:1")], ["hidden-stems"]);
+  assert.deepEqual([...chineseSubjectOf("zky:year")], ["tai-sui"]);
+  assert.deepEqual([...chineseSubjectOf("fss:main:palace:c")], ["lo-shu"]);
+  // The solar terms (part 23’s third batch): a term’s word links its page, and the Calendar’s term offers it.
+  assert.equal(linkableId("solar-term", "lichun"), "solar-term-lichun");
+  assert.equal(linkableId("solar-term", "dahan"), "solar-term-dahan");
+  assert.deepEqual([...chineseSubjectOf("sky:term-0-1770177600000")], ["solar-term-lichun"]);
+  assert.deepEqual([...chineseSubjectOf("sky:term-23-1768873496000")], ["solar-term-dahan"]);
+  // The Ten Gods (part 25’s first family): a god’s word links its page, and the board’s god reading offers it.
+  assert.equal(linkableId("ten-god", "eating-god"), "ten-god-eating-god");
+  assert.deepEqual([...chineseSubjectOf("bz:god:seven-killings")], ["ten-god-seven-killings"]);
 });
 
 test("the three Chinese languages’ homes: built from their introductions, and the language picker’s ⓘ leads there", () => {
@@ -289,9 +322,11 @@ test("the three Chinese languages’ homes: built from their introductions, and 
   // Exactly the languages whose home the encyclopedia builds.
   const built = LANGUAGES.filter((l) => l.group === "chinese" && real.data.traditionHomes[`en/${l.id}`]).map((l) => l.id);
   assert.deepEqual(Object.keys(LIVE_HOMES).sort(), built.sort());
-  // Chinese cosmology has no picker card, but a home of its own, with its introduction and its first family.
+  // Chinese cosmology has no picker card, but a home of its own, with its introduction and the families written so far, in the registry’s order.
   const cosmology = real.data.traditionHomes["en/chinese"];
-  assert.deepEqual(cosmology.families.map((f) => f.id), ["phases"]);
+  const written = CHINESE_FAMILY_DEFS.chinese.filter((f) => LIVE_FAMILIES.has(f.terms)).map((f) => f.id);
+  assert.deepEqual(cosmology.families.map((f) => f.id), written);
+  assert.ok(written[0] === "phases" && written.includes("stems"), written.join(" "));
   assert.ok(cosmology.about.length >= 3);
 });
 
@@ -316,10 +351,37 @@ test("the lexicons: the shared ideas everywhere, the shared Chinese foundations 
     assert.ok(has("fr", t, "Cinq phases") && has("fr", t, "Yin et yang"), t);
   }
   for (const t of ["astrology", "human-design", "numerology"]) assert.ok(has("en", t, "Yin and yang") && !has("en", t, "Five phases"), t);
+  // Nor a stem’s or a branch’s own syllable, which other words share (yin and yang, Wu Gui, Fu Wei, Shen Sha; English “You”): they link in the tables.
+  const syllables = new Set(["jia", "yi", "bing", "ding", "wu", "ji", "geng", "xin", "ren", "gui", "zi", "chou", "yin", "mao", "chen", "si", "wei", "shen", "you", "xu", "hai"]);
   for (const lang of ["en", "fr"]) {
     for (const [t, list] of Object.entries(lexicon[lang])) {
       for (const [form] of list) assert.ok(!GENERIC[lang].has(form), `${lang}/${t}: ${form}`);
       for (const p of PHASES) assert.ok(!list.some((r) => r[0] === p[lang]), `${lang}/${t}: ${p[lang]} alone`);
+      for (const [form, id] of list) assert.ok(!syllables.has(form.toLowerCase()), `${lang}/${t}: ${form} (${id}) alone`);
     }
+  }
+  // The family’s own entries do link: “Heavenly Stems”, « Troncs célestes ».
+  assert.ok(has("en", "bazi", "Heavenly Stems") && has("fr", "bazi", "Troncs célestes"));
+  // A Chinese term’s name that holds another’s is matched first (part 24): the star “Travelling Horse” never links the animal,
+  // and reads as plain words until its own page is written; a pillar’s name, made of its parts, does not hold them back.
+  for (const t of CHINESE_LANGUAGES) {
+    for (const [lang, text, star] of [
+      ["en", "The Travelling Horse is the star of movement; the Horse loves open space.", "Travelling Horse"],
+      ["fr", "Le Cheval voyageur est l’étoile du mouvement ; le Cheval aime les grands espaces.", "Cheval voyageur"],
+    ]) {
+      const pieces = linkText(text, compileLexicon(lexicon[lang][t]));
+      assert.equal(pieces.map((p) => p.text).join(""), text);
+      assert.deepEqual(pieces.filter((p) => p.id).map((p) => p.id), ["animal-horse"], `${lang}/${t}`);
+      assert.ok(pieces.find((p) => p.text.includes(star)) && !pieces.find((p) => p.text.includes(star)).id, `${lang}/${t}: ${star} stays plain`);
+    }
+  }
+  assert.ok(!lexicon.en.bazi.some(([form]) => form === "Yang Earth Dragon"));
+  // The solar terms (part 23’s third batch): by their names and their pinyin (“at Lichun”), with their capital only, since
+  // « grand froid » or « au début du printemps » in small letters are everyday words; their family also in small letters.
+  for (const t of CHINESE_LANGUAGES) {
+    const link = (lang, text) => linkText(text, compileLexicon(lexicon[lang][t])).filter((p) => p.id).map((p) => p.id);
+    assert.deepEqual(link("en", "The year turns at Lichun; the solar terms count the months."), ["solar-term-lichun", "solar-term"], t);
+    assert.deepEqual(link("en", "From the Start of Spring to Major Cold, but not the start of spring."), ["solar-term-lichun", "solar-term-dahan"], t);
+    assert.deepEqual(link("fr", "Par grand froid, au début du printemps, avant le Grand froid et Lichun ; les termes solaires."), ["solar-term-dahan", "solar-term-lichun", "solar-term"], t);
   }
 });

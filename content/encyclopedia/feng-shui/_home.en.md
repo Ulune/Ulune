@@ -1,7 +1,7 @@
 ---
 tradition: feng-shui
 lang: en
-revised: 2026-10-15
+revised: 2026-10-23
 sources:
   - Guo Pu (attributed), Zangshu (Book of Burial), 4th century
   - Yang Yunsong (attributed), Han Long Jing, 9th century
@@ -17,4 +17,4 @@ Two schools meet here. The Form School, which tradition traces to Yang Yunsong i
 
 What Ulune suggests is always a way of arranging and using a place, where to sit, which room to give to rest or to work, never anything to buy. A home you give is kept only in your private space, encrypted on your device, and nothing about it is ever sent.
 
-The foundations Feng Shui reads are in [[chinese|Chinese cosmology]]: the [[phase|five phases]], which give every direction and every star its colour, and [[yin-yang|yin and yang]], which set the stars’ flight; the trigrams and the Lo Shu square join them there. Feng Shui’s own pages, the Kua numbers and the Eight Mansions first, are written next.
+The foundations Feng Shui reads are in [[chinese|Chinese cosmology]]: the [[phase|five phases]], which give every direction and every star its colour, and [[yin-yang|yin and yang]], which set the stars’ flight; the trigrams and the [[lo-shu|Lo Shu]] square join them there. Feng Shui’s own pages, the Kua numbers and the Eight Mansions first, are written next.

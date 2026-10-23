@@ -62,9 +62,11 @@ test("every answer's headers: HTTPS only, no sniffing, no framing, no device acc
   assert.equal(h["X-Frame-Options"], "DENY");
   assert.equal(h["Referrer-Policy"], "same-origin");
   assert.equal(h["Cross-Origin-Opener-Policy"], "same-origin");
-  for (const feature of ["camera", "microphone", "geolocation", "payment", "usb"]) {
+  for (const feature of ["microphone", "geolocation", "payment", "usb"]) {
     assert.match(h["Permissions-Policy"], new RegExp(`(^|, )${feature}=\\(\\)`));
   }
+  // The camera for Ulune's own pages only: scanning a device link's QR code (the synced account, feature 4).
+  assert.match(h["Permissions-Policy"], /(^|, )camera=\(self\)/);
   // Passkeys and the clipboard keep the browser's defaults.
   assert.doesNotMatch(h["Permissions-Policy"], /publickey|clipboard/);
 });

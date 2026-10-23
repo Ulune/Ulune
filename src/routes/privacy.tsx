@@ -11,7 +11,7 @@ export const Route = createFileRoute("/privacy")({
       path: "/privacy",
       title: "Privacy · Ulune",
       description:
-        "Ulune has no accounts, no cookies, no analytics and no advertising, and keeps nothing about you on its server. What you keep stays on your device, encrypted.",
+        "Ulune needs no account and has no cookies, no analytics and no advertising. What you keep stays on your device, encrypted, and sealed even when you sync it.",
     }),
   component: Privacy,
 });

@@ -31,12 +31,12 @@ export const guideWords = {
     "Un choix facultatif dans les Options du formulaire de naissance\u202f: les traditions chinoises classiques comptent une naissance comme yang ou yin selon le sexe. Deux calculs seulement le lisent\u202f: le sens des piliers de chance du BaZi et le nombre Kua du Feng Shui\u202f; sans lui, les deux versions sont montrées. Il est gardé avec le thème sur cet appareil, jamais envoyé.",
   ],
   faqFreeA: [
-    "Yes: every chart, language and reading, with no account, subscription or advertising.",
-    "Oui\u202f: chaque thème, chaque langage et chaque lecture, sans compte, sans abonnement ni publicité.",
+    "Yes: every chart, language and reading, with no subscription or advertising, and no account needed.",
+    "Oui\u202f: chaque thème, chaque langage et chaque lecture, sans abonnement ni publicité, et sans compte nécessaire.",
   ],
   faqKeptA: [
-    "While you look, in the open tab only. In a private space, on this device, sealed; Ulune has no copy, so download a backup from the private space now and then.",
-    "Tant que vous regardez, dans l’onglet ouvert seulement. Dans un espace privé, sur cet appareil, scellés\u202f; Ulune n’en a aucune copie, alors téléchargez de temps en temps une sauvegarde depuis l’espace privé.",
+    "While you look, in the open tab only. In a private space: on this device, sealed, and on your other devices if you sync it, as boxes Ulune can’t open. Download a backup now and then.",
+    "Tant que vous regardez, dans l’onglet ouvert seulement. Dans un espace privé\u202f: sur cet appareil, scellés, et sur vos autres appareils si vous le synchronisez, en boîtes qu’Ulune ne peut pas ouvrir. Téléchargez de temps en temps une sauvegarde.",
   ],
   faqTrustA: [
     "They come from the Swiss Ephemeris, which follows NASA JPL’s DE441 to a fraction of an arc-second, and Ulune’s tests compare them with reference charts. If one looks wrong, use “Report a problem”.",

@@ -7,8 +7,8 @@
  */
 export const dataWords = {
   dataLead: [
-    "Ulune has no accounts and keeps nothing about you on its server. This is everything it keeps, and everything that leaves this device.",
-    "Ulune n’a pas de comptes et ne conserve aucune donnée vous concernant sur son serveur. Voici tout ce qu’il garde, et tout ce qui quitte cet appareil.",
+    "Ulune needs no account and, unless you sync your space, keeps nothing about you on its server. This is everything it keeps, and everything that leaves this device.",
+    "Ulune ne demande aucun compte et, sauf si vous synchronisez votre espace, ne conserve aucune donnée vous concernant sur son serveur. Voici tout ce qu’il garde, et tout ce qui quitte cet appareil.",
   ],
   dataPrivacy: ["Read the privacy notice", "Lire la politique de confidentialité"],
   dataHereTitle: ["In this browser", "Dans ce navigateur"],
@@ -22,8 +22,26 @@ export const dataWords = {
     "Vos thèmes et partenaires, vos marque-pages et notes de l’encyclopédie, les logements que vous gardez, chiffrés, sur cet appareil seulement. Les sauvegardes que vous téléchargez sont chiffrées aussi.",
   ],
   dataSpaceLocked: [
-    "Your charts and partners, your encyclopedia bookmarks and notes, the homes you keep, encrypted and locked, on this device only.",
-    "Vos thèmes et partenaires, vos marque-pages et notes de l’encyclopédie, les logements que vous gardez, chiffrés et verrouillés, sur cet appareil seulement.",
+    "Your charts and partners, your encyclopedia bookmarks and notes, the homes you keep, encrypted and locked, on this device.",
+    "Vos thèmes et partenaires, vos marque-pages et notes de l’encyclopédie, les logements que vous gardez, chiffrés et verrouillés, sur cet appareil.",
+  ],
+  // The synced account (share and compare plan, feature 4): the space's other copy, and what it is.
+  dataSpaceOpenSynced: [
+    "Your charts and partners, your encyclopedia bookmarks and notes, the homes you keep, encrypted, on this device and on your other devices that sync with it.",
+    "Vos thèmes et partenaires, vos marque-pages et notes de l’encyclopédie, les logements que vous gardez, chiffrés, sur cet appareil et sur vos autres appareils synchronisés avec lui.",
+  ],
+  dataSyncTitle: ["Synced through Ulune’s server", "Synchronisé par le serveur d’Ulune"],
+  dataSyncOn: [
+    "Your space’s records as sealed boxes the server can’t open, their names hidden and their sizes rounded up, with the day each changed; your devices, their names sealed, and the days they joined and were last seen; a random number for the account, never an email. In Frankfurt, in the EU. Deleted at once when you stop syncing or delete the account, or after two years unused.",
+    "Les enregistrements de votre espace en boîtes scellées que le serveur ne peut pas ouvrir, leurs noms cachés et leurs tailles arrondies, avec le jour où chacun a changé\u202f; vos appareils, leurs noms scellés, et les jours où ils ont rejoint le compte et ont été vus pour la dernière fois\u202f; un nombre tiré au hasard pour le compte, jamais un e-mail. À Francfort, dans l’UE. Effacés immédiatement quand vous arrêtez la synchronisation ou supprimez le compte, ou après deux ans sans usage.",
+  ],
+  dataSyncOff: [
+    "Nothing: your space is on this device only. Sync stays off unless you turn it on, under Private space.",
+    "Rien\u202f: votre espace est sur cet appareil seulement. La synchronisation reste désactivée tant que vous ne l’activez pas, sous Espace privé.",
+  ],
+  dataWipeSynced: [
+    "This device also leaves your synced account; the account and its sealed copy stay for your other devices (delete them under Private space).",
+    "Cet appareil quitte aussi votre compte synchronisé\u202f; le compte et sa copie scellée restent pour vos autres appareils (supprimez-les sous Espace privé).",
   ],
   dataSpaceNone: [
     "Nothing: there is no private space here. Charts stay in the open tab and go when it closes.",
@@ -50,8 +68,8 @@ export const dataWords = {
   ],
   dataNeverTitle: ["Never", "Jamais"],
   dataNever: [
-    "No account, no cookies, no analytics, no advertising.",
-    "Pas de compte, pas de cookies, pas de mesure d’audience, pas de publicité.",
+    "No cookies, no analytics, no advertising; no account unless you turn on sync, and then no email and no name.",
+    "Pas de cookies, pas de mesure d’audience, pas de publicité\u202f; pas de compte sauf si vous activez la synchronisation, et alors ni e-mail ni nom.",
   ],
   dataExport: ["Download a readable copy", "Télécharger une copie lisible"],
   dataExportHint: [

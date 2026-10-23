@@ -4,6 +4,10 @@ export const space = {
   spaceUnlock: ["Unlock", "Déverrouiller"],
   spacePrivate: ["Private", "Privé"],
   spacePrivateHere: ["Private · this device", "Privé · cet appareil"],
+  // The synced account (feature 4): the Private menu says it syncs, and when it waits or is paused.
+  spacePrivateSynced: ["Private · synced", "Privé · synchronisé"],
+  spaceSyncWaiting: ["Waiting for the network", "En attente du réseau"],
+  spaceSyncPaused: ["Sync paused", "Synchronisation en pause"],
   spaceLockNow: ["Lock now", "Verrouiller maintenant"],
   spaceLocked: ["Locked", "Verrouillé"],
   spaceJustLooking: ["Just looking", "Simple visite"],

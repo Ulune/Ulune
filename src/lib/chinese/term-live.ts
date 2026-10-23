@@ -20,6 +20,19 @@ export const LIVE_FAMILIES: ReadonlySet<ChineseFamily> = new Set<ChineseFamily>(
   // Encyclopedia part 23's pilot: the five phases and yin and yang.
   "phase",
   "polarity",
+  // Part 23's first batch: the ten Heavenly Stems and the twelve Earthly Branches.
+  "stem",
+  "branch",
+  // Part 24: the twelve animals, and the zodiac's own ideas (the four animals, the own year).
+  "animal",
+  "zodiac-concept",
+  // Part 23's second batch: the shared ideas (hidden stems, Tai Sui, solar month, Lo Shu) and the relations.
+  "chinese-concept",
+  "relation",
+  // Part 23's third batch: the twenty-four solar terms.
+  "solar-term",
+  // Part 25's first family: BaZi's Ten Gods.
+  "ten-god",
 ]);
 
 /**

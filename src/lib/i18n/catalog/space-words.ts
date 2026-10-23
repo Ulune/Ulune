@@ -7,8 +7,8 @@
  */
 export const spaceWords = {
   spaceBody: [
-    "Everything you save stays in this browser, encrypted. Ulune has no accounts and keeps no copy: nobody can read it, share it or recover it for you.",
-    "Tout ce que vous enregistrez reste dans ce navigateur, chiffré. Ulune n’a pas de comptes et n’en garde aucune copie\u202f: personne ne peut le lire, le partager ni le récupérer à votre place.",
+    "Keep your charts encrypted under a passkey or a passphrase only you know: nobody can read them or recover them for you, Ulune included.",
+    "Gardez vos thèmes chiffrés sous une clé d’accès ou une phrase secrète que vous seul connaissez\u202f: personne ne peut les lire ni les récupérer à votre place, Ulune compris.",
   ],
   spaceUsePassphrase: ["Use a passphrase", "Utiliser une phrase secrète"],
   spaceNotNow: ["Not now, keep nothing", "Pas maintenant, ne rien garder"],

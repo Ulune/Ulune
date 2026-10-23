@@ -214,26 +214,48 @@ async function open(v: Vault): Promise<void> {
 }
 
 /**
- * Charts added to the space underneath the studio (a backup's): what waits is
- * sealed first, then the library is read again. The chart open stays open.
+ * Charts added to the space underneath the studio (a backup's), or changed on
+ * the reader's other devices (the synced account, feature 4: `fresh`, those
+ * changed there): what waits is sealed first, then the library is read again.
+ * The chart open stays open, unless another device deleted it.
  */
-async function reload(): Promise<void> {
+async function reload(fresh: readonly string[] = []): Promise<void> {
   const v = vault;
   if (!v?.isOpen || !unsubscribe) return; // not joined yet: open() reads everything when it is
   window.clearTimeout(pending);
   await queue();
   const { kept, library } = await readKept(v);
-  // The rows already on the page stay the same objects (nothing about them changed).
+  // The rows already on the page stay the same objects (nothing about them changed), but those changed elsewhere.
   const state = useStudioStore.getState();
+  const changedThere = new Set(fresh);
   const onPage = new Map(state.rows.map((row) => [row.id, row]));
-  const rows = kept.map((row) => onPage.get(row.id) ?? row);
+  const rows = kept.map((row) => (changedThere.has(row.id) ? row : (onPage.get(row.id) ?? row)));
   written = new Map(rows.map((row) => [row.id, row]));
-  writtenLibrary = library ? JSON.stringify({ order: library.order, activeId: library.activeId }) : "";
-  if (state.activeId && rows.some((r) => r.id === state.activeId)) {
+  writtenLibrary = library ? JSON.stringify({ order: library.order, activeId: library.activeId, ...(library.previousId ? { previousId: library.previousId } : {}) }) : "";
+  const same = rows.length === state.rows.length && rows.every((row, i) => row === state.rows[i]);
+  if (same) return;
+  // Every chart deleted on another device: none left here either (the library would keep the last ones on screen).
+  if (!rows.length) {
+    useStudioStore.setState({
+      rows: [],
+      activeId: null,
+      creating: false,
+      input: blankBirth(),
+      chart: null,
+      dossier: null,
+      grok: null,
+      selectedId: null,
+      error: null,
+      formEpoch: state.formEpoch + 1,
+    });
+    return;
+  }
+  if (state.activeId && rows.some((r) => r.id === state.activeId) && !changedThere.has(state.activeId)) {
     useStudioStore.setState({ rows });
     return;
   }
-  useStudioStore.getState().restoreLibrary(rows, library?.activeId ?? rows[0]?.id ?? null);
+  // The chart open changed on another device (it is drawn again), or went (another opens).
+  useStudioStore.getState().restoreLibrary(rows, (state.activeId && rows.some((r) => r.id === state.activeId) ? state.activeId : null) ?? library?.activeId ?? rows[0]?.id ?? null);
 }
 
 function close(): void {

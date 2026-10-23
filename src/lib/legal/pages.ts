@@ -14,7 +14,7 @@ import type { NoticeBlock } from "./privacy-notice";
 export type LegalPageId = "legal" | "terms" | "credits" | "accessibility";
 export type LegalText = { title: string; updated: string; blocks: NoticeBlock[] };
 
-export const LEGAL_UPDATED = "2026-10-17";
+export const LEGAL_UPDATED = "2026-10-23";
 
 export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = {
   legal: {
@@ -36,7 +36,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Your data",
-          p: "Ulune keeps nothing about you on its server. What stays on your device, and what leaves it, is set out in the [privacy notice](/privacy).",
+          p: "Unless you sync your private space, Ulune keeps nothing about you on its server; if you do, only sealed boxes it can’t open, in Frankfurt (EU). What stays on your device, and what leaves it, is set out in the [privacy notice](/privacy).",
         },
         {
           h: "Content",
@@ -62,7 +62,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Vos données",
-          p: "Ulune ne conserve aucune donnée vous concernant sur son serveur. Ce qui reste sur votre appareil, et ce qui le quitte, est décrit dans la [politique de confidentialité](/privacy).",
+          p: "Sauf si vous synchronisez votre espace privé, Ulune ne conserve aucune donnée vous concernant sur son serveur\u202f; si vous le faites, seulement des boîtes scellées qu’il ne peut pas ouvrir, à Francfort (UE). Ce qui reste sur votre appareil, et ce qui le quitte, est décrit dans la [politique de confidentialité](/privacy).",
         },
         {
           h: "Contenus",
@@ -80,7 +80,17 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         { p: "These terms apply to anyone using Ulune (ulune.app). By using it, you accept them." },
         {
           h: "What Ulune is",
-          p: "A free tool for drawing and exploring astrology charts, Human Design and numerology, and three Chinese traditions: Chinese astrology, BaZi and Feng Shui. It needs no account: what you choose to keep stays on your device, encrypted (see the [privacy notice](/privacy)).",
+          p: "A free tool for drawing and exploring astrology charts, Human Design and numerology, and three Chinese traditions: Chinese astrology, BaZi and Feng Shui. It needs no account: what you choose to keep stays on your device, encrypted, and, if you turn on sync, on Ulune’s server as sealed boxes only your devices can open (see the [privacy notice](/privacy)).",
+        },
+        {
+          h: "Synced accounts",
+          list: [
+            "Sync is optional and off until you turn it on. An account is a random number: no email, no name.",
+            "An account unused for two years is deleted, with everything in it. Without an email, Ulune can’t warn you first.",
+            "You can stop syncing or delete your account at any time in Settings › Private space: the server’s copy is deleted at once.",
+            "Keep your passphrase and your recovery code. If you lose every device and both of them, nobody can open your data, Ulune included.",
+            "An account holds up to 16 MB of sealed records (2,000 records), 30 devices and 10 passkeys, far more than charts need.",
+          ],
         },
         {
           h: "For reflection, not advice",
@@ -114,7 +124,17 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Ce qu’est Ulune",
-          p: "Un outil gratuit pour tracer et explorer des thèmes astrologiques, le Human Design et la numérologie, ainsi que trois traditions chinoises\u202f: l’astrologie chinoise, le BaZi et le Feng Shui. Il ne demande aucun compte\u202f: ce que vous choisissez de garder reste sur votre appareil, chiffré (voir la [politique de confidentialité](/privacy)).",
+          p: "Un outil gratuit pour tracer et explorer des thèmes astrologiques, le Human Design et la numérologie, ainsi que trois traditions chinoises\u202f: l’astrologie chinoise, le BaZi et le Feng Shui. Il ne demande aucun compte\u202f: ce que vous choisissez de garder reste sur votre appareil, chiffré, et, si vous activez la synchronisation, sur le serveur d’Ulune en boîtes scellées que seuls vos appareils peuvent ouvrir (voir la [politique de confidentialité](/privacy)).",
+        },
+        {
+          h: "Comptes synchronisés",
+          list: [
+            "La synchronisation est facultative et désactivée tant que vous ne l’activez pas. Un compte est un nombre tiré au hasard\u202f: ni e-mail, ni nom.",
+            "Un compte inutilisé pendant deux ans est supprimé, avec tout ce qu’il contient. Sans e-mail, Ulune ne peut pas vous prévenir avant.",
+            "Vous pouvez à tout moment arrêter la synchronisation ou supprimer votre compte dans Réglages › Espace privé\u202f: la copie du serveur est effacée immédiatement.",
+            "Gardez votre phrase secrète et votre code de récupération. Si vous perdez tous vos appareils et les deux, personne ne peut ouvrir vos données, Ulune compris.",
+            "Un compte contient jusqu’à 16\u202fMo d’enregistrements scellés (2\u202f000 enregistrements), 30 appareils et 10 clés d’accès, bien plus qu’il n’en faut pour des thèmes.",
+          ],
         },
         {
           h: "Pour réfléchir, pas pour conseiller",

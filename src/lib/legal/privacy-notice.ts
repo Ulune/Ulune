@@ -1,14 +1,15 @@
 /*
  * The privacy notice (routes/privacy.tsx), English and French. It says what
  * the code does: change it with the code (lib/space, lib/chart/functions.ts,
- * lib/engine for where charts are calculated, lib/ai), and change the date. AI readings are off in 1.0 (lib/features.ts),
+ * lib/engine for where charts are calculated, lib/account for the synced
+ * account and docs/sync-protocol.md, lib/ai), and change the date. AI readings are off in 1.0 (lib/features.ts),
  * so the notice says nothing about them; they return with their own lines.
  */
 
 export type NoticeBlock = { h?: string; p?: string; list?: string[] };
 export type Notice = { title: string; updated: string; blocks: NoticeBlock[]; who: { h: string; p: string } };
 
-export const PRIVACY_UPDATED = "2026-10-18";
+export const PRIVACY_UPDATED = "2026-10-23";
 
 export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
   en: {
@@ -16,7 +17,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
     updated: "Updated {date}",
     blocks: [
       {
-        p: "Ulune has no accounts, no cookies, no analytics and no advertising, and keeps nothing about you on its server. Your charts are calculated on your device, unless you choose otherwise. What you choose to keep stays on your device, encrypted, where only you can open it.",
+        p: "Ulune needs no account and has no cookies, no analytics and no advertising. Your charts are calculated on your device, unless you choose otherwise. What you choose to keep stays on your device, encrypted, where only you can open it. If you choose to sync it with your other devices, Ulune’s server keeps a copy in sealed boxes that only your devices can open: it can’t read them.",
       },
       {
         h: "Kept on your device",
@@ -24,7 +25,8 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
           "Display settings (appearance, language, looks, views, the hints and the tour you closed), in your browser’s storage, in the clear.",
           "If you sign in: your charts, the partners you pair them with, the groups you sort them into and your notes on them, a copy of the last chart for a quick start, your encyclopedia bookmarks, notes and pages read, and the homes you keep for Feng Shui. They are sealed in your browser’s database with AES-256-GCM, under a key that only your passphrase, a passkey or your recovery code opens. Ulune never receives them.",
           "You stay signed in on your device: the browser keeps the key so it can’t be read out of it, and anyone using that browser can open your space. On a shared computer, choose to lock it when Ulune closes; then nothing but the sealed space is kept.",
-          "Backups you download, and the copy you send to another device of yours (Add another device), are sealed the same way and go only where you send them, by AirDrop, a file or a message of your choosing; Ulune never receives them. A readable copy, if you ask for one, is not sealed: keep it private.",
+          "Backups you download, and the copy you send to another device of yours as a file (Add another device), are sealed the same way and go only where you send them, by AirDrop, a file or a message of your choosing; Ulune never receives them. A readable copy, if you ask for one, is not sealed: keep it private.",
+          "If you sync your space: this device’s key for your account, kept by the browser so it can’t be read out of it (it signs this device in and opens nothing), and, sealed inside your space, your account’s keys and how far this device has synced.",
           "While you are just looking, charts stay in the open tab and go when it closes.",
           "Once your device has calculated a chart: the calculations’ engine and its files (the Swiss Ephemeris, about 2 MB), and the sky they have worked out for the dates you opened, in your browser’s cache. The same files for everyone, nothing about you.",
           "If you keep Ulune on this device to open it offline (asked once, off until you say yes): Ulune’s own files, its page and the sky of the dates you opened, the same for everyone. Nothing about you.",
@@ -40,6 +42,19 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         ],
       },
       {
+        h: "If you sync your devices",
+        p: "Sync is off unless you turn it on, when you make your private space or later in Settings › Private space. Your space is then sealed on your device, record by record, with keys made from your space’s own key, and only the sealed boxes go to Ulune’s server. How it works is published in full with Ulune’s code (docs/sync-protocol.md).",
+        list: [
+          "What Ulune’s server keeps: a random number for your account (no email, no name, no phone number); for each way in, a passkey’s public key and credential id, or a hash of a key made from your passphrase or recovery code, which can check it but not find it, and your space’s key locked under that way in; your devices’ public keys, their names sealed, and the day each joined and was last seen; your records as sealed boxes, their names replaced by codes and their sizes rounded up to fixed sizes (8 KB at least), with the day each changed. Dates are whole days, never times.",
+          "What it never receives: your charts, the names, dates, times and places in them, your notes, groups, homes or bookmarks in readable form; your passphrase, recovery code or passkey; the key that opens your space. Your AI keys and what belongs to one device (the chart open, the partners chosen, the pages you read) never leave it.",
+          "Where: the account’s functions run in Vercel’s Frankfurt region and its database is Neon’s Postgres in Frankfurt (AWS eu-central-1), in the European Union.",
+          "Logs: Ulune’s code writes nothing about your requests, and keeps no IP address. Vercel’s own request logs keep IP addresses for a short time, outside Ulune’s control (Hosting, above).",
+          "How long: until you stop syncing or delete your account, in Settings › Private space, which deletes everything on the server at once. A deleted record leaves an empty mark for 90 days, so your other devices learn it went. An account unused for two years is deleted, with everything in it; without an email, Ulune can’t warn you first.",
+          "Adding a device by QR code: the code holds a short-lived link and a public key, after the “#” of its address, which no request carries. Your space’s key goes to the new device sealed for it alone, once you have seen the same six digits on both screens. If you scan with this device’s camera, it reads the code here: nothing is recorded or sent.",
+          "If you lose every device, your passphrase and your recovery code, nobody can open your data, Ulune included: that is the price of Ulune not being able to read it.",
+        ],
+      },
+      {
         h: "The encyclopedia",
         p: "Searching and reading the encyclopedia sends nothing but the request for each page you open, and for Ulune’s own files, the same for everyone. Its search runs on your device: what you type in it is never sent. “In your chart” is worked out on your device from the chart open in the tab. Your bookmarks and notes are kept only in your private space, encrypted on this device like your charts; the pages you read are kept there too while it is open, otherwise only until the tab closes, and you can clear them.",
       },
@@ -52,8 +67,9 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         list: [
           "Just look, and nothing is kept.",
           "Download a readable copy of your data, or an encrypted backup, from Settings.",
-          "Erase everything Ulune keeps on this device from Settings, Your data. There is no copy anywhere else.",
-          "Ulune holds no data about you on its side, so there is nothing there to show, correct or delete. You can still ask, and complain to your data protection authority (in France, the CNIL).",
+          "Erase everything Ulune keeps on this device from Settings, Your data. Unless you sync, there is no copy anywhere else.",
+          "Stop syncing, or delete your account, from Settings › Private space: everything on Ulune’s server goes at once, and your devices keep their own space.",
+          "Without sync, Ulune holds no data about you on its side, so there is nothing there to show, correct or delete; with it, only the sealed boxes above, which it can’t read. You can still ask, and complain to your data protection authority (in France, the CNIL).",
         ],
       },
       {
@@ -68,7 +84,7 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
     updated: "Mis à jour le {date}",
     blocks: [
       {
-        p: "Ulune n’a pas de comptes, pas de cookies, pas de mesure d’audience ni de publicité, et ne conserve aucune donnée vous concernant sur son serveur. Vos thèmes sont calculés sur votre appareil, sauf autre choix de votre part. Ce que vous choisissez de garder reste sur votre appareil, chiffré, là où vous seul pouvez l’ouvrir.",
+        p: "Ulune ne demande aucun compte et n’a pas de cookies, pas de mesure d’audience ni de publicité. Vos thèmes sont calculés sur votre appareil, sauf autre choix de votre part. Ce que vous choisissez de garder reste sur votre appareil, chiffré, là où vous seul pouvez l’ouvrir. Si vous choisissez de le synchroniser avec vos autres appareils, le serveur d’Ulune en garde une copie dans des boîtes scellées que seuls vos appareils peuvent ouvrir\u202f: il ne peut pas les lire.",
       },
       {
         h: "Gardé sur votre appareil",
@@ -76,7 +92,8 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
           "Les réglages d’affichage (apparence, langue, styles, vues, les astuces et la visite que vous avez fermées), dans le stockage de votre navigateur, en clair.",
           "Si vous vous connectez\u202f: vos thèmes, les partenaires que vous leur associez, les groupes où vous les rangez et vos notes sur eux, une copie du dernier thème pour un démarrage rapide, vos marque-pages, notes et pages lues de l’encyclopédie, et les logements que vous gardez pour le Feng Shui. Ils sont scellés dans la base de données de votre navigateur avec AES-256-GCM, sous une clé que seuls votre phrase secrète, une clé d’accès ou votre code de récupération ouvrent. Ulune ne les reçoit jamais.",
           "Vous restez connecté sur votre appareil\u202f: le navigateur garde la clé sans qu’on puisse l’en extraire, et toute personne utilisant ce navigateur peut ouvrir votre espace. Sur un ordinateur partagé, choisissez de le verrouiller à la fermeture d’Ulune\u202f; seul l’espace scellé est alors gardé.",
-          "Les sauvegardes que vous téléchargez, et la copie que vous envoyez à un autre de vos appareils (Ajouter un autre appareil), sont scellées de la même façon et ne vont que là où vous les envoyez, par AirDrop, un fichier ou un message de votre choix\u202f; Ulune ne les reçoit jamais. Une copie lisible, si vous en demandez une, n’est pas scellée\u202f: gardez-la pour vous.",
+          "Les sauvegardes que vous téléchargez, et la copie que vous envoyez sous forme de fichier à un autre de vos appareils (Ajouter un autre appareil), sont scellées de la même façon et ne vont que là où vous les envoyez, par AirDrop, un fichier ou un message de votre choix\u202f; Ulune ne les reçoit jamais. Une copie lisible, si vous en demandez une, n’est pas scellée\u202f: gardez-la pour vous.",
+          "Si vous synchronisez votre espace\u202f: la clé de cet appareil pour votre compte, gardée par le navigateur sans qu’on puisse l’en extraire (elle connecte cet appareil et n’ouvre rien), et, scellées dans votre espace, les clés de votre compte et l’état de la synchronisation de cet appareil.",
           "Tant que vous regardez sans vous connecter, les thèmes restent dans l’onglet ouvert et sont effacés à sa fermeture.",
           "Dès que votre appareil a calculé un thème\u202f: le moteur de calcul et ses fichiers (la Swiss Ephemeris, environ 2\u202fMo), et le ciel qu’ils ont calculé pour les dates ouvertes, dans le cache de votre navigateur. Les mêmes fichiers pour tous, rien sur vous.",
           "Si vous gardez Ulune sur cet appareil pour l’ouvrir hors ligne (demandé une fois, désactivé tant que vous ne dites pas oui)\u202f: les fichiers d’Ulune, sa page et le ciel des dates ouvertes, les mêmes pour tous. Rien sur vous.",
@@ -92,6 +109,19 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         ],
       },
       {
+        h: "Si vous synchronisez vos appareils",
+        p: "La synchronisation reste désactivée tant que vous ne l’activez pas, en créant votre espace privé ou plus tard dans Réglages › Espace privé. Votre espace est alors scellé sur votre appareil, enregistrement par enregistrement, avec des clés tirées de la clé de votre espace, et seules les boîtes scellées partent vers le serveur d’Ulune. Son fonctionnement est publié en entier avec le code d’Ulune (docs/sync-protocol.md).",
+        list: [
+          "Ce que garde le serveur d’Ulune\u202f: un nombre tiré au hasard pour votre compte (ni e-mail, ni nom, ni numéro de téléphone)\u202f; pour chaque moyen d’accès, la clé publique et l’identifiant d’une clé d’accès, ou l’empreinte d’une clé tirée de votre phrase secrète ou de votre code de récupération, qui permet de la vérifier mais pas de la retrouver, et la clé de votre espace verrouillée par ce moyen d’accès\u202f; les clés publiques de vos appareils, leurs noms scellés, et le jour où chacun a rejoint le compte et celui où il a été vu pour la dernière fois\u202f; vos enregistrements en boîtes scellées, leurs noms remplacés par des codes et leurs tailles arrondies à des tailles fixes (8\u202fKo au moins), avec le jour où chacun a changé. Les dates sont des jours entiers, jamais des heures.",
+          "Ce qu’il ne reçoit jamais\u202f: vos thèmes, les noms, dates, heures et lieux qu’ils contiennent, vos notes, groupes, logements ou marque-pages sous forme lisible\u202f; votre phrase secrète, votre code de récupération ou votre clé d’accès\u202f; la clé qui ouvre votre espace. Vos clés d’IA et ce qui n’appartient qu’à un appareil (le thème ouvert, les partenaires choisis, les pages lues) ne le quittent jamais.",
+          "Où\u202f: les fonctions du compte tournent dans la région de Francfort de Vercel et sa base de données est le Postgres de Neon à Francfort (AWS eu-central-1), dans l’Union européenne.",
+          "Journaux\u202f: le code d’Ulune n’écrit rien de vos requêtes et ne garde aucune adresse IP. Les journaux de requêtes de Vercel gardent les adresses IP peu de temps, hors du contrôle d’Ulune (Hébergement, ci-dessus).",
+          "Combien de temps\u202f: jusqu’à ce que vous arrêtiez la synchronisation ou supprimiez votre compte, dans Réglages › Espace privé, ce qui efface tout sur le serveur immédiatement. Un enregistrement supprimé laisse une marque vide pendant 90\u202fjours, pour que vos autres appareils apprennent qu’il est parti. Un compte inutilisé pendant deux ans est supprimé, avec tout ce qu’il contient\u202f; sans e-mail, Ulune ne peut pas vous prévenir avant.",
+          "Ajouter un appareil par code QR\u202f: le code contient un lien de courte durée et une clé publique, après le «\u202f#\u202f» de son adresse, qu’aucune requête ne transporte. La clé de votre espace part vers le nouvel appareil scellée pour lui seul, une fois que vous avez vu les mêmes six chiffres sur les deux écrans. Si vous scannez avec l’appareil photo de cet appareil, il lit le code ici\u202f: rien n’est enregistré ni envoyé.",
+          "Si vous perdez tous vos appareils, votre phrase secrète et votre code de récupération, personne ne peut ouvrir vos données, Ulune compris\u202f: c’est le prix à payer pour qu’Ulune ne puisse pas les lire.",
+        ],
+      },
+      {
         h: "L’encyclopédie",
         p: "Chercher et lire dans l’encyclopédie n’envoie rien d’autre que la demande de chaque page ouverte, et des fichiers d’Ulune, les mêmes pour tous. Sa recherche se fait sur votre appareil\u202f: ce que vous y tapez n’est jamais envoyé. «\u202fDans votre thème\u202f» est calculé sur votre appareil à partir du thème ouvert dans l’onglet. Vos marque-pages et vos notes sont gardés uniquement dans votre espace privé, chiffrés sur cet appareil comme vos thèmes\u202f; les pages lues y sont gardées aussi tant qu’il est ouvert, sinon seulement jusqu’à la fermeture de l’onglet, et vous pouvez les effacer.",
       },
@@ -104,8 +134,9 @@ export const PRIVACY_NOTICE: Record<"en" | "fr", Notice> = {
         list: [
           "Regardez sans vous connecter, et rien n’est gardé.",
           "Téléchargez une copie lisible de vos données, ou une sauvegarde chiffrée, depuis les Réglages.",
-          "Effacez tout ce qu’Ulune garde sur cet appareil depuis Réglages, Vos données. Il n’en existe aucune copie ailleurs.",
-          "Ulune ne détient aucune donnée sur vous de son côté\u202f: il n’y a donc rien à montrer, corriger ou effacer. Vous pouvez tout de même le demander, et saisir l’autorité de protection des données (en France, la CNIL).",
+          "Effacez tout ce qu’Ulune garde sur cet appareil depuis Réglages, Vos données. Sauf si vous synchronisez, il n’en existe aucune copie ailleurs.",
+          "Arrêtez la synchronisation, ou supprimez votre compte, depuis Réglages › Espace privé\u202f: tout ce qui est sur le serveur d’Ulune disparaît immédiatement, et vos appareils gardent leur propre espace.",
+          "Sans synchronisation, Ulune ne détient aucune donnée sur vous de son côté\u202f: il n’y a donc rien à montrer, corriger ou effacer\u202f; avec elle, seulement les boîtes scellées ci-dessus, qu’il ne peut pas lire. Vous pouvez tout de même le demander, et saisir l’autorité de protection des données (en France, la CNIL).",
         ],
       },
       {

@@ -16,8 +16,12 @@
  * pages (part 23): a term found by its characters or its pinyin, its name in
  * characters and pinyin in its head, a language's home and its introduction.
  */
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { DEV, SHOTS, assertNoOverflow, ensureShotsDir, gotoApp, launch, setLang, setView } from "./_lib.mjs";
+
+/** The Chinese families written and live (src/lib/chinese/term-live.ts), as zodiac-time.mjs reads them. */
+const LIVE = /LIVE_FAMILIES[^=]*=\s*new Set<ChineseFamily>\(\[([^\]]*)\]/.exec(readFileSync(new URL("../../src/lib/chinese/term-live.ts", import.meta.url), "utf8"))?.[1] ?? "";
 
 const fail = (why) => {
   throw new Error(why);
@@ -235,7 +239,10 @@ await ensureShotsDir();
     const zh = page.getByTestId("enc-zh");
     if (!/木/.test(await zh.innerText()) || (await zh.locator('[lang="zh-Hant"]').count()) !== 1 || (await zh.locator('[lang="zh-Latn-pinyin"]').innerText()) !== "mù") fail("a Chinese term's name in its head");
     if ((await page.locator('[data-section=meaning] a[data-term="phase-water"]').getAttribute("href")) !== "/encyclopedie/phase-eau") fail("the phases link each other");
-    if ((await page.locator("[data-section=practice] a", { hasText: /^Jia$/ }).count()) !== 0) fail("a term not written yet is a link");
+    // A term links once its family is written (Jia's stem, part 23's first batch), and reads as plain words until then (Zhen's trigram, while the trigrams wait).
+    if ((await page.locator('[data-section=practice] a[data-term="stem-jia"]').getAttribute("href")) !== "/encyclopedie/jia-bois") fail("a written term links");
+    const zhen = await page.locator("[data-section=practice] a", { hasText: /^Zhen$/ }).count();
+    if (/"trigram"/.test(LIVE) ? zhen !== 1 : zhen !== 0) fail(/"trigram"/.test(LIVE) ? "a written term reads as plain words" : "a term not written yet is a link");
     await page.goto(`${origin}/encyclopedia/bazi`, { waitUntil: "load" });
     await page.getByTestId("enc-about").waitFor({ timeout: 8000 });
     if ((await page.locator('[data-testid=enc-about] a[href="/encyclopedia/five-phases"]').count()) < 1) fail("BaZi's home links the five phases");

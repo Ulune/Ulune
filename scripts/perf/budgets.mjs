@@ -230,6 +230,14 @@ if (want.has("bundle")) {
   // they landed), about what it read when all three landed (275.3); the round's new words in the first
   // download, the offline messages' (item 6), weigh 0.1. And the Chinese words' book (37.5) is no longer
   // fetched after the load (item 5; the chinese rows below).
+  // Feature 4, the synced account on the device (23 Oct 2026): 275.2 -> 275.6, twice, built beside HEAD the
+  // same way. What reached the first download, 0.4 in all: the /link route (where a device link's QR code
+  // lands, the protocol's address, 0.1), the studio reading charts changed on another device (space-sync.ts,
+  // 0.09), the Private menu's "synced" and its line when it waits or is paused, with their words (0.14), the
+  // guide's sentence (0.03), the sheet's new word book in its list of files (0.02). Everything else loads
+  // with the sheet, Settings' sync part (lazy, sync-settings.tsx) or the account's own code; the review kept
+  // the sheet's and Settings' new files out of the lists "/" names (lucide's Check, account-id.ts, the space's
+  // passkey file, sync.css), and the style sheets read as before.
   check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 276, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the

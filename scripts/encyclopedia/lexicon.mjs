@@ -14,7 +14,8 @@
  *   - case kept: a single word links only as written ("Mars" the planet,
  *     not French "mars" the month); a name of two words or more also links
  *     with a small first letter ("tenth house", "grand trine"), unless it
- *     then reads as an everyday phrase (NO_LOWER: "a whole sign").
+ *     then reads as an everyday phrase (NO_LOWER: "a whole sign"; AS_WRITTEN:
+ *     the solar terms, "grand froid", "début du printemps").
  *
  * A tradition's list holds its own entries; Human Design's also holds the
  * planets and the signs, which its gate and activation texts name; "all"
@@ -25,7 +26,11 @@
  * BaZi's pillars. Every tradition holds the shared ideas (yin and yang).
  * The phases' single names (Wood, Fire…) are everyday words in both
  * languages: they link in the tables, which know their term, and where a
- * writer marks them, never by themselves in running text.
+ * writer marks them, never by themselves in running text; so do the stems'
+ * and branches' own syllables (Jia, Zi, Yin, You), which other Chinese
+ * words and English share (part 23's second batch). A Chinese term's name
+ * that holds another entry's (the star "Travelling Horse", the animal
+ * "Horse") is matched first, and links its own page or nothing (part 24).
  * scripts/encyclopedia/link-review.mjs runs the list over every text Ulune
  * has and prints what it would link, for review.
  */
@@ -63,7 +68,31 @@ const ALIAS_FAMILIES = new Set([
   "human-design/centres",
   "numerology/positions",
   "numerology/cycles",
+  // The solar terms' own names, which the readings use ("at Lichun"), and their other English names (part 23's third batch).
+  "chinese/solar-terms",
 ]);
+
+/**
+ * Entries whose names are names only with their capital: a solar term's ("Grand froid", "Rosée blanche",
+ * "Début du printemps") reads in small letters as an everyday phrase, so it links only as written; the
+ * family's own entry ("solar terms", "termes solaires") still links in small letters.
+ */
+const AS_WRITTEN = /^solar-term-/;
+
+/**
+ * The families whose entries go by one syllable of pinyin (Jia, Zi, Yin, You): a syllable other Chinese
+ * words share (yin and yang, Wu Gui, Fu Wei, Huo Hai, Shen Sha) and English too ("You"). Like the phases'
+ * everyday names, they link in the tables, which know their term, and where a writer marks them, never by
+ * themselves in running text (encyclopedia part 23, the writers' guide, section 8).
+ */
+const SYLLABLE_FAMILIES = new Set(["chinese/stems", "chinese/branches"]);
+
+/** The lexicons whose texts name Chinese terms: their terms' longer names are matched first (`buildLexicon`, `terms`). */
+const CHINESE_LEXICONS = new Set(["chinese", "chinese-astrology", "bazi", "feng-shui"]);
+
+/** Whether a name holds a form as a whole word, as the linker matches it (src/encyclopedia/linker.ts). */
+const holds = (name, form) =>
+  new RegExp(`(?<![\\p{L}\\p{N}-])${form.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}\\p{N}-])`, "u").test(name);
 
 /** The shared Chinese foundations (part 23, registry: chinese.mjs), and the ideas every tradition shares. */
 const CHINESE_FOUNDATIONS = ["phases", "stems", "branches", "pillars", "na-yin", "solar-terms", "relations", "trigrams", "ideas"].map((f) => `chinese/${f}`);
@@ -101,10 +130,21 @@ function keep(form, lang) {
  * with a page are linked. `traditions`: the lists to make (every tradition
  * of the registry, so a language with no entry of its own yet still links
  * what it borrows); by default those with an entry.
+ *
+ * `terms`: the Chinese manifest's terms, written or not (part 24). A name
+ * of one of them (title or alias) that holds another entry's form, as the
+ * star "Travelling Horse" holds the animal "Horse", joins the Chinese
+ * lexicons as a longer form, matched first: it links its own entry once that
+ * is written, with a page, in a family the lexicon holds, and until then it
+ * is a row without an id, which the linker leaves as plain words, so the
+ * word inside never leads to the wrong page.
  */
-export function buildLexicon(entries, lang, traditions = [...new Set(entries.map((e) => e.tradition))]) {
+export function buildLexicon(entries, lang, traditions = [...new Set(entries.map((e) => e.tradition))], terms = []) {
+  const byId = new Map(entries.map((e) => [e.id, e]));
   const forms = (e) => {
     const m = e[lang].meta;
+    // A stem's or a branch's own syllable stays plain in running text (the family's own entry, "Heavenly Stems", links).
+    if (SYLLABLE_FAMILIES.has(`${e.tradition}/${e.family}`) && !/\s/.test(clean(m.title))) return [];
     const out = [clean(m.title)];
     if (ALIAS_FAMILIES.has(`${e.tradition}/${e.family}`)) {
       for (const a of m.aliases ?? []) {
@@ -135,11 +175,23 @@ export function buildLexicon(entries, lang, traditions = [...new Set(entries.map
     // A name of two words or more also links with a small first letter ("tenth house", "grand trine").
     for (const row of [...seen.values()].filter(Boolean)) {
       const [f] = row;
-      if (!/\s/.test(f) || !/^\p{Lu}/u.test(f) || NO_LOWER.has(f)) continue;
+      if (!/\s/.test(f) || !/^\p{Lu}/u.test(f) || NO_LOWER.has(f) || AS_WRITTEN.test(row[1])) continue;
       const low = f.charAt(0).toLowerCase() + f.slice(1);
       if (!seen.has(low)) seen.set(low, [low, row[1], row[2]]);
     }
-    lexicon[t] = [...seen.values()].filter(Boolean).sort((a, b) => [...b[0]].length - [...a[0]].length || a[0].localeCompare(b[0]));
+    // A Chinese term's name that holds another entry's form ("Travelling Horse", "Horse"): its own entry's, or plain.
+    if (CHINESE_LEXICONS.has(t)) {
+      const rows = [...seen.values()].filter(Boolean);
+      for (const term of terms) {
+        const e = byId.get(term.id);
+        const linked = e?.page && (e.tradition === t || (BORROWED[t] ?? []).includes(`${e.tradition}/${e.family}`));
+        for (const name of new Set([term.title?.[lang], ...(term.aliases?.[lang] ?? [])].filter(Boolean).map(clean))) {
+          if (!/\s/.test(name) || seen.has(name) || !rows.some(([f, id]) => id !== term.id && holds(name, f))) continue;
+          seen.set(name, linked ? [name, e.id, e[lang].meta.slug] : [name, "", ""]);
+        }
+      }
+    }
+    lexicon[t] =[...seen.values()].filter(Boolean).sort((a, b) => [...b[0]].length - [...a[0]].length || a[0].localeCompare(b[0]));
   }
   return lexicon;
 }

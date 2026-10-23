@@ -253,7 +253,10 @@ async function checkHeaders() {
   // Where a share link lands (share plan, feature 1): the same page for every link, out of search.
   const sharePage = await get("/s");
   if (sharePage.res.status !== 200 || !noindex(sharePage.text) || canonical(sharePage.text) || !sharePage.text.includes('data-testid="share-page"')) fail("/s: should answer and stay out of search");
-  console.log(`search: robots.txt, a ${locs.length}-page sitemap, canonical addresses, settings, /guide, /s and missing pages kept out; the guide in the home page`);
+  // Where a device link lands (feature 4, the synced account): the same, for every link.
+  const linkPage = await get("/link");
+  if (linkPage.res.status !== 200 || !noindex(linkPage.text) || canonical(linkPage.text) || !linkPage.text.includes('data-testid="link-page"')) fail("/link: should answer and stay out of search");
+  console.log(`search: robots.txt, a ${locs.length}-page sitemap, canonical addresses, settings, /guide, /s, /link and missing pages kept out; the guide in the home page`);
 }
 
 /** The health check an uptime monitor calls, and where error reports arrive. */

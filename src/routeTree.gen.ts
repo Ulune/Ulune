@@ -16,6 +16,7 @@ import { Route as ChangesRouteImport } from './routes/changes'
 import { Route as CreditsRouteImport } from './routes/credits'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as LegalRouteImport } from './routes/legal'
+import { Route as LinkRouteImport } from './routes/link'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SRouteImport } from './routes/s'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -88,6 +89,11 @@ const GuideRoute = GuideRouteImport.update({
 const LegalRoute = LegalRouteImport.update({
   id: '/legal',
   path: '/legal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LinkRoute = LinkRouteImport.update({
+  id: '/link',
+  path: '/link',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -299,6 +305,7 @@ export interface FileRoutesByFullPath {
   '/credits': typeof CreditsRoute
   '/guide': typeof GuideRoute
   '/legal': typeof LegalRoute
+  '/link': typeof LinkRoute
   '/privacy': typeof PrivacyRoute
   '/s': typeof SRoute
   '/settings': typeof SettingsRoute
@@ -345,6 +352,7 @@ export interface FileRoutesByTo {
   '/credits': typeof CreditsRoute
   '/guide': typeof GuideRoute
   '/legal': typeof LegalRoute
+  '/link': typeof LinkRoute
   '/privacy': typeof PrivacyRoute
   '/s': typeof SRoute
   '/settings': typeof SettingsRoute
@@ -394,6 +402,7 @@ export interface FileRoutesById {
   '/credits': typeof CreditsRoute
   '/guide': typeof GuideRoute
   '/legal': typeof LegalRoute
+  '/link': typeof LinkRoute
   '/privacy': typeof PrivacyRoute
   '/s': typeof SRoute
   '/settings': typeof SettingsRoute
@@ -444,6 +453,7 @@ export interface FileRouteTypes {
     | '/credits'
     | '/guide'
     | '/legal'
+    | '/link'
     | '/privacy'
     | '/s'
     | '/settings'
@@ -490,6 +500,7 @@ export interface FileRouteTypes {
     | '/credits'
     | '/guide'
     | '/legal'
+    | '/link'
     | '/privacy'
     | '/s'
     | '/settings'
@@ -538,6 +549,7 @@ export interface FileRouteTypes {
     | '/credits'
     | '/guide'
     | '/legal'
+    | '/link'
     | '/privacy'
     | '/s'
     | '/settings'
@@ -587,6 +599,7 @@ export interface RootRouteChildren {
   CreditsRoute: typeof CreditsRoute
   GuideRoute: typeof GuideRoute
   LegalRoute: typeof LegalRoute
+  LinkRoute: typeof LinkRoute
   PrivacyRoute: typeof PrivacyRoute
   SRoute: typeof SRoute
   SettingsRoute: typeof SettingsRoute
@@ -653,6 +666,13 @@ declare module '@tanstack/react-router' {
       path: '/legal'
       fullPath: '/legal'
       preLoaderRoute: typeof LegalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/link': {
+      id: '/link'
+      path: '/link'
+      fullPath: '/link'
+      preLoaderRoute: typeof LinkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -996,6 +1016,7 @@ const rootRouteChildren: RootRouteChildren = {
   CreditsRoute: CreditsRoute,
   GuideRoute: GuideRoute,
   LegalRoute: LegalRoute,
+  LinkRoute: LinkRoute,
   PrivacyRoute: PrivacyRoute,
   SRoute: SRoute,
   SettingsRoute: SettingsRoute,
