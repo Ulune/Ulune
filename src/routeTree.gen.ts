@@ -53,6 +53,8 @@ import { Route as StudioHumanDesignPairRouteImport } from './routes/_studio.huma
 import { Route as StudioNumerologyIndexRouteImport } from './routes/_studio.numerology.index'
 import { Route as StudioNumerologyCyclesRouteImport } from './routes/_studio.numerology.cycles'
 import { Route as StudioNumerologyPairRouteImport } from './routes/_studio.numerology.pair'
+import { Route as ApiAccountCleanupRouteImport } from './routes/api/account.cleanup'
+import { Route as ApiAccountV1SplatRouteImport } from './routes/api/account.v1.$'
 
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
@@ -278,6 +280,16 @@ const StudioNumerologyPairRoute = StudioNumerologyPairRouteImport.update({
   path: '/numerology/pair',
   getParentRoute: () => StudioRoute,
 } as any)
+const ApiAccountCleanupRoute = ApiAccountCleanupRouteImport.update({
+  id: '/api/account/cleanup',
+  path: '/api/account/cleanup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAccountV1SplatRoute = ApiAccountV1SplatRouteImport.update({
+  id: '/api/account/v1/$',
+  path: '/api/account/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/$': typeof SplatRoute
@@ -317,12 +329,14 @@ export interface FileRoutesByFullPath {
   '/human-design/pair': typeof StudioHumanDesignPairRoute
   '/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/numerology/pair': typeof StudioNumerologyPairRoute
+  '/api/account/cleanup': typeof ApiAccountCleanupRoute
   '/astrology/': typeof StudioAstrologyIndexRoute
   '/bazi/': typeof StudioBaziIndexRoute
   '/chinese-astrology/': typeof StudioChineseAstrologyIndexRoute
   '/feng-shui/': typeof StudioFengShuiIndexRoute
   '/human-design/': typeof StudioHumanDesignIndexRoute
   '/numerology/': typeof StudioNumerologyIndexRoute
+  '/api/account/v1/$': typeof ApiAccountV1SplatRoute
 }
 export interface FileRoutesByTo {
   '/$': typeof SplatRoute
@@ -362,12 +376,14 @@ export interface FileRoutesByTo {
   '/human-design/pair': typeof StudioHumanDesignPairRoute
   '/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/numerology/pair': typeof StudioNumerologyPairRoute
+  '/api/account/cleanup': typeof ApiAccountCleanupRoute
   '/astrology': typeof StudioAstrologyIndexRoute
   '/bazi': typeof StudioBaziIndexRoute
   '/chinese-astrology': typeof StudioChineseAstrologyIndexRoute
   '/feng-shui': typeof StudioFengShuiIndexRoute
   '/human-design': typeof StudioHumanDesignIndexRoute
   '/numerology': typeof StudioNumerologyIndexRoute
+  '/api/account/v1/$': typeof ApiAccountV1SplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -409,12 +425,14 @@ export interface FileRoutesById {
   '/_studio/human-design/pair': typeof StudioHumanDesignPairRoute
   '/_studio/numerology/cycles': typeof StudioNumerologyCyclesRoute
   '/_studio/numerology/pair': typeof StudioNumerologyPairRoute
+  '/api/account/cleanup': typeof ApiAccountCleanupRoute
   '/_studio/astrology/': typeof StudioAstrologyIndexRoute
   '/_studio/bazi/': typeof StudioBaziIndexRoute
   '/_studio/chinese-astrology/': typeof StudioChineseAstrologyIndexRoute
   '/_studio/feng-shui/': typeof StudioFengShuiIndexRoute
   '/_studio/human-design/': typeof StudioHumanDesignIndexRoute
   '/_studio/numerology/': typeof StudioNumerologyIndexRoute
+  '/api/account/v1/$': typeof ApiAccountV1SplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -456,12 +474,14 @@ export interface FileRouteTypes {
     | '/human-design/pair'
     | '/numerology/cycles'
     | '/numerology/pair'
+    | '/api/account/cleanup'
     | '/astrology/'
     | '/bazi/'
     | '/chinese-astrology/'
     | '/feng-shui/'
     | '/human-design/'
     | '/numerology/'
+    | '/api/account/v1/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/$'
@@ -501,12 +521,14 @@ export interface FileRouteTypes {
     | '/human-design/pair'
     | '/numerology/cycles'
     | '/numerology/pair'
+    | '/api/account/cleanup'
     | '/astrology'
     | '/bazi'
     | '/chinese-astrology'
     | '/feng-shui'
     | '/human-design'
     | '/numerology'
+    | '/api/account/v1/$'
   id:
     | '__root__'
     | '/$'
@@ -547,12 +569,14 @@ export interface FileRouteTypes {
     | '/_studio/human-design/pair'
     | '/_studio/numerology/cycles'
     | '/_studio/numerology/pair'
+    | '/api/account/cleanup'
     | '/_studio/astrology/'
     | '/_studio/bazi/'
     | '/_studio/chinese-astrology/'
     | '/_studio/feng-shui/'
     | '/_studio/human-design/'
     | '/_studio/numerology/'
+    | '/api/account/v1/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -576,6 +600,8 @@ export interface RootRouteChildren {
   EncyclopedieSlugRoute: typeof EncyclopedieSlugRoute
   EncyclopediaIndexRoute: typeof EncyclopediaIndexRoute
   EncyclopedieIndexRoute: typeof EncyclopedieIndexRoute
+  ApiAccountCleanupRoute: typeof ApiAccountCleanupRoute
+  ApiAccountV1SplatRoute: typeof ApiAccountV1SplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -888,6 +914,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudioNumerologyPairRouteImport
       parentRoute: typeof StudioRoute
     }
+    '/api/account/cleanup': {
+      id: '/api/account/cleanup'
+      path: '/api/account/cleanup'
+      fullPath: '/api/account/cleanup'
+      preLoaderRoute: typeof ApiAccountCleanupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/account/v1/$': {
+      id: '/api/account/v1/$'
+      path: '/api/account/v1/$'
+      fullPath: '/api/account/v1/$'
+      preLoaderRoute: typeof ApiAccountV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -969,6 +1009,8 @@ const rootRouteChildren: RootRouteChildren = {
   EncyclopedieSlugRoute: EncyclopedieSlugRoute,
   EncyclopediaIndexRoute: EncyclopediaIndexRoute,
   EncyclopedieIndexRoute: EncyclopedieIndexRoute,
+  ApiAccountCleanupRoute: ApiAccountCleanupRoute,
+  ApiAccountV1SplatRoute: ApiAccountV1SplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

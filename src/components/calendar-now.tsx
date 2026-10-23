@@ -19,7 +19,7 @@ import {
   yourAspectWords,
 } from "@/lib/i18n/calendar-words";
 import { dateFormat } from "@/lib/intl-cache";
-import { cnWord } from "@/lib/chinese/words";
+import { cnWord } from "@/lib/chinese/first-words";
 import { useI18n } from "@/lib/i18n/locale";
 import { pick } from "@/lib/i18n/pick";
 import { formatDegree, cn } from "@/lib/utils";

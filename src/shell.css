@@ -1215,6 +1215,15 @@ html.theme-switching::view-transition-new(root) {
     color: var(--color-fg);
   }
 }
+/* A finger (the bug-fix round; review item RC3): the key under the wheel
+   reaches 44 px. Its chips draw no box, so only the room between them grows. */
+@media (pointer: coarse) {
+  .ulune-wheel-legend:is([data-place="foot"], [data-place="below"]) .ob-aspect-chip {
+    height: 44px;
+    min-width: 44px;
+    justify-content: center;
+  }
+}
 
 /* Zoom bar: one sunken group of compact targets (--ctl-h). */
 .ulune-wheel-zoom-bar {

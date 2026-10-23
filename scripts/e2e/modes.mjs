@@ -234,7 +234,10 @@ async function runViewport(width) {
     // Ten steps on (a month each by default) from the tape, by keyboard.
     await page.getByTestId("progressions-slider").focus();
     await page.keyboard.press("PageUp");
-    await page.waitForTimeout(400);
+    // Until the years change (review item T3: a fixed 400 ms before).
+    await page
+      .waitForFunction((before) => (document.querySelector("[data-testid=progressions-years]")?.innerText ?? before) !== before, yearsBefore, { timeout: 8000 })
+      .catch(() => {});
     const yearsAfter = await page.getByTestId("progressions-years").innerText();
     if (yearsAfter === yearsBefore) throw new Error("progressions slider did not change years");
     await page.getByTestId("progressed-ring").waitFor();

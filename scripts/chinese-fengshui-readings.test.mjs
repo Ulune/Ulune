@@ -8,7 +8,8 @@
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import * as TEXTS from "../src/lib/chinese/fengshui-readings-texts.ts";
+import * as READING_TEXTS from "../src/lib/chinese/fengshui-readings-texts.ts";
+import { PAIR_TEXTS } from "../src/lib/chinese/fengshui-pair-texts.ts";
 import { PAIR_KEYS, isHeTu, isTen, pairKey, phaseStep, relationOf } from "../src/lib/chinese/fengshui-pairs.ts";
 import { homeOf, periodOf } from "../src/lib/chinese/fengshui-home.ts";
 import { homeReading, homeStars } from "../src/lib/chinese/fengshui-home-reading.ts";
@@ -19,6 +20,8 @@ import { yearStarsAt } from "../src/lib/chinese/fengshui-years.ts";
 import { FSY_YEAR_REF, palaceYearLines, sectorNotes, yearsReading } from "../src/lib/chinese/fengshui-years-reading.ts";
 import { homeTableCsv, homeTextParts } from "../src/lib/chinese/fengshui-home-table.ts";
 
+// The readings' texts as the page has them once a palace's reading has fetched the pairs' own (the bug-fix round, item 4).
+const TEXTS = { ...READING_TEXTS, PAIR_TEXTS };
 const full = { script: "hant", show: "full" };
 const names = { script: "hant", show: "names" };
 const N = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -111,6 +114,19 @@ test("a palace's reading: its pair first after the rooms, its stars linked to th
   const bare = homeStars(home, period, 2026, years, [], null);
   const noPair = starsReading(bare, fssPalaceRef("main", "ne"), "en", names);
   assert.ok(!noPair.sections.some((s) => s.id === "pair"));
+});
+
+test("the 45 pairings' texts are a download of their own, fetched when a palace's reading opens (the bug-fix round, item 4)", () => {
+  assert.ok(!("PAIR_TEXTS" in READING_TEXTS), "the page's own texts leave the pairings' out");
+  assert.equal(Object.keys(PAIR_TEXTS).length, 45);
+  // Before they come: the pair's section reads the face that applies, then how the phases meet.
+  const before = homeReading({ ...ctx, stars: homeStars(home, period, 2026, years, [], READING_TEXTS), texts: READING_TEXTS }, fssPalaceRef("main", "ne"), "en", names);
+  const pair = before.sections.find((s) => s.id === "pair");
+  assert.equal(pair.title, "Mountain 9 and water 5: Fire feeding the 5");
+  assert.deepEqual(pair.paragraphs, [TEXTS.FACE_TEXTS.TD[0], pairLines(9, 5, READING_TEXTS, "en")[0]]);
+  // Once here, the pair's text leads, closed by its face, as before the split.
+  const after = homeReading(ctx, fssPalaceRef("main", "ne"), "en", names).sections.find((s) => s.id === "pair");
+  assert.deepEqual(after.paragraphs, [`${PAIR_TEXTS["5-9"][0]} ${TEXTS.FACE_TEXTS.TD[0]}`, pair.paragraphs[1]]);
 });
 
 test("which face of a pairing applies (the review's FS35): every combination of the two stars' states, in every period, in both languages", () => {

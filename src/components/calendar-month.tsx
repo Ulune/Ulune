@@ -21,7 +21,7 @@ import type { ChinesePrefs } from "@/lib/chinese/prefs";
 import { animalChar } from "@/lib/chinese/animal-chars";
 import { dayAnimalAt } from "@/lib/chinese/day-cycle";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
-import { animalOf, cnWord } from "@/lib/chinese/words";
+import { animalOf, cnWord } from "@/lib/chinese/first-words";
 import type { StarChange } from "@/lib/chinese/fengshui-calendar";
 
 /** A term in a day cell: its characters when the reader shows them, else its name. */

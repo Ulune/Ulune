@@ -192,14 +192,20 @@ export function TimeDial({
   const tapeRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [width, setWidth] = useState(0);
+  // The tape's height: 32 px, 44 on a finger (time.css); read when it is resized, never per frame.
+  const [height, setHeight] = useState(32);
   const [inkEpoch, setInkEpoch] = useState(0);
   const ink = useRef<{ epoch: number; fg: string; muted: string; faint: string; bg: string; mono: string } | null>(null);
   useEffect(() => {
     const el = tapeRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => setWidth(el.clientWidth));
+    const measure = () => {
+      setWidth(el.clientWidth);
+      setHeight(el.clientHeight || 32);
+    };
+    const ro = new ResizeObserver(measure);
     ro.observe(el);
-    setWidth(el.clientWidth);
+    measure();
     // The theme changes the tape's ink.
     const mo = new MutationObserver(() => setInkEpoch((n) => n + 1));
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
@@ -213,7 +219,7 @@ export function TimeDial({
     const canvas = canvasRef.current;
     if (!canvas || !width) return;
     const dpr = Math.min(3, window.devicePixelRatio || 1);
-    const h = 32; // .ulune-time-tape's height (reading it would force a layout on every frame)
+    const h = height;
     if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(h * dpr)) {
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(h * dpr);
@@ -250,7 +256,8 @@ export function TimeDial({
     let lastRight = -Infinity;
     for (const tick of ticks) {
       const x = Math.round(mid + (tick.t - v) / per) + 0.5;
-      const len = tick.level === 2 ? 13 : tick.level === 1 ? 9 : 5;
+      // The marks' lengths follow the tape's height (a finger's tape is taller), so the dates stay under them.
+      const len = Math.round(((tick.level === 2 ? 13 : tick.level === 1 ? 9 : 5) * h) / 32);
       ctx.strokeStyle = tick.level === 2 ? muted : faint;
       ctx.beginPath();
       ctx.moveTo(x, 0);
@@ -286,7 +293,7 @@ export function TimeDial({
     ctx.lineTo(mid, 6);
     ctx.closePath();
     ctx.fill();
-  }, [value, unit, width, tag, inkEpoch, clamp, min, max]);
+  }, [value, unit, width, height, tag, inkEpoch, clamp, min, max]);
 
   // Drag and flick: the tape follows the hand, in whole steps.
   const drag = useRef<{ id: number; x0: number; v0: number; last: number; trail: { x: number; t: number }[] } | null>(null);
@@ -518,29 +525,32 @@ export function TimeDial({
         >
           {playing === 1 ? <Pause className="size-4" strokeWidth={1.75} /> : <Play className="size-4" strokeWidth={1.75} />}
         </button>
-        <label className="ulune-time-unit">
-          <span className="sr-only">{t("scrubStep")}</span>
-          <select data-testid={`${testId}-unit`} value={unit} onChange={(e) => isStepUnit(e.target.value) && setUnit(e.target.value)}>
-            {units.map((u) => (
-              <option key={u} value={u}>
-                {t(`scrubUnit_${u}` as const)}
-              </option>
-            ))}
-          </select>
-        </label>
-        {reset ? (
-          <button
-            type="button"
-            className="ulune-time-reset"
-            data-testid={reset.testId}
-            data-live={live ? "1" : "0"}
-            aria-pressed={live}
-            onClick={reset.onReset}
-          >
-            <span className={live ? "ulune-time-reset-dot is-live" : "ulune-time-reset-dot"} aria-hidden />
-            {reset.label}
-          </button>
-        ) : null}
+        {/* The step menu and Now keep together: on a finger's narrow dial they take a row of their own when the arrows leave them no room (time.css). */}
+        <span className="ulune-time-scrub-tail">
+          <label className="ulune-time-unit">
+            <span className="sr-only">{t("scrubStep")}</span>
+            <select data-testid={`${testId}-unit`} value={unit} onChange={(e) => isStepUnit(e.target.value) && setUnit(e.target.value)}>
+              {units.map((u) => (
+                <option key={u} value={u}>
+                  {t(`scrubUnit_${u}` as const)}
+                </option>
+              ))}
+            </select>
+          </label>
+          {reset ? (
+            <button
+              type="button"
+              className="ulune-time-reset"
+              data-testid={reset.testId}
+              data-live={live ? "1" : "0"}
+              aria-pressed={live}
+              onClick={reset.onReset}
+            >
+              <span className={live ? "ulune-time-reset-dot is-live" : "ulune-time-reset-dot"} aria-hidden />
+              {reset.label}
+            </button>
+          ) : null}
+        </span>
       </div>
       {picker ? (
         <AnchoredPopover

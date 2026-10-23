@@ -24,6 +24,8 @@
  *     year's layer switched off and on, the afflictions on the luopan;
  *   - (part 27) the south palace's pair of stars (8 and 6, "Standing and
  *     wealth"), and the 8 White's own reading opened from the palace's facts;
+ *     the pairing's text, a download of its own fetched only once a palace's
+ *     reading opens (the bug-fix round, item 4);
  *   - (part 26) rooms placed on the home's plan (the north-east's kitchen and
  *     bathroom, the north's bedroom), named on the palaces and read in the
  *     palace's reading, one removed; the home kept in a private space (at
@@ -81,6 +83,7 @@ const WORDS = {
     month: "the month’s star in the centre is the",
     roomsHere: "In this palace: your kitchen and your bathroom.",
     pair: "Mountain 8 and water 6: Standing and wealth",
+    pairText: "The 8’s earth feeds the 6’s metal: the classics read wealth and standing together",
     star8: "The 8 White, Zuo Fu, is earth, the trigram Gen",
     label: "Kitchen · Bath",
     kitchen: "Kitchen",
@@ -116,6 +119,7 @@ const WORDS = {
     month: "l’étoile du mois au centre est le",
     roomsHere: "Dans ce palais\u202f: votre cuisine et votre salle d’eau.",
     pair: "Montagne 8 et eau 6\u202f: Le rang et la richesse",
+    pairText: "La terre du 8 nourrit le métal du 6\u202f: les classiques y lisent la richesse et le rang réunis",
     star8: "Le 8 Blanc, Zuo Fu, est la terre, le trigramme Gen",
     label: "Cuisine · Eau",
     kitchen: "Cuisine",
@@ -154,6 +158,11 @@ async function run(width, lang) {
   const label = `${width} ${lang}`;
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
+  // The 45 pairings' texts, a download of their own fetched when a palace's reading opens (the bug-fix round, item 4).
+  let pairTexts = false;
+  page.on("request", (r) => {
+    if (r.url().includes("fengshui-pair-texts")) pairTexts = true;
+  });
   const w = WORDS[lang];
   try {
     await gotoApp(page);
@@ -242,6 +251,7 @@ async function run(width, lang) {
       top: document.querySelector("[data-testid=fengshui-stars-grid-main] .ulune-fss-cell")?.getAttribute("data-palace"),
     }));
     if (stars.charts.join() !== "main" || stars.cells !== 9 || stars.forms.join() !== "double-sitting,ten-mountain" || stars.top !== "nw") throw new Error(`${label}: the stars ${JSON.stringify(stars)}`);
+    if (pairTexts) throw new Error(`${label}: the pairings' texts fetched before a palace's reading opened`);
     await page.getByTestId("fengshui-stars-main-s").evaluate((el) => el.scrollIntoView({ block: "center" }));
     await page.getByTestId("fengshui-stars-main-s").click();
     if (phone) await clickDockTab(page, "reading");
@@ -250,6 +260,8 @@ async function run(width, lang) {
     await waitNote(page, w.pair, label, "the south palace's pair");
     // (part 27, FS35) Then the face that applies here: the 8 just past its time in Period 9, the 6 out of season.
     await waitNote(page, w.face, label, "the face that applies here");
+    // The pairing's own text, once its download is here (the bug-fix round, item 4).
+    await waitNote(page, w.pairText, label, "the pairing's text");
     await page.locator("[data-testid=click-note] [data-ref='fss:star:8']").first().click();
     await waitNote(page, w.star8, label, "the 8 White's reading");
     if (phone) await clickDockTab(page, "reading").catch(() => {});

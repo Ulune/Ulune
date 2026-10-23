@@ -50,7 +50,8 @@ import { MOUNTAINS, homeOf, periodOf } from "../src/lib/chinese/fengshui-home.ts
 import { FORMATION_NAMES } from "../src/lib/chinese/fengshui-stars-texts.ts";
 import { PAIR_KEYS } from "../src/lib/chinese/fengshui-pairs.ts";
 import { yearStarsAt } from "../src/lib/chinese/fengshui-years.ts";
-import * as FS_TEXTS from "../src/lib/chinese/fengshui-readings-texts.ts";
+import * as FS_READING_TEXTS from "../src/lib/chinese/fengshui-readings-texts.ts";
+import { PAIR_TEXTS as FS_PAIR_TEXTS } from "../src/lib/chinese/fengshui-pair-texts.ts";
 import { zodiacChart } from "../src/lib/chinese/zodiac.ts";
 import { pairMeetings, yearAhead } from "../src/lib/chinese/zodiac-time.ts";
 import { branchRef, placeAnimal, placeRef, relationRef, zodiacReading } from "../src/lib/chinese/zodiac-reading.ts";
@@ -79,6 +80,8 @@ const ROOT = new URL("..", import.meta.url).pathname;
 const CAMILLE = { utc: "1990-06-15T10:00:00Z", date: "1990-06-15", time: "12:00", longitude: 2.3522 };
 const SAMPLE_B = { utc: "1987-11-03T22:10:00Z", date: "1987-11-03", time: "23:10", longitude: 10.7522 };
 const NOW = Date.parse("2026-10-14T12:00:00Z");
+// Feng Shui's readings' texts with the pairings' own, as a palace's reading has them (the bug-fix round, item 4).
+const FS_TEXTS = { ...FS_READING_TEXTS, PAIR_TEXTS: FS_PAIR_TEXTS };
 const PREFS = ["full", "pinyin", "names"].flatMap((show) => ["hant", "hans"].map((script) => ({ script, show })));
 const LOCALES = ["en", "fr"];
 const full = { script: "hant", show: "full" };

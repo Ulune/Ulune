@@ -26,6 +26,7 @@ import { DIRECTION_IDS, trigramOfDirection, type DirectionId } from "./fengshui"
 import { FLIGHT, LO_SHU, LO_SHU_ROWS, starOf, starState, type FlyingChart, type FormationId, type PalaceId, type StarNumber, type StarState } from "./fengshui-stars";
 import { pairKey, relationOf } from "./fengshui-pairs";
 import type * as ReadingTexts from "./fengshui-readings-texts";
+import type * as PairTexts from "./fengshui-pair-texts";
 import type { FaceKey } from "./fengshui-readings-texts";
 import type { HomeRoom } from "./fengshui-rooms";
 import { roomLines } from "./fengshui-rooms-reading";
@@ -57,8 +58,12 @@ export function roomsChart(stars: HomeStars): { v: ChartVariant; chart: FlyingCh
 /** "main chart", « thème de remplacement »: a chart named in a sentence. */
 export const chartWord = (v: ChartVariant, locale: string): string => cnWord(locale, v === "ti" ? "fssTi" : "fssMain").replace(/^\p{Lu}/u, (c) => c.toLowerCase());
 
-/** The texts of part 27's readings, loaded with the page (fengshui-readings-texts.ts). */
-export type FsReadingTexts = typeof ReadingTexts;
+/**
+ * The texts of part 27's readings, loaded with the page (fengshui-readings-texts.ts),
+ * with the 45 pairings' own once a palace's reading has fetched them
+ * (fengshui-pair-texts.ts; the bug-fix round, item 4).
+ */
+export type FsReadingTexts = typeof ReadingTexts & { PAIR_TEXTS?: typeof PairTexts.PAIR_TEXTS };
 
 export const fssChartRef = (v: ChartVariant): string => `fss:${v}`;
 export const fssPalaceRef = (v: ChartVariant, p: PalaceId): string => `fss:${v}:palace:${p}`;
@@ -119,11 +124,15 @@ export function pairName(m: StarNumber, w: StarNumber, texts: FsReadingTexts, lo
   return n.hant && n.hans && n.pinyin ? chineseLabel({ hant: n.hant, hans: n.hans, pinyin: n.pinyin, en: n.en, fr: n.fr }, locale, prefs).text : locale === "fr" ? n.fr : n.en;
 }
 
-/** The pair of a palace read: what the classics read in it, then how the mountain star's phase meets the water star's. */
+/**
+ * The pair of a palace read: what the classics read in it (once its own
+ * download is here), then how the mountain star's phase meets the water star's.
+ */
 export function pairLines(m: StarNumber, w: StarNumber, texts: FsReadingTexts, locale: string): string[] {
   const phase = (n: StarNumber) => said(texts.PHASE_WORDS[starOf(n).phase], locale);
   const rel = said(texts.RELATION_TEXTS[relationOf(m, w)], locale).replace("{m}", phase(m)).replace("{w}", phase(w)).replace("{phase}", phase(m));
-  return [said(texts.PAIR_TEXTS[pairKey(m, w)], locale), rel];
+  const text = texts.PAIR_TEXTS?.[pairKey(m, w)];
+  return text ? [said(text, locale), rel] : [rel];
 }
 
 const STATE_LETTER = { timely: "T", waning: "W", dormant: "D" } as const;
@@ -219,7 +228,11 @@ function palaceReading(v: ChartVariant, c: FlyingChart, p: PalaceId, stars: Home
   // paragraph so the short reading (a section's first paragraph) has both.
   const pair = texts ? pairLines(x.mountain, x.water, texts, locale) : [];
   const face = texts ? pairFaceLine(x.mountain, x.water, stars.now, texts, locale) : null;
-  if (face) pair[0] = `${pair[0]} ${face}`;
+  // The face closes the pair's text; until that text's own download is here, it leads.
+  if (face) {
+    if (texts?.PAIR_TEXTS) pair[0] = `${pair[0]} ${face}`;
+    else pair.unshift(face);
+  }
   const facts: ReadingFact[] = [
     { label: cnWord(locale, "fssMountainStar"), value: starText(x.mountain, locale, prefs), ref: fssStarRef(x.mountain) },
     { label: cnWord(locale, "fssWaterStar"), value: starText(x.water, locale, prefs), ref: fssStarRef(x.water) },

@@ -1,5 +1,5 @@
 import { useI18n } from "@/lib/i18n/locale";
-import { isStaleVersion } from "@/lib/stale-chunks";
+import { chunkFailure } from "@/lib/stale-chunks";
 
 /**
  * A quiet stand-in for a part of the studio that is still downloading (a
@@ -18,24 +18,30 @@ export function LoadingLines({ testId, lines = 3 }: { testId?: string; lines?: n
 
 /**
  * The same place when the download failed: one line and a way to try again.
- * A code file gone after a deploy (with charts a reload would lose, see
- * lib/stale-chunks.ts) says a new version is out, and offers the reload.
+ * Offline, it says so. A code file gone after a deploy (with charts a reload
+ * would lose, see lib/stale-chunks.ts) says a new version is out, and offers
+ * the reload; one that failed offline, once the connection is back, says so
+ * and offers the reload too (the browser keeps the failure until then).
  */
 export function LoadFailed({ onRetry, testId, error }: { onRetry: () => void; testId?: string; error?: unknown }) {
   const { t } = useI18n();
-  const stale = error !== undefined && isStaleVersion(error);
+  const kind = error === undefined ? null : chunkFailure(error);
+  const reload = kind === "stale" || kind === "reconnected";
   return (
-    <div className="ob-loading-failed" data-testid={testId} data-stale={stale ? "1" : undefined} role="alert">
-      {stale ? (
+    <div className="ob-loading-failed" data-testid={testId} data-stale={kind === "stale" ? "1" : undefined} data-failure={kind ?? undefined} role="alert">
+      {reload ? (
         <>
-          <p>{t("staleVersionTitle")}</p>
-          <p>{t("staleVersionBody")}</p>
+          <p>{t(kind === "stale" ? "staleVersionTitle" : "reconnectedTitle")}</p>
+          <p>{t(kind === "stale" ? "staleVersionBody" : "reconnectedBody")}</p>
           <button type="button" className="ob-btn" data-testid="load-failed-reload" onClick={() => window.location.reload()}>
             {t("appErrorReload")}
           </button>
         </>
       ) : (
-        <p>{t("loadingPartFailed")}</p>
+        <>
+          <p>{t("loadingPartFailed")}</p>
+          {kind === "offline" ? <p>{t("loadingPartOffline")}</p> : null}
+        </>
       )}
       <button type="button" className="ob-btn" onClick={onRetry}>
         {t("errorSlotRetry")}

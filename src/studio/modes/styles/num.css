@@ -364,6 +364,13 @@
   font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
+/* A finger (the bug-fix round; review item RC3): each word reaches 44 px;
+   words, not pills, so only the room between the lines grows. */
+@media (pointer: coarse) {
+  .ulune-num-chip {
+    min-height: 44px;
+  }
+}
 .ulune-num-chip[data-new] b {
   color: var(--color-halo);
 }

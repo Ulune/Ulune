@@ -35,7 +35,8 @@ import { MOUNTAINS } from "../../src/lib/chinese/fengshui-home.ts";
 import { STARS as FLYING_STARS } from "../../src/lib/chinese/fengshui-stars.ts";
 import { FORMATION_NAMES } from "../../src/lib/chinese/fengshui-stars-texts.ts";
 import { AFFLICTION_NAMES } from "../../src/lib/chinese/fengshui-years-texts.ts";
-import { PAIR_NAMES, PAIR_TEXTS } from "../../src/lib/chinese/fengshui-readings-texts.ts";
+import { PAIR_NAMES } from "../../src/lib/chinese/fengshui-readings-texts.ts";
+import { PAIR_TEXTS } from "../../src/lib/chinese/fengshui-pair-texts.ts";
 import { CHINESE_FAMILY_DEFS, COMBINATION_TERMS, MANIFEST_FILE, MANIFEST_PATH, SHARED_IDEAS_TERMS } from "./chinese.mjs";
 import { slugify } from "./combinations.mjs";
 
@@ -548,7 +549,7 @@ function familyRows(terms) {
             zh: n.hant ? engine(n, "fengshui-readings-texts.ts PAIR_NAMES") : null,
             glyph: `${a}·${b}`,
             related: ["pairing", `flying-star-${a}`, ...(a !== b ? [`flying-star-${b}`] : [])],
-            texts: [`src/lib/chinese/fengshui-readings-texts.ts PAIR_TEXTS["${k}"] (${PAIR_TEXTS[k] ? "the reading of the pair" : "none"})`],
+            texts: [`src/lib/chinese/fengshui-pair-texts.ts PAIR_TEXTS["${k}"] (${PAIR_TEXTS[k] ? "the reading of the pair" : "none"})`],
           });
         }),
       ];

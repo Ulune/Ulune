@@ -299,6 +299,83 @@ async function checkRoutes() {
   console.log(`routes: /api/health ok (Swiss Ephemeris, geo-tz, ${body.ms} ms); /api/report keeps one masked line, refuses other sites, big or odd reports, and more than 60 a minute`);
 }
 
+/**
+ * The synced account in the build (docs/sync-protocol.md; share and compare plan, feature 4): every
+ * operation answers garbage with the one uniform error, with the security headers and no-store; other
+ * methods 405, unknown operations 404; a failed sign-in says the same whether the account exists or
+ * not. Then, with accounts kept in memory for this check only (ULUNE_ACCOUNT_STORE=memory, which the
+ * server never honours on Vercel), an account is created, signed into, given a sealed record, read
+ * back and deleted, through the built function. The daily clean-up refuses to run without its secret.
+ */
+async function checkAccount() {
+  const { randomBytes, webcrypto } = await import("node:crypto");
+  process.env.ULUNE_ACCOUNT_STORE = "memory";
+  process.env.ACCOUNT_SESSION_SECRET = randomBytes(32).toString("base64");
+  delete process.env.ACCOUNT_DATABASE_URL;
+  delete process.env.CRON_SECRET;
+  const protocol = readFileSync(join(ROOT, "src", "lib", "account", "protocol.ts"), "utf8");
+  const ops = [.../export const OPERATIONS = \[([\s\S]*?)\] as const;/.exec(protocol)[1].matchAll(/"([a-z/-]+)"/g)].map((m) => m[1]);
+  if (ops.length < 20) fail(`the account's operations not found in protocol.ts (${ops.length})`);
+  const b64u = (bytes) => Buffer.from(bytes).toString("base64url");
+  const post = (op, body, headers = {}) =>
+    fetch(`${BASE}/api/account/v1/${op}`, { method: "POST", headers: { "content-type": "application/json", "sec-fetch-site": "same-origin", ...headers }, body });
+  const expect = async (res, status, text, what) => {
+    const got = await res.text();
+    if (res.status !== status || got !== text) fail(`${what}: ${res.status} ${got.slice(0, 120)}`);
+    if (res.headers.get("cache-control") !== "no-store") fail(`${what}: may be cached`);
+    const lacking = SECURITY.filter((h) => !res.headers.get(h));
+    if (lacking.length) fail(`${what}: missing ${lacking.join(", ")}`);
+  };
+  for (const op of ops) {
+    for (const garbage of ["garbage", "[]", '{"surprise":1}', "", "null"]) await expect(await post(op, garbage), 400, '{"error":"bad-request"}', `${op} ${garbage || "(empty)"}`);
+    await expect(await fetch(`${BASE}/api/account/v1/${op}`), 405, '{"error":"method"}', `GET ${op}`);
+    await expect(await post(op, "{}", { "sec-fetch-site": "cross-site" }), 403, '{"error":"cross-site"}', `${op} from another site`);
+  }
+  await expect(await post("no/such", "{}"), 404, '{"error":"not-found"}', "an unknown operation");
+  // One account, from creation to deletion.
+  const deviceKey = async () => {
+    const pair = await webcrypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, false, ["sign", "verify"]);
+    return { key: b64u(new Uint8Array(await webcrypto.subtle.exportKey("spki", pair.publicKey))) };
+  };
+  const json = async (res, what) => {
+    if (res.status !== 200) fail(`${what}: ${res.status} ${(await res.text()).slice(0, 120)}`);
+    return await res.json();
+  };
+  const begin = await json(await post("account/begin", "{}"), "account/begin");
+  const authKey = b64u(randomBytes(32));
+  const made = await json(
+    await post(
+      "account/create",
+      JSON.stringify({
+        account: begin.account,
+        challenge: begin.challenge,
+        device: await deviceKey(),
+        passphrase: { salt: b64u(randomBytes(16)), m: 19456, t: 2, p: 1, authKey, wrap: b64u(randomBytes(60)) },
+        recovery: { lookup: b64u(randomBytes(16)), authKey: b64u(randomBytes(32)), wrap: b64u(randomBytes(60)) },
+      }),
+    ),
+    "account/create",
+  );
+  const auth = { authorization: `Bearer ${made.token}` };
+  const signIn = (account, key) => post("passphrase/sign-in", JSON.stringify({ account, authKey: key, device: { key: "" } }));
+  await expect(await signIn(begin.account, authKey), 400, '{"error":"bad-request"}', "a sign-in with no device key");
+  const signedIn = await json(await post("passphrase/sign-in", JSON.stringify({ account: begin.account, authKey, device: await deviceKey() })), "passphrase/sign-in");
+  if (signedIn.account !== begin.account || signedIn.way.kind !== "passphrase") fail("passphrase/sign-in answered another account");
+  for (const [account, key] of [[begin.account, b64u(randomBytes(32))], [b64u(randomBytes(16)), authKey]]) {
+    await expect(await post("passphrase/sign-in", JSON.stringify({ account, authKey: key, device: await deviceKey() })), 401, '{"error":"denied"}', "a failed sign-in");
+  }
+  const blob = b64u(randomBytes(8192));
+  const put = await json(await post("records/put", JSON.stringify({ puts: [{ rid: b64u(randomBytes(16)), base: 0, blob }] }), auth), "records/put");
+  if (put.applied?.[0]?.version !== 1) fail(`records/put: ${JSON.stringify(put).slice(0, 120)}`);
+  await expect(await post("records/put", JSON.stringify({ puts: [{ rid: b64u(randomBytes(16)), base: 0, blob: b64u(randomBytes(8000)) }] }), auth), 400, '{"error":"bad-request"}', "an unpadded record");
+  const changes = await json(await post("records/changes", '{"cursor":0}', auth), "records/changes");
+  if (changes.changes?.[0]?.blob !== blob) fail("records/changes did not give the record back");
+  if ((await json(await post("account/delete", '{"confirm":"delete-everything"}', auth), "account/delete")).deleted !== true) fail("account/delete");
+  await expect(await post("account/status", "{}", auth), 401, '{"error":"denied"}', "a deleted account's session");
+  await expect(await fetch(`${BASE}/api/account/cleanup`, { headers: { authorization: "Bearer guess" } }), 503, '{"error":"unavailable"}', "the clean-up without CRON_SECRET");
+  console.log(`account: ${ops.length} operations answer garbage, other methods and other sites uniformly; an account created, signed into, synced and deleted through the built function; the clean-up locked without its secret`);
+}
+
 process.env.ULUNE_DEV = BASE;
 // The casts below go to Ulune's server (Settings' other choice), so their answers can be read off the network
 // and the device's checked against them; the device's own cast through the page comes after (deviceCast).
@@ -511,6 +588,7 @@ let ok = false;
 try {
   await checkHeaders();
   await checkRoutes();
+  await checkAccount();
   await gotoApp(page);
   // 1. A place from the search (the server asks Open-Meteo).
   const paris = await cast(FIXTURE_A);

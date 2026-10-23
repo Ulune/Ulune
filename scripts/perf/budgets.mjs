@@ -223,6 +223,13 @@ if (want.has("bundle")) {
   // its importer has already loaded (vite.config.ts, preloadLists: 0.4 over the first download's chunks).
   // 274.0–274.1 as built, three in a row; 274.4 when the send icons land within the load, 275.3 when all
   // three small chunks do (a busy machine). The limit stays 276.
+  // The bug-fix round (23 Oct 2026), item 3: those three small chunks (the footer's legal links and their whole
+  // words, the guide's linked paragraph, the space button's lock and send icons), two imports down and so
+  // fetched only once the studio's code ran, joined the shared chunk, which the page names up front
+  // (vite.config.ts): "/" reads the same on every run, 275.2 three times in a row (274.6 to 275.7 before, as
+  // they landed), about what it read when all three landed (275.3); the round's new words in the first
+  // download, the offline messages' (item 6), weigh 0.1. And the Chinese words' book (37.5) is no longer
+  // fetched after the load (item 5; the chinese rows below).
   check("bundle", '"/" JavaScript with the load (returning reader)', home.jsUpFront / 1024, 276, "KB gz");
   // Style sheets: those the first paint waits for, and all of them once the
   // modes' own have loaded after it (the calendar's since part 55; the
@@ -247,8 +254,12 @@ if (want.has("bundle")) {
   // under; the next rule here needs room made first. Week 3's review (18 Oct) made it: the two people's
   // rules written once for every Relationship page (pair.css, which "/" fetches with Synastry at idle) and
   // the numerology table's Compare rules gone with it (num.css), 79 B; then the Relationship toolbar's
-  // second row (pair.css) and a phone's short lens names (shell.css): 53.50 -> 53.44.)
-  check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 53.5, "KB gz");
+  // second row (pair.css) and a phone's short lens names (shell.css): 53.50 -> 53.44. The bug-fix round
+  // (23 Oct 2026, review items RC3 and T10) gave the Western pages' controls 44 px on a finger, as touch asks:
+  // the time dial (time.css, with a redundant rule gone), the key under the wheel (shell.css), the Calendar's
+  // day rows, transits in effect, month names and zone menu (timing.css), numerology's cycles (num.css), 0.16:
+  // 53.60. Raised on purpose, as part 30 said the next sheet would: limit 53.8.)
+  check("bundle", '"/" style sheets with the modes\' own', home.cssGz / 1024, 53.8, "KB gz");
   // (The engine's worker, fetched when a chart is first calculated on the device, has its own row: engine.)
   const largest = Math.max(...home.files.filter((f) => f.type === "script" && !/\/engine-worker-/.test(f.file)).map((f) => f.gz ?? 0));
   // (The natal wheel's chunk: 79.4-80.2 since parts 96-97, as shared modules land in it or not; limit 81.
@@ -353,8 +364,16 @@ if (want.has("chinese")) {
   // Feng Shui 113.9 (108.5, +5.4). The limits of Chinese astrology and Feng Shui are raised with part 30's
   // margins, 59.0 and 115.5, as a decision for the owner (review of week 4). The next saving: the part's
   // readings (zodiacPairNowReading, fsPairNowReading, about 1.2 each) loaded when one is opened.
-  const { termTable, languages } = jsonOf(nodeTs([join(ROOT, "scripts/perf/load/languages.mjs"), "--json"]));
-  const LIMITS = { "chinese-astrology": ["Chinese astrology", 59.0], bazi: ["BaZi", 79.2], "feng-shui": ["Feng Shui", 115.5] };
+  // The bug-fix round (23 Oct 2026), review item T9: Feng Shui's 45 pair texts left the readings' texts for a
+  // file of their own (src/lib/chinese/fengshui-pair-texts.ts, 6.5 KB gz), fetched when a palace's reading
+  // opens: the readings' texts 12.9 -> 6.4, Feng Shui 113.9 -> 107.5 measured, so its limit comes down to
+  // 109.0 (part 30's margin, 1.5). And the Chinese words' book (catalog/chinese.ts, 37.5 KB gz) is no longer
+  // fetched by "/" at idle: the Calendar's, the Look tab's and the birth form's 21 words became a small book
+  // of their own (chinese-first-words.ts, 1.0 with its reader), so the first Chinese page a reader opens
+  // fetches the book; shared by the three, it is counted apart, in a row of its own (below), as the term
+  // table is. Chinese astrology (58.4) and BaZi (78.8) keep their limits.
+  const { termTable, wordsBook, languages } = jsonOf(nodeTs([join(ROOT, "scripts/perf/load/languages.mjs"), "--json"]));
+  const LIMITS = { "chinese-astrology": ["Chinese astrology", 59.0], bazi: ["BaZi", 79.2], "feng-shui": ["Feng Shui", 109.0] };
   for (const l of languages) {
     const [name, limit] = LIMITS[l.language] ?? [l.language, 0];
     check("chinese", `${name}: its pages after "/", JS and CSS`, l.gz / 1024, limit, "KB gz");
@@ -364,6 +383,11 @@ if (want.has("chinese")) {
   // The solar terms and new moons of 1799–2201 (src/lib/chinese/time-table.ts), fetched once, by the
   // first Chinese page a reader opens: the plan's "about 40 KB gz, once". 29.0 on 14 Oct 2026.
   check("chinese", "the term and new-moon table", termTable.reduce((n, f) => n + f.gz, 0) / 1024, 40, "KB gz");
+  // The Chinese traditions' interface words (catalog/chinese.ts), fetched once by the first Chinese page a
+  // reader opens, since "/" no longer fetches them (the bug-fix round, item 5): 37.5 on 23 Oct 2026.
+  check("chinese", "the Chinese words' book", wordsBook.reduce((n, f) => n + f.gz, 0) / 1024, 39, "KB gz");
+  // And each language's pages fetch it themselves: were "/" to fetch it again after its load, none would.
+  check("chinese", 'languages whose words "/" already fetched', languages.filter((l) => !l.words).length, 0, "");
   // The engines' time in Chromium with the CPU slowed 6× through the DevTools protocol (Emulation.
   // setCPUThrottlingRate), the median of 9 timings (scripts/perf/chinese/timing.mjs). The plan: "a
   // full BaZi chart with luck pillars: under 5 ms on a 6× slowed phone", "a Flying Star chart: under

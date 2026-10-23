@@ -5,7 +5,7 @@
 import { TIGHT_ORB } from "./constants";
 import { applyingWord, aspectFamily, aspectInPractice, aspectIs, bodyAs, bodyIs, bodyKeywords, houseArea, minorAspectNote, pairTheme, signKeywords } from "./plain";
 import type { Locale } from "@/lib/i18n/locale";
-import { bodyAgree, bodyInline, bodyLabel, bodyThe, houseInline, inSign, signName, transitLinkPhrase } from "@/lib/i18n/astro";
+import { bodyAgree, bodyInline, bodyLabel, bodyThe, houseInline, inSign, joinList, signName, transitLinkPhrase } from "@/lib/i18n/astro";
 import { dateFormat } from "@/lib/intl-cache";
 import { stationMoment } from "./table-cells";
 import { inOrbSpan } from "./transit-exact";
@@ -32,14 +32,39 @@ function shortDay(ms: number, locale: Locale, year: boolean): string {
   return dateFormat(locale === "fr" ? "fr-FR" : "en-GB", { day: "numeric", month: "short", ...(year ? { year: "numeric" } : {}), timeZone: "UTC" }).format(new Date(ms));
 }
 
+const TIMES_EN = ["", "once", "twice", "three times", "four times", "five times"];
+const TIMES_FR = ["", "une fois", "deux fois", "trois fois", "quatre fois", "cinq fois"];
+
+/**
+ * A slow body turning near its stations passes the exact point several times
+ * on one pass (the bug-fix round, item 1): "Pluto passes the exact point
+ * three times, turning back and forward again: on 14 Jan 2025, 21 Sep 2025
+ * and 4 Nov 2025." The days in universal time, like the exact moment.
+ */
+export function transitPasses(link: AspectLink, locale: Locale): string | null {
+  const passes = link.exactPasses ?? [];
+  if (passes.length < 2) return null;
+  const fr = locale === "fr";
+  const days = passes.map((iso) => `${fr ? "le " : ""}${shortDay(Date.parse(iso), locale, true)}`);
+  const n = passes.length;
+  const times = (fr ? TIMES_FR[n] : TIMES_EN[n]) ?? (fr ? `${n} fois` : `${n} times`);
+  return fr
+    ? `${bodyThe(link.a, locale, true)} passe ${times} sur le point exact, en rebroussant chemin puis en repartant\u202f: ${joinList(days, locale)}.`
+    : `${bodyThe(link.a, locale, true)} passes the exact point ${times}, turning back and forward again: on ${joinList(days, locale)}.`;
+}
+
 /**
  * When a transit is exact and about how long it is within a degree (review 3
  * Oct, R1): "Exact on 5 Oct 2026, 14:20 UT; within 1° from about 3 to 7 Oct."
+ * A pass with several exacts lists them instead of a span, which its turns
+ * would make wrong.
  */
 export function transitWhen(link: AspectLink, speed: number | undefined, locale: Locale): { sentence: string; exact: string; span: string | null } | null {
   if (!link.exactUtc) return null;
   const fr = locale === "fr";
   const exact = stationMoment(link.exactUtc, locale);
+  const passes = transitPasses(link, locale);
+  if (passes) return { sentence: `${fr ? `Exact le ${exact}.` : `Exact on ${exact}.`} ${passes}`, exact, span: null };
   const span = inOrbSpan(link.exactUtc, speed, 1);
   let tail = "";
   let spanText: string | null = null;

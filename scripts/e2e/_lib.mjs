@@ -615,9 +615,17 @@ export async function openTimePicker(page, dial = "transit-scrubber", picker = "
     });
     await page.waitForFunction(() => document.querySelector(".ob-panel")?.getAttribute("data-detent") === "peek", null, { timeout: 4000 });
   }
-  // The sheet takes a moment to fold; the dial's head comes back once it has.
+  // The sheet takes a moment to fold; the dial's head comes back once it has, played back from where it
+  // stood with the stage's rows (stage-flip.ts, its own clock, not the sheet's): pressed once those moves
+  // have finished (review item T3, "element is not stable" on a phone).
   await page.getByTestId(`${dial}-readout`).waitFor({ state: "visible", timeout: 8000 });
   await page.waitForFunction(() => !document.querySelector(".ob-panel[data-moving]"), null, { timeout: 4000 }).catch(() => {});
+  await page.getByTestId(`${dial}-readout`).evaluate((el) =>
+    Promise.race([
+      Promise.all((el.closest(".ob-foot") ?? el).getAnimations({ subtree: true }).filter((a) => a.effect?.getComputedTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {}))),
+      new Promise((resolve) => setTimeout(resolve, 4000)),
+    ]),
+  );
   await page.getByTestId(`${dial}-readout`).click();
   await page.getByTestId(picker).waitFor({ timeout: 8000 });
 }

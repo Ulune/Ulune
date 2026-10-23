@@ -32,6 +32,7 @@ export const common = {
   keepChart: ["Keep", "Garder"],
   loadingPart: ["Loading…", "Chargement…"],
   loadingPartFailed: ["This part didn’t load.", "Cette partie n’a pas pu se charger."],
+  loadingPartOffline: ["You’re offline: try again once the connection is back.", "Vous êtes hors ligne\u202f: réessayez une fois la connexion revenue."],
   moon: ["Moon", "La Lune"],
   new: ["New", "Nouveau"],
   newNatal: ["New chart", "Nouveau thème"],

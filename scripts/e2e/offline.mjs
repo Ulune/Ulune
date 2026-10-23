@@ -13,8 +13,10 @@
 // once, a home kept there; without a connection both reload whole (the four
 // pillars drawn; the home's dial, the facing kept back on it), and a Chinese
 // page never opened says what any part not yet downloaded says ("This part
-// didn't load.", with "Try again"), inside the app, rather than breaking; once
-// the connection is back, it opens when loaded again. Without a build this
+// didn't load.", that the reader is offline, and "Try again"), inside the app,
+// rather than breaking; once the connection is back, "Try again" opens it (the
+// page reloads once by itself, never saying a new version is out: the bug-fix
+// round, item 6). Without a build this
 // part is skipped, and says so; `--built` runs it alone (after `npm run build`).
 // A chart calculated offline (on-device plan, step 5), in the same part: the
 // reader's first chart was calculated on the device before Ulune was kept, so
@@ -264,18 +266,22 @@ async function chineseOffline() {
     await page.goto(`${BASE}/chinese-astrology`, { waitUntil: "load", timeout: 45000 });
     await page.getByTestId("mode-load-failed").waitFor({ timeout: 30000 });
     const said = (await page.getByTestId("mode-load-failed").innerText()).replace(/\s+/g, " ");
-    if (!said.includes("This part didn’t load.") || !said.includes("Try again")) throw new Error(`offline, a page never opened says "${said}"`);
+    if (!said.includes("This part didn’t load.") || !said.includes("You’re offline") || !said.includes("Try again")) throw new Error(`offline, a page never opened says "${said}"`);
     if (await page.getByTestId("app-error").count()) throw new Error("offline, a page never opened broke the app");
     if (!(await page.getByTestId("lang-button").count())) throw new Error("offline, a page never opened lost the app around it");
     console.log(`offline: a page never opened says "${said}"`);
     await page.screenshot({ path: join(SHOTS, "offline-unvisited-1280.png") }).catch(() => {});
 
-    // The connection back: the page opens once loaded again (Chromium keeps a failed download for the
-    // page's life, so "Try again" alone can't fetch it; the message then offers the reload).
+    // The connection back, "Try again" (the bug-fix round, item 6): Chromium keeps a failed download for the
+    // page's life, so the retry fails again; that is not a new version, and with the charts kept the page
+    // reloads by itself once and opens (it used to say "A new version of Ulune is out").
     await serverUp();
     await context.setOffline(false);
-    await page.reload({ waitUntil: "load", timeout: 45000 });
-    await page.getByTestId("zodiac-wheel").waitFor({ timeout: 30000 });
+    await page.getByTestId("mode-load-failed").getByRole("button", { name: "Try again" }).click();
+    await page.getByTestId("zodiac-wheel").waitFor({ timeout: 30000 }).catch(async () => {
+      const now = await page.getByTestId("mode-load-failed").innerText().catch(() => "(no message)");
+      throw new Error(`back online, "Try again" left: "${now.replace(/\s+/g, " ")}"`);
+    });
     if (broken) throw new Error(`errors on the pages kept: ${errors.slice(0, broken).join(" | ")}`);
     console.log("offline-chinese OK");
   } catch (err) {

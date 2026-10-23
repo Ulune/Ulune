@@ -557,6 +557,34 @@ function useReadingTexts(enabled: boolean): FsReadingTexts | null {
   return texts;
 }
 
+/*
+ * The 45 pairings' own texts (two thirds of the readings' texts; the bug-fix
+ * round, item 4, review item T9): another download, fetched when a palace's
+ * reading opens, kept for the visit. The palace reads its stars and their
+ * phases until it is here.
+ */
+type PairTextsOf = NonNullable<FsReadingTexts["PAIR_TEXTS"]>;
+let pairsLoaded: PairTextsOf | null = null;
+const loadPairs = () => importWithRetry(() => import("@/lib/chinese/fengshui-pair-texts"), { attempts: 2 });
+
+function usePairTexts(wanted: boolean): PairTextsOf | null {
+  const [pairs, setPairs] = useState<PairTextsOf | null>(pairsLoaded);
+  useEffect(() => {
+    if (!wanted || pairs) return;
+    let alive = true;
+    void loadPairs()
+      .then((m) => {
+        pairsLoaded = m.PAIR_TEXTS;
+        if (alive) setPairs(m.PAIR_TEXTS);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [wanted, pairs]);
+  return pairs;
+}
+
 function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
   const { locale } = useI18n();
   const prefs = useChinesePrefs();
@@ -572,7 +600,10 @@ function useHomeRuntime(): ModeRuntime<FengShuiHomeState> {
   const chartPick = useHomeInput((s) => s.chart);
   // A home needs no birth chart (FS13): only "the house and you" waits for one, and the declination for its place.
   const enabled = page === "fengshui-home";
-  const texts = useReadingTexts(enabled);
+  const read = useReadingTexts(enabled);
+  // A palace's reading open (fssPalaceRef): its pair's text too.
+  const pairs = usePairTexts(enabled && /^fss:(main|ti):palace:/.test(selectedId ?? ""));
+  const texts = useMemo(() => (read && pairs ? { ...read, PAIR_TEXTS: pairs } : read), [read, pairs]);
   // The year's and the month's stars (part 25): today's, worked out once a day.
   const todayKey = new Date().toDateString();
   // eslint-disable-next-line react-hooks/exhaustive-deps

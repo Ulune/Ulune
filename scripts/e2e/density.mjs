@@ -22,9 +22,11 @@
  *     Numerology, the Calendar's month) are held to it as the Chinese pages
  *     are. A control may reach further than it is drawn (a ring that is not
  *     drawn, ::after): that reach counts only where a touch there finds it.
- *     Every Western control still under 44 px (the aspect key under a wheel,
- *     the time dial, Human Design's rows, numerology's cycles, the Calendar's
- *     day and year and its View menu) is listed for the owner, not failed.
+ *     Every Western control still under 44 px is listed for the owner. Since
+ *     the bug-fix round (RC3, T10) the aspect key under a wheel, the time
+ *     dial, numerology's cycles and the Calendar's day, month names and View
+ *     menu reach 44 px too and are held to it; four kinds are left, listed
+ *     and not failed (LEFT_FOR_OWNER).
  *
  * Pages: Chart, Transits, Progressions, Calendar, Synastry, Composite, Human
  * Design and its Cycles and connection chart (Relationship), Numerology and
@@ -39,6 +41,13 @@ const CHINESE = ["zodiac", "zodiac-years", "zodiac-pair", "bazi", "bazi-luck", "
 const WESTERN = ["natal", "transits", "progressions", "timing", "synastry", "composite", "design", "design-cycles", "design-pair", "numerology", "numerology-cycles", "numerology-pair"];
 /** The Western pages whose own controls reach 44 × 44 px on a finger (part 30; numerology's two people, feature 5c, from the start): held to it. */
 const WESTERN_44 = ["natal", "synastry", "composite", "numerology", "numerology-pair", "timing"];
+/**
+ * The Western controls left under 44 px on a finger, for the owner (the bug-fix round, review items RC3
+ * and T10), as "page: kind": a year's chips and transit lines in the Calendar (at 44 px a year would be
+ * about half as tall again), Human Design's rows (two columns of 13 beside the bodygraph, as tall as it)
+ * and numerology's life line (each span as wide as its years). Any other kind under 44 px fails.
+ */
+const LEFT_FOR_OWNER = new Set(["timing year: ulune-cal-chip", "timing year: ulune-cal-effect-line", "design: ulune-hd-row", "numerology-cycles: ulune-num-life-span"]);
 const PAGES = [...WESTERN, ...CHINESE];
 const CHROME = ".ob-top, .ob-sections, .ob-strip, .ob-foot, .ob-panel-head, .ulune-time-scrub-head";
 const CONTROL = "button, a.ob-section, input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select";
@@ -258,6 +267,9 @@ async function run() {
             await page.getByTestId("timing-scope-month").click();
             await page.getByTestId("calendar-month").waitFor({ timeout: 30000 });
             await openCalendarView(page);
+            // Measured once the menu has finished opening: during its entrance it is drawn a little smaller
+            // (the time zone menu read 43 px tall of its 44).
+            await page.getByTestId("calendar-view-pop").evaluate((e) => Promise.all(e.getAnimations({ subtree: true }).map((a) => a.finished)));
             ownerAdd(owner, "timing View", (await pageTargets(page, "[data-testid=calendar-view-pop]")).filter((f) => typeof f !== "string"));
             await page.keyboard.press("Escape");
             await page.getByTestId("calendar-view-pop").waitFor({ state: "hidden", timeout: 4000 }).catch(() => {});
@@ -280,6 +292,8 @@ async function run() {
     console.log("Western controls under 44 × 44 px on a finger, left for the owner (page: kind × how many, width × height, e.g.):");
     for (const [key, o] of owner) console.log(`  ${key} × ${o.n}, ${span(o.w)} × ${span(o.h)} px, e.g. “${o.example}”`);
   }
+  // What reached 44 px in the bug-fix round stays there: only the kinds left for the owner may be listed.
+  for (const [key, o] of owner) if (!LEFT_FOR_OWNER.has(key)) problems.push(`finger ${key}: under 44 × 44 px (${span(o.w)} × ${span(o.h)}, “${o.example}”), held to 44 since the bug-fix round`);
   if (problems.length) throw new Error(`density:\n${[...new Set(problems)].join("\n")}`);
   console.log(`DENSITY OK (${DEV})`);
 }

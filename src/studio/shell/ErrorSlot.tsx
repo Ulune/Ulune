@@ -2,7 +2,7 @@ import { Component, type ReactNode } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { reportError } from "@/lib/error-report";
 import { useI18n } from "@/lib/i18n/locale";
-import { isStaleVersion, recoverFromStaleChunk } from "@/lib/stale-chunks";
+import { chunkFailure, recoverFromStaleChunk } from "@/lib/stale-chunks";
 import { studioHref, type StudioSearch } from "@/studio/url";
 import { useStudioStore } from "@/studio/store";
 
@@ -19,6 +19,8 @@ class ErrorSlotBoundary extends Component<
     retryLabel: string;
     staleTitle: string;
     staleBody: string;
+    backTitle: string;
+    backBody: string;
     reloadLabel: string;
     armThrow: boolean;
     onRetry: () => void;
@@ -39,16 +41,20 @@ class ErrorSlotBoundary extends Component<
 
   render() {
     if (this.state.error) {
-      // A code file gone after a deploy, with charts a reload would lose: say so, and let the visitor reload.
-      const stale = isStaleVersion(this.state.error);
+      // A code file gone after a deploy, with charts a reload would lose, or one that failed offline with the
+      // connection back (the browser keeps the failure until a reload): say so, and let the visitor reload.
+      const kind = chunkFailure(this.state.error);
+      const stale = kind === "stale" || kind === "reconnected";
+      const title = kind === "reconnected" ? this.props.backTitle : this.props.staleTitle;
+      const body = kind === "reconnected" ? this.props.backBody : this.props.staleBody;
       return (
         <section
           data-testid="error-slot"
-          data-stale={stale ? "1" : undefined}
+          data-stale={kind === "stale" ? "1" : undefined}
           className="ulune-panel min-w-0 overflow-hidden px-5 py-10 md:px-8 md:py-14"
         >
-          <p className="font-display text-2xl leading-none text-fg">{stale ? this.props.staleTitle : this.props.title}</p>
-          <p className="mt-[var(--space-2)] text-sm text-fg-muted">{stale ? this.props.staleBody : this.props.body}</p>
+          <p className="font-display text-2xl leading-none text-fg">{stale ? title : this.props.title}</p>
+          <p className="mt-[var(--space-2)] text-sm text-fg-muted">{stale ? body : this.props.body}</p>
           {this.state.error.message ? (
             <details className="mt-[var(--space-2)] text-xs text-fg-subtle">
               <summary className="cursor-pointer">{this.props.details}</summary>
@@ -102,6 +108,8 @@ export function ErrorSlot({ children }: { children: ReactNode }) {
       retryLabel={t("errorSlotRetry")}
       staleTitle={t("staleVersionTitle")}
       staleBody={t("staleVersionBody")}
+      backTitle={t("reconnectedTitle")}
+      backBody={t("reconnectedBody")}
       reloadLabel={t("appErrorReload")}
       armThrow={import.meta.env.DEV && search.__throw === "stage"}
       onRetry={() => {

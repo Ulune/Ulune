@@ -487,38 +487,320 @@ export function nextHelloExacts(
   return pool.slice(0, n);
 }
 
-/**
- * Whether |residual| shrinks a few days ahead. Station uses a longer probe so a
- * 0.05-day linear step cannot freeze the hit as applying.
+/* ── Every passage, near a station too (the bug-fix round, item 1) ───────
+ *
+ * A slow planet near a station can make an aspect exact once, three times or
+ * more (Pluto passed 1°29′ Aquarius five times in 2024–2025). The search
+ * used to start Newton from the moment shown; near a station the planet's
+ * speed is almost nothing, so its first step leapt months away and landed on
+ * whichever passage lay nearest the leap: the date changed from one moment
+ * to the next (4 Nov 2025, then 21 Sep 2025 ten minutes later).
+ *
+ * Now the passages are bracketed one by one. The sky is read on a grid of
+ * whole steps counted from 1970, the same for every moment. Between two grid
+ * samples a body moves one way unless it stations: where the speeds' signs
+ * differ, the station is found first and each side searched on its own. Each
+ * change of sign is solved on the sky itself to the millisecond (Newton kept
+ * inside its bracket), and a station that turns within 1′ of the point
+ * without crossing it counts once, at the station. Every reading is taken at
+ * a whole millisecond of absolute time, so two moments find the very same
+ * passages.
+ *
+ * The one shown follows the body's motion at the moment: while it closes on
+ * the point, the next passage (applying); while it draws away, the last one
+ * (separating); with no last one, the next (neither: it turns back to it
+ * later). Within a minute of the moment, it is exact now. The passages
+ * listed with it are those of its pass: the stretch around it in which the
+ * body stays within the aspect's orb.
  */
-export function residualIsShrinking(
-  lonAt: LonAt,
-  natalLon: number,
-  target: number,
-  pole: 1 | -1,
-): boolean | null {
-  const s0 = lockedAspectResidual(lonAt(0).lon, natalLon, target, pole);
-  const r0 = Math.abs(s0);
-  const speed = Math.abs(lonAt(0).speed);
-  const toward = r0 / Math.max(speed, 1e-6);
-  const cap = speed >= 0.1 ? 0.5 : speed >= 0.01 ? 4 : 12;
-  const probe = Math.min(cap, Math.max(0.02, 0.35 * toward));
-  const later = lonAt(probe);
-  if (!Number.isFinite(later.lon)) return null;
-  const s1 = lockedAspectResidual(later.lon, natalLon, target, pole);
-  // Exact within the probe (the Moon a few minutes short of it): it perfects
-  // ahead, though the residual at the probe's end is larger than now.
-  if (s0 !== 0 && Math.sign(s1) !== Math.sign(s0) && Math.abs(s1 - s0) < 90) return true;
-  const r1 = Math.abs(s1);
-  if (r1 < r0 - 1e-6) return true;
-  if (r1 > r0 + 1e-6) return false;
-  return null;
+
+/** A body's place and speed at a moment, ms UTC (read at a whole millisecond). */
+export type PlaceAt = (ms: number) => { lon: number; speed: number };
+
+const DAY_MS = 86_400_000;
+/** Within this of the moment, a passage is the moment's own (one minute, as EXACT_NOW_DAYS). */
+const EXACT_NOW_MS = 60_000;
+/** Two passages closer than this are one (two minutes, as DUP_DAYS). */
+const DUP_MS = 120_000;
+
+/**
+ * The search's step, days. Between two samples a planet stations at most
+ * once at these steps (a retrograde lasts three weeks for Mercury, months for
+ * the others); the true node's and Lilith's speeds turn within days, so they
+ * are read finer.
+ */
+export function passStepDays(id: BodyId): number {
+  switch (id) {
+    case "jupiter":
+    case "saturn":
+    case "chiron":
+      return 15;
+    case "uranus":
+    case "neptune":
+    case "pluto":
+      return 30;
+    case "northnode":
+    case "southnode":
+      return 2;
+    case "lilith":
+      return 0.25;
+    default:
+      return sampleStepDays(id);
+  }
 }
 
 /**
- * Days from the sample epoch at which the locked pole is exact.
- * Applying searches forward; separating searches backward. Never invents a date.
- * A shrinking residual that never perfects returns null — not a past exact.
+ * A pass: the stretch around an exact in which the body stays within 8° of
+ * it (the widest major orb). The same for every aspect, so an axis's twins
+ * (a trine to the North Node, a sextile to the South Node) read alike.
+ */
+export const PASS_ORB = 8;
+
+type Place = { lon: number; speed: number };
+type Knot = { t: number; lon: number; speed: number; r: number };
+
+/** A body's grid samples by ms, and the station found between two of them (by the first one's ms; null: unreadable). */
+export type PassCache = { knots: Map<number, Place>; stations: Map<number, (Place & { t: number }) | null> };
+
+export function passCache(): PassCache {
+  return { knots: new Map(), stations: new Map() };
+}
+
+export type PassSearch = {
+  /** The body's place and speed at a moment (ms UTC). */
+  at: PlaceAt;
+  /** The moment read (ms UTC). */
+  momentMs: number;
+  natalLon: number;
+  /** The aspect's angle (0, 60, 90, 120, 180). */
+  target: number;
+  /** The grid's step, days (passStepDays). */
+  stepDays: number;
+  /** The search's reach each way from the moment, days (transitSearchDays). */
+  maxDays: number;
+  /** A pass ends where the body is further than this from exact, degrees (PASS_ORB). */
+  bound: number;
+  /** What was read of this body already (passCache): shared by its aspects in one cast. */
+  cache?: PassCache;
+  /** The motion at the instant (the aspect's own), said of an exact within a minute of the moment. */
+  fallback?: boolean | null;
+};
+
+/**
+ * The passage a table shows for an aspect at the moment, whether it is
+ * applying (true), separating (false) or neither (null), and every passage
+ * of its pass (ms UTC, ascending). Never invents a passage: none within the
+ * reach is no exact (and not applying).
+ */
+export function exactOfPass(opts: PassSearch): { exactMs: number | null; applying: boolean | null; passes: number[] } {
+  const { at, momentMs: moment, natalLon, target, bound } = opts;
+  const cache = opts.cache ?? passCache();
+  const none = { exactMs: null, applying: false, passes: [] as number[] };
+  // The moment's own place, read once for all of a body's aspects.
+  let now = cache.knots.get(moment);
+  if (!now) {
+    now = at(moment);
+    cache.knots.set(moment, now);
+  }
+  if (!Number.isFinite(now.lon) || !Number.isFinite(now.speed)) return none;
+  const pole = aspectPole(now.lon, natalLon, target);
+  const res = (lon: number) => lockedAspectResidual(lon, natalLon, target, pole);
+  const stepMs = Math.max(60_000, Math.round(opts.stepDays * DAY_MS));
+  const reach = opts.maxDays * DAY_MS;
+
+  const knotOf = (t: number, p: Place): Knot | null =>
+    Number.isFinite(p.lon) && Number.isFinite(p.speed) ? { t, lon: p.lon, speed: p.speed, r: res(p.lon) } : null;
+  const read = (t: number): Knot | null => knotOf(t, at(t));
+  const knot = (k: number): Knot | null => {
+    const t = k * stepMs;
+    let p = cache.knots.get(t);
+    if (!p) {
+      p = at(t);
+      cache.knots.set(t, p);
+    }
+    return knotOf(t, p);
+  };
+
+  /** The moment the residual is zero inside [a, b], whose ends lie either side of it: Newton kept in the bracket, to the millisecond. */
+  const solve = (a: Knot, b: Knot): number | null => {
+    if (a.r === 0) return a.t;
+    if (b.r === 0) return b.t;
+    let lo = a;
+    let hi = b;
+    let best = Math.abs(a.r) <= Math.abs(b.r) ? a : b;
+    // A first guess on the chord between the ends.
+    let t = Math.round(a.t + ((b.t - a.t) * a.r) / (a.r - b.r));
+    for (let i = 0; i < 80; i += 1) {
+      if (!(t > lo.t && t < hi.t)) t = Math.round((lo.t + hi.t) / 2);
+      if (t <= lo.t || t >= hi.t) break;
+      const s = read(t);
+      if (!s) return null;
+      if (Math.abs(s.r) < Math.abs(best.r)) best = s;
+      if (s.r === 0) return s.t;
+      if ((s.r < 0) === (lo.r < 0)) lo = s;
+      else hi = s;
+      const step = Math.abs(s.speed) > 1e-12 ? (-s.r / s.speed) * DAY_MS : Number.NaN;
+      // Newton's next step under half a millisecond: this is the moment.
+      if (Math.abs(step) < 0.5 || hi.t - lo.t <= 1) break;
+      let next = Number.isFinite(step) ? Math.round(s.t + step) : Number.NaN;
+      if (!(next > lo.t && next < hi.t)) next = Math.round((lo.t + hi.t) / 2);
+      t = next;
+    }
+    return Math.abs(best.r) < EXACT_DEG ? best.t : null;
+  };
+
+  /**
+   * The station inside [a, b] (the speeds' signs differ at its ends), to the
+   * minute, found once per body: the speed's zero by regula falsi, its stale
+   * end halved (Illinois) so it closes from both sides.
+   */
+  const stationIn = (a: Knot, b: Knot): Knot | null => {
+    if (!cache.stations.has(a.t)) {
+      let lo: Place & { t: number } = a;
+      let hi: Place & { t: number } = b;
+      let fLo = a.speed;
+      let fHi = b.speed;
+      let side = 0;
+      let ok = true;
+      for (let i = 0; i < 60 && hi.t - lo.t > 60_000; i += 1) {
+        let t = Math.round((lo.t * fHi - hi.t * fLo) / (fHi - fLo));
+        if (!(t > lo.t && t < hi.t)) t = Math.round((lo.t + hi.t) / 2);
+        const p = at(t);
+        if (!Number.isFinite(p.lon) || !Number.isFinite(p.speed)) {
+          ok = false;
+          break;
+        }
+        if ((p.speed < 0) === (fLo < 0)) {
+          lo = { t, lon: p.lon, speed: p.speed };
+          fLo = p.speed;
+          if (side === -1) fHi /= 2;
+          side = -1;
+        } else {
+          hi = { t, lon: p.lon, speed: p.speed };
+          fHi = p.speed;
+          if (side === 1) fLo /= 2;
+          side = 1;
+        }
+        // Within half a minute of the zero on the line through the bracket's ends: it is found.
+        if (Math.abs((p.speed * (hi.t - lo.t)) / (hi.speed - lo.speed)) < 30_000) break;
+      }
+      const s = Math.abs(lo.speed) <= Math.abs(hi.speed) ? lo : hi;
+      cache.stations.set(a.t, ok ? { t: s.t, lon: s.lon, speed: s.speed } : null);
+    }
+    const s = cache.stations.get(a.t);
+    return s ? knotOf(s.t, s) : null;
+  };
+
+  /** One stretch the body moves one way along: its passage, if it crosses. */
+  const crossing = (a: Knot, b: Knot): number | null =>
+    (a.r <= 0) !== (b.r <= 0) || a.r === 0 || b.r === 0 ? (Math.abs(b.r - a.r) < 90 ? solve(a, b) : null) : null;
+
+  /** The passages between grid samples k and k + 1 (null: the sky cannot be read there). */
+  const found = new Map<number, number[] | null>();
+  const passagesIn = (k: number): number[] | null => {
+    if (found.has(k)) return found.get(k) ?? null;
+    const a = knot(k);
+    const b = a ? knot(k + 1) : null;
+    let out: number[] | null = null;
+    if (a && b) {
+      const hits: (number | null)[] = [];
+      if ((a.speed < 0) === (b.speed < 0)) hits.push(crossing(a, b));
+      else {
+        // A station between the two samples: each side on its own; a turn within 1′ of the point is its
+        // passage. Both ends on one side of the point and the body first drawing away from it, or too far
+        // to reach it before it turns (its speed falls to nothing there): no passage, no station to find.
+        const oneSide = (a.r < 0) === (b.r < 0) && a.r !== 0 && b.r !== 0;
+        const near = 2 * Math.max(Math.abs(a.speed), Math.abs(b.speed)) * ((b.t - a.t) / DAY_MS) + EXACT_DEG;
+        if (!(oneSide && (a.r * a.speed > 0 || Math.min(Math.abs(a.r), Math.abs(b.r)) > near))) {
+          const s = stationIn(a, b);
+          if (s) {
+            const one = crossing(a, s);
+            const two = crossing(s, b);
+            hits.push(one, two);
+            if (one == null && two == null && Math.abs(s.r) < EXACT_DEG) hits.push(s.t);
+          }
+        }
+      }
+      out = [];
+      for (const t of hits) if (t != null && !out.some((x) => Math.abs(x - t) < DUP_MS)) out.push(t);
+      out.sort((x, y) => x - y);
+    }
+    found.set(k, out);
+    return out;
+  };
+
+  const k0 = Math.floor(moment / stepMs);
+  const inReach = (t: number) => Math.abs(t - moment) <= reach + EXACT_NOW_MS;
+  /** The first passage after the moment, within the reach. */
+  const nextAfter = (): number | null => {
+    for (let k = k0; k * stepMs - moment <= reach; k += 1) {
+      const got = passagesIn(k);
+      if (!got) return null;
+      const t = got.find((x) => x > moment);
+      if (t != null) return inReach(t) ? t : null;
+    }
+    return null;
+  };
+  /** The last passage before the moment, within the reach. */
+  const lastBefore = (): number | null => {
+    for (let k = k0; moment - (k + 1) * stepMs <= reach; k -= 1) {
+      const got = passagesIn(k);
+      if (!got) return null;
+      const t = [...got].reverse().find((x) => x < moment);
+      if (t != null) return inReach(t) ? t : null;
+    }
+    return null;
+  };
+  /** Every passage of the pass around `t` (a moment or a passage): out both ways while the body stays within the orb, within the reach. */
+  const passOf = (t: number): number[] => {
+    const all = new Set<number>();
+    const kt = Math.floor(t / stepMs);
+    for (let k = kt; ; k += 1) {
+      for (const x of passagesIn(k) ?? []) if (inReach(x)) all.add(x);
+      const far = knot(k + 1);
+      if (!far || Math.abs(far.r) > bound || far.t - moment > reach) break;
+    }
+    const start = knot(kt);
+    if (start && Math.abs(start.r) <= bound) {
+      for (let k = kt - 1; ; k -= 1) {
+        for (const x of passagesIn(k) ?? []) if (inReach(x)) all.add(x);
+        const far = knot(k);
+        if (!far || Math.abs(far.r) > bound || moment - far.t > reach) break;
+      }
+    }
+    const out: number[] = [];
+    for (const x of [...all].sort((p, q) => p - q)) if (!out.some((y) => Math.abs(y - x) < DUP_MS)) out.push(x);
+    return out;
+  };
+  const pick = (exactMs: number, applying: boolean | null, passes?: number[]) => ({ exactMs, applying, passes: passes ?? passOf(exactMs) });
+
+  // The pass the moment is in: exact within a minute of the moment is exact now; before the pass's
+  // first exact it is applying, after its last separating, and between two the motion decides.
+  const pass = passOf(moment);
+  const atNow = pass.find((x) => Math.abs(x - moment) <= EXACT_NOW_MS);
+  if (atNow != null) return pick(atNow, opts.fallback ?? null, pass);
+  const closing = res(now.lon) * now.speed < 0;
+  const after = pass.find((x) => x > moment);
+  const before = [...pass].reverse().find((x) => x < moment);
+  if (after != null && (before == null || closing)) return pick(after, true, pass);
+  if (before != null) return pick(before, false, pass);
+  // No exact in this pass (a turn short of the point): closing, the next pass's first; else the last pass's last.
+  if (closing) {
+    const next = nextAfter();
+    if (next != null) return pick(next, true);
+    const last = lastBefore();
+    return last != null ? pick(last, false) : none;
+  }
+  const last = lastBefore();
+  if (last != null) return pick(last, false);
+  const next = nextAfter();
+  return next != null ? pick(next, null) : none;
+}
+
+/**
+ * The same for a body read `days` from the moment (lonAt), in days from it:
+ * the tests' straight lines. `applying` is the motion at the instant, said
+ * of an exact within a minute of it.
  */
 export function findExactDays(opts: {
   lonAt: LonAt;
@@ -526,133 +808,25 @@ export function findExactDays(opts: {
   target: number;
   applying: boolean | null;
   maxDays: number;
+  stepDays?: number;
+  bound?: number;
 }): number | null {
-  const { lonAt, natalLon, target, applying, maxDays } = opts;
-  const t0 = lonAt(0);
-  if (!Number.isFinite(t0.lon)) return null;
-  const pole = aspectPole(t0.lon, natalLon, target);
-  const residualAt = (days: number) =>
-    lockedAspectResidual(lonAt(days).lon, natalLon, target, pole);
-
-  const r0 = residualAt(0);
-  const polish = (days: number | null, bracket?: [number, number]) =>
-    days == null ? null : polishExact(lonAt, natalLon, target, pole, days, bracket);
-  const polishBracketed = (hit: BracketHit | null) => (hit ? polish(hit.days, hit.bracket) : null);
-  // Within 1′ now: the perfecting is at hand — but for a slow body that can
-  // still be a day or more away, so it is solved, not assumed to be now.
-  if (Math.abs(r0) < EXACT_DEG) {
-    const near = polish(0);
-    return near != null && Math.abs(near) <= 30 ? near : 0;
-  }
-
-  const shrinking = residualIsShrinking(lonAt, natalLon, target, pole);
-  const wantFuture =
-    shrinking === true ? true : shrinking === false ? false : applying;
-
-  const newton = newtonExact(lonAt, natalLon, target, pole, maxDays, t0);
-  const newtonOk = newton != null && Math.abs(residualAt(newton)) < EXACT_DEG;
-  if (newtonOk && newton != null) {
-    const past = newton < -EXACT_NOW_DAYS;
-    const future = newton > EXACT_NOW_DAYS;
-    if (!(wantFuture === true && past) && !(wantFuture === false && future)) {
-      return polish(newton);
-    }
-  }
-
-  if (wantFuture === true) return polishBracketed(bracketExact(residualAt, 1, maxDays, r0));
-  if (wantFuture === false) return polishBracketed(bracketExact(residualAt, -1, maxDays, r0));
-
-  const fwd = polishBracketed(bracketExact(residualAt, 1, maxDays, r0));
-  const back = polishBracketed(bracketExact(residualAt, -1, maxDays, r0));
-  if (fwd == null) return back;
-  if (back == null) return fwd;
-  return Math.abs(fwd) <= Math.abs(back) ? fwd : back;
+  const found = exactOfPass({
+    at: (ms) => opts.lonAt(ms / DAY_MS),
+    momentMs: 0,
+    natalLon: opts.natalLon,
+    target: opts.target,
+    stepDays: opts.stepDays ?? 1,
+    maxDays: opts.maxDays,
+    bound: opts.bound ?? 10,
+    fallback: opts.applying,
+  });
+  return found.exactMs == null ? null : found.exactMs / DAY_MS;
 }
 
-type BracketHit = { days: number; bracket?: [number, number] };
-
-function newtonExact(
-  lonAt: LonAt,
-  natalLon: number,
-  target: number,
-  pole: 1 | -1,
-  maxDays: number,
-  start: { lon: number; speed: number },
-): number | null {
-  let days = 0;
-  let lon = start.lon;
-  let speed = start.speed;
-  for (let i = 0; i < 12; i += 1) {
-    const r = lockedAspectResidual(lon, natalLon, target, pole);
-    if (Math.abs(r) < FINE_DEG) return days;
-    if (!Number.isFinite(speed) || Math.abs(speed) < NEWTON_MIN_SPEED) return null;
-    const step = -r / speed;
-    if (!Number.isFinite(step) || Math.abs(days + step) > maxDays) return null;
-    days += step;
-    const next = lonAt(days);
-    if (!Number.isFinite(next.lon)) return null;
-    lon = next.lon;
-    speed = next.speed;
-  }
-  const r = lockedAspectResidual(lon, natalLon, target, pole);
-  return Math.abs(r) < EXACT_DEG ? days : null;
-}
-
-function bracketExact(
-  residualAt: (days: number) => number,
-  dir: 1 | -1,
-  maxDays: number,
-  r0: number,
-): BracketHit | null {
-  let step = Math.min(1, Math.max(maxDays / 80, 0.02));
-  let prevD = 0;
-  let prevR = r0;
-  for (let d = step; d <= maxDays + 1e-9; d += step) {
-    const r = residualAt(dir * d);
-    if (!Number.isFinite(r)) return null;
-    if (Math.abs(r) < EXACT_DEG) {
-      // Inside 1′ at a sample: the root is near; bracket it if the step crossed it.
-      const crossed = prevR * r <= 0;
-      return { days: dir * d, bracket: crossed ? [dir * prevD, dir * d] : undefined };
-    }
-    // A change of sign is a root, unless the residual jumped round the circle
-    // (from −180° to +180°: the other pole of the aspect, not an exact).
-    if ((prevR === 0 || r === 0 || prevR * r < 0) && Math.abs(r - prevR) < 180) {
-      return { days: dir * bisectAbs(residualAt, dir, prevD, d, prevR, r), bracket: [dir * prevD, dir * d] };
-    }
-    prevD = d;
-    prevR = r;
-    if (d > 16) step = Math.min(step * 1.12, Math.max(8, maxDays / 40));
-  }
-  return null;
-}
-
-function bisectAbs(
-  residualAt: (days: number) => number,
-  dir: 1 | -1,
-  d0: number,
-  d1: number,
-  r0: number,
-  r1: number,
-): number {
-  let left = d0;
-  let right = d1;
-  let leftR = r0;
-  let rightR = r1;
-  for (let i = 0; i < 48; i += 1) {
-    const mid = (left + right) / 2;
-    const r = residualAt(dir * mid);
-    if (!Number.isFinite(r) || Math.abs(r) < FINE_DEG) return mid;
-    if (leftR * r <= 0) {
-      right = mid;
-      rightR = r;
-    } else {
-      left = mid;
-      leftR = r;
-    }
-    void rightR;
-  }
-  return (left + right) / 2;
+/** A passage's moment as the tables give it: ISO, to the nearest second. */
+export function passIso(ms: number): string {
+  return new Date(Math.round(ms / 1000) * 1000).toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
 /** The instant `days` after `from`, to the nearest second (ISO, no milliseconds). */

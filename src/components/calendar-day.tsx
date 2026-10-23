@@ -5,7 +5,7 @@ import { dayAnimalAt } from "@/lib/chinese/day-cycle";
 import { BRANCHES, SIXTY } from "@/lib/chinese/names";
 import { chineseLabel } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
-import { animalOf, cnWord } from "@/lib/chinese/words";
+import { animalOf, cnWord } from "@/lib/chinese/first-words";
 import type { DayOverview, DayRow } from "@/lib/chart/calendar-day";
 import { nextEvent, windowId } from "@/lib/chart/calendar-sky";
 import { changeId, type NumerologyCalendar } from "@/lib/chart/numerology-calendar";

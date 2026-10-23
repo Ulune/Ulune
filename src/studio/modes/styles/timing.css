@@ -756,6 +756,25 @@ html.light .ulune-moon {
   font-weight: 600;
   color: var(--color-fg);
 }
+/* A finger (the bug-fix round; review item RC3): the day's rows and its
+   transits in effect reach 44 px (a row of one line was 37, a transit 25);
+   a year's month name too, its reach widened into the card's own margins
+   so nothing moves. */
+@media (pointer: coarse) {
+  .ulune-cal-row,
+  .ulune-cal-effect .ulune-cal-effect-line {
+    min-height: 44px;
+  }
+  .ulune-cal-monthcard-h {
+    margin-bottom: 4px;
+  }
+  .ulune-cal-monthcard-h button {
+    min-width: 44px;
+    margin: -12px 0 -10px;
+    padding: 12px 0 10px;
+    text-align: left;
+  }
+}
 @media (max-width: 639.98px) {
   .ulune-cal-row {
     grid-template-columns: 42px 50px minmax(0, 1fr) auto;
@@ -1462,9 +1481,10 @@ html.light .ulune-moon {
   color: var(--color-fg);
   font-size: var(--ctl-text);
 }
-/* A finger: 16 px, or Safari zooms in on the menu. */
+/* A finger: 16 px, or Safari zooms in on the menu; 44 px tall to press. */
 @media (pointer: coarse) {
   .ulune-cal-view .ulune-cal-zone select {
+    height: 44px;
     font-size: 16px;
   }
 }

@@ -78,3 +78,27 @@ test("reloadStaleChunkOnce fires once per session key", () => {
   );
   assert.equal(reloads, 2);
 });
+
+test("a code file that failed offline says the connection is back once it is, not that a new version is out", async () => {
+  // The bug-fix round, item 6: Chromium keeps a failed download for the page's life, so after an offline
+  // failure "Try again" fails again online, and used to read as a deploy ("A new version is out").
+  const { chunkFailure, recoverFromStaleChunk } = await import("../src/lib/stale-chunks.ts");
+  const was = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+  const connection = (onLine) => Object.defineProperty(globalThis, "navigator", { value: { onLine }, configurable: true, writable: true });
+  try {
+    const zodiac = new Error("Failed to fetch dynamically imported module: https://ulune.app/assets/zodiac-Ab12.js");
+    connection(false);
+    assert.equal(chunkFailure(zodiac), "offline");
+    assert.equal(recoverFromStaleChunk(zodiac), false, "offline, no reload (it would bring the browser's offline page)");
+    connection(true);
+    assert.equal(chunkFailure(zodiac), "reconnected", "the same file, the connection back: a reload brings it");
+    const bazi = new Error("Failed to fetch dynamically imported module: https://ulune.app/assets/bazi-Cd34.js");
+    assert.equal(chunkFailure(bazi), "stale", "another file failing online: the files changed under the page");
+    assert.equal(chunkFailure(new Error("syntax exploded")), null);
+    // Safari names no file: after an offline failure, it reads as the connection back too.
+    assert.equal(chunkFailure(new Error("Importing a module script failed.")), "reconnected");
+  } finally {
+    if (was) Object.defineProperty(globalThis, "navigator", was);
+    else delete globalThis.navigator;
+  }
+});

@@ -4,7 +4,7 @@ import { importWithRetry } from "@/lib/lazy-retry";
 import { natalMode } from "@/studio/modes/natal";
 import type { ModeDef } from "@/studio/modes/types";
 import type { StudioPage } from "@/studio/url";
-import { recoverFromStaleChunk } from "@/lib/stale-chunks";
+import { noteChunkFailure, recoverFromStaleChunk } from "@/lib/stale-chunks";
 
 /*
  * The modes load on demand: the natal chart ships with the studio, every
@@ -82,6 +82,8 @@ export function loadMode(page: StudioPage): Promise<ModeDef> {
       },
       (err: unknown) => {
         inflight.delete(page);
+        // Offline, the browser keeps the failure until a reload: noted now, while the connection is still the one it failed on.
+        noteChunkFailure(err);
         failed.set(page, err);
         notify();
         throw err;

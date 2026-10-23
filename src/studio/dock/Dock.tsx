@@ -298,7 +298,9 @@ export function Dock() {
   useEffect(() => {
     if (!dockOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape" || panelBeside()) return;
+      // An Escape a field has used already (the birth form's place closing its suggestions) stays its own
+      // (the bug-fix round, item 8: it used to fold the sheet, the form and the focus with it).
+      if (e.key !== "Escape" || e.defaultPrevented || panelBeside()) return;
       if (e.target instanceof Element && scopeOfNode(e.target) !== "main") return;
       if (document.querySelector("[data-testid=account-menu-panel], [data-testid=chart-picker]"))
         return;

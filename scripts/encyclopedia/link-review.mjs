@@ -36,6 +36,7 @@ const SOURCES = {
   "feng-shui": [
     "../../src/lib/chinese/fengshui-texts.ts",
     "../../src/lib/chinese/fengshui-readings-texts.ts",
+    "../../src/lib/chinese/fengshui-pair-texts.ts",
     "../../src/lib/chinese/fengshui-stars-texts.ts",
     "../../src/lib/chinese/fengshui-years-texts.ts",
     "../../src/lib/chinese/fengshui-rooms-texts.ts",

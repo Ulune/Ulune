@@ -28,10 +28,13 @@ import {
   aspectTarget,
   aspectPoles,
   daysToIso,
-  applyingFromExactDays,
-  findExactDays,
+  exactOfPass,
   findExactsFromSamples,
   isTransitTablePair,
+  PASS_ORB,
+  passCache,
+  passIso,
+  passStepDays,
   residualForType,
   sampleStepDays,
   timingExactId,
@@ -39,6 +42,8 @@ import {
   TRANSIT_TABLE_MOVING,
   TRANSIT_TABLE_NATAL,
   type LonSample,
+  type PassCache,
+  type PlaceAt,
 } from "../chart/transit-exact";
 import {
   isProgressionTablePair,
@@ -405,6 +410,51 @@ function lonAtFor(
   };
 }
 
+/**
+ * A body's place and speed at a moment (ms UTC, read at a whole millisecond),
+ * for the exact search (transit-exact.ts, passagesOf): the moment itself, not
+ * days from another, so every moment reads the same grid. With `progressed`
+ * (the progressed moment and the years of life there), the angles and the
+ * Vertex are the progressed ones.
+ */
+function placeAtFor(
+  swe: SwissEPH,
+  id: BodyId,
+  flag: number,
+  latitude: number,
+  longitude: number,
+  houseSystem: HouseSystemId,
+  progressed?: { originMs: number; years: number },
+): PlaceAt | null {
+  const isAngle = id === "ascendant" || id === "midheaven" || id === "descendant" || id === "ic";
+  if (progressed && (isAngle || id === "vertex")) {
+    return (ms: number) => {
+      const t = Math.round(ms);
+      const years = progressed.years + (t - progressed.originMs) / 86_400_000;
+      return progressedLon(progressedAnglesAt(swe, jdUt(swe, new Date(t)), years, latitude, longitude, houseSystem), id as AngleId | "vertex");
+    };
+  }
+  if (isAngle || id === "vertex") {
+    const lonOf = (at: Date) => (id === "vertex" ? vertexAt(swe, at, latitude, longitude, houseSystem) : angleLonAt(swe, at, id as AngleId, latitude, longitude, houseSystem));
+    return (ms: number) => {
+      const t = Math.round(ms);
+      const lon = lonOf(new Date(t));
+      return { lon, speed: wrap180(lonOf(new Date(t + 3_600_000)) - lon) * 24 };
+    };
+  }
+  if (id === "fortune" || id === "spirit" || id === "antivertex") return null;
+  if (!(id in SWE_BODY)) return null;
+  const planet = id as PlanetId;
+  if (SWE_BODY[planet](swe) < 0) return null;
+  return (ms: number) => swissBodyAt(swe, new Date(Math.round(ms)), planet, flag);
+}
+
+/**
+ * Each table aspect's exact moment: every passage of its pass found
+ * (transit-exact.ts, exactOfPass), the one the rule picks shown, and all of
+ * them listed when there are several (a slow planet near its station). A
+ * body's samples are read once for all its aspects.
+ */
 function attachExactDates(
   swe: SwissEPH,
   origin: Date,
@@ -418,6 +468,14 @@ function attachExactDates(
 ): AspectLink[] {
   const movingLon = new Map(moving.map((p) => [p.id, p.ecliptic]));
   const natalLon = new Map(natal.map((p) => [p.id, p.ecliptic]));
+  const places = new Map<BodyId, { at: PlaceAt; cache: PassCache } | null>();
+  const placeOf = (id: BodyId) => {
+    if (!places.has(id)) {
+      const at = placeAtFor(swe, id, flag, latitude, longitude, houseSystem);
+      places.set(id, at ? { at, cache: passCache() } : null);
+    }
+    return places.get(id) ?? null;
+  };
   return aspects.map((link) => {
     const here = movingLon.get(link.a);
     const natalEcl = natalLon.get(link.b);
@@ -428,20 +486,25 @@ function attachExactDates(
     if (!isTransitTablePair(next, pos)) {
       return { ...next, exactUtc: next.exactUtc ?? null };
     }
-    const lonAt = lonAtFor(swe, origin, link.a, flag, latitude, longitude, houseSystem);
-    if (!lonAt || natalEcl == null) return { ...next, applying: false, exactUtc: null };
+    const body = placeOf(link.a);
+    if (!body || natalEcl == null) return { ...next, applying: false, exactUtc: null };
     try {
-      const days = findExactDays({
-        lonAt,
+      const found = exactOfPass({
+        at: body.at,
+        cache: body.cache,
+        momentMs: origin.getTime(),
         natalLon: natalEcl,
         target: aspectTarget(link.type),
-        applying: next.applying,
+        stepDays: passStepDays(next.a),
         maxDays: transitSearchDays(next.a),
+        bound: PASS_ORB,
+        fallback: next.applying,
       });
       return {
         ...next,
-        applying: applyingFromExactDays(days, next.applying),
-        exactUtc: days == null ? null : daysToIso(origin, days),
+        applying: found.applying,
+        exactUtc: found.exactMs == null ? null : passIso(found.exactMs),
+        ...(found.passes.length > 1 ? { exactPasses: found.passes.map(passIso) } : {}),
       };
     } catch {
       return { ...next, applying: false, exactUtc: null };
@@ -1184,6 +1247,17 @@ function attachProgressedExacts(
 ): AspectLink[] {
   const movingLon = new Map(moving.map((p) => [p.id, p.ecliptic]));
   const natalLon = new Map(natal.map((p) => [p.id, p.ecliptic]));
+  const originMs = progressedOrigin.getTime();
+  const places = new Map<BodyId, { at: PlaceAt; cache: PassCache } | null>();
+  const placeOf = (id: BodyId) => {
+    if (!places.has(id)) {
+      const at = placeAtFor(swe, id, flag, latitude, longitude, houseSystem, { originMs, years });
+      places.set(id, at ? { at, cache: passCache() } : null);
+    }
+    return places.get(id) ?? null;
+  };
+  // A passage of the progressed sky, as a moment of life.
+  const lifeIso = (ms: number) => lifeExactIso(targetUtc, (ms - originMs) / 86_400_000);
   return aspects.map((link) => {
     const here = movingLon.get(link.a);
     const natalEcl = natalLon.get(link.b);
@@ -1194,20 +1268,25 @@ function attachProgressedExacts(
     if (!isProgressionTablePair(next, pos)) {
       return { ...next, exactUtc: next.exactUtc ?? null };
     }
-    const lonAt = lonAtFor(swe, progressedOrigin, link.a, flag, latitude, longitude, houseSystem, years);
-    if (!lonAt || natalEcl == null) return { ...next, applying: false, exactUtc: null };
+    const body = placeOf(link.a);
+    if (!body || natalEcl == null) return { ...next, applying: false, exactUtc: null };
     try {
-      const days = findExactDays({
-        lonAt,
+      const found = exactOfPass({
+        at: body.at,
+        cache: body.cache,
+        momentMs: originMs,
         natalLon: natalEcl,
         target: aspectTarget(link.type),
-        applying: next.applying,
+        stepDays: passStepDays(next.a),
         maxDays: transitSearchDays(next.a),
+        bound: PASS_ORB,
+        fallback: next.applying,
       });
       return {
         ...next,
-        applying: applyingFromExactDays(days, next.applying),
-        exactUtc: days == null ? null : lifeExactIso(targetUtc, days),
+        applying: found.applying,
+        exactUtc: found.exactMs == null ? null : lifeIso(found.exactMs),
+        ...(found.passes.length > 1 ? { exactPasses: found.passes.map(lifeIso) } : {}),
       };
     } catch {
       return { ...next, applying: false, exactUtc: null };

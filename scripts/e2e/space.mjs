@@ -332,7 +332,10 @@ async function run() {
       if (!/^[0-9A-Z]{5}(-[0-9A-Z]{5}){4}$/.test(code)) throw new Error(`recovery code shape: ${code}`);
       await castFixture(page, B_NAMED);
       await addKey(page);
-      await page.waitForTimeout(600);
+      // What is checked here, once it is written (review item T3: a fixed 600 ms before): both charts
+      // sealed in the space, and the flag that keeps it open.
+      await spaceHoldsCharts(page, 2);
+      await page.waitForFunction(() => localStorage.getItem("ulune.space") === "stay", null, { timeout: 8000 }).catch(() => {});
       const dump = await storageDump(page);
       assertNothingPersonal(dump, "private space");
       const extra = Object.keys(dump.local).filter((k) => !/^ulune\.(look|boot|studio|dock|depth|wheel|reading|numerology|bodies|chart\.view|scrub|offline|hint|theme|locale|space|calculate$)/.test(k));
@@ -482,7 +485,9 @@ async function run() {
         await gotoApp(page);
         await castFixture(page, FIXTURE_A);
         await createSpace(page);
-        await page.waitForTimeout(800);
+        // The browser closed once the space is written (T3: a fixed 800 ms before): its chart sealed, the flag set.
+        await spaceHoldsCharts(page, 1);
+        await page.waitForFunction(() => localStorage.getItem("ulune.space") === "stay", null, { timeout: 8000 }).catch(() => {});
         await context.close();
         ({ context, page } = await open());
         await gotoApp(page);

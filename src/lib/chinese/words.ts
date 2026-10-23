@@ -15,12 +15,8 @@ export function cnWord(locale: string, key: ChineseWordKey, vars?: Record<string
   return text;
 }
 
-/** The goat is the one feminine animal in French: « du Tigre », « de la Chèvre ». */
-export function animalOf(animal: number, locale: string): string {
-  const a = ANIMALS[((animal % 12) + 12) % 12]!;
-  if (locale !== "fr") return a.en;
-  return a.id === "goat" ? `de la ${a.fr}` : `du ${a.fr}`;
-}
+/** The goat is the one feminine animal in French (first-words.ts, which the Calendar reads without this book). */
+export { animalOf } from "./first-words";
 
 /** An animal with its article: "the Horse", « le Cheval », « la Chèvre »; capitalised to open a sentence. */
 export function theAnimal(animal: number, locale: string, capital = false): string {

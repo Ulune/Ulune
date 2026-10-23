@@ -203,6 +203,11 @@ export type AspectLink = {
   applying: boolean | null;
   /** UTC ISO of the perfecting (transit-to-natal only). Null when Swiss cannot lock a pass. */
   exactUtc?: string | null;
+  /**
+   * Every perfecting of this pass, in order (UTC ISO), when there are several:
+   * a slow planet turning near its station (transit-exact.ts, exactOfPass).
+   */
+  exactPasses?: string[];
 };
 
 export type RankedBody = {

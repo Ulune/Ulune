@@ -6,10 +6,15 @@
  *
  * Read by src/lib/chinese/words.ts, not spread into this folder's index:
  * everything that says them is downloaded when used, so they stay out of every
- * page's first download. scripts/i18n-catalog.test.mjs checks them as it
- * checks the others.
+ * page's first download. The few the Calendar, the Look tab and the birth form
+ * say are a small book of their own (chinese-first-words.ts), taken in here.
+ * scripts/i18n-catalog.test.mjs checks them as it checks the others.
  */
+import { chineseFirst } from "./chinese-first-words";
+
 export const chinese = {
+  // The words the pages outside the Chinese languages say: a book of their own, taken in here (the bug-fix round, item 5).
+  ...chineseFirst,
   // Settings → Chinese traditions (decisions 2, 3 and 5).
   cnSettings: ["Chinese traditions", "Traditions chinoises"],
   cnSettingsLead: [
@@ -61,32 +66,13 @@ export const chinese = {
   cnDayMidnightHint: ["As the civil calendar turns", "Comme le calendrier civil"],
 
   // The birth form's yin or yang count (decision 4): read by two calculations in 2.0, BaZi's luck pillars and the Kua (part 29).
-  cnCount: ["Yin or yang count (Chinese traditions)", "Compte yin ou yang (traditions chinoises)"],
-  cnCountNone: ["Not given", "Non indiqué"],
-  cnCountYang: ["Yang: the tradition’s count for a man", "Yang\u202f: le compte de la tradition pour un homme"],
-  cnCountYin: ["Yin: the tradition’s count for a woman", "Yin\u202f: le compte de la tradition pour une femme"],
-  cnCountNote: [
-    "Classical Chinese traditions count a birth as yang or yin by sex. Only two calculations read it: the direction of BaZi’s luck pillars and Feng Shui’s Kua number. Left empty, both versions are shown. Kept with the chart on this device, never sent.",
-    "Les traditions chinoises classiques comptent une naissance comme yang ou yin selon le sexe. Deux calculs seulement le lisent\u202f: le sens des piliers de chance du BaZi et le nombre Kua du Feng Shui. Laissé vide, les deux versions sont montrées. Gardé avec le thème sur cet appareil, jamais envoyé.",
-  ],
 
   // The solar terms, in the Calendar (its layer) and on the wheel (a Look switch).
-  cnTerm: ["Solar term", "Terme solaire"],
-  cnTerms: ["Solar terms", "Termes solaires"],
-  cnTermSun: ["The Sun at {degree}", "Le Soleil à {degree}"],
-  cnTermOpens: ["Opens the {animal} month", "Ouvre le mois {animal}"],
-  cnTermMiddle: ["The middle of the {animal} month", "Le milieu du mois {animal}"],
-  cnTermNext: ["Next solar term", "Prochain terme solaire"],
   cnTermLead: [
     "One of the twenty-four solar terms of the Chinese calendar: the Sun reaches another 15° of its path, and the season turns a step. The twelve that open a solar month set the month in the Four Pillars, and the first of them, Lichun, starts the year; the twelve principal terms name the lunar months.",
     "Un des vingt-quatre termes solaires du calendrier chinois\u202f: le Soleil atteint 15° de plus sur sa route, et la saison avance d’un pas. Les douze qui ouvrent un mois solaire fixent le mois des Quatre Piliers, et le premier d’entre eux, Lichun, ouvre l’année\u202f; les douze termes principaux nomment les mois lunaires.",
   ],
   cnTermSunLabel: ["The Sun", "Le Soleil"],
-  cnTermRing: ["The ring of the terms", "L’anneau des termes"],
-  cnTermRingHint: [
-    "The 24 Chinese solar terms round the zodiac: the Sun’s own steps through the year",
-    "Les 24 termes solaires chinois autour du zodiaque\u202f: les pas du Soleil dans l’année",
-  ],
   // Chinese astrology's page (languages plan, part 7): the four animals and their wheel.
   zkTitle: ["Your four animals", "Vos quatre animaux"],
   zkLead: [
@@ -205,9 +191,6 @@ export const chinese = {
     "Two people’s animals are compared place by place: the year animals first, as most people know them, then the day animals, the self with a partner, then every other pair of places.",
     "Les animaux de deux personnes se comparent place par place\u202f: d’abord les animaux de l’année, tels que la plupart des gens les connaissent, puis ceux du jour, soi avec un partenaire, puis toutes les autres paires de places.",
   ],
-  zkDayTitle: ["Day of the {animal}", "Jour {animal}"],
-  zkDayClashes: ["Clashes with", "En choc avec"],
-  zkCalClash: ["a clash day for your year animal", "un jour de choc pour votre animal de l’année"],
   zkYearYours: ["Your animals and the year", "Vos animaux et l’année"],
   zkMonthsHead: ["Month by month, {year}", "Mois par mois, {year}"],
   zkPartMonthsHint: [
@@ -1411,14 +1394,6 @@ export const chinese = {
   fsyTableCell: ["year {y}, month {m}", "année {y}, mois {m}"],
   fsyYearCol: ["Year", "Année"],
   fsyMonthCol: ["Month", "Mois"],
-  fsyCalMonth: ["Month star {n} to the centre", "Étoile du mois {n} au centre"],
-  fsyCalYear: ["Year star {n} to the centre", "Étoile de l’année {n} au centre"],
-  fsyCalLegend: [
-    "the month’s flying star from that day; boxed, the year’s at Lichun",
-    "l’étoile volante du mois dès ce jour\u202f; encadrée, celle de l’année à Lichun",
-  ],
-  fsyCalDayTitle: ["Flying stars", "Étoiles volantes"],
-  fsyCalDay: ["The year’s {y} and the month’s {m} in the centre", "Celle de l’année, {y}, et celle du mois, {m}, au centre"],
   // FS-FIX: Feng Shui's review fixes (languages plan, part 27): the Home page without a birth chart (FS13), the rooms against the chart picked (FS30).
   fshHouseNoChart: [
     "A birth chart adds your Kua: whether the house is of your group, and which of your directions its front and back face.",

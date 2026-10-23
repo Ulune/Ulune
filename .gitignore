@@ -8,6 +8,8 @@ screenshots/e2e/
 *.log
 .env
 .env.*
+# The list of the synced account's variables, with no value (docs/sync-protocol.md)
+!.env.example
 .DS_Store
 
 # Performance harness output (scripts/perf)

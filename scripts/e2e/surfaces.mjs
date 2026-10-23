@@ -14,7 +14,11 @@ try {
   await page.locator("body").click({ position: { x: 5, y: 400 } }).catch(() => {});
   await page.keyboard.press("Control+k");
   await page.getByTestId("command-palette").waitFor({ timeout: 5000 });
+  // Typed once the field has the focus (it takes it just after the palette opens), and Enter once Mars,
+  // the chart's, leads the list (review item T3: the reading timed out once, after a fixed wait).
+  await page.waitForFunction(() => document.activeElement?.matches("[data-testid=command-palette] input") ?? false, null, { timeout: 5000 });
   await page.keyboard.type("mars");
+  await page.waitForFunction(() => document.querySelector("[data-testid=command-palette] [role=option][aria-selected=true]")?.getAttribute("data-testid") === "cmd-body:mars", null, { timeout: 15000 });
   await page.keyboard.press("Enter");
   await page.waitForFunction(() => /mars/i.test(document.querySelector("#ob-rc-title")?.textContent ?? ""), null, { timeout: 8000 });
   // Shortcuts: Alt+2 → Cycles (Transits), T → table, T → wheel, Alt+1 → Natal.

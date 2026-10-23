@@ -1,5 +1,5 @@
 import { useI18n } from "@/lib/i18n/locale";
-import { cnWord } from "@/lib/chinese/words";
+import { cnWord } from "@/lib/chinese/first-words";
 import type { BirthInput } from "@/lib/chart/types";
 
 export type ChineseCount = NonNullable<BirthInput["chineseCount"]>;

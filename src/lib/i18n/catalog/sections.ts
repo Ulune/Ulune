@@ -24,6 +24,9 @@ export const sections = {
   langHumanDesign: ["Human Design", "Human Design"],
   langHumanDesignShort: ["HD", "HD"],
   langNumerology: ["Numerology", "Numérologie"],
+  // Its short name on a narrower toolbar's chips and beside the lens tabs (the bug-fix round, item 7: the chip
+  // read "Numerol…" at a 900 px stage): the numbers it reads, as "Zodiac" says what Chinese astrology reads.
+  langNumerologyShort: ["Numbers", "Nombres"],
   langChineseAstrology: ["Chinese astrology", "Astrologie chinoise"],
   // The short names a narrow toolbar gives beside the lens tabs and on the chips (languages plan,
   // part 28): Chinese astrology reads the Chinese zodiac's animals, as the privacy notice says;

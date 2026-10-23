@@ -154,6 +154,12 @@ async function computer() {
     check(JSON.stringify(chips) === JSON.stringify(["lang-chip-human-design", "lang-chip-numerology"]), `chips ${JSON.stringify(chips)}`);
     check(await shown(page, "lang-chip-numerology"), "the chips are hidden at 1280 px");
     check((await page.getByTestId("lang-chip-human-design").innerText()).trim() === "HD", `the Human Design chip reads "${await page.getByTestId("lang-chip-human-design").innerText()}"`);
+    // Numerology's short name, whole (the bug-fix round, item 7: the chip read "Numerol…" here).
+    const numChip = await page.getByTestId("lang-chip-numerology").evaluate((el) => {
+      const s = el.querySelector(".ob-lang-short");
+      return { text: s?.textContent ?? "", cut: !s || s.scrollWidth > s.clientWidth + 1 };
+    });
+    check(numChip.text === "Numbers" && !numChip.cut, `the Numerology chip reads ${JSON.stringify(numChip)}`);
     await page.getByTestId("lang-chip-numerology").click();
     await waitStudioPage(page, "numerology");
     // Numerology has three lenses (its numbers, its cycles, two people: feature 5c): Natal, Cycles and Relationship, no Home.

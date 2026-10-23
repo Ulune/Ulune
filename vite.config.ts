@@ -151,9 +151,14 @@ export default defineConfig(({ command, isPreview }) => ({
                 // The AI keys' store too: the private space's runtime holds them, and
                 // in the wheel's group it made a reader with a space download the
                 // wheel on every page (encyclopedia plan, part 22, 8 Oct 2026).
+                // And three small pieces the studio's first view needs (the bug-fix round, item 3): the
+                // footer's legal links and their whole words, the guide's linked paragraph, the space
+                // button's lock and send icons. In chunks of their own, two imports down, they were fetched
+                // only once the studio's code ran, just before or just after the load: "/" read 1.2 KB
+                // more one run in three. Here, in a chunk the page names up front, every run alike.
                 {
                   name: "shared",
-                  test: /[\\/]src[\\/](lib[\\/](utils|depth[\\/]env|tour[\\/](state|keys)|ai[\\/]use-ai-account)\.ts|components[\\/]loading-lines\.tsx)|node_modules[\\/]clsx[\\/]/,
+                  test: /[\\/]src[\\/](lib[\\/](utils|depth[\\/]env|tour[\\/](state|keys)|ai[\\/]use-ai-account|legal[\\/]links)\.ts|components[\\/](loading-lines|keep-whole|first-screen[\\/]guide-linked)\.tsx)|node_modules[\\/](clsx[\\/]|lucide-react[\\/]dist[\\/]esm[\\/]icons[\\/](lock|send)\.js)/,
                   priority: 1.5,
                 },
                 // The natal wheel and all it imports (the studio's first figure),
@@ -199,6 +204,10 @@ export default defineConfig(({ command, isPreview }) => ({
                   // The calculations' worker: WebAssembly and Ulune's own address only.
                   { src: ENGINE_WORKER_PATH, headers: { "Content-Security-Policy": ENGINE_WORKER_CSP }, continue: true },
                 ],
+                // The synced account's daily clean-up (src/routes/api/account.cleanup.ts, docs/sync-protocol.md
+                // section 9): accounts unused for two years (decision A3), old tombstones, spent challenges.
+                // Vercel sends CRON_SECRET with it; without the secret set, the route refuses to run.
+                crons: [{ path: "/api/account/cleanup", schedule: "17 3 * * *" }],
               },
               functions: {
                 // A stuck call is cut after 90 s (the AI relay waits up to 85 s;
@@ -206,6 +215,11 @@ export default defineConfig(({ command, isPreview }) => ({
                 maxDuration: 90,
                 // Paris: the calculations and the relay run in the EU.
                 regions: ["cdg1"],
+              },
+              // The synced account's functions in Frankfurt, beside its database (Neon, AWS eu-central-1;
+              // share and compare plan, decision A2): a function of their own, routed by Vercel.
+              functionRules: {
+                "/api/account/**": { regions: ["fra1"], maxDuration: 30 },
               },
             },
           }),

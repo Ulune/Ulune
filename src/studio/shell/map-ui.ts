@@ -52,7 +52,7 @@ export const LANGUAGE_WORDS: Record<LanguageId, { name: MessageKey; short: Messa
     line: "langHumanDesignLine",
     needs: "langNeedsTime",
   },
-  numerology: { name: "langNumerology", short: "langNumerology", line: "langNumerologyLine", needs: "langNeedsName" },
+  numerology: { name: "langNumerology", short: "langNumerologyShort", line: "langNumerologyLine", needs: "langNeedsName" },
   "chinese-astrology": {
     name: "langChineseAstrology",
     short: "langChineseAstrologyShort",

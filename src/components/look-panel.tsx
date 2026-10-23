@@ -40,7 +40,7 @@ import { setDepthPrefs, useDepthPrefs } from "@/lib/depth/prefs";
 import { supportsWebGL } from "./depth/gl/support";
 import { whenIdle } from "@/lib/lazy-component";
 import { setWheelPrefs, useWheelPrefs } from "@/lib/chart/wheel-prefs";
-import { cnWord } from "@/lib/chinese/words";
+import { cnWord } from "@/lib/chinese/first-words";
 
 /** A key of the app's catalog or of the Look tab's own book (look-words.ts). */
 type MessageKey = CatalogKey | keyof typeof lookWords;

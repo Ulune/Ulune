@@ -12,7 +12,7 @@ import type { AppLocale } from "./messages";
 import { pick } from "./pick";
 import { SOLAR_TERMS } from "@/lib/chinese/names";
 import { chineseLabel, readChinesePrefs } from "@/lib/chinese/prefs";
-import { animalOf, cnWord } from "@/lib/chinese/words";
+import { animalOf, cnWord } from "@/lib/chinese/first-words";
 
 export const CALENDAR_UI = source;
 

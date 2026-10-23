@@ -12,9 +12,16 @@ import { usePresence } from "@/lib/presence";
 const loadDialog = () => import("@/studio/shell/CommandPaletteDialog");
 const CommandPaletteDialog = lazyNamed(loadDialog, "CommandPaletteDialog");
 
+/**
+ * A key typed into a field (an input, a text area, a menu of choices, an
+ * editable region, or a widget that takes typing: a text box, a search box, a
+ * combo box, a spin button): the page's own keys (C, F, P, L, T, Escape)
+ * leave it alone (the bug-fix round, item 8).
+ */
 function isTyping(el: EventTarget | null) {
-  if (!(el instanceof HTMLElement)) return false;
-  return el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+  if (!(el instanceof Element)) return false;
+  if (el instanceof HTMLElement && el.isContentEditable) return true;
+  return Boolean(el.closest("input, textarea, select, [role=textbox], [role=searchbox], [role=combobox], [role=spinbutton]"));
 }
 
 /**
@@ -64,7 +71,7 @@ export function CommandPalette() {
         e.preventDefault();
         // From the Calendar: Charts first, where the language button is.
         if (!openLanguagePicker()) setPage(pageFor(lastLanguage()));
-      } else if (e.key === "t" || e.key === "T") {
+      } else if ((e.key === "t" || e.key === "T") && !e.repeat && !busy()) {
         if (s.chart) setView(s.view === "table" ? "wheel" : "table");
       } else if ((e.key === "c" || e.key === "C") && !e.repeat && !busy()) {
         // Compare (studio/compare): on where it shows the page, or off again.

@@ -20,6 +20,11 @@ export const errors = {
   ],
   errorSlotRetry: ["Try again", "Réessayer"],
   errorSlotTitle: ["This page didn’t load.", "Cette page ne s’est pas chargée."],
+  reconnectedTitle: ["The connection is back.", "La connexion est revenue."],
+  reconnectedBody: [
+    "This view couldn’t download while it was gone: reload the page to open it. Charts not kept in a private space will need to be cast again.",
+    "Cette vue n’a pas pu se télécharger pendant la coupure\u202f: rechargez la page pour l’ouvrir. Les thèmes qui ne sont pas gardés dans un espace privé devront être calculés à nouveau.",
+  ],
   staleVersionTitle: ["A new version of Ulune is out.", "Une nouvelle version d’Ulune est en ligne."],
   staleVersionBody: [
     "This view needs it: reload the page to open it. Charts not kept in a private space will need to be cast again.",

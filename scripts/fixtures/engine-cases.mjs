@@ -79,6 +79,9 @@ export function laterCases(natalOf) {
     { label: "transits, 27 Aug 2026", kind: "transits", data: sky(a, "2026-08-27T12:00:00.000Z") },
     { label: "transits, 17 Oct 2026 09:00", kind: "transits", data: sky(a, "2026-10-17T09:00:00.000Z") },
     { label: "transits, polar natal", kind: "transits", data: sky(polar, "2026-08-27T12:00:00.000Z") },
+    // At stations, where a slow body's passages are bracketed one by one (transit-exact.ts, exactOfPass).
+    { label: "transits at Pluto's station, 14 Oct 2025", kind: "transits", data: sky(a, "2025-10-14T02:50:00.000Z") },
+    { label: "transits at Mercury's station, 9 Nov 2025", kind: "transits", data: sky(a, "2025-11-09T19:00:00.000Z") },
     { label: "transits to a 1500 natal, 1520", kind: "transits", data: sky(old, "1520-05-01T12:00:00.000Z") },
     { label: "progressions to 27 Aug 2026", kind: "progressions", data: progressed(a, "2026-08-27T12:00:00.000Z") },
     { label: "progressions, polar natal", kind: "progressions", data: progressed(polar, "2026-08-27T12:00:00.000Z") },

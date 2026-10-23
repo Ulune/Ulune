@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { SOLAR_TERMS } from "@/lib/chinese/names";
 import { readChinesePrefs, type ChinesePrefs } from "@/lib/chinese/prefs";
 import { useChinesePrefs } from "@/lib/chinese/use-chinese-prefs";
-import { cnWord } from "@/lib/chinese/words";
+import { cnWord } from "@/lib/chinese/first-words";
 import { calWord } from "@/lib/i18n/calendar-layer-words";
 
 const Y = CALENDAR_UI.year;

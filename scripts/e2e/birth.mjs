@@ -1,8 +1,11 @@
 /**
  * Birth form: sample chart, "I don't know the time", no silent first place,
- * keyboard place list, localized inline errors.
+ * keyboard place list, localized inline errors. Its keys are its own (the
+ * bug-fix round, item 8): C, F, P, L and T typed into its fields are typed,
+ * never the page's keys, and on a narrow screen, where it sits in the sheet,
+ * Escape closing the place's suggestions leaves the sheet and the focus be.
  */
-import { DEV, ensureShotsDir, gotoApp, launch, setLang } from "./_lib.mjs";
+import { DEV, clickDockTab, ensureShotsDir, gotoApp, launch, setLang } from "./_lib.mjs";
 
 async function run(width) {
   const { browser, page } = await launch(width);
@@ -69,6 +72,35 @@ async function run(width) {
     await page.getByTestId("cast-submit").click();
     await page.getByTestId("studio-natal").waitFor({ timeout: 45000 });
     console.log(`birth-${width} OK`);
+
+    // The form again, in the Birth tab: the page's keys typed into its fields are letters, nothing more.
+    await clickDockTab(page, "birth");
+    await page.locator("#native-name").waitFor({ state: "visible", timeout: 8000 });
+    const keysState = () =>
+      page.evaluate(() => ({
+        show: document.documentElement.hasAttribute("data-show"),
+        compare: Boolean(document.querySelector("[data-testid=compare]")),
+        picker: Boolean(document.querySelector("[data-testid=lang-picker]")?.getClientRects().length),
+        view: document.querySelector("[data-view]")?.getAttribute("data-view") ?? "",
+        path: location.pathname,
+        sheet: document.querySelector("[data-testid=dock]")?.getAttribute("data-detent") ?? "",
+      }));
+    const calm = await keysState();
+    await page.locator("#native-name").fill("");
+    await page.locator("#native-name").pressSequentially("cfpltCFPLT", { delay: 20 });
+    await page.waitForTimeout(300);
+    if ((await page.locator("#native-name").inputValue()) !== "cfpltCFPLT") throw new Error(`the name field took "${await page.locator("#native-name").inputValue()}"`);
+    if (JSON.stringify(await keysState()) !== JSON.stringify(calm)) throw new Error(`keys typed in the name field acted: ${JSON.stringify(await keysState())} (was ${JSON.stringify(calm)})`);
+    await page.locator("#native-name").fill("Birth QA");
+    // The place's suggestions, then Escape: the list closes, the sheet (on a narrow screen) and the focus stay.
+    await page.locator("#birth-place").fill("Lyon");
+    await page.locator("#birth-place-list [role=option]").first().waitFor({ timeout: 12000 });
+    await page.locator("#birth-place").press("Escape");
+    await page.waitForTimeout(400);
+    const after = await keysState();
+    const focus = await page.evaluate(() => document.activeElement?.id);
+    if (after.sheet !== calm.sheet || focus !== "birth-place") throw new Error(`Escape in the place's suggestions: the sheet ${calm.sheet} → ${after.sheet}, the focus on "${focus}"`);
+    console.log(`birth-${width} keys OK`);
   } finally {
     await browser.close();
   }

@@ -23,6 +23,11 @@
   font-size: 12px;
   color: var(--color-fg-muted);
 }
+/* The step menu and Now, kept together (time-dial.tsx): part of the head's
+   own row, except on a finger's narrow dial (below). */
+.ulune-time-scrub-tail {
+  display: contents;
+}
 .ulune-time-unit select {
   height: var(--ctl-h);
   padding: 0 28px 0 10px;
@@ -41,9 +46,6 @@
    ‹ › a step of the size chosen, play either way, and a tape of dates under a
    fixed needle that a drag, a flick, a wheel or the arrow keys move by whole
    steps. */
-.ulune-time-dial .ulune-time-scrub-head {
-  gap: 2px;
-}
 .ulune-time-dial .ulune-time-readout {
   display: flex;
   flex-wrap: wrap;
@@ -273,5 +275,36 @@
   }
   .ulune-time-dial .ulune-time-readout--pick .ulune-time-readout-caret {
     display: none;
+  }
+}
+
+/* A finger (the bug-fix round; review items RC3 and T10): the dial's arrows,
+   its readout, its step menu, Now and its tape reach 44 px, as touch asks.
+   After the narrow dial's rules above, so it wins over their 28 px arrows;
+   a mouse keeps the compact sizes. The arrows' icons keep their size: only
+   the space a finger can press grows (they have no outline to grow with). */
+@media (pointer: coarse) {
+  .ulune-time-dial {
+    --ctl-h: 44px;
+    --ctl-icon: 44px;
+  }
+  .ulune-time-dial .ulune-time-scrub-head > .ob-icon-btn {
+    width: 44px;
+    min-width: 44px;
+  }
+  /* Where the 44 px arrows leave the step menu and Now no room (French's
+     « Maintenant » on a phone), they take a row of their own under the date. */
+  .ulune-time-dial .ulune-time-scrub-head {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 4px;
+  }
+  .ulune-time-dial .ulune-time-scrub-tail {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .ulune-time-tape {
+    height: 44px;
   }
 }
