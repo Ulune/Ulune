@@ -10715,18 +10715,18 @@
    },
    "aliases": {
     "en": [
-     "cóng'ér gé",
+     "cóng’ér gé",
      "從兒格"
     ],
     "fr": [
-     "cóng'ér gé",
+     "cóng’ér gé",
      "從兒格"
     ]
    },
    "chinese": {
     "hant": "從兒格",
     "hans": "从儿格",
-    "pinyin": "cóng'ér gé",
+    "pinyin": "cóng’ér gé",
     "engine": true,
     "from": "bazi-balance.ts STRUCTURE_NAMES"
    },

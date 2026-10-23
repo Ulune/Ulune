@@ -13,7 +13,7 @@
  * which it follows. Part 20 gives four of the stages Ulune's own names, the
  * classical ones kept for their readings (STAGES).
  */
-import { naYinOf, type ChineseName, type NaYin } from "./names";
+import { naYinOf, type ChineseName, type NaYin } from "./names.ts";
 import type { BaziChart, BaziPlaceId } from "./bazi";
 import type { Both } from "./both";
 

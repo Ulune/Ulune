@@ -28,6 +28,10 @@ import { chineseSubjectOf } from "../src/lib/chinese/term-refs.ts";
 import { LIVE_HOMES } from "../src/lib/chinese/term-live.ts";
 import { PHASES, POLARITY_NAMES } from "../src/lib/chinese/names.ts";
 import { LANGUAGES, languageHomePath } from "../src/studio/map.ts";
+import { FLYING_STARS, pairRelation, starStateIn } from "./encyclopedia/combinations.mjs";
+import { FLIGHT, LO_SHU, STARS, starState } from "../src/lib/chinese/fengshui-stars.ts";
+import { PAIR_KEYS, relationOf } from "../src/lib/chinese/fengshui-pairs.ts";
+import { TRIGRAMS } from "../src/lib/chinese/fengshui.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const real = buildEncyclopedia(readContent(`${ROOT}content/encyclopedia`));
@@ -256,11 +260,19 @@ test("content/encyclopedia builds clean, every live family written in both langu
       // Its Chinese name: the manifest’s, the engine’s where it has one; none where the manifest has none.
       assert.deepEqual(page.zh ?? null, row.chinese ? { hant: row.chinese.hant, hans: row.chinese.hans, pinyin: row.chinese.pinyin } : null, id);
       assert.equal(page.tradition.id, row.tradition);
-      // At the encyclopedia’s standard: its sections, its sources, a summary for the card.
-      assert.deepEqual(page.sections.map((s) => s.key), ["meaning", "practice", "traditions", "history", "calculation", "correspondences"], id);
-      assert.ok(page.sources.length >= 5, `${id}: ${page.sources.length} sources`);
-      const words = JSON.stringify(page.sections).split(/\s+/).length;
-      assert.ok(words > 550, `${lang}/${id}: ${words} words`);
+      if (row.kind === "core") {
+        // At the encyclopedia’s standard: its sections, its sources, a summary for the card.
+        assert.deepEqual(page.sections.map((s) => s.key), ["meaning", "practice", "traditions", "history", "calculation", "correspondences"], id);
+        assert.ok(page.sources.length >= 5, `${id}: ${page.sources.length} sources`);
+        const words = JSON.stringify(page.sections).split(/\s+/).length;
+        assert.ok(words > 550, `${lang}/${id}: ${words} words`);
+      } else {
+        // A combination page (combinations.mjs, CHINESE_MAKERS): its written opening, then the reading’s own text, its correspondences last, its own summary.
+        const keys = page.sections.map((s) => s.key);
+        assert.ok(keys[0] === "meaning" && keys.at(-1) === "correspondences", `${lang}/${id}: ${keys.join(" ")}`);
+        assert.ok(page.sections[0].blocks.length >= 2, `${lang}/${id}: an opening and the reading’s text`);
+        assert.notEqual(page.summary, `${page.title}.`, `${lang}/${id}: no summary written`);
+      }
     }
     // The card names its pinyin too.
     if (row.chinese) assert.equal(real.data.cards[`en/${row.tradition}`][id][2], row.chinese.pinyin);
@@ -283,20 +295,20 @@ test("the written families are live: their words link, their readings offer them
   assert.equal(linkableId("branch", "zi"), "branch-zi");
   assert.equal(linkableId("animal", "horse"), "animal-horse");
   assert.equal(linkableId("zodiac-concept", "day-animal"), "day-animal");
-  assert.equal(linkableId("life-stage", "peak"), null, "the life stages are not written yet");
   assert.deepEqual([...chineseSubjectOf("bz:phase:fire")], ["phase-fire"]);
-  assert.deepEqual([...chineseSubjectOf("bz:stem:day")], ["stem"], "a stem’s reading offers the stems, not yet the Day Master");
-  // The zodiac’s readings offer their animal, its branch, their place (encyclopedia part 24); a day of the Calendar its animal, not yet its pillar.
+  // The day’s stem offers the Day Master and the stems (part 25).
+  assert.deepEqual([...chineseSubjectOf("bz:stem:day")], ["day-master", "stem"]);
+  // The zodiac’s readings offer their animal, its branch, their place (encyclopedia part 24); a day of the Calendar its pillar and its animal (part 25).
   assert.deepEqual([...chineseSubjectOf("zk:branch:6")], ["animal-horse", "branch-wu"]);
   assert.deepEqual([...chineseSubjectOf("zkp:m:year:day")], ["year-animal", "day-animal"]);
-  assert.deepEqual([...chineseSubjectOf("cnday:2026-10-23")], ["animal-horse"]);
+  assert.deepEqual([...chineseSubjectOf("cnday:2026-10-23")], ["pillar-geng-wu", "animal-horse"]);
   // The shared ideas and the relations (part 23’s second batch): BaZi’s interactions, its hidden stems, the year’s ruler, the Lo Shu’s centre.
   assert.equal(linkableId("relation", "season"), "relation-seasonal-trio");
   assert.equal(linkableId("chinese-concept", "tai-sui"), "tai-sui");
   assert.deepEqual([...chineseSubjectOf("bz:ix:season:year-month-day")], ["relation-seasonal-trio"]);
   assert.deepEqual([...chineseSubjectOf("bz:hidden:year:1")], ["hidden-stems"]);
   assert.deepEqual([...chineseSubjectOf("zky:year")], ["tai-sui"]);
-  assert.deepEqual([...chineseSubjectOf("fss:main:palace:c")], ["lo-shu"]);
+  assert.deepEqual([...chineseSubjectOf("fss:main:palace:c")], ["lo-shu", "pairing"]);
   // The solar terms (part 23’s third batch): a term’s word links its page, and the Calendar’s term offers it.
   assert.equal(linkableId("solar-term", "lichun"), "solar-term-lichun");
   assert.equal(linkableId("solar-term", "dahan"), "solar-term-dahan");
@@ -305,6 +317,47 @@ test("the written families are live: their words link, their readings offer them
   // The Ten Gods (part 25’s first family): a god’s word links its page, and the board’s god reading offers it.
   assert.equal(linkableId("ten-god", "eating-god"), "ten-god-eating-god");
   assert.deepEqual([...chineseSubjectOf("bz:god:seven-killings")], ["ten-god-seven-killings"]);
+  // BaZi’s other families (part 25): the life stages, the stars, the structures and BaZi’s ideas; the sixty pillars and the thirty Na Yin.
+  for (const family of ["life-stage", "shen-sha", "structure", "bazi-concept", "pillar", "na-yin"]) assert.ok(LIVE_FAMILIES.has(family), family);
+  assert.equal(linkableId("life-stage", "peak"), "life-stage-peak");
+  assert.equal(linkableId("shen-sha", "travelling-horse"), "shen-sha-travelling-horse");
+  assert.equal(linkableId("structure", "jian-lu"), "structure-jian-lu");
+  assert.equal(linkableId("structure", "follow-power"), "structure-follow-power");
+  assert.equal(linkableId("bazi-concept", "luck-pillar"), "luck-pillar");
+  assert.equal(linkableId("pillar", "bing-wu"), "pillar-bing-wu");
+  assert.equal(linkableId("na-yin", 0), "na-yin-haizhong-jin");
+  // The board’s, the analysis’s and the Cycles lens’s readings offer them; so do the Relationship lens’s.
+  assert.deepEqual([...chineseSubjectOf("bz:stage:day")], ["life-stage"]);
+  assert.deepEqual([...chineseSubjectOf("bz:nayin:year")], ["na-yin"]);
+  assert.deepEqual([...chineseSubjectOf("bz:star:nobleman")], ["shen-sha-nobleman"]);
+  assert.deepEqual([...chineseSubjectOf("bz:structure")], ["structure"]);
+  assert.deepEqual([...chineseSubjectOf("bz:empty")], ["empty-branches"]);
+  assert.deepEqual([...chineseSubjectOf("bz:balance")], ["phase-balance"]);
+  assert.deepEqual([...chineseSubjectOf("bz:strength")], ["day-master-strength"]);
+  assert.deepEqual([...chineseSubjectOf("bz:favourable")], ["favourable-phases"]);
+  assert.deepEqual([...chineseSubjectOf("bz:branch:month")], ["month-pillar", "branch"]);
+  assert.deepEqual([...chineseSubjectOf("bz:luck:yang:1")], ["luck-pillar"]);
+  assert.deepEqual([...chineseSubjectOf("bz:flow-year")], ["annual-pillar"]);
+  assert.deepEqual([...chineseSubjectOf("bz:flow-month:3")], ["monthly-pillar"]);
+  assert.deepEqual([...chineseSubjectOf("bz:flow-day")], ["daily-pillar"]);
+  assert.deepEqual([...chineseSubjectOf("bzp:palace")], ["partner-palace"]);
+  assert.deepEqual([...chineseSubjectOf("bzp:dm")], ["day-master"]);
+  // Part 26: the eight trigrams and Feng Shui's families. A mountain's, a star's, a formation's or an affliction's word links
+  // its page, and the dial's, the palaces' and the year's readings offer them; Feng Shui's Cycles too.
+  for (const family of ["trigram", "kua", "mansion", "mountain", "flying-star", "formation", "affliction", "period", "pairing", "fengshui-concept"]) assert.ok(LIVE_FAMILIES.has(family), family);
+  assert.equal(linkableId("trigram", "kan"), "trigram-kan");
+  assert.equal(linkableId("kua", 1), "kua-1");
+  assert.equal(linkableId("mansion", "sheng-qi"), "mansion-sheng-qi");
+  assert.equal(linkableId("mountain", "zi"), "mountain-zi");
+  assert.equal(linkableId("pairing", "6-9"), "pairing-6-9");
+  assert.deepEqual([...chineseSubjectOf("fsh:mountain:zi")], ["mountain-zi"]);
+  assert.deepEqual([...chineseSubjectOf("fss:star:9")], ["flying-star-9"]);
+  assert.deepEqual([...chineseSubjectOf("fss:main:palace:s")], ["trigram-li", "pairing"]);
+  assert.deepEqual([...chineseSubjectOf("fss:formation:prosperous")], ["formation-prosperous"]);
+  assert.deepEqual([...chineseSubjectOf("fsy:aff:five-yellow")], ["affliction-five-yellow"]);
+  assert.deepEqual([...chineseSubjectOf("fsh:facing")], ["facing"]);
+  assert.deepEqual([...chineseSubjectOf("fs:yang:kua")], ["kua"]);
+  assert.deepEqual([...chineseSubjectOf("fsc:yin:dir:n")], ["mansion", "annual-stars"]);
 });
 
 test("the three Chinese languages’ homes: built from their introductions, and the language picker’s ⓘ leads there", () => {
@@ -362,8 +415,9 @@ test("the lexicons: the shared ideas everywhere, the shared Chinese foundations 
   }
   // The family’s own entries do link: “Heavenly Stems”, « Troncs célestes ».
   assert.ok(has("en", "bazi", "Heavenly Stems") && has("fr", "bazi", "Troncs célestes"));
-  // A Chinese term’s name that holds another’s is matched first (part 24): the star “Travelling Horse” never links the animal,
-  // and reads as plain words until its own page is written; a pillar’s name, made of its parts, does not hold them back.
+  // A Chinese term’s name that holds another’s is matched first (part 24): the star “Travelling Horse” never links the animal;
+  // it links its own page in BaZi’s texts, now that the stars are written (part 25), and reads as plain words in the other
+  // languages’ texts; a pillar’s name, made of its parts, does not hold them back.
   for (const t of CHINESE_LANGUAGES) {
     for (const [lang, text, star] of [
       ["en", "The Travelling Horse is the star of movement; the Horse loves open space.", "Travelling Horse"],
@@ -371,8 +425,11 @@ test("the lexicons: the shared ideas everywhere, the shared Chinese foundations 
     ]) {
       const pieces = linkText(text, compileLexicon(lexicon[lang][t]));
       assert.equal(pieces.map((p) => p.text).join(""), text);
-      assert.deepEqual(pieces.filter((p) => p.id).map((p) => p.id), ["animal-horse"], `${lang}/${t}`);
-      assert.ok(pieces.find((p) => p.text.includes(star)) && !pieces.find((p) => p.text.includes(star)).id, `${lang}/${t}: ${star} stays plain`);
+      const own = t === "bazi" ? "shen-sha-travelling-horse" : null;
+      assert.deepEqual(pieces.filter((p) => p.id).map((p) => p.id), [...(own ? [own] : []), "animal-horse"], `${lang}/${t}`);
+      const piece = pieces.find((p) => p.text.includes(star));
+      assert.ok(piece, `${lang}/${t}: ${star}`);
+      assert.equal(piece.id || null, own, `${lang}/${t}: ${star} ${own ? "links its page" : "stays plain"}`);
     }
   }
   assert.ok(!lexicon.en.bazi.some(([form]) => form === "Yang Earth Dragon"));
@@ -383,5 +440,27 @@ test("the lexicons: the shared ideas everywhere, the shared Chinese foundations 
     assert.deepEqual(link("en", "The year turns at Lichun; the solar terms count the months."), ["solar-term-lichun", "solar-term"], t);
     assert.deepEqual(link("en", "From the Start of Spring to Major Cold, but not the start of spring."), ["solar-term-lichun", "solar-term-dahan"], t);
     assert.deepEqual(link("fr", "Par grand froid, au début du printemps, avant le Grand froid et Lichun ; les termes solaires."), ["solar-term-dahan", "solar-term-lichun", "solar-term"], t);
+  }
+});
+
+test("the pairings’ pages name the engine’s stars: their colours, phases, classical names, homes, states and meetings", () => {
+  for (const s of STARS) {
+    const f = FLYING_STARS[s.n];
+    assert.equal(f.en, s.en);
+    assert.equal(f.fr, s.fr);
+    assert.equal(f.phase, s.phase);
+    assert.equal(f.star, s.star.en);
+    // The trigram of the star's home palace in the Lo Shu; none for the 5, at the centre.
+    const palace = FLIGHT.find((p) => LO_SHU[p] === s.n);
+    assert.equal(f.trigram, palace === "c" ? null : TRIGRAMS.find((t) => t.direction === palace).id, `${s.n}`);
+    for (let period = 1; period <= 9; period += 1) {
+      const st = starState(s.n, period).state;
+      assert.equal(starStateIn(s.n, period), st === "timely" ? "T" : st === "waning" ? "W" : "D", `${s.n} in period ${period}`);
+    }
+  }
+  for (const key of PAIR_KEYS) {
+    const [a, b] = key.split("-").map(Number);
+    assert.equal(pairRelation(a, b), relationOf(a, b), key);
+    assert.equal(pairRelation(b, a), relationOf(b, a), key);
   }
 });

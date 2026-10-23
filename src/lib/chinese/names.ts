@@ -310,7 +310,7 @@ export const FAMILY_NAMES = {
 } as const satisfies Record<string, ChineseName>;
 
 /** The Chinese languages' own names (生肖, 八字, 風水), for the language picker's cards: in a file of their own, so the picker loads them without these tables. */
-export { LANGUAGE_NAMES } from "./language-names";
+export { LANGUAGE_NAMES } from "./language-names.ts";
 
 /** Choose the characters a reader asked for: Traditional by default. */
 export const hanzi = (name: ChineseName, script: "hant" | "hans" = "hant"): string => name[script];

@@ -310,12 +310,16 @@ if (want.has("bundle")) {
   check("bundle", "encyclopedia: the largest page, with its figure", most(data.pages), 12, "KB gz");
   // (The plan: about 30. Astrology's, with its 580 combination pages' summaries, is the largest.)
   check("bundle", "encyclopedia: a tradition's card texts", most(data.cards), 40, "KB gz");
-  // (The plan: about 150; 70 and 76 on 8 Oct 2026, the combinations found by their names only.)
-  check("bundle", "encyclopedia: a language's search index", most(data.search), 100, "KB gz");
+  // (The plan: about 150; 70 and 76 on 8 Oct 2026, the combinations found by their names only.
+  // 116.4 on 23 Oct 2026, with every Chinese family written: 288 pages more per language, their
+  // characters and toned and toneless pinyin each searchable. Limit 130, still under the plan's 150.)
+  check("bundle", "encyclopedia: a language's search index", most(data.search), 130, "KB gz");
   check("bundle", "encyclopedia: the words a reading links", most(data.lexicon), 25, "KB gz");
   const offline = JSON.parse(readFileSync(join(ROOT, ".vercel/output/static/encyclopedia-offline.json"), "utf8"));
-  // (The plan: 3 to 4 MB per language; 3.3 and 3.5 on 8 Oct 2026, the shared files included.)
-  check("bundle", "encyclopedia kept offline, one language", Math.max(offline.bytes.en, offline.bytes.fr) / 1048576 + offline.bytes.shared / 1048576, 4, "MB");
+  // (The plan: 3 to 4 MB per language; 3.3 and 3.5 on 8 Oct 2026, the shared files included.
+  // 4.7 on 23 Oct 2026 with every Chinese family (about 0.8 MB of their pages and preview images);
+  // the copy is only ever downloaded by choice, from Settings. Limit 5.)
+  check("bundle", "encyclopedia kept offline, one language", Math.max(offline.bytes.en, offline.bytes.fr) / 1048576 + offline.bytes.shared / 1048576, 5, "MB");
 }
 
 if (want.has("scrub")) {

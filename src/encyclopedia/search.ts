@@ -38,6 +38,9 @@ type Prepared = {
 
 export type SearchEngine = { lang: string; docs: Prepared[] };
 
+/** The Chinese languages’ own traditions, whose entries yield to the shared foundations (“chinese”) on a tie. */
+const LANGUAGE_OWN = new Set(["chinese-astrology", "bazi", "feng-shui"]);
+
 const split = (s: string) => (s ? s.split(" ") : []);
 /** A title as the words a search keeps of it, so "Lune vide de course" is found whole by "lune vide course". */
 const phraseOf = (s: string) => queryWords(s).join(" ");
@@ -131,7 +134,9 @@ export function search(engine: SearchEngine, query: string, limit = 40): SearchH
     hits.push({ id, title, summary, glyph, tradition, family, slug: slug || null, score: score + (full ? 100 : 0) - p.after, full });
   }
   const collator = new Intl.Collator(engine.lang, { sensitivity: "base" });
-  hits.sort((a, b) => b.score - a.score || collator.compare(a.title, b.title));
+  // On a tie, the shared Chinese foundations before one Chinese language’s own entries: “mu” is 木, Wood, before 墓, BaZi’s Storehouse stage (part 25).
+  const own = (h: SearchHit) => (LANGUAGE_OWN.has(h.tradition) ? 1 : 0);
+  hits.sort((a, b) => b.score - a.score || own(a) - own(b) || collator.compare(a.title, b.title));
   return hits.slice(0, limit);
 }
 

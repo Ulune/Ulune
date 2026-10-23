@@ -70,14 +70,21 @@ const ALIAS_FAMILIES = new Set([
   "numerology/cycles",
   // The solar terms' own names, which the readings use ("at Lichun"), and their other English names (part 23's third batch).
   "chinese/solar-terms",
+  // The sixty-cycle by the names BaZi's readings give it ("a step of the sixty-cycle", « du cycle de soixante »), part 25.
+  "chinese/pillars",
+  // The Eight Mansions by the names Feng Shui's readings give them ("your Growth direction", « votre Stabilité »), part 26;
+  // Yan Nian's "Harmony" is also BaZi's relation, so in Feng Shui's texts it stays plain (a form two entries share).
+  "feng-shui/mansions",
 ]);
 
 /**
  * Entries whose names are names only with their capital: a solar term's ("Grand froid", "Rosée blanche",
  * "Début du printemps") reads in small letters as an everyday phrase, so it links only as written; the
- * family's own entry ("solar terms", "termes solaires") still links in small letters.
+ * family's own entry ("solar terms", "termes solaires") still links in small letters. So does a period of
+ * Feng Shui's ("Period 9", « Période 9 »): in small letters « l’étoile de la période 1 » is a palace's
+ * period star, not Period 1 (part 26).
  */
-const AS_WRITTEN = /^solar-term-/;
+const AS_WRITTEN = /^solar-term-|^period-\d$/;
 
 /**
  * The families whose entries go by one syllable of pinyin (Jia, Zi, Yin, You): a syllable other Chinese

@@ -66,7 +66,7 @@ export const STRUCTURE_NAMES: Record<StructureId | SpecialId, ChineseName> = {
   "jian-lu": { hant: "建祿格", hans: "建禄格", pinyin: "jiànlù gé", en: "Prosperity structure", fr: "Structure de prospérité" },
   "yang-ren": { hant: "羊刃格", hans: "羊刃格", pinyin: "yángrèn gé", en: "Sword Edge structure", fr: "Structure de la Lame" },
   "follow-strong": { hant: "專旺格", hans: "专旺格", pinyin: "zhuānwàng gé", en: "Dominant structure", fr: "Structure dominante" },
-  "follow-output": { hant: "從兒格", hans: "从儿格", pinyin: "cóng'ér gé", en: "Follow Output", fr: "Suivre l’expression" },
+  "follow-output": { hant: "從兒格", hans: "从儿格", pinyin: "cóng’ér gé", en: "Follow Output", fr: "Suivre l’expression" },
   "follow-wealth": { hant: "從財格", hans: "从财格", pinyin: "cóngcái gé", en: "Follow Wealth", fr: "Suivre la richesse" },
   "follow-power": { hant: "從殺格", hans: "从杀格", pinyin: "cóngshā gé", en: "Follow Power", fr: "Suivre le pouvoir" },
 };

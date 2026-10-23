@@ -70,6 +70,9 @@ import * as FSH from "../src/lib/chinese/fengshui-home-reading.ts";
 import * as FSS from "../src/lib/chinese/fengshui-stars-reading.ts";
 import * as FSY from "../src/lib/chinese/fengshui-years-reading.ts";
 import * as FSP from "../src/lib/chinese/fengshui-pair-reading.ts";
+import * as FSC from "../src/lib/chinese/fengshui-cycles-reading.ts";
+import { directionsOfYear, personYear } from "../src/lib/chinese/fengshui-cycles.ts";
+import { FSP_NOW, fsPairNow, fsPairNowReading } from "../src/lib/chinese/fengshui-pair-now.ts";
 import { fengShuiPair } from "../src/lib/chinese/fengshui-pair.ts";
 import { skyEventId } from "../src/lib/chart/sky-events.ts";
 import { allTermIds } from "../src/encyclopedia/term-ids.ts";
@@ -241,6 +244,15 @@ function pagesRefs() {
     const fb = fengShuiOf(birth === CAMILLE ? SAMPLE_B : CAMILLE, "yin");
     const pc = { pair: fengShuiPair(people[0], fb), names: { a: "A", b: "B" }, lists: { a: [people[0]], b: [fb] } };
     add(crawl((ref, l) => FSP.fsPairReading(pc, ref, l, full), FSP.fsPairRefs()));
+    // Its "You two, now": the year and the month over the directions the two share.
+    const now = fsPairNow(pc.pair, NOW);
+    add(crawl((ref, l) => fsPairNowReading(now, pc.names, ref, l, full, "You two, now", "Europe/Paris"), [FSP_NOW]));
+    // Feng Shui's Cycles: the year and the month on the dial, the year's afflictions, the directions under them, for both counts and without a chart.
+    const cy = yearStarsAt(NOW);
+    for (const ps of [people, []]) {
+      const cc = { y: cy, dirs: directionsOfYear(cy), people: ps.map((fs) => personYear(fs, cy)), timeZone: "Europe/Paris" };
+      add(crawl((ref, l) => FSC.cyclesReading(cc, ref, l, full), FSC.cyclesRefs(cc)));
+    }
     for (const facing of [180, 170.5]) {
       const home = homeOf(facing, "compass", null);
       const period = { year: 1998, ...periodOf(1998) };
@@ -272,9 +284,9 @@ test("every reading the Chinese pages can open names the entries it is about", (
   }
   // What else a reading links to is a move, not a reading of a thing ("calendar-year:2027").
   assert.deepEqual([...REFS].filter((r) => !CHINESE_READING.test(r) && !/^(calendar-year|transits-at|go):/.test(r)), []);
-  // Every family is what some reading is about, but yin and yang and the pairs of stars, which only the tables name.
+  // Every family is what some reading is about, but yin and yang, which only the tables name (a palace offers the pairs of stars, part 26).
   const unreached = CHINESE_FAMILY_IDS.filter((f) => !families.has(f));
-  assert.deepEqual(unreached, ["polarity", "pairing"]);
+  assert.deepEqual(unreached, ["polarity"]);
   // A few by name.
   assert.deepEqual(chineseRefTerms("bz:god:eating-god"), ["ten-god-eating-god"]);
   assert.deepEqual(chineseRefTerms("zk:branch:6"), ["animal-horse", "branch-wu"]);
@@ -283,13 +295,19 @@ test("every reading the Chinese pages can open names the entries it is about", (
   assert.deepEqual(chineseRefTerms("bz:stem:day"), ["day-master", "stem"]);
   assert.deepEqual(chineseRefTerms("bzp:b:bz:stem:day"), ["day-master", "stem"]);
   assert.deepEqual(chineseRefTerms("bzp:luck"), ["luck-pillar"], "the two luck pillars of the moment (BaZi part 20, BZ9)");
-  assert.deepEqual(chineseRefTerms("fss:main:palace:n"), ["trigram-kan"]);
-  assert.deepEqual(chineseRefTerms("fss:ti:palace:c"), ["lo-shu"]);
+  assert.deepEqual(chineseRefTerms("fss:main:palace:n"), ["trigram-kan", "pairing"]);
+  assert.deepEqual(chineseRefTerms("fss:ti:palace:c"), ["lo-shu", "pairing"]);
   assert.deepEqual(chineseRefTerms("fsy:aff:tai-sui"), ["tai-sui"]);
   assert.deepEqual(chineseRefTerms("fsh:mountain:zi"), ["mountain-zi"]);
   assert.deepEqual(chineseRefTerms("fss:star:9"), ["flying-star-9"]);
   assert.deepEqual(chineseRefTerms("fsp:b:kua"), ["kua"]);
   assert.deepEqual(chineseRefTerms("fsp:dir:se"), ["mansion"]);
+  assert.deepEqual(chineseRefTerms("fsp:now"), ["annual-stars", "monthly-stars"]);
+  assert.deepEqual(chineseRefTerms("fsp:now:dir:e"), ["mansion", "annual-stars"]);
+  assert.deepEqual(chineseRefTerms("fsc:aff:tai-sui"), ["tai-sui"]);
+  assert.deepEqual(chineseRefTerms("fsc:aff:three-killings"), ["affliction-three-killings"]);
+  assert.deepEqual(chineseRefTerms("fsc:yang:dir:se"), ["mansion", "annual-stars"]);
+  assert.deepEqual(chineseRefTerms("fsc:dir:se"), ["annual-stars"]);
   assert.deepEqual(chineseRefTerms("cnday:2000-01-01"), ["pillar-wu-wu", "animal-horse"], "1 January 2000 is Wu-Wu");
   assert.deepEqual(chineseRefTerms(`sky:${skyEventId({ k: "term", t: NOW, term: 0 })}`), ["solar-term-lichun"]);
   // The other languages' readings and the Calendar's are not Chinese ones.
@@ -297,7 +315,7 @@ test("every reading the Chinese pages can open names the entries it is about", (
     assert.ok(!CHINESE_READING.test(ref), ref);
   }
   // Nothing for what is not one, or is broken.
-  for (const ref of ["planet:saturn", "gate:34", "core:lifePath", "sky:phase-0-1", "zk:branch:12", "zk:rel:bogus:a:b", "bz:stem:week", "fss:main:palace:constructor", "fs:yang:dir:constructor", "cnday:soon"]) {
+  for (const ref of ["planet:saturn", "gate:34", "core:lifePath", "sky:phase-0-1", "zk:branch:12", "zk:rel:bogus:a:b", "bz:stem:week", "fss:main:palace:constructor", "fs:yang:dir:constructor", "fsc:dir:constructor", "fsc:aff:nothing", "fsp:now:dir:constructor", "cnday:soon"]) {
     assert.deepEqual(chineseRefTerms(ref), [], ref);
   }
 });
@@ -313,15 +331,16 @@ test("every family of reading ids the Chinese readings build is mapped", () => {
     "FSH_FACING_REF", "FSH_PERIOD_REF", "FSH_HOW_REF", "fshHouseRef", "fshMountainRef",
     "fssChartRef", "fssPalaceRef", "fssFormationRef", "fssStarRef",
     "FSY_YEAR_REF", "FSY_MONTH_REF", "fsyAffRef",
-    "FSP_SUMMARY_REF", "FSP_PRACTICE_REF", "fspDirRef", "fspKuaRef",
+    "FSP_SUMMARY_REF", "FSP_PRACTICE_REF", "fspDirRef", "fspKuaRef", "fspNowRef",
+    "FSC_YEAR_REF", "FSC_MONTH_REF", "fscAffRef", "fscDirRef", "fscYouRef",
   ]);
-  const files = ["zodiac-reading", "zodiac-time-reading", "bazi-reading", "bazi-luck-reading", "bazi-pair-reading", "fengshui-reading", "fengshui-home-reading", "fengshui-stars-reading", "fengshui-years-reading", "fengshui-rooms-reading", "fengshui-pair-reading"];
+  const files = ["zodiac-reading", "zodiac-time-reading", "bazi-reading", "bazi-luck-reading", "bazi-pair-reading", "fengshui-reading", "fengshui-home-reading", "fengshui-stars-reading", "fengshui-years-reading", "fengshui-rooms-reading", "fengshui-pair-reading", "fengshui-pair-now", "fengshui-cycles-reading"];
   for (const f of files) {
     const src = readFileSync(`${ROOT}src/lib/chinese/${f}.ts`, "utf8");
     for (const [, name] of src.matchAll(/export const (\w*(?:Ref|REF))\b/g)) assert.ok(covered.has(name), `${f}.ts: ${name} is not mapped (lib/chinese/term-refs.ts, chineseRefTerms)`);
   }
   // The crawl met each prefix the pattern knows.
-  for (const prefix of ["zk:", "zky:", "zkp:", "cnday:", "bz:", "bzp:", "fs:", "fsh:", "fss:", "fsy:", "fsp:", "sky:term-"]) assert.ok([...REFS].some((r) => r.startsWith(prefix)), prefix);
+  for (const prefix of ["zk:", "zky:", "zkp:", "cnday:", "bz:", "bzp:", "fs:", "fsh:", "fss:", "fsy:", "fsp:", "fsp:now", "fsc:", "sky:term-"]) assert.ok([...REFS].some((r) => r.startsWith(prefix)), prefix);
 });
 
 /* ------------------------------------------------------------ written or not */

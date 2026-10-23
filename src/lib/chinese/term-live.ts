@@ -33,6 +33,26 @@ export const LIVE_FAMILIES: ReadonlySet<ChineseFamily> = new Set<ChineseFamily>(
   "solar-term",
   // Part 25's first family: BaZi's Ten Gods.
   "ten-god",
+  // Part 25's others: the life stages, the symbolic stars, the structures and BaZi's ideas; the sixty pillars and the thirty Na Yin.
+  "life-stage",
+  "shen-sha",
+  "structure",
+  "bazi-concept",
+  "pillar",
+  "na-yin",
+  // Part 26: the eight trigrams, then Feng Shui's own families, the Kua and the Eight Mansions, the 24
+  // mountains, the Flying Stars with their formations, periods and 45 pairings, the year's afflictions
+  // and Feng Shui's key ideas.
+  "trigram",
+  "kua",
+  "mansion",
+  "mountain",
+  "flying-star",
+  "formation",
+  "affliction",
+  "period",
+  "pairing",
+  "fengshui-concept",
 ]);
 
 /**
@@ -49,5 +69,5 @@ export const LIVE_HOMES: Readonly<Partial<Record<"chinese-astrology" | "bazi" | 
   "feng-shui": { en: "feng-shui", fr: "feng-shui" },
 };
 
-/** A Chinese reading's id: a place or an animal of the zodiac, a cell of BaZi's board, a palace of the Flying Stars, two people's Kua (Feng Shui's Pair), the Calendar's day animal or solar term… */
-export const CHINESE_READING = /^(?:zk|zky|zkp|cnday|bz|bzp|fs|fsh|fss|fsy|fsp):|^sky:term-/;
+/** A Chinese reading's id: a place or an animal of the zodiac, a cell of BaZi's board, a palace of the Flying Stars, two people's Kua (Feng Shui's Pair), a direction under the year (Feng Shui's Cycles), the Calendar's day animal or solar term… */
+export const CHINESE_READING = /^(?:zk|zky|zkp|cnday|bz|bzp|fs|fsh|fss|fsy|fsp|fsc):|^sky:term-/;

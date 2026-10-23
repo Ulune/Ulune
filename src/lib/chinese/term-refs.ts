@@ -102,9 +102,17 @@ export function chineseRefTerms(ref: string): string[] {
       }
       break;
     case "fsp":
-      // Two people's Kua on one compass (Feng Shui's Pair): their Kua numbers, and the directions as the Eight Mansions give them to both.
+      // Two people's Kua on one compass (Feng Shui's Pair): their Kua numbers, and the directions as the Eight Mansions give them to both;
+      // "You two, now", the year and the month over the directions they share ("fsp:now"), one of them ("fsp:now:dir:e").
       if ((p[1] === "a" || p[1] === "b") && p[2] === "kua") concept("kua");
       else if (p[1] === "summary" || p[1] === "practice" || (p[1] === "dir" && palaceTrigram(p[2]))) concept("mansion");
+      else if (p[1] === "now" && p.length === 2) {
+        add("fengshui-concept", "annual-stars");
+        add("fengshui-concept", "monthly-stars");
+      } else if (p[1] === "now" && p[2] === "dir" && palaceTrigram(p[3])) {
+        concept("mansion");
+        add("fengshui-concept", "annual-stars");
+      }
       break;
     case "fsh":
       if (p[1] === "facing") add("fengshui-concept", "facing");
@@ -114,11 +122,13 @@ export function chineseRefTerms(ref: string): string[] {
       else if (p[1] === "mountain") add("mountain", p[2]);
       break;
     case "fss":
-      // The chart ("fss:main", its replacement "fss:ti"), a palace ("fss:main:palace:n"), a formation, a star.
+      // The chart ("fss:main", its replacement "fss:ti"), a palace ("fss:main:palace:n": its trigram, and the pairs of
+      // stars, since every palace reads its mountain and water stars as one), a formation, a star.
       if ((p[1] === "main" || p[1] === "ti") && p.length === 2) add("fengshui-concept", p[1] === "main" ? "flying-star-chart" : "replacement-chart");
-      else if ((p[1] === "main" || p[1] === "ti") && p[2] === "palace") {
+      else if ((p[1] === "main" || p[1] === "ti") && p[2] === "palace" && (p[3] === "c" || palaceTrigram(p[3]))) {
         if (p[3] === "c") add("chinese-concept", "lo-shu");
         else add("trigram", palaceTrigram(p[3]));
+        concept("pairing");
       } else if (p[1] === "formation") add("formation", p[2]);
       else if (p[1] === "star") add("flying-star", p[2]);
       break;
@@ -126,6 +136,18 @@ export function chineseRefTerms(ref: string): string[] {
       if (p[1] === "year") add("fengshui-concept", "annual-stars");
       else if (p[1] === "month") add("fengshui-concept", "monthly-stars");
       else if (p[1] === "aff") add("affliction", p[2]);
+      break;
+    case "fsc":
+      // Feng Shui's Cycles: the year and the month on the dial, one of the year's afflictions, a direction under the year
+      // (a count's, with its mansion there, "fsc:yang:dir:se"; the year's alone, "fsc:dir:se"), the year in practice ("fsc:yang:you").
+      if (p[1] === "year" && p.length === 2) add("fengshui-concept", "annual-stars");
+      else if (p[1] === "month" && p.length === 2) add("fengshui-concept", "monthly-stars");
+      else if (p[1] === "aff") add("affliction", p[2]);
+      else if (p[1] === "dir" && palaceTrigram(p[2])) add("fengshui-concept", "annual-stars");
+      else if ((p[1] === "yang" || p[1] === "yin") && ((p[2] === "dir" && palaceTrigram(p[3])) || (p[2] === "you" && p.length === 3))) {
+        concept("mansion");
+        add("fengshui-concept", "annual-stars");
+      }
       break;
     case "sky": {
       // The Calendar's solar term ("sky:term-0-1770177600000").
