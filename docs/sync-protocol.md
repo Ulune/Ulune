@@ -360,7 +360,7 @@ They do not learn any chart, name, birth date, time, place, note, group, device 
    - `CRON_SECRET`: another 32 random bytes; Vercel sends it with the daily clean-up;
    - `ACCOUNT_ORIGINS` (optional): the pages allowed to use passkeys, comma-separated; by default `https://ulune.app` in production, the preview's own address on a preview.
 4. **Firewall:** the five rules of section 10.
-5. **The documents:** the privacy notice and the terms (the two-year rule, Frankfurt, what the server holds, Vercel's logs), before the device side is released.
+5. **The documents:** the privacy notice, the legal notice and the terms already describe the account (the two-year rule, Frankfurt, what the server holds, Vercel's logs), saying it isn't available yet (2.0's release, `src/lib/legal`): at launch they drop "not available yet" and take a new date, and What's new takes the lines held back in `src/lib/changes-sync-draft.ts`, with the version that turns sync on.
 
 The build already asks Vercel for the rest: the account's functions in Frankfurt (`vite.config.ts`, `vercel.functionRules`, region `fra1`) and the daily clean-up (`vercel.config.crons`). Without `ACCOUNT_DATABASE_URL` and `ACCOUNT_SESSION_SECRET`, production answers every account operation `503 unavailable` (after checking the request's shape) and nothing else changes.
 

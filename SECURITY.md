@@ -25,7 +25,10 @@ credit in its notes if you would like it.
 ## What is covered
 
 - The site at [ulune.app](https://ulune.app) and this code: the server (chart
-  calculations, place search, the AI relay, error reports, the health check),
-  the private space's encryption, and the pages' security headers.
+  calculations, place search, the AI relay, error reports, the health check,
+  the synced account once it is turned on), the calculations on the device,
+  the private space's encryption and its sync protocol
+  ([docs/sync-protocol.md](docs/sync-protocol.md)), share links, and the
+  pages' security headers.
 - Not covered: the services Ulune relies on (Vercel, Open-Meteo, the AI
   providers a visitor connects), which have their own ways to report.

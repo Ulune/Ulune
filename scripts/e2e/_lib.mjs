@@ -8,7 +8,7 @@ import { fromJSON } from "seroval";
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
 export const SHOTS = join(ROOT, "screenshots/e2e");
 export const DEV = process.env.ULUNE_DEV || "http://127.0.0.1:8097";
-/** AI readings are on in this version (src/lib/features.ts); off in 1.0, so the suites check they are gone. */
+/** Whether AI readings are on in this version (src/lib/features.ts); off in 1.0 and 2.0, so the suites check they are gone. */
 export const AI_ON = /export const AI_ENABLED = true;/.test(readFileSync(join(ROOT, "src/lib/features.ts"), "utf8"));
 
 export const VIEWPORTS = {

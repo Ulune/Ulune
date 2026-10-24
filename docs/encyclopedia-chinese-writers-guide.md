@@ -122,7 +122,7 @@ From the repository (`cd /home/claude/o47` here). The heavy ones go through the 
 2. Add the family to `LIVE_FAMILIES` in `src/lib/chinese/term-live.ts` (with a comment naming the part). From then on every word of it links: the tables’ cells (`ChineseTermWord`), a reading’s “In the encyclopedia” (`ChineseReadingTerms`) and its running text (the lexicon).
 3. Update the tests that name what is live (`scripts/encyclopedia-chinese.test.mjs`: the live families, a word that does or does not link yet) and the home texts that say what comes next.
 4. Run section 9 in full, and draw the previews.
-5. Add one line per language to the 2.0 What’s new draft (`src/lib/changes-2.0-draft.ts`), in its place.
+5. Add one line per language to What’s new (`src/lib/changes.ts`), in the entry of the version that brings it, in its place. (Every family went live with 2.0; this is for a family added later.)
 
 ## Appendix A. The manifest’s 44 suggested names, checked against the engine (23 October 2026)
 

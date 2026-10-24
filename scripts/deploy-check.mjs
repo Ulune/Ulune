@@ -48,6 +48,8 @@ const CHINESE_PATHS = [
   ...[...MAP_SOURCE.matchAll(/\n\s+path: "([^"]+)",\n\s+group: "chinese",/g)].map((m) => m[1]),
   /\n\s+"fengshui-home": "([^"]+)",/.exec(MAP_SOURCE)?.[1],
 ];
+/** The version the build must say it is (/api/health; src/lib/app-identity.ts, which package.json states too). */
+const VERSION = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version;
 const PORT = Number(process.env.DEPLOY_CHECK_PORT || 8099);
 const TYPES = {
   ".js": "text/javascript; charset=utf-8",
@@ -266,6 +268,7 @@ async function checkRoutes() {
   if (health.status !== 200 || !body.ok || body.ephemeris !== "swiss" || body.zones !== "geo-tz")
     fail(`/api/health: ${health.status} ${JSON.stringify(body)}`);
   if (health.headers.get("cache-control") !== "no-store") fail("/api/health may be cached");
+  if (body.version !== VERSION) fail(`/api/health says version ${body.version}, package.json ${VERSION}`);
 
   // A report: kept as one log line, masked, nothing else.
   const lines = [];
@@ -282,7 +285,7 @@ async function checkRoutes() {
       headers: { "content-type": "application/json", "sec-fetch-site": "same-origin", ...headers },
     });
   try {
-    const report = { v: "1.0", kind: "error", message: "TypeError: born 1990-06-15", where: ["app-a1.js:1:23"], path: "/", engine: "blink", ip: "203.0.113.9" };
+    const report = { v: VERSION, kind: "error", message: "TypeError: born 1990-06-15", where: ["app-a1.js:1:23"], path: "/", engine: "blink", ip: "203.0.113.9" };
     const sent = await post(JSON.stringify(report));
     if (sent.status !== 204) fail(`/api/report: ${sent.status}`);
     const line = lines.at(-1) ?? "";
@@ -299,7 +302,7 @@ async function checkRoutes() {
     console.error = log;
   }
   if (lines.length !== 1) fail(`/api/report wrote ${lines.length} lines for 1 report`);
-  console.log(`routes: /api/health ok (Swiss Ephemeris, geo-tz, ${body.ms} ms); /api/report keeps one masked line, refuses other sites, big or odd reports, and more than 60 a minute`);
+  console.log(`routes: /api/health ok (Ulune ${body.version}, Swiss Ephemeris, geo-tz, ${body.ms} ms); /api/report keeps one masked line, refuses other sites, big or odd reports, and more than 60 a minute`);
 }
 
 /**

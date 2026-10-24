@@ -9,14 +9,20 @@ charts stay on your device.
 
 ## Private by design
 
-- No accounts, no cookies, no analytics, no advertising.
-- To draw a chart, its date, time and coordinates go to Ulune's server, which
-  calculates and answers and keeps nothing. Names never leave the device.
+- No account needed, no cookies, no analytics, no advertising.
+- Charts are calculated on the device, with the Swiss Ephemeris compiled to
+  WebAssembly: a chart's date and time never leave it. Of a chart, only the
+  place searched for (or typed coordinates, for their time zone) goes to
+  Ulune's server, which keeps nothing. A reader may choose the server's
+  calculations instead, in Settings. Names never leave the device.
 - Charts you choose to keep stay in your browser, encrypted (AES-256-GCM)
-  under your passphrase, a passkey or your recovery code.
-- No AI in version 1.0: the readings are fixed texts. (Readings written with
-  a visitor's own AI key are in the code, switched off until 1.1:
-  `src/lib/features.ts`.)
+  under your passphrase, a passkey or your recovery code. Shared links carry
+  their chart after the `#`, which no request sends.
+- Syncing a private space between devices, end-to-end encrypted, is in the
+  code ([the protocol](docs/sync-protocol.md)) but not turned on yet: the
+  production server keeps no accounts.
+- No AI: the readings are fixed texts. (Readings written with a visitor's own
+  AI key are in the code, switched off: `src/lib/features.ts`.)
 - The [privacy notice](https://ulune.app/privacy) says the rest.
 
 ## Run it
@@ -33,8 +39,11 @@ npm run check:deploy  # serves that build as Vercel does, and casts two charts t
 npm run budgets -- server,3d,wheel,bundle,scrub,chinese  # the performance budgets: bundle, scrub and chinese on the build, served by `node scripts/perf/load/serve.mjs 9311` (scripts/perf/README.md)
 ```
 
-Where things are: `src/lib/chart` (the engine and its inputs), `src/studio`
-(the app), `src/lib/space` (the private space), `scripts` (tests and checks).
+Where things are: `src/lib/chart` (the engine and its inputs), `src/lib/engine`
+(the calculations on the device), `src/lib/chinese` (the Chinese traditions),
+`src/studio` (the app), `src/encyclopedia` and `content/encyclopedia` (the
+encyclopedia), `src/lib/space` (the private space), `src/lib/account` (the
+synced account), `scripts` (tests and checks).
 `GOLDENS.md` lists what the reference charts lock; `PRODUCTION.md` how the
 site runs; `.github/workflows/ci.yml` the checks on every push, and the
 end-to-end suites and the budgets each night.

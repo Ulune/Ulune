@@ -18,7 +18,7 @@ body:
     attributes:
       label: Where
       description: The page or mode, and Ulune's version (at the bottom of Settings).
-      placeholder: Transits, Ulune 1.0
+      placeholder: Transits, Ulune 2.0.0
   - type: input
     id: device
     attributes:

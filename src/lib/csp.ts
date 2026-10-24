@@ -22,7 +22,7 @@ import { AI_ENABLED } from "./features";
 /**
  * Origins the browser calls with a reader's own AI key (lib/ai/call.ts,
  * DIRECT). Grok goes through Ulune's relay, so api.x.ai is not among them.
- * Allowed only while AI readings are on (lib/features.ts: off in 1.0).
+ * Allowed only while AI readings are on (lib/features.ts: off in 1.0 and 2.0).
  */
 export const AI_ORIGINS = [
   "https://api.anthropic.com",

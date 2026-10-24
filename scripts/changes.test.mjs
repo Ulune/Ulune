@@ -1,15 +1,15 @@
 // What's new (src/lib/changes.ts, rendered at /changes; languages plan, part
 // 29): the newest entry names the version the footer, Settings and the error
-// reports carry (APP_VERSION); English and French tell the same versions in
-// the same shape, block by block and line by line; the typography is the
-// rest of Ulune's (curly apostrophes, French narrow no-break spaces). The 2.0
-// entry waits in src/lib/changes-2.0-draft.ts until 2.0 is ready
-// (PRODUCTION.md, "Branches and releases": v2 leaves the version and the top
-// of changes.ts alone): it is held to the same rules, and never shown before
-// its version is.
+// reports carry (APP_VERSION, which package.json states too); English and
+// French tell the same versions in the same shape, block by block and line by
+// line; the typography is the rest of Ulune's (curly apostrophes, French
+// narrow no-break spaces). The synced account's lines wait in
+// src/lib/changes-sync-draft.ts until its server is live (2.0's release,
+// PRODUCTION.md): held to the same rules, and never promised before, so
+// What's new says nothing of syncing while they wait.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { CHANGES, CHANGES_UPDATED } from "../src/lib/changes.ts";
 import { APP_VERSION } from "../src/lib/app-identity.ts";
 
@@ -18,9 +18,10 @@ const HEADING = /^Ulune (\d+)\.(\d+)(?:\.(\d+))?$/;
 const blockTexts = (b) => [b.h ?? "", b.p ?? "", ...(b.list ?? [])];
 const texts = (page) => [page.title, page.updated, ...page.blocks.flatMap(blockTexts)];
 
-// The 2.0 draft, while it waits; once it is written into changes.ts at the release, the file goes and these checks with it.
-const DRAFT_URL = new URL("../src/lib/changes-2.0-draft.ts", import.meta.url);
-const draft = existsSync(DRAFT_URL) ? (await import(DRAFT_URL.href)).CHANGES_2_0_DRAFT : null;
+// The synced account's lines, while they wait; once they are in changes.ts, the file goes and these checks with it.
+const SYNC_URL = new URL("../src/lib/changes-sync-draft.ts", import.meta.url);
+const syncDraft = existsSync(SYNC_URL) ? (await import(SYNC_URL.href)).CHANGES_SYNC_DRAFT : null;
+const readJson = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url), "utf8"));
 
 /** A heading's version as numbers, [2, 0, 0] for "Ulune 2.0". */
 function versionOf(h) {
@@ -38,12 +39,17 @@ function assertShape(block) {
   for (const item of block.list) assert.ok(item.trim().length > 10, `${block.h}: an empty line`);
 }
 
+/** The French lines tell what the English ones do, line for line. */
+function assertTwinLines(name, list, twin) {
+  assert.equal(twin?.length, list?.length, `${name}: ${list?.length} lines in English, ${twin?.length} in French`);
+  list.forEach((item, j) => assert.notEqual(twin[j], item, `${name}, line ${j + 1}: French not written`));
+}
+
 /** The French block tells what the English one does, line for line. */
 function assertTwins(block, twin) {
   assert.equal(twin.h, block.h);
   assert.equal(Boolean(twin.p), Boolean(block.p), `${block.h}: a lead in one language only`);
-  assert.equal(twin.list?.length, block.list?.length, `${block.h}: ${block.list?.length} lines in English, ${twin.list?.length} in French`);
-  block.list.forEach((item, j) => assert.notEqual(twin.list[j], item, `${block.h}, line ${j + 1}: French not written`));
+  assertTwinLines(block.h, block.list, twin.list);
 }
 
 function assertCurly(list) {
@@ -63,9 +69,17 @@ function assertFrenchSpacing(list) {
   }
 }
 
-test("the newest entry is the version Ulune says it is", () => {
-  assert.equal(en.blocks[0].h, `Ulune ${APP_VERSION}`);
-  assert.equal(fr.blocks[0].h, `Ulune ${APP_VERSION}`);
+test("the newest entry is the version Ulune says it is, and package.json says the same", () => {
+  // "Ulune 2.0" names 2.0.0, as "Ulune 1.0" named 1.0.0.
+  assert.match(APP_VERSION, /^\d+\.\d+\.\d+$/);
+  const version = APP_VERSION.split(".").map(Number);
+  assert.deepEqual(versionOf(en.blocks[0].h), version, `What's new begins with ${en.blocks[0].h}, Ulune is ${APP_VERSION}`);
+  assert.deepEqual(versionOf(fr.blocks[0].h), version);
+  const pkg = readJson("../package.json");
+  assert.equal(pkg.version, APP_VERSION, "package.json's version");
+  const lock = readJson("../package-lock.json");
+  assert.equal(lock.version, APP_VERSION, "package-lock.json's version");
+  assert.equal(lock.packages?.[""]?.version, APP_VERSION, "package-lock.json's own package");
   // The page's date is a real day.
   assert.match(CHANGES_UPDATED, /^\d{4}-\d{2}-\d{2}$/);
   const day = new Date(`${CHANGES_UPDATED}T00:00:00Z`);
@@ -99,12 +113,14 @@ test("French typography: a narrow no-break space before : ; ! ? and inside « »
   assertFrenchSpacing(texts(fr));
 });
 
-test("the 2.0 draft waits for its version: newer than Ulune's, not yet in What's new, ready in both languages", { skip: draft ? false : "written into changes.ts" }, () => {
-  for (const block of [draft.en, draft.fr]) assertShape(block);
-  assertTwins(draft.en, draft.fr);
-  // Its version is ahead of the one Ulune says it is, and What's new does not show it yet.
-  assert.ok(newer(versionOf(draft.en.h), versionOf(`Ulune ${APP_VERSION}`)) > 0, `${draft.en.h} is not newer than Ulune ${APP_VERSION}`);
-  assert.ok(!en.blocks.some((b) => b.h === draft.en.h), `${draft.en.h} is in changes.ts already: delete the draft`);
-  assertCurly([...blockTexts(draft.en), ...blockTexts(draft.fr)]);
-  assertFrenchSpacing(blockTexts(draft.fr));
+test("the synced account's lines wait, ready in both languages, and What's new promises no syncing meanwhile", { skip: syncDraft ? false : "written into changes.ts" }, () => {
+  assert.ok(syncDraft.en.length > 0, "no line waits");
+  assertTwinLines("the sync draft", syncDraft.en, syncDraft.fr);
+  for (const item of [...syncDraft.en, ...syncDraft.fr]) assert.ok(item.trim().length > 10, "an empty line");
+  assertCurly([...syncDraft.en, ...syncDraft.fr]);
+  assertFrenchSpacing(syncDraft.fr);
+  // Not shown before the account's server is live: no line of it, and no word of syncing, in What's new.
+  const shown = [...texts(en), ...texts(fr)];
+  for (const item of [...syncDraft.en, ...syncDraft.fr]) assert.ok(!shown.includes(item), `already in What's new: "${item.slice(0, 60)}…"`);
+  for (const text of shown) assert.doesNotMatch(text, /\bsync|synchroni/i, `What's new speaks of syncing: "${text.slice(0, 80)}…"`);
 });

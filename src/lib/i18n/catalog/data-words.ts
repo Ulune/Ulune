@@ -35,10 +35,8 @@ export const dataWords = {
     "Your space’s records as sealed boxes the server can’t open, their names hidden and their sizes rounded up, with the day each changed; your devices, their names sealed, and the days they joined and were last seen; a random number for the account, never an email. In Frankfurt, in the EU. Deleted at once when you stop syncing or delete the account, or after two years unused.",
     "Les enregistrements de votre espace en boîtes scellées que le serveur ne peut pas ouvrir, leurs noms cachés et leurs tailles arrondies, avec le jour où chacun a changé\u202f; vos appareils, leurs noms scellés, et les jours où ils ont rejoint le compte et ont été vus pour la dernière fois\u202f; un nombre tiré au hasard pour le compte, jamais un e-mail. À Francfort, dans l’UE. Effacés immédiatement quand vous arrêtez la synchronisation ou supprimez le compte, ou après deux ans sans usage.",
   ],
-  dataSyncOff: [
-    "Nothing: your space is on this device only. Sync stays off unless you turn it on, under Private space.",
-    "Rien\u202f: votre espace est sur cet appareil seulement. La synchronisation reste désactivée tant que vous ne l’activez pas, sous Espace privé.",
-  ],
+  // True whether or not Ulune's server keeps accounts yet (at 2.0's release it doesn't, and Private space says so).
+  dataSyncOff: ["Nothing: your space is on this device only.", "Rien\u202f: votre espace est sur cet appareil seulement."],
   dataWipeSynced: [
     "This device also leaves your synced account; the account and its sealed copy stay for your other devices (delete them under Private space).",
     "Cet appareil quitte aussi votre compte synchronisé\u202f; le compte et sa copie scellée restent pour vos autres appareils (supprimez-les sous Espace privé).",

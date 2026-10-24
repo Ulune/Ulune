@@ -1,13 +1,15 @@
-# Checks on every push to main or v2 (the 2.0 line) and every pull request: types, lint, the unit
-# and precision tests, the build and a run of the built server (the deploy
-# check). The end-to-end suites, and the budgets with the built site's own
-# suites, run nightly and on demand: they drive a browser through the whole
-# site for about twenty minutes.
+# Checks on every push to main (the 2.x line since 2.0's release) or v2, and every pull request:
+# types, lint, the unit and precision tests, the build and a run of the built
+# server (the deploy check). The end-to-end suites, and the budgets with the
+# built site's own suites, run nightly and on demand: they drive a browser
+# through the whole site for about twenty minutes.
 #
 # GitHub runs a `schedule` only on the repository's default branch (main), and
-# from main's copy of this file: the nightly runs check main, never v2. Until
-# 2.0 merges into main, v2's end-to-end suites and budgets run on demand: in
-# the Actions tab, "Run workflow" on the v2 branch (workflow_dispatch).
+# from main's copy of this file: the nightly runs check main. v2, which carried
+# 2.0 until it was released into main, keeps its push checks until it is
+# deleted (PRODUCTION.md, "Branches and releases"); then it leaves the list
+# below. A branch for a larger version runs its end-to-end suites and budgets on
+# demand: in the Actions tab, "Run workflow" on that branch (workflow_dispatch).
 name: CI
 
 on:
