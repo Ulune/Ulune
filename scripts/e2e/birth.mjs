@@ -4,7 +4,11 @@
  * bug-fix round, item 8): C, F, P, L and T typed into its fields are typed,
  * never the page's keys, and on a narrow screen, where it sits in the sheet,
  * Escape closing the place's suggestions leaves the sheet and the focus be.
+ * On a phone with its keyboard up (a short screen, a touch pointer), the place
+ * field rises under the bars and its suggestions open under it, whole on the
+ * screen, the best match first (2.0.1: on an iPhone they ran off the top).
  */
+import { chromium } from "playwright";
 import { DEV, clickDockTab, ensureShotsDir, gotoApp, launch, setLang } from "./_lib.mjs";
 
 async function run(width) {
@@ -123,6 +127,48 @@ async function run(width) {
   }
 }
 
+/** A phone with its keyboard up: 390 wide, a short visible screen, touch. */
+async function phoneList(height) {
+  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  try {
+    const context = await browser.newContext({ viewport: { width: 390, height }, isMobile: true, hasTouch: true });
+    const page = await context.newPage();
+    page.setDefaultTimeout(20000);
+    await gotoApp(page);
+    await page.waitForSelector("#birth-place", { timeout: 20000 });
+    await page.locator("#birth-place").tap();
+    await page.locator("#birth-place").pressSequentially("Paris", { delay: 30 });
+    await page.locator("#birth-place-list [role=option]").first().waitFor({ timeout: 12000 });
+    await page.waitForTimeout(500);
+    const r = await page.evaluate(() => {
+      const field = document.getElementById("birth-place").getBoundingClientRect();
+      const list = document.getElementById("birth-place-list").getBoundingClientRect();
+      const first = document.getElementById("birth-place-opt-0").getBoundingClientRect();
+      const atField = document.elementFromPoint(field.left + field.width / 2, field.top + field.height / 2);
+      return {
+        vh: innerHeight,
+        field: [Math.round(field.top), Math.round(field.bottom)],
+        list: [Math.round(list.top), Math.round(list.bottom)],
+        first: [Math.round(first.top), Math.round(first.bottom)],
+        fieldSeen: atField?.id === "birth-place",
+        firstSeen: document.elementFromPoint(first.left + 20, first.top + first.height / 2)?.closest("#birth-place-opt-0") !== null,
+      };
+    });
+    const ok =
+      r.fieldSeen &&
+      r.firstSeen &&
+      r.list[0] >= r.field[1] &&
+      r.list[1] <= r.vh &&
+      r.first[0] >= r.list[0] &&
+      r.first[1] <= r.list[1];
+    if (!ok) throw new Error(`phone ${height}: the place list ${JSON.stringify(r)}`);
+    console.log(`birth-phone-${height} place list OK`);
+  } finally {
+    await browser.close();
+  }
+}
+
 await ensureShotsDir();
 for (const w of [390, 1280]) await run(w);
+for (const h of [340, 480]) await phoneList(h);
 console.log("BIRTH OK", DEV);

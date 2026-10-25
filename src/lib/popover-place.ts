@@ -31,7 +31,20 @@ export type PopoverPlacement = {
 
 export function popoverPlacement(
   trigger: DOMRect,
-  opts: { width: number; height?: number; align?: "start" | "end"; view?: PopoverView } = { width: 320 },
+  opts: {
+    width: number;
+    height?: number;
+    align?: "start" | "end";
+    view?: PopoverView;
+    /**
+     * A list following a field being typed in stays under it whenever this
+     * much room is there (a few rows), even if its whole height is not: read
+     * from its top, under the letters typed, the best match comes first. On a
+     * phone with its keyboard up, a list turned over the field ran off the
+     * top of the screen, its best match first to go.
+     */
+    minBelow?: number;
+  } = { width: 320 },
 ): PopoverPlacement {
   const view = opts.view ?? visibleArea();
   const pad = view.width < 480 ? 8 : POPOVER_PAD;
@@ -47,7 +60,8 @@ export function popoverPlacement(
   const roomBelow = view.top + view.height - trigger.bottom - POPOVER_GAP - pad;
   const roomAbove = trigger.top - view.top - POPOVER_GAP - pad;
   // Under the trigger unless it does not fit there and there is more room over it.
-  const above = roomBelow < want && roomAbove > roomBelow;
+  const fitsBelow = roomBelow >= (opts.minBelow !== undefined ? Math.min(want, opts.minBelow) : want);
+  const above = !fitsBelow && roomAbove > roomBelow;
   const room = above ? roomAbove : roomBelow;
   const maxHeight = Math.max(MIN_HEIGHT, Math.min(view.height * 0.7, room));
   const height = Math.min(want, maxHeight);

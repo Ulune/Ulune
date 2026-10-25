@@ -27,6 +27,7 @@ export function AnchoredPopover({
   width,
   backdrop = true,
   takeFocus = true,
+  minBelow,
 }: {
   open: boolean;
   anchorRef: RefObject<HTMLElement | null>;
@@ -46,6 +47,8 @@ export function AnchoredPopover({
    * focus leaves it. Off for a list that follows a field being typed in.
    */
   takeFocus?: boolean;
+  /** It stays under its trigger whenever this much room is there (lib/popover-place.ts). */
+  minBelow?: number;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [place, setPlace] = useState<PopoverPlacement | null>(null);
@@ -69,6 +72,7 @@ export function AnchoredPopover({
         width: width ?? Math.max(rect.width, 16 * 16),
         height: panel?.scrollHeight,
         align,
+        minBelow,
       });
       const key = `${next.top}|${next.left}|${next.width}|${next.maxHeight}|${next.above}`;
       if (key === last) return;
@@ -91,7 +95,7 @@ export function AnchoredPopover({
       window.cancelAnimationFrame(frame);
       document.removeEventListener("keydown", onKey);
     };
-  }, [open, anchorRef, align, width, onClose]);
+  }, [open, anchorRef, align, width, onClose, minBelow]);
 
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;

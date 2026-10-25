@@ -37,6 +37,7 @@ import {
 } from "@/lib/chart/types";
 import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
+import { visibleArea } from "@/lib/popover-place";
 import { BirthDateField } from "./birth-date-field";
 import { AnchoredPopover } from "./anchored-popover";
 import { MaskedInput } from "./masked-input";
@@ -201,6 +202,58 @@ const FIELD_IDS = new Set([
   "birth-tz",
   "birth-fold",
 ]);
+
+/** The room under the place field that keeps its suggestions under it: three rows (lib/popover-place.ts). */
+const PLACE_LIST_MIN_BELOW = 3 * 52;
+
+/** How far under the visible screen's top a lifted field stands: its label shows over it. */
+const LIFT_MARGIN = 32;
+
+/**
+ * Where the visible screen really starts over a field: under the bars that stay
+ * put at its top (the header, the lens bar), found by what stands at the top
+ * of the screen above the field, so a lifted field never goes under them.
+ */
+function coveredTop(x: number, top: number, field: HTMLElement): number {
+  let y = top + 1;
+  for (let i = 0; i < 6; i += 1) {
+    let el = document.elementFromPoint(x, y) as HTMLElement | null;
+    if (!el || el.contains(field)) break;
+    while (el && el !== document.body) {
+      const { position } = getComputedStyle(el);
+      if (position === "fixed" || position === "sticky") break;
+      el = el.parentElement;
+    }
+    if (!el || el === document.body || el.contains(field)) break;
+    const bottom = el.getBoundingClientRect().bottom;
+    if (bottom <= y) break;
+    y = bottom + 1;
+  }
+  return y;
+}
+
+/**
+ * Brings a field near the top of the visible screen (on a phone with its keyboard
+ * up, only the visual viewport is seen) by scrolling the nearest box that scrolls,
+ * or the page: what is under it gets the room. Only up, and only when it is lower.
+ */
+function liftField(field: HTMLElement | null) {
+  if (!field) return;
+  let box: HTMLElement | null = field.parentElement;
+  while (box && box !== document.body && box !== document.documentElement) {
+    const { overflowY } = getComputedStyle(box);
+    if ((overflowY === "auto" || overflowY === "scroll") && box.scrollHeight > box.clientHeight + 1) break;
+    box = box.parentElement;
+  }
+  const inBox = box && box !== document.body && box !== document.documentElement ? box : null;
+  const view = visibleArea();
+  const rect = field.getBoundingClientRect();
+  // The top of what is seen: the screen's, or the scrolling box's when it starts lower (under a header).
+  const top = Math.max(view.top, inBox ? inBox.getBoundingClientRect().top : view.top);
+  const delta = rect.top - (coveredTop(rect.left + rect.width / 2, top, field) + LIFT_MARGIN);
+  if (delta < 8) return;
+  (inBox ?? document.scrollingElement)?.scrollBy({ top: delta, behavior: "auto" });
+}
 
 export function BirthForm({
   value,
@@ -415,11 +468,45 @@ export function BirthForm({
     return () => document.removeEventListener("pointerdown", onDoc);
   }, []);
 
-  // The option chosen with the arrow keys stays in view.
+  // The option chosen with the arrow keys stays in view: the list scrolls, nothing else does.
+  // (scrollIntoView also moved the page, and on a phone with its keyboard up it panned the
+  // visible screen itself, taking the list's first rows off its top.)
   useEffect(() => {
     if (!open) return;
-    document.getElementById(`birth-place-opt-${active}`)?.scrollIntoView({ block: "nearest" });
-  }, [active, open, hits]);
+    const list = document.getElementById("birth-place-list");
+    const opt = document.getElementById(`birth-place-opt-${active}`);
+    if (!list || !opt) return;
+    const o = opt.getBoundingClientRect();
+    const l = list.getBoundingClientRect();
+    if (o.top < l.top) list.scrollTop -= l.top - o.top;
+    else if (o.bottom > l.bottom) list.scrollTop += o.bottom - l.bottom;
+  }, [active, open]);
+
+  // New suggestions are read from their top.
+  useEffect(() => {
+    const list = document.getElementById("birth-place-list");
+    if (list) list.scrollTop = 0;
+  }, [hits]);
+
+  // On a phone, once the suggestions open, the field rises to the top of the visible screen
+  // (its label still in view), so the list has the room under it, above the keyboard. Again
+  // when the keyboard has finished opening, which changes the visible screen.
+  useEffect(() => {
+    if (!open || picked || !window.matchMedia("(pointer: coarse)").matches) return;
+    let timer = 0;
+    const lift = () => liftField(inputRef.current);
+    lift();
+    const vv = window.visualViewport;
+    const later = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(lift, 120);
+    };
+    vv?.addEventListener("resize", later);
+    return () => {
+      window.clearTimeout(timer);
+      vv?.removeEventListener("resize", later);
+    };
+  }, [open, picked]);
 
   const pick = (hit: PlaceHit): BirthInput => {
     markEdit();
@@ -855,6 +942,8 @@ export function BirthForm({
           hideLabel={t("place")}
           backdrop={false}
           takeFocus={false}
+          // Under the field whenever three rows fit: the best match, first, right under what was typed.
+          minBelow={PLACE_LIST_MIN_BELOW}
         >
           <ul
             id="birth-place-list"
