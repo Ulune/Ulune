@@ -11,9 +11,10 @@ import type { StudioPage } from "@/studio/url";
 
 /**
  * The sections (page reorganisation, parts R2 and R4): Charts, Calendar and
- * Encyclopedia. On a computer, words in the middle of the top bar with a line
- * under the chosen one; on a phone, the bottom tab bar, icon and word, with
- * room for five. Charts opens the last language's last page, Calendar the
+ * Encyclopedia, in the middle of the top bar with a line under the chosen
+ * one: words on a computer, icon and word on a tablet, icons on a phone (as
+ * the encyclopedia's own bar, PageTopBar.tsx; the phone's bottom tab bar
+ * went in 2.0, the owner's choice). Each is named for the phone's icon alone. Charts opens the last language's last page, Calendar the
  * calendar; the Encyclopedia is a page of its own, outside the studio.
  */
 export function SectionBar() {
@@ -76,6 +77,7 @@ export function SectionBar() {
               data-testid={`section-${id}`}
               aria-current={on ? "page" : undefined}
               className={cn("ob-section", on && "is-on")}
+              aria-label={t(SECTION_LABEL[id])}
               onPointerEnter={ahead}
               onPointerDown={ahead}
               onFocus={ahead}

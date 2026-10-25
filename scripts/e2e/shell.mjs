@@ -33,7 +33,7 @@ async function runNav(width) {
     await nav.waitFor();
 
     if (width === 390) {
-      // The sections, the phone's bottom bar (page reorganisation, R4).
+      // The sections, in the phone's top bar since 2.0 (as the encyclopedia's own bar).
       for (const s of ["charts", "calendar", "encyclopedia"]) {
         await page.getByTestId(`section-${s}`).waitFor({ state: "visible" });
       }
@@ -51,8 +51,11 @@ async function runNav(width) {
 
       const headerH = await page.getByTestId("top-left").evaluate((el) => el.getBoundingClientRect().height);
       if (headerH > 60) throw new Error(`top bar height ${headerH} > 60`);
-      const navBottom = await page.getByTestId("studio-nav").evaluate((el) => el.getBoundingClientRect().bottom);
-      if (Math.abs(navBottom - 844) > 1) throw new Error(`group bar not at the bottom on phone (${navBottom})`);
+      const navBox = await page.getByTestId("studio-nav").evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        return { top: r.top, bottom: r.bottom };
+      });
+      if (navBox.top > 1 || navBox.bottom > headerH + 1) throw new Error(`the sections are not in the phone's top bar (${JSON.stringify(navBox)})`);
       await page.getByTestId("chart-chip").click();
       await page.getByTestId("new-chart").waitFor({ state: "visible" });
     }

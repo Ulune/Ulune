@@ -95,10 +95,6 @@ export const TOUR_STEPS: readonly TourStep[] = [
       "Astrology is one of six languages: the button opens the others, Human Design, numerology, Chinese astrology, BaZi and Feng Shui, which read the same birth. Beside it, Cycles holds today’s transits and your progressions, Relationship a second person. The Calendar, at the top, shows the sky day by day.",
       "L’astrologie est l’un des six langages\u202f: le bouton ouvre les autres, le Human Design, la numérologie, l’astrologie chinoise, le BaZi et le Feng Shui, qui lisent la même naissance. À côté, Cycles montre les transits du jour et vos progressions, Relation une deuxième personne. Le Calendrier, en haut, montre le ciel jour après jour.",
     ],
-    compact: [
-      "Astrology is one of six languages: the button opens the others, Human Design, numerology, Chinese astrology, BaZi and Feng Shui, which read the same birth. Beside it, Cycles holds today’s transits and your progressions, Relationship a second person. The Calendar, in the bar at the bottom, shows the sky day by day.",
-      "L’astrologie est l’un des six langages\u202f: le bouton ouvre les autres, le Human Design, la numérologie, l’astrologie chinoise, le BaZi et le Feng Shui, qui lisent la même naissance. À côté, Cycles montre les transits du jour et vos progressions, Relation une deuxième personne. Le Calendrier, dans la barre du bas, montre le ciel jour après jour.",
-    ],
   },
   {
     id: "keep",

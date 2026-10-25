@@ -56,7 +56,8 @@ test("the languages step names every language the picker has, on a computer and 
     "feng-shui": "langFengShui",
   };
   assert.deepEqual(LANGUAGES.map((l) => l.id), Object.keys(NAME), "a language the tour does not name yet");
-  for (const pair of [step.body, step.compact]) {
+  // (The phone's words are the computer's since the sections moved to the top bar on every screen.)
+  for (const pair of [step.body, step.compact].filter(Boolean)) {
     pair.forEach((text, i) => {
       for (const key of Object.values(NAME)) {
         assert.ok(text.toLowerCase().includes(sections[key][i].toLowerCase()), `${key} is not named in "${text}"`);

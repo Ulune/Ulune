@@ -124,12 +124,14 @@ html.theme-switching::view-transition-new(root) {
   height: 100dvh;
   overflow: hidden;
   overflow: clip;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: var(--ob-top-h) minmax(0, 1fr) calc(var(--ob-group-h) + var(--ob-safe-b));
+  /* The sections in the top bar's middle on every screen (2.0, the owner's
+     choice on his iPhone): as on the encyclopedia's own bar, icons on a
+     phone, icon and word on a tablet, words on a computer. */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-rows: var(--ob-top-h) minmax(0, 1fr);
   grid-template-areas:
-    "tl tr"
-    "body body"
-    "nav nav";
+    "tl nav tr"
+    "body body body";
   background: var(--color-bg);
   color: var(--color-fg);
   font-family: var(--font-ui);
@@ -631,20 +633,25 @@ html.theme-switching::view-transition-new(root) {
 
 /* ------------------------------------------------------------ sections */
 
-/* Charts, Calendar, Encyclopedia (SectionBar.tsx): a phone's bottom tab bar,
-   icon and word, room for five; the computer's top bar is further down. */
+/* Charts, Calendar, Encyclopedia (SectionBar.tsx), in the top bar's middle:
+   on a phone an icon each, as the encyclopedia's own bar (PageTopBar.tsx)
+   draws them, a line under the chosen one, sliding to the next; icon and
+   word from 640px; the computer's words are further down. */
 .ob-sections {
   grid-area: nav;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-width: 0;
-  padding-bottom: var(--ob-safe-b);
-  border-top: 1px solid var(--color-border);
+  height: var(--ob-top-h);
+  border-bottom: 1px solid var(--color-border);
   background: var(--color-bg);
 }
 .ob-sections-track {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(var(--ob-n, 3), minmax(0, 1fr));
-  height: var(--ob-group-h);
+  grid-template-columns: repeat(var(--ob-n, 3), var(--ob-section-w, 44px));
+  height: var(--ob-top-h);
 }
 .ob-sections-ind {
   position: absolute;
@@ -656,64 +663,50 @@ html.theme-switching::view-transition-new(root) {
   transform: translateX(calc(var(--ob-i, 0) * 100%));
   transition: transform var(--dur-move) var(--ease-glide);
   pointer-events: none;
-  /* The pill's shape: its copy of the bar shows only inside it. */
-  clip-path: inset(6px calc(50% - 26px) calc(100% - 32px) calc(50% - 26px) round 13px);
 }
-/* The bar again, in the pill's colour, held still while the pill slides
-   (SectionBar.tsx): each section changes colour where the pill's edge passes. */
+/* The phone's pill carried a copy of the bar in its colour; under a line, none is needed. */
 .ob-sections-ink {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  display: grid;
-  grid-template-columns: repeat(var(--ob-n, 3), minmax(0, 1fr));
-  width: calc(var(--ob-n, 3) * 100%);
-  transform: translateX(calc(var(--ob-i, 0) * -100% / var(--ob-n, 3)));
-  transition: transform var(--dur-move) var(--ease-glide);
-}
-.ob-section.ob-section--ink,
-.ob-section.ob-section--ink .ob-section-icon {
-  color: var(--color-bg);
+  display: none;
 }
 .ob-sections-ind::before {
   content: "";
   position: absolute;
-  top: 6px;
-  left: 50%;
-  width: 52px;
-  height: 26px;
-  margin-left: -26px;
-  border-radius: 999px;
+  bottom: -1px;
+  left: 14px;
+  width: calc(100% - 28px);
+  height: 2px;
+  border-radius: 2px;
   background: var(--color-fg);
 }
 .ob-section {
   position: relative;
   z-index: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 8px;
   min-width: 0;
   height: 100%;
-  padding: 10px 2px 0;
+  padding: 0 10px;
   color: var(--color-fg-muted);
   transition: color var(--dur-hover) var(--ease-out);
 }
 .ob-section-icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   flex: 0 0 auto;
   transition:
     color var(--dur-hover) var(--ease-out),
     transform var(--dur-press) var(--ease-out);
 }
 .ob-section-label {
+  display: none;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 500;
   line-height: 1.3;
 }
@@ -724,6 +717,23 @@ html.theme-switching::view-transition-new(root) {
 }
 .ob-section.is-on {
   color: var(--color-fg);
+}
+@media (min-width: 640px) {
+  .ob-sections-track {
+    --ob-section-w: 136px;
+  }
+  .ob-section-label {
+    display: inline;
+  }
+  .ob-section.is-on .ob-section-label {
+    font-weight: 600;
+  }
+}
+/* Nothing under the page any more: the phone's own edge (its home bar) is kept clear. */
+@media (max-width: 1023.98px) {
+  .ob-body-slot {
+    padding-bottom: var(--ob-safe-b);
+  }
 }
 
 /* ------------------------------------------------------------- body/stage */

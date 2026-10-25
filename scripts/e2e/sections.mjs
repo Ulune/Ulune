@@ -266,7 +266,7 @@ async function wide() {
   }
 }
 
-/** A phone: the bottom bar, one toolbar row, the sheet of cards. */
+/** A phone: the sections in the top bar (icons, named), one toolbar row, the sheet of cards. */
 async function phone() {
   const { context, page, errors } = await open(390, 844, true);
   try {
@@ -275,15 +275,15 @@ async function phone() {
       const r = el.getBoundingClientRect();
       const links = [...el.querySelectorAll("a.ob-section")].map((a) => {
         const b = a.getBoundingClientRect();
-        return { w: b.width, h: b.height, icon: Boolean(a.querySelector("svg")?.getClientRects().length), word: a.innerText.trim() };
+        return { w: b.width, h: b.height, icon: Boolean(a.querySelector("svg")?.getClientRects().length), word: a.innerText.trim(), name: a.getAttribute("aria-label") };
       });
-      return { bottom: r.bottom, links };
+      return { top: r.top, bottom: r.bottom, links };
     });
-    check(Math.abs(bar.bottom - 844) <= 1, `the sections are not at the bottom (${bar.bottom})`);
+    check(bar.top <= 1 && bar.bottom <= 49, `the sections are not in the top bar (${bar.top}–${bar.bottom})`);
     check(bar.links.length === 3, `${bar.links.length} sections`);
     for (const l of bar.links) {
       check(l.h >= 44 && l.w >= 44, `a section is ${Math.round(l.w)}×${Math.round(l.h)}`);
-      check(l.icon && l.word, `a section without its icon or word: ${JSON.stringify(l)}`);
+      check(l.icon && !l.word && l.name, `a section is not an icon with a name: ${JSON.stringify(l)}`);
     }
     // One row: the language's mark, the lens tabs, ⋯; the sub-modes fold into their lens.
     await goStudioPage(page, "transits");
