@@ -236,8 +236,53 @@ async function phoneAbove() {
   }
 }
 
+// Safari's model with the keyboard up: the page panned inside the layout viewport, and
+// getBoundingClientRect measured from the visual viewport while position: fixed keeps to the
+// layout viewport. Chromium measures from the layout viewport, so the model is played here:
+// every rect is the pan higher. The floating list must still stand under its field (2.0.2:
+// on an iPhone it stood the pan higher, over the field).
+async function safariModel() {
+  const browser = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  try {
+    const context = await browser.newContext({ viewport: { width: 390, height: 760 }, isMobile: true });
+    const page = await context.newPage();
+    page.setDefaultTimeout(20000);
+    await gotoApp(page);
+    await page.waitForSelector("#birth-place", { timeout: 20000 });
+    await page.evaluate(() => {
+      const field = document.getElementById("birth-place").getBoundingClientRect();
+      const pan = Math.max(40, Math.round(field.top - 120));
+      window.__pan = pan;
+      const real = Element.prototype.getBoundingClientRect;
+      window.__realRect = real;
+      Element.prototype.getBoundingClientRect = function () {
+        const r = real.call(this);
+        return new DOMRect(r.left, r.top - pan, r.width, r.height);
+      };
+      const vv = { offsetTop: pan, offsetLeft: 0, width: 390, height: 360, addEventListener() {}, removeEventListener() {} };
+      Object.defineProperty(window, "visualViewport", { value: vv, configurable: true });
+    });
+    await page.locator("#birth-place").click();
+    await page.locator("#birth-place").pressSequentially("Paris", { delay: 30 });
+    await page.locator("#birth-place-list [role=option]").first().waitFor({ timeout: 12000 });
+    await page.waitForTimeout(500);
+    const r = await page.evaluate(() => {
+      const real = window.__realRect;
+      const field = real.call(document.getElementById("birth-place"));
+      const list = real.call(document.getElementById("birth-place-list"));
+      return { pan: window.__pan, field: [Math.round(field.top), Math.round(field.bottom)], list: [Math.round(list.top), Math.round(list.bottom)] };
+    });
+    const ok = r.list[0] >= r.field[1] && r.list[0] - r.field[1] <= 16;
+    if (!ok) throw new Error(`Safari's model: the place list ${JSON.stringify(r)}`);
+    console.log("birth-safari-model place list OK");
+  } finally {
+    await browser.close();
+  }
+}
+
 await ensureShotsDir();
 for (const w of [390, 1280]) await run(w);
 for (const h of [340, 480]) await phoneList(h);
 await phoneAbove();
+await safariModel();
 console.log("BIRTH OK", DEV);

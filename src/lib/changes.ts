@@ -16,6 +16,13 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
     updated: "Updated {date}",
     blocks: [
       {
+        h: "Ulune 2.0.2",
+        p: "The place of birth on a phone, fixed for good:",
+        list: [
+          "Place of birth: on a phone or tablet the suggestions are now part of the page, right under the field, the best match first, and the field rises above the keyboard to make room. On an iPhone they could stand over the field instead, because Safari measures the screen differently while its keyboard is up; floating lists everywhere now take that into account.",
+        ],
+      },
+      {
         h: "Ulune 2.0.1",
         p: "A fix for the place of birth on a phone:",
         list: [
@@ -148,6 +155,13 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
     title: "Nouveautés",
     updated: "Mis à jour le {date}",
     blocks: [
+      {
+        h: "Ulune 2.0.2",
+        p: "Le lieu de naissance sur téléphone, corrigé pour de bon\u202f:",
+        list: [
+          "Lieu de naissance\u202f: sur téléphone ou tablette, les suggestions font maintenant partie de la page, juste sous le champ, le meilleur résultat en premier, et le champ remonte au-dessus du clavier pour leur faire de la place. Sur iPhone, elles pouvaient se placer par-dessus le champ, car Safari mesure l’écran autrement quand son clavier est ouvert\u202f; toutes les listes flottantes en tiennent compte désormais.",
+        ],
+      },
       {
         h: "Ulune 2.0.1",
         p: "Une correction pour le lieu de naissance sur téléphone\u202f:",

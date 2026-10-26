@@ -37,7 +37,7 @@ import {
 } from "@/lib/chart/types";
 import { useI18n } from "@/lib/i18n/locale";
 import { cn } from "@/lib/utils";
-import { visibleArea } from "@/lib/popover-place";
+import { visibleClientArea } from "@/lib/popover-place";
 import { BirthDateField } from "./birth-date-field";
 import { AnchoredPopover } from "./anchored-popover";
 import { MaskedInput } from "./masked-input";
@@ -246,7 +246,8 @@ function liftField(field: HTMLElement | null) {
     box = box.parentElement;
   }
   const inBox = box && box !== document.body && box !== document.documentElement ? box : null;
-  const view = visibleArea();
+  // The screen and the field in the same coordinates (Safari's rects are the visual viewport's).
+  const view = visibleClientArea();
   const rect = field.getBoundingClientRect();
   // The top of what is seen: the screen's, or the scrolling box's when it starts lower (under a header).
   const top = Math.max(view.top, inBox ? inBox.getBoundingClientRect().top : view.top);
@@ -288,6 +289,9 @@ export function BirthForm({
   const [active, setActive] = useState(0);
   // The list stands over the field (anchored-popover.tsx): then its best match is the row nearest the field.
   const [listAbove, setListAbove] = useState(false);
+  // On a touch screen the list sits in the page under the field instead of floating (2.0.2).
+  const [inlineList, setInlineList] = useState(false);
+  const listRef = useRef<HTMLUListElement>(null);
   const [noTime, setNoTime] = useState(() => Boolean(value.timeUnknown) || (!value.time.trim() && Boolean(value.placeLabel)));
   const [picked, setPicked] = useState(
     () => Number.isFinite(value.latitude) && Number.isFinite(value.longitude),
@@ -509,6 +513,41 @@ export function BirthForm({
       vv?.removeEventListener("resize", later);
     };
   }, [open, picked]);
+
+  const listShown = open && !picked && (looking || hits.length > 0 || Boolean(hint));
+
+  useEffect(() => {
+    if (!window.matchMedia) return;
+    const coarse = window.matchMedia("(pointer: coarse)");
+    const sync = () => setInlineList(coarse.matches);
+    sync();
+    coarse.addEventListener?.("change", sync);
+    return () => coarse.removeEventListener?.("change", sync);
+  }, []);
+
+  // In the page, the list is as tall as the screen above the keyboard leaves under the field
+  // (never less than three rows, so the page has the room to lift the field), followed every
+  // frame while the keyboard opens and the page moves.
+  useLayoutEffect(() => {
+    if (!inlineList || !listShown) return;
+    let frame = 0;
+    let last = -1;
+    const fit = () => {
+      const list = listRef.current;
+      if (list) {
+        const view = visibleClientArea();
+        const room = Math.floor(view.top + view.height - list.getBoundingClientRect().top - 8);
+        const max = Math.max(PLACE_LIST_MIN_BELOW, Math.min(room, 22 * 16));
+        if (max !== last) {
+          last = max;
+          list.style.maxHeight = `${max}px`;
+        }
+      }
+      frame = window.requestAnimationFrame(fit);
+    };
+    fit();
+    return () => window.cancelAnimationFrame(frame);
+  }, [inlineList, listShown]);
 
   const pick = (hit: PlaceHit): BirthInput => {
     markEdit();
@@ -939,64 +978,128 @@ export function BirthForm({
             {fieldErr["birth-place"]}
           </p>
         ) : null}
-        <AnchoredPopover
-          open={open && !picked && (looking || hits.length > 0 || Boolean(hint))}
-          anchorRef={inputRef}
-          onClose={closeList}
-          hideLabel={t("place")}
-          backdrop={false}
-          takeFocus={false}
-          // Under the field whenever three rows fit: the best match, first, right under what was typed.
-          minBelow={PLACE_LIST_MIN_BELOW}
-          onAbove={setListAbove}
-        >
-          <ul
-            id="birth-place-list"
-            role="listbox"
-            // As tall as the room the popover found (anchored-popover.tsx), scrolling inside it.
-            className="ulune-place-list max-h-[inherit] overflow-auto overscroll-contain rounded-md border border-border bg-bg-elevated py-1 shadow-lg"
-          >
-            {looking && hits.length === 0 && !listAbove ? (
-              <li className="px-3 py-2 text-sm text-fg-muted">{t("lookingUpPlace")}</li>
-            ) : null}
-            {!looking && hits.length === 0 && hint && listAbove ? (
-              <li className="px-3 py-2 text-sm text-danger">{hint}</li>
-            ) : null}
-            {(listAbove ? hits.map((hit, i) => ({ hit, i })).reverse() : hits.map((hit, i) => ({ hit, i }))).map(({ hit, i }) => (
-              <li
-                key={`${hit.label}-${hit.latitude}-${hit.longitude}`}
-                id={`birth-place-opt-${i}`}
-                role="option"
-                aria-selected={i === active}
+        {inlineList ? (
+          // On a touch screen the list is part of the page, right under the field: no floating
+          // panel to place, so nothing can put it over the field, whatever the browser measures
+          // with its keyboard up. Its best match is first, under what was typed (2.0.2).
+          listShown ? (
+              <ul
+                id="birth-place-list"
+                role="listbox"
+                ref={listRef}
+                // Floating: as tall as the room the popover found (anchored-popover.tsx). On a touch
+                // screen: in the page, under the field, as tall as the screen above the keyboard allows.
+                className={cn(
+                  "ulune-place-list overflow-auto overscroll-contain rounded-md border border-border bg-bg-elevated py-1 shadow-lg",
+                  inlineList ? "mt-1" : "max-h-[inherit]",
+                )}
               >
-                <button
-                  type="button"
-                  tabIndex={-1}
-                  className={cn(
-                    "flex min-h-[var(--row-h)] w-full flex-col items-start justify-center px-3 py-2 text-left text-sm text-fg hover:bg-bg-subtle",
-                    i === active && "bg-bg-subtle",
-                  )}
-                  onPointerEnter={(e) => {
-                    if (e.pointerType === "mouse") setActive(i);
-                  }}
-                  // The field keeps its focus (and the keyboard) while a mouse presses here.
-                  onMouseDown={(e) => e.preventDefault()}
-                  // A tap, not a touch: a finger starting to scroll the list picks nothing.
-                  onClick={() => pick(hit)}
+                {looking && hits.length === 0 && !listAbove ? (
+                  <li className="px-3 py-2 text-sm text-fg-muted">{t("lookingUpPlace")}</li>
+                ) : null}
+                {!looking && hits.length === 0 && hint && listAbove ? (
+                  <li className="px-3 py-2 text-sm text-danger">{hint}</li>
+                ) : null}
+                {(listAbove ? hits.map((hit, i) => ({ hit, i })).reverse() : hits.map((hit, i) => ({ hit, i }))).map(({ hit, i }) => (
+                  <li
+                    key={`${hit.label}-${hit.latitude}-${hit.longitude}`}
+                    id={`birth-place-opt-${i}`}
+                    role="option"
+                    aria-selected={i === active}
+                  >
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      className={cn(
+                        "flex min-h-[var(--row-h)] w-full flex-col items-start justify-center px-3 py-2 text-left text-sm text-fg hover:bg-bg-subtle",
+                        i === active && "bg-bg-subtle",
+                      )}
+                      onPointerEnter={(e) => {
+                        if (e.pointerType === "mouse") setActive(i);
+                      }}
+                      // The field keeps its focus (and the keyboard) while a mouse presses here.
+                      onMouseDown={(e) => e.preventDefault()}
+                      // A tap, not a touch: a finger starting to scroll the list picks nothing.
+                      onClick={() => pick(hit)}
+                    >
+                      <span className="min-w-0 max-w-full break-words">{hit.label}</span>
+                      {hit.detail ? <span className="text-xs text-fg-subtle">{hit.detail}</span> : null}
+                    </button>
+                  </li>
+                ))}
+                {!looking && hits.length === 0 && hint && !listAbove ? (
+                  <li className="px-3 py-2 text-sm text-danger">{hint}</li>
+                ) : null}
+                {looking && hits.length === 0 && listAbove ? (
+                  <li className="px-3 py-2 text-sm text-fg-muted">{t("lookingUpPlace")}</li>
+                ) : null}
+              </ul>
+          ) : null
+        ) : (
+          <AnchoredPopover
+            open={listShown}
+            anchorRef={inputRef}
+            onClose={closeList}
+            hideLabel={t("place")}
+            backdrop={false}
+            takeFocus={false}
+            // Under the field whenever three rows fit: the best match, first, right under what was typed.
+            minBelow={PLACE_LIST_MIN_BELOW}
+            onAbove={setListAbove}
+          >
+              <ul
+              id="birth-place-list"
+              role="listbox"
+              ref={listRef}
+              // Floating: as tall as the room the popover found (anchored-popover.tsx). On a touch
+              // screen: in the page, under the field, as tall as the screen above the keyboard allows.
+              className={cn(
+                "ulune-place-list overflow-auto overscroll-contain rounded-md border border-border bg-bg-elevated py-1 shadow-lg",
+                inlineList ? "mt-1" : "max-h-[inherit]",
+              )}
+            >
+              {looking && hits.length === 0 && !listAbove ? (
+                <li className="px-3 py-2 text-sm text-fg-muted">{t("lookingUpPlace")}</li>
+              ) : null}
+              {!looking && hits.length === 0 && hint && listAbove ? (
+                <li className="px-3 py-2 text-sm text-danger">{hint}</li>
+              ) : null}
+              {(listAbove ? hits.map((hit, i) => ({ hit, i })).reverse() : hits.map((hit, i) => ({ hit, i }))).map(({ hit, i }) => (
+                <li
+                  key={`${hit.label}-${hit.latitude}-${hit.longitude}`}
+                  id={`birth-place-opt-${i}`}
+                  role="option"
+                  aria-selected={i === active}
                 >
-                  <span className="min-w-0 max-w-full break-words">{hit.label}</span>
-                  {hit.detail ? <span className="text-xs text-fg-subtle">{hit.detail}</span> : null}
-                </button>
-              </li>
-            ))}
-            {!looking && hits.length === 0 && hint && !listAbove ? (
-              <li className="px-3 py-2 text-sm text-danger">{hint}</li>
-            ) : null}
-            {looking && hits.length === 0 && listAbove ? (
-              <li className="px-3 py-2 text-sm text-fg-muted">{t("lookingUpPlace")}</li>
-            ) : null}
-          </ul>
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    className={cn(
+                      "flex min-h-[var(--row-h)] w-full flex-col items-start justify-center px-3 py-2 text-left text-sm text-fg hover:bg-bg-subtle",
+                      i === active && "bg-bg-subtle",
+                    )}
+                    onPointerEnter={(e) => {
+                      if (e.pointerType === "mouse") setActive(i);
+                    }}
+                    // The field keeps its focus (and the keyboard) while a mouse presses here.
+                    onMouseDown={(e) => e.preventDefault()}
+                    // A tap, not a touch: a finger starting to scroll the list picks nothing.
+                    onClick={() => pick(hit)}
+                  >
+                    <span className="min-w-0 max-w-full break-words">{hit.label}</span>
+                    {hit.detail ? <span className="text-xs text-fg-subtle">{hit.detail}</span> : null}
+                  </button>
+                </li>
+              ))}
+              {!looking && hits.length === 0 && hint && !listAbove ? (
+                <li className="px-3 py-2 text-sm text-danger">{hint}</li>
+              ) : null}
+              {looking && hits.length === 0 && listAbove ? (
+                <li className="px-3 py-2 text-sm text-fg-muted">{t("lookingUpPlace")}</li>
+              ) : null}
+            </ul>
         </AnchoredPopover>
+        )}
       </div>
       <details
         className="ob-birth-options col-span-2"
