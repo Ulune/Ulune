@@ -8,13 +8,20 @@
  */
 import type { LegalText } from "@/lib/legal/pages";
 
-export const CHANGES_UPDATED = "2026-10-24";
+export const CHANGES_UPDATED = "2026-10-26";
 
 export const CHANGES: Record<"en" | "fr", LegalText> = {
   en: {
     title: "What’s new",
     updated: "Updated {date}",
     blocks: [
+      {
+        h: "Ulune 2.0.1",
+        p: "A fix for the place of birth on a phone:",
+        list: [
+          "Place of birth: with the keyboard up, the list of suggestions stays right under the field, and when there is no room under it, it stands over the field with the best match nearest what you typed, never running off the top of the screen.",
+        ],
+      },
       {
         h: "Ulune 2.0",
         p: "A new layout, three Chinese languages, new lenses for Human Design and numerology, an encyclopedia, and ways to share, compare and sort your charts:",
@@ -141,6 +148,13 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
     title: "Nouveautés",
     updated: "Mis à jour le {date}",
     blocks: [
+      {
+        h: "Ulune 2.0.1",
+        p: "Une correction pour le lieu de naissance sur téléphone\u202f:",
+        list: [
+          "Lieu de naissance\u202f: avec le clavier ouvert, la liste de suggestions reste juste sous le champ, et quand la place manque dessous, elle se met au-dessus avec le meilleur résultat au plus près de ce que vous avez tapé, sans jamais déborder en haut de l’écran.",
+        ],
+      },
       {
         h: "Ulune 2.0",
         p: "Une nouvelle organisation, trois langages chinois, de nouveaux prismes pour le Human Design et la numérologie, une encyclopédie, et de quoi partager, comparer et ranger vos thèmes\u202f:",

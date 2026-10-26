@@ -28,6 +28,7 @@ export function AnchoredPopover({
   backdrop = true,
   takeFocus = true,
   minBelow,
+  onAbove,
 }: {
   open: boolean;
   anchorRef: RefObject<HTMLElement | null>;
@@ -49,6 +50,8 @@ export function AnchoredPopover({
   takeFocus?: boolean;
   /** It stays under its trigger whenever this much room is there (lib/popover-place.ts). */
   minBelow?: number;
+  /** Told whenever the panel turns over its trigger (true) or back under it (false): a list can then put its best row nearest the trigger. */
+  onAbove?: (above: boolean) => void;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [place, setPlace] = useState<PopoverPlacement | null>(null);
@@ -58,6 +61,13 @@ export function AnchoredPopover({
   useLayoutEffect(() => {
     if (!shown) setPlace(null);
   }, [shown]);
+
+  const above = place?.above ?? false;
+  const onAboveRef = useRef(onAbove);
+  onAboveRef.current = onAbove;
+  useLayoutEffect(() => {
+    onAboveRef.current?.(above);
+  }, [above]);
 
   useLayoutEffect(() => {
     if (!open) return;

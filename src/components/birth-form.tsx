@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { searchPlaces } from "@/lib/chart/functions";
 import { isAbortError } from "@/lib/chart/abort";
 import {
@@ -286,6 +286,8 @@ export function BirthForm({
   const [status, setStatus] = useState<string | null>(null);
   const [looking, setLooking] = useState(false);
   const [active, setActive] = useState(0);
+  // The list stands over the field (anchored-popover.tsx): then its best match is the row nearest the field.
+  const [listAbove, setListAbove] = useState(false);
   const [noTime, setNoTime] = useState(() => Boolean(value.timeUnknown) || (!value.time.trim() && Boolean(value.placeLabel)));
   const [picked, setPicked] = useState(
     () => Number.isFinite(value.latitude) && Number.isFinite(value.longitude),
@@ -482,11 +484,11 @@ export function BirthForm({
     else if (o.bottom > l.bottom) list.scrollTop += o.bottom - l.bottom;
   }, [active, open]);
 
-  // New suggestions are read from their top.
-  useEffect(() => {
+  // New suggestions are read from the end nearest the field: their top under it, their bottom over it.
+  useLayoutEffect(() => {
     const list = document.getElementById("birth-place-list");
-    if (list) list.scrollTop = 0;
-  }, [hits]);
+    if (list) list.scrollTop = listAbove ? list.scrollHeight : 0;
+  }, [hits, listAbove]);
 
   // On a phone, once the suggestions open, the field rises to the top of the visible screen
   // (its label still in view), so the list has the room under it, above the keyboard. Again
@@ -920,7 +922,9 @@ export function BirthForm({
             if ((e.key === "ArrowDown" || e.key === "ArrowUp") && hits.length && !picked) {
               e.preventDefault();
               setOpen(true);
-              setActive((i) => (e.key === "ArrowDown" ? (i + 1) % hits.length : (i - 1 + hits.length) % hits.length));
+              // Over the field the best match is lowest: the arrows follow what is seen.
+              const forward = listAbove ? e.key === "ArrowUp" : e.key === "ArrowDown";
+              setActive((i) => (forward ? (i + 1) % hits.length : (i - 1 + hits.length) % hits.length));
               return;
             }
             if (e.key === "Enter" && open && hits[active] && !picked) {
@@ -944,6 +948,7 @@ export function BirthForm({
           takeFocus={false}
           // Under the field whenever three rows fit: the best match, first, right under what was typed.
           minBelow={PLACE_LIST_MIN_BELOW}
+          onAbove={setListAbove}
         >
           <ul
             id="birth-place-list"
@@ -951,10 +956,13 @@ export function BirthForm({
             // As tall as the room the popover found (anchored-popover.tsx), scrolling inside it.
             className="ulune-place-list max-h-[inherit] overflow-auto overscroll-contain rounded-md border border-border bg-bg-elevated py-1 shadow-lg"
           >
-            {looking && hits.length === 0 ? (
+            {looking && hits.length === 0 && !listAbove ? (
               <li className="px-3 py-2 text-sm text-fg-muted">{t("lookingUpPlace")}</li>
             ) : null}
-            {hits.map((hit, i) => (
+            {!looking && hits.length === 0 && hint && listAbove ? (
+              <li className="px-3 py-2 text-sm text-danger">{hint}</li>
+            ) : null}
+            {(listAbove ? hits.map((hit, i) => ({ hit, i })).reverse() : hits.map((hit, i) => ({ hit, i }))).map(({ hit, i }) => (
               <li
                 key={`${hit.label}-${hit.latitude}-${hit.longitude}`}
                 id={`birth-place-opt-${i}`}
@@ -981,8 +989,11 @@ export function BirthForm({
                 </button>
               </li>
             ))}
-            {!looking && hits.length === 0 && hint ? (
+            {!looking && hits.length === 0 && hint && !listAbove ? (
               <li className="px-3 py-2 text-sm text-danger">{hint}</li>
+            ) : null}
+            {looking && hits.length === 0 && listAbove ? (
+              <li className="px-3 py-2 text-sm text-fg-muted">{t("lookingUpPlace")}</li>
             ) : null}
           </ul>
         </AnchoredPopover>
