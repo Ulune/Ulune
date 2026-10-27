@@ -350,7 +350,7 @@ They do not learn any chart, name, birth date, time, place, note, group, device 
 
 ## 15. Running it
 
-**Production needs, in this order** (none of it is done yet):
+**Production needs, in this order** (done for ulune.app on 27 October 2026; sync went live with Ulune 2.0.3):
 
 1. **The database:** in Vercel's Marketplace, a Neon Postgres database in **Frankfurt (AWS eu-central-1)**, connected to the Ulune project with the environment variable prefix `ACCOUNT_` (so it sets `ACCOUNT_DATABASE_URL`). The prototype's old database stays apart (and is still to delete).
 2. **The tables:** run `db/migrations/0001_accounts.sql` once, either pasted into Neon's SQL editor or with `ACCOUNT_DATABASE_URL=… npm run account:migrate` from a computer with the repository.

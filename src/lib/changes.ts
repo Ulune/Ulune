@@ -3,18 +3,25 @@
  * French, rendered like the legal pages (components/legal-page.tsx). When a
  * version ships, add it at the top, set APP_VERSION (lib/app-identity.ts) and
  * package.json's version, and change the date. It tells only what readers can
- * use: the synced account's lines wait in changes-sync-draft.ts until its
- * server is live (PRODUCTION.md); scripts/changes.test.mjs checks both files.
+ * use (the synced account's lines came in with 2.0.3, when its server went
+ * live); scripts/changes.test.mjs checks it.
  */
 import type { LegalText } from "@/lib/legal/pages";
 
-export const CHANGES_UPDATED = "2026-10-26";
+export const CHANGES_UPDATED = "2026-10-27";
 
 export const CHANGES: Record<"en" | "fr", LegalText> = {
   en: {
     title: "What’s new",
     updated: "Updated {date}",
     blocks: [
+      {
+        h: "Ulune 2.0.3",
+        p: "Your private space on all your devices:",
+        list: [
+          "Sync your private space with your other devices, if you choose it when you make the space or later in Settings › Private space: Ulune’s server keeps only sealed boxes it can’t open, in Frankfurt; a new device signs in with a passkey, a QR code checked by the same six digits on both screens, your account id and passphrase, or your recovery code. No email: an account unused for two years is deleted, and stopping sync deletes the server’s copy at once.",
+        ],
+      },
       {
         h: "Ulune 2.0.2",
         p: "The place of birth on a phone, fixed for good:",
@@ -155,6 +162,13 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
     title: "Nouveautés",
     updated: "Mis à jour le {date}",
     blocks: [
+      {
+        h: "Ulune 2.0.3",
+        p: "Votre espace privé sur tous vos appareils\u202f:",
+        list: [
+          "Synchronisez votre espace privé avec vos autres appareils, si vous le choisissez en créant l’espace ou plus tard dans Réglages › Espace privé\u202f: le serveur d’Ulune ne garde que des boîtes scellées qu’il ne peut pas ouvrir, à Francfort\u202f; un nouvel appareil se connecte avec une clé d’accès, un code QR vérifié par les mêmes six chiffres sur les deux écrans, l’identifiant de votre compte et votre phrase secrète, ou votre code de récupération. Pas d’e-mail\u202f: un compte inutilisé pendant deux ans est supprimé, et arrêter la synchronisation efface immédiatement la copie du serveur.",
+        ],
+      },
       {
         h: "Ulune 2.0.2",
         p: "Le lieu de naissance sur téléphone, corrigé pour de bon\u202f:",

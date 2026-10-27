@@ -14,7 +14,7 @@ import type { NoticeBlock } from "./privacy-notice";
 export type LegalPageId = "legal" | "terms" | "credits" | "accessibility";
 export type LegalText = { title: string; updated: string; blocks: NoticeBlock[] };
 
-export const LEGAL_UPDATED = "2026-10-24";
+export const LEGAL_UPDATED = "2026-10-27";
 
 export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = {
   legal: {
@@ -36,7 +36,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Your data",
-          p: "Ulune keeps nothing about you on its server. Syncing your private space with your other devices isn’t available yet; when it is, and if you choose it, the server will keep only sealed boxes it can’t open, in Frankfurt (EU). What stays on your device, and what leaves it, is set out in the [privacy notice](/privacy).",
+          p: "Ulune keeps nothing readable about you on its server. If you choose to sync your private space with your other devices, the server keeps only sealed boxes it can’t open, in Frankfurt (EU). What stays on your device, and what leaves it, is set out in the [privacy notice](/privacy).",
         },
         {
           h: "Content",
@@ -62,7 +62,7 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Vos données",
-          p: "Ulune ne conserve aucune donnée vous concernant sur son serveur. La synchronisation de votre espace privé avec vos autres appareils n’est pas encore disponible\u202f; quand elle le sera, et si vous la choisissez, le serveur ne gardera que des boîtes scellées qu’il ne peut pas ouvrir, à Francfort (UE). Ce qui reste sur votre appareil, et ce qui le quitte, est décrit dans la [politique de confidentialité](/privacy).",
+          p: "Ulune ne conserve aucune donnée lisible vous concernant sur son serveur. Si vous choisissez de synchroniser votre espace privé avec vos autres appareils, le serveur ne garde que des boîtes scellées qu’il ne peut pas ouvrir, à Francfort (UE). Ce qui reste sur votre appareil, et ce qui le quitte, est décrit dans la [politique de confidentialité](/privacy).",
         },
         {
           h: "Contenus",
@@ -80,12 +80,12 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         { p: "These terms apply to anyone using Ulune (ulune.app). By using it, you accept them." },
         {
           h: "What Ulune is",
-          p: "A free tool for drawing and exploring astrology charts, Human Design and numerology, and three Chinese traditions: Chinese astrology, BaZi and Feng Shui. It needs no account: what you choose to keep stays on your device, encrypted (see the [privacy notice](/privacy)). Sync with your other devices isn’t available yet; when it is, and if you turn it on, your space will also be kept on Ulune’s server as sealed boxes only your devices can open.",
+          p: "A free tool for drawing and exploring astrology charts, Human Design and numerology, and three Chinese traditions: Chinese astrology, BaZi and Feng Shui. It needs no account: what you choose to keep stays on your device, encrypted (see the [privacy notice](/privacy)). If you turn on sync with your other devices, your space is also kept on Ulune’s server as sealed boxes only your devices can open.",
         },
         {
           h: "Synced accounts",
           list: [
-            "Sync isn’t available yet. When it is, it will be optional and off until you turn it on. An account is a random number: no email, no name.",
+            "Sync is optional and off until you turn it on. An account is a random number: no email, no name.",
             "An account unused for two years is deleted, with everything in it. Without an email, Ulune can’t warn you first.",
             "You can stop syncing or delete your account at any time in Settings › Private space: the server’s copy is deleted at once.",
             "Keep your passphrase and your recovery code. If you lose every device and both of them, nobody can open your data, Ulune included.",
@@ -124,12 +124,12 @@ export const LEGAL_PAGES: Record<LegalPageId, Record<"en" | "fr", LegalText>> = 
         },
         {
           h: "Ce qu’est Ulune",
-          p: "Un outil gratuit pour tracer et explorer des thèmes astrologiques, le Human Design et la numérologie, ainsi que trois traditions chinoises\u202f: l’astrologie chinoise, le BaZi et le Feng Shui. Il ne demande aucun compte\u202f: ce que vous choisissez de garder reste sur votre appareil, chiffré (voir la [politique de confidentialité](/privacy)). La synchronisation avec vos autres appareils n’est pas encore disponible\u202f; quand elle le sera, et si vous l’activez, votre espace sera aussi gardé sur le serveur d’Ulune en boîtes scellées que seuls vos appareils peuvent ouvrir.",
+          p: "Un outil gratuit pour tracer et explorer des thèmes astrologiques, le Human Design et la numérologie, ainsi que trois traditions chinoises\u202f: l’astrologie chinoise, le BaZi et le Feng Shui. Il ne demande aucun compte\u202f: ce que vous choisissez de garder reste sur votre appareil, chiffré (voir la [politique de confidentialité](/privacy)). Si vous activez la synchronisation avec vos autres appareils, votre espace est aussi gardé sur le serveur d’Ulune en boîtes scellées que seuls vos appareils peuvent ouvrir.",
         },
         {
           h: "Comptes synchronisés",
           list: [
-            "La synchronisation n’est pas encore disponible. Quand elle le sera, elle sera facultative et désactivée tant que vous ne l’activez pas. Un compte est un nombre tiré au hasard\u202f: ni e-mail, ni nom.",
+            "La synchronisation est facultative et désactivée tant que vous ne l’activez pas. Un compte est un nombre tiré au hasard\u202f: ni e-mail, ni nom.",
             "Un compte inutilisé pendant deux ans est supprimé, avec tout ce qu’il contient. Sans e-mail, Ulune ne peut pas vous prévenir avant.",
             "Vous pouvez à tout moment arrêter la synchronisation ou supprimer votre compte dans Réglages › Espace privé\u202f: la copie du serveur est effacée immédiatement.",
             "Gardez votre phrase secrète et votre code de récupération. Si vous perdez tous vos appareils et les deux, personne ne peut ouvrir vos données, Ulune compris.",

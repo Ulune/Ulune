@@ -35,8 +35,8 @@ export const guideWords = {
     "Oui\u202f: chaque thème, chaque langage et chaque lecture, sans abonnement ni publicité, et sans compte nécessaire.",
   ],
   faqKeptA: [
-    "While you look, in the open tab only. In a private space: on this device, sealed. Download a backup now and then.",
-    "Tant que vous regardez, dans l’onglet ouvert seulement. Dans un espace privé\u202f: sur cet appareil, scellés. Téléchargez de temps en temps une sauvegarde.",
+    "While you look, in the open tab only. In a private space: on this device, sealed, and on your other devices if you sync it, as boxes Ulune can’t open. Download a backup now and then.",
+    "Tant que vous regardez, dans l’onglet ouvert seulement. Dans un espace privé\u202f: sur cet appareil, scellés, et sur vos autres appareils si vous le synchronisez, en boîtes qu’Ulune ne peut pas ouvrir. Téléchargez de temps en temps une sauvegarde.",
   ],
   faqTrustA: [
     "They come from the Swiss Ephemeris, which follows NASA JPL’s DE441 to a fraction of an arc-second, and Ulune’s tests compare them with reference charts. If one looks wrong, use “Report a problem”.",
