@@ -8,13 +8,20 @@
  */
 import type { LegalText } from "@/lib/legal/pages";
 
-export const CHANGES_UPDATED = "2026-10-27";
+export const CHANGES_UPDATED = "2026-11-01";
 
 export const CHANGES: Record<"en" | "fr", LegalText> = {
   en: {
     title: "What’s new",
     updated: "Updated {date}",
     blocks: [
+      {
+        h: "Ulune 2.0.4",
+        p: "Security updates:",
+        list: [
+          "The building blocks Ulune is made with are updated to their latest safe versions (security fixes in the tools that build the site, check the data it receives and pass it between the server and your device). Nothing changes in how you use Ulune, and nothing about you is involved.",
+        ],
+      },
       {
         h: "Ulune 2.0.3",
         p: "Your private space on all your devices:",
@@ -162,6 +169,13 @@ export const CHANGES: Record<"en" | "fr", LegalText> = {
     title: "Nouveautés",
     updated: "Mis à jour le {date}",
     blocks: [
+      {
+        h: "Ulune 2.0.4",
+        p: "Des mises à jour de sécurité\u202f:",
+        list: [
+          "Les briques avec lesquelles Ulune est fait passent à leurs dernières versions sûres (des correctifs de sécurité dans les outils qui construisent le site, vérifient les données qu’il reçoit et les font passer entre le serveur et votre appareil). Rien ne change dans votre façon d’utiliser Ulune, et rien de ce qui vous concerne n’est en jeu.",
+        ],
+      },
       {
         h: "Ulune 2.0.3",
         p: "Votre espace privé sur tous vos appareils\u202f:",
