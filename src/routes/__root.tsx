@@ -13,6 +13,7 @@ import { contentSecurityPolicy, isVercelPreview } from "@/lib/csp";
 import { installErrorReports } from "@/lib/error-report";
 import { installStaleChunkRecovery } from "@/lib/stale-chunks";
 import { Fragment, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import appCss from "../styles.css?url";
 import shellCss from "../shell.css?url";
 import uiFont from "../assets/fonts/FamiljenGrotesk-latin-wght.woff2?url";
@@ -86,6 +87,7 @@ function RootDocument() {
           </LookProvider>
         </ThemeProvider>
         <Scripts />
+        <Analytics />
       </body>
     </html>
   );
